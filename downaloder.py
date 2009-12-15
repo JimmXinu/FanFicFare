@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)
-	
+
 	if format == 'epub':
 		writerClass = output.EPubFanficWriter
 	
