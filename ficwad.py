@@ -59,7 +59,6 @@ class FicWad:
 		return self.authorName
 	
 	def getText(self, url):
-		print(type(url))
 		if url.find('http://') == -1:
 			url = 'http://' + self.host + '/' + url
 		

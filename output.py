@@ -1,11 +1,15 @@
+# -*- coding: utf-8 -*-
+
 import os
 import re
 import sys
 import cgi
 import uuid
+import codecs
 import shutil
 import base64
 import os.path
+import zipfile
 import urllib as u
 import pprint as pp
 import urllib2 as u2
@@ -14,6 +18,9 @@ import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
 from constants import *
+
+import zipdir
+
 
 class FanficWriter:
 	def __init__(self):
@@ -54,9 +61,9 @@ class EPubFanficWriter(FanficWriter):
 		os.mkdir(self.directory + '/META-INF')
 		os.mkdir(self.directory + '/OEBPS')
 		
-		print >> open(self.directory + '/mimetype', 'w'), MIMETYPE
-		print >> open(self.directory + '/META-INF/container.xml', 'w'), CONTAINER
-		print >> open(self.directory + '/OEBPS/stylesheet.css', 'w'), CSS
+		print >> codecs.open(self.directory + '/mimetype', 'w', 'utf-8'), MIMETYPE
+		print >> codecs.open(self.directory + '/META-INF/container.xml', 'w', 'utf-8'), CONTAINER
+		print >> codecs.open(self.directory + '/OEBPS/stylesheet.css', 'w', 'utf-8'), CSS
 
 	def _removeEntities(self, text):
 		for e in entities:
@@ -68,6 +75,7 @@ class EPubFanficWriter(FanficWriter):
 	def writeChapter(self, title, text):
 		fileName = base64.b64encode(title) + ".xhtml"
 		filePath = self.directory + "/OEBPS/" + fileName
+		
 		f = open(filePath, 'w')
 		
 		text = self._removeEntities(text)
@@ -93,20 +101,23 @@ class EPubFanficWriter(FanficWriter):
 #		cleanup(self.soup )
 		
 		text = self.soup.prettify()
+		print(text)
 		
 		print >> f, XHTML_START % (title, title)
-		print >> f, text
+		f.write(text)
 		print >> f, XHTML_END
 		
 		self.chapters.append((title, fileName))
 	
 	def finalise(self):
-		
+		print("Finalising...")
 		### writing table of contents -- ncx file
 		
 		tocFilePath = self.directory + "/OEBPS/toc.ncx"
 		toc = open(tocFilePath, 'w')
 		print >> toc, TOC_START % self.storyTitle
+
+		print("Printing toc and refs")
 
 		### writing content -- opf file
 		opfFilePath = self.directory + "/OEBPS/content.opf"
@@ -126,6 +137,8 @@ class EPubFanficWriter(FanficWriter):
 			ids.append(chapterId)
 			
 			i = i + 1
+			
+		print('Toc and refs printed, proceesing to ref-ids....')
 		
 		print >> toc, TOC_END
 		print >> opf, CONTENT_END_MANIFEST		
@@ -134,3 +147,8 @@ class EPubFanficWriter(FanficWriter):
 			print >> opf, CONTENT_ITEMREF % chapterId
 		
 		print >> opf, CONTENT_END
+		
+		print('Finished')
+		
+		filename = self.directory + '.epub'
+		zipdir.toZip(filename, self.directory)

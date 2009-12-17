@@ -28,7 +28,10 @@ class FanficLoader:
 		urls = self.adapter.extractIndividualUrls()
 		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName())
 		
+		i = 0
 		for u,n in urls:
+			print('Downloading chapter %d/%d' % (i, len(urls)))
+			i = i+1
 			text = self.adapter.getText(u)
 			self.writer.writeChapter(n, text)
 		
