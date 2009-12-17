@@ -32,7 +32,13 @@ class FFNet:
 		self.host = parsedUrl.netloc
 		self.path = parsedUrl.path
 		
-		(empty, s, self.storyId, chapter) = self.path.split('/')
+		if self.path.startswith('/'):
+			self.path = self.path[1:]
+		
+		if self.path.endswith('/'):
+			self.path = self.path[:-1]
+		
+		(s, self.storyId, chapter) = self.path.split('/')
 		
 		logging.debug('self.storyId=%s, chapter=%s' % (self.storyId, chapter))
 		
