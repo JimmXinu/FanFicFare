@@ -21,7 +21,6 @@ from constants import *
 
 import zipdir
 
-
 class FanficWriter:
 	def __init__(self):
 		pass
