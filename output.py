@@ -148,6 +148,6 @@ class EPubFanficWriter(FanficWriter):
 		print >> opf, CONTENT_END
 		
 		print('Finished')
-		
+
 		filename = self.directory + '.epub'
 		zipdir.toZip(filename, self.directory)
