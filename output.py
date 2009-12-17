@@ -69,6 +69,8 @@ class EPubFanficWriter(FanficWriter):
 			v = entities[e]
 			text = text.replace(e, v)
 		
+		text = text.replace('&', '&amp;')
+		
 		return text
 	
 	def writeChapter(self, title, text):
@@ -100,9 +102,10 @@ class EPubFanficWriter(FanficWriter):
 #		cleanup(self.soup )
 		
 		text = self.soup.prettify()
-		print(text)
 		
-		print >> f, XHTML_START % (title, title)
+		tt = self._removeEntities(title)
+		
+		print >> f, XHTML_START % (tt, tt)
 		f.write(text)
 		print >> f, XHTML_END
 		
@@ -146,6 +149,9 @@ class EPubFanficWriter(FanficWriter):
 			print >> opf, CONTENT_ITEMREF % chapterId
 		
 		print >> opf, CONTENT_END
+		
+		opf.close()
+		toc.close()
 		
 		print('Finished')
 

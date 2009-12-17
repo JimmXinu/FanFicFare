@@ -21,7 +21,7 @@ def toZip(filename, directory):
 	zippedHelp.close()
 
 def addFolderToZip(zippedHelp,folder,fpath):
-	print('addFolderToZip(%s)' % folder)
+	#print('addFolderToZip(%s)' % folder)
 	
 	if folder == '.' or folder == '..':
 		return
@@ -29,11 +29,11 @@ def addFolderToZip(zippedHelp,folder,fpath):
 	folderFiles = os.listdir(fpath)
 	for f in folderFiles:
 		if os.path.isfile(fpath + '/' + f):
-			print('basename=%s' % os.path.basename(fpath + '/' + f))
+			#print('basename=%s' % os.path.basename(fpath + '/' + f))
 			zippedHelp.write(fpath + '/' + f, folder + '/' + f, zipfile.ZIP_DEFLATED)
 		elif os.path.isdir(f):
 			addFolderToZip(zippedHelp,f)
 
 if __name__ == '__main__':
-	toZip('sample.epub', "books/Harry's_Second_Chance:_Back_From_the_Future")
+	toZip('sample.epub', "books/A_Time_To_Reflect")
 	z = zipfile.ZipFile('sample.epub', 'r')

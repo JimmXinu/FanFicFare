@@ -41,7 +41,7 @@ CONTENT_START = '''<?xml version="1.0"?>
    <dc:identifier id="BookId">urn:uuid:sigizmund.com062820072147132</dc:identifier>
  </metadata>
  <manifest>
-  <item id="ncx" href="toc.ncx" media-type="text/xml" />
+  <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
   <item id="style" href="stylesheet.css" media-type="text/css" />
 '''
 
