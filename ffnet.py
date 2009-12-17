@@ -33,6 +33,10 @@ class FFNet(FanfictionSiteAdapter):
 		self.host = parsedUrl.netloc
 		self.path = parsedUrl.path
 		
+		spl = self.path.split('/')
+		if len(spl) == 5:
+			self.path = "/".join(spl[1:-1])
+		
 		if self.path.startswith('/'):
 			self.path = self.path[1:]
 		
@@ -72,7 +76,7 @@ class FFNet(FanfictionSiteAdapter):
 				if len(urls) > 0:
 					continue
 				u = l.decode('utf-8')
-				u = u.replace("&#187;", "-")
+				u = re.sub('&\#[0-9]+;', ' ', u)
 				s2 = bs.BeautifulSoup(u)
 				options = s2.findAll('option')
 				for o in options:
@@ -128,8 +132,13 @@ class FFA_UnitTests(unittest.TestCase):
 		text = f.getText(url)
 		self.assertTrue(text.find('He was just about to look at some photos when he heard a crack') != -1)
 	
-	def getPrintableUrl(self, url):
-		return url
+	def testBrokenWands(self):
+		url = 'http://www.fanfiction.net/s/1527263/30/Harry_Potter_and_Broken_Wands'
+		f = FFNet(url)
+		text = f.getText(url)
+		
+		urls = f.extractIndividualUrls()
+		
 	
 if __name__ == '__main__':
 	unittest.main()
