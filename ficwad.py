@@ -10,7 +10,9 @@ import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
-class FicWad:
+from adapter import *
+
+class FicWad(FanfictionSiteAdapter):
 	def __init__(self, url):
 		self.url = url
 		self.host = up.urlparse(url).netloc
@@ -90,7 +92,7 @@ if __name__ == '__main__':
 	url = 'http://www.ficwad.com/story/14536'
 	data = u2.urlopen(url).read()
 	host = up.urlparse(url).netloc
-	fw = FicWad()
-	urls = fw.extractIndividualUrls(data, host, url)
+	fw = FicWad(url)
+	urls = fw.extractIndividualUrls()
 	pp.pprint(urls)
 	print(fw.getText(data))

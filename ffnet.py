@@ -18,6 +18,7 @@ import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
 from constants import *
+from adapter import *
 
 try:
 	import login_password
@@ -25,7 +26,7 @@ except:
 	# tough luck
 	pass
 
-class FFNet:
+class FFNet(FanfictionSiteAdapter):
 	def __init__(self, url):
 		self.url = url
 		parsedUrl = up.urlparse(url)
