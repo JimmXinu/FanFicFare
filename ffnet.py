@@ -13,12 +13,17 @@ import unittest
 import urllib as u
 import pprint as pp
 import urllib2 as u2
-import login_password
 import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
 from constants import *
+
+try:
+	import login_password
+except:
+	# tough luck
+	pass
 
 class FFNet:
 	def __init__(self, url):
