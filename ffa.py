@@ -93,6 +93,7 @@ class FFA:
 		if url.find('http://') == -1:
 			url = 'http://' + self.host + '/' + url
 		
+		logging.info('Downloading: %s' % url)
 		data = self.opener.open(url).read()
 		
 		lines = data.split('\n')
