@@ -7,6 +7,7 @@ import cgi
 import uuid
 import codecs
 import shutil
+import string
 import base64
 import os.path
 import zipfile
@@ -17,9 +18,11 @@ import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
+import zipdir
+import html_constants
 from constants import *
 
-import zipdir
+
 
 class FanficWriter:
 	def __init__(self):
@@ -32,14 +35,36 @@ class FanficWriter:
 		pass
 
 class HTMLWriter(FanficWriter):
+	body = ''
+	
 	def __init__(self, base, name, author):
-		pass
-
+		self.basePath = base
+		self.name = name.replace(" ", "_")
+		self.storyTitle = name
+		self.fileName = self.basePath + '/' + self.name + '.html'
+		self.authorName = author
+		
+		if os.path.exists(self.fileName):
+			os.remove(self.fileName)
+		
+		
+		self.xhtmlTemplate = string.Template(html_constants.XHTML_START)
+		self.chapterStartTemplate = string.Template(html_constants.XHTML_CHAPTER_START)
+		
 	def writeChapter(self, title, text):
-		pass
+		title = title.decode('utf-8')
+		text = text.decode('utf-8')
+		self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
+		self.body = self.body + '\n' + text
 	
 	def finalise(self):
-		pass
+		html = self.xhtmlTemplate.substitute({'title' : self.storyTitle, 'author' : self.authorName, 'body' : self.body})
+		soup = bs.BeautifulSoup(html)
+		result = soup.prettify()
+		
+		f = open(self.fileName, 'w')
+		f.write(result)
+		f.close()
 
 class EPubFanficWriter(FanficWriter):
 	chapters = []
@@ -74,7 +99,7 @@ class EPubFanficWriter(FanficWriter):
 		return text
 	
 	def writeChapter(self, title, text):
-		fileName = base64.b64encode(title) + ".xhtml"
+		fileName = base64.b64encode(title).replace('/', '_') + ".xhtml"
 		filePath = self.directory + "/OEBPS/" + fileName
 		
 		f = open(filePath, 'w')

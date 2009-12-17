@@ -53,6 +53,8 @@ if __name__ == '__main__':
 		adapter = ffa.FFA(url)
 	elif url.find('fictionalley') != -1:
 		adapter = fictionalley.FictionAlley(url)
+		print >> sys.stderr, "FictionAlley adapter is broken, try to find this fic on fanfiction.net or fanficauthors"
+		sys.exit(0)
 	elif url.find('ficwad') != -1:
 		adapter = ficwad.FicWad(url)
 	elif url.find('fanfiction.net') != -1:
@@ -63,6 +65,8 @@ if __name__ == '__main__':
 
 	if format == 'epub':
 		writerClass = output.EPubFanficWriter
+	elif format == 'html':
+		writerClass = output.HTMLWriter
 	
 	if adapter.requiresLogin(url):
 		print("Meow, URL %s requires you to haz been logged in! Please can I haz this datas?" % url)
