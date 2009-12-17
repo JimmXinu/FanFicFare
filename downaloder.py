@@ -12,6 +12,7 @@ import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
 import ffa
+import ffnet
 import ficwad
 import output
 import fictionalley
@@ -54,6 +55,8 @@ if __name__ == '__main__':
 		adapter = fictionalley.FictionAlley(url)
 	elif url.find('ficwad') != -1:
 		adapter = ficwad.FicWad(url)
+	elif url.find('fanfiction.net') != -1:
+		adapter = ffnet.FFNet(url)
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)
