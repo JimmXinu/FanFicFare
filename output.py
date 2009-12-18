@@ -164,7 +164,7 @@ class EPubFanficWriter(FanficWriter):
 			if p.string != None and (len(p.string.strip()) == 0 or p.string.strip() == '&nbsp;' ) :
 				p.extract()
 				
-		allBrs = self.soup.findAll(recursive=True, name = ["br", "hr"])
+		allBrs = self.soup.findAll(recursive=True, name = ["br", "hr", 'div'])
 		for br in allBrs:
 			if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
 				br.name = 'p'

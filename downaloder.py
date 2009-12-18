@@ -17,6 +17,7 @@ import ffnet
 import ficwad
 import output
 import fictionalley
+import hpfiction
 
 class FanficLoader:
 	'''A controller class which handles the interaction between various specific downloaders and writers'''
@@ -66,8 +67,10 @@ if __name__ == '__main__':
 		sys.exit(0)
 	elif url.find('ficwad') != -1:
 		adapter = ficwad.FicWad(url)
-	elif url.find('fanfiction.net') != -1:
+	elif url.find('fanfiction.net') != -1 or url.find('fictionpress.com') != -1:
 		adapter = ffnet.FFNet(url)
+	elif url.find('harrypotterfanfiction.com') != -1:
+		adapter = hpfiction.HPFiction(url)
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)

@@ -102,7 +102,7 @@ XHTML_END = '''</div>
 
 acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
       'blockquote', 'br', 'center', 'cite', 'code', 'col',
-      'colgroup', 'dd', 'del', 'dfn', 'dir', 'div', 'dl', 'dt', 'em',
+      'colgroup', 'dd', 'del', 'dfn', 'dir', 'dl', 'dt', 'em',
       'font', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 
       'ins', 'kbd', 'label', 'li', 'ol', 
       'p', 'pre', 'q', 's', 'samp', 'small', 'span', 'strike',
@@ -110,7 +110,7 @@ acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
 
 acceptable_attributes = ['href']
 
-entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', '&lsquo;' : '\'', '&quot;' : '"' }
+entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', '&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...' }
 
 FB2_PROLOGUE = '<FictionBook>'
 FB2_DESCRIPTION = '''<description>

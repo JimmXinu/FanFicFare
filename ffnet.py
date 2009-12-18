@@ -77,11 +77,17 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def extractIndividualUrls(self):
 		data = self._fetchUrl(self.url)
+		d2 = re.sub('&\#[0-9]+;', ' ', data)
+		soup = bs.BeautifulStoneSoup(d2)
+		allA = soup.findAll('a')
+		for a in allA:
+			if 'href' in a._getAttrMap() and a['href'].find('/u/') != -1:
+				self.authorName = a.string
 
 		urls = []
 		lines = data.split('\n')
 		for l in lines:
-			if l.find("<img src='http://c.fanfiction.net/static/ficons/script.png' width=16 height=16  border=0  align=absmiddle>") != -1:
+			if l.find("&#187;") != -1 and l.find('<b>') != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyName = s2.find('b').string
 			elif l.find("<a href='/u/") != -1:
@@ -95,7 +101,7 @@ class FFNet(FanfictionSiteAdapter):
 				s2 = bs.BeautifulSoup(u)
 				options = s2.findAll('option')
 				for o in options:
-					url = 'http://fanfiction.net/s/' + self.storyId + '/' + o['value']
+					url = 'http://' + self.host + '/s/' + self.storyId + '/' + o['value']
 					title = o.string
 					logging.debug('URL = `%s`, Title = `%s`' % (url, title))
 					urls.append((url,title))
@@ -153,7 +159,16 @@ class FFA_UnitTests(unittest.TestCase):
 		text = f.getText(url)
 		
 		urls = f.extractIndividualUrls()
-		
 	
+	def testFictionPress(self):
+		url = 'http://www.fictionpress.com/s/2725180/1/Behind_This_Facade'
+		f = FFNet(url)
+		urls = f.extractIndividualUrls()
+		
+		self.assertEquals('Behind This Facade', f.getStoryName())
+		self.assertEquals('IntoxicatingMelody', f.getAuthorName())
+	
+		text = f.getText(url)
+		self.assertTrue(text.find('Kale Resgerald at your service" He answered, "So, can we go now? Or do you want to') != -1)
 if __name__ == '__main__':
 	unittest.main()
