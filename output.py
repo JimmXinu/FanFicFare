@@ -12,6 +12,7 @@ import base64
 import os.path
 import zipfile
 import StringIO
+import logging
 import urllib as u
 import pprint as pp
 import urllib2 as u2
@@ -80,25 +81,56 @@ class HTMLWriter(FanficWriter):
 class EPubFanficWriter(FanficWriter):
 	chapters = []
 	
+	files = {}
+	
+	def _writeFile(self, fileName, data):
+		if fileName in self.files:
+			self.files[fileName].write(data.decode('utf-8'))
+		else:
+			if self.inmemory:
+				self.files[fileName] = StringIO.StringIO()
+			else:
+				self.files[fileName] = open(self.directory + '/' + fileName, 'w')
+
+			self._writeFile(fileName, data)
+		
+		
+	def _closeFiles(self):
+		if not self.inmemory:
+			for f in self.files:
+				self.files[f].close()
+	
 	def __init__(self, base, name, author, inmemory=False):
 		self.basePath = base
 		self.name = name.replace(" ", "_")
 		self.storyTitle = name
 		self.directory = self.basePath + '/' + self.name
-		
+		self.inmemory = inmemory
 		self.authorName = author
 
-		if os.path.exists(self.directory):
-			shutil.rmtree(self.directory)
+		if not self.inmemory:
+			self.inmemory = True
+			self.writeToFile = True
+		else:
+			self.writeToFile = False
 		
-		os.mkdir(self.directory)
+
+		if not self.inmemory:
+			if os.path.exists(self.directory):
+				shutil.rmtree(self.directory)
 		
-		os.mkdir(self.directory + '/META-INF')
-		os.mkdir(self.directory + '/OEBPS')
+			os.mkdir(self.directory)
 		
-		print >> codecs.open(self.directory + '/mimetype', 'w', 'utf-8'), MIMETYPE
-		print >> codecs.open(self.directory + '/META-INF/container.xml', 'w', 'utf-8'), CONTAINER
-		print >> codecs.open(self.directory + '/OEBPS/stylesheet.css', 'w', 'utf-8'), CSS
+			os.mkdir(self.directory + '/META-INF')
+			os.mkdir(self.directory + '/OEBPS')
+		
+#		print >> codecs.open(self.directory + '/mimetype', 'w', 'utf-8'), MIMETYPE
+#		print >> codecs.open(self.directory + '/META-INF/container.xml', 'w', 'utf-8'), CONTAINER
+#		print >> codecs.open(self.directory + '/OEBPS/stylesheet.css', 'w', 'utf-8'), CSS
+
+		self._writeFile('mimetype', MIMETYPE)
+		self._writeFile('META-INF/container.xml', CONTAINER)
+		self._writeFile('OEBPS/stylesheet.css', CSS)
 
 	def _removeEntities(self, text):
 		for e in entities:
@@ -113,7 +145,9 @@ class EPubFanficWriter(FanficWriter):
 		fileName = base64.b64encode(title).replace('/', '_') + ".xhtml"
 		filePath = self.directory + "/OEBPS/" + fileName
 		
-		f = open(filePath, 'w')
+		fn = 'OEBPS/' + fileName
+		
+#		f = open(filePath, 'w')
 		
 		text = self._removeEntities(text)
 		
@@ -141,55 +175,75 @@ class EPubFanficWriter(FanficWriter):
 		
 		tt = self._removeEntities(title)
 		
-		print >> f, XHTML_START % (tt, tt)
-		f.write(text)
-		print >> f, XHTML_END
+		self._writeFile(fn, XHTML_START % (tt, tt))
+		self._writeFile(fn, text)
+		self._writeFile(fn, XHTML_END)
+#		print >> f, XHTML_START % (tt, tt)
+#		f.write(text)
+#		print >> f, XHTML_END
 		
 		self.chapters.append((title, fileName))
 	
 	def finalise(self):
-		print("Finalising...")
+		logging.debug("Finalising...")
 		### writing table of contents -- ncx file
 		
-		tocFilePath = self.directory + "/OEBPS/toc.ncx"
-		toc = open(tocFilePath, 'w')
-		print >> toc, TOC_START % self.storyTitle
-
-		print("Printing toc and refs")
-
+		tocFilePath = "OEBPS/toc.ncx"
+#		toc = open(tocFilePath, 'w')
+#		print >> toc, TOC_START % self.storyTitle
+		self._writeFile(tocFilePath, TOC_START % self.storyTitle)
 		### writing content -- opf file
-		opfFilePath = self.directory + "/OEBPS/content.opf"
-		opf = open(opfFilePath, 'w')
+		opfFilePath = "OEBPS/content.opf"
 		
-		print >> opf, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName)
+#		opf = open(opfFilePath, 'w')
+		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName))
+#		print >> opf, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName)
 
 		ids = []
 		
 		i = 0
 		for t,f in self.chapters:
 			chapterId = base64.b64encode(t)
-			print >> toc, TOC_ITEM % (chapterId, i, cgi.escape(t), f)
-			
-			print >> opf, CONTENT_ITEM % (chapterId, f)
+#			print >> toc, TOC_ITEM % (chapterId, i, cgi.escape(t), f)
+			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, cgi.escape(t), f))
+#			print >> opf, CONTENT_ITEM % (chapterId, f)
+			self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
 			
 			ids.append(chapterId)
 			
 			i = i + 1
 			
-		print('Toc and refs printed, proceesing to ref-ids....')
+#		logging.d('Toc and refs printed, proceesing to ref-ids....')
 		
-		print >> toc, TOC_END
-		print >> opf, CONTENT_END_MANIFEST		
+#		print >> toc, TOC_END
+#		print >> opf, CONTENT_END_MANIFEST		
+
+		self._writeFile(tocFilePath, TOC_END)
+		self._writeFile(opfFilePath, CONTENT_END_MANIFEST)
 		
 		for chapterId in ids:
-			print >> opf, CONTENT_ITEMREF % chapterId
+#			print >> opf, CONTENT_ITEMREF % chapterId
+			self._writeFile(opfFilePath, CONTENT_ITEMREF % chapterId)
 		
-		print >> opf, CONTENT_END
+#		print >> opf, CONTENT_END
+		self._writeFile(opfFilePath, CONTENT_END)
 		
-		opf.close()
-		toc.close()
+#		opf.close()
+#		toc.close()
 		
-		print('Finished')
-
+#		print('Finished')
+		
+		self._closeFiles()
+		
 		filename = self.directory + '.epub'
-		zipdir.toZip(filename, self.directory)
+		
+		zipdata = zipdir.inMemoryZip(self.files)
+		
+		if self.writeToFile:
+			f = open(filename, 'w')
+			f.write(zipdata.getvalue())
+			f.close()
+		else:
+			self.output = zipdata
+			
+#		zipdir.toZip(filename, self.directory)

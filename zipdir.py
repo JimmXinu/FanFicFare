@@ -1,5 +1,6 @@
 import os
 import zipfile
+import logging
 
 import StringIO
 
@@ -43,14 +44,20 @@ def inMemoryZip(files):
 	memzip.debug = 3
 	
 	for path in files:
-		memzip.writestr(path, files[path])
+		if type(files[path]) != type('str'):
+			data = files[path].getvalue()
+		else:
+			data = files[path]
+		
+#		logging.debug(data)
+		memzip.writestr(path, data.encode('utf-8'))
 	
 	for zf in memzip.filelist:
 		zf.create_system = 0
 	
 	memzip.close()
 	
-	return io.getvalue()
+	return io
 
 if __name__ == '__main__':
 #	toZip('sample.epub', "books/A_Time_To_Reflect")

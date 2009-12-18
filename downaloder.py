@@ -4,6 +4,7 @@ import sys
 import shutil
 import os.path
 import getpass
+import logging
 import urllib as u
 import pprint as pp
 import urllib2 as u2
@@ -42,10 +43,12 @@ class FanficLoader:
 		self.writer.finalise()
 		
 		if self.inmemory:
+			self.name = self.writer.name
 			return self.writer.output.getvalue()
 	
 
 if __name__ == '__main__':
+	logging.basicConfig(level=logging.DEBUG)
 	(url, format) = sys.argv[1:]
 	
 	if type(url) is unicode:
