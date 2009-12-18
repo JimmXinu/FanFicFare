@@ -26,6 +26,12 @@ except:
 	# tough luck
 	pass
 
+try:
+	from google.appengine.api.urlfetch import fetch as googlefetch
+	appEngine = True
+except:
+	appEngine = False
+
 class FFNet(FanfictionSiteAdapter):
 	def __init__(self, url):
 		self.url = url
@@ -47,7 +53,10 @@ class FFNet(FanfictionSiteAdapter):
 		
 		logging.debug('self.storyId=%s, chapter=%s' % (self.storyId, chapter))
 		
-		self.opener = u2.build_opener(u2.HTTPCookieProcessor())
+		if not appEngine:
+			self.opener = u2.build_opener(u2.HTTPCookieProcessor())
+		else:
+			self.opener = None
 	
 		logging.debug("Created FF.Net: url=%s" % (self.url))
 	
@@ -60,8 +69,14 @@ class FFNet(FanfictionSiteAdapter):
 	def performLogin(self, url = None):
 		return True
 	
+	def _fetchUrl(self, url):
+		if not appEngine:
+			return self.opener.open(url).read().decode('utf-8')
+		else:
+			return googlefetch(url).content
+	
 	def extractIndividualUrls(self):
-		data = self.opener.open(self.url).read().decode('utf-8')
+		data = self._fetchUrl(self.url)
 
 		urls = []
 		lines = data.split('\n')
@@ -88,7 +103,7 @@ class FFNet(FanfictionSiteAdapter):
 		return urls
 	
 	def getText(self, url):
-		data = self.opener.open(url).read().decode('utf-8')
+		data = self._fetchUrl(url)
 		lines = data.split('\n')
 		for l in lines:
 			if l.find('<!-- start story -->') != -1:

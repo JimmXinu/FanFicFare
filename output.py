@@ -11,6 +11,7 @@ import string
 import base64
 import os.path
 import zipfile
+import StringIO
 import urllib as u
 import pprint as pp
 import urllib2 as u2
@@ -37,16 +38,22 @@ class FanficWriter:
 class HTMLWriter(FanficWriter):
 	body = ''
 	
-	def __init__(self, base, name, author):
+	def __init__(self, base, name, author, inmemory=False):
 		self.basePath = base
 		self.name = name.replace(" ", "_")
 		self.storyTitle = name
 		self.fileName = self.basePath + '/' + self.name + '.html'
 		self.authorName = author
 		
-		if os.path.exists(self.fileName):
+		self.inmemory = inmemory
+
+		if not self.inmemory and os.path.exists(self.fileName):
 			os.remove(self.fileName)
 		
+		if self.inmemory:
+			self.output = StringIO.StringIO()
+		else:
+			self.output = open(self.fileName, 'w')
 		
 		self.xhtmlTemplate = string.Template(html_constants.XHTML_START)
 		self.chapterStartTemplate = string.Template(html_constants.XHTML_CHAPTER_START)
@@ -62,14 +69,18 @@ class HTMLWriter(FanficWriter):
 		soup = bs.BeautifulSoup(html)
 		result = soup.prettify()
 		
-		f = open(self.fileName, 'w')
-		f.write(result)
-		f.close()
+#		f = open(self.fileName, 'w')
+#		f.write(result)
+#		f.close()
+
+		self.output.write(result)
+		if not self.inmemory:
+			self.output.close()
 
 class EPubFanficWriter(FanficWriter):
 	chapters = []
 	
-	def __init__(self, base, name, author):
+	def __init__(self, base, name, author, inmemory=False):
 		self.basePath = base
 		self.name = name.replace(" ", "_")
 		self.storyTitle = name
