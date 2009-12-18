@@ -22,15 +22,25 @@ class FanficLoader:
 	'''A controller class which handles the interaction between various specific downloaders and writers'''
 	booksDirectory = "books"
 	
-	def __init__(self, adapter, writerClass, quiet = False, inmemory = False):
+	def __init__(self, adapter, writerClass, quiet = False, inmemory = False, compress=True):
 		self.adapter = adapter
 		self.writerClass = writerClass
 		self.quiet = quiet
 		self.inmemory = inmemory
+		self.compress = compress
+		self.badLogin = False
 		
 	def download(self):
+		logging.debug("Trying to download the story")
+		if self.adapter.requiresLogin():
+			logging.debug("Story requires login")
+			if not self.adapter.performLogin():
+				logging.debug("Login/password problem")
+				self.badLogin = True
+				return None
+		
 		urls = self.adapter.extractIndividualUrls()
-		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName(), inmemory=self.inmemory)
+		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName(), inmemory=self.inmemory, compress=self.compress)
 		
 		i = 0
 		for u,n in urls:

@@ -1,4 +1,6 @@
 class FanfictionSiteAdapter:
+	login = ''
+	password = ''
 	def __init__(self, url):
 		pass
 	

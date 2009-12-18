@@ -39,6 +39,9 @@ class FFNet(FanfictionSiteAdapter):
 		self.host = parsedUrl.netloc
 		self.path = parsedUrl.path
 		
+		self.storyName = 'FF.Net story'
+		self.storyName = 'FF.Net author'
+		
 		spl = self.path.split('/')
 		if len(spl) == 5:
 			self.path = "/".join(spl[1:-1])

@@ -39,7 +39,7 @@ class FanficWriter:
 class HTMLWriter(FanficWriter):
 	body = ''
 	
-	def __init__(self, base, name, author, inmemory=False):
+	def __init__(self, base, name, author, inmemory=False, compress=False):
 		self.basePath = base
 		self.name = name.replace(" ", "_")
 		self.storyTitle = name
@@ -100,14 +100,17 @@ class EPubFanficWriter(FanficWriter):
 			for f in self.files:
 				self.files[f].close()
 	
-	def __init__(self, base, name, author, inmemory=False):
+	def __init__(self, base, name, author, inmemory=False, compress=True):
 		self.basePath = base
 		self.name = name.replace(" ", "_")
 		self.storyTitle = name
 		self.directory = self.basePath + '/' + self.name
 		self.inmemory = inmemory
 		self.authorName = author
-
+		
+		self.files = {}
+		self.chapters = []
+		
 		if not self.inmemory:
 			self.inmemory = True
 			self.writeToFile = True
