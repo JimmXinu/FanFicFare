@@ -50,7 +50,11 @@ def inMemoryZip(files):
 			data = files[path]
 		
 #		logging.debug(data)
-		memzip.writestr(path, data.encode('utf-8'))
+		logging.debug("Writing ZIP path %s" % path)
+		try:
+			memzip.writestr(path, data.encode('utf-8'))
+		except UnicodeDecodeError, e:
+			memzip.writestr(path.encode('utf-8'), data.encode('utf-8'))
 	
 	for zf in memzip.filelist:
 		zf.create_system = 0

@@ -1,3 +1,10 @@
+class LoginRequiredException(Exception):
+	def __init__(self, url):
+		self.url = url
+	
+	def __str__(self):
+		return repr(self.url + ' requires user to be logged in')
+
 class FanfictionSiteAdapter:
 	login = ''
 	password = ''
