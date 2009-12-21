@@ -114,10 +114,24 @@ class FFNet(FanfictionSiteAdapter):
 	def getText(self, url):
 		data = self._fetchUrl(url)
 		lines = data.split('\n')
+		
+		textbuf = ''
+		emit = False
+		
 		for l in lines:
 			if l.find('<!-- start story -->') != -1:
-				s2 = bs.BeautifulStoneSoup(l)
-				return s2.div.prettify()
+				#s2 = bs.BeautifulStoneSoup(l)
+				#return s2.div.prettify()
+				emit = True
+			
+			if emit:
+				textbuf = textbuf + "\n" + l
+			
+			if l.find('<!-- end story -->') != -1:
+				emit = False
+		
+		s2 = bs.BeautifulStoneSoup(textbuf)
+		return s2.div.prettify()
 		
 		
 	def setLogin(self, login):
