@@ -92,10 +92,10 @@ class FFNet(FanfictionSiteAdapter):
 		for l in lines:
 			if l.find("&#187;") != -1 and l.find('<b>') != -1:
 				s2 = bs.BeautifulStoneSoup(l)
-				self.storyName = s2.find('b').string
+				self.storyName = str(s2.find('b').string)
 			elif l.find("<a href='/u/") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
-				self.authorName = s2.a.string
+				self.authorName = str(s2.a.string)
 			elif l.find("<SELECT title='chapter navigation'") != -1:
 				if len(urls) > 0:
 					continue

@@ -12,12 +12,16 @@ import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
+
 import ffa
 import ffnet
 import ficwad
 import output
+import adapter
 import fictionalley
 import hpfiction
+
+import time
 
 class FanficLoader:
 	'''A controller class which handles the interaction between various specific downloaders and writers'''
@@ -30,7 +34,10 @@ class FanficLoader:
 		self.inmemory = inmemory
 		self.compress = compress
 		self.badLogin = False
-		
+	
+	def getAdapter():
+		return self.adapter
+	
 	def download(self):
 		logging.debug("Trying to download the story")
 		if self.adapter.requiresLogin():
@@ -38,7 +45,7 @@ class FanficLoader:
 			if not self.adapter.performLogin():
 				logging.debug("Login/password problem")
 				self.badLogin = True
-				return None
+				raise adapter.LoginRequiredException(self.adapter.url)
 		
 		urls = self.adapter.extractIndividualUrls()
 		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName(), inmemory=self.inmemory, compress=self.compress)
@@ -50,7 +57,7 @@ class FanficLoader:
 			i = i+1
 			text = self.adapter.getText(u)
 			self.writer.writeChapter(n, text)
-		
+			
 		self.writer.finalise()
 		
 		if self.inmemory:

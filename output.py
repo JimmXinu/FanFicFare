@@ -13,6 +13,7 @@ import os.path
 import zipfile
 import StringIO
 import logging
+import hashlib
 import urllib as u
 import pprint as pp
 import urllib2 as u2
@@ -84,14 +85,20 @@ class EPubFanficWriter(FanficWriter):
 	files = {}
 	
 	def _writeFile(self, fileName, data):
+		logging.debug('_writeFile(`%s`, data)' % fileName)
 		if fileName in self.files:
-			self.files[fileName].write(data.decode('utf-8'))
+			try:
+				d = data.decode('utf-8')
+			except UnicodeEncodeError, e:
+				d = data
+			
+			self.files[fileName].write(d)
 		else:
 			if self.inmemory:
 				self.files[fileName] = StringIO.StringIO()
 			else:
 				self.files[fileName] = open(self.directory + '/' + fileName, 'w')
-
+			
 			self._writeFile(fileName, data)
 		
 		
@@ -127,10 +134,6 @@ class EPubFanficWriter(FanficWriter):
 			os.mkdir(self.directory + '/META-INF')
 			os.mkdir(self.directory + '/OEBPS')
 		
-#		print >> codecs.open(self.directory + '/mimetype', 'w', 'utf-8'), MIMETYPE
-#		print >> codecs.open(self.directory + '/META-INF/container.xml', 'w', 'utf-8'), CONTAINER
-#		print >> codecs.open(self.directory + '/OEBPS/stylesheet.css', 'w', 'utf-8'), CSS
-
 		self._writeFile('mimetype', MIMETYPE)
 		self._writeFile('META-INF/container.xml', CONTAINER)
 		self._writeFile('OEBPS/stylesheet.css', CSS)
@@ -145,7 +148,15 @@ class EPubFanficWriter(FanficWriter):
 		return text
 	
 	def writeChapter(self, title, text):
-		fileName = base64.b64encode(title).replace('/', '_') + ".xhtml"
+		logging.debug("Writing chapter: %s" % title)
+		try:
+			fileName = base64.b64encode(title).replace('/', '_') + ".xhtml"
+		except UnicodeEncodeError, e:
+			fileName = base64.b64encode(title.encode('utf-8')).replace('/', '_') + ".xhtml"
+#		title = cgi.esca#title.decode('utf-8')
+#		sha = hashlib.sha224(title)
+#		fileName = sha.hexdigest() + ".xhtml"
+		#fileName = cgi.escape(title) + '.xhtml'
 		filePath = self.directory + "/OEBPS/" + fileName
 		
 		fn = 'OEBPS/' + fileName
@@ -154,7 +165,7 @@ class EPubFanficWriter(FanficWriter):
 		
 		text = self._removeEntities(text)
 		
-		self.soup = bs.BeautifulStoneSoup(text)
+		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'))
 
 		allTags = self.soup.findAll(recursive=True)
 		for t in allTags:
@@ -206,10 +217,12 @@ class EPubFanficWriter(FanficWriter):
 		
 		i = 0
 		for t,f in self.chapters:
-			chapterId = base64.b64encode(t)
-#			print >> toc, TOC_ITEM % (chapterId, i, cgi.escape(t), f)
+			try:
+				chapterId = base64.b64encode(t)
+			except UnicodeEncodeError, e:
+				chapterId = base64.b64encode(t.encode('utf-8'))
+			
 			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, cgi.escape(t), f))
-#			print >> opf, CONTENT_ITEM % (chapterId, f)
 			self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
 			
 			ids.append(chapterId)
@@ -218,23 +231,13 @@ class EPubFanficWriter(FanficWriter):
 			
 #		logging.d('Toc and refs printed, proceesing to ref-ids....')
 		
-#		print >> toc, TOC_END
-#		print >> opf, CONTENT_END_MANIFEST		
-
 		self._writeFile(tocFilePath, TOC_END)
 		self._writeFile(opfFilePath, CONTENT_END_MANIFEST)
 		
 		for chapterId in ids:
-#			print >> opf, CONTENT_ITEMREF % chapterId
 			self._writeFile(opfFilePath, CONTENT_ITEMREF % chapterId)
 		
-#		print >> opf, CONTENT_END
 		self._writeFile(opfFilePath, CONTENT_END)
-		
-#		opf.close()
-#		toc.close()
-		
-#		print('Finished')
 		
 		self._closeFiles()
 		

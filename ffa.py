@@ -39,13 +39,21 @@ class FFA(FanfictionSiteAdapter):
 	def _getLoginScript(self):
 		return self.path
 
-	def requiresLogin(self, url = None):
-		resp = self.opener.open(self.url)
-		data = resp.read()
-		if data.find('<legend>Please login to continue</legend>') != -1:
+	def reqLoginData(self, data):
+		if data.find('<legend>Please login to continue</legend>') != -1 or data.find('<h4>Username or password not found.  Please') != -1 or data.find("This story is rated Mature, you must be logged in to view it") != -1:
 			return True
 		else:
 			return False
+
+	def requiresLogin(self, url = None):
+		if url == None:
+			u = self.url
+		else:
+			u = url
+
+		resp = self.opener.open(u)
+		data = resp.read()
+		return self.reqLoginData(data)
  
 	def performLogin(self, url = None):
 		if url == None:
@@ -63,7 +71,9 @@ class FFA(FanfictionSiteAdapter):
 		
 		req = self.opener.open(loginUrl, urlvals)
 		
-		if self.requiresLogin():
+		d = req.read()
+
+		if self.reqLoginData(d) :
 			return False
 		else:
 			return True
@@ -72,7 +82,16 @@ class FFA(FanfictionSiteAdapter):
 		data = self.opener.open(self.url).read()
 		soup = bs.BeautifulStoneSoup(data)
 
-		self.author = soup.find('a', {'href' : '/contact/'}).string
+		if self.reqLoginData(data):
+			logging.debug('Data requires login, trying to login')
+			if not self.performLogin(url):
+				logging.error('Cannot login, raising exception ... ')
+				raise LoginRequiredException(url)
+			else:
+				data = self.opener.open(url).read()
+			
+
+		self.author = str(soup.find('a', {'href' : '/contact/'}).string)
 		self.storyName = str(soup.find('h1', {'class' : 'textCenter'}).contents[0]).strip()
 		
 		logging.debug("Story `%s` by `%s`" % (self.storyName, self.author))
@@ -96,6 +115,14 @@ class FFA(FanfictionSiteAdapter):
 		
 		logging.info('Downloading: %s' % url)
 		data = self.opener.open(url).read()
+		
+		if self.reqLoginData(data):
+			logging.debug('Data requires login, trying to login')
+			if not self.performLogin(url):
+				logging.error('Cannot login, raising exception ... ')
+				raise LoginRequiredException(url)
+			else:
+				data = self.opener.open(url).read()
 		
 		lines = data.split('\n')
 		
@@ -192,6 +219,17 @@ class FFA_UnitTests(unittest.TestCase):
 		data = f.getText(url)
 		seek = 'So Hokage-sama” I said, “this is how we came'
 		self.assertTrue(data.find(seek) != -1)
+	
+	def testSemiLoginRequired(self):
+		f = FFA('http://viridian.fanficauthors.net/Harry_Potter_and_the_Nightmares_of_Futures_Past/The_End_of_Days/')
+		
+		urls = f.extractIndividualUrls()
+		
+		try:
+			data = f.getText('http://viridian.fanficauthors.net/Harry_Potter_and_the_Nightmares_of_Futures_Past/Doing_the_Mungo_Shuffle/')
+			self.assertTrue(False)
+		except LoginRequiredException, e:
+			self.assertTrue(True)
 		
 if __name__ == '__main__':
 	unittest.main()
