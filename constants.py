@@ -36,7 +36,8 @@ CONTENT_START = '''<?xml version="1.0"?>
    <dc:title>%s</dc:title> 
    <dc:creator opf:role="aut">%s</dc:creator>
    <dc:language>en-UK</dc:language> 
-   <dc:rights></dc:rights> 
+   <dc:rights></dc:rights>
+   <dc:subject>fanfiction</dc:subject> 
    <dc:publisher>sgzmd</dc:publisher> 
    <dc:identifier id="BookId">urn:uuid:sigizmund.com062820072147132</dc:identifier>
  </metadata>
