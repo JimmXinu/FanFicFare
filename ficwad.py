@@ -17,10 +17,10 @@ class FicWad(FanfictionSiteAdapter):
 		self.url = url
 		self.host = up.urlparse(url).netloc
 	
-	def requiresLogin(self, url):
+	def requiresLogin(self, url = None):
 		return False
 	
-	def performLogin(self, url):
+	def performLogin(self, url = None):
 		pass
 		
 	def setLogin(self, login):
@@ -37,7 +37,7 @@ class FicWad(FanfictionSiteAdapter):
 		self.storyName = title.split('::')[0].strip()
 		
 		author = soup.find('span', {'class' : 'author'})
-		self.authorName = author.a.string
+		self.authorName = str(author.a.string)
 		
 		print('Story "%s" by %s' % (self.storyName, self.authorName))
 		

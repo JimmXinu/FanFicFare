@@ -118,20 +118,39 @@ class FFNet(FanfictionSiteAdapter):
 		textbuf = ''
 		emit = False
 		
-		for l in lines:
-			if l.find('<!-- start story -->') != -1:
-				#s2 = bs.BeautifulStoneSoup(l)
-				#return s2.div.prettify()
-				emit = True
-			
-			if emit:
-				textbuf = textbuf + "\n" + l
-			
-			if l.find('<!-- end story -->') != -1:
-				emit = False
+		olddata = data
+		try:
+			data = data.decode('utf8')
+		except:
+			data = olddata
 		
-		s2 = bs.BeautifulStoneSoup(textbuf)
-		return s2.div.prettify()
+		try:
+			soup = bs.BeautifulStoneSoup(data)
+		except:
+			logging.info("Failed to decode: <%s>" % data)
+			soup = None
+		div = soup.find('div', {'id' : 'storytext'})
+		if None == div:
+			return '<html/>'
+		
+		return div.prettify()
+		
+		# 
+		# for l in lines:
+		# 	if l.find("<div id=storytextp class=storytextp") != -1 or l.find('<!-- start story -->') != -1 or l.find('<div id="storytextp"') != -1:
+		# 		logging.debug("starting at line: %s" % l)
+		# 		#s2 = bs.BeautifulStoneSoup(l)
+		# 		#return s2.div.prettify()
+		# 		emit = True
+		# 	
+		# 	if emit:
+		# 		textbuf = textbuf + "\n" + l
+		# 	
+		# 	if l.find("</div><div style='height:10px'></div> ") != -1 or l.find('<!-- end story -->') != -1:
+		# 		emit = False
+		# 
+		# s2 = bs.BeautifulStoneSoup(textbuf)
+		# return s2.div.prettify()
 		
 		
 	def setLogin(self, login):
@@ -162,7 +181,7 @@ class FFA_UnitTests(unittest.TestCase):
 		f = FFNet('http://www.fanfiction.net/s/5257563/1')
 		urls = f.extractIndividualUrls()
 		
-		self.assertEquals(8, len(urls))
+		self.assertEquals(10, len(urls))
 	
 	def testGetText(self):
 		url = 'http://www.fanfiction.net/s/5257563/1'

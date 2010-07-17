@@ -25,6 +25,7 @@ import zipdir
 import html_constants
 from constants import *
 
+import html2text
 
 
 class FanficWriter:
@@ -36,6 +37,22 @@ class FanficWriter:
 	
 	def finalise(self):
 		pass
+
+class TextWriter(FanficWriter):
+	htmlWriter = None
+	
+	def __init__(self, base, name, author, inmemory=False, compress=False):
+		self.htmlWriter = HTMLWriter(base, name, author, True, False)
+	
+	def writeChapter(self, title, text):
+		self.htmlWriter.writeChapter(title, text)
+	
+	def finalise(self):
+		self.htmlWriter.finalise()
+		self.output = StringIO.StringIO()
+		self.output.write(html2text.html2text(self.htmlWriter.output.getvalue().decode('utf-8')).encode('utf-8'))
+		self.name = self.htmlWriter.name
+		
 
 class HTMLWriter(FanficWriter):
 	body = ''
@@ -59,10 +76,17 @@ class HTMLWriter(FanficWriter):
 		
 		self.xhtmlTemplate = string.Template(html_constants.XHTML_START)
 		self.chapterStartTemplate = string.Template(html_constants.XHTML_CHAPTER_START)
-		
+	
+	def _printableVersion(self, text):
+		try:
+			d = text.decode('utf-8')
+			return d
+		except:
+			return text
+	
 	def writeChapter(self, title, text):
-		title = title.decode('utf-8')
-		text = text.decode('utf-8')
+		title = self._printableVersion(title) #title.decode('utf-8')
+		text = self._printableVersion(text) #text.decode('utf-8')
 		self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
 		self.body = self.body + '\n' + text
 	
