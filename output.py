@@ -59,7 +59,7 @@ class HTMLWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=False):
 		self.basePath = base
-		self.name = name.replace(" ", "_")
+		self.name = name.replace(" ", "_").replace(":","_")
 		self.storyTitle = name
 		self.fileName = self.basePath + '/' + self.name + '.html'
 		self.authorName = author
