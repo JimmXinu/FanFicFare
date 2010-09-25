@@ -40,7 +40,7 @@ class FFNet(FanfictionSiteAdapter):
 		self.path = parsedUrl.path
 		
 		self.storyName = 'FF.Net story'
-		self.storyName = 'FF.Net author'
+		self.authorName = 'FF.Net author'
 		
 		spl = self.path.split('/')
 		if len(spl) == 5:
@@ -108,7 +108,9 @@ class FFNet(FanfictionSiteAdapter):
 					title = o.string
 					logging.debug('URL = `%s`, Title = `%s`' % (url, title))
 					urls.append((url,title))
-		
+		if len(urls) == 0:
+			# no chapters found, try url by itself.
+			urls.append((self.url,self.storyName))
 		return urls
 	
 	def getText(self, url):

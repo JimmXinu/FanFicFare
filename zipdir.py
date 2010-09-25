@@ -17,7 +17,11 @@ def toZip(filename, directory):
 
 		if os.path.isfile(each):
 			print(each)
-			zippedHelp.write(each, arcname=entity)
+			# epub standard requires mimetype to be uncompressed and first file.
+			if entity == 'mimetype':
+				zippedHelp.write(each, arcname=entity, compress_type=zipfile.ZIP_STORED)
+			else:
+				zippedHelp.write(each, arcname=entity)
 		else:
 			addFolderToZip(zippedHelp,entity, each)
  	
@@ -51,10 +55,15 @@ def inMemoryZip(files):
 		
 #		logging.debug(data)
 		logging.debug("Writing ZIP path %s" % path)
+		# epub standard requires mimetype to be uncompressed and first file.
+		if path == 'mimetype':
+			compress=zipfile.ZIP_STORED
+		else:
+			compress=zipfile.ZIP_DEFLATED
 		try:
-			memzip.writestr(path, data.encode('utf-8'))
+			memzip.writestr(path, data.encode('utf-8'), compress_type=compress)
 		except UnicodeDecodeError, e:
-			memzip.writestr(path.encode('utf-8'), data.encode('utf-8'))
+			memzip.writestr(path.encode('utf-8'), data.encode('utf-8'), compress_type=compress)
 	
 	for zf in memzip.filelist:
 		zf.create_system = 0

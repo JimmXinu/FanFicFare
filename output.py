@@ -109,7 +109,7 @@ class EPubFanficWriter(FanficWriter):
 	files = {}
 	
 	def _writeFile(self, fileName, data):
-		logging.debug('_writeFile(`%s`, data)' % fileName)
+		#logging.debug('_writeFile(`%s`, data)' % fileName)
 		if fileName in self.files:
 			try:
 				d = data.decode('utf-8')
@@ -189,20 +189,22 @@ class EPubFanficWriter(FanficWriter):
 		
 		text = self._removeEntities(text)
 		
-		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'))
+		# BeautifulStoneSoup doesn't have any selfClosingTags by default.  
+		# hr needs to be if it's going to work.
+		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'), selfClosingTags=('hr'))
 
 		allTags = self.soup.findAll(recursive=True)
 		for t in allTags:
 			for attr in t._getAttrMap().keys():
 				if attr not in acceptable_attributes:
 					del t[attr]
-	    
+
 		allPs = self.soup.findAll(recursive=True)
 		for p in allPs:
 			if p.string != None and (len(p.string.strip()) == 0 or p.string.strip() == '&nbsp;' ) :
 				p.extract()
 				
-		allBrs = self.soup.findAll(recursive=True, name = ["br", "hr", 'div'])
+		allBrs = self.soup.findAll(recursive=True, name = ["br", 'div'])
 		for br in allBrs:
 			if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
 				br.name = 'p'
@@ -270,7 +272,7 @@ class EPubFanficWriter(FanficWriter):
 		zipdata = zipdir.inMemoryZip(self.files)
 		
 		if self.writeToFile:
-			f = open(filename, 'w')
+			f = open(filename, 'wb')
 			f.write(zipdata.getvalue())
 			f.close()
 		else:
