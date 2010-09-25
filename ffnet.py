@@ -133,6 +133,8 @@ class FFNet(FanfictionSiteAdapter):
 			soup = None
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
+			logging.error("Error downloading Chapter: %s" % url)
+			exit(1)
 			return '<html/>'
 		
 		return div.prettify()
