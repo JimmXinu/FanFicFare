@@ -133,7 +133,7 @@ class EPubFanficWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=True):
 		self.basePath = base
-		self.name = name.replace(" ", "_")
+		self.name = name.replace(" ", "_").replace(":","_")
 		self.storyTitle = name
 		self.directory = self.basePath + '/' + self.name
 		self.inmemory = inmemory
