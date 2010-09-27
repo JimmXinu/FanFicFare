@@ -165,7 +165,11 @@ class EPubFanficWriter(FanficWriter):
 	def _removeEntities(self, text):
 		for e in entities:
 			v = entities[e]
-			text = text.replace(e, v)
+			try:
+				text = text.replace(e, v)
+			except UnicodeDecodeError, ex:
+				# for the pound symbol in constants.py
+				text = text.replace(e, v.decode('utf-8'))
 		
 		text = text.replace('&', '&amp;')
 		

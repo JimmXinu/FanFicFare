@@ -1,3 +1,5 @@
+﻿# -*- coding: utf-8 -*-
+
 CSS = '''body { margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; text-align: justify; }
 pre { font-size: x-small; }
 h1 { text-align: center; }
@@ -111,7 +113,8 @@ acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
 
 acceptable_attributes = ['href']
 
-entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', '&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...' }
+entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', 
+		'&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...', '&amp;' : '&', '&pound;' : '£' }
 
 FB2_PROLOGUE = '<FictionBook>'
 FB2_DESCRIPTION = '''<description>

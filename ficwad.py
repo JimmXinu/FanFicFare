@@ -33,25 +33,37 @@ class FicWad(FanfictionSiteAdapter):
 		data = u2.urlopen(self.url).read()
 		soup = bs.BeautifulStoneSoup(data)
 		
-		title = soup.find('title').string
-		self.storyName = title.split('::')[0].strip()
+		story = soup.find('div', {'id' : 'story'})
+		crumbtrail = story.find('h3') # the only h3 ficwad uses.
+		allAhrefs = crumbtrail.findAll('a')
+		# last of crumbtrail
+		self.storyName = allAhrefs[-1].string.strip()
+		# save chapter name from header in case of one-shot.
+		chaptername = story.find('h4').find('a').string.strip()
 		
 		author = soup.find('span', {'class' : 'author'})
 		self.authorName = str(author.a.string)
 		
-		print('Story "%s" by %s' % (self.storyName, self.authorName))
-		
 		select = soup.find('select', { 'name' : 'goto' } )
 		
-		allOptions = select.findAll('option')
 		result = []
-		for o in allOptions:
-			url = o['value']
-#			if type(url) is unicode:
-#				url = url.encode('utf-8')
-			title = o.string
-			result.append((url,title))
+		if select is None:
+			# Single chapter storys don't have title in crumbtrail, just 'chapter' title in h4.
+			self.storyName = chaptername
+			# no chapters found, try url by itself.
+			result.append((self.url,self.storyName))
+		else:
+			allOptions = select.findAll('option')
+			for o in allOptions:
+				url = o['value']
+				title = o.string
+				# ficwad includes 'Story Index' in the dropdown of chapters, 
+				# but it's not a real chapter.
+				if title != "Story Index":
+					result.append((url,title))
 			
+		print('Story "%s" by %s' % (self.storyName, self.authorName))
+		
 		return result
 	
 	def getStoryName(self):
@@ -69,8 +81,9 @@ class FicWad(FanfictionSiteAdapter):
 		soup = bs.BeautifulStoneSoup(data)
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
+			logging.error("Error downloading Chapter: %s" % url)
+			exit(1)
 			return '<html/>'
-		
 		return div.prettify()
 	
 	def getPrintableUrl(self, url):
