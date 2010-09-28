@@ -58,13 +58,18 @@ class HPFiction(FanfictionSiteAdapter):
 			elif a['href'].find('viewuser.php') != -1:
 				self.authorName = a.string
 		
-		select = soup.find('select', {'name' : 'chapterid'})
 		urls = []
-		for o in select.findAll('option'):
-			if 'value' in o._getAttrMap():
-				url = 'http://' + self.host + '/' + self.path + o['value']
-				title = o.string
-				urls.append((url,title))
+		select = soup.find('select', {'name' : 'chapterid'})
+		if select is None:
+			# no chapters found, try url by itself.
+			urls.append((self.url,self.storyName))
+		else:
+			for o in select.findAll('option'):
+				if 'value' in o._getAttrMap():
+					url = 'http://' + self.host + '/' + self.path + o['value']
+					title = o.string
+					if title != "Story Index":
+						urls.append((url,title))
 		return urls
 
 	def getStoryName(self):
@@ -75,9 +80,12 @@ class HPFiction(FanfictionSiteAdapter):
 	
 	def getText(self, url):
 		logging.debug('Downloading from URL: %s' % url)
-		data = self.opener.open(self.url).read()
+		data = self.opener.open(url).read()
 		soup = bs.BeautifulSoup(data)
 		divtext = soup.find('div', {'id' : 'fluidtext'})
+		if None == divtext:
+			logging.error("Error downloading Chapter: %s" % url)
+			exit(1)
 		return divtext.prettify()
 
 class FF_UnitTests(unittest.TestCase):
