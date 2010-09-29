@@ -74,13 +74,17 @@ class Twilighted(FanfictionSiteAdapter):
     self.authorName = title.split(' by ')[1].strip()
 
     select = soup.find('select', { 'name' : 'chapter' } )
-
-    allOptions = select.findAll('option')
+	 
     result = []
-    for o in allOptions:
-      url = self.url + "&chapter=%s" % o['value']
-      title = o.string
-      result.append((url,title))
+    if select is None:
+	   # no chapters found, try url by itself.
+	   result.append((self.url,self.storyName))
+    else:
+	   allOptions = select.findAll('option')
+	   for o in allOptions:
+	     url = self.url + "&chapter=%s" % o['value']
+	     title = o.string
+	     result.append((url,title))
 
     return result
 
