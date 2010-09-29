@@ -25,6 +25,7 @@ import zipdir
 import html_constants
 from constants import *
 
+
 import html2text
 
 
@@ -59,7 +60,7 @@ class HTMLWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=False):
 		self.basePath = base
-		self.name = name.replace(" ", "_").replace(":","_")
+		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
 		self.storyTitle = name
 		self.fileName = self.basePath + '/' + self.name + '.html'
 		self.authorName = author
@@ -133,7 +134,7 @@ class EPubFanficWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=True):
 		self.basePath = base
-		self.name = name.replace(" ", "_").replace(":","_")
+		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
 		self.storyTitle = name
 		self.directory = self.basePath + '/' + self.name
 		self.inmemory = inmemory
@@ -148,6 +149,7 @@ class EPubFanficWriter(FanficWriter):
 		else:
 			self.writeToFile = False
 		
+
 
 		if not self.inmemory:
 			if os.path.exists(self.directory):
@@ -194,8 +196,9 @@ class EPubFanficWriter(FanficWriter):
 		text = self._removeEntities(text)
 		
 		# BeautifulStoneSoup doesn't have any selfClosingTags by default.  
-		# hr needs to be if it's going to work.
-		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'), selfClosingTags=('hr'))
+		# hr & br needs to be if they're going to work.
+		# Some stories do use multiple br tags as their section breaks...
+		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'), selfClosingTags=('br','hr'))
 
 		allTags = self.soup.findAll(recursive=True)
 		for t in allTags:
@@ -208,7 +211,7 @@ class EPubFanficWriter(FanficWriter):
 			if p.string != None and (len(p.string.strip()) == 0 or p.string.strip() == '&nbsp;' ) :
 				p.extract()
 				
-		allBrs = self.soup.findAll(recursive=True, name = ["br", 'div'])
+		allBrs = self.soup.findAll(recursive=True, name = ['div'])
 		for br in allBrs:
 			if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
 				br.name = 'p'
