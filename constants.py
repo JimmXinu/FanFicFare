@@ -32,7 +32,7 @@ CONTAINER = '''<?xml version="1.0"?>
 
 CONTENT_START = '''<?xml version="1.0"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf"
-         unique-identifier="BookId-Epub-%s">
+         unique-identifier="BookID">
  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
            xmlns:opf="http://www.idpf.org/2007/opf">
    <dc:title>%s</dc:title> 
@@ -41,7 +41,7 @@ CONTENT_START = '''<?xml version="1.0"?>
    <dc:rights></dc:rights>
    <dc:subject>fanfiction</dc:subject> 
    <dc:publisher>sgzmd</dc:publisher> 
-   <dc:identifier id="BookId">urn:uuid:sigizmund.com062820072147132</dc:identifier>
+   <dc:identifier id="BookID">%s</dc:identifier>
  </metadata>
  <manifest>
   <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
@@ -114,8 +114,7 @@ acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
 acceptable_attributes = ['href']
 
 entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', 
-		'&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...', '&amp;' : '&', '&pound;' : '£', '&nbsp;' : ' ',
-		'&lt;' : '<', '&gt;' : '>' }
+		'&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...', '&amp;' : '&', '&pound;' : '£', '&nbsp;' : ' ' }
 
 FB2_PROLOGUE = '<FictionBook>'
 FB2_DESCRIPTION = '''<description>
