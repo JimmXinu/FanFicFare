@@ -173,20 +173,22 @@ class EPubFanficWriter(FanficWriter):
 				# for the pound symbol in constants.py
 				text = text.replace(e, v.decode('utf-8'))
 		
-		text = text.replace('&', '&amp;')
+		# &lt; &lt; and &amp; are the only html entities allowed in xhtml.
+		text = text.replace('&', '&amp;').replace('&amp;lt;', '&lt;').replace('&amp;gt;', '&gt;')
 		
 		return text
 	
 	def writeChapter(self, title, text):
 		logging.debug("Writing chapter: %s" % title)
 		try:
-			fileName = base64.b64encode(title).replace('/', '_') + ".xhtml"
+			fileName = base64.b64encode(title) + ".xhtml"
 		except UnicodeEncodeError, e:
-			fileName = base64.b64encode(title.encode('utf-8')).replace('/', '_') + ".xhtml"
-#		title = cgi.esca#title.decode('utf-8')
-#		sha = hashlib.sha224(title)
-#		fileName = sha.hexdigest() + ".xhtml"
-		#fileName = cgi.escape(title) + '.xhtml'
+			fileName = base64.b64encode(title.encode('utf-8')) + ".xhtml"
+		# Base64 can include +, / and =, which XML technically doesn't like
+		# in it's id attributes.  _ and - are okay and not otherwise used in Base64.
+		# The = for padding is superfluous
+		fileName = fileName.replace('/', '_').replace('+', '-').replace('=','')
+
 		filePath = self.directory + "/OEBPS/" + fileName
 		
 		fn = 'OEBPS/' + fileName
@@ -208,13 +210,14 @@ class EPubFanficWriter(FanficWriter):
 
 		allPs = self.soup.findAll(recursive=True)
 		for p in allPs:
-			if p.string != None and (len(p.string.strip()) == 0 or p.string.strip() == '&nbsp;' ) :
+			if p.string != None and len(p.string.strip()) == 0 :
 				p.extract()
-				
-		allBrs = self.soup.findAll(recursive=True, name = ['div'])
-		for br in allBrs:
-			if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
-				br.name = 'p'
+
+		# xhtml doesn't like <p> nesting in <p>, so leave divs.
+		# allBrs = self.soup.findAll(recursive=True, name = ['div'])
+		# for br in allBrs:
+			# if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
+				# br.name = 'p'
 
 #		cleanup(self.soup )
 		
@@ -243,17 +246,21 @@ class EPubFanficWriter(FanficWriter):
 		opfFilePath = "OEBPS/content.opf"
 		
 #		opf = open(opfFilePath, 'w')
-		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName))
+		self._writeFile(opfFilePath, CONTENT_START % (self.storyTitle, self.authorName, uuid.uuid4().urn))
 #		print >> opf, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName)
 
 		ids = []
 		
-		i = 0
+		i = 1
 		for t,f in self.chapters:
 			try:
 				chapterId = base64.b64encode(t)
 			except UnicodeEncodeError, e:
 				chapterId = base64.b64encode(t.encode('utf-8'))
+			# Base64 can include +, / and =, which XML technically doesn't like
+			# in it's id attributes.  _ and - are okay and not otherwise used in Base64.
+			# The = for padding is superfluous
+			chapterId = chapterId.replace('/', '_').replace('+', '-').replace('=','')
 			
 			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, cgi.escape(t), f))
 			self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
