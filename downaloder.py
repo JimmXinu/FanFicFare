@@ -13,7 +13,6 @@ import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
 
-import ffa
 import ffnet
 import ficwad
 import output
@@ -51,13 +50,13 @@ class FanficLoader:
 		urls = self.adapter.extractIndividualUrls()
 		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName(), inmemory=self.inmemory, compress=self.compress)
 		
-		i = 0
+		i = 1
 		for u,n in urls:
 			if not self.quiet:
 				print('Downloading chapter %d/%d' % (i, len(urls)))
-			i = i+1
 			text = self.adapter.getText(u)
-			self.writer.writeChapter(n, text)
+			self.writer.writeChapter(i, n, text)
+			i = i+1
 			
 		self.writer.finalise()
 		
@@ -78,11 +77,10 @@ if __name__ == '__main__':
 	writerClass = None
 	
 	if url.find('fanficauthors') != -1:
-		adapter = ffa.FFA(url)
+		print >> sys.stderr, "fanficauthors.net already provides ebooks"
+		sys.exit(0)
 	elif url.find('fictionalley') != -1:
 		adapter = fictionalley.FictionAlley(url)
-		#print >> sys.stderr, "FictionAlley adapter is broken, try to find this fic on fanfiction.net or fanficauthors"
-		#sys.exit(0)
 	elif url.find('ficwad') != -1:
 		adapter = ficwad.FicWad(url)
 	elif url.find('fanfiction.net') != -1 or url.find('fictionpress.com') != -1:
