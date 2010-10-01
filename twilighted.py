@@ -109,7 +109,7 @@ class Twilighted(FanfictionSiteAdapter):
     if None == div:
       return '<html/>'
 
-    return div.prettify()
+    return div.__str__('utf8')
 
   def _getLoginScript(self):
     return '/user.php?action=login'

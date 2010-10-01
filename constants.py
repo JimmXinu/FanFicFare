@@ -48,13 +48,15 @@ CONTENT_START = '''<?xml version="1.0"?>
   <item id="style" href="stylesheet.css" media-type="text/css" />
 '''
 
-CONTENT_ITEM = '<item id="%s" href="%s" media-type="application/xhtml+xml" />'
+CONTENT_ITEM = '''<item id="%s" href="%s" media-type="application/xhtml+xml" />
+'''
 
 CONTENT_END_MANIFEST = '''</manifest>
 <spine toc="ncx">
 '''
 
-CONTENT_ITEMREF = '''<itemref idref="%s" />'''
+CONTENT_ITEMREF = '''<itemref idref="%s" />
+'''
 
 CONTENT_END = '''</spine>
 </package>

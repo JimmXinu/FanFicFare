@@ -84,7 +84,7 @@ class FicWad(FanfictionSiteAdapter):
 			logging.error("Error downloading Chapter: %s" % url)
 			exit(1)
 			return '<html/>'
-		return div.prettify()
+		return div.__str__('utf8')
 	
 	def getPrintableUrl(self, url):
 		return url

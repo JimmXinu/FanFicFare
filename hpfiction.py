@@ -6,7 +6,6 @@ import sys
 import cgi
 import uuid
 import shutil
-import base64
 import os.path
 import logging
 import unittest
@@ -86,7 +85,7 @@ class HPFiction(FanfictionSiteAdapter):
 		if None == divtext:
 			logging.error("Error downloading Chapter: %s" % url)
 			exit(1)
-		return divtext.prettify()
+		return divtext.__str__('utf8')
 
 class FF_UnitTests(unittest.TestCase):
 	def setUp(self):

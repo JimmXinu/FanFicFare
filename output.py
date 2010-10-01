@@ -8,7 +8,6 @@ import uuid
 import codecs
 import shutil
 import string
-import base64
 import os.path
 import zipfile
 import StringIO
@@ -33,7 +32,7 @@ class FanficWriter:
 	def __init__(self):
 		pass
 		
-	def writeChapter(self, title, text):
+	def writeChapter(self, index, title, text):
 		pass
 	
 	def finalise(self):
@@ -45,8 +44,8 @@ class TextWriter(FanficWriter):
 	def __init__(self, base, name, author, inmemory=False, compress=False):
 		self.htmlWriter = HTMLWriter(base, name, author, True, False)
 	
-	def writeChapter(self, title, text):
-		self.htmlWriter.writeChapter(title, text)
+	def writeChapter(self, index, title, text):
+		self.htmlWriter.writeChapter(index, title, text)
 	
 	def finalise(self):
 		self.htmlWriter.finalise()
@@ -85,7 +84,7 @@ class HTMLWriter(FanficWriter):
 		except:
 			return text
 	
-	def writeChapter(self, title, text):
+	def writeChapter(self, index, title, text):
 		title = self._printableVersion(title) #title.decode('utf-8')
 		text = self._printableVersion(text) #text.decode('utf-8')
 		self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
@@ -94,7 +93,7 @@ class HTMLWriter(FanficWriter):
 	def finalise(self):
 		html = self.xhtmlTemplate.substitute({'title' : self.storyTitle, 'author' : self.authorName, 'body' : self.body})
 		soup = bs.BeautifulSoup(html)
-		result = soup.prettify()
+		result = soup.__str__('utf8')
 		
 #		f = open(self.fileName, 'w')
 #		f.write(result)
@@ -178,16 +177,9 @@ class EPubFanficWriter(FanficWriter):
 		
 		return text
 	
-	def writeChapter(self, title, text):
+	def writeChapter(self, index, title, text):
 		logging.debug("Writing chapter: %s" % title)
-		try:
-			fileName = base64.b64encode(title) + ".xhtml"
-		except UnicodeEncodeError, e:
-			fileName = base64.b64encode(title.encode('utf-8')) + ".xhtml"
-		# Base64 can include +, / and =, which XML technically doesn't like
-		# in it's id attributes.  _ and - are okay and not otherwise used in Base64.
-		# The = for padding is superfluous
-		fileName = fileName.replace('/', '_').replace('+', '-').replace('=','')
+		fileName="chapter%04d.xhtml" % index
 
 		filePath = self.directory + "/OEBPS/" + fileName
 		
@@ -207,21 +199,21 @@ class EPubFanficWriter(FanficWriter):
 			for attr in t._getAttrMap().keys():
 				if attr not in acceptable_attributes:
 					del t[attr]
+			# these are not acceptable strict XHTML.  But we do already have 
+			# CSS classes of the same names defined in constants.py
+			if t.name in ('u'):
+				t['class']=t.name
+				t.name='span'
+			if t.name in ('center'):
+				t['class']=t.name
+				t.name='div'
 
 		allPs = self.soup.findAll(recursive=True)
 		for p in allPs:
 			if p.string != None and len(p.string.strip()) == 0 :
 				p.extract()
 
-		# xhtml doesn't like <p> nesting in <p>, so leave divs.
-		# allBrs = self.soup.findAll(recursive=True, name = ['div'])
-		# for br in allBrs:
-			# if (br.string != None and len(br.string.strip()) != 0) or (br.contents != None):
-				# br.name = 'p'
-
-#		cleanup(self.soup )
-		
-		text = self.soup.prettify()
+		text = self.soup.__str__('utf8')
 		
 		tt = self._removeEntities(title)
 		
@@ -253,14 +245,7 @@ class EPubFanficWriter(FanficWriter):
 		
 		i = 1
 		for t,f in self.chapters:
-			try:
-				chapterId = base64.b64encode(t)
-			except UnicodeEncodeError, e:
-				chapterId = base64.b64encode(t.encode('utf-8'))
-			# Base64 can include +, / and =, which XML technically doesn't like
-			# in it's id attributes.  _ and - are okay and not otherwise used in Base64.
-			# The = for padding is superfluous
-			chapterId = chapterId.replace('/', '_').replace('+', '-').replace('=','')
+			chapterId = "chapter%04d" % i
 			
 			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, cgi.escape(t), f))
 			self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))

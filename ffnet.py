@@ -6,7 +6,6 @@ import sys
 import cgi
 import uuid
 import shutil
-import base64
 import os.path
 import logging
 import unittest
@@ -136,26 +135,8 @@ class FFNet(FanfictionSiteAdapter):
 			logging.error("Error downloading Chapter: %s" % url)
 			exit(1)
 			return '<html/>'
-		
-		return div.prettify()
-		
-		# 
-		# for l in lines:
-		# 	if l.find("<div id=storytextp class=storytextp") != -1 or l.find('<!-- start story -->') != -1 or l.find('<div id="storytextp"') != -1:
-		# 		logging.debug("starting at line: %s" % l)
-		# 		#s2 = bs.BeautifulStoneSoup(l)
-		# 		#return s2.div.prettify()
-		# 		emit = True
-		# 	
-		# 	if emit:
-		# 		textbuf = textbuf + "\n" + l
-		# 	
-		# 	if l.find("</div><div style='height:10px'></div> ") != -1 or l.find('<!-- end story -->') != -1:
-		# 		emit = False
-		# 
-		# s2 = bs.BeautifulStoneSoup(textbuf)
-		# return s2.div.prettify()
-		
+			
+		return div.__str__('utf8')
 		
 	def setLogin(self, login):
 		self.login = login
