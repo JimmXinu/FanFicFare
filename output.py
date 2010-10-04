@@ -61,7 +61,7 @@ class HTMLWriter(FanficWriter):
 		self.basePath = base
 		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
 		self.storyTitle = name
-		self.fileName = self.basePath + '/' + self.name + '.html'
+		self.fileName = self.basePath + '/' + re.sub('[^a-zA-Z0-9_\'-]+','',self.name) + '.html'
 		self.authorName = author
 		
 		self.inmemory = inmemory
@@ -135,7 +135,8 @@ class EPubFanficWriter(FanficWriter):
 		self.basePath = base
 		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
 		self.storyTitle = name
-		self.directory = self.basePath + '/' + self.name
+		self.directory = self.basePath + '/' + re.sub('[^a-zA-Z0-9_\'-]+','',self.name)
+
 		self.inmemory = inmemory
 		self.authorName = author
 		
