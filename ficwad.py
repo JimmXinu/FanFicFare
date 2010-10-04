@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import re
 import sys
@@ -9,6 +11,7 @@ import urllib2 as u2
 import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
+import logging
 
 from adapter import *
 
@@ -62,8 +65,6 @@ class FicWad(FanfictionSiteAdapter):
 				if title != "Story Index":
 					result.append((url,title))
 			
-		print('Story "%s" by %s' % (self.storyName, self.authorName))
-		
 		return result
 	
 	def getStoryName(self):

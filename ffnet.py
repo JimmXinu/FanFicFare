@@ -98,7 +98,10 @@ class FFNet(FanfictionSiteAdapter):
 			elif l.find("<SELECT title='chapter navigation'") != -1:
 				if len(urls) > 0:
 					continue
-				u = l.decode('utf-8')
+				try:
+					u = l.decode('utf-8')
+				except UnicodeEncodeError, e:
+					u = l
 				u = re.sub('&\#[0-9]+;', ' ', u)
 				s2 = bs.BeautifulSoup(u)
 				options = s2.findAll('option')
