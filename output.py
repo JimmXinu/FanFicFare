@@ -134,11 +134,11 @@ class EPubFanficWriter(FanficWriter):
 	def __init__(self, base, name, author, inmemory=False, compress=True):
 		self.basePath = base
 		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
-		self.storyTitle = name
+		self.storyTitle = self._removeEntities(name)
 		self.directory = self.basePath + '/' + re.sub('[^a-zA-Z0-9_\'-]+','',self.name)
 
 		self.inmemory = inmemory
-		self.authorName = author
+		self.authorName = self._removeEntities(author)
 		
 		self.files = {}
 		self.chapters = []
