@@ -72,7 +72,7 @@ class FictionAlley(FanfictionSiteAdapter):
 				title = a.string
 				result.append((url,title))
 					
-		print('Story "%s" by %s' % (self.storyName, self.authorName))
+		#print('Story "%s" by %s' % (self.storyName, self.authorName))
 		
 		return result
 	

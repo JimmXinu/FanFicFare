@@ -65,7 +65,7 @@ class HPFiction(FanfictionSiteAdapter):
 		else:
 			for o in select.findAll('option'):
 				if 'value' in o._getAttrMap():
-					url = 'http://' + self.host + '/' + self.path + o['value']
+					url = 'http://' + self.host + self.path + o['value']
 					title = o.string
 					if title != "Story Index":
 						urls.append((url,title))

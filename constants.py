@@ -115,7 +115,7 @@ acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
 
 acceptable_attributes = ['href']
 
-entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', '&#039;' : '\'',
+entities = { '&ndash;' : ' - ', '&mdash;' : ' - ', '&rdquo;' : '"', '&ldquo;' : '"', '&rsquo;' : '\'', 
              '&lsquo;' : '\'', '&quot;' : '"', '&hellip;' : '...', '&amp;' : '&', '&pound;' : '£', '&nbsp;' : ' ' }
 
 FB2_PROLOGUE = '<FictionBook>'

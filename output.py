@@ -59,10 +59,10 @@ class HTMLWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=False):
 		self.basePath = base
-		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
-		self.storyTitle = name
-		self.fileName = self.basePath + '/' + re.sub('[^a-zA-Z0-9_\'-]+','',self.name) + '.html'
-		self.authorName = author
+		self.storyTitle = removeEntities(name)
+		self.name = makeAcceptableFilename(name)
+		self.fileName =  self.basePath + '/' + self.name + '.html'
+		self.authorName = removeEntities(author)
 		
 		self.inmemory = inmemory
 
@@ -133,12 +133,12 @@ class EPubFanficWriter(FanficWriter):
 	
 	def __init__(self, base, name, author, inmemory=False, compress=True):
 		self.basePath = base
-		self.name = re.sub('&\#[0-9]+;', '_', name.replace(" ", "_").replace(":","_"))
-		self.storyTitle = self._removeEntities(name)
-		self.directory = self.basePath + '/' + re.sub('[^a-zA-Z0-9_\'-]+','',self.name)
+		self.storyTitle = removeEntities(name)
+		self.name = makeAcceptableFilename(name)
+		self.directory = self.basePath + '/' + self.name
+		self.authorName = removeEntities(author)
 
 		self.inmemory = inmemory
-		self.authorName = self._removeEntities(author)
 		
 		self.files = {}
 		self.chapters = []
@@ -164,21 +164,8 @@ class EPubFanficWriter(FanficWriter):
 		self._writeFile('META-INF/container.xml', CONTAINER)
 		self._writeFile('OEBPS/stylesheet.css', CSS)
 
-	def _removeEntities(self, text):
-		for e in entities:
-			v = entities[e]
-			try:
-				text = text.replace(e, v)
-			except UnicodeDecodeError, ex:
-				# for the pound symbol in constants.py
-				text = text.replace(e, v.decode('utf-8'))
-		
-		# &lt; &lt; and &amp; are the only html entities allowed in xhtml.
-		text = text.replace('&', '&amp;').replace('&amp;lt;', '&lt;').replace('&amp;gt;', '&gt;')
-		
-		return text
-	
 	def writeChapter(self, index, title, text):
+		title = removeEntities(title)
 		logging.debug("Writing chapter: %s" % title)
 		fileName="chapter%04d.xhtml" % index
 
@@ -188,7 +175,7 @@ class EPubFanficWriter(FanficWriter):
 		
 #		f = open(filePath, 'w')
 		
-		text = self._removeEntities(text)
+		text = removeEntities(text)
 		
 		# BeautifulStoneSoup doesn't have any selfClosingTags by default.  
 		# hr & br needs to be if they're going to work.
@@ -216,12 +203,10 @@ class EPubFanficWriter(FanficWriter):
 
 		text = self.soup.__str__('utf8')
 		
-		tt = self._removeEntities(title)
-		
-		self._writeFile(fn, XHTML_START % (tt, tt))
+		self._writeFile(fn, XHTML_START % (title, title))
 		self._writeFile(fn, text)
 		self._writeFile(fn, XHTML_END)
-#		print >> f, XHTML_START % (tt, tt)
+#		print >> f, XHTML_START % (title, title)
 #		f.write(text)
 #		print >> f, XHTML_END
 		
@@ -248,7 +233,7 @@ class EPubFanficWriter(FanficWriter):
 		for t,f in self.chapters:
 			chapterId = "chapter%04d" % i
 			
-			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, cgi.escape(t), f))
+			self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, t, f))
 			self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
 			
 			ids.append(chapterId)
@@ -279,3 +264,40 @@ class EPubFanficWriter(FanficWriter):
 			self.output = zipdata
 			
 #		zipdir.toZip(filename, self.directory)
+
+def unirepl(match):
+	"Return the unicode string for a decimal number"
+	s = match.group()
+	value = int(s[2:-1])
+	return unichr(value)
+
+def replaceNumberEntities(data):
+	p = re.compile(r'&#(\d+);')
+	return p.sub(unirepl, data)
+
+def removeEntities(text):
+	# replace numeric versions of [&<>] with named versions.
+	text = re.sub(r'&#0*38;','&amp;',text)
+	text = re.sub(r'&#0*60;','&lt;',text)
+	text = re.sub(r'&#0*62;','&gt;',text)
+	
+	# replace remaining &#000; entities with unicode value, such as &#039; -> '
+	text = replaceNumberEntities(text)
+
+	# replace several named entities with character, such as &mdash; -> -
+	# see constants.py for the list.
+	for e in entities:
+		v = entities[e]
+		try:
+			text = text.replace(e, v)
+		except UnicodeDecodeError, ex:
+			# for the pound symbol in constants.py
+			text = text.replace(e, v.decode('utf-8'))
+	
+	# &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
+	text = text.replace('&', '&amp;').replace('&amp;lt;', '&lt;').replace('&amp;gt;', '&gt;')
+		
+	return text
+	
+def makeAcceptableFilename(text):
+	return re.sub('[^a-zA-Z0-9_\'-]+','',removeEntities(text).replace(" ", "_").replace(":","_"))	
