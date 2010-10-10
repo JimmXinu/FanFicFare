@@ -58,7 +58,7 @@ class FicWad(FanfictionSiteAdapter):
 		else:
 			allOptions = select.findAll('option')
 			for o in allOptions:
-				url = o['value']
+				url = 'http://' + self.host + o['value']
 				title = o.string
 				# ficwad includes 'Story Index' in the dropdown of chapters, 
 				# but it's not a real chapter.
@@ -74,9 +74,6 @@ class FicWad(FanfictionSiteAdapter):
 		return self.authorName
 	
 	def getText(self, url):
-		if url.find('http://') == -1:
-			url = 'http://' + self.host + '/' + url
-		
 		data = u2.urlopen(url).read()
 		
 		soup = bs.BeautifulStoneSoup(data)
