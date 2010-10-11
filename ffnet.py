@@ -117,17 +117,12 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def getText(self, url):
 		data = self._fetchUrl(url)
-		lines = data.split('\n')
-		
-		textbuf = ''
-		emit = False
-		
 		olddata = data
 		try:
 			data = data.decode('utf8')
 		except:
 			data = olddata
-		
+
 		try:
 			soup = bs.BeautifulStoneSoup(data)
 		except:
