@@ -136,7 +136,7 @@ class EPubFanficWriter(FanficWriter):
 		self.storyTitle = removeEntities(name)
 		self.name = makeAcceptableFilename(name)
 		self.directory = self.basePath + '/' + self.name
-		self.authorName = removeEntities(author)
+		self.authorName = removeEntities(author+" aa")
 
 		self.inmemory = inmemory
 		
@@ -195,13 +195,20 @@ class EPubFanficWriter(FanficWriter):
 			if t.name in ('center'):
 				t['class']=t.name
 				t.name='div'
-
-		allPs = self.soup.findAll(recursive=True)
-		for p in allPs:
-			if p.string != None and len(p.string.strip()) == 0 :
-				p.extract()
+			# removes paired, but empty tags.
+			if t.string != None and len(t.string.strip()) == 0 :
+				t.extract()
 
 		text = self.soup.__str__('utf8')
+		
+		# ffnet(& maybe others) gives the whole chapter text
+		# as one line.  This causes problems for nook(at
+		# least) when the chapter size starts getting big
+		# (200k+) Using Soup's prettify() messes up italics
+		# and such.  Done after soup extract so <p> and <br>
+		# tags are normalized.  Doing it here seems less evil
+		# than hacking BeautifulSoup, but it's debatable.
+		text = text.replace('</p>','</p>\n').replace('<br />','<br />\n')
 		
 		self._writeFile(fn, XHTML_START % (title, title))
 		self._writeFile(fn, text)
