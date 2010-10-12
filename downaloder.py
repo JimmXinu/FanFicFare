@@ -57,6 +57,7 @@ class FanficLoader:
 			text = self.adapter.getText(u)
 			self.writer.writeChapter(i, n, text)
 			i = i+1
+			# time.sleep(2)
 			
 		self.writer.finalise()
 		
@@ -68,6 +69,8 @@ class FanficLoader:
 if __name__ == '__main__':
 	logging.basicConfig(level=logging.DEBUG)
 	(url, format) = sys.argv[1:]
+	# (url) = sys.argv[1]
+	# format = 'epub'
 	
 	if type(url) is unicode:
 		print('URL is unicode')
@@ -87,7 +90,7 @@ if __name__ == '__main__':
 		adapter = ffnet.FFNet(url)
 	elif url.find('harrypotterfanfiction.com') != -1:
 		adapter = hpfiction.HPFiction(url)
-	elif url.find('twilighted.net') != -1:
+	elif url.find('twilighted.net') != -1 or url.find('potionsandsnitches.net') != -1:
 		adapter = twilighted.Twilighted(url)
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
