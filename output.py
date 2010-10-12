@@ -136,7 +136,7 @@ class EPubFanficWriter(FanficWriter):
 		self.storyTitle = removeEntities(name)
 		self.name = makeAcceptableFilename(name)
 		self.directory = self.basePath + '/' + self.name
-		self.authorName = removeEntities(author+" aa")
+		self.authorName = removeEntities(author)
 
 		self.inmemory = inmemory
 		
@@ -275,11 +275,15 @@ class EPubFanficWriter(FanficWriter):
 def unirepl(match):
 	"Return the unicode string for a decimal number"
 	s = match.group()
-	value = int(s[2:-1])
+	if s[2].lower()=='x':
+		radix=16
+	else:
+		radix=10
+	value = int(s[3:-1], radix )
 	return unichr(value)
 
 def replaceNumberEntities(data):
-	p = re.compile(r'&#(\d+);')
+	p = re.compile(r'&#(x?)(\d+);')
 	return p.sub(unirepl, data)
 
 def removeEntities(text):
