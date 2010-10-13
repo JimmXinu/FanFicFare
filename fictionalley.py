@@ -86,19 +86,20 @@ class FictionAlley(FanfictionSiteAdapter):
 		# fictionalley uses full URLs in chapter list.
 		data = self.opener.open(url).read()
 		
-		# find <!-- headerend --> & <!-- footerstart -->
-		# and replaced with matching div pair for easier parsing.
-		# Yes, it's an evil kludge, but what can ya do?
-		data = data.replace('<!-- headerend -->','<div id="storytext">').replace('<!-- footerstart -->','</div>')
+		# find <!-- headerend --> & <!-- footerstart --> and
+		# replaced with matching div pair for easier parsing.
+		# Yes, it's an evil kludge, but what can ya do?  Using
+		# something other than div prevents soup from pairing
+		# our div with poor html inside the story text.
+		data = data.replace('<!-- headerend -->','<crazytagstringnobodywouldstumbleonaccidently id="storytext">').replace('<!-- footerstart -->','</crazytagstringnobodywouldstumbleonaccidently>')
 		soup = bs.BeautifulStoneSoup(data)
 		
-		div = soup.find('div', {'id' : 'storytext'})
+		div = soup.find('crazytagstringnobodywouldstumbleonaccidently', {'id' : 'storytext'})
 		if None == div:
 			logging.error("Error downloading Chapter: %s" % url)
 			exit(1)
 			return '<html/>'
-		
-		return div.__str__('utf8')
+		return div.__str__('utf8').replace('crazytagstringnobodywouldstumbleonaccidently','div')
 	
 	def getPrintableUrl(self, url):
 		return url
