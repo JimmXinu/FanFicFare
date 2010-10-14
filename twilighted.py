@@ -28,7 +28,11 @@ class Twilighted(FanfictionSiteAdapter):
 
 
   def requiresLogin(self, url = None):
-    return True
+    # potionsandsnitches.net doesn't require login.
+    if self.host == 'potionsandsnitches.net':
+      return False
+    else:
+      return True
 
   def performLogin(self, url = None):
     data = {}
