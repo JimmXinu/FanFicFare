@@ -45,29 +45,30 @@ def inMemoryZip(files):
 	# files have a structure of {'path/to/file' => content} dictionary
 	io = StringIO.StringIO()
 
-	# This fixes the uncompressed mimetype-first issue by opening
-	# the in memory file as STORE, putting in the mimetype, then
-	# closing and re-opening with DEFLATED.  while it is often
-	# true that mimetype is the first file, we can't assume it,
-	# because the dict object is defined as unordered.
-	path='mimetype'
-	memzip = zipfile.ZipFile(io, 'a', compression=zipfile.ZIP_STORED)
-	memzip.debug = 3
-	if type(files[path]) != type('str'):
-		data = files[path].getvalue()
-	else:
-		data = files[path]
+	if 'mimetype' in files:
+		# This fixes the uncompressed mimetype-first issue by opening
+		# the in memory file as STORE, putting in the mimetype, then
+		# closing and re-opening with DEFLATED.  while it is often
+		# true that mimetype is the first file, we can't assume it,
+		# because the dict object is defined as unordered.
+		path='mimetype'
+		memzip = zipfile.ZipFile(io, 'a', compression=zipfile.ZIP_STORED)
+		memzip.debug = 3
+		if type(files[path]) != type('str'):
+			data = files[path].getvalue()
+		else:
+			data = files[path]
 		
-	logging.debug("Writing ZIP path %s" % path)
-	try:
-		memzip.writestr(path, data.encode('utf-8'))
-	except UnicodeDecodeError, e:
-		memzip.writestr(path.encode('utf-8'), data.encode('utf-8'))
+		logging.debug("Writing ZIP path %s" % path)
+		try:
+			memzip.writestr(path, data.encode('utf-8'))
+		except UnicodeDecodeError, e:
+			memzip.writestr(path.encode('utf-8'), data.encode('utf-8'))
 		
-	memzip.close()
+		memzip.close()
 
-	# remove it from the files dict.
-	del(files['mimetype'])
+		# remove it from the files dict.
+		del(files['mimetype'])
 	
 	# open in 'a' append mode.
 	memzip = zipfile.ZipFile(io, 'a', compression=zipfile.ZIP_DEFLATED)
