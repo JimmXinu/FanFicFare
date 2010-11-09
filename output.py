@@ -26,6 +26,7 @@ from constants import *
 
 
 import html2text
+import datetime
 
 
 class FanficWriter:
@@ -41,8 +42,8 @@ class FanficWriter:
 class TextWriter(FanficWriter):
 	htmlWriter = None
 	
-	def __init__(self, base, name, author, inmemory=False, compress=False):
-		self.htmlWriter = HTMLWriter(base, name, author, True, False)
+	def __init__(self, base, adapter, inmemory=False, compress=False):
+		self.htmlWriter = HTMLWriter(base, adapter, True, False)
 	
 	def writeChapter(self, index, title, text):
 		self.htmlWriter.writeChapter(index, title, text)
@@ -57,12 +58,13 @@ class TextWriter(FanficWriter):
 class HTMLWriter(FanficWriter):
 	body = ''
 	
-	def __init__(self, base, name, author, inmemory=False, compress=False):
+	def __init__(self, base, adapter, inmemory=False, compress=False):
 		self.basePath = base
-		self.storyTitle = removeEntities(name)
-		self.name = makeAcceptableFilename(name)
-		self.fileName =  self.basePath + '/' + self.name + '.html'
-		self.authorName = removeEntities(author)
+		self.storyTitle = removeEntities(adapter.getStoryName())
+		self.name = makeAcceptableFilename(adapter.getOutputName())
+		self.fileName = self.basePath + '/' + self.name + '.html'
+		self.authorName = removeEntities(adapter.getAuthorName())
+		self.adapter = adapter
 		
 		self.inmemory = inmemory
 
@@ -131,14 +133,14 @@ class EPubFanficWriter(FanficWriter):
 			for f in self.files:
 				self.files[f].close()
 	
-	def __init__(self, base, name, author, inmemory=False, compress=True):
+	def __init__(self, base, adapter, inmemory=False, compress=True):
 		self.basePath = base
-		self.storyTitle = removeEntities(name)
-		self.name = makeAcceptableFilename(name)
+		self.storyTitle = removeEntities(adapter.getStoryName())
+		self.name = makeAcceptableFilename(adapter.getOutputName())
 		self.directory = self.basePath + '/' + self.name
-		self.authorName = removeEntities(author)
-
+		self.authorName = removeEntities(adapter.getAuthorName())
 		self.inmemory = inmemory
+		self.adapter = adapter
 		
 		self.files = {}
 		self.chapters = []
@@ -226,17 +228,50 @@ class EPubFanficWriter(FanficWriter):
 		tocFilePath = "OEBPS/toc.ncx"
 #		toc = open(tocFilePath, 'w')
 #		print >> toc, TOC_START % self.storyTitle
-		self._writeFile(tocFilePath, TOC_START % self.storyTitle)
+		self._writeFile(tocFilePath, TOC_START % (self.adapter.getUUID(), self.storyTitle))
+
+		published = self.adapter.getStoryPublished().strftime("%Y-%m-%d")
+		createda = self.adapter.getStoryCreated().strftime("%Y-%m-%d %H:%M:%S")
+		created = self.adapter.getStoryCreated().strftime("%Y-%m-%d")
+		updated = self.adapter.getStoryUpdated().strftime("%Y-%m-%d")
+		calibre = self.adapter.getStoryUpdated().strftime("%Y-%m-%dT%H:%M:%S")
+		
+		### writing content -- title page
+		titleFilePath = "OEBPS/title_page.xhtml"
+		self._writeFile(titleFilePath, TITLE_PAGE % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName, self.adapter.getCategory(), self.adapter.getGenre(), self.adapter.getStoryStatus(), published, updated, createda, self.adapter.getStoryRating(), self.adapter.getStoryUserRating(), self.adapter.getNumChapters(), self.adapter.getNumWords(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), self.adapter.getStoryDescription()))
+
 		### writing content -- opf file
 		opfFilePath = "OEBPS/content.opf"
-		
+
 #		opf = open(opfFilePath, 'w')
-		self._writeFile(opfFilePath, CONTENT_START % (self.storyTitle, self.authorName, uuid.uuid4().urn))
+		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName, self.adapter.getLanguageId(), published, created, updated, calibre, self.adapter.getStoryDescription()))
+
+		i = 0
+		subjs = []
+		subjs = self.adapter.getSubjects()
+		for subj in subjs:
+			self._writeFile(opfFilePath, CONTENT_SUBJECT % subj)
+			i = i + 1
+		if (i <= 0):
+			self._writeFile(opfFilePath, CONTENT_SUBJECT % "FanFiction")
+
+		self._writeFile(opfFilePath, CONTENT_END_METADATA % (self.adapter.getPublisher(), self.adapter.getUUID(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), self.adapter.getStoryUserRating()))
 #		print >> opf, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName)
 
 		ids = []
 		
-		i = 1
+		i = 0
+
+		t = "Title Page"
+		f = "title_page.xhtml"
+		chapterId = "Title Page"		
+		self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, t, f))
+		self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
+		
+		ids.append(chapterId)
+		
+		i = i + 1
+		
 		for t,f in self.chapters:
 			chapterId = "chapter%04d" % i
 			
