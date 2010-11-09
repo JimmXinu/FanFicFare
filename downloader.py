@@ -34,6 +34,7 @@ class FanficLoader:
 		self.inmemory = inmemory
 		self.compress = compress
 		self.badLogin = False
+		self.overWrite = True
 	
 	def getAdapter():
 		return self.adapter
@@ -48,7 +49,13 @@ class FanficLoader:
 				raise adapter.LoginRequiredException(self.adapter.url)
 		
 		urls = self.adapter.extractIndividualUrls()
-		self.writer = self.writerClass(self.booksDirectory, self.adapter.getStoryName(), self.adapter.getAuthorName(), inmemory=self.inmemory, compress=self.compress)
+
+		s = self.booksDirectory + "/" + self.adapter.getOutputName() + "." + format
+		if not self.overWrite and os.path.isfile(s):
+			print >> sys.stderr, "File " + s + " already exists!  Skipping!"
+			exit(10)
+
+		self.writer = self.writerClass(self.booksDirectory, self.adapter, inmemory=self.inmemory, compress=self.compress)
 		
 		i = 1
 		for u,n in urls:

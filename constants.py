@@ -15,12 +15,46 @@ h6 { text-align: center; }
     padding:0px;
     }
 .center   {text-align: center;}
+.cover    {text-align: center;}
+.full     {width: 100%; }
+.quarter  {width: 25%; }
 .smcap    {font-variant: small-caps;}
 .u        {text-decoration: underline;}
 .bold     {font-weight: bold;}
 '''
 
 MIMETYPE = '''application/epub+zip'''
+
+TITLE_PAGE = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head>
+<body><div class="cover">
+<h1 id="cfs_0"><a id="StoryLink" href="%s">%s</a></h1>
+<h2 id="cfs_1">by <a id="AuthorLink" href="%s">%s</a></h2>
+</div><div style="text-align:center">
+<table class="full">
+<colgroup span="2"></colgroup>
+<tr><td> </td>
+<td> </td>
+</tr><tr><td> </td>
+<td> </td>
+</tr><tr><td><b>Category:</b></td><td>%s</td>
+</tr><tr><td><b>Genre:</b></td><td>%s</td>
+</tr><tr><td><b>Status:</b></td><td>%s</td>
+</tr><tr><td><b>Published:</b></td><td>%s</td>
+</tr><tr><td><b>Updated:</b></td><td>%s</td>
+</tr><tr><td><b>Packaged:</b></td><td>%s</td>
+</tr><tr><td><b>Rating Age/User:</b></td><td>%s / %s</td>
+</tr><tr><td><b>Chapters/Words:</b></td><td>%s / %s</td>
+</tr><tr><td><b>URL:</b></td><td><h3 id="url0"><a id="StoryURL" href="%s">%s</a></h3></td>
+</tr><tr><td><b>Summary:</b></td>
+</tr><tr><td colspan="2">%s</td>
+</tr><tr><td> </td>
+<td> </td>
+</tr><tr><td> </td>
+<td> </td>
+</tr></table></div>
+<div class="full" id="pb_0"/></body></html>
+'''
 
 CONTAINER = '''<?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -30,42 +64,60 @@ CONTAINER = '''<?xml version="1.0"?>
 </container>
 '''
 
-CONTENT_START = '''<?xml version="1.0"?>
+CONTENT_START = '''<?xml version="1.0" encoding="utf-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf"
-         unique-identifier="BookID">
- <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
-           xmlns:opf="http://www.idpf.org/2007/opf">
+         unique-identifier="fanficdownloader-uuid">
+ <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:dcterms="http://purl.org/dc/terms/"
+           xmlns:opf="http://www.idpf.org/2007/opf"
+           xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
+   <dc:identifier id="fanficdownloader-uuid">BookID-Epub-%s</dc:identifier>
    <dc:title>%s</dc:title> 
    <dc:creator opf:role="aut">%s</dc:creator>
-   <dc:language>en-UK</dc:language> 
+   <dc:contributor opf:role="bkp">fanficdownloader [http://fanficdownloader.googlecode.com]</dc:contributor>
+   <dc:language>%s</dc:language> 
    <dc:rights></dc:rights>
-   <dc:subject>fanfiction</dc:subject> 
-   <dc:publisher>sgzmd</dc:publisher> 
-   <dc:identifier id="BookID">%s</dc:identifier>
+   <dc:date opf:event="publication">%s</dc:date>
+   <dc:date opf:event="creation">%s</dc:date>
+   <dc:date opf:event="modification">%s</dc:date>
+   <meta name="calibre:timestamp" content="%s"/>
+   <dc:description>%s</dc:description>
+'''
+
+CONTENT_END_METADATA = '''   <dc:publisher>%s</dc:publisher> 
+   <dc:identifier id="BookId">%s</dc:identifier>
+   <dc:identifier opf:scheme="URL">%s</dc:identifier>
+   <dc:source>%s</dc:source>
+   <dc:type>FanFiction</dc:type>
+   <meta name="calibre:rating" content="%s"/>
  </metadata>
  <manifest>
   <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
   <item id="style" href="stylesheet.css" media-type="text/css" />
 '''
 
-CONTENT_ITEM = '''<item id="%s" href="%s" media-type="application/xhtml+xml" />
+CONTENT_SUBJECT = '''   <dc:subject>%s</dc:subject> 
 '''
 
-CONTENT_END_MANIFEST = '''</manifest>
-<spine toc="ncx">
+CONTENT_ITEM = '''  <item id="%s" href="%s" media-type="application/xhtml+xml" />
 '''
 
-CONTENT_ITEMREF = '''<itemref idref="%s" />
+CONTENT_END_MANIFEST = ''' </manifest>
+ <spine toc="ncx">
 '''
 
-CONTENT_END = '''</spine>
+CONTENT_ITEMREF = '''  <itemref idref="%s" />
+'''
+
+CONTENT_END = ''' </spine>
 </package>
 '''
 
 TOC_START = '''<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
   <head>
-    <meta name="dtb:uid" content="sigizmund.com062820072147132"/>
+    <meta name="dtb:uid" content="%s"/>
     <meta name="dtb:depth" content="1"/>
     <meta name="dtb:totalPageCount" content="0"/>
     <meta name="dtb:maxPageNumber" content="0"/>
@@ -502,3 +554,5 @@ FB2_DESCRIPTION = '''<description>
 <version>2.0</version>
 </document-info>
 </description>'''
+
+HTML_ESC_Definitions = 'HTML_Escape.def'
