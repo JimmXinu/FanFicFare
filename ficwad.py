@@ -71,6 +71,7 @@ class FicWad(FanfictionSiteAdapter):
 		self.storyUserRating = '0'
 		self.storyCharacters = []
 		self.storySeries = ''
+		oldurl = ''
 		
 		data = u2.urlopen(self.url).read()
 		soup = bs.BeautifulStoneSoup(data)
@@ -84,6 +85,7 @@ class FicWad(FanfictionSiteAdapter):
 		if u1 == "story":
 			# This page does not have the correct information on it..  Need to get the Story Title Page
 			logging.debug('URL %s is a chapter URL.  Getting Title Page http://%s/%s/%s.' % (self.url, self.host, u1, storyid))
+			oldurl = self.url
 			self.url = 'http://' + self.host + '/' + u1 + '/' + storyid
 			data = u2.urlopen(self.url).read()
 			soup = bs.BeautifulStoneSoup(data)
@@ -177,6 +179,10 @@ class FicWad(FanfictionSiteAdapter):
 		result = []
 		ii = 1
 
+		if oldurl is not None and len(oldurl) > 0:
+			data = u2.urlopen(oldurl).read()
+			soup = bs.BeautifulStoneSoup(data)
+			
 		storylist = soup.find('ul', {'id' : 'storylist'})
 		if storylist is not None:
 			allH4s = storylist.findAll('h4')
