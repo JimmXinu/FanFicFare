@@ -39,11 +39,24 @@ class HPFiction(FanfictionSiteAdapter):
 		logging.debug('self.path=%s' % self.path)
 	
 		self.opener = u2.build_opener(u2.HTTPCookieProcessor())
-	
+
+		self.chapurl = False
+		self.storyId = '0'
+		
+		sss = self.url.split('?')
+		logging.debug('sss=%s' % sss)
+		if sss is not None and len(sss) > 1:
+			sc = sss[1].split('=')
+			logging.debug('sc=%s' % sc)
+			if sc is not None and len(sc) > 1:
+				if sc[0] == 'chapterid':
+					self.chapurl = True
+				elif sc[0] == 'psid' or sc[0] == 'sid':
+					self.storyId = sc[1]
+
 		self.storyDescription = 'Fanfiction Story'
 		self.authorId = '0'
 		self.authorURL = ''
-		(u1, self.storyId) = self.url.split('=')
 		self.storyPublished = datetime.date(1970, 01, 31)
 		self.storyCreated = datetime.datetime.now()
 		self.storyUpdated = datetime.date(1970, 01, 31)
@@ -93,6 +106,7 @@ class HPFiction(FanfictionSiteAdapter):
 		return True
 
 	def extractIndividualUrls(self):
+		
 		data = self.opener.open(self.url).read()
 		soup = bs.BeautifulSoup(data)
 		
@@ -100,10 +114,42 @@ class HPFiction(FanfictionSiteAdapter):
 		def_chapurl = ''
 		def_chaptitle = ''
 		
+		if self.chapurl:
+			foundid = False
+			for a in links:
+				if a['href'].find('psid') != -1:
+					sp = a['href'].split('?')
+					if sp is not None and len(sp) > 1:
+						for sp1 in sp:
+							if sp1.find('psid') != -1:
+								ps = sp1.split('=')
+								if ps is not None and len(ps) > 1:
+									self.storyId = ps[1].replace('\'','')
+									foundid = True
+					self.storyName = a.string
+					logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
+					break
+			if foundid:
+				self.url = "http://" + self.host + "/viewstory.php?psid=" + self.storyId
+				logging.debug('Title Page URL=%s' % self.url)
+				data1 = self.opener.open(self.url).read()
+				hdrsoup = bs.BeautifulSoup(data1)
+			else:
+				hdrsoup = soup
+		else:
+			hdrsoup = soup
+			
 		for a in links:
-			if a['href'].find('psid') != -1:
+			if not self.chapurl and a['href'].find('psid') != -1:
+				sp = a['href'].split('?')
+				if sp is not None and len(sp) > 1:
+					for sp1 in sp:
+						if sp1.find('psid') != -1:
+							ps = sp1.split('=')
+							if ps is not None and len(ps) > 1:
+								self.storyId = ps[1].replace('\'','')
 				self.storyName = a.string
-				logging.debug('self.storyName=%s' % self.storyName)
+				logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
 			elif a['href'].find('viewuser.php') != -1:
 				self.authorName = a.string
 				self.authorURL = 'http://' + self.host + '/' + a['href']
@@ -114,7 +160,7 @@ class HPFiction(FanfictionSiteAdapter):
 				def_chaptitle = a.string
 				logging.debug('def_chapurl=%s, def_chaptitle=%s' % (def_chapurl, def_chaptitle))
 		
-		centers = soup.findAll('center')
+		centers = hdrsoup.findAll('center')
 		for center in centers:
 			tds = center.findAll ('td')
 			if tds is not None and len(tds) > 0:
