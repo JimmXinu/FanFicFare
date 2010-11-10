@@ -29,6 +29,9 @@ class FanfictionSiteAdapter:
 	def setPassword(self, password):
 		pass
 
+	def getHost(self):
+		pass
+	
 	def getStoryURL(self):
 		pass
 

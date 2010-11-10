@@ -242,10 +242,29 @@ class EPubFanficWriter(FanficWriter):
 		else:
 			description = str(description)
 		if description is not None and len(description) > 0:
+			description = description.replace ('\\\'', '').replace('\\\"', '')
 			description =  removeEntities(description.replace('&nbsp;',' ').replace('&rsquo;',''))
+		else:
+			description = ' '
+
 		### writing content -- title page
 		titleFilePath = "OEBPS/title_page.xhtml"
-		self._writeFile(titleFilePath, TITLE_PAGE % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName, self.adapter.getCategory(), self.adapter.getGenre(), self.adapter.getStoryStatus(), published, updated, createda, self.adapter.getStoryRating(), self.adapter.getStoryUserRating(), self.adapter.getNumChapters(), self.adapter.getNumWords(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), description))
+		self._writeFile(titleFilePath, TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Published:', published))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Updated:', updated))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
+		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
+		tmpstr = self.adapter.getNumChapters() + " / " + self.adapter.getNumWords()
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
+
+		self._writeFile(titleFilePath, TITLE_FOOTER % description )
 
 		### writing content -- opf file
 		opfFilePath = "OEBPS/content.opf"

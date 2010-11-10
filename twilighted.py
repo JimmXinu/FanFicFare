@@ -277,6 +277,10 @@ class Twilighted(FanfictionSiteAdapter):
         else:
           return False
 
+    def getHost(self):
+        logging.debug('self.host=%s' % self.host)
+        return self.host
+
     def getStoryURL(self):
         logging.debug('self.url=%s' % self.url)
         return self.url
