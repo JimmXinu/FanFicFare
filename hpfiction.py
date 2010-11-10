@@ -120,7 +120,6 @@ class HPFiction(FanfictionSiteAdapter):
 			if tds is not None and len(tds) > 0:
 				for td in tds:
 					s = re.split ("<[^>]+>", str(td).replace('\n','').replace('&nbsp;',' '))
-					logging.debug('s=%s' % s)
 					ii = 0
 					ll = len(s)
 					sss = ''
