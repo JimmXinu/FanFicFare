@@ -157,7 +157,6 @@ acceptable_elements = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'big',
 acceptable_attributes = ['href']
 
 # entity list from http://code.google.com/p/doctype/wiki/CharacterEntitiesConsistent
-# when version without ; is allowed, make sure to put the version with first.
 entities = { '&aacute;' : 'á',
              '&Aacute;' : 'Á',
              '&Aacute' : 'Á',

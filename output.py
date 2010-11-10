@@ -339,7 +339,8 @@ def removeEntities(text):
 
 	# replace several named entities with character, such as &mdash; -> -
 	# see constants.py for the list.
-	for e in entities:
+	# reverse sort will put entities with ; before the same one without, when valid.
+	for e in reversed(sorted(entities.keys())):
 		v = entities[e]
 		try:
 			text = text.replace(e, v)
