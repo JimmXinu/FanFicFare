@@ -258,7 +258,7 @@ class EPubFanficWriter(FanficWriter):
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
 		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
-		tmpstr = self.adapter.getNumChapters() + " / " + self.adapter.getNumWords()
+		tmpstr = str(self.adapter.getNumChapters()) + " / " + str(self.adapter.getNumWords())
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
