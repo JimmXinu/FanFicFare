@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class LoginRequiredException(Exception):
 	def __init__(self, url):
 		self.url = url

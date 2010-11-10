@@ -27,7 +27,7 @@ h7 { text-align: left; font-size: large; font-weight: bold; }
 
 MIMETYPE = '''application/epub+zip'''
 
-TITLE_HEADER = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+TITLE_HEADER = '''<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head><body>
 <p><h7 id="lnks"><b><a id="StoryLink" href="%s">%s</a></b> by <b><a id="AuthorLink" href="%s">%s</a></b></h7></p>
 <table class="full">
@@ -41,7 +41,7 @@ TITLE_FOOTER = '''</table>
 </body></html>
 '''
 
-CONTAINER = '''<?xml version="1.0"?>
+CONTAINER = '''<?xml version="1.0" encoding="utf-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>

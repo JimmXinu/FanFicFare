@@ -5,6 +5,7 @@ import re
 import sys
 import cgi
 import uuid
+import unicodedata
 import codecs
 import shutil
 import string
@@ -123,7 +124,7 @@ class EPubFanficWriter(FanficWriter):
 			if self.inmemory:
 				self.files[fileName] = StringIO.StringIO()
 			else:
-				self.files[fileName] = open(self.directory + '/' + fileName, 'w')
+				self.files[fileName] = open(self.directory + '/' + fileName, encoding='utf-8', mode='w')
 			
 			self._writeFile(fileName, data)
 		
@@ -182,7 +183,7 @@ class EPubFanficWriter(FanficWriter):
 		# BeautifulStoneSoup doesn't have any selfClosingTags by default.  
 		# hr & br needs to be if they're going to work.
 		# Some stories do use multiple br tags as their section breaks...
-		self.soup = bs.BeautifulStoneSoup(text.decode('utf-8'), selfClosingTags=('br','hr'))
+		self.soup = bs.BeautifulStoneSoup(text, selfClosingTags=('br','hr'))
 
 		allTags = self.soup.findAll(recursive=True)
 		for t in allTags:
@@ -349,6 +350,15 @@ def replaceNumberEntities(data):
 
 def removeEntities(text):
 	# replace numeric versions of [&<>] with named versions.
+	
+	try:
+		t = text.decode('utf-8')
+	except UnicodeEncodeError, e:
+		try:
+			t = text.encode ('ascii', 'xmlcharrefreplace') 
+		except UnicodeEncodeError, e:
+			t = text
+	text = t 
 	text = re.sub(r'&#0*38;','&amp;',text)
 	text = re.sub(r'&#0*60;','&lt;',text)
 	text = re.sub(r'&#0*62;','&gt;',text)
