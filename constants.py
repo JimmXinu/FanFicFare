@@ -2,12 +2,14 @@
 
 CSS = '''body { margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; text-align: justify; }
 pre { font-size: x-small; }
+sml { font-size: small; }
 h1 { text-align: center; }
 h2 { text-align: center; }
 h3 { text-align: center; }
 h4 { text-align: center; }
 h5 { text-align: center; }
 h6 { text-align: center; }
+h7 { text-align: left; font-size: large; font-weight: bold; }
 .CI {
     text-align:center;
     margin-top:0px;
@@ -26,34 +28,21 @@ h6 { text-align: center; }
 MIMETYPE = '''application/epub+zip'''
 
 TITLE_PAGE = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head>
-<body><div class="cover">
-<h1 id="cfs_0"><a id="StoryLink" href="%s">%s</a></h1>
-<h2 id="cfs_1">by <a id="AuthorLink" href="%s">%s</a></h2>
-</div><div style="text-align:center">
+<title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head><body>
+<p><h7 id="lnks"><b><a id="StoryLink" href="%s">%s</a></b> by <b><a id="AuthorLink" href="%s">%s</a></b></h7></p>
 <table class="full">
-<colgroup span="2"></colgroup>
-<tr><td> </td>
-<td> </td>
-</tr><tr><td> </td>
-<td> </td>
-</tr><tr><td><b>Category:</b></td><td>%s</td>
-</tr><tr><td><b>Genre:</b></td><td>%s</td>
-</tr><tr><td><b>Status:</b></td><td>%s</td>
-</tr><tr><td><b>Published:</b></td><td>%s</td>
-</tr><tr><td><b>Updated:</b></td><td>%s</td>
-</tr><tr><td><b>Packaged:</b></td><td>%s</td>
-</tr><tr><td><b>Rating Age/User:</b></td><td>%s / %s</td>
-</tr><tr><td><b>Chapters/Words:</b></td><td>%s / %s</td>
-</tr><tr><td><b>URL:</b></td><td><h3 id="url0"><a id="StoryURL" href="%s">%s</a></h3></td>
-</tr><tr><td><b>Summary:</b></td>
-</tr><tr><td colspan="2">%s</td>
-</tr><tr><td> </td>
-<td> </td>
-</tr><tr><td> </td>
-<td> </td>
-</tr></table></div>
-<div class="full" id="pb_0"/></body></html>
+<tr><td><b>Category:</b></td><td>%s</td></tr>
+<tr><td><b>Genre:</b></td><td>%s</td></tr>
+<tr><td><b>Status:</b></td><td>%s</td></tr>
+<tr><td><b>Published:</b></td><td>%s</td></tr>
+<tr><td><b>Updated:</b></td><td>%s</td></tr>
+<tr><td><b>Packaged:</b></td><td>%s</td></tr>
+<tr><td><b>Rating Age/User:</b></td><td>%s / %s</td></tr>
+<tr><td><b>Chapters/Words:</b></td><td>%s / %s</td></tr>
+</table>
+<p><b>URL:</b><pre id="url0"><br /><a id="StoryURL" href="%s">%s</a></pre></p>
+<p><b>Summary:</b><br />%s</p>
+</body></html>
 '''
 
 CONTAINER = '''<?xml version="1.0"?>
