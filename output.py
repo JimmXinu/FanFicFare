@@ -236,15 +236,22 @@ class EPubFanficWriter(FanficWriter):
 		updated = self.adapter.getStoryUpdated().strftime("%Y-%m-%d")
 		calibre = self.adapter.getStoryUpdated().strftime("%Y-%m-%dT%H:%M:%S")
 		
+		description = self.adapter.getStoryDescription()
+		if hasattr(description, "text"):
+			description = str(description.text)
+		else:
+			description = str(description)
+		if description is not None and len(description) > 0:
+			description =  removeEntities(description.replace('&nbsp;',' ').replace('&rsquo;',''))
 		### writing content -- title page
 		titleFilePath = "OEBPS/title_page.xhtml"
-		self._writeFile(titleFilePath, TITLE_PAGE % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName, self.adapter.getCategory(), self.adapter.getGenre(), self.adapter.getStoryStatus(), published, updated, createda, self.adapter.getStoryRating(), self.adapter.getStoryUserRating(), self.adapter.getNumChapters(), self.adapter.getNumWords(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), self.adapter.getStoryDescription()))
+		self._writeFile(titleFilePath, TITLE_PAGE % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName, self.adapter.getCategory(), self.adapter.getGenre(), self.adapter.getStoryStatus(), published, updated, createda, self.adapter.getStoryRating(), self.adapter.getStoryUserRating(), self.adapter.getNumChapters(), self.adapter.getNumWords(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), description))
 
 		### writing content -- opf file
 		opfFilePath = "OEBPS/content.opf"
 
 #		opf = open(opfFilePath, 'w')
-		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName, self.adapter.getLanguageId(), published, created, updated, calibre, self.adapter.getStoryDescription()))
+		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName, self.adapter.getLanguageId(), published, created, updated, calibre, description))
 
 		i = 0
 		subjs = []
