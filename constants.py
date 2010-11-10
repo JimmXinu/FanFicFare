@@ -27,20 +27,16 @@ h7 { text-align: left; font-size: large; font-weight: bold; }
 
 MIMETYPE = '''application/epub+zip'''
 
-TITLE_PAGE = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+TITLE_HEADER = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head><body>
 <p><h7 id="lnks"><b><a id="StoryLink" href="%s">%s</a></b> by <b><a id="AuthorLink" href="%s">%s</a></b></h7></p>
 <table class="full">
-<tr><td><b>Category:</b></td><td>%s</td></tr>
-<tr><td><b>Genre:</b></td><td>%s</td></tr>
-<tr><td><b>Status:</b></td><td>%s</td></tr>
-<tr><td><b>Published:</b></td><td>%s</td></tr>
-<tr><td><b>Updated:</b></td><td>%s</td></tr>
-<tr><td><b>Packaged:</b></td><td>%s</td></tr>
-<tr><td><b>Rating Age/User:</b></td><td>%s / %s</td></tr>
-<tr><td><b>Chapters/Words:</b></td><td>%s / %s</td></tr>
-</table>
-<p><b>URL:</b><pre id="url0"><br /><a id="StoryURL" href="%s">%s</a></pre></p>
+'''
+
+TITLE_ENTRY = '''<tr><td><b>%s</b></td><td>%s</td></tr>
+'''
+
+TITLE_FOOTER = '''</table>
 <p><b>Summary:</b><br />%s</p>
 </body></html>
 '''

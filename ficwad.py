@@ -229,6 +229,10 @@ class FicWad(FanfictionSiteAdapter):
 		
 		return result
 	
+	def getHost(self):
+		logging.debug('self.host=%s' % self.host)
+		return self.host
+
 	def getStoryName(self):
 		return self.storyName
 

@@ -68,21 +68,29 @@ class FFNet(FanfictionSiteAdapter):
 		
 		logging.debug('self.path=%s' % self.path)
 
-		spl = self.path.split('/')
-		logging.debug('spl=%s' % spl)
-		if len(spl) == 5:
-			self.path = "/".join(spl[1:-1])
-			self.outputName = spl[4] + '-ffnet_' + spl[2]
-		
 		if self.path.startswith('/'):
 			self.path = self.path[1:]
+		
+		spl = self.path.split('/')
+		logging.debug('spl=%s' % spl)
+		if spl is not None:
+			if len(spl) > 0 and spl[0] != 's':
+				logging.error("Error URL \"%s\" is not a story." % self.url)
+				exit (20)				
+			if len(spl) > 1:
+				self.storyId = spl[1]
+			if len(spl) > 2:
+				chapter = spl[1]
+			else:
+				chapter = '1'
+			if len(spl) == 5:
+				self.path = "/".join(spl[1:-1])
+				self.outputName = spl[4] + '-ffnet_' + spl[2]
 		
 		if self.path.endswith('/'):
 			self.path = self.path[:-1]
 		
 		logging.debug('self.path=%s' % self.path)
-
-		(s, self.storyId, chapter) = self.path.split('/')
 		
 		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
 		logging.debug('self.uuid=%s' % self.uuid)
@@ -190,12 +198,14 @@ class FFNet(FanfictionSiteAdapter):
 			if l.find("&#187;") != -1 and l.find('<b>') != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyName = str(s2.find('b').string)
-				logging.debug('self.storyId=%s self.storyName=%s' % (self.storyId, self.storyName))
+				# mangling storyName replaces url for outputName 
+				self.outputName = self.storyName.replace(" ", "_") + '-ffnet_' + self.storyId
+				logging.debug('self.storyId=%s, self.storyName=%s, self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
 			elif l.find("<a href='/u/") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.authorName = str(s2.a.string)
 				(u1, u2, self.authorId, u3) = s2.a['href'].split('/')
-				logging.debug('self.authorId=%s self.authorName=%s' % (self.authorId, self.authorName))
+				logging.debug('self.authorId=%s, self.authorName=%s' % (self.authorId, self.authorName))
 			elif l.find("Rated: <a href=") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyRating = str(s2.a.string).strip()
@@ -320,6 +330,10 @@ class FFNet(FanfictionSiteAdapter):
 
 	def setPassword(self, password):
 		self.password = password
+
+	def getHost(self):
+		logging.debug('self.host=%s' % self.host)
+		return self.host
 
 	def getStoryURL(self):
 		logging.debug('self.url=%s' % self.url)
