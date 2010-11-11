@@ -16,6 +16,7 @@ import htmlentitydefs as hdefs
 
 
 import ffnet
+import fpcom
 import ficwad
 import output
 import adapter
@@ -96,8 +97,10 @@ if __name__ == '__main__':
 		adapter = fictionalley.FictionAlley(url)
 	elif url.find('ficwad') != -1:
 		adapter = ficwad.FicWad(url)
-	elif url.find('fanfiction.net') != -1 or url.find('fictionpress.com') != -1:
+	elif url.find('fanfiction.net') != -1:
 		adapter = ffnet.FFNet(url)
+	elif url.find('fictionpress.com') != -1:
+		adapter = fpcom.FPCom(url)
 	elif url.find('harrypotterfanfiction.com') != -1:
 		adapter = hpfiction.HPFiction(url)
 	elif url.find('twilighted.net') != -1:
