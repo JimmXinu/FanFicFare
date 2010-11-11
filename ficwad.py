@@ -193,6 +193,7 @@ class FicWad(FanfictionSiteAdapter):
 
 			if select is None:
 				self.numChapters = '1'
+				logging.debug('self.numChapters=%s' % self.numChapters)
 				result.append((self.url,self.storyName))
 				logging.debug('Chapter[%s]=%s %s' % (ii, self.url, self.storyName))
 			else:
@@ -208,9 +209,6 @@ class FicWad(FanfictionSiteAdapter):
 						ii = ii+1
 					else:
 						logging.debug('Skipping Story Index.  URL %s' % url)
-		
-		self.numChapters = str(ii)
-		logging.debug('self.numChapters=%s' % self.numChapters)
 		
 		return result
 	
