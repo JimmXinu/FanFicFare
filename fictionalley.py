@@ -63,45 +63,30 @@ class FictionAlley(FanfictionSiteAdapter):
 		self.language = 'English'
 		self.subjects = []
 		self.subjects.append ('fanfiction')
+		self.subjects.append ('Harry Potter')
 		self.publisher = self.host
 		self.numChapters = 0
 		self.numWords = 0
-		self.genre = 'FanFiction'
-		self.category = 'Category'
+		self.genre = ''
+		self.category = 'Harry Potter'
 		self.storyStatus = 'In-Progress'
 		self.storyRating = 'K'
 		self.storyUserRating = '0'
 		self.storyCharacters = []
 		self.storySeries = ''
-	
+		self.outputName = ''
+		self.outputStorySep = '-fa_'	
 		
-	def requiresLogin(self, url = None):
-		return False
-	
-	def performLogin(self, url = None):
-		pass
-		
-	def setLogin(self, login):
-		self.login = login
-	
-	def setPassword(self, password):
-		self.password = password
-	
-	def _addSubject(self, subject):
-		subj = subject.upper()
-		for s in self.subjects:
-			if s.upper() == subj:
-				return False
-		self.subjects.append(subject)
-		return True
+	def getPasswordLine(self):
+		return 'opaopapassword'
 
-	def _addCharacter(self, character):
-		chara = character.upper()
-		for c in self.storyCharacters:
-			if c.upper() == chara:
-				return False
-		self.storyCharacters.append(character)
-		return True
+	def getLoginScript(self):
+		return 'opaopaloginscript'
+
+	def getLoginPasswordOthers(self):
+		login = dict(login = 'name', password = 'pass')
+		other = dict(submit = 'Log In', remember='yes')
+		return (login, other)
 
 	def _processChapterHeaders(self, div):
 		brs = div.findAll ('br')
@@ -125,12 +110,12 @@ class FictionAlley(FanfictionSiteAdapter):
 					logging.debug('self.genre=%s' % self.genre)
 					s2 = valstr.split(', ')
 					for ss2 in s2:
-						self._addSubject(ss2)
+						self.addSubject(ss2)
 					logging.debug('self.subjects=%s' % self.subjects)
 				elif keystr == 'Main Character(s):':
 					s2 = valstr.split(', ')
 					for ss2 in s2:
-						self._addCharacter(ss2)
+						self.addCharacter(ss2)
 					logging.debug('self.storyCharacters=%s' % self.storyCharacters)
 				elif keystr == 'Summary:':
 					self.storyDescription = valstr
@@ -147,7 +132,6 @@ class FictionAlley(FanfictionSiteAdapter):
 		# Get title from <title>, remove before '-'.
 		title = soup.find('title').string
 		self.storyName = "-".join(title.split('-')[1:]).strip().replace(" (Story Text)","")
-		self.outputName = self.storyName.replace(" ", "_") + '-fa_' + self.storyId
 		
 		links = soup.findAll('li')
 
@@ -226,24 +210,8 @@ class FictionAlley(FanfictionSiteAdapter):
 
 		print('Story "%s" by %s' % (self.storyName, self.authorName))
 		
-		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-		logging.debug('self.uuid=%s' % self.uuid)
-		
 		return result
 	
-	def getHost(self):
-		logging.debug('self.host=%s' % self.host)
-		return self.host
-
-	def getStoryName(self):
-		return self.storyName
-
-	def getAuthorName(self):
-		return self.authorName
-	
-	def getOutputName(self):
-		return self.outputName
-
 	def getText(self, url):
 		# fictionalley uses full URLs in chapter list.
 		data = self.opener.open(url).read()
@@ -268,109 +236,6 @@ class FictionAlley(FanfictionSiteAdapter):
 		else:
 			return div.__str__('utf8').replace('crazytagstringnobodywouldstumbleonaccidently','div')
 	
-	def getStoryURL(self):
-		logging.debug('self.url=%s' % self.url)
-		return self.url
-
-	def getAuthorURL(self):
-		logging.debug('self.authorURL=%s' % self.authorURL)
-		return self.authorURL
-
-	def getUUID(self):
-		logging.debug('self.uuid=%s' % self.uuid)
-		return self.uuid
-
-	def getAuthorId(self):
-		logging.debug('self.authorId=%s' % self.authorId)
-		return self.authorId
-
-	def getStoryId(self):
-		logging.debug('self.storyId=%s' % self.storyId)
-		return self.storyId
-
-	def getStoryDescription(self):
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
-		return self.storyDescription
-
-	def getStoryPublished(self):
-		logging.debug('self.storyPublished=%s' % self.storyPublished)
-		return self.storyPublished
-
-	def getStoryCreated(self):
-		self.storyCreated = datetime.datetime.now()
-		logging.debug('self.storyCreated=%s' % self.storyCreated)
-		return self.storyCreated
-
-	def getStoryUpdated(self):
-		logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-		return self.storyUpdated
-
-	def getLanguage(self):
-		logging.debug('self.language=%s' % self.language)
-		return self.language
-
-	def getLanguageId(self):
-		logging.debug('self.languageId=%s' % self.languageId)
-		return self.languageId
-
-	def getSubjects(self):
-		logging.debug('self.subjects=%s' % self.authorName)
-		return self.subjects
-
-	def getPublisher(self):
-		logging.debug('self.publisher=%s' % self.publisher)
-		return self.publisher
-
-	def getNumChapters(self):
-		logging.debug('self.numChapters=%s' % self.numChapters)
-		return self.numChapters
-
-	def getNumWords(self):
-		logging.debug('self.numWords=%s' % self.numWords)
-		return self.numWords
-
-	def getCategory(self):
-		logging.debug('self.category=%s' % self.category)
-		return self.category
-
-	def getGenre(self):
-		logging.debug('self.genre=%s' % self.genre)
-		return self.genre
-
-	def getStoryStatus(self):
-		logging.debug('self.storyStatus=%s' % self.storyStatus)
-		return self.storyStatus
-
-	def getStoryRating(self):
-		logging.debug('self.storyRating=%s' % self.storyRating)
-		return self.storyRating
-
-	def getStoryUserRating(self):
-		logging.debug('self.storyUserRating=%s' % self.storyUserRating)
-		return self.storyUserRating
-
-	def getPrintableUrl(self, url):
-		return url
-	
-	def getPasswordLine(self):
-		return 'opaopapassword'
-
-	def getLoginScript(self):
-		return 'opaopaloginscript'
-
-	def getLoginPasswordOthers(self):
-		login = dict(login = 'name', password = 'pass')
-		other = dict(submit = 'Log In', remember='yes')
-		return (login, other)
-
-	def getStoryCharacters(self):
-		logging.debug('self.storyCharacters=%s' % self.storyCharacters)
-		return self.storyCharacters
-	
-	def getStorySeries(self):
-		logging.debug('self.storySeries=%s' % self.storySeries)
-		return self.storySeries
-		
 	
 		
 if __name__ == '__main__':

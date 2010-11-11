@@ -75,36 +75,14 @@ class HPFiction(FanfictionSiteAdapter):
 		self.storyUserRating = '0'
 		self.storyCharacters = []
 		self.storySeries = ''
-		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-		logging.debug('self.uuid=%s' % self.uuid)
+		self.outputName = ''
+		self.outputStorySep = '-hp_'
 		
 		logging.debug("Created HPFiction: url=%s" % (self.url))
 	
 	def _getLoginScript(self):
 		return self.path
-
-	def requiresLogin(self, url = None):
-		return False
-
-	def performLogin(self, url = None):
-		return True
 	
-	def _addSubject(self, subject):
-		subj = subject.upper()
-		for s in self.subjects:
-			if s.upper() == subj:
-				return False
-		self.subjects.append(subject)
-		return True
-
-	def _addCharacter(self, character):
-		chara = character.upper()
-		for c in self.storyCharacters:
-			if c.upper() == chara:
-				return False
-		self.storyCharacters.append(character)
-		return True
-
 	def extractIndividualUrls(self):
 		
 		data = self.opener.open(self.url).read()
@@ -182,7 +160,7 @@ class HPFiction(FanfictionSiteAdapter):
 							elif s[ii] == 'Characters:':
 								s2 = s[ii+1].split(', ')
 								for ss2 in s2:
-									self._addCharacter(ss2)
+									self.addCharacter(ss2)
 								logging.debug('self.storyCharacters=%s' % self.storyCharacters)
 								ii = ii + 2
 							elif s[ii] == 'Genre(s):':
@@ -190,7 +168,7 @@ class HPFiction(FanfictionSiteAdapter):
 								logging.debug('self.genre=%s' % self.genre)
 								s2 = s[ii+1].split(', ')
 								for ss2 in s2:
-									self._addSubject(ss2)
+									self.addSubject(ss2)
 								logging.debug('self.subjects=%s' % self.subjects)
 								ii = ii + 2
 							elif s[ii] == 'Status:':
@@ -222,7 +200,6 @@ class HPFiction(FanfictionSiteAdapter):
 					logging.debug('self.storyDescription=%s' % self.storyDescription)
 		
 		urls = []
-		self.outputName = self.storyName.replace(" ", "_") + '-hp_' + self.storyId
 
 		select = soup.find('select', {'name' : 'chapterid'})
 		if select is None:
@@ -239,24 +216,8 @@ class HPFiction(FanfictionSiteAdapter):
 					if title != "Story Index":
 						urls.append((url,title))
 
-		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-		logging.debug('self.uuid=%s' % self.uuid)
-		
 		return urls
 
-	def getHost(self):
-		logging.debug('self.host=%s' % self.host)
-		return self.host
-
-	def getStoryName(self):
-		return self.storyName
-
-	def getOutputName(self):
-		return self.outputName
-		
-	def getAuthorName(self):
-		return self.authorName
-	
 	def getText(self, url):
 		logging.debug('Downloading from URL: %s' % url)
 		data = self.opener.open(url).read()
@@ -266,96 +227,6 @@ class HPFiction(FanfictionSiteAdapter):
 			logging.error("Error downloading Chapter: %s" % url)
 			exit(20)
 		return divtext.__str__('utf8')
-
-	def getAuthorId(self):
-		logging.debug('self.authorId=%s' % self.authorId)
-		return self.authorId
-
-	def getStoryId(self):
-		logging.debug('self.storyId=%s' % self.storyId)
-		return self.storyId
-
-	def getStoryDescription(self):
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
-		return self.storyDescription
-
-	def getStoryPublished(self):
-		logging.debug('self.storyPublished=%s' % self.storyPublished)
-		return self.storyPublished
-
-	def getStoryCreated(self):
-		self.storyCreated = datetime.datetime.now()
-		logging.debug('self.storyCreated=%s' % self.storyCreated)
-		return self.storyCreated
-
-	def getStoryUpdated(self):
-		logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-		return self.storyUpdated
-
-	def getLanguage(self):
-		logging.debug('self.language=%s' % self.language)
-		return self.language
-
-	def getLanguageId(self):
-		logging.debug('self.languageId=%s' % self.languageId)
-		return self.languageId
-
-	def getSubjects(self):
-		logging.debug('self.subjects=%s' % self.authorName)
-		return self.subjects
-
-	def getPublisher(self):
-		logging.debug('self.publisher=%s' % self.publisher)
-		return self.publisher
-
-	def getNumChapters(self):
-		logging.debug('self.numChapters=%s' % self.numChapters)
-		return self.numChapters
-
-	def getNumWords(self):
-		logging.debug('self.numWords=%s' % self.numWords)
-		return self.numWords
-
-	def getStoryURL(self):
-		logging.debug('self.url=%s' % self.url)
-		return self.url
-
-	def getAuthorURL(self):
-		logging.debug('self.authorURL=%s' % self.authorURL)
-		return self.authorURL
-
-	def getUUID(self):
-		logging.debug('self.uuid=%s' % self.uuid)
-		return self.uuid
-
-	def getCategory(self):
-		logging.debug('self.category=%s' % self.category)
-		return self.category
-
-	def getGenre(self):
-		logging.debug('self.genre=%s' % self.genre)
-		return self.genre
-
-	def getStoryStatus(self):
-		logging.debug('self.storyStatus=%s' % self.storyStatus)
-		return self.storyStatus
-
-	def getStoryRating(self):
-		logging.debug('self.storyRating=%s' % self.storyRating)
-		return self.storyRating
-
-	def getStoryUserRating(self):
-		logging.debug('self.storyUserRating=%s' % self.storyUserRating)
-		return self.storyUserRating
-
-	def getStoryCharacters(self):
-		logging.debug('self.storyCharacters=%s' % self.storyCharacters)
-		return self.storyCharacters
-	
-	def getStorySeries(self):
-		logging.debug('self.storySeries=%s' % self.storySeries)
-		return self.storySeries
-		
 
 
 class FF_UnitTests(unittest.TestCase):

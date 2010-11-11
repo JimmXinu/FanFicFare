@@ -21,36 +21,6 @@ class FicWad(FanfictionSiteAdapter):
 	def __init__(self, url):
 		self.url = url
 		self.host = up.urlparse(url).netloc
-	
-	def requiresLogin(self, url = None):
-		return False
-	
-	def performLogin(self, url = None):
-		pass
-		
-	def setLogin(self, login):
-		self.login = login
-	
-	def setPassword(self, password):
-		self.password = password
-	
-	def _addSubject(self, subject):
-		subj = subject.upper()
-		for s in self.subjects:
-			if s.upper() == subj:
-				return False
-		self.subjects.append(subject)
-		return True
-
-	def _addCharacter(self, character):
-		chara = character.upper()
-		for c in self.storyCharacters:
-			if c.upper() == chara:
-				return False
-		self.storyCharacters.append(character)
-		return True
-
-	def extractIndividualUrls(self):
 		self.storyDescription = 'Fanfiction Story'
 		self.authorId = '0'
 		self.storyId = '0'
@@ -71,6 +41,21 @@ class FicWad(FanfictionSiteAdapter):
 		self.storyUserRating = '0'
 		self.storyCharacters = []
 		self.storySeries = ''
+		self.outputName = ''
+		self.outputStorySep = '-fw_'
+
+	def getPasswordLine(self):
+		return 'opaopapassword'
+
+	def getLoginScript(self):
+		return 'opaopaloginscript'
+
+	def getLoginPasswordOthers(self):
+		login = dict(login = 'name', password = 'pass')
+		other = dict(submit = 'Log In', remember='yes')
+		return (login, other)
+
+	def extractIndividualUrls(self):
 		oldurl = ''
 		
 		data = u2.urlopen(self.url).read()
@@ -98,9 +83,8 @@ class FicWad(FanfictionSiteAdapter):
 		storyinfo = story.find('h4').find('a')
 		(u0, u1, self.storyId) = storyinfo['href'].split('/')
 		self.storyName = storyinfo.string.strip()
-		self.outputName = self.storyName.replace(" ", "_") + '-fw_' + self.storyId
 
-		logging.debug('self.storyName=%s, self.storyId=%s, self.outputName=%s' % (self.storyName, self.storyId, self.outputName))
+		logging.debug('self.storyName=%s, self.storyId=%s' % (self.storyName, self.storyId))
 		
 		author = soup.find('span', {'class' : 'author'})
 		self.authorName = str(author.a.string)
@@ -134,7 +118,7 @@ class FicWad(FanfictionSiteAdapter):
 							if self.category == 'Category':
 								self.category = str(a.string)
 								logging.debug('self.category=%s' % self.category)
-							self._addSubject(self.category)
+							self.addSubject(self.category)
 						logging.debug('self.subjects=%s' % self.subjects)
 					elif skey == 'Rating':
 						self.storyRating = s1[1]
@@ -144,12 +128,12 @@ class FicWad(FanfictionSiteAdapter):
 						logging.debug('self.genre=%s' % self.genre)
 						s2 = s1[1].split(', ')
 						for ss2 in s2:
-							self._addSubject(ss2)
+							self.addSubject(ss2)
 						logging.debug('self.subjects=%s' % self.subjects)
 					elif skey == 'Characters':
 						s2 = s1[1].split(', ')
 						for ss2 in s2:
-							self._addCharacter(ss2)
+							self.addCharacter(ss2)
 						logging.debug('self.storyCharacters=%s' % self.storyCharacters)
 					elif skey == 'Chapters':
 						self.numChapters = s1[1]
@@ -208,6 +192,7 @@ class FicWad(FanfictionSiteAdapter):
 			select = soup.find('select', { 'name' : 'goto' } )
 
 			if select is None:
+				self.numChapters = '1'
 				result.append((self.url,self.storyName))
 				logging.debug('Chapter[%s]=%s %s' % (ii, self.url, self.storyName))
 			else:
@@ -223,24 +208,11 @@ class FicWad(FanfictionSiteAdapter):
 						ii = ii+1
 					else:
 						logging.debug('Skipping Story Index.  URL %s' % url)
-			
-		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-		logging.debug('self.uuid=%s' % self.uuid)
+		
+		self.numChapters = str(ii)
+		logging.debug('self.numChapters=%s' % self.numChapters)
 		
 		return result
-	
-	def getHost(self):
-		logging.debug('self.host=%s' % self.host)
-		return self.host
-
-	def getStoryName(self):
-		return self.storyName
-
-	def getOutputName(self):
-		return self.outputName
-		
-	def getAuthorName(self):
-		return self.authorName
 	
 	def getText(self, url):
 		if url.find('http://') == -1:
@@ -256,110 +228,6 @@ class FicWad(FanfictionSiteAdapter):
 			return '<html/>'
 		return div.__str__('utf8')
 	
-	def getStoryURL(self):
-		logging.debug('self.url=%s' % self.url)
-		return self.url
-
-	def getAuthorURL(self):
-		logging.debug('self.authorURL=%s' % self.authorURL)
-		return self.authorURL
-
-	def getUUID(self):
-		logging.debug('self.uuid=%s' % self.uuid)
-		return self.uuid
-
-	def getAuthorId(self):
-		logging.debug('self.authorId=%s' % self.authorId)
-		return self.authorId
-
-	def getStoryId(self):
-		logging.debug('self.storyId=%s' % self.storyId)
-		return self.storyId
-
-	def getStoryDescription(self):
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
-		return self.storyDescription
-
-	def getStoryPublished(self):
-		logging.debug('self.storyPublished=%s' % self.storyPublished)
-		return self.storyPublished
-
-	def getStoryCreated(self):
-		self.storyCreated = datetime.datetime.now()
-		logging.debug('self.storyCreated=%s' % self.storyCreated)
-		return self.storyCreated
-
-	def getStoryUpdated(self):
-		logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-		return self.storyUpdated
-
-	def getLanguage(self):
-		logging.debug('self.language=%s' % self.language)
-		return self.language
-
-	def getLanguageId(self):
-		logging.debug('self.languageId=%s' % self.languageId)
-		return self.languageId
-
-	def getSubjects(self):
-		logging.debug('self.subjects=%s' % self.authorName)
-		return self.subjects
-
-	def getPublisher(self):
-		logging.debug('self.publisher=%s' % self.publisher)
-		return self.publisher
-
-	def getNumChapters(self):
-		logging.debug('self.numChapters=%s' % self.numChapters)
-		return self.numChapters
-
-	def getNumWords(self):
-		logging.debug('self.numWords=%s' % self.numWords)
-		return self.numWords
-
-	def getCategory(self):
-		logging.debug('self.category=%s' % self.category)
-		return self.category
-
-	def getGenre(self):
-		logging.debug('self.genre=%s' % self.genre)
-		return self.genre
-
-	def getStoryStatus(self):
-		logging.debug('self.storyStatus=%s' % self.storyStatus)
-		return self.storyStatus
-
-	def getStoryRating(self):
-		logging.debug('self.storyRating=%s' % self.storyRating)
-		return self.storyRating
-
-	def getStoryUserRating(self):
-		logging.debug('self.storyUserRating=%s' % self.storyUserRating)
-		return self.storyUserRating
-
-	def getPrintableUrl(self, url):
-		return url
-	
-	def getPasswordLine(self):
-		return 'opaopapassword'
-
-	def getLoginScript(self):
-		return 'opaopaloginscript'
-
-	def getLoginPasswordOthers(self):
-		login = dict(login = 'name', password = 'pass')
-		other = dict(submit = 'Log In', remember='yes')
-		return (login, other)
-
-	def getStoryCharacters(self):
-		logging.debug('self.storyCharacters=%s' % self.storyCharacters)
-		return self.storyCharacters
-	
-	def getStorySeries(self):
-		logging.debug('self.storySeries=%s' % self.storySeries)
-		return self.storySeries
-		
-
 		
 if __name__ == '__main__':
 	url = 'http://www.ficwad.com/story/14536'

@@ -53,84 +53,37 @@ class PotionsNSnitches(FanfictionSiteAdapter):
         self.storyUserRating = '0'
         self.storyCharacters = []
         self.storySeries = ''
-        
+        self.outputName = ''
+        self.outputStorySep = '-pns_'
+
         self.chapurl = False
         ss=self.url.split('?')
-        logging.debug('ss=%s' % ss)
         if ss is not None and len(ss) > 1:
             sss = ss[1].replace('&amp;','&').split('&')
-            logging.debug('sss=%s' % sss)
             if sss is not None and len(sss) > 0:
                 ssss = sss[0].split('=')
-                logging.debug('ssss=%s' % ssss)
                 if ssss is not None and len(ssss) > 1 and ssss[0] == 'sid':
                     self.storyId = ssss[1]
                 if len(sss) > 1:
                     ssss = sss[1].split('=')
-                    logging.debug('ssss=%s' % ssss)
                     if ssss is not None and len(ssss) > 1 and ssss[0] == 'chapter':
                         self.chapurl = True
 
         self.url = 'http://' + self.host + '/' + self.path + '?sid=' + self.storyId
         logging.debug('self.url=%s' % self.url)
         
-        self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-        logging.debug('self.uuid=%s' % self.uuid)
-    
         logging.debug("Created PotionsNSnitches: url=%s" % (self.url))
 
 
-    def requiresLogin(self, url = None):
-        # potionsandsnitches.net doesn't require login.
-        if self.host == 'potionsandsnitches.net':
-          return False
-        else:
+    def _getLoginScript(self):
+        return '/user.php?action=login'
+
+    def reqLoginData(self, data):
+        if data.find('Registered Users Only. Please click OK to login or register.') != -1 or data.find('There is no such account on our website') != -1:
           return True
-
-    def performLogin(self, url = None):
-        data = {}
-    
-        data['penname'] = self.login
-        data['password'] = self.password
-        data['cookiecheck'] = '1'
-        data['submit'] = 'Submit'
-    
-        urlvals = u.urlencode(data)
-        loginUrl = 'http://' + self.host + self._getLoginScript()
-        logging.debug("Will now login to URL %s" % loginUrl)
-    
-        req = self.opener.open(loginUrl, urlvals)
-    
-        d = req.read().decode('utf-8')
-    
-        if self.reqLoginData(d) :
-          return False
         else:
-          return True
+          return False
 
-
-    def setLogin(self, login):
-        self.login = login
-
-    def setPassword(self, password):
-        self.password = password
-
-    def _addSubject(self, subject):
-        subj = subject.upper()
-        for s in self.subjects:
-            if s.upper() == subj:
-                return False
-        self.subjects.append(subject)
-        return True
-
-    def _addCharacter(self, character):
-        chara = character.upper()
-        for c in self.storyCharacters:
-            if c.upper() == chara:
-                return False
-        self.storyCharacters.append(character)
-        return True 
-    
     def _fillCharacters(self, strlist, idx, maxlen):
         ii = idx
         while ii < maxlen:
@@ -139,7 +92,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                 if chara.find(':') != -1:
                     return (ii-1)
                 elif chara.find(',') == -1:
-                    self._addCharacter (chara)
+                    self.addCharacter (chara)
             ii = ii + 1
         return (ii) 
 
@@ -154,7 +107,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                 elif genre.find(',') != -1:
                     genre = ', '
                 else:
-                    self._addSubject (genre)
+                    self.addSubject (genre)
                 self.genre = self.genre + genre
             ii = ii + 1
         return (ii) 
@@ -170,7 +123,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                 elif cat.find(',') != -1:
                     cat = ', '
                 else:
-                    self._addSubject (cat)
+                    self.addSubject (cat)
                 self.category = self.category + cat
             ii = ii + 1
         return (ii) 
@@ -197,9 +150,8 @@ class PotionsNSnitches(FanfictionSiteAdapter):
             if ss is not None and len(ss) > 1:
                 self.storyName = ss[0].strip()
                 self.authorName = ss[1].strip()
-                self.outputName = self.storyName.replace(" ", "_") + '-pNs_' + self.storyId
 
-        logging.debug('self.storyId=%s, self.storyName=%s, self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
+        logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
         logging.debug('self.authorId=%s, self.authorName=%s' % (self.authorId, self.authorName))
                 
         select = soup.find('select', { 'name' : 'chapter' } )
@@ -342,22 +294,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
             logging.error('self.storyName is empty!!  Exitting!')
             exit(1)
             
-        self.outputName = self.storyName.replace(" ", "_") + '-pNs_' + self.storyId
-        logging.debug('self.outputName=%s' % self.outputName)
-        
-        self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-        logging.debug('self.uuid=%s' % self.uuid)
-
         return result
-
-    def getStoryName(self):
-        return self.storyName
-
-    def getOutputName(self):
-        return self.outputName
-		
-    def getAuthorName(self):
-        return self.authorName
     
     def getText(self, url):
         if url.find('http://') == -1:
@@ -380,107 +317,6 @@ class PotionsNSnitches(FanfictionSiteAdapter):
         text = div.__str__('utf8').replace(' SOMETHING_BR ','<br />')    
         return text
 
-    def _getLoginScript(self):
-        return '/user.php?action=login'
-
-    def reqLoginData(self, data):
-        if data.find('Registered Users Only. Please click OK to login or register.') != -1 or data.find('There is no such account on our website') != -1:
-          return True
-        else:
-          return False
-
-    def getHost(self):
-        logging.debug('self.host=%s' % self.host)
-        return self.host
-
-    def getStoryURL(self):
-        logging.debug('self.url=%s' % self.url)
-        return self.url
-
-    def getAuthorURL(self):
-        logging.debug('self.authorURL=%s' % self.authorURL)
-        return self.authorURL
-
-    def getUUID(self):
-        logging.debug('self.uuid=%s' % self.uuid)
-        return self.uuid
-    
-    def getStoryDescription(self):
-        logging.debug('self.storyDescription=%s' % self.storyDescription)
-        return self.storyDescription
-    
-    def getStoryPublished(self):
-        logging.debug('self.storyPublished=%s' % self.storyPublished)
-        return self.storyPublished
-    
-    def getStoryCreated(self):
-        self.storyCreated = datetime.datetime.now()
-        logging.debug('self.storyCreated=%s' % self.storyCreated)
-        return self.storyCreated
-    
-    def getStoryUpdated(self):
-        logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-        return self.storyUpdated
-    
-    def getLanguage(self):
-        logging.debug('self.language=%s' % self.language)
-        return self.language
-    
-    def getLanguageId(self):
-        logging.debug('self.languageId=%s' % self.languageId)
-        return self.languageId
-    
-    def getSubjects(self):
-        logging.debug('self.subjects=%s' % self.authorName)
-        return self.subjects
-    
-    def getPublisher(self):
-        logging.debug('self.publisher=%s' % self.publisher)
-        return self.publisher
-    
-    def getNumChapters(self):
-        logging.debug('self.numChapters=%s' % self.numChapters)
-        return self.numChapters
-    
-    def getNumWords(self):
-        logging.debug('self.numWords=%s' % self.numWords)
-        return self.numWords
-    
-    def getAuthorId(self):
-        logging.debug('self.authorId=%s' % self.authorId)
-        return self.authorId
-    
-    def getStoryId(self):
-        logging.debug('self.storyId=%s' % self.storyId)
-        return self.storyId
-    
-    def getCategory(self):
-        logging.debug('self.category=%s' % self.category)
-        return self.category
-    
-    def getGenre(self):
-        logging.debug('self.genre=%s' % self.genre)
-        return self.genre
-    
-    def getStoryStatus(self):
-        logging.debug('self.storyStatus=%s' % self.storyStatus)
-        return self.storyStatus
-    
-    def getStoryRating(self):
-        logging.debug('self.storyRating=%s' % self.storyRating)
-        return self.storyRating
-    
-    def getStoryUserRating(self):
-        logging.debug('self.storyUserRating=%s' % self.storyUserRating)
-        return self.storyUserRating
-    
-    def getStoryCharacters(self):
-        logging.debug('self.storyCharacters=%s' % self.storyCharacters)
-        return self.storyCharacters
-
-    def getStorySeries(self):
-        logging.debug('self.storySeries=%s' % self.storySeries)
-        return self.storySeries
 
 class PotionsNSnitches_UnitTests(unittest.TestCase):
     def setUp(self):

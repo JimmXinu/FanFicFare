@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import logging
+import datetime
+
+
 class LoginRequiredException(Exception):
 	def __init__(self, url):
 		self.url = url
@@ -8,16 +12,56 @@ class LoginRequiredException(Exception):
 		return repr(self.url + ' requires user to be logged in')
 
 class FanfictionSiteAdapter:
+	try:
+		from google.appengine.api.urlfetch import fetch as googlefetch
+		appEngine = True
+	except:
+		appEngine = False
 	login = ''
 	password = ''
+	url = ''
+	host = ''
+	path = ''
+	uuid = ''
+	storyName = ''
+	storyId = ''
+	authorName = ''
+	authorId = ''
+	authorURL = ''
+	outputStorySep = '-Ukn_'
+	outputName = ''
+	storyDescription = ''
+	storyCharacters = []
+	storySeries = ''
+	storyPublished = datetime.date(1970, 01, 31)
+	storyCreated = datetime.datetime.now()
+	storyUpdated = datetime.date(1970, 01, 31)
+	languageId = 'en-UK'
+	language = 'English'
+	subjects = []
+	publisher = ''
+	numChapters = '0'
+	numWords = '0'
+	genre = ''
+	category = ''
+	storyStatus = 'In-Progress'
+	storyRating = ''
+	storyUserRating = '0'
 	def __init__(self, url):
-		pass
+		# basic plain url parsing...
+		self.url = url
+		parsedUrl = up.urlparse(url)
+		self.host = parsedUrl.netloc
+		self.path = parsedUrl.path
+			
+	def hasAppEngine(self):
+		return self.appEngine
 	
 	def requiresLogin(self, url = None):
-		pass
+		return False
 	
 	def performLogin(self, url = None):
-		pass
+		return True
 	
 	def extractIndividualUrls(self):
 		pass
@@ -26,88 +70,133 @@ class FanfictionSiteAdapter:
 		pass
 
 	def setLogin(self, login):
-		pass
+		self.login = login
 
 	def setPassword(self, password):
-		pass
+		self.password = password
 
 	def getHost(self):
-		pass
+		logging.debug('self.host=%s' % self.host)
+		return self.host
 	
-	def getStoryURL(self):
-		pass
-
 	def getUUID(self):
-		pass
+		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
+		logging.debug('self.uuid=%s' % self.uuid)
+		return self.uuid
 
 	def getOutputName(self):
-		pass
+		self.outputName = self.storyName.replace(" ", "_") + self.outputStorySep + self.storyId
+		logging.debug('self.storyId=%s, self.storyName=%s self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
+		return self.outputName
 
 	def getAuthorURL(self):
-		pass
+		logging.debug('self.authorURL=%s' % self.authorURL)
+		return self.authorURL
 
 	def getAuthorId(self):
-		pass
+		logging.debug('self.authorId=%s' % self.authorId)
+		return self.authorId
 
 	def getAuthorName(self):
-		pass
+		logging.debug('self.authorName=%s' % self.authorName)
+		return self.authorName
+
+	def getStoryURL(self):
+		logging.debug('self.url=%s' % self.url)
+		return self.url
 
 	def getStoryId(self):
-		pass
+		logging.debug('self.storyId=%s' % self.storyId)
+		return self.storyId
 
 	def getStoryName(self):
-		pass
+		logging.debug('self.storyName=%s' % self.storyName)
+		return self.storyName
 
 	def getStoryDescription(self):
-		pass
+		logging.debug('self.storyDescription=%s' % self.storyDescription)
+		return self.storyDescription
 
 	def getStoryCreated(self):
-		pass
+		self.storyCreated = datetime.datetime.now()
+		logging.debug('self.storyCreated=%s' % self.storyCreated)
+		return self.storyCreated
 
+	def addCharacter(self, character):
+		chara = character.upper()
+		for c in self.storyCharacters:
+			if c.upper() == chara:
+				return False
+		self.storyCharacters.append(character)
+		return True
+
+	def getStoryCharacters(self):
+		logging.debug('self.storyCharacters=%s' % self.storyCharacters)
+		return self.storyCharacters
+	
 	def getStoryPublished(self):
-		pass
+		logging.debug('self.storyPublished=%s' % self.storyPublished)
+		return self.storyPublished
 
 	def getStoryUpdated(self):
-		pass
+		logging.debug('self.storyUpdated=%s' % self.storyUpdated)
+		return self.storyUpdated
 
 	def getStorySeries(self):
-		pass
+		logging.debug('self.storySeries=%s' % self.storySeries)
+		return self.storySeries
 
 	def getLanguage(self):
-		pass
+		logging.debug('self.language=%s' % self.language)
+		return self.language
 
 	def getLanguageId(self):
-		pass
+		logging.debug('self.languageId=%s' % self.languageId)
+		return self.languageId
+
+	def addSubject(self, subject):
+		subj = subject.upper()
+		for s in self.subjects:
+			if s.upper() == subj:
+				return False
+		self.subjects.append(subject)
+		return True
 
 	def getSubjects(self):
-		pass
-
-	def getCharacters(self):
-		pass
+		logging.debug('self.subjects=%s' % self.authorName)
+		return self.subjects
 
 	def getPublisher(self):
-		pass
+		logging.debug('self.publisher=%s' % self.publisher)
+		return self.publisher
 
 	def getNumChapters(self):
-		pass
+		logging.debug('self.numChapters=%s' % self.numChapters)
+		return self.numChapters
 
 	def getNumWords(self):
-		pass
+		logging.debug('self.numWords=%s' % self.numWords)
+		return self.numWords
 
 	def getCategory(self):
-		pass
+		logging.debug('self.category=%s' % self.category)
+		return self.category
 
 	def getGenre(self):
-		pass
+		logging.debug('self.genre=%s' % self.genre)
+		return self.genre
 
 	def getStoryStatus(self):
-		pass
+		logging.debug('self.storyStatus=%s' % self.storyStatus)
+		return self.storyStatus
 
 	def getStoryRating(self):
-		pass
+		logging.debug('self.storyRating=%s' % self.storyRating)
+		return self.storyRating
 
 	def getStoryUserRating(self):
-		pass
+		logging.debug('self.storyUserRating=%s' % self.storyUserRating)
+		return self.storyUserRating
 
 	def getPrintableUrl(self, url):
-		pass
+		return url
