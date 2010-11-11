@@ -74,6 +74,7 @@ class FictionAlley(FanfictionSiteAdapter):
 		self.storyUserRating = '0'
 		self.storyCharacters = []
 		self.storySeries = ''
+		self.storyName = ''
 		self.outputName = ''
 		self.outputStorySep = '-fa_'	
 		
@@ -129,18 +130,47 @@ class FictionAlley(FanfictionSiteAdapter):
 		data = data.replace('<!-- headerstart -->','<crazytagstringnobodywouldstumbleonaccidently id="storyheaders">').replace('<!-- headerend -->','</crazytagstringnobodywouldstumbleonaccidently>')
 		soup = bs.BeautifulStoneSoup(data)
 				
-		# Get title from <title>, remove before '-'.
-		title = soup.find('title').string
-		self.storyName = "-".join(title.split('-')[1:]).strip().replace(" (Story Text)","")
-		
-		links = soup.findAll('li')
+		breadcrumbs = soup.find('div', {'class': 'breadcrumbs'})
+		if breadcrumbs is not None:
+			# Be aware that this means that the user has entered the {STORY}01.html 
+			# We will not have valid Publised and Updated dates.  User should enter 
+			# the {STORY}.html instead.  We should force that instead of this.
+			logging.debug('breadcrumbs=%s' % breadcrumbs )
+			bcas = breadcrumbs.findAll('a')
+			logging.debug('bcas=%s' % bcas )
+			if bcas is not None and len(bcas) > 1:
+				bca = bcas[1]
+				logging.debug('bca=%s' % bca )
+				if 'href' in bca._getAttrMap():
+					logging.debug('bca.href=%s' % bca['href'] )
+					url = str(bca['href'])
+					if url is not None and len(url) > 0:
+						self.url = url
+						logging.debug('self.url=%s' % self.url )
+						ss = self.url.split('/')
+						self.storyId = ss[-1].replace('.html','')
+						self.storyName = bca.string
+						logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
 
+						data = self.opener.open(self.url).read()		
+						
+						# There is some usefull information in the headers of the first chapter page..
+						data = data.replace('<!-- headerstart -->','<crazytagstringnobodywouldstumbleonaccidently id="storyheaders">').replace('<!-- headerend -->','</crazytagstringnobodywouldstumbleonaccidently>')
+						soup = bs.BeautifulStoneSoup(data)
+		
 		# If it is decided that we really do care about number of words..  It's only available on the author's page..
 		#d0 = self.opener.open(self.authorURL).read()
 		#soupA = bs.BeautifulStoneSoup(d0)
 		#dls = soupA.findAll('dl')
 		#logging.debug('dls=%s' % dls)
 		
+		# Get title from <title>, remove before '-'.
+		if len(self.storyName) == 0:
+			title = soup.find('title').string
+			self.storyName = "-".join(title.split('-')[1:]).strip().replace(" (Story Text)","")
+		
+		links = soup.findAll('li')
+
 		self.numChapters = 0;
 		result = []
 		if len(links) == 0:
