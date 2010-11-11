@@ -27,12 +27,6 @@ except:
 	# tough luck
 	pass
 
-try:
-	from google.appengine.api.urlfetch import fetch as googlefetch
-	appEngine = True
-except:
-	appEngine = False
-
 class FFNet(FanfictionSiteAdapter):
 	def __init__(self, url):
 		self.url = url
@@ -42,7 +36,6 @@ class FFNet(FanfictionSiteAdapter):
 		
 		self.storyName = 'FF.Net story'
 		self.authorName = 'FF.Net author'
-		self.outputName = 'FF.Net_story'
 		self.storyDescription = 'Fanfiction Story'
 		self.storyCharacters = []
 		self.storySeries = ''
@@ -65,6 +58,8 @@ class FFNet(FanfictionSiteAdapter):
 		self.storyStatus = 'In-Progress'
 		self.storyRating = 'K'
 		self.storyUserRating = '0'
+		self.outputName = ''
+		self.outputStorySep = '-ffnet_'
 		
 		logging.debug('self.path=%s' % self.path)
 
@@ -85,18 +80,14 @@ class FFNet(FanfictionSiteAdapter):
 				chapter = '1'
 			if len(spl) == 5:
 				self.path = "/".join(spl[1:-1])
-				self.outputName = spl[4] + '-ffnet_' + spl[2]
 		
 		if self.path.endswith('/'):
 			self.path = self.path[:-1]
 		
 		logging.debug('self.path=%s' % self.path)
 		
-		self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
-		logging.debug('self.uuid=%s' % self.uuid)
-
-		logging.debug('self.storyId=%s, chapter=%s, self.outputName=%s' % (self.storyId, chapter, self.outputName))
-		if not appEngine:
+		logging.debug('self.storyId=%s, chapter=%s' % (self.storyId, chapter))
+		if not self.appEngine:
 			self.opener = u2.build_opener(u2.HTTPCookieProcessor())
 		else:
 			self.opener = None
@@ -105,12 +96,6 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def _getLoginScript(self):
 		return self.path
-
-	def requiresLogin(self, url = None):
-		return False
-
-	def performLogin(self, url = None):
-		return True
 
 	def _getVarValue(self, varstr):
 		#logging.debug('_getVarValue varstr=%s' % varstr)
@@ -126,7 +111,7 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def _splitCrossover(self, subject):
 		if "Crossover" in subject:
-			self._addSubject ("Crossover")
+			self.addSubject ("Crossover")
 			logging.debug('Crossover=%s' % subject)
 			if subject.find(' and ') != -1:
 				words = subject.split(' ')
@@ -135,18 +120,18 @@ class FFNet(FanfictionSiteAdapter):
 				for s in words:
 					if s in "and Crossover":
 						if len(subj) > 0:
-							self._addSubject(subj)
+							self.addSubject(subj)
 						subj = ''
 					else:
 						if len(subj) > 0:
 							subj = subj + ' '
 						subj = subj + s
 				if len(subj) > 0:
-					self._addSubject(subj)
+					self.addSubject(subj)
 			else:
-				self._addSubject(subject)
+				self.addSubject(subject)
 		else:
-			self._addSubject(subject)
+			self.addSubject(subject)
 		return True
 
 	def _splitGenre(self, subject):
@@ -155,28 +140,11 @@ class FFNet(FanfictionSiteAdapter):
 			logging.debug('words=%s' % words)
 			for subj in words:
 			    if len(subj) > 0:
-				self._addSubject(subj)
-		return True
-
-	def _addSubject(self, subject):
-		subj = subject.upper()
-		for s in self.subjects:
-			if s.upper() == subj:
-				return False
-
-		self.subjects.append(subject)
-		return True
-
-	def _addCharacter(self, character):
-		chara = character.upper()
-		for c in self.storyCharacters:
-			if c.upper() == chara:
-				return False
-		self.storyCharacters.append(character)
+				self.addSubject(subj)
 		return True
 
 	def _fetchUrl(self, url):
-		if not appEngine:
+		if not self.appEngine:
 			return self.opener.open(url).read().decode('utf-8')
 		else:
 			return googlefetch(url).content
@@ -198,9 +166,7 @@ class FFNet(FanfictionSiteAdapter):
 			if l.find("&#187;") != -1 and l.find('<b>') != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyName = str(s2.find('b').string)
-				# mangling storyName replaces url for outputName 
-				self.outputName = self.storyName.replace(" ", "_") + '-ffnet_' + self.storyId
-				logging.debug('self.storyId=%s, self.storyName=%s, self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
+				logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
 			elif l.find("<a href='/u/") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
 				self.authorName = str(s2.a.string)
@@ -291,9 +257,7 @@ class FFNet(FanfictionSiteAdapter):
 			# no chapters found, try url by itself.
 			urls.append((self.url,self.storyName))
 
-		self.uuid = 'urn:uuid:' + self.host + '-a.' + self.authorId + '-s.' + self.storyId
 		self.authorURL = 'http://' + self.host + '/u/' + self.authorId
-		logging.debug('self.uuid=%s' % self.uuid)
 
 		#logging.debug('urls=%s' % urls)
 		return urls
@@ -325,119 +289,6 @@ class FFNet(FanfictionSiteAdapter):
 			
 		return div.__str__('utf8')
 					
-	def setLogin(self, login):
-		self.login = login
-
-	def setPassword(self, password):
-		self.password = password
-
-	def getHost(self):
-		logging.debug('self.host=%s' % self.host)
-		return self.host
-
-	def getStoryURL(self):
-		logging.debug('self.url=%s' % self.url)
-		return self.url
-
-	def getUUID(self):
-		logging.debug('self.uuid=%s' % self.uuid)
-		return self.uuid
-
-	def getOutputName(self):
-		logging.debug('self.storyId=%s, self.storyName=%s self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
-		return self.outputName
-
-	def getAuthorName(self):
-		logging.debug('self.authorName=%s' % self.authorName)
-		return self.authorName
-
-	def getAuthorId(self):
-		logging.debug('self.authorId=%s' % self.authorId)
-		return self.authorId
-
-	def getAuthorURL(self):
-		logging.debug('self.authorURL=%s' % self.authorURL)
-		return self.authorURL
-
-	def getStoryId(self):
-		logging.debug('self.storyId=%s' % self.storyId)
-		return self.storyId
-
-	def getStoryName(self):
-		logging.debug('self.storyName=%s' % self.storyName)
-		return self.storyName
-
-	def getStoryDescription(self):
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
-		return self.storyDescription
-
-	def getStoryPublished(self):
-		logging.debug('self.storyPublished=%s' % self.storyPublished)
-		return self.storyPublished
-
-	def getStoryCreated(self):
-		self.storyCreated = datetime.datetime.now()
-		logging.debug('self.storyCreated=%s' % self.storyCreated)
-		return self.storyCreated
-
-	def getStoryUpdated(self):
-		logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-		return self.storyUpdated
-
-	def getLanguage(self):
-		logging.debug('self.language=%s' % self.language)
-		return self.language
-
-	def getLanguageId(self):
-		logging.debug('self.languageId=%s' % self.languageId)
-		return self.languageId
-
-	def getSubjects(self):
-		logging.debug('self.subjects=%s' % self.authorName)
-		return self.subjects
-
-	def getPublisher(self):
-		logging.debug('self.publisher=%s' % self.publisher)
-		return self.publisher
-
-	def getNumChapters(self):
-		logging.debug('self.numChapters=%s' % self.numChapters)
-		return self.numChapters
-
-	def getNumWords(self):
-		logging.debug('self.numWords=%s' % self.numWords)
-		return self.numWords
-
-	def getCategory(self):
-		logging.debug('self.category=%s' % self.category)
-		return self.category
-
-	def getGenre(self):
-		logging.debug('self.genre=%s' % self.genre)
-		return self.genre
-
-	def getStoryStatus(self):
-		logging.debug('self.storyStatus=%s' % self.storyStatus)
-		return self.storyStatus
-
-	def getStoryRating(self):
-		logging.debug('self.storyRating=%s' % self.storyRating)
-		return self.storyRating
-
-	def getStoryUserRating(self):
-		logging.debug('self.storyUserRating=%s' % self.storyUserRating)
-		return self.storyUserRating
-
-	def getPrintableUrl(self, url):
-		pass
-
-	def getStoryCharacters(self):
-		logging.debug('self.storyCharacters=%s' % self.storyCharacters)
-		return self.storyCharacters
-	
-	def getStorySeries(self):
-		logging.debug('self.storySeries=%s' % self.storySeries)
-		return self.storySeries
 		
 class FFA_UnitTests(unittest.TestCase):
 	def setUp(self):
