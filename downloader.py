@@ -22,6 +22,7 @@ import adapter
 import fictionalley
 import hpfiction
 import twilighted
+import potionsNsnitches
 
 import time
 
@@ -99,8 +100,10 @@ if __name__ == '__main__':
 		adapter = ffnet.FFNet(url)
 	elif url.find('harrypotterfanfiction.com') != -1:
 		adapter = hpfiction.HPFiction(url)
-	elif url.find('twilighted.net') != -1 or url.find('potionsandsnitches.net') != -1:
+	elif url.find('twilighted.net') != -1:
 		adapter = twilighted.Twilighted(url)
+	elif url.find('potionsandsnitches.net') != -1:
+		adapter = potionsNsnitches.PotionsNSnitches(url)
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)

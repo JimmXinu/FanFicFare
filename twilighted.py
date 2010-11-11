@@ -50,6 +50,27 @@ class Twilighted(FanfictionSiteAdapter):
         self.storyUserRating = '0'
         self.storyCharacters = []
         self.storySeries = ''
+        
+        self.chapurl = False
+        ss=self.url.split('?')
+        logging.debug('ss=%s' % ss)
+        if ss is not None and len(ss) > 1:
+            sss = ss[1].replace('&amp;','&').split('&')
+            logging.debug('sss=%s' % sss)
+            if sss is not None and len(sss) > 0:
+                ssss = sss[0].split('=')
+                logging.debug('ssss=%s' % ssss)
+                if ssss is not None and len(ssss) > 1 and ssss[0] == 'sid':
+                    self.storyId = ssss[1]
+                if len(sss) > 1:
+                    ssss = sss[1].split('=')
+                    logging.debug('ssss=%s' % ssss)
+                    if ssss is not None and len(ssss) > 1 and ssss[0] == 'chapter':
+                        self.chapurl = True
+
+        self.url = 'http://' + self.host + '/' + self.path + '?sid=' + self.storyId
+        logging.debug('self.url=%s' % self.url)
+        
         self.uuid = 'urn:uuid:' + self.host + '-u.' + self.authorId + '-s.' + self.storyId
         logging.debug('self.uuid=%s' % self.uuid)
     
@@ -108,21 +129,26 @@ class Twilighted(FanfictionSiteAdapter):
         return True
 
     def extractIndividualUrls(self):
-        data = self.opener.open(self.url).read()
+        url = self.url + '&chapter=1'
+        data = self.opener.open(url).read()
         
         if self.reqLoginData(data):
           self.performLogin()
-          data = self.opener.open(self.url).read()
+          data = self.opener.open(url).read()
           if self.reqLoginData(data):
             return None
         
         soup = bs.BeautifulStoneSoup(data)
-    
+
         title = soup.find('title').string
+        logging.debug('Title: %s' % title)
         self.storyName = title.split(' by ')[0].strip()
         self.authorName = title.split(' by ')[1].strip()
-        self.outputName = self.storyName.replace(" ", "_")
-    
+        self.outputName = self.storyName.replace(" ", "_") + '-tw_' + self.storyId
+
+        logging.debug('self.storyId=%s, self.storyName=%s, self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
+        logging.debug('self.authorId=%s, self.authorName=%s' % (self.authorId, self.authorName))
+                
         select = soup.find('select', { 'name' : 'chapter' } )
     	 
         result = []
@@ -141,6 +167,7 @@ class Twilighted(FanfictionSiteAdapter):
         lines = data.split('\n')
         soup = bs.BeautifulStoneSoup(data)
         metas = soup.findAll('meta')
+        
         for meta in metas:
             if 'name' in meta._getAttrMap() and meta['name'].find('description') != -1:
                 #logging.debug('Meta: %s' % meta)
