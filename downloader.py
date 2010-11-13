@@ -24,6 +24,7 @@ import fictionalley
 import hpfiction
 import twilighted
 import potionsNsnitches
+import mediaminer
 
 import time
 
@@ -107,6 +108,8 @@ if __name__ == '__main__':
 		adapter = twilighted.Twilighted(url)
 	elif url.find('potionsandsnitches.net') != -1:
 		adapter = potionsNsnitches.PotionsNSnitches(url)
+	elif url.find('mediaminer.org') != -1:
+		adapter = mediaminer.MediaMiner(url)
 	else:
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)
