@@ -143,14 +143,8 @@ class MediaMiner(FanfictionSiteAdapter):
 				self.addSubject(subj)
 		return True
 
-	def _fetchUrl(self, url):
-		if not self.appEngine:
-			return self.opener.open(url).read().decode('utf-8')
-		else:
-			return googlefetch(url).content
-	
 	def extractIndividualUrls(self):
-		data = self._fetchUrl(self.url)
+		data = self.fetchUrl(self.url)
 		#data.replace('<br />',' ').replace('<br>',' ').replace('</br>',' ')
 		soup = bs.BeautifulSoup(data)
 		#logging.debug('soap=%s' % soup)
@@ -318,7 +312,7 @@ class MediaMiner(FanfictionSiteAdapter):
 	def getText(self, url):
 		time.sleep( 2.0 )
 		logging.debug('url=%s' % url)
-		data = self._fetchUrl(url)
+		data = self.fetchUrl(url)
 
 		try:
 			soup = bs.BeautifulSoup(data)

@@ -3,6 +3,11 @@
 import logging
 import datetime
 
+try:
+	from google.appengine.api.urlfetch import fetch as googlefetch
+	appEngineGlob = True
+except:
+	appEngineGlob = False
 
 class LoginRequiredException(Exception):
 	def __init__(self, url):
@@ -12,11 +17,7 @@ class LoginRequiredException(Exception):
 		return repr(self.url + ' requires user to be logged in')
 
 class FanfictionSiteAdapter:
-	try:
-		from google.appengine.api.urlfetch import fetch as googlefetch
-		appEngine = True
-	except:
-		appEngine = False
+	appEngine = appEngineGlob
 	login = ''
 	password = ''
 	url = ''
@@ -30,6 +31,7 @@ class FanfictionSiteAdapter:
 	authorURL = ''
 	outputStorySep = '-Ukn_'
 	outputName = ''
+	outputFileName = ''
 	storyDescription = ''
 	storyCharacters = []
 	storySeries = ''
@@ -56,6 +58,12 @@ class FanfictionSiteAdapter:
 			
 	def hasAppEngine(self):
 		return self.appEngine
+	
+	def fetchUrl(self, url):
+		if not self.appEngine:
+			return self.opener.open(url).read().decode('utf-8')
+		else:
+			return googlefetch(url).content
 	
 	def requiresLogin(self, url = None):
 		return False
@@ -86,8 +94,13 @@ class FanfictionSiteAdapter:
 
 	def getOutputName(self):
 		self.outputName = self.storyName.replace(" ", "_") + self.outputStorySep + self.storyId
-		logging.debug('self.storyId=%s, self.storyName=%s self.outputName=%s' % (self.storyId, self.storyName, self.outputName))
+		logging.debug('self.outputName=%s' % self.outputName)
 		return self.outputName
+
+	def getOutputFileName(self, booksDirectory, format):
+		self.outputFileName = booksDirectory + "/" + self.getOutputName() + "." + format
+		logging.debug('self.outputFileName=%s' % self.outputFileName)
+		return self.outputNameFileName
 
 	def getAuthorURL(self):
 		logging.debug('self.authorURL=%s' % self.authorURL)
