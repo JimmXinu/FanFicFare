@@ -143,14 +143,8 @@ class FFNet(FanfictionSiteAdapter):
 				self.addSubject(subj)
 		return True
 
-	def _fetchUrl(self, url):
-		if not self.appEngine:
-			return self.opener.open(url).read().decode('utf-8')
-		else:
-			return googlefetch(url).content
-	
 	def extractIndividualUrls(self):
-		data = self._fetchUrl(self.url)
+		data = self.fetchUrl(self.url)
 		d2 = re.sub('&\#[0-9]+;', ' ', data)
 		soup = bs.BeautifulStoneSoup(d2)
 		allA = soup.findAll('a')
@@ -264,7 +258,7 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def getText(self, url):
 		time.sleep( 2.0 )
-		data = self._fetchUrl(url)
+		data = self.fetchUrl(url)
 		lines = data.split('\n')
 		
 		textbuf = ''

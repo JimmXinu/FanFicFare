@@ -55,10 +55,13 @@ class FanficLoader:
 		
 		urls = self.adapter.extractIndividualUrls()
 
-		s = self.booksDirectory + "/" + self.adapter.getOutputName() + "." + format
-		if not self.overWrite and os.path.isfile(s):
-			print >> sys.stderr, "File " + s + " already exists!  Skipping!"
-			exit(10)
+		if (self.adapter.hasAppEngine):
+			self.overWrite = True
+		else:
+			s = self.adapter.getOutputFileName(self.booksDirectory, format)
+			if not self.overWrite and os.path.isfile(s):
+				print >> sys.stderr, "File " + s + " already exists!  Skipping!"
+				exit(10)
 
 		self.writer = self.writerClass(self.booksDirectory, self.adapter, inmemory=self.inmemory, compress=self.compress)
 		
