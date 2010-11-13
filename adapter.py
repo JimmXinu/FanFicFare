@@ -163,7 +163,7 @@ class FanfictionSiteAdapter:
 		return True
 
 	def getSubjects(self):
-		logging.debug('self.subjects=%s' % self.authorName)
+		logging.debug('self.subjects=%s' % self.subjects)
 		return self.subjects
 
 	def getPublisher(self):
