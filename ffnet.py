@@ -86,7 +86,13 @@ class FFNet(FanfictionSiteAdapter):
 		
 		logging.debug('self.path=%s' % self.path)
 		
-		logging.debug('self.storyId=%s, chapter=%s' % (self.storyId, chapter))
+		if self.host is not None and self.host == "m.fanfiction.net":
+			self.host = "www.fanfiction.net"
+			logging.debug('self.host=%s' % self.host)
+			self.url = "http://" + self.host + "/" + self.path
+			logging.debug('self.url=%s' % self.url)
+			
+		logging.debug('self.storyId=%s' % self.storyId)
 		if not self.appEngine:
 			self.opener = u2.build_opener(u2.HTTPCookieProcessor())
 		else:
