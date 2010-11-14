@@ -167,7 +167,7 @@ class MediaMiner(FanfictionSiteAdapter):
 		self.genre = ''
 		td_smtxt = soup.findAll('td')
 		if td_smtxt is None:
-			logging.debug('td_smtxt is NONE!')
+			#logging.debug('td_smtxt is NONE!')
 			pass
 		else:
 			ll = len(td_smtxt)
@@ -248,8 +248,12 @@ class MediaMiner(FanfictionSiteAdapter):
 								self.storyDescription = sst.strip()
 								logging.debug('self.storyDescription=%s' % self.storyDescription)
 							elif ssbt == 'Latest Revision:' or ssbt == 'Uploaded On:':
-								logging.debug('sst=%s' % sst)
-								self.storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sst.strip(' '), "%B %d, %Y %H:%M %Z")))
+								#logging.debug('sst=%s' % sst)
+								ssts = sst.split(' ')
+								if ssts is not None and len(ssts) > 3:
+									sst = ssts[0] + ' ' + ssts[1] + ' ' + ssts[2]
+								#logging.debug('sst=%s' % sst)
+								self.storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sst.strip(' '), "%B %d, %Y")))
 								logging.debug('self.storyUpdated=%s' % self.storyUpdated)
 							else:
 								pass
