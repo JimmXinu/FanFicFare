@@ -100,7 +100,7 @@ class FanfictionSiteAdapter:
 	def getOutputFileName(self, booksDirectory, format):
 		self.outputFileName = booksDirectory + "/" + self.getOutputName() + "." + format
 		logging.debug('self.outputFileName=%s' % self.outputFileName)
-		return self.outputNameFileName
+		return self.outputFileName
 
 	def getAuthorURL(self):
 		logging.debug('self.authorURL=%s' % self.authorURL)
