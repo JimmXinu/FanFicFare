@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-CSS = '''body { margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; text-align: justify; }
+CSS = '''body { margin-left: 2%; margin-right: 2%; margin-top: 2%; margin-bottom: 2%; text-align: justify; }
 pre { font-size: x-small; }
 sml { font-size: small; }
 h1 { text-align: center; }
