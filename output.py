@@ -40,8 +40,24 @@ class FanficWriter:
 	def finalise(self):
 		pass
 
+	@staticmethod
+	def getFormatName():
+		return 'base'
+	
+	@staticmethod	
+	def getFormatExt():
+		return '.bse'
+	
 class TextWriter(FanficWriter):
 	htmlWriter = None
+	
+	@staticmethod
+	def getFormatName():
+		return 'text'
+	
+	@staticmethod	
+	def getFormatExt():
+		return '.txt'
 	
 	def __init__(self, base, adapter, inmemory=False, compress=False):
 		self.htmlWriter = HTMLWriter(base, adapter, True, False)
@@ -59,11 +75,19 @@ class TextWriter(FanficWriter):
 class HTMLWriter(FanficWriter):
 	body = ''
 	
+	@staticmethod
+	def getFormatName():
+		return 'html'
+	
+	@staticmethod	
+	def getFormatExt():
+		return '.html'
+	
 	def __init__(self, base, adapter, inmemory=False, compress=False):
 		self.basePath = base
 		self.storyTitle = removeEntities(adapter.getStoryName())
 		self.name = makeAcceptableFilename(adapter.getOutputName())
-		self.fileName = self.basePath + '/' + self.name + '.html'
+		self.fileName = self.basePath + '/' + self.name + self.getFormatExt()
 		self.authorName = removeEntities(adapter.getAuthorName())
 		self.adapter = adapter
 		
@@ -111,6 +135,45 @@ class EPubFanficWriter(FanficWriter):
 	
 	files = {}
 	
+	@staticmethod
+	def getFormatName():
+		return 'epub'
+	
+	@staticmethod	
+	def getFormatExt():
+		return '.epub'
+	
+	def __init__(self, base, adapter, inmemory=False, compress=True):
+		self.basePath = base
+		self.storyTitle = removeEntities(adapter.getStoryName())
+		self.name = makeAcceptableFilename(adapter.getOutputName())
+		self.directory = self.basePath + '/' + self.name
+		self.authorName = removeEntities(adapter.getAuthorName())
+		self.inmemory = inmemory
+		self.adapter = adapter
+		
+		self.files = {}
+		self.chapters = []
+		
+		if not self.inmemory:
+			self.inmemory = True
+			self.writeToFile = True
+		else:
+			self.writeToFile = False
+
+		if not self.inmemory:
+			if os.path.exists(self.directory):
+				shutil.rmtree(self.directory)
+		
+			os.mkdir(self.directory)
+		
+			os.mkdir(self.directory + '/META-INF')
+			os.mkdir(self.directory + '/OEBPS')
+		
+		self._writeFile('mimetype', MIMETYPE)
+		self._writeFile('META-INF/container.xml', CONTAINER)
+		self._writeFile('OEBPS/stylesheet.css', CSS)
+
 	def _writeFile(self, fileName, data):
 		#logging.debug('_writeFile(`%s`, data)' % fileName)
 		if fileName in self.files:
@@ -134,39 +197,6 @@ class EPubFanficWriter(FanficWriter):
 			for f in self.files:
 				self.files[f].close()
 	
-	def __init__(self, base, adapter, inmemory=False, compress=True):
-		self.basePath = base
-		self.storyTitle = removeEntities(adapter.getStoryName())
-		self.name = makeAcceptableFilename(adapter.getOutputName())
-		self.directory = self.basePath + '/' + self.name
-		self.authorName = removeEntities(adapter.getAuthorName())
-		self.inmemory = inmemory
-		self.adapter = adapter
-		
-		self.files = {}
-		self.chapters = []
-		
-		if not self.inmemory:
-			self.inmemory = True
-			self.writeToFile = True
-		else:
-			self.writeToFile = False
-		
-
-
-		if not self.inmemory:
-			if os.path.exists(self.directory):
-				shutil.rmtree(self.directory)
-		
-			os.mkdir(self.directory)
-		
-			os.mkdir(self.directory + '/META-INF')
-			os.mkdir(self.directory + '/OEBPS')
-		
-		self._writeFile('mimetype', MIMETYPE)
-		self._writeFile('META-INF/container.xml', CONTAINER)
-		self._writeFile('OEBPS/stylesheet.css', CSS)
-
 	def writeChapter(self, index, title, text):
 		title = removeEntities(title)
 		logging.debug("Writing chapter: %s" % title)
@@ -321,7 +351,7 @@ class EPubFanficWriter(FanficWriter):
 		
 		self._closeFiles()
 		
-		filename = self.directory + '.epub'
+		filename = self.directory + self.getFormatExt()
 		
 		zipdata = zipdir.inMemoryZip(self.files)
 		
@@ -382,4 +412,4 @@ def removeEntities(text):
 	return text
 	
 def makeAcceptableFilename(text):
-	return re.sub('[^a-zA-Z0-9_\'-]+','',removeEntities(text).replace(" ", "_").replace(":","_"))	
+	return re.sub('[^a-zA-Z0-9_-]+','',removeEntities(text).replace(" ", "_").replace(":","_"))	

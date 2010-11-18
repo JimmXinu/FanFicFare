@@ -110,15 +110,36 @@ class Twilighted(FanfictionSiteAdapter):
 
     def extractIndividualUrls(self):
         url = self.url + '&chapter=1'
-        data = self.opener.open(url).read()
+
+        data = ''
+        try:
+            data = self.opener.open(url).read()
+        except Exception, e:
+            data = ''
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+        if data is None:
+            raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
         if self.reqLoginData(data):
-          self.performLogin()
-          data = self.opener.open(url).read()
-          if self.reqLoginData(data):
-            return None
+            self.performLogin()
+
+            data = ''
+            try:
+                data = self.opener.open(url).read()
+            except Exception, e:
+                data = ''
+                logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+            if data is None:
+                raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
-        soup = bs.BeautifulStoneSoup(data)
+            if self.reqLoginData(data):
+                raise FailedToDownload("Error downloading Story: %s!  Login Failed!" % url)    
+        
+        soup = None
+        try:
+            soup = bs.BeautifulStoneSoup(data)
+        except:
+            raise FailedToDownload("Error downloading Story: %s!  Problem decoding page!" % url)    
 
         title = soup.find('title').string
         logging.debug('Title: %s' % title)
@@ -254,14 +275,26 @@ class Twilighted(FanfictionSiteAdapter):
     
         logging.debug('Getting data from: %s' % url)
     
-        data = self.opener.open(url).read()
+        data = ''
+        try:
+            data = self.opener.open(url).read()
+        except Exception, e:
+            data = ''
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+        if data is None:
+            raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
+                
+        soup = None
+        try:
+            soup = bs.BeautifulStoneSoup(data, convertEntities=bs.BeautifulStoneSoup.HTML_ENTITIES)
+        except:
+            logging.info("Failed to decode: <%s>" % data)
+            raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
         
-        soup = bs.BeautifulStoneSoup(data, convertEntities=bs.BeautifulStoneSoup.HTML_ENTITIES)
-    
         div = soup.find('div', {'id' : 'story'})
     
         if None == div:
-          return '<html/>'
+            raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
         return div.__str__('utf8')
 

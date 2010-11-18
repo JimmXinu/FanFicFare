@@ -70,8 +70,7 @@ class FFNet(FanfictionSiteAdapter):
 		logging.debug('spl=%s' % spl)
 		if spl is not None:
 			if len(spl) > 0 and spl[0] != 's':
-				logging.error("Error URL \"%s\" is not a story." % self.url)
-				exit (20)				
+				raise InvalidStoryURL("Error URL \"%s\" is not a story." % self.url)
 			if len(spl) > 1:
 				self.storyId = spl[1]
 			if len(spl) > 2:
@@ -150,9 +149,23 @@ class FFNet(FanfictionSiteAdapter):
 		return True
 
 	def extractIndividualUrls(self):
-		data = self.fetchUrl(self.url)
+		data = ''
+		try:
+			data = self.fetchUrl(self.url)
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
+		
 		d2 = re.sub('&\#[0-9]+;', ' ', data)
-		soup = bs.BeautifulStoneSoup(d2)
+		soup = None
+		try:
+			soup = bs.BeautifulStoneSoup(d2)
+		except:
+			logging.error("Failed to decode: <%s>" % d2)
+			raise FailedToDownload("Error downloading Story: %s!  Problem decoding page!" % self.url)
+
 		allA = soup.findAll('a')
 		for a in allA:
 			if 'href' in a._getAttrMap() and a['href'].find('/u/') != -1:
@@ -264,7 +277,15 @@ class FFNet(FanfictionSiteAdapter):
 	
 	def getText(self, url):
 		time.sleep( 2.0 )
-		data = self.fetchUrl(url)
+		data = ''
+		try:
+			data = self.fetchUrl(url)
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
+		
 		lines = data.split('\n')
 		
 		textbuf = ''
@@ -276,16 +297,15 @@ class FFNet(FanfictionSiteAdapter):
 		except:
 			data = olddata
 		
+		soup = None
 		try:
 			soup = bs.BeautifulStoneSoup(data)
 		except:
-			logging.info("Failed to decode: <%s>" % data)
-			soup = None
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
+
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
-			logging.error("Error downloading Chapter: %s" % url)
-			exit (20)
-			return '<html/>'
+			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 			
 		return div.__str__('utf8')
 					

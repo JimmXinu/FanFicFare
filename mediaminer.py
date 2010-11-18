@@ -81,7 +81,9 @@ class MediaMiner(FanfictionSiteAdapter):
 				self.storyId = ss[-2].strip()
 				self.path = '/fanfic/view_st.php/' + self.storyId
 				self.url = 'http://' + self.host + self.path
-				logging.debug('self.url=%s' % self.url)			
+				logging.debug('self.url=%s' % self.url)
+		else:			
+			raise InvalidStoryURL("Error URL \"%s\" is not a story." % self.url)
 			
 		logging.debug('self.storyId=%s' % self.storyId)
 		
@@ -144,9 +146,23 @@ class MediaMiner(FanfictionSiteAdapter):
 		return True
 
 	def extractIndividualUrls(self):
-		data = self.fetchUrl(self.url)
+		data = None
+		try:
+			data = self.fetchUrl(self.url)
+		except Exception, e:
+			data = None
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
+		
 		#data.replace('<br />',' ').replace('<br>',' ').replace('</br>',' ')
-		soup = bs.BeautifulSoup(data)
+		soup = None
+		try:
+			soup = bs.BeautifulSoup(data)
+		except:
+			logging.error("Failed to decode: <%s>" % data)
+			raise FailedToDownload("Error downloading Story: %s!  Problem decoding page!" % self.url)
+
 		#logging.debug('soap=%s' % soup)
 		urls = []
 		
@@ -175,7 +191,7 @@ class MediaMiner(FanfictionSiteAdapter):
 			for ii in range(ll):
 				td = td_smtxt[ii]
 				if 'class' in td._getAttrMap() and td['class'] != 'smtxt':
-					logging.debug('td has class attribute but is not smtxt')
+					#logging.debug('td has class attribute but is not smtxt')
 					continue
 				ss = str(td).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
 				#logging.debug('ss=%s' % ss)
@@ -309,31 +325,28 @@ class MediaMiner(FanfictionSiteAdapter):
 			
 		self.numChapters = str(numchapters)
 		logging.debug('self.numChapters=%s' % self.numChapters)
-		logging.debug('urls=%s' % urls)
+		#logging.debug('urls=%s' % urls)
 		
 		return urls
 	
 	def getText(self, url):
 		time.sleep( 2.0 )
 		logging.debug('url=%s' % url)
-		data = self.fetchUrl(url)
-
+		data = ''
+		try:
+			data = self.fetchUrl(url)
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
+		
+		soup = None
 		try:
 			soup = bs.BeautifulSoup(data)
 		except:
-			logging.info("Failed to decode: <%s>" % data)
-			soup = None
-			exit(20)
-			return '<html/>'
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
 		
-		#div = soup.find('div', {'id' : 'storytext'})
-		#if div is None:
-			#logging.error("Error downloading Chapter: %s" % url)
-			#exit (20)
-			#return '<html/>'
-			
-		#logging.info("Soup: %s" % soup.prettify())
-
 		nvs = bs.NavigableString('')
 		sst=''
 		allAs = soup.findAll ('a', { 'name' : 'fic_c' })
@@ -368,16 +381,9 @@ class MediaMiner(FanfictionSiteAdapter):
 				sst = sst + st
 				nxta = nxta.nextSibling
 
-		#sst = sst.replace('&nbsp;',' ').strip()
-		#logging.debug('sst=%s' % sst)
+		if sst is None:	
+			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 		
-		#logging.debug('sst.0=%s' % sst)
-		#sst0 = sst.replace(u'&#8820;', u'&ldquo;').replace(u'&#8821;','&rdquo;').replace(u'&#8816;',u'&lsquo;').replace(u'&#8817;',u'&rsquo;')
-		#sst0 = sst.replace(u"&#8821;","&rdquo;")
-		#logging.debug('sst.1=%s' % sst0)
-		#sst1 = sst.replace(u'&#8820;', u'\"').replace('&#8821;','\"').replace('&#8816;','\'').replace('&#8817;','\'')
-		#logging.debug('sst.2=%s' % sst1)
-					
 		return sst
 			
 class FPC_UnitTests(unittest.TestCase):

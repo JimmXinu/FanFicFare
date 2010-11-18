@@ -14,12 +14,18 @@ import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
+import zipdir
 
+import output
+import adapter
+from adapter import StoryArchivedAlready
+from adapter import StoryDoesNotExist
+from adapter import FailedToDownload
+from adapter import InvalidStoryURL
+from adapter import LoginRequiredException
 import ffnet
 import fpcom
 import ficwad
-import output
-import adapter
 import fictionalley
 import hpfiction
 import twilighted
@@ -31,15 +37,30 @@ import time
 class FanficLoader:
 	'''A controller class which handles the interaction between various specific downloaders and writers'''
 	booksDirectory = "books"
+	standAlone = False
 	
-	def __init__(self, adapter, writerClass, quiet = False, inmemory = False, compress=True):
+	def __init__(self, adapter, writerClass, quiet = False, inmemory = False, compress=True, overwrite=False):
 		self.adapter = adapter
 		self.writerClass = writerClass
 		self.quiet = quiet
 		self.inmemory = inmemory
 		self.compress = compress
 		self.badLogin = False
-		self.overWrite = True
+		self.overWrite = overwrite
+			
+	def getBooksDirectory(self):
+		return self.booksDirectory
+
+	def setBooksDirectory(self, bd):
+		self.booksDirectory = bd
+		return self.booksDirectory
+	
+	def getStandAlone(self):
+		return self.standAlone
+
+	def setStandAlone(self, sa):
+		self.standAlone = sa
+		return self.standAlone
 	
 	def getAdapter():
 		return self.adapter
@@ -55,13 +76,16 @@ class FanficLoader:
 		
 		urls = self.adapter.extractIndividualUrls()
 
-		if (self.adapter.hasAppEngine):
-			self.overWrite = True
+		logging.debug("self.writerClass=%s" % self.writerClass)
+		if self.standAlone and not self.inmemory:
+			s = self.adapter.getOutputFileName(self.booksDirectory, self.writerClass.getFormatExt())
+			logging.debug("Always overwrite? %s" % self.overWrite)
+			if not self.overWrite:
+				logging.debug("Checking if current archive of the story exists.  Filename=%s" % s)
+				if not zipdir.checkNewer ( s, self.adapter.getStoryUpdated() ):
+					raise StoryArchivedAlready("A Current archive file \"" + s + "\" already exists!  Skipping!")
 		else:
-			s = self.adapter.getOutputFileName(self.booksDirectory, format)
-			if not self.overWrite and os.path.isfile(s):
-				print >> sys.stderr, "File " + s + " already exists!  Skipping!"
-				exit(10)
+			logging.debug("Do not check for existance of archive file.")
 
 		self.writer = self.writerClass(self.booksDirectory, self.adapter, inmemory=self.inmemory, compress=self.compress)
 		
@@ -83,10 +107,17 @@ class FanficLoader:
 
 if __name__ == '__main__':
 	logging.basicConfig(level=logging.DEBUG)
-	(url, format) = sys.argv[1:]
-	# (url) = sys.argv[1]
-	# format = 'epub'
+	argvlen = len(sys.argv)
+	url = None
+	if argvlen > 1:
+		url = sys.argv[1]
+	if argvlen > 2:
+		bookFormat = sys.argv[2]
 	
+	if url is None: 
+		print >> sys.stderr, "Usage: downloader.py URL Type"
+		sys.exit(-1)
+		
 	if type(url) is unicode:
 		print('URL is unicode')
 		url = url.encode('latin1')
@@ -117,9 +148,9 @@ if __name__ == '__main__':
 		print >> sys.stderr, "Oi! I can haz not appropriate adapter for URL %s!" % url
 		sys.exit(1)
 
-	if format == 'epub':
+	if bookFormat == 'epub':
 		writerClass = output.EPubFanficWriter
-	elif format == 'html':
+	elif bookFormat == 'html':
 		writerClass = output.HTMLWriter
 	
 	if adapter.requiresLogin(url):
@@ -134,5 +165,28 @@ if __name__ == '__main__':
 		
 	
 	loader = FanficLoader(adapter, writerClass)
-	loader.download()
+	loader.setStandAlone(True)
+
+	try:
+		loader.download()
+	except FailedToDownload, ftd:
+		print >> sys.stderr, str(ftd)
+		sys.exit(2)		# Error Downloading
+	except InvalidStoryURL, isu:
+		print >> sys.stderr, str(isu)
+		sys.exit(3)		# Unknown Error
+	except StoryArchivedAlready, se:
+		print >> sys.stderr, str(se)
+		sys.exit(10)	# Skipped
+	except StoryDoesNotExist, sdne:
+		print >> sys.stderr, str(sdne)
+		sys.exit(20) 	# Missing
+	except LoginRequiredException, lre:
+		print >> sys.stderr, str(lre)
+		sys.exit(30) 	# Missing
+	except Exception, e:
+		print >> sys.stderr, str(e)
+		sys.exit(99)		# Unknown Error
+	
+	sys.exit(0)
 	

@@ -124,25 +124,36 @@ class FictionAlley(FanfictionSiteAdapter):
 	
 		
 	def extractIndividualUrls(self):
-		data = self.opener.open(self.url).read()		
+		data = ''
+		try:
+			data = self.opener.open(self.url).read()		
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
 		# There is some usefull information in the headers of the first chapter page..
 		data = data.replace('<!-- headerstart -->','<crazytagstringnobodywouldstumbleonaccidently id="storyheaders">').replace('<!-- headerend -->','</crazytagstringnobodywouldstumbleonaccidently>')
-		soup = bs.BeautifulStoneSoup(data)
+		soup = None
+		try:
+			soup = bs.BeautifulStoneSoup(data)
+		except:
+			raise FailedToDownload("Error downloading Story: %s!  Problem decoding page!" % self.url)
 				
 		breadcrumbs = soup.find('div', {'class': 'breadcrumbs'})
 		if breadcrumbs is not None:
 			# Be aware that this means that the user has entered the {STORY}01.html 
 			# We will not have valid Publised and Updated dates.  User should enter 
 			# the {STORY}.html instead.  We should force that instead of this.
-			logging.debug('breadcrumbs=%s' % breadcrumbs )
+			#logging.debug('breadcrumbs=%s' % breadcrumbs )
 			bcas = breadcrumbs.findAll('a')
-			logging.debug('bcas=%s' % bcas )
+			#logging.debug('bcas=%s' % bcas )
 			if bcas is not None and len(bcas) > 1:
 				bca = bcas[1]
-				logging.debug('bca=%s' % bca )
+				#logging.debug('bca=%s' % bca )
 				if 'href' in bca._getAttrMap():
-					logging.debug('bca.href=%s' % bca['href'] )
+					#logging.debug('bca.href=%s' % bca['href'] )
 					url = str(bca['href'])
 					if url is not None and len(url) > 0:
 						self.url = url
@@ -244,7 +255,15 @@ class FictionAlley(FanfictionSiteAdapter):
 	
 	def getText(self, url):
 		# fictionalley uses full URLs in chapter list.
-		data = self.opener.open(url).read()
+		data = ''
+		try:
+			data = self.opener.open(url).read()
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
+		
 		
 		# find <!-- headerend --> & <!-- footerstart --> and
 		# replaced with matching div pair for easier parsing.
@@ -252,13 +271,17 @@ class FictionAlley(FanfictionSiteAdapter):
 		# something other than div prevents soup from pairing
 		# our div with poor html inside the story text.
 		data = data.replace('<!-- headerend -->','<crazytagstringnobodywouldstumbleonaccidently id="storytext">').replace('<!-- footerstart -->','</crazytagstringnobodywouldstumbleonaccidently>')
-		soup = bs.BeautifulStoneSoup(data)
+		
+		soup = None
+		try:
+			soup = bs.BeautifulStoneSoup(data)
+		except:
+			logging.info("Failed to decode: <%s>" % data)
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
 		
 		div = soup.find('crazytagstringnobodywouldstumbleonaccidently', {'id' : 'storytext'})
 		if None == div:
-			logging.error("Error downloading Chapter: %s" % url)
-			exit(20)
-			return '<html/>'
+			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
 		html = soup.findAll('html')
 		if len(html) > 1:
