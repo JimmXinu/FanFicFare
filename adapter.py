@@ -2,6 +2,7 @@
 
 import logging
 import datetime
+from output import makeAcceptableFilename
 
 try:
 	from google.appengine.api.urlfetch import fetch as googlefetch
@@ -15,6 +16,18 @@ class LoginRequiredException(Exception):
 	
 	def __str__(self):
 		return repr(self.url + ' requires user to be logged in')
+	
+class StoryArchivedAlready(Exception):
+	pass
+
+class StoryDoesNotExist(Exception):
+	pass
+
+class FailedToDownload(Exception):
+	pass
+
+class InvalidStoryURL(Exception):
+	pass
 
 class FanfictionSiteAdapter:
 	appEngine = appEngineGlob
@@ -93,12 +106,13 @@ class FanfictionSiteAdapter:
 		return self.uuid
 
 	def getOutputName(self):
-		self.outputName = self.storyName.replace(" ", "_") + self.outputStorySep + self.storyId
+		self.outputName = makeAcceptableFilename(self.storyName.replace(" ", "_") + self.outputStorySep + self.storyId)
 		logging.debug('self.outputName=%s' % self.outputName)
 		return self.outputName
 
-	def getOutputFileName(self, booksDirectory, format):
-		self.outputFileName = booksDirectory + "/" + self.getOutputName() + "." + format
+	def getOutputFileName(self, booksDirectory, bookExt):
+		self.getOutputName()	# make sure self.outputName is populated
+		self.outputFileName = booksDirectory + "/" + self.outputName + bookExt
 		logging.debug('self.outputFileName=%s' % self.outputFileName)
 		return self.outputFileName
 

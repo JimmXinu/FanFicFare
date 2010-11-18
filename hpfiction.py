@@ -84,10 +84,21 @@ class HPFiction(FanfictionSiteAdapter):
 		return self.path
 	
 	def extractIndividualUrls(self):
+		data = ''
+		try:
+			data = self.opener.open(self.url).read()
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
-		data = self.opener.open(self.url).read()
-		soup = bs.BeautifulSoup(data)
-		
+		soup = None
+		try:
+			soup = bs.BeautifulSoup(data)
+		except:
+			raise FailedToDownload("Error downloading Story: %s!  Problem decoding page!" % self.url)
+				
 		links = soup.findAll('a')
 		def_chapurl = ''
 		def_chaptitle = ''
@@ -220,12 +231,26 @@ class HPFiction(FanfictionSiteAdapter):
 
 	def getText(self, url):
 		logging.debug('Downloading from URL: %s' % url)
-		data = self.opener.open(url).read()
-		soup = bs.BeautifulSoup(data)
+		data = ''
+		try:
+			data = self.opener.open(url).read()
+		except Exception, e:
+			data = ''
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+		if data is None:
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
+		
+		soup = None
+		try:
+			soup = bs.BeautifulSoup(data)
+		except:
+			logging.info("Failed to decode: <%s>" % data)
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
+		
 		divtext = soup.find('div', {'id' : 'fluidtext'})
 		if None == divtext:
-			logging.error("Error downloading Chapter: %s" % url)
-			exit(20)
+			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
 		return divtext.__str__('utf8')
 
 

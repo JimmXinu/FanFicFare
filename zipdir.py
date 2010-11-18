@@ -1,10 +1,78 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import os
+import zlib
 import zipfile
+from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
+from contextlib import closing
 import logging
 
+import BeautifulSoup as bs
+import htmlentitydefs as hdefs
+import time
+import datetime
+from datetime import timedelta
+
 import StringIO
+
+class InvalidEPub(Exception):
+    pass
+
+def checkNewer(filename, curdte):
+	ret = True
+	
+	if not os.path.isfile(filename):
+		logging.debug('File %s does not already exist.' % filename)
+		return ret
+	
+	#logging.debug('filename=%s, curdte=%s' % (filename, curdte))
+	lastdate = None
+	with closing(ZipFile(open(filename, 'rb'))) as epub:
+		titleFilePath = "OEBPS/title_page.xhtml"
+		contentFilePath = "OEBPS/content.opf"
+		
+		namelist = set(epub.namelist())
+		#logging.debug('namelist=%s' % namelist)
+		if 'mimetype' not in namelist or \
+		   'META-INF/container.xml' not in namelist:
+			#raise InvalidEPub('%s: not a valid EPUB' % filename)
+			logging.debug('File %s is not a valid EPub format file.' % filename)
+			return ret
+		
+		if contentFilePath not in namelist:
+			return ret	# file is not newer
+		
+		data = epub.read(contentFilePath)
+		soup = bs.BeautifulStoneSoup(data)
+		lstdte = soup.find ('dc:date', {'opf:event' : 'modification'})
+		#logging.debug('lstdte=%s' % lstdte.string)
+		if lstdte is None and titleFilePath in namelist:
+			data = epub.read(titleFilePath)
+			soup = bs.BeautifulStoneSoup(data)
+			fld = ''
+			allTDs = soup.findAll ('td')
+			for td in allTDs:
+				b = td.find ('b')
+				if b is not None:
+					fld = b.string
+				if td.string is not None and fld == "Updated:":
+					lastdate = td.string
+					#logging.debug('title lastdate=%s' % lastdate)
+		else:
+			lastdate = lstdte.string.strip(' ')
+			#logging.debug('contents lastdate=%s' % lastdate)
+	
+	if lastdate is not None:	
+		currUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(curdte.strftime('%Y-%m-%d'), "%Y-%m-%d")))
+		storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(lastdate, "%Y-%m-%d")))
+		logging.debug('File %s last update date is %s, comparing to %s' % (filename, storyUpdated, currUpdated))
+		if currUpdated <= storyUpdated :	
+			ret = False
+	
+	logging.debug("Does %s need to be updated? %s" % (filename, ret))
+	return ret
+
 
 def toZip(filename, directory):
 	zippedHelp = zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED)
