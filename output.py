@@ -243,8 +243,8 @@ class EPubFanficWriter(FanficWriter):
 		else:
 			description = str(description)
 		if description is not None and len(description) > 0:
-			description = description.replace ('\\\'', '').replace('\\\"', '')
-			description =  removeEntities(description.replace('&nbsp;',' ').replace('&rsquo;',''))
+			description = description.replace ('\\', '\'').replace('\\\"', '\"')
+			description =  removeEntities(description)
 		else:
 			description = ' '
 
@@ -336,12 +336,11 @@ class EPubFanficWriter(FanficWriter):
 
 def unirepl(match):
 	"Return the unicode string for a decimal number"
-	s = match.group()
-	if s[2].lower()=='x':
+	if match.group(1)=='x':
 		radix=16
 	else:
 		radix=10
-	value = int(s[3:-1], radix )
+	value = int(match.group(2), radix )
 	return unichr(value)
 
 def replaceNumberEntities(data):
