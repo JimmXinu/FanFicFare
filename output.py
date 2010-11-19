@@ -273,7 +273,7 @@ class EPubFanficWriter(FanficWriter):
 		else:
 			description = str(description)
 		if description is not None and len(description) > 0:
-			description = description.replace ('\\', '\'').replace('\\\"', '\"')
+			description = description.replace ('\\\'', '\'').replace('\\\"', '\"')
 			description =  removeEntities(description)
 		else:
 			description = ' '
