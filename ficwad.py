@@ -63,7 +63,7 @@ class FicWad(FanfictionSiteAdapter):
 			data = u2.urlopen(self.url).read()
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 
@@ -99,19 +99,19 @@ class FicWad(FanfictionSiteAdapter):
 		logging.debug('self.storyName=%s, self.storyId=%s' % (self.storyName, self.storyId))
 		
 		author = soup.find('span', {'class' : 'author'})
-		self.authorName = str(author.a.string)
+		self.authorName = unicode(author.a.string)
 		(u0, u1,self.authorId) = author.a['href'].split('/')
 		self.authorURL = 'http://' + self.host + author.a['href']
 		logging.debug('self.authorName=%s self.authorId=%s' % (self.authorName, self.authorId))
 		
 		description = soup.find('blockquote', {'class' : 'summary'})
 		if description is not None:
-			self.storyDescription = str(description.p.string)
+			self.storyDescription = unicode(description.p.string)
 		logging.debug('self.storyDescription=%s' % self.storyDescription)
 		
 		meta = soup.find('p', {'class' : 'meta'})
 		if meta is not None:
-			s = str(meta).replace('\n',' ').replace('\t','').split(' - ')
+			s = unicode(meta).replace('\n',' ').replace('\t','').split(' - ')
 			#logging.debug('meta.s=%s' % s)
 			for ss in s:
 				s1 = ss.replace('&nbsp;','').split(':')
@@ -128,7 +128,7 @@ class FicWad(FanfictionSiteAdapter):
 						allAs = soup1.findAll('a')
 						for a in allAs:
 							if self.category == 'Category':
-								self.category = str(a.string)
+								self.category = unicode(a.string)
 								logging.debug('self.category=%s' % self.category)
 							self.addSubject(self.category)
 						logging.debug('self.subjects=%s' % self.subjects)
@@ -240,7 +240,7 @@ class FicWad(FanfictionSiteAdapter):
 			data = u2.urlopen(url).read()
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		

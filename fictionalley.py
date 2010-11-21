@@ -36,7 +36,7 @@ class FictionAlley(FanfictionSiteAdapter):
                   domain='www.fictionalley.org', domain_specified=False, domain_initial_dot=False,
                  path='/authors', path_specified=True,
                  secure=False,
-                 expires=time.time()+100,
+                 expires=time.time()+10000,
                  discard=False,
                  comment=None,
                  comment_url=None,
@@ -97,7 +97,7 @@ class FictionAlley(FanfictionSiteAdapter):
 			if len(br.contents) > 2:
 				keystr = br.contents[1]
 				if keystr is not None:
-					strs = re.split ("<[^>]+>", str(keystr))
+					strs = re.split ("<[^>]+>", unicode(keystr))
 					keystr=''
 					for s in strs:
 						keystr = keystr + s					
@@ -129,7 +129,7 @@ class FictionAlley(FanfictionSiteAdapter):
 			data = self.opener.open(self.url).read()		
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
@@ -154,7 +154,7 @@ class FictionAlley(FanfictionSiteAdapter):
 				#logging.debug('bca=%s' % bca )
 				if 'href' in bca._getAttrMap():
 					#logging.debug('bca.href=%s' % bca['href'] )
-					url = str(bca['href'])
+					url = unicode(bca['href'])
 					if url is not None and len(url) > 0:
 						self.url = url
 						logging.debug('self.url=%s' % self.url )
@@ -207,7 +207,7 @@ class FictionAlley(FanfictionSiteAdapter):
 				if len(ss1) > 1 and ss1[0] == 'Rating':
 					self.storyRating = ss1[1]
 					logging.debug('self.storyRating=%s' % self.storyRating)
-				self.storyDescription = str(ss[1]).replace("<br>","").replace("</br>","").replace('\n','')
+				self.storyDescription = unicode(ss[1]).replace("<br>","").replace("</br>","").replace('\n','')
 				logging.debug('self.storyDescription=%s' % self.storyDescription)
 			
 			for li in links:
@@ -260,7 +260,7 @@ class FictionAlley(FanfictionSiteAdapter):
 			data = self.opener.open(url).read()
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		

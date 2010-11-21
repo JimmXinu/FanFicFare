@@ -109,6 +109,7 @@ if __name__ == '__main__':
 	logging.basicConfig(level=logging.DEBUG)
 	argvlen = len(sys.argv)
 	url = None
+	bookFormat = 'epub'
 	if argvlen > 1:
 		url = sys.argv[1]
 	if argvlen > 2:
@@ -121,7 +122,7 @@ if __name__ == '__main__':
 	if type(url) is unicode:
 		print('URL is unicode')
 		url = url.encode('latin1')
-	
+	url = url.strip()
 	adapter = None
 	writerClass = None
 	

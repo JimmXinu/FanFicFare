@@ -151,7 +151,7 @@ class MediaMiner(FanfictionSiteAdapter):
 			data = self.fetchUrl(self.url)
 		except Exception, e:
 			data = None
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
@@ -170,7 +170,7 @@ class MediaMiner(FanfictionSiteAdapter):
 		#logging.debug('td_ffh=%s' % td_ffh)
 		if td_ffh is not None:
 			#logging.debug('td_ffh.text=%s' % td_ffh.find(text=True))
-			self.storyName = str(td_ffh.find(text=True)).strip()
+			self.storyName = unicode(td_ffh.find(text=True)).strip()
 			logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
 			fft = td_ffh.find('font', {'class' : 'smtxt'})
 			#logging.debug('fft=%s' % fft)
@@ -193,7 +193,7 @@ class MediaMiner(FanfictionSiteAdapter):
 				if 'class' in td._getAttrMap() and td['class'] != 'smtxt':
 					#logging.debug('td has class attribute but is not smtxt')
 					continue
-				ss = str(td).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
+				ss = unicode(td).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
 				#logging.debug('ss=%s' % ss)
 				if len(ss) > 1 and (ss.find('Genre(s):') != -1 or ss.find('Type:') != -1):
 					#logging.debug('ss=%s' % ss)
@@ -204,7 +204,7 @@ class MediaMiner(FanfictionSiteAdapter):
 						nvs = bs.NavigableString('')
 						sst=''
 						ssb = ssbs[bb]
-						ssbt = str(ssb.text).strip()
+						ssbt = unicode(ssb.text).strip()
 						#logging.debug('ssb=%s' % ssb)
 						#logging.debug('ssbt=%s' % ssbt)
 						ssbn = ssb.nextSibling
@@ -212,7 +212,7 @@ class MediaMiner(FanfictionSiteAdapter):
 							#logging.debug('ssbn=%s' % ssbn)
 							#logging.debug('ssbn.class=%s' % ssbn.__class__)
 							if nvs.__class__ == ssbn.__class__:
-								st = str(ssbn)
+								st = unicode(ssbn)
 								if st.strip() != '|':
 									sst = sst + st
 							else:
@@ -323,7 +323,7 @@ class MediaMiner(FanfictionSiteAdapter):
 			logging.debug('URL=%s, Title=%s' % (url, ssd))
 			urls.append((url, ssd))
 			
-		self.numChapters = str(numchapters)
+		self.numChapters = unicode(numchapters)
 		logging.debug('self.numChapters=%s' % self.numChapters)
 		#logging.debug('urls=%s' % urls)
 		
@@ -337,7 +337,7 @@ class MediaMiner(FanfictionSiteAdapter):
 			data = self.fetchUrl(url)
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		
@@ -359,7 +359,7 @@ class MediaMiner(FanfictionSiteAdapter):
 			while nxta is not None and not done:
 				#logging.debug('nxta=%s' % nxta)
 				#logging.debug('nxta.class=%s' % nxta.__class__)
-				st = str(nxta)
+				st = unicode(nxta)
 				if nvs.__class__ != nxta.__class__:
 					#logging.debug('nxta.name=%s' % nxta.name)
 					if nxta.name == 'table':

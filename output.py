@@ -269,9 +269,9 @@ class EPubFanficWriter(FanficWriter):
 		
 		description = self.adapter.getStoryDescription()
 		if hasattr(description, "text"):
-			description = str(description.text)
+			description = unicode(description.text)
 		else:
-			description = str(description)
+			description = unicode(description)
 		if description is not None and len(description) > 0:
 			description = description.replace ('\\\'', '\'').replace('\\\"', '\"')
 			description =  removeEntities(description)
@@ -289,7 +289,7 @@ class EPubFanficWriter(FanficWriter):
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
 		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
-		tmpstr = str(self.adapter.getNumChapters()) + " / " + str(self.adapter.getNumWords())
+		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + unicode(self.adapter.getNumWords())
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))

@@ -142,7 +142,7 @@ class FPCom(FanfictionSiteAdapter):
 			data = self.fetchUrl(self.url)
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
@@ -167,7 +167,7 @@ class FPCom(FanfictionSiteAdapter):
 		if metas is not None:
 			for meta in metas:
 				if 'content' in meta._getAttrMap():
-					self.storyDescription = str(meta['content'])
+					self.storyDescription = unicode(meta['content'])
 					logging.debug('self.storyDescription=%s' % self.storyDescription)
 					
 					title=meta.find('title')
@@ -220,7 +220,7 @@ class FPCom(FanfictionSiteAdapter):
 			logging.debug('URL=%s, Title=%s' % (url, self.storyName))
 			urls.append((url, self.storyName))
 			
-		self.numChapters = str(numchapters)
+		self.numChapters = unicode(numchapters)
 		logging.debug('self.numChapters=%s' % self.numChapters)
 		logging.debug('urls=%s' % urls)
 		
@@ -241,7 +241,7 @@ class FPCom(FanfictionSiteAdapter):
 				logging.debug('self.subjects=%s' % self.subjects)
 			tda = td.find ('a')
 			if tda is not None and tda.string.find('Rated:') != -1:
-				tdas = re.split ("<[^>]+>", str(td).replace('\n','').replace('&nbsp;',' '))
+				tdas = re.split ("<[^>]+>", unicode(td).replace('\n','').replace('&nbsp;',' '))
 				if tdas is not None:
 					ll = len(tdas)
 					if ll > 2:
@@ -295,7 +295,7 @@ class FPCom(FanfictionSiteAdapter):
 			data = self.fetchUrl(url)
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		
