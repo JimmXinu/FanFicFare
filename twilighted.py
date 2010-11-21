@@ -116,7 +116,7 @@ class Twilighted(FanfictionSiteAdapter):
             data = self.opener.open(url).read()
         except Exception, e:
             data = ''
-            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
         if data is None:
             raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
@@ -128,7 +128,7 @@ class Twilighted(FanfictionSiteAdapter):
                 data = self.opener.open(url).read()
             except Exception, e:
                 data = ''
-                logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+                logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
             if data is None:
                 raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
@@ -280,7 +280,7 @@ class Twilighted(FanfictionSiteAdapter):
             data = self.opener.open(url).read()
         except Exception, e:
             data = ''
-            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
         if data is None:
             raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
                 

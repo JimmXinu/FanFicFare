@@ -69,7 +69,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                     if ssss is not None and len(ssss) > 1 and ssss[0] == 'chapter':
                         self.chapurl = True
 
-        self.url = 'http://' + self.host + '/' + self.path + '?sid=' + self.storyId
+        self.url = 'http://' + self.host + self.path + '?sid=' + self.storyId
         logging.debug('self.url=%s' % self.url)
         
         logging.debug("Created PotionsNSnitches: url=%s" % (self.url))
@@ -135,7 +135,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
             data = self.opener.open(url).read()
         except Exception, e:
             data = ''
-            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
         if data is None:
             raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
@@ -147,7 +147,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                 data = self.opener.open(url).read()
             except Exception, e:
                 data = ''
-                logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+                logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
             if data is None:
                 raise StoryDoesNotExist("Problem reading story URL " + url + "!")
         
@@ -211,9 +211,9 @@ class PotionsNSnitches(FanfictionSiteAdapter):
                 logging.debug('self.authorName=%s, self.authorId=%s' % (self.authorName, self.authorId))
 
         output = soup.find('div', {'id' : 'output'})
-        #logging.debug('output: %s' % str(output))
-        if output is not None and len(str(output)) > 1:
-            s2 = re.split ('<[^>]+>', str(output))
+        #logging.debug('output: %s' % unicode(output))
+        if output is not None and len(unicode(output)) > 1:
+            s2 = re.split ('<[^>]+>', unicode(output))
             #logging.debug('s2=%s' % s2)
             ii = 0
             ll = len(s2)
@@ -229,8 +229,8 @@ class PotionsNSnitches(FanfictionSiteAdapter):
         cnttd = cnt.findAll('td')
         #logging.debug('cnttd: %s' % cnttd)
         for td in cnttd:
-            #logging.debug('td: %s' % str(td))
-            ss = str(td).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
+            #logging.debug('td: %s' % unicode(td))
+            ss = unicode(td).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
             if len(ss) > 1:
                 s2 = re.split ('<[^>]+>', ss)
                 #logging.debug('s2=%s' % s2)
@@ -288,7 +288,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
         tls = soup.findAll('div', {'style' : 'text-align: center;'})
         for tl in tls:
             #logging.debug('tl: %s' % tl)
-            ss = str(tl).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
+            ss = unicode(tl).replace('\n','').replace('\r','').replace('&nbsp;', ' ')
             if ss.find('Published:') != -1:
                 s2 = re.split ('<[^>]+>', ss)
                 #logging.debug('s2: %s' % s2)
@@ -327,7 +327,7 @@ class PotionsNSnitches(FanfictionSiteAdapter):
             data = self.opener.open(url).read()
         except Exception, e:
             data = ''
-            logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+            logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
         if data is None:
             raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
         

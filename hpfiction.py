@@ -89,7 +89,7 @@ class HPFiction(FanfictionSiteAdapter):
 			data = self.opener.open(self.url).read()
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
@@ -145,7 +145,7 @@ class HPFiction(FanfictionSiteAdapter):
 				(u1, self.authorId) = a['href'].split('=')
 				logging.debug('self.authorName=%s, self.authorId=%s' % (self.authorName, self.authorId))
 			elif a['href'].find('chapterid=') != -1 and len(def_chapurl) == 0:
-				def_chapurl = 'http://' + self.host + '/viewstory.php' + str(a['href'])
+				def_chapurl = 'http://' + self.host + '/viewstory.php' + unicode(a['href'])
 				def_chaptitle = a.string
 				logging.debug('def_chapurl=%s, def_chaptitle=%s' % (def_chapurl, def_chaptitle))
 		
@@ -154,7 +154,7 @@ class HPFiction(FanfictionSiteAdapter):
 			tds = center.findAll ('td')
 			if tds is not None and len(tds) > 0:
 				for td in tds:
-					s = re.split ("<[^>]+>", str(td).replace('\n','').replace('&nbsp;',' '))
+					s = re.split ("<[^>]+>", unicode(td).replace('\n','').replace('&nbsp;',' '))
 					ii = 0
 					ll = len(s)
 					sss = ''
@@ -236,7 +236,7 @@ class HPFiction(FanfictionSiteAdapter):
 			data = self.opener.open(url).read()
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		

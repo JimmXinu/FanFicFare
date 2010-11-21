@@ -154,7 +154,7 @@ class FFNet(FanfictionSiteAdapter):
 			data = self.fetchUrl(self.url)
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + self.url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise StoryDoesNotExist("Problem reading story URL " + self.url + "!")
 		
@@ -178,16 +178,16 @@ class FFNet(FanfictionSiteAdapter):
 		for l in lines:
 			if l.find("&#187;") != -1 and l.find('<b>') != -1:
 				s2 = bs.BeautifulStoneSoup(l)
-				self.storyName = str(s2.find('b').string)
+				self.storyName = unicode(s2.find('b').string)
 				logging.debug('self.storyId=%s, self.storyName=%s' % (self.storyId, self.storyName))
 			elif l.find("<a href='/u/") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
-				self.authorName = str(s2.a.string)
+				self.authorName = unicode(s2.a.string)
 				(u1, u2, self.authorId, u3) = s2.a['href'].split('/')
 				logging.debug('self.authorId=%s, self.authorName=%s' % (self.authorId, self.authorName))
 			elif l.find("Rated: <a href=") != -1:
 				s2 = bs.BeautifulStoneSoup(l)
-				self.storyRating = str(s2.a.string).strip()
+				self.storyRating = unicode(s2.a.string).strip()
 				logging.debug('self.storyRating=%s' % self.storyRating)
 				logging.debug('s2.a=%s' % s2.a)
 				s3 = l.split('-')
@@ -282,7 +282,7 @@ class FFNet(FanfictionSiteAdapter):
 			data = self.fetchUrl(url)
 		except Exception, e:
 			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + str(e) + ".")
+			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
 		if data is None:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 		
