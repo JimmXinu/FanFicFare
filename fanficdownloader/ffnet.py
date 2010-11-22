@@ -276,9 +276,10 @@ class FFNet(FanfictionSiteAdapter):
 		return urls
 	
 	def getText(self, url):
-		time.sleep( 2.0 )
+		# time.sleep( 2.0 )
 		data = ''
 		try:
+			logging.debug("Fetching URL: %s" % url)
 			data = self.fetchUrl(url)
 		except Exception, e:
 			data = ''
@@ -301,10 +302,12 @@ class FFNet(FanfictionSiteAdapter):
 		try:
 			soup = bs.BeautifulStoneSoup(data)
 		except:
+			logging.debug(data)
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
 
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
+			logging.debug(data)
 			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 			
 		return div.__str__('utf8')

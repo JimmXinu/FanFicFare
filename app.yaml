@@ -1,0 +1,31 @@
+application: fanfictionloader
+version: 2-5-5
+runtime: python
+api_version: 1
+
+handlers:
+- url: /generate_mock_data
+  script: mocks/generate_mock_data.py
+  login: admin
+
+- url: /r3m0v3r
+  script: utils/remover.py
+  login: admin
+
+- url: /r3m0v3r
+  script: main.py
+  login: admin
+  
+- url: /css
+  static_dir: css
+
+- url: /js
+  static_dir: js
+
+- url: /static
+  static_dir: static
+
+
+- url: /.*
+  script: main.py
+ 
