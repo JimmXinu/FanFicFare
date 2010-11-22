@@ -249,7 +249,7 @@ class FictionAlley(FanfictionSiteAdapter):
 					logging.debug('li chapterlink not found!  li=%s' % li)
 					
 
-		print('Story "%s" by %s' % (self.storyName, self.authorName))
+		logging.debug('Story "%s" by %s' % (self.storyName, self.authorName))
 		
 		return result
 	
