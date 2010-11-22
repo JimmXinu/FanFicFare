@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<link href="css/index.css" rel="stylesheet" type="text/css">
-		<title>Fanfiction Downloader &mdash; twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com to epub and HTML to Stanza, Kindle, Nook, Sony Reader</title>
+		<title>Fanfiction Downloader &mdash; twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org to epub and HTML to Stanza, Kindle, Nook, Sony Reader</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
 	</head>
@@ -33,23 +33,11 @@
 			<form action="/fdown" method="post">
 				<div id='urlbox'>
 					<div id='greeting'>
-					  Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
-					  much easier. 
-					  <ul>
-					    <li>
-					      For fictionalley.org, please paste the URL of the story's chapter list in the box, such as
-					      <a href="http://www.fictionalley.org/authors/drt/DA.html">this</a>.  Or the story text URL for
-					      fictionalley.org one-shots, such
-					      as <a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">this</a>.
-					    </li>
-					    <li>
-					      For all other supported sites, please paste the URL of the <em>first chapter</em> in the box.  For
-					      one-shots, the first chapter is the whole story.
-					    </li>
-					    <li>
-					      Alternatively, see your personal list of <a href="/recent">previously downloaded fanfics</a>.
-					    </li>
-					  </ul>	
+					  <p>Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
+					  much easier. </p>
+					  <p>To support new features, such as including story summaries,
+					    the URL you need to use for some sites has changed.  See below for example URLs for each site.  </p>
+					  <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
 					</div>
 					<div id='error'>
 					{{ error_message }}
@@ -66,23 +54,24 @@
 					</div>
 				</div>
 				
-				<h3>Login and Password</h3>
-				<div id='logpassword'>
-				  
-					If the story requires a login and password to download (e.g. marked as Mature on FFA), you may need to provide
-					your credentials to download it, otherwise just leave it empty
-				</div>
 				<div id='logpasswordtable'>
-					<div class='fieldandlabel'>
-						<div class='label'>Login</div>
-						<div class='field'><input type='text' name='login' size='50'></div>
-					</div>
-					
-					<div class='fieldandlabel'>
-						<div class='label'>Password</div>
-						<div class='field'><input type='password' name='password' size='50'></div>
-					</div>
+				  <h3>Login and Password</h3>
+				  <div id='logpassword'>
+				    
+				    If the story requires a login and password to download (e.g. marked as Mature on FFA), you may need to provide
+				    your credentials to download it, otherwise just leave it empty
+				  </div>
+				  <div class='fieldandlabel'>
+				    <div class='label'>Login</div>
+				    <div class='field'><input type='text' name='login' size='50'></div>
+				  </div>
+				  
+				  <div class='fieldandlabel'>
+				    <div class='label'>Password</div>
+				    <div class='field'><input type='password' name='password' size='50'></div>
+				  </div>
 				</div>
+				
 				<div id='submitbtn'>
 					<input type="submit" value="Download">
 				</div>
@@ -100,7 +89,41 @@
 			{% endif %}
 			
 				<div id='helpbox'>
-				Few things to know, which will make your life substantially easier:
+				  <dl>
+				    <dt>fictionalley.org
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.fictionalley.org/authors/drt/DA.html">http://www.fictionalley.org/authors/drt/DA.html</a>.  Or the story text URL for
+				      fictionalley.org one-shots, such as
+				      <br /><a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">http://www.fictionalley.org/authors/drt/JOTP01a.html</a>.
+				    <dt>fanfiction.net
+				    <dd>Use the URL of any story chapter, with or without story title such as
+				      <br /><a href="http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo">http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo</a> or 
+				      <br /><a href="http://www.fanfiction.net/s/5192986/5/">http://www.fanfiction.net/s/5192986/5/</a>.
+				    <dt>fictionpress.com
+				    <dd>Use the URL of any story chapter, such as
+				      <br /><a href="http://www.fictionpress.com/s/2851771/1/Untouchable_Love">http://www.fictionpress.com/s/2851771/1/Untouchable_Love</a> or 
+				      <br /><a href="http://www.fictionpress.com/s/2847338/6/">http://www.fictionpress.com/s/2847338/6/</a>.
+				    <dt>twilighted.net
+				    <dd>Use the URL of the start of the story, such as
+				      <br /><a href="http://twilighted.net/viewstory.php?sid=8422">http://twilighted.net/viewstory.php?sid=8422</a>.
+				    <dt>ficwad.com
+				    <dd>Use the URL of any story chapter, such as
+				      <br /><a href="http://www.ficwad.com/story/75246">http://www.ficwad.com/story/75246</a>.
+				    <dt>harrypotterfanfiction.com
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.harrypotterfanfiction.com/viewstory.php?psid=289208">http://www.harrypotterfanfiction.com/viewstory.php?psid=289208</a>.
+				    <dt>potionsandsnitches.net
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332">http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332</a>.
+				    <dt>mediaminer.org
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/166653">http://www.mediaminer.org/fanfic/view_st.php/166653</a>.
+				      Or the story URL for one-shots, such as
+				      <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/167618">http://www.mediaminer.org/fanfic/view_st.php/167618</a>.
+				  </dl>	
+
+				  
+				A few additional things to know, which will make your life substantially easier:
 				<ol>
 				  <li>
 				    First thing to know: I do not use your login and password. In fact, all I know about it is your ID &ndash; password
@@ -111,19 +134,11 @@
 				    &mdash; how to read fiction in Stanza or any other ebook reader.
 				  </li>
 				  <li>
-				    Currently we support fanfiction.net, fictionpress.com, ficwad.com, fictionalley.org, harrypotterfanfiction.com, potionsandsnitches.net, and twilighted.net.
-				    (fanficauthors.net withdrawn as they offer native ePub functionality now.)
+				    Currently we support fanfiction.net, fictionpress.com, ficwad.com, fictionalley.org, harrypotterfanfiction.com, potionsandsnitches.net, mediaminer.org and twilighted.net.
+				    fanficauthors.net and tthfanfic.org offer native ePub functionality.
 				  </li>
 				  <li>
 				    You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
-				  </li>
-				  <li>
-				    Paste a URL of the first chapter of the fanfic, not the index page, except for fictionalley.org.
-				  </li>
-				  <li>
-				    For fictionalley.org, you need to use the URL of the story's chapter list, such as
-				    <a href="http://www.fictionalley.org/authors/drt/DA.html">this</a>.  Or the story text URL for fictionalley.org
-				    one-shots, such as <a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">this</a>.
 				  </li>
 				  <li>
 				    One-shots, fics with a single chapter, <em>are</em> now supported.

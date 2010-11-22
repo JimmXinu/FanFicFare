@@ -184,12 +184,18 @@ class FanfictionDownloader(webapp.RequestHandler):
 				adapter = fictionalley.FictionAlley(url)
 			elif url.find('ficwad') != -1:
 				adapter = ficwad.FicWad(url)
-			elif url.find('fanfiction.net') != -1 or url.find('fictionpress.com') != -1:
+			elif url.find('fanfiction.net') != -1:
 				adapter = ffnet.FFNet(url)
+			elif url.find('fictionpress.com') != -1:
+				adapter = fpcom.FPCom(url)
 			elif url.find('harrypotterfanfiction.com') != -1:
 				adapter = hpfiction.HPFiction(url)
-			elif url.find('twilighted') != -1 or url.find('potionsandsnitches.net') != -1:
+			elif url.find('twilighted.net') != -1:
 				adapter = twilighted.Twilighted(url)
+			elif url.find('potionsandsnitches.net') != -1:
+				adapter = potionsNsnitches.PotionsNSnitches(url)
+			elif url.find('mediaminer.org') != -1:
+				adapter = mediaminer.MediaMiner(url)
 			else:
 				logging.debug("Bad URL detected")
 				self.redirect('/?error=bad_url&url=' + urlEscape(url) )

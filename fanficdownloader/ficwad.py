@@ -170,7 +170,7 @@ class FicWad(FanfictionSiteAdapter):
 						logging.debug('self.numWords=%s' % self.numWords)
 					
 		
-		print('Story "%s" by %s' % (self.storyName, self.authorName))
+		logging.debug('Story "%s" by %s' % (self.storyName, self.authorName))
 		
 		result = []
 		ii = 1
