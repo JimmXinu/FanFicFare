@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<link href="css/index.css" rel="stylesheet" type="text/css">
+		<title>Fanfiction Downloader &mdash; twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com to epub and HTML to Stanza, Kindle, Nook, Sony Reader</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+	</head>
+	<body>
+		<div id='main'>
+			<h1>
+				<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
+			</h1>
+			
+			<div style="text-align: center">
+                <script type="text/javascript"><!--
+                google_ad_client = "pub-2027714004231956";
+                /* FFD */
+                google_ad_slot = "7330682770";
+                google_ad_width = 468;
+                google_ad_height = 60;
+                //-->
+                </script>
+                <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                </script>
+            </div>
+<!--			<div id='yourfile'> -->
+			{{yourfile}}
+<!--			</div> -->
+
+			{% if authorized %}
+			<form action="/fdown" method="post">
+				<div id='urlbox'>
+					<div id='greeting'>
+					  Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
+					  much easier. 
+					  <ul>
+					    <li>
+					      For fictionalley.org, please paste the URL of the story's chapter list in the box, such as
+					      <a href="http://www.fictionalley.org/authors/drt/DA.html">this</a>.  Or the story text URL for
+					      fictionalley.org one-shots, such
+					      as <a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">this</a>.
+					    </li>
+					    <li>
+					      For all other supported sites, please paste the URL of the <em>first chapter</em> in the box.  For
+					      one-shots, the first chapter is the whole story.
+					    </li>
+					    <li>
+					      Alternatively, see your personal list of <a href="/recent">previously downloaded fanfics</a>.
+					    </li>
+					  </ul>	
+					</div>
+					<div id='error'>
+					{{ error_message }}
+					</div>
+					<input type="text" name="url" size="50" value='{{ url }}'>
+				</div>
+				
+				<div id='typebox'>
+					<div id='typelabel'>Ebook format</div>
+					<div id='typeoptions'>
+						<input type='radio' name='format' value='epub' checked>EPub</input>
+						<input type='radio' name='format' value='html'>HTML</input>
+						<input type='radio' name='format' value='text'>Plain Text</input>
+					</div>
+				</div>
+				
+				<h3>Login and Password</h3>
+				<div id='logpassword'>
+				  
+					If the story requires a login and password to download (e.g. marked as Mature on FFA), you may need to provide
+					your credentials to download it, otherwise just leave it empty
+				</div>
+				<div id='logpasswordtable'>
+					<div class='fieldandlabel'>
+						<div class='label'>Login</div>
+						<div class='field'><input type='text' name='login' size='50'></div>
+					</div>
+					
+					<div class='fieldandlabel'>
+						<div class='label'>Password</div>
+						<div class='field'><input type='password' name='password' size='50'></div>
+					</div>
+				</div>
+				<div id='submitbtn'>
+					<input type="submit" value="Download">
+				</div>
+			</form>
+			{% else %}
+			<div id='urlbox'>
+				<div id='greeting'>
+					<p>
+					  This is a fan fiction downloader, which makes reading stories from various websites much easier. Before you
+					  can start downloading fanfics, you need to login, so downloader can remember your fanfics and store them.
+					</p>
+					<p><a href="{{ login_url }}">Login using Google account</a></p>
+				</div>
+			</div>
+			{% endif %}
+			
+				<div id='helpbox'>
+				Few things to know, which will make your life substantially easier:
+				<ol>
+				  <li>
+				    First thing to know: I do not use your login and password. In fact, all I know about it is your ID &ndash; password
+				    is being verified by Google and is absolutely, totally unknown to anyone but you.
+				  </li>
+				  <li>
+				    Small <a href="http://www.sigizmund.com/reading-fanfiction-off-line-in-stanza-and-oth">post written by me</a>
+				    &mdash; how to read fiction in Stanza or any other ebook reader.
+				  </li>
+				  <li>
+				    Currently we support fanfiction.net, fictionpress.com, ficwad.com, fictionalley.org, harrypotterfanfiction.com, potionsandsnitches.net, and twilighted.net.
+				    (fanficauthors.net withdrawn as they offer native ePub functionality now.)
+				  </li>
+				  <li>
+				    You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
+				  </li>
+				  <li>
+				    Paste a URL of the first chapter of the fanfic, not the index page, except for fictionalley.org.
+				  </li>
+				  <li>
+				    For fictionalley.org, you need to use the URL of the story's chapter list, such as
+				    <a href="http://www.fictionalley.org/authors/drt/DA.html">this</a>.  Or the story text URL for fictionalley.org
+				    one-shots, such as <a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">this</a>.
+				  </li>
+				  <li>
+				    One-shots, fics with a single chapter, <em>are</em> now supported.
+				  </li>
+				  <li>
+				    You can download fanfics and store them for 'later' by just downloading them and visiting <a href="/recent">recent
+				    downloads</a> section.
+				  </li>
+				  <li>
+				    Downloaded stories are deleted after some time (which should give you enough of time to download it and will keep
+				    Google happy about the app not going over the storage limit).
+				  </li>
+				  <li>
+				    If Downloader simply opens a download file window rather than saves the fanfic and gives you a link, it means it is
+				    too large to save in the database and you need to download it straight away.
+				  </li>
+				  <li>
+				    If you see some funny characters in downloaded Plain Text file, make sure you choose text file encoding UTF-8 and
+				    not something else.
+				  </li>
+				  <li>
+				    If you think that something that should work in fact doesn't, drop me a mail
+				    to <a href='mailto:sigizmund@gmail.com'>sigizmund@gmail.com</a>, or, even better, write an email to
+				    our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>. I also encourage you to join it so
+				    you will find out about latest updates and fixes as soon as possible
+				  </li>
+				</ol>
+				Otherwise, just have fun, and if you want to say thank you &mdash; use the contacts above. 
+				</div>
+				<div style='text-align: center'>
+					<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+					alt="Powered by Google App Engine" />
+					<br/><br/>
+					FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
+					Copyright &copy; <a href="http://twitter.com/sigizmund">Roman Kirillov</a>
+				</div>
+
+			<div style="margin-top: 1em; text-align: center'">
+                <script type="text/javascript"><!--
+                google_ad_client = "pub-2027714004231956";
+                /* FFD */
+                google_ad_slot = "7330682770";
+                google_ad_width = 468;
+                google_ad_height = 60;
+                //-->
+                </script>
+                <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                </script>
+            </div>
+			
+		</div>
+		<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+		try {
+		var pageTracker = _gat._getTracker("UA-12136939-1");
+		pageTracker._trackPageview();
+		} catch(err) {}</script>
+	</body>
+</html>
