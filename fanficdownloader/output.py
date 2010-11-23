@@ -21,6 +21,7 @@ import urlparse as up
 import BeautifulSoup as bs
 import htmlentitydefs as hdefs
 
+import mobi
 import zipdir
 import html_constants
 from constants import *
@@ -81,6 +82,68 @@ class TextWriter(FanficWriter):
 			self.output.close()
 		
 
+class MobiWriter(FanficWriter):
+	body = ''
+
+	@staticmethod
+	def getFormatName():
+		return 'mobi'
+
+	@staticmethod	
+	def getFormatExt():
+		return '.mobi'
+
+	def __init__(self, base, adapter, inmemory=False, compress=False):
+		self.basePath = base
+		self.storyTitle = removeEntities(adapter.getStoryName())
+		self.name = makeAcceptableFilename(adapter.getOutputName())
+		self.fileName = self.basePath + '/' + self.name + self.getFormatExt()
+		self.authorName = removeEntities(adapter.getAuthorName())
+		self.adapter = adapter
+		self.mobi = mobi
+		self.inmemory = inmemory
+
+		if not self.inmemory and os.path.exists(self.fileName):
+			os.remove(self.fileName)
+
+		if self.inmemory:
+			self.output = StringIO.StringIO()
+		else:
+			self.output = open(self.fileName, 'w')
+
+		self.xhtmlTemplate = string.Template(html_constants.XHTML_START)
+		self.chapterStartTemplate = string.Template(html_constants.XHTML_CHAPTER_START)
+
+	def _printableVersion(self, text):
+		try:
+			d = text.decode('utf-8')
+			return d
+		except:
+			return text
+
+	def writeChapter(self, index, title, text):
+		title = self._printableVersion(title) #title.decode('utf-8')
+		text = self._printableVersion(text) #text.decode('utf-8')
+		self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
+		self.body = self.body + '\n' + text
+
+	def finalise(self):
+		html = self.xhtmlTemplate.substitute({'title' : self.storyTitle, 'author' : self.authorName, 'body' : self.body})
+		soup = bs.BeautifulSoup(html)
+		result = soup.__str__('utf8')
+
+#		f = open(self.fileName, 'w')
+#		f.write(result)
+#		f.close()
+
+		c = mobi.Converter()
+		mobidata = c.ConvertString(result)
+
+		self.output.write(mobidata)
+		if not self.inmemory:
+			self.output.close()
+
+
 class HTMLWriter(FanficWriter):
 	body = ''
 	
@@ -92,14 +155,14 @@ class HTMLWriter(FanficWriter):
 	def getFormatExt():
 		return '.html'
 	
-	def __init__(self, base, adapter, inmemory=False, compress=False):
+	def __init__(self, base, adapter, inmemory=False, compress=False, mobi = False):
 		self.basePath = base
 		self.storyTitle = removeEntities(adapter.getStoryName())
 		self.name = makeAcceptableFilename(adapter.getOutputName())
 		self.fileName = self.basePath + '/' + self.name + self.getFormatExt()
 		self.authorName = removeEntities(adapter.getAuthorName())
 		self.adapter = adapter
-		
+		self.mobi = mobi
 		self.inmemory = inmemory
 
 		if not self.inmemory and os.path.exists(self.fileName):
