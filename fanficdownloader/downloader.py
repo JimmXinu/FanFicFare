@@ -62,6 +62,13 @@ class FanficLoader:
 		self.standAlone = sa
 		return self.standAlone
 	
+	def getOverWrite(self):
+		return self.overWrite
+
+	def setOverWrite(self, sa):
+		self.overWrite = sa
+		return self.overWrite
+	
 	def getAdapter():
 		return self.adapter
 	
@@ -153,6 +160,8 @@ if __name__ == '__main__':
 		writerClass = output.EPubFanficWriter
 	elif bookFormat == 'html':
 		writerClass = output.HTMLWriter
+	elif bookFormat == 'text':
+		writerClass = output.TextWriter
 	
 	if adapter.requiresLogin(url):
 		print("Meow, URL %s requires you to haz been logged in! Please can I haz this datas?" % url)
@@ -167,6 +176,9 @@ if __name__ == '__main__':
 	
 	loader = FanficLoader(adapter, writerClass)
 	loader.setStandAlone(True)
+	if bookFormat != 'epub':
+		loader.setOverWrite(True)
+	
 
 	try:
 		loader.download()

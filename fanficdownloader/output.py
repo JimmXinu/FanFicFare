@@ -60,6 +60,7 @@ class TextWriter(FanficWriter):
 		return '.txt'
 	
 	def __init__(self, base, adapter, inmemory=False, compress=False):
+		self.inmemory = inmemory
 		self.htmlWriter = HTMLWriter(base, adapter, True, False)
 	
 	def writeChapter(self, index, title, text):
@@ -67,9 +68,17 @@ class TextWriter(FanficWriter):
 	
 	def finalise(self):
 		self.htmlWriter.finalise()
-		self.output = StringIO.StringIO()
+		self.name=self.htmlWriter.name
+		self.fileName = self.htmlWriter.fileName.replace(".html",".txt")
+		if self.inmemory:
+			self.output = StringIO.StringIO()
+		else:
+			self.output = open(self.fileName, 'w')
+		
 		self.output.write(html2text.html2text(self.htmlWriter.output.getvalue().decode('utf-8')).encode('utf-8'))
-		self.name = self.htmlWriter.name
+		
+		if not self.inmemory:
+			self.output.close()
 		
 
 class HTMLWriter(FanficWriter):

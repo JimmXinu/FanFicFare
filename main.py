@@ -230,7 +230,8 @@ class FanfictionDownloader(webapp.RequestHandler):
 				ext = '.html'
 				if format == 'text':
 					ext = '.txt'
-				files = {makeAcceptableFilename(str(adapter.getStoryName())) + ext : StringIO.StringIO(data.decode('utf-8')) }
+				logging.debug(data)
+				files = {makeAcceptableFilename(str(adapter.getOutputName())) + ext : StringIO.StringIO(data.decode('utf-8')) }
 				d = inMemoryZip(files)
 				data = d.getvalue()
 			
@@ -265,7 +266,7 @@ class FanfictionDownloader(webapp.RequestHandler):
 			fic.user = user
 			fic.url = url
 			fic.format = format
-			fic.name = self._printableVersion(adapter.getStoryName())
+			fic.name = self._printableVersion(adapter.getOutputName())
 			fic.author = self._printableVersion(adapter.getAuthorName())
 			fic.blob = data
 			
