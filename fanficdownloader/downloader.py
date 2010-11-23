@@ -160,6 +160,8 @@ if __name__ == '__main__':
 		writerClass = output.EPubFanficWriter
 	elif bookFormat == 'html':
 		writerClass = output.HTMLWriter
+	elif bookFormat == 'mobi':
+		writerClass = output.MobiWriter
 	elif bookFormat == 'text':
 		writerClass = output.TextWriter
 	
