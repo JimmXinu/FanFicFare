@@ -346,6 +346,12 @@ class MediaMiner(FanfictionSiteAdapter):
 			soup = bs.BeautifulSoup(data)
 		except:
 			raise FailedToDownload("Error downloading Chapter: %s!  Problem decoding page!" % url)
+
+		# convert div's to p's.  mediaminer uses div with a
+		# margin for paragraphs.
+		divlist = soup.findAll('div', {'class' : None})
+		for tag in divlist:
+			tag.name='p';
 		
 		nvs = bs.NavigableString('')
 		sst=''
