@@ -218,6 +218,8 @@ class FanfictionDownloader(webapp.RequestHandler):
 			writerClass = output.EPubFanficWriter
 		elif format == 'html':
 			writerClass = output.HTMLWriter
+		elif format == 'mobi':
+			writerClass = output.MobiWriter
 		else:
 			writerClass = output.TextWriter
 		
@@ -292,7 +294,9 @@ class FanfictionDownloader(webapp.RequestHandler):
 				elif format == 'text':
 					self.response.headers['Content-Type'] = 'application/zip'
 					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.txt.zip'
-				
+				elif format == 'mobi':
+					self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
+					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
 				self.response.out.write(data)
 				
 def toPercentDecimal(match): 
