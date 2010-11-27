@@ -69,7 +69,7 @@ class FictionAlley(FanfictionSiteAdapter):
 		self.numWords = 0
 		self.genre = ''
 		self.category = 'Harry Potter'
-		self.storyStatus = 'In-Progress'
+		self.storyStatus = 'Unknown' # fictionalley doesn't give us in-progress/completed anywhere.
 		self.storyRating = 'K'
 		self.storyUserRating = '0'
 		self.storyCharacters = []

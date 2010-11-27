@@ -109,7 +109,7 @@ class MobiWriter(FanficWriter):
 		if self.inmemory:
 			self.output = StringIO.StringIO()
 		else:
-			self.output = open(self.fileName, 'w')
+			self.output = open(self.fileName, 'wb')
 
 		self.xhtmlTemplate = string.Template(html_constants.XHTML_START)
 		self.chapterStartTemplate = string.Template(html_constants.XHTML_CHAPTER_START)
