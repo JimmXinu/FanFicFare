@@ -111,26 +111,20 @@ class FicWad(FanfictionSiteAdapter):
 		
 		meta = soup.find('p', {'class' : 'meta'})
 		if meta is not None:
-			s = unicode(meta).replace('\n',' ').replace('\t','').split(' - ')
-			#logging.debug('meta.s=%s' % s)
+			logging.debug('meta.s pre=%s' % meta.__str__('utf8'))
+			s = re.sub('<[^>]+>','',unicode(meta)).replace('\n',' ').replace('\t','').split(' - ')
+			#logging.debug('meta.s post=%s' % s)
 			for ss in s:
 				s1 = ss.replace('&nbsp;','').split(':')
-				#logging.debug('meta.s.s1=%s' % s1)
+				#logging.debug('ss=%s' % ss)
 				if len(s1) > 1:
-					s2 = re.split ('<[^>]+>', s1[0])
-					#logging.debug('meta.s.s1.s2=%s' % s2)
-					if len(s2) > 1:
-						s1[0] = s2[1]
 					skey = s1[0].strip()
 					#logging.debug('Checking = %s' % skey)
 					if skey == 'Category':
-						soup1 = bs.BeautifulStoneSoup(s1[1])
-						allAs = soup1.findAll('a')
-						for a in allAs:
-							if self.category == 'Category':
-								self.category = unicode(a.string)
-								logging.debug('self.category=%s' % self.category)
-							self.addSubject(self.category)
+						# ficwad doesn't allow multiple categories.
+						self.category = unicode(s1[1])
+						logging.debug('self.category=%s' % self.category)
+						self.addSubject(self.category)
 						logging.debug('self.subjects=%s' % self.subjects)
 					elif skey == 'Rating':
 						self.storyRating = s1[1]
@@ -159,14 +153,10 @@ class FicWad(FanfictionSiteAdapter):
 						self.storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(s1[1].strip(' '), "%Y/%m/%d")))
 						logging.debug('self.storyUpdated=%s' % self.storyUpdated)
 				else:
-					s3 = re.split ('<[^>]+>', s1[0])
-					#logging.debug('meta.s.s1.s3=%s' % s3)
-					if len(s3) > 1:
-						s1[0] = s3[0]
-					s4 = s1[0].split('w')
-					#logging.debug('meta.s.s1.s4=%s' % s4)
-					if len(s4) > 1 and s4[1] == 'ords':
-						self.numWords = s4[0]
+					if ss == 'Complete' :
+						self.storyStatus = 'Completed'
+					elif ss.endswith('words'):
+						self.numWords=ss.replace('words','').replace('&nbsp;','')
 						logging.debug('self.numWords=%s' % self.numWords)
 					
 		
