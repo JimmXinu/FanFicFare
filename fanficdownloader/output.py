@@ -341,9 +341,13 @@ class EPubFanficWriter(FanficWriter):
 		
 		description = self.adapter.getStoryDescription()
 		if hasattr(description, "text"):
-			description = unicode(description.text)
-		else:
+			description = description.text
+		prevalue=description
+		try:
 			description = unicode(description)
+		except:
+			description=prevalue
+			
 		if description is not None and len(description) > 0:
 			description = description.replace ('\\\'', '\'').replace('\\\"', '\"')
 			description =  removeEntities(description)
