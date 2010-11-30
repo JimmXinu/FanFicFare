@@ -337,6 +337,9 @@ class EPubFanficWriter(FanficWriter):
 		createda = self.adapter.getStoryCreated().strftime("%Y-%m-%d %H:%M:%S")
 		created = self.adapter.getStoryCreated().strftime("%Y-%m-%d")
 		updated = self.adapter.getStoryUpdated().strftime("%Y-%m-%d")
+		updateyy = self.adapter.getStoryUpdated().strftime("%Y")
+		updatemm = self.adapter.getStoryUpdated().strftime("%m")
+		updatedd = self.adapter.getStoryUpdated().strftime("%d")
 		calibre = self.adapter.getStoryUpdated().strftime("%Y-%m-%dT%H:%M:%S")
 		
 		description = self.adapter.getStoryDescription()
@@ -387,6 +390,12 @@ class EPubFanficWriter(FanficWriter):
 			i = i + 1
 		if (i <= 0):
 			self._writeFile(opfFilePath, CONTENT_SUBJECT % "FanFiction")
+		
+		subj = "Last Update Year/Month: " + updateyy + "/" + updatemm
+		self._writeFile(opfFilePath, CONTENT_SUBJECT % subj)
+
+		subj = "Last Update: " + updateyy + "/" + updatemm + "/" + updatedd
+		self._writeFile(opfFilePath, CONTENT_SUBJECT % subj)
 
 		self._writeFile(opfFilePath, CONTENT_END_METADATA % (self.adapter.getPublisher(), self.adapter.getUUID(), self.adapter.getStoryURL(), self.adapter.getStoryURL(), self.adapter.getStoryUserRating()))
 #		print >> opf, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName)
