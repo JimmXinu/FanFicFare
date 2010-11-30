@@ -141,7 +141,7 @@ class FPCom(FanfictionSiteAdapter):
 		words = line.split(' - ')
 		if words is not None:
 			for word in words:
-				if word.find(': ') != -1:
+				if word.find(':') != -1:
 					sds = word.split(': ')
 					if sds is not None and len(sds) > 1:
 						if sds[0] == 'Updated':
