@@ -406,7 +406,7 @@ class EPubFanficWriter(FanficWriter):
 
 		t = "Title Page"
 		f = "title_page.xhtml"
-		chapterId = "Title Page"		
+		chapterId = "title_page"		
 		self._writeFile(tocFilePath, TOC_ITEM % (chapterId, i, t, f))
 		self._writeFile(opfFilePath, CONTENT_ITEM % (chapterId, f))
 		
