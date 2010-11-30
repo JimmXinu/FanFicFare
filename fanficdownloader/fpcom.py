@@ -90,51 +90,6 @@ class FPCom(FanfictionSiteAdapter):
 	def _getLoginScript(self):
 		return self.path
 
-	def _getVarValue(self, varstr):
-		#logging.debug('_getVarValue varstr=%s' % varstr)
-		vals = varstr.split('=')
-		#logging.debug('vals=%s' % vals)
-		retstr="".join(vals[+1:])
-		#logging.debug('retstr=%s' % retstr)
-		if retstr.startswith(' '):
-			retstr = retstr[1:]
-		if retstr.endswith(';'):
-			retstr = retstr[:-1]
-		return retstr
-	
-	def _splitCrossover(self, subject):
-		if "Crossover" in subject:
-			self.addSubject ("Crossover")
-			logging.debug('Crossover=%s' % subject)
-			if subject.find(' and ') != -1:
-				words = subject.split(' ')
-				logging.debug('words=%s' % words)
-				subj = ''
-				for s in words:
-					if s in "and Crossover":
-						if len(subj) > 0:
-							self.addSubject(subj)
-						subj = ''
-					else:
-						if len(subj) > 0:
-							subj = subj + ' '
-						subj = subj + s
-				if len(subj) > 0:
-					self.addSubject(subj)
-			else:
-				self.addSubject(subject)
-		else:
-			self.addSubject(subject)
-		return True
-
-	def _splitGenre(self, subject):
-		if len(subject) > 0:
-			words = subject.split('/')
-			logging.debug('words=%s' % words)
-			for subj in words:
-			    if len(subj) > 0:
-				self.addSubject(subj)
-		return True
 	
 	def _processInfoLine(self, line):
 		have_lang = False
