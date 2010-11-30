@@ -186,6 +186,10 @@ class FFNet(FanfictionSiteAdapter):
 				(u1, u2, self.authorId, u3) = s2.a['href'].split('/')
 				logging.debug('self.authorId=%s, self.authorName=%s' % (self.authorId, self.authorName))
 			elif l.find("Rated: <a href=") != -1:
+				if "Complete" in l:
+					self.storyStatus = 'Completed'
+				else:
+					self.storyStatus = 'In-Progress'
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyRating = unicode(s2.a.string).strip()
 				logging.debug('self.storyRating=%s' % self.storyRating)
@@ -207,10 +211,6 @@ class FFNet(FanfictionSiteAdapter):
 						logging.debug('self.genre=%s' % self.genre)
 						self._splitGenre(self.genre)
 						logging.debug('self.subjects=%s' % self.subjects)
-				if "Complete" in l:
-					self.storyStatus = 'Completed'
-				else:
-					self.storyStatus = 'In-Progress'
 			elif l.find("<SELECT title='chapter navigation'") != -1:
 				if len(urls) > 0:
 					continue
