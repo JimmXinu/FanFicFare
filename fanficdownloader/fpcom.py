@@ -136,6 +136,38 @@ class FPCom(FanfictionSiteAdapter):
 				self.addSubject(subj)
 		return True
 	
+	def _processInfoLine(self, line):
+		have_lang = False
+		words = line.split(' - ')
+		if words is not None:
+			for word in words:
+				if word.find(': ') != -1:
+					sds = word.split(': ')
+					if sds is not None and len(sds) > 1:
+						if sds[0] == 'Updated':
+							self.storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sds[1].strip(' '), "%m-%d-%y")))
+							logging.debug('self.storyUpdated=%s' % self.storyUpdated)
+						elif sds[0] == 'Published':
+							self.storyPublished = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sds[1].strip(' '), "%m-%d-%y")))
+							logging.debug('self.storyPublished=%s' % self.storyPublished)
+						elif sds[0] == 'Reviews':
+							reviews = sds[1] 
+							logging.debug('reviews=%s' % reviews)							
+				elif word.find('Complete') != -1:
+					self.storyStatus = 'Completed'
+					logging.debug('self.storyStatus=%s' % self.storyStatus)
+				elif not have_lang:
+					have_lang = True
+					language = word
+					logging.debug('language=%s' % language)
+				else:
+					self.category = word
+					logging.debug('self.category=%s' % self.category)
+					sgs = self.category.split('/')
+					for sg in sgs:
+						self.addSubject(sg)
+					logging.debug('self.subjects=%s' % self.subjects)
+		
 	def extractIndividualUrls(self):
 		data = ''
 		try:
@@ -250,39 +282,9 @@ class FPCom(FanfictionSiteAdapter):
 							self.storyRating = ss[1]
 							logging.debug('self.storyRating=%s' % self.storyRating)
 					if ll > 3:
-						ss = tdas[3].split(' - ')
-						if ss is not None:
-							lls = len(ss)
-							if lls > 1:
-								language = ss[1]
-								logging.debug('language=%s' % language)
-							if lls > 2:
-								self.category = ss[2]
-								logging.debug('self.category=%s' % self.category)
-								sgs = self.category.split('/')
-								for sg in sgs:
-									self.addSubject(sg)
-								logging.debug('self.subjects=%s' % self.subjects)
-							if lls > 3 and ss[3].strip() == 'Reviews:' and ll > 4:
-								reviews = tdas[4] 
-								logging.debug('reviews=%s' % reviews)
+						self._processInfoLine (tdas[3])
 					if ll > 5:
-						ss = tdas[5].split(' - ')
-						if ss is not None:
-							lls = len(ss)
-							if lls > 1:
-								sds = ss[1].split(': ')
-								if sds is not None and len(sds) > 1 and sds[0] == 'Published':
-									self.storyPublished = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sds[1].strip(' '), "%m-%d-%y")))
-									logging.debug('self.storyPublished=%s' % self.storyPublished)
-							lls = len(ss)
-							if lls > 2:
-								sds = ss[2].split(': ')
-								if sds is not None and len(sds) > 1 and sds[0] == 'Updated':
-									self.storyUpdated = datetime.datetime.fromtimestamp(time.mktime(time.strptime(sds[1].strip(' '), "%m-%d-%y")))
-									logging.debug('self.storyUpdated=%s' % self.storyUpdated)
-									
-
+						self._processInfoLine (tdas[5])
 
 		self.authorURL = 'http://' + self.host + '/u/' + self.authorId
 
