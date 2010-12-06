@@ -227,7 +227,6 @@ class HPFiction(FanfictionSiteAdapter):
 					if title != "Story Index":
 						urls.append((url,title))
 
-		self.addSubject(self.storyStatus)
 		return urls
 
 	def getText(self, url):

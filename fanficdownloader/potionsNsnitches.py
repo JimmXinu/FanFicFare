@@ -314,7 +314,6 @@ class PotionsNSnitches(FanfictionSiteAdapter):
             logging.error('self.storyName is empty!!  Exitting!')
             exit(1)
 
-        self.addSubject(self.storyStatus)
         return result
     
     def getText(self, url):

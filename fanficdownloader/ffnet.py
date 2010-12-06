@@ -267,7 +267,6 @@ class FFNet(FanfictionSiteAdapter):
 				self.storyUpdated = datetime.datetime(*time.strptime ( dateus, "'%m-%d-%y'" )[0:5])
 				logging.debug('self.storyUpdated=%s' % self.storyUpdated.strftime("%Y-%m-%dT%I:%M:%S"))
 
-		self.addSubject(self.storyStatus)
 		if len(urls) <= 0:
 			# no chapters found, try url by itself.
 			urls.append((self.url,self.storyName))
