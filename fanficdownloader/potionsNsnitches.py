@@ -313,7 +313,8 @@ class PotionsNSnitches(FanfictionSiteAdapter):
         if (self.storyName is None or len(self.storyName) == 0) and self.storyId == '0': 
             logging.error('self.storyName is empty!!  Exitting!')
             exit(1)
-            
+
+        self.addSubject(self.storyStatus)
         return result
     
     def getText(self, url):

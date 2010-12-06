@@ -267,6 +267,7 @@ class Twilighted(FanfictionSiteAdapter):
                                             logging.debug('Skipped Label \"%s\" Value \"%s\"' % (strs[ii], strs[ii+1]))
                                             ii = ii+2
                                 
+        self.addSubject(self.storyStatus)
         return result
 
     def getText(self, url):

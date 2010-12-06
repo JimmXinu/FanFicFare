@@ -280,6 +280,7 @@ class MediaMiner(FanfictionSiteAdapter):
 		self.numChapters = unicode(numchapters)
 		logging.debug('self.numChapters=%s' % self.numChapters)
 		#logging.debug('urls=%s' % urls)
+		self.addSubject(self.storyStatus)
 		
 		return urls
 	
