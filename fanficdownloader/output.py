@@ -382,6 +382,8 @@ class EPubFanficWriter(FanficWriter):
 #		opf = open(opfFilePath, 'w')
 		self._writeFile(opfFilePath, CONTENT_START % (uuid.uuid4().urn, self.storyTitle, self.authorName, self.adapter.getLanguageId(), published, created, updated, calibre, description))
 
+		if self.adapter.storyStatus != 'Unknown':
+			self.adapter.addSubject(self.adapter.storyStatus)
 		i = 0
 		subjs = []
 		subjs = self.adapter.getSubjects()
