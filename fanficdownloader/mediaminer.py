@@ -284,7 +284,7 @@ class MediaMiner(FanfictionSiteAdapter):
 		return urls
 	
 	def getText(self, url):
-		time.sleep( 2.0 )
+		# time.sleep( 2.0 )
 		logging.debug('url=%s' % url)
 		data = ''
 		try:
