@@ -242,7 +242,8 @@ class FPCom(FanfictionSiteAdapter):
 						self._processInfoLine (tdas[5])
 
 		self.authorURL = 'http://' + self.host + '/u/' + self.authorId
-
+		self.addSubject(self.storyStatus)
+		
 		return urls
 	
 	def getText(self, url):

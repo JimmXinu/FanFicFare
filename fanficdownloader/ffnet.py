@@ -190,6 +190,7 @@ class FFNet(FanfictionSiteAdapter):
 					self.storyStatus = 'Completed'
 				else:
 					self.storyStatus = 'In-Progress'
+				
 				s2 = bs.BeautifulStoneSoup(l)
 				self.storyRating = unicode(s2.a.string).strip()
 				logging.debug('self.storyRating=%s' % self.storyRating)
@@ -265,7 +266,8 @@ class FFNet(FanfictionSiteAdapter):
 				dateus = self._getVarValue (l)
 				self.storyUpdated = datetime.datetime(*time.strptime ( dateus, "'%m-%d-%y'" )[0:5])
 				logging.debug('self.storyUpdated=%s' % self.storyUpdated.strftime("%Y-%m-%dT%I:%M:%S"))
-		
+
+		self.addSubject(self.storyStatus)
 		if len(urls) <= 0:
 			# no chapters found, try url by itself.
 			urls.append((self.url,self.storyName))

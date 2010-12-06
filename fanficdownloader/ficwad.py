@@ -159,7 +159,7 @@ class FicWad(FanfictionSiteAdapter):
 						self.numWords=ss.replace('words','').replace('&nbsp;','')
 						logging.debug('self.numWords=%s' % self.numWords)
 					
-		
+		self.addSubject(self.storyStatus)
 		logging.debug('Story "%s" by %s' % (self.storyName, self.authorName))
 		
 		result = []
