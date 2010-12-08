@@ -195,7 +195,7 @@ class FFNet(FanfictionSiteAdapter):
 				self.storyRating = unicode(s2.a.string).strip()
 				logging.debug('self.storyRating=%s' % self.storyRating)
 				logging.debug('s2.a=%s' % s2.a)
-				s3 = l.split('-')
+				s3 = l.split(' - ')
 				logging.debug('s3=%s' % s3)
 				if len(s3) > 0:
 					if s3[1].find("Reviews: <a href=") != -1:
