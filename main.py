@@ -32,6 +32,7 @@ from fanficdownloader.downloader import *
 from fanficdownloader.ffnet import *
 from fanficdownloader.output import *
 from fanficdownloader import twilighted
+from fanficdownloader import adastrafanfic
 
 from google.appengine.ext import db
 
@@ -192,6 +193,8 @@ class FanfictionDownloader(webapp.RequestHandler):
 				adapter = hpfiction.HPFiction(url)
 			elif url.find('twilighted.net') != -1:
 				adapter = twilighted.Twilighted(url)
+			elif url.find('adastrafanfic.com') != -1:
+				adapter = adastrafanfic.Adastrafanfic(url)
 			elif url.find('potionsandsnitches.net') != -1:
 				adapter = potionsNsnitches.PotionsNSnitches(url)
 			elif url.find('mediaminer.org') != -1:

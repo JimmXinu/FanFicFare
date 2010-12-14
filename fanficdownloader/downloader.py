@@ -29,6 +29,7 @@ import ficwad
 import fictionalley
 import hpfiction
 import twilighted
+import adastrafanfic
 import potionsNsnitches
 import mediaminer
 
@@ -113,7 +114,7 @@ class FanficLoader:
 	
 
 if __name__ == '__main__':
-	logging.basicConfig(level=logging.DEBUG)
+	logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 	argvlen = len(sys.argv)
 	url = None
 	bookFormat = 'epub'
@@ -148,6 +149,8 @@ if __name__ == '__main__':
 		adapter = hpfiction.HPFiction(url)
 	elif url.find('twilighted.net') != -1:
 		adapter = twilighted.Twilighted(url)
+	elif url.find('adastrafanfic.com') != -1:
+		adapter = adastrafanfic.Adastrafanfic(url)
 	elif url.find('potionsandsnitches.net') != -1:
 		adapter = potionsNsnitches.PotionsNSnitches(url)
 	elif url.find('mediaminer.org') != -1:
