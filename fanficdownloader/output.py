@@ -464,6 +464,12 @@ def replaceNumberEntities(data):
 	p = re.compile(r'&#(x?)(\d+);')
 	return p.sub(unirepl, data)
 
+def replaceNotEntities(data):
+	# not just \w or \S.  regexp from c:\Python25\lib\sgmllib.py
+	# (or equiv), SGMLParser, entityref
+	p = re.compile(r'&([a-zA-Z][-.a-zA-Z0-9]*);')
+	return p.sub(r'&\1', data)
+
 def removeEntities(text):
 	# replace numeric versions of [&<>] with named versions.
 	
@@ -492,6 +498,15 @@ def removeEntities(text):
 		except UnicodeDecodeError, ex:
 			# for the pound symbol in constants.py
 			text = text.replace(e, v.decode('utf-8'))
+
+	# SGMLParser, and in turn, BeautifulStoneSoup doesn't parse
+	# entities terribly well and inserts (;) after something that
+	# it thinks might be an entity.  AT&T becomes AT&T; All of my
+	# attempts to fix this by changing the input to
+	# BeautifulStoneSoup break something else instead.  But at
+	# this point, there should be *no* real entities left, so find
+	# these not-entities and removing them here should be safe.
+	text = replaceNotEntities(text)
 	
 	# &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
 	text = text.replace('&', '&amp;').replace('&amp;lt;', '&lt;').replace('&amp;gt;', '&gt;')
