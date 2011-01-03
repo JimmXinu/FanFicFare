@@ -115,6 +115,10 @@ class FileServer(webapp.RequestHandler):
 		elif fanfic.format == 'text':
 			self.response.headers['Content-Type'] = 'text/plain'
 			self.response.headers['Content-disposition'] = 'attachment; filename=' +name + '.txt.zip'
+		elif fanfic.format == 'mobi':
+			self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
+			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
+			
 		
 		self.response.out.write(fanfic.blob)
 
