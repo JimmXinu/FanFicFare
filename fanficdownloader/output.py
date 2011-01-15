@@ -368,7 +368,7 @@ class EPubFanficWriter(FanficWriter):
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
 		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
-		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + unicode(self.adapter.getNumWords())
+		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + commaGroups(unicode(self.adapter.getNumWords()))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
 		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
@@ -515,3 +515,10 @@ def removeEntities(text):
 	
 def makeAcceptableFilename(text):
 	return re.sub('[^a-zA-Z0-9_-]+','',removeEntities(text).replace(" ", "_").replace(":","_"))	
+
+def commaGroups(s):
+    groups = []
+    while s and s[-1].isdigit():
+        groups.append(s[-3:])
+        s = s[:-3]
+    return s + ','.join(reversed(groups))
