@@ -99,6 +99,7 @@ class MobiWriter(FanficWriter):
 		self.name = makeAcceptableFilename(adapter.getOutputName())
 		self.fileName = self.basePath + '/' + self.name + self.getFormatExt()
 		self.authorName = removeEntities(adapter.getAuthorName())
+		self.publisher = adapter.getPublisher()
 		self.adapter = adapter
 		self.mobi = mobi
 		self.inmemory = inmemory
@@ -136,7 +137,7 @@ class MobiWriter(FanficWriter):
 #		f.write(result)
 #		f.close()
 
-		c = mobi.Converter()
+		c = mobi.Converter(title=self.storyTitle, author=self.authorName, publisher=self.publisher)
 		mobidata = c.ConvertString(result)
 
 		self.output.write(mobidata)

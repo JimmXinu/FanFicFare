@@ -47,8 +47,11 @@ class _SubEntry:
     return self.html.RenameAnchors(self._name + '_')
 
 class Converter:
-  def __init__(self, refresh_url=''):
+  def __init__(self, refresh_url='', title='Unknown', author='Unknown', publisher='Unknown'):
     self._header = Header()
+    self._header.SetTitle(title)
+    self._header.SetAuthor(author)
+    self._header.SetPublisher(publisher)
     self._refresh_url = refresh_url
 
   def ConvertString(self, s):
@@ -114,9 +117,9 @@ class Converter:
     html = HtmlProcessor(html_data)
     data = html.CleanHtml()
     records = []
-    title = html.title
-    if title:
-      self._header.SetTitle(title)
+#    title = html.title
+#    if title:
+#      self._header.SetTitle(title)
     record_id = 1
     for start_pos in range(0, len(data), Record.MAX_SIZE):
       end = min(len(data), start_pos + Record.MAX_SIZE)
@@ -190,16 +193,16 @@ class Header:
     self._first_image_index = 0
 
   def SetAuthor(self, author):
-    self._author = author
+    self._author = author.encode('ascii','ignore')
 
   def SetTitle(self, title):
     # TODO(chatham): Reevaluate whether this needs to be ASCII.
     # maybe just do sys.setdefaultencoding('utf-8')? Problems
     # appending self._title with other things.
-    self._title = title.encode('ascii')
+    self._title = title.encode('ascii','ignore')
 
   def SetPublisher(self, publisher):
-    self._publisher = publisher
+    self._publisher = publisher.encode('ascii','ignore')
 
   def AddRecord(self, data, record_id):
     self.max_record_size = max(Record.MAX_SIZE, len(data))
