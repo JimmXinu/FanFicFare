@@ -1,0 +1,71 @@
+body
+{
+	font: 0.9em "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+#main
+{
+	width: 43%;
+	margin-left: 23%;
+	background-color: #dae6ff;
+	padding: 2em;
+}
+
+#greeting
+{
+	margin-bottom: 1em;
+	border-color: #efefef;
+}
+
+
+
+#logpassword:hover, #logpasswordtable:hover, #urlbox:hover, #typebox:hover, #helpbox:hover, #yourfile:hover
+{
+	border: thin solid #fffeff;	
+}
+
+h1
+{
+	text-decoration: none;
+}
+
+#logpasswordtable
+{
+	padding: 1em;
+}
+
+#logpassword, #logpasswordtable {
+//  display: none;
+}
+
+#urlbox, #typebox, #logpasswordtable, #logpassword, #helpbox, #yourfile
+{
+	margin: 1em;
+	padding: 1em;
+	border: thin dotted #fffeff;	
+}
+
+div.field
+{
+	margin-bottom: 0.5em;
+}
+
+#submitbtn
+{
+	padding: 1em;
+}
+
+#typelabel
+{
+}
+
+#typeoptions
+{
+	margin-top: 0.5em;
+}
+
+#error
+{
+	font-size: small;
+	color: #f00;
+}
