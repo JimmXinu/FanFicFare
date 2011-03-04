@@ -4,8 +4,8 @@ class OneDownload(db.Model):
 	user = db.UserProperty()
 	url = db.StringProperty()
 	format = db.StringProperty()
-	login = db.StringProperty()
-	password = db.StringProperty()
+	#login = db.StringProperty()
+	#password = db.StringProperty()
 	failure = db.StringProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 	

@@ -11,6 +11,10 @@ handlers:
 - url: /r3m0v3r
   script: main.py
   login: admin
+
+- url: /fdownloadtask
+  script: main.py
+  login: admin
   
 - url: /css
   static_dir: css

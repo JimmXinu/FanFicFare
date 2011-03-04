@@ -23,6 +23,7 @@ import StringIO
 
 from google.appengine.runtime import DeadlineExceededError
 
+from google.appengine.api import taskqueue
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -150,6 +151,34 @@ class RecentAllFilesServer(webapp.RequestHandler):
 		self.response.out.write(template.render(path, template_values))	
 
 class FanfictionDownloader(webapp.RequestHandler):
+	def post(self):
+		logging.getLogger().setLevel(logging.DEBUG)
+		
+		user = users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url('/'))
+			return
+		
+		format = self.request.get('format')
+		url = self.request.get('url')
+		login = self.request.get('login')
+		password = self.request.get('password')
+		
+		logging.info("Downloading: " + url)
+
+		taskqueue.add(url='/fdowntask',
+			      queue_name="download",
+			      params={'format':format,
+				      'url':url,
+				      'login':login,
+				      'password':password,
+				      'user':user.email()})
+		
+		self.redirect('/?error=custom&url=' + urlEscape(url) + '&errtext=Check recent in a bit for the download.' )
+		return
+
+
+class FanfictionDownloaderTask(webapp.RequestHandler):
 	def _printableVersion(self, text):
 		text = removeEntities(text)
 		try:
@@ -162,16 +191,15 @@ class FanfictionDownloader(webapp.RequestHandler):
 	def post(self):
 		logging.getLogger().setLevel(logging.DEBUG)
 		
-		user = users.get_current_user()
-		if not user:
-			self.redirect(users.create_login_url('/'))
 		
 		format = self.request.get('format')
 		url = self.request.get('url')
 		login = self.request.get('login')
 		password = self.request.get('password')
+		# User object can't pass, just email address
+		user = user = users.User(self.request.get('user'))
 		
-		logging.info("Downloading: " + url)
+		logging.info("Downloading: " + url + " for user: "+user.nickname())
 		
 		adapter = None
 		writerClass = None
@@ -179,8 +207,8 @@ class FanfictionDownloader(webapp.RequestHandler):
 		download = OneDownload()
 		download.user = user
 		download.url = url
-		download.login = login
-		download.password = password
+		#download.login = login
+		#download.password = password
 		download.format = format
 		logging.info('Creating adapter...')
 		
@@ -277,34 +305,39 @@ class FanfictionDownloader(webapp.RequestHandler):
 			fic.format = format
 			fic.name = self._printableVersion(adapter.getOutputName())
 			fic.author = self._printableVersion(adapter.getAuthorName())
-			fic.blob = data
+			if( len(data)<1024*1000 ):
+				fic.blob = data
+			else:
+				logging.debug("Long file, split required")
+				fic.blob = data[:1024*1000]
 			
-			try:
-				fic.put()
+#			try:
+			fic.put()
+			key = fic.key()
+			download.put()
+#				self.redirect('/?file='+str(key)+'&name=' + urlEscape(fic.name) + '&author=' + urlEscape(fic.author))
 				
-				key = fic.key()
-				
-				download.put()
-				self.redirect('/?file='+str(key)+'&name=' + urlEscape(fic.name) + '&author=' + urlEscape(fic.author))
-				
-				logging.info("Download finished OK")
-			except Exception, e:
-				logging.exception(e)
-				# it was too large, won't save it
-				name = str(makeAcceptableFilename(adapter.getStoryName()))
-				if format == 'epub':
-					self.response.headers['Content-Type'] = 'application/epub+zip'
-					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.epub'
-				elif format == 'html':
-					self.response.headers['Content-Type'] = 'application/zip'
-					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.html.zip'
-				elif format == 'text':
-					self.response.headers['Content-Type'] = 'application/zip'
-					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.txt.zip'
-				elif format == 'mobi':
-					self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
-					self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
-				self.response.out.write(data)
+			logging.info("Download finished OK")
+			self.response.clear()
+			self.response.set_status(200)
+		return
+			# except Exception, e:
+			# 	logging.exception(e)
+			# 	# it was too large, won't save it
+			# 	name = str(makeAcceptableFilename(adapter.getStoryName()))
+			# 	if format == 'epub':
+			# 		self.response.headers['Content-Type'] = 'application/epub+zip'
+			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.epub'
+			# 	elif format == 'html':
+			# 		self.response.headers['Content-Type'] = 'application/zip'
+			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.html.zip'
+			# 	elif format == 'text':
+			# 		self.response.headers['Content-Type'] = 'application/zip'
+			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.txt.zip'
+			# 	elif format == 'mobi':
+			# 		self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
+			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
+			# 	self.response.out.write(data)
 				
 def toPercentDecimal(match): 
 	"Return the %decimal number for the character for url escaping"
@@ -317,7 +350,13 @@ def urlEscape(data):
 	return p.sub(toPercentDecimal, data.encode("utf-8"))
 
 def main():
-  application = webapp.WSGIApplication([('/', MainHandler), ('/fdown', FanfictionDownloader), ('/file', FileServer), ('/recent', RecentFilesServer), ('/r2d2', RecentAllFilesServer), ('/login', LoginRequired)],
+  application = webapp.WSGIApplication([('/', MainHandler),
+					('/fdowntask', FanfictionDownloaderTask),
+					('/fdown', FanfictionDownloader),
+					('/file', FileServer),
+					('/recent', RecentFilesServer),
+					('/r2d2', RecentAllFilesServer),
+					('/login', LoginRequired)],
                                        debug=False)
   util.run_wsgi_app(application)
 

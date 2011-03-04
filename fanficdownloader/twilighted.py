@@ -27,7 +27,7 @@ class Twilighted(FanfictionSiteAdapter):
         self.path = parsedUrl.path
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.password=twipassword.password
-        self.login='sigizmund'
+        self.login='BobsClue'
         self.storyDescription = 'Fanfiction Story'
         self.authorId = '0'
         self.authorURL = ''
@@ -70,7 +70,7 @@ class Twilighted(FanfictionSiteAdapter):
                     if ssss is not None and len(ssss) > 1 and ssss[0] == 'chapter':
                         self.chapurl = True
 
-        self.url = 'http://' + self.host + '/' + self.path + '?sid=' + self.storyId
+        self.url = 'http://' + self.host + self.path + '?sid=' + self.storyId
         logging.debug('self.url=%s' % self.url)
         
         logging.debug("Created Twilighted: url=%s" % (self.url))
@@ -85,7 +85,7 @@ class Twilighted(FanfictionSiteAdapter):
           return False
 
     def requiresLogin(self, url = None):
-        return True
+        return False
 
     def performLogin(self, url = None):
         data = {}
@@ -266,7 +266,7 @@ class Twilighted(FanfictionSiteAdapter):
                                         else:
                                             logging.debug('Skipped Label \"%s\" Value \"%s\"' % (strs[ii], strs[ii+1]))
                                             ii = ii+2
-                                
+
         return result
 
     def getText(self, url):
