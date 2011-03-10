@@ -27,7 +27,7 @@ class Twilighted(FanfictionSiteAdapter):
         self.path = parsedUrl.path
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.password=twipassword.password
-        self.login='BobsClue'
+        self.login='sigizmund'
         self.storyDescription = 'Fanfiction Story'
         self.authorId = '0'
         self.authorURL = ''
@@ -85,7 +85,7 @@ class Twilighted(FanfictionSiteAdapter):
           return False
 
     def requiresLogin(self, url = None):
-        return False
+        return True
 
     def performLogin(self, url = None):
         data = {}
