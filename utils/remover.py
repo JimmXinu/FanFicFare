@@ -24,20 +24,19 @@ class Remover(webapp.RequestHandler):
 		theDate = datetime.date.today() - datetime.timedelta(days=2)
 		logging.debug("Will delete stuff older than %s" % theDate)
 
-		fics = DownloadedFanfic.all()
-		fics.order("date")
-		
-		results = fics.fetch(50)
-		
-		
+		fics = DownloadMeta.all()
+		fics.filter("date <",theDate).order("date")
+		results = fics.fetch(100)
 		logging.debug([x.name for x in results])
-		                        
+
 		num = 0
 		for d in results:
-#			d.blob = None
-#			d.cleared = True
 			d.delete()
+			for c in d.data_chunks:
+				c.delete()
 			num = num + 1
+			logging.debug('Delete '+d.url)
+		
 		logging.info('Deleted instances: %d' % num)
 		self.response.out.write('Deleted instances: %d' % num)
 		

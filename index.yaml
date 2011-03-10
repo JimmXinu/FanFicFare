@@ -10,6 +10,17 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: DownloadData
+  properties:
+  - name: download
+  - name: index
+
+- kind: DownloadMeta
+  properties:
+  - name: user
+  - name: date
+    direction: desc
+
 - kind: DownloadedFanfic
   properties:
   - name: cleared

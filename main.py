@@ -41,8 +41,6 @@ from fanficdownloader.zipdir import *
 
 from ffstorage import *
 
-
-
 class LoginRequired(webapp.RequestHandler):
 	def get(self):
 		user = users.get_current_user()
@@ -100,6 +98,8 @@ class FileServer(webapp.RequestHandler):
 		
 		key = db.Key(fileId)
 		fanfic = db.get(key)
+
+		# check for completed & failure.
 		
 		name = fanfic.name.encode('utf-8')
 		
@@ -119,20 +119,40 @@ class FileServer(webapp.RequestHandler):
 		elif fanfic.format == 'mobi':
 			self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
 			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
-			
-		
-		self.response.out.write(fanfic.blob)
 
+		data = DownloadData.all().filter("download =", fanfic).order("index")
+		for datum in data:
+			self.response.out.write(datum.blob)
+
+class FileStatusServer(webapp.RequestHandler):
+	def get(self):
+		logging.info("Status id: %s" % id)
+		user = users.get_current_user()
+		if not user:
+			self.redirect('/login')
+		
+		fileId = self.request.get('id')
+		
+		if fileId == None or len(fileId) < 3:
+			self.redirect('/')
+		
+		key = db.Key(fileId)
+		fic = db.get(key)
+
+		logging.info("Status url: %s" % fic.url)
+		
+		template_values = dict(fic = fic, nickname = user.nickname())
+		path = os.path.join(os.path.dirname(__file__), 'status.html')
+		self.response.out.write(template.render(path, template_values))
+		
 class RecentFilesServer(webapp.RequestHandler):
 	def get(self):
 		user = users.get_current_user()
 		if not user:
 			self.redirect('/login')
 		
-#		fics = db.GqlQuery("Select * From DownloadedFanfic WHERE user = :1 and cleared = :2", user)
-		q = DownloadedFanfic.all()
-		q.filter('user =', user)
-		q.filter('cleared =', False)
+		q = DownloadMeta.all()
+		q.filter('user =', user).order('-date')
 		fics = q.fetch(100)
 		
 		template_values = dict(fics = fics, nickname = user.nickname())
@@ -164,8 +184,24 @@ class FanfictionDownloader(webapp.RequestHandler):
 		login = self.request.get('login')
 		password = self.request.get('password')
 		
-		logging.info("Downloading: " + url)
+		logging.info("Queuing Download: " + url)
 
+		# use existing record if available.
+		q = DownloadMeta.all().filter('user =', user).filter('url =',url).filter('format =',format).fetch(1)
+		if( q is None or len(q) < 1 ):
+			download = DownloadMeta()
+		else:
+			download = q[0]
+			download.completed=False
+			for c in download.data_chunks:
+				c.delete()
+				
+		download.user = user
+		download.url = url
+		download.format = format
+		download.put()
+
+		
 		taskqueue.add(url='/fdowntask',
 			      queue_name="download",
 			      params={'format':format,
@@ -174,7 +210,9 @@ class FanfictionDownloader(webapp.RequestHandler):
 				      'password':password,
 				      'user':user.email()})
 		
-		self.redirect('/?error=custom&url=' + urlEscape(url) + '&errtext=Check recent in a bit for the download.' )
+		logging.info("enqueued download key: " + str(download.key()))
+		self.redirect('/status?id='+str(download.key()))
+
 		return
 
 
@@ -191,25 +229,32 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 	def post(self):
 		logging.getLogger().setLevel(logging.DEBUG)
 		
-		
 		format = self.request.get('format')
 		url = self.request.get('url')
 		login = self.request.get('login')
 		password = self.request.get('password')
 		# User object can't pass, just email address
-		user = user = users.User(self.request.get('user'))
+		user = users.User(self.request.get('user'))
 		
 		logging.info("Downloading: " + url + " for user: "+user.nickname())
 		
 		adapter = None
 		writerClass = None
 
-		download = OneDownload()
+		# use existing record if available.
+		q = DownloadMeta.all().filter('user =', user).filter('url =',url).filter('format =',format).fetch(1)
+		if( q is None or len(q) < 1 ):
+			download = DownloadMeta()
+		else:
+			download = q[0]
+			download.completed=False
+			for c in download.data_chunks:
+				c.delete()
+				
 		download.user = user
 		download.url = url
-		#download.login = login
-		#download.password = password
 		download.format = format
+		download.put()
 		logging.info('Creating adapter...')
 		
 		try:
@@ -233,14 +278,13 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 				adapter = mediaminer.MediaMiner(url)
 			else:
 				logging.debug("Bad URL detected")
-				self.redirect('/?error=bad_url&url=' + urlEscape(url) )
+				download.failure = url +" is not a valid story URL."
+				download.put()
 				return
 		except Exception, e:
 			logging.exception(e)
 			download.failure = "Adapter was not created: " + str(e)
 			download.put()
-			
-			self.redirect('/?error=custom&url=' + urlEscape(url) + '&errtext=' + urlEscape(str(traceback.format_exc())) )
 			return
 		
 		logging.info('Created an adaper: %s' % adapter)
@@ -277,67 +321,38 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 			logging.exception(e)
 			download.failure = 'Login problem detected'
 			download.put()
-			
-			self.redirect('/?error=login_required&url=' + urlEscape(url))
 			return
-		except:
-			e = sys.exc_info()[0]
-			
+		except Exception, e:
 			logging.exception(e)
-			download.failure = 'Some exception happened in downloader: ' + str(e)
+			download.failure = 'Some exception happened in downloader: ' + str(e) 
 			download.put()
-			
-			self.redirect('/?error=custom&url=' + urlEscape(url) + '&errtext=' + urlEscape(str(traceback.format_exc())) )
 			return
 			
 		if data == None:
 			if loader.badLogin:
 				logging.debug("Bad login detected")
-				
-				download.failure = 'Login problem detected'
+				download.failure = 'Login failed'
 				download.put()
-				
-				self.redirect('/?error=login_required&url=' + urlEscape(url))
-		else:
-			fic = DownloadedFanfic()
-			fic.user = user
-			fic.url = url
-			fic.format = format
-			fic.name = self._printableVersion(adapter.getOutputName())
-			fic.author = self._printableVersion(adapter.getAuthorName())
-			if( len(data)<1024*1000 ):
-				fic.blob = data
-			else:
-				logging.debug("Long file, split required")
-				fic.blob = data[:1024*1000]
-			
-#			try:
-			fic.put()
-			key = fic.key()
+				return
+			download.failure = 'No data returned by adaptor'
 			download.put()
-#				self.redirect('/?file='+str(key)+'&name=' + urlEscape(fic.name) + '&author=' + urlEscape(fic.author))
-				
+		else:
+			download.name = self._printableVersion(adapter.getOutputName())
+			download.title = self._printableVersion(adapter.getStoryName())
+			download.author = self._printableVersion(adapter.getAuthorName())
+			download.put()
+			index=0
+			while( len(data) > 0 ):
+				DownloadData(download=download,
+					     index=index,
+					     blob=data[:1024*1000]).put()
+				index += 1
+				data = data[1024*1000:]
+			download.completed=True
+			download.put()
+			
 			logging.info("Download finished OK")
-			self.response.clear()
-			self.response.set_status(200)
 		return
-			# except Exception, e:
-			# 	logging.exception(e)
-			# 	# it was too large, won't save it
-			# 	name = str(makeAcceptableFilename(adapter.getStoryName()))
-			# 	if format == 'epub':
-			# 		self.response.headers['Content-Type'] = 'application/epub+zip'
-			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.epub'
-			# 	elif format == 'html':
-			# 		self.response.headers['Content-Type'] = 'application/zip'
-			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.html.zip'
-			# 	elif format == 'text':
-			# 		self.response.headers['Content-Type'] = 'application/zip'
-			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.txt.zip'
-			# 	elif format == 'mobi':
-			# 		self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
-			# 		self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
-			# 	self.response.out.write(data)
 				
 def toPercentDecimal(match): 
 	"Return the %decimal number for the character for url escaping"
@@ -354,6 +369,7 @@ def main():
 					('/fdowntask', FanfictionDownloaderTask),
 					('/fdown', FanfictionDownloader),
 					('/file', FileServer),
+					('/status', FileStatusServer),
 					('/recent', RecentFilesServer),
 					('/r2d2', RecentAllFilesServer),
 					('/login', LoginRequired)],
