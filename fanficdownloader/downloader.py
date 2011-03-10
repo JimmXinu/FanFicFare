@@ -181,8 +181,8 @@ if __name__ == '__main__':
 	
 	loader = FanficLoader(adapter, writerClass)
 	loader.setStandAlone(True)
-#	if bookFormat != 'epub':
-	loader.setOverWrite(True)
+	if bookFormat != 'epub':
+		loader.setOverWrite(True)
 	
 
 	try:
