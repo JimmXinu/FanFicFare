@@ -32,13 +32,26 @@
 			
 				<div id='urlbox'>
 					<div id='greeting'>
-						Hi, {{ nickname }}! These fanfics you've downloaded previously.
+						Hi, {{ nickname }}! These are the fanfics you've recently requested.
 					</div>
 				</div>
 				
 				<div id='helpbox'>
 					{% for fic in fics %}
-					<p> <a href="/file?id={{ fic.key }}">{{ fic.name }}</a> by {{ fic.author }} ({{ fic.format }})<br/><small><a href="{{ fic.url }}">{{ fic.url }}</a></small></p>
+					<p>
+					  {% if fic.completed %}
+					     <a href="/file?id={{ fic.key }}">{{ fic.title }}</a>
+					     by {{ fic.author }} ({{ fic.format }})<br/>
+					  {% endif %}
+					  {% if fic.failure %}
+					     <div id='error'>{{ fic.failure }}</div>
+					  {% endif %}
+					  {% if not fic.completed and not fic.failure %}
+					     Request Processing...<br />
+					  {% endif %}
+					  <small><a href="{{ fic.url }}">{{ fic.url }}</a> ({{ fic.format }})</small>
+					  
+					</p>
 					{% endfor %}
 				</div>
 				
