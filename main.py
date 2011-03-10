@@ -345,9 +345,9 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 			while( len(data) > 0 ):
 				DownloadData(download=download,
 					     index=index,
-					     blob=data[:1024*1000]).put()
+					     blob=data[:1000000]).put()
 				index += 1
-				data = data[1024*1000:]
+				data = data[1000000:]
 			download.completed=True
 			download.put()
 			
