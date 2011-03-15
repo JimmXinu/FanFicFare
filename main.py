@@ -171,6 +171,9 @@ class RecentAllFilesServer(webapp.RequestHandler):
 		self.response.out.write(template.render(path, template_values))	
 
 class FanfictionDownloader(webapp.RequestHandler):
+	def get(self):
+		self.post()
+
 	def post(self):
 		logging.getLogger().setLevel(logging.DEBUG)
 		

@@ -474,6 +474,8 @@ def replaceNotEntities(data):
 def removeEntities(text):
 	# replace numeric versions of [&<>] with named versions.
 	
+	if text is None:
+		return text
 	try:
 		t = text.decode('utf-8')
 	except UnicodeEncodeError, e:
