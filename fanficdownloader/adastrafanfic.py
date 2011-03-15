@@ -113,7 +113,9 @@ class Adastrafanfic(FanfictionSiteAdapter):
     	   for o in allOptions:
              # warning=5 bypasses 'are you old enough' checks.
     	     url = self.url + "&warning=5&chapter=%s" % o['value']
-    	     title = o.string
+             # ad astra can have tags, like <i> in chapter titles.
+    	     title = "%s" % o
+             title = re.sub('<[^>]+>','',title)
     	     result.append((url,title))
 
         # warning=5 bypasses 'are you old enough' checks.
