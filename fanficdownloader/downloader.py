@@ -104,7 +104,7 @@ class FanficLoader:
 			text = self.adapter.getText(u)
 			self.writer.writeChapter(i, n, text)
 			i = i+1
-			time.sleep(2)
+			#time.sleep(2)
 			
 		self.writer.finalise()
 		
