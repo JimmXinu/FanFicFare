@@ -83,7 +83,8 @@ class TextWriter(FanficWriter):
 		
 
 class MobiWriter(FanficWriter):
-	body = ''
+	chapters = []
+	files = {}
 
 	@staticmethod
 	def getFormatName():
@@ -104,6 +105,9 @@ class MobiWriter(FanficWriter):
 		self.mobi = mobi
 		self.inmemory = inmemory
 
+		self.files = {}
+		self.chapters = []
+
 		if not self.inmemory and os.path.exists(self.fileName):
 			os.remove(self.fileName)
 
@@ -122,27 +126,140 @@ class MobiWriter(FanficWriter):
 		except:
 			return text
 
+	def _writeFile(self, fileName, data):
+		#logging.debug('_writeFile(`%s`, data)' % fileName)
+		if fileName in self.files:
+			try:
+				d = data.decode('utf-8')
+			except UnicodeEncodeError, e:
+				d = data
+			
+			self.files[fileName].write(d)
+		else:
+			self.files[fileName] = StringIO.StringIO()			
+			self._writeFile(fileName, data)
+
+	def _getFilesStrings(self):
+		strings = []
+		if "title_page.xhtml" in self.files:
+			strings.append(self.files["title_page.xhtml"].getvalue())
+			del(self.files["title_page.xhtml"])
+
+		keys = self.files.keys()
+		keys.sort()
+
+		# Assumed all other files are chapter0000.xhtml.
+		for fn in keys:
+			strings.append(self.files[fn].getvalue())
+			
+		return strings
+		
 	def writeChapter(self, index, title, text):
-		title = self._printableVersion(title) #title.decode('utf-8')
-		text = self._printableVersion(text) #text.decode('utf-8')
-		self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
-		self.body = self.body + '\n' + text
+		title = removeEntities(title)
+		logging.debug("Writing chapter: %s" % title)
+		#title = self._printableVersion(title) #title.decode('utf-8')
+		text = removeEntities(text)
+                #text = self._printableVersion(text) #text.decode('utf-8')
+
+		# BeautifulStoneSoup doesn't have any selfClosingTags by default.  
+		# hr & br needs to be if they're going to work.
+		# Some stories do use multiple br tags as their section breaks...
+		self.soup = bs.BeautifulStoneSoup(text, selfClosingTags=('br','hr'))
+
+		allTags = self.soup.findAll(recursive=True)
+		for t in allTags:
+			for attr in t._getAttrMap().keys():
+				if attr not in acceptable_attributes:
+					del t[attr]
+			# these are not acceptable strict XHTML.  But we do already have 
+			# CSS classes of the same names defined in constants.py
+			if t.name in ('u'):
+				t['class']=t.name
+				t.name='span'
+			if t.name in ('center'):
+				t['class']=t.name
+				t.name='div'
+			# removes paired, but empty tags.
+			if t.string != None and len(t.string.strip()) == 0 :
+				t.extract()
+
+		text = self.soup.__str__('utf8')
+		
+		# ffnet(& maybe others) gives the whole chapter text
+		# as one line.  This causes problems for nook(at
+		# least) when the chapter size starts getting big
+		# (200k+) Using Soup's prettify() messes up italics
+		# and such.  Done after soup extract so <p> and <br>
+		# tags are normalized.  Doing it here seems less evil
+		# than hacking BeautifulSoup, but it's debatable.
+		text = text.replace('</p>','</p>\n').replace('<br />','<br />\n')
+		
+		filename="chapter%04d.xhtml" % index
+		self._writeFile(filename, XHTML_START % (title, title))
+		self._writeFile(filename, text)
+		self._writeFile(filename, XHTML_END)
+		
+		#self.body = self.body + '\n' + self.chapterStartTemplate.substitute({'chapter' : title})
+		#self.body = self.body + '\n' + text
 
 	def finalise(self):
-		html = self.xhtmlTemplate.substitute({'title' : self.storyTitle, 'author' : self.authorName, 'body' : self.body})
-		soup = bs.BeautifulSoup(html)
-		result = soup.__str__('utf8')
+		logging.debug("Finalising...")
 
-#		f = open(self.fileName, 'w')
-#		f.write(result)
-#		f.close()
+		published = self.adapter.getStoryPublished().strftime("%Y-%m-%d")
+		createda = self.adapter.getStoryCreated().strftime("%Y-%m-%d %H:%M:%S")
+		created = self.adapter.getStoryCreated().strftime("%Y-%m-%d")
+		updated = self.adapter.getStoryUpdated().strftime("%Y-%m-%d")
+		updateyy = self.adapter.getStoryUpdated().strftime("%Y")
+		updatemm = self.adapter.getStoryUpdated().strftime("%m")
+		updatedd = self.adapter.getStoryUpdated().strftime("%d")
+		calibre = self.adapter.getStoryUpdated().strftime("%Y-%m-%dT%H:%M:%S")
+		
+		description = self.adapter.getStoryDescription()
+		if hasattr(description, "text"):
+			description = description.text
+		prevalue=description
+		try:
+			description = unicode(description)
+		except:
+			description=prevalue
+			
+		if description is not None and len(description) > 0:
+			description = description.replace ('\\\'', '\'').replace('\\\"', '\"')
+			description =  removeEntities(description)
+		else:
+			description = ' '
 
-		c = mobi.Converter(title=self.storyTitle, author=self.authorName, publisher=self.publisher)
-		mobidata = c.ConvertString(result)
+		### writing content -- title page
+		titleFilePath = "title_page.xhtml"
+		self._writeFile(titleFilePath, TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Published:', published))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Updated:', updated))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
+		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
+		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + commaGroups(unicode(self.adapter.getNumWords()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
+
+		self._writeFile(titleFilePath, TITLE_FOOTER % description )
+
+		
+
+		c = mobi.Converter(title=self.storyTitle,
+				   author=self.authorName,
+				   publisher=self.publisher)
+		mobidata = c.ConvertStrings(self._getFilesStrings())
 
 		self.output.write(mobidata)
 		if not self.inmemory:
 			self.output.close()
+#		zipdir.toZip(filename, self.directory)
+			
 
 
 class HTMLWriter(FanficWriter):
@@ -205,7 +322,6 @@ class HTMLWriter(FanficWriter):
 
 class EPubFanficWriter(FanficWriter):
 	chapters = []
-	
 	files = {}
 	
 	@staticmethod
@@ -360,22 +476,22 @@ class EPubFanficWriter(FanficWriter):
 
 		### writing content -- title page
 		titleFilePath = "OEBPS/title_page.xhtml"
-		self._writeFile(titleFilePath, TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Published:', published))		 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Updated:', updated))		 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
+		self._writeFile(titleFilePath, TABLE_TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Published:', published))		 
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Updated:', updated))		 
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Packaged:', createda))
 		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Rating Age/User:', tmpstr))
 		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + commaGroups(unicode(self.adapter.getNumWords()))
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
-		self._writeFile(titleFilePath, TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Chapters/Words:', tmpstr))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
+		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
 
-		self._writeFile(titleFilePath, TITLE_FOOTER % description )
+		self._writeFile(titleFilePath, TABLE_TITLE_FOOTER % description )
 
 		### writing content -- opf file
 		opfFilePath = "OEBPS/content.opf"

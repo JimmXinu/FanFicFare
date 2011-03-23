@@ -29,17 +29,27 @@ MIMETYPE = '''application/epub+zip'''
 
 TITLE_HEADER = '''<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>%s - %s</title><link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/></head><body>
-<p><h7 id="lnks"><b><a id="StoryLink" href="%s">%s</a></b> by <b><a id="AuthorLink" href="%s">%s</a></b></h7></p>
+<p><h3 id="lnks"><b><a id="StoryLink" href="%s">%s</a></b> by <b><a id="AuthorLink" href="%s">%s</a></b></h3></p>
+'''
+
+TITLE_ENTRY = '''<b>%s</b> %s<br />
+'''
+
+TITLE_FOOTER = '''
+<br /><b>Summary:</b><br />%s<br />
+</body></html>
+'''
+
+TABLE_TITLE_HEADER = TITLE_HEADER + '''
 <table class="full">
 '''
 
-TITLE_ENTRY = '''<tr><td><b>%s</b></td><td>%s</td></tr>
+TABLE_TITLE_ENTRY = '''<tr><td><b>%s</b></td><td>%s</td></tr>
 '''
 
-TITLE_FOOTER = '''</table>
-<p><b>Summary:</b><br />%s</p>
-</body></html>
-'''
+TABLE_TITLE_FOOTER = '''
+</table>
+''' + TITLE_FOOTER
 
 CONTAINER = '''<?xml version="1.0" encoding="utf-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
