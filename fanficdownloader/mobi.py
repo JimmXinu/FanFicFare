@@ -65,44 +65,50 @@ class Converter:
     return out.getvalue()
 
   def ConvertFile(self, html_file, out_file):
-    self._ConvertStringToFile(open(html_file).read(),
-                              open(out_file, 'w'))
+    self._ConvertStringToFile(open(html_file,'rb').read(),
+                              open(out_file, 'wb'))
 
   def ConvertFiles(self, html_files, out_file):
-    html_strs = [open(f).read() for f in html_files]
-    self._ConvertStringsToFile(html_strs, open(out_file, 'w'))
+    html_strs = [open(f,'rb').read() for f in html_files]
+    self._ConvertStringsToFile(html_strs, open(out_file, 'wb'))
 
   def MakeOneHTML(self, html_strs):
     """This takes a list of HTML strings and returns a big HTML file with
     all contents consolidated.  It constructs a table of contents and adds
     anchors within the text
     """
+    title_html = []
     toc_html = []
-    if self._refresh_url:
-      toc_html.append('<a href="%s">Update Reading List</a><br>' %
-                      self._refresh_url)
     body_html = []
-    titles = []
 
-    PAGE_BREAK = '<mdb;pagebreak>'
-    for pos, html in enumerate(html_strs):
+    PAGE_BREAK = '<mbp:pagebreak>'
+
+    # pull out the title page, assumed first html_strs.
+    htmltitle = html_strs[0]
+    entrytitle = _SubEntry(1, htmltitle)
+    title_html.append(entrytitle.Body())
+    
+    toc_html.append(PAGE_BREAK)
+    toc_html.append('<h3>Table of Contents</h3><br />')
+
+    for pos, html in enumerate(html_strs[1:]):
       entry = _SubEntry(pos+1, html)
-      titles.append(entry.title[:10])
-      toc_html.append('%s<br>' % entry.TocLink())
+      toc_html.append('%s<br />' % entry.TocLink())
 
       # give some space between bodies of work.
       body_html.append(PAGE_BREAK)
+        
       body_html.append(entry.Anchor())
       
-      body_html.append('<h1>%s</h1>' % entry.title)
       body_html.append(entry.Body())
       
     # TODO: this title can get way too long with RSS feeds. Not sure how to fix
-    header = '<html><title>Bibliorize %s GMT</title><body>' % time.ctime(
+    header = '<html><head><title>Bibliorize %s GMT</title></head><body>' % time.ctime(
       time.time())
 
     footer = '</body></html>'
-    all_html = header + '\n'.join(toc_html + body_html) + footer
+    all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
+    #print "%s" % all_html.encode('utf8')
     return all_html
 
   def _ConvertStringsToFile(self, html_strs, out_file):
@@ -343,5 +349,6 @@ class Header:
 
 if __name__ == '__main__':
   import sys
-  m = Converter()
-  m.ConvertFiles(sys.argv[1:], '/tmp/test.mobi')
+  m = Converter(title='Testing Mobi', author='Mobi Author', publisher='mobi converter')
+  m.ConvertFiles(sys.argv[1:], 'test.mobi')
+  #m.ConvertFile(sys.argv[1], 'test.mobi')
