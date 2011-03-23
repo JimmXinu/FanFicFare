@@ -30,6 +30,7 @@ import fictionalley
 import hpfiction
 import twilighted
 import adastrafanfic
+import whofic
 import potionsNsnitches
 import mediaminer
 
@@ -151,6 +152,8 @@ if __name__ == '__main__':
 		adapter = twilighted.Twilighted(url)
 	elif url.find('adastrafanfic.com') != -1:
 		adapter = adastrafanfic.Adastrafanfic(url)
+	elif url.find('whofic.com') != -1:
+		adapter = whofic.Whofic(url)
 	elif url.find('potionsandsnitches.net') != -1:
 		adapter = potionsNsnitches.PotionsNSnitches(url)
 	elif url.find('mediaminer.org') != -1:
