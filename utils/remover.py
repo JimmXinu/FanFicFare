@@ -26,7 +26,7 @@ class Remover(webapp.RequestHandler):
 
 		fics = DownloadMeta.all()
 		fics.filter("date <",theDate).order("date")
-		results = fics.fetch(100)
+		results = fics.fetch(500)
 		logging.debug([x.name for x in results])
 
 		num = 0

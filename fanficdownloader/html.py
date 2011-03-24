@@ -35,15 +35,20 @@ class HtmlProcessor:
     with <a filepos="00000000050">. Stores anchors in self._anchor_references'''
     self._anchor_references = []
     anchor_num = 0
-    for anchor in self._soup.findAll('a', href=re.compile('^#')):
+    # anchor links
+    anchorlist = self._soup.findAll('a', href=re.compile('^#'))
+    # treat reference tags like a tags for TOCTOP.
+    anchorlist.extend(self._soup.findAll('reference', href=re.compile('^#')))
+    for anchor in anchorlist:
       self._anchor_references.append((anchor_num, anchor['href']))
       del anchor['href']
       anchor['filepos'] = '%.10d' % anchor_num
       anchor_num += 1
-
+            
   def _ReplaceAnchorStubs(self):
     # TODO: Browsers allow extra whitespace in the href names.
-    assembled_text = self._soup.prettify()
+    # use __str__ instead of prettify--it inserts extra spaces.
+    assembled_text = self._soup.__str__('utf8')
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
       ref = urllib.unquote(original_ref[1:]) # remove leading '#'
