@@ -88,8 +88,8 @@ class Converter:
     entrytitle = _SubEntry(1, htmltitle)
     title_html.append(entrytitle.Body())
     
-    toc_html.append(PAGE_BREAK)
-    toc_html.append('<h3>Table of Contents</h3><br />')
+    title_html.append(PAGE_BREAK)
+    toc_html.append('<a name="TOCTOP"><h3>Table of Contents</h3><br />')
 
     for pos, html in enumerate(html_strs[1:]):
       entry = _SubEntry(pos+1, html)
@@ -103,8 +103,16 @@ class Converter:
       body_html.append(entry.Body())
       
     # TODO: this title can get way too long with RSS feeds. Not sure how to fix
-    header = '<html><head><title>Bibliorize %s GMT</title></head><body>' % time.ctime(
-      time.time())
+    # cheat slightly and use the <a href> code to set filepos in references.
+    header = '''<html>
+<head>
+<title>Bibliorize %s GMT</title>
+  <guide>
+    <reference href="#TOCTOP" type="toc" title="Table of Contents"/>
+  </guide>
+</head>
+<body>
+''' % time.ctime(time.time())
 
     footer = '</body></html>'
     all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
@@ -122,6 +130,21 @@ class Converter:
   def _ConvertStringToFile(self, html_data, out):
     html = HtmlProcessor(html_data)
     data = html.CleanHtml()
+
+    # collect offsets of '<mbp:pagebreak>' tags, use to make index list.
+    # indexlist = [] # list of (offset,length) tuples.
+    # not in current use.
+    
+    # j=0
+    # lastj=0
+    # while True:
+    #   j=data.find('<mbp:pagebreak>',lastj+10) # plus a bit so we find the next.
+    #   if j < 0:
+    #     break
+    #   indexlist.append((lastj,j-lastj))
+    #   print "index offset: %d length: %d" % (lastj,j-lastj)
+    #   lastj=j
+
     records = []
 #    title = html.title
 #    if title:
@@ -131,6 +154,7 @@ class Converter:
       end = min(len(data), start_pos + Record.MAX_SIZE)
       record_data = data[start_pos:end]
       records.append(self._header.AddRecord(record_data, record_id))
+      #print "HTML Record %03d: (size:%d) [[%s ... %s]]" % ( record_id, len(record_data), record_data[:20], record_data[-20:] )
       record_id += 1
     self._header.SetImageRecordIndex(record_id)
     records[0:0] = [self._header.MobiHeader()]
@@ -139,12 +163,18 @@ class Converter:
     out.write(header)
     for record in records:
       record.WriteHeader(out, rec_offset)
-      rec_offset += len(record.data)
+      #print "rec_offset: %d len(record.data): %d" % (rec_offset,len(record.data))
+      rec_offset += (len(record.data)+1) # plus one for trailing null
 
     # Write to nuls for some reason
     out.write('\0\0')
     for record in records:
       record.WriteData(out)
+      out.write('\0')
+      # needs a trailing null, I believe it indicates zero length 'overlap'.
+      # otherwise, the readers eat the last char of each html record.
+      # Calibre writes another 6-7 bytes of stuff after that, but we seem
+      # to be getting along without it.
 
 class Record:
   MAX_SIZE = 4096

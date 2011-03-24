@@ -131,25 +131,15 @@ class Whofic(FanfictionSiteAdapter):
         # find this story in the list, parse it's metadata based on
         # lots of assumptions, since there's little tagging.
         for a in soup.findAll('a'):
-            #print "a href:"+a['href']
             if a['href'].find('viewstory.php?sid='+self.storyId) != -1:
                 metadata = a.findParent('td')
                 metadatachunks = metadata.__str__('utf8').split('<br />')
                 # process metadata for this story.
-                #print a.findParent('td').__str__('utf8')
                 self.storyDescription = metadatachunks[1]
-                
-                # for cata in metadata.findAll('a'):
-                #     if cata['href'].startswith('categories.php'):
-                #         if len(self.category) == 0:
-                #             self.category = cata.string
-                #         else:
-                #             self.category = self.category + ", " + cata.string
 
                 # the stuff with ' - ' separators
                 moremeta = metadatachunks[2]
                 moremeta = re.sub('<[^>]+>','',moremeta) # strip tags.
-                print "====== moremeta: "+moremeta
                 
                 moremetaparts = moremeta.split(' - ')
                 
@@ -167,7 +157,6 @@ class Whofic(FanfictionSiteAdapter):
                 # the stuff with ' - ' separators *and* names
                 moremeta = metadatachunks[5]
                 moremeta = re.sub('<[^>]+>','',moremeta) # strip tags.
-                print "====== moremeta 2: "+moremeta
                 
                 moremetaparts = moremeta.split(' - ')
 
