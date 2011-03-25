@@ -1,4 +1,4 @@
 cron:
 - description: cleanup job
   url: /r3m0v3r
-  schedule: every 12 hours
+  schedule: every 2 hours
