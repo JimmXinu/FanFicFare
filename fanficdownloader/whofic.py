@@ -35,8 +35,8 @@ class Whofic(FanfictionSiteAdapter):
         self.languageId = 'en-UK'
         self.language = 'English'
         self.subjects = []
-        self.subjects.append ('fanfiction')
-        self.subjects.append ('A Teaspoon and an Open Mind')
+        self.subjects.append ('Fanfiction')
+        self.subjects.append ('Doctor Who')
         self.publisher = self.host
         self.numChapters = 0
         self.numWords = 0
