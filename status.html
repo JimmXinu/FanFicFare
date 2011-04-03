@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<link href="css/index.css" rel="stylesheet" type="text/css">
-		<title>Fanfiction Downloader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+		<title>{% if fic.completed %} Finished {% else %} {% if fic.failure %} Failed {% else %} Working... {% endif %} {% endif %} - Fanfiction Downloader</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
 		{% if not fic.completed and not fic.failure %}
@@ -48,6 +48,7 @@
 		      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
 	           {% endif %}
 		{% endif %}
+		<p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
 	      </div>
 	    </div>
 	    <div style='text-align: center'>
