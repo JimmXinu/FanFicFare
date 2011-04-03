@@ -128,7 +128,11 @@ class FileServer(webapp.RequestHandler):
 		# compress/uncompress
 		if fanfic.format == 'mobi':
 			def dc(data):
-				return zlib.decompress(data)
+				try:
+					return zlib.decompress(data)
+				# if error, assume it's a chunk from before we started compessing.
+				except zlib.error:
+					return data
 		else:
 			def dc(data):
 				return data
