@@ -17,6 +17,7 @@
 
 import os
 import sys
+import zlib
 import logging
 import traceback
 import StringIO
@@ -121,8 +122,19 @@ class FileServer(webapp.RequestHandler):
 			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
 
 		data = DownloadData.all().filter("download =", fanfic).order("index")
+		# epub, txt and html are all already compressed.
+		# Each chunk is compress individually to avoid having
+		# to hold the whole in memory just for the
+		# compress/uncompress
+		if fanfic.format == 'mobi':
+			def dc(data):
+				return zlib.decompress(data)
+		else:
+			def dc(data):
+				return data
+				
 		for datum in data:
-			self.response.out.write(datum.blob)
+			self.response.out.write(dc(datum.blob))
 
 class FileStatusServer(webapp.RequestHandler):
 	def get(self):
@@ -196,6 +208,7 @@ class FanfictionDownloader(webapp.RequestHandler):
 		else:
 			download = q[0]
 			download.completed=False
+			download.failure=None
 			for c in download.data_chunks:
 				c.delete()
 				
@@ -307,7 +320,11 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 		else:
 			writerClass = output.TextWriter
 		
-		loader = FanficLoader(adapter, writerClass, quiet = True, inmemory=True, compress=False)
+		loader = FanficLoader(adapter,
+				      writerClass,
+				      quiet = True,
+				      inmemory=True,
+				      compress=False)
 		try:
 			data = loader.download()
 			
@@ -347,10 +364,22 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 			download.author = self._printableVersion(adapter.getAuthorName())
 			download.put()
 			index=0
+
+			# epub, txt and html are all already compressed.
+			# Each chunk is compressed individually to avoid having
+			# to hold the whole in memory just for the
+			# compress/uncompress.
+			if format == 'mobi':
+				def c(data):
+					return zlib.compress(data)
+			else:
+				def c(data):
+					return data
+				
 			while( len(data) > 0 ):
 				DownloadData(download=download,
 					     index=index,
-					     blob=data[:1000000]).put()
+					     blob=c(data[:1000000])).put()
 				index += 1
 				data = data[1000000:]
 			download.completed=True
