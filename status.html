@@ -1,90 +1,76 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
-	<head>
-		<link href="css/index.css" rel="stylesheet" type="text/css">
-		<title>{% if fic.completed %} Finished {% else %} {% if fic.failure %} Failed {% else %} Working... {% endif %} {% endif %} - Fanfiction Downloader</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
-		{% if not fic.completed and not fic.failure %}
-  		<meta http-equiv="refresh" content="7">
-		{% endif %}
-	</head>
-	<body>
-		<div id='main'>
-			<h1>
-				<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
-			</h1>
-			
-
-			<div style="text-align: center">
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-0320924304307555";
-/* Standard */
-google_ad_slot = "8974025478";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-            </div>
-
-            <div id='urlbox'>
-	      <div id='greeting'>
-		<p><a href='{{ fic.url }}'>{{ fic.url }}</a></p>
-	      </div>
-	      <div>
-		{% if fic.completed %}
-		<p>Your fic has finished processing and you can download it now:</p>
-		<p><a href="/file?id={{ fic.key }}">{{ fic.title }}</a>
-		  by {{ fic.author }} ({{ fic.format }})</p>
-		{% else %}
-		   {% if fic.failure %}
-		      Your fic failed to process.  Please check the URL and the error message below.<br />
-	              <div id='error'>
-			{{ fic.failure }}
-		      </div>
-		   {% else %}
-		      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
-	           {% endif %}
-		{% endif %}
-		<p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
-	      </div>
-	    </div>
-	    <div style='text-align: center'>
-	      <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
-		   alt="Powered by Google App Engine" />
-	      <br/><br/>
-	      FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
-	      Copyright &copy; <a href="http://twitter.com/sigizmund">Roman Kirillov</a>
-	    </div>
-
-			<div style="margin-top: 1em; text-align: center'">
-                <script type="text/javascript"><!--
-                google_ad_client = "pub-2027714004231956";
-                /* FFD */
-                google_ad_slot = "7330682770";
-                google_ad_width = 468;
-                google_ad_height = 60;
-                //-->
-                </script>
-                <script type="text/javascript"
+  <head>
+    <link href="css/index.css" rel="stylesheet" type="text/css">
+    <title>{% if fic.completed %} Finished {% else %} {% if fic.failure %} Failed {% else %} Working... {% endif %} {% endif %} - Fanfiction Downloader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+    {% if not fic.completed and not fic.failure %}
+    <meta http-equiv="refresh" content="7">
+    {% endif %}
+  </head>
+  <body>
+    <div id='main'>
+      <h1>
+	<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
+      </h1>
+      <div style="text-align: center">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "ca-pub-0320924304307555";
+                                          /* Standard */
+                                          google_ad_slot = "8974025478";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
                 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-                </script>
-            </div>
-			
-		</div>
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-0320924304307555";
-/* Standard */
-google_ad_slot = "8974025478";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-	</body>
+        </script>
+      </div>
+
+      <div id='urlbox'>
+	<div id='greeting'>
+	  <p><a href='{{ fic.url }}'>{{ fic.url }}</a></p>
+	</div>
+	<div>
+	  {% if fic.completed %}
+	  <p>Your fic has finished processing and you can download it now:</p>
+	  <p><a href="/file?id={{ fic.key }}">{{ fic.title }}</a>
+	    by {{ fic.author }} ({{ fic.format }})</p>
+	  {% else %}
+	  {% if fic.failure %}
+	  Your fic failed to process.  Please check the URL and the error message below.<br />
+	  <div id='error'>
+	    {{ fic.failure }}
+	  </div>
+	  {% else %}
+	  <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
+	  {% endif %}
+	  {% endif %}
+	  <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
+	</div>
+      </div>
+      <div style='text-align: center'>
+	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+	     alt="Powered by Google App Engine" />
+	<br/><br/>
+	FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
+	Copyright &copy; <a href="http://twitter.com/sigizmund">Roman Kirillov</a>
+      </div>
+
+      <div style="margin-top: 1em; text-align: center'">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "ca-pub-0320924304307555";
+                                          /* Standard */
+                                          google_ad_slot = "8974025478";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+    </div>
+  </body>
 </html>
