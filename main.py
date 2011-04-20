@@ -47,6 +47,7 @@ class LoginRequired(webapp.RequestHandler):
 		user = users.get_current_user()
 		if user:
 			self.redirect('/')
+			return
 		else:
 			logging.debug(users.create_login_url('/'))
 			url = users.create_login_url(self.request.uri)
@@ -96,6 +97,7 @@ class FileServer(webapp.RequestHandler):
 		
 		if fileId == None or len(fileId) < 3:
 			self.redirect('/')
+			return
 		
 		key = db.Key(fileId)
 		fanfic = db.get(key)
@@ -145,7 +147,8 @@ class FileStatusServer(webapp.RequestHandler):
 		logging.info("Status id: %s" % id)
 		user = users.get_current_user()
 		if not user:
-			self.redirect('/login')
+			self.redirect(users.create_login_url(self.request.uri))
+			return
 		
 		fileId = self.request.get('id')
 		
@@ -165,7 +168,8 @@ class RecentFilesServer(webapp.RequestHandler):
 	def get(self):
 		user = users.get_current_user()
 		if not user:
-			self.redirect('/login')
+			self.redirect(users.create_login_url(self.request.uri))
+			return
 		
 		q = DownloadMeta.all()
 		q.filter('user =', user).order('-date')
@@ -195,7 +199,7 @@ class FanfictionDownloader(webapp.RequestHandler):
 		
 		user = users.get_current_user()
 		if not user:
-			self.redirect(users.create_login_url('/'))
+			self.redirect(users.create_login_url(self.request.uri))
 			return
 		
 		format = self.request.get('format')
