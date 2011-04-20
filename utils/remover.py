@@ -21,7 +21,7 @@ class Remover(webapp.RequestHandler):
 		logging.debug("Starting r3m0v3r")
 		user = users.get_current_user()
 		logging.debug("Working as user %s" % user)
-		theDate = datetime.date.today() - datetime.timedelta(days=2)
+		theDate = datetime.date.today() - datetime.timedelta(days=5)
 		logging.debug("Will delete stuff older than %s" % theDate)
 
 		fics = DownloadMeta.all()
