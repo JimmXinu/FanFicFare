@@ -1,5 +1,5 @@
 application: fanfictionloader
-version: 3-0-prod
+version: 3-0-1
 runtime: python
 api_version: 1
 
