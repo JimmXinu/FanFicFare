@@ -294,6 +294,8 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 				adapter = hpfiction.HPFiction(url)
 			elif url.find('twilighted.net') != -1:
 				adapter = twilighted.Twilighted(url)
+			elif url.find('twiwrite.net') != -1:
+				adapter = twiwrite.Twiwrite(url)
 			elif url.find('adastrafanfic.com') != -1:
 				adapter = adastrafanfic.Adastrafanfic(url)
 			elif url.find('whofic.com') != -1:

@@ -29,6 +29,7 @@ import ficwad
 import fictionalley
 import hpfiction
 import twilighted
+import twiwrite
 import adastrafanfic
 import whofic
 import potionsNsnitches
@@ -96,7 +97,10 @@ class FanficLoader:
 		else:
 			logging.debug("Do not check for existance of archive file.")
 
-		self.writer = self.writerClass(self.booksDirectory, self.adapter, inmemory=self.inmemory, compress=self.compress)
+		self.writer = self.writerClass(self.booksDirectory,
+					       self.adapter,
+					       inmemory=self.inmemory,
+					       compress=self.compress)
 		
 		i = 1
 		for u,n in urls:
@@ -150,6 +154,8 @@ if __name__ == '__main__':
 		adapter = hpfiction.HPFiction(url)
 	elif url.find('twilighted.net') != -1:
 		adapter = twilighted.Twilighted(url)
+	elif url.find('twiwrite.net') != -1:
+		adapter = twiwrite.Twiwrite(url)
 	elif url.find('adastrafanfic.com') != -1:
 		adapter = adastrafanfic.Adastrafanfic(url)
 	elif url.find('whofic.com') != -1:
@@ -182,7 +188,8 @@ if __name__ == '__main__':
 		adapter.setPassword(password)
 		
 	
-	loader = FanficLoader(adapter, writerClass)
+	loader = FanficLoader(adapter,
+			      writerClass)
 	loader.setStandAlone(True)
 	if bookFormat != 'epub':
 		loader.setOverWrite(True)
