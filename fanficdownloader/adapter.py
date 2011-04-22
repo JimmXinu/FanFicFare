@@ -76,7 +76,7 @@ class FanfictionSiteAdapter:
 		if not self.appEngine:
 			return self.opener.open(url).read().decode('utf-8')
 		else:
-			return googlefetch(url).content
+			return googlefetch(url,deadline=10).content
 	
 	def requiresLogin(self, url = None):
 		return False
