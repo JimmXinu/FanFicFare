@@ -277,17 +277,22 @@ class FFNet(FanfictionSiteAdapter):
 		return urls
 	
 	def getText(self, url):
-		# time.sleep( 2.0 )
-		data = ''
-		try:
-			logging.debug("Fetching URL: %s" % url)
-			data = self.fetchUrl(url)
-		except Exception, e:
-			data = ''
-			logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
-			logging.error("Data downloaded: <%s>" % data)
+		data = None
+
+		# try up to three times, with longer sleeps first.
+		for sleeptime in [0.5, 4, 9]:
+			time.sleep(sleeptime)	
+			try:
+				logging.debug("Fetching URL: %s sleeptime: %f" % (url, sleeptime))
+				data = self.fetchUrl(url)
+				if data is not None:
+					break
+			except Exception, e:
+				logging.error("Caught an exception reading URL " + url + ".  Exception " + unicode(e) + ".")
+				logging.error("Data downloaded: <%s>" % data)
+
 		if data is None:
-			raise FailedToDownload("Error downloading Chapter: <%s>!  Problem getting page!" % url)
+			raise FailedToDownload("Error downloading Chapter: %s!  Problem getting page!" % url)
 
 		lines = data.split('\n')
 
@@ -310,7 +315,7 @@ class FFNet(FanfictionSiteAdapter):
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
 			logging.debug(data)
-			raise FailedToDownload("Error downloading Chapter: <%s>!  Missing required element!" % url)
+			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 			
 		return div.__str__('utf8')
 					
