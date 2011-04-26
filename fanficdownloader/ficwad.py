@@ -107,7 +107,7 @@ class FicWad(FanfictionSiteAdapter):
 		description = soup.find('blockquote', {'class' : 'summary'})
 		if description is not None:
 			self.storyDescription = unicode(description.p.string)
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
+		logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
 		
 		meta = soup.find('p', {'class' : 'meta'})
 		if meta is not None:
@@ -175,6 +175,7 @@ class FicWad(FanfictionSiteAdapter):
 			allBlocked = storylist.findAll('li', {'class' : 'blocked'})
 			if allBlocked is not None:
 				#logging.debug('allBlocked=%s' % allBlocked)
+				raise FailedToDownload("Are you sure %s is a chapter URL(not the chapter list)?"%cururl)
 				raise LoginRequiredException(cururl)
 
 			allH4s = storylist.findAll('h4')

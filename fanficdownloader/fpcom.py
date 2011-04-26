@@ -155,7 +155,7 @@ class FPCom(FanfictionSiteAdapter):
 			for meta in metas:
 				if 'content' in meta._getAttrMap():
 					self.storyDescription = unicode(meta['content'])
-					logging.debug('self.storyDescription=%s' % self.storyDescription)
+					logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 					
 					title=meta.find('title')
 					logging.debug('title=%s' % title.string)
