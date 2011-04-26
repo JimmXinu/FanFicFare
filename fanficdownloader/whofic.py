@@ -135,7 +135,7 @@ class Whofic(FanfictionSiteAdapter):
                 metadata = a.findParent('td')
                 metadatachunks = metadata.__str__('utf8').split('<br />')
                 # process metadata for this story.
-                self.storyDescription = metadatachunks[1]
+                self.storyDescription = metadatachunks[1].strip()
 
                 # the stuff with ' - ' separators
                 moremeta = metadatachunks[2]
