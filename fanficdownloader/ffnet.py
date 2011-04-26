@@ -257,7 +257,7 @@ class FFNet(FanfictionSiteAdapter):
 								self.storyDescription = self.storyDescription + '&amp;' + ss
 						else:
 							self.storyDescription = ss
-				logging.debug('self.storyDescription=%s' % self.storyDescription)
+				logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
 			elif l.find("var datep") != -1:
 				dateps = self._getVarValue (l)
 				self.storyPublished = datetime.datetime(*time.strptime ( dateps, "'%m-%d-%y'" )[0:5])
@@ -314,6 +314,9 @@ class FFNet(FanfictionSiteAdapter):
 
 		div = soup.find('div', {'id' : 'storytext'})
 		if None == div:
+			if "Story Not Found" in data:
+				logging.info("Story not Found at %s" % url)
+				raise FailedToDownload("Story not Found at %s" % url)
 			logging.debug(data)
 			raise FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 			

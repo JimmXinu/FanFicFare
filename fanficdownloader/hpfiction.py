@@ -208,7 +208,7 @@ class HPFiction(FanfictionSiteAdapter):
 						else:
 							ii = ii + 1
 					self.storyDescription = sss
-					logging.debug('self.storyDescription=%s' % self.storyDescription)
+					logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 		
 		urls = []
 

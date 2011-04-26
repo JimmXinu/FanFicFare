@@ -141,7 +141,9 @@ class FanfictionSiteAdapter:
 		return self.storyName
 
 	def getStoryDescription(self):
-		logging.debug('self.storyDescription=%s' % self.storyDescription)
+		## with out stripping \n's, appengine treats additional lines from this debug
+		## output as error messages.
+		logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 		return self.storyDescription
 
 	def getStoryCreated(self):

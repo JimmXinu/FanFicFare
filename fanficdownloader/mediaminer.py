@@ -216,7 +216,7 @@ class MediaMiner(FanfictionSiteAdapter):
 								pass
 							elif ssbt == 'Summary:':
 								self.storyDescription = sst.strip()
-								logging.debug('self.storyDescription=%s' % self.storyDescription)
+								logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 							elif ssbt == 'Latest Revision:' or ssbt == 'Uploaded On:':
 								#logging.debug('sst=%s' % sst)
 								ssts = sst.split(' ')
