@@ -476,22 +476,22 @@ class EPubFanficWriter(FanficWriter):
 
 		### writing content -- title page
 		titleFilePath = "OEBPS/title_page.xhtml"
-		self._writeFile(titleFilePath, TABLE_TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Published:', published))		 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Updated:', updated))		 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Packaged:', createda))
+		self._writeFile(titleFilePath, TITLE_HEADER % (self.authorName, self.storyTitle, self.adapter.getStoryURL(), self.storyTitle, self.adapter.getAuthorURL(), self.authorName))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Category:', self.adapter.getCategory()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Genre:', self.adapter.getGenre())) 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Status:', self.adapter.getStoryStatus()))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Published:', published))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Updated:', updated))		 
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Packaged:', createda))
 		tmpstr = self.adapter.getStoryRating() + " / " + self.adapter.getStoryUserRating()		 
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Rating Age/User:', tmpstr))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Rating Age/User:', tmpstr))
 		tmpstr = unicode(self.adapter.getNumChapters()) + " / " + commaGroups(unicode(self.adapter.getNumWords()))
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Chapters/Words:', tmpstr))
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
-		self._writeFile(titleFilePath, TABLE_TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Chapters/Words:', tmpstr))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Publisher:', self.adapter.getHost()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Story ID:', self.adapter.getStoryId()))
+		self._writeFile(titleFilePath, TITLE_ENTRY % ('Author ID:', self.adapter.getAuthorId()))
 
-		self._writeFile(titleFilePath, TABLE_TITLE_FOOTER % description )
+		self._writeFile(titleFilePath, TITLE_FOOTER % description )
 
 		### writing content -- opf file
 		opfFilePath = "OEBPS/content.opf"

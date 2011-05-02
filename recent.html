@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
-		<link href="css/index.css" rel="stylesheet" type="text/css">
+		<link href="/css/index.css" rel="stylesheet" type="text/css">
 		<title>Fanfiction Downloader (fanfiction.net, fanficauthors, fictionalley, ficwad to epub and HTML)</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	</head>
@@ -36,8 +36,11 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					{% for fic in fics %}
 					<p>
 					  {% if fic.completed %}
-					     <a href="/file?id={{ fic.key }}">{{ fic.title }}</a>
+					     <a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
 					     by {{ fic.author }} ({{ fic.format }})<br/>
+   					     {% if fic.escaped_url %}
+   					        <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}">Convert {{ fic.title }} to other formats</a><br />
+					     {% endif %}
 					  {% endif %}
 					  {% if fic.failure %}
 					     <div id='error'>{{ fic.failure }}</div>

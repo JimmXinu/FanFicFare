@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
   <head>
-    <link href="css/index.css" rel="stylesheet" type="text/css">
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
     <title>{% if fic.completed %} Finished {% else %} {% if fic.failure %} Failed {% else %} Working... {% endif %} {% endif %} - Fanfiction Downloader</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
@@ -35,8 +35,11 @@
 	<div>
 	  {% if fic.completed %}
 	  <p>Your fic has finished processing and you can download it now:</p>
-	  <p><a href="/file?id={{ fic.key }}">{{ fic.title }}</a>
+	  <p><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
 	    by {{ fic.author }} ({{ fic.format }})</p>
+   	    {% if escaped_url %}
+	      <p><a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}">Convert {{ fic.title }} to other formats</a></p>
+	    {% endif %}
 	  {% else %}
 	  {% if fic.failure %}
 	  Your fic failed to process.  Please check the URL and the error message below.<br />
