@@ -107,7 +107,7 @@ class FicWad(FanfictionSiteAdapter):
 		description = soup.find('blockquote', {'class' : 'summary'})
 		if description is not None:
 			self.storyDescription = unicode(description.p.string)
-		logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
+		#logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
 		
 		meta = soup.find('p', {'class' : 'meta'})
 		if meta is not None:

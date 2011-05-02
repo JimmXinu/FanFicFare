@@ -257,7 +257,7 @@ class FFNet(FanfictionSiteAdapter):
 								self.storyDescription = self.storyDescription + '&amp;' + ss
 						else:
 							self.storyDescription = ss
-				logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
+				#logging.debug('self.storyDescription=%s' % self.storyDescription.replace('\n',' ').replace('\r',''))
 			elif l.find("var datep") != -1:
 				dateps = self._getVarValue (l)
 				self.storyPublished = datetime.datetime(*time.strptime ( dateps, "'%m-%d-%y'" )[0:5])

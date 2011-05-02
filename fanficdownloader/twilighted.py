@@ -176,7 +176,7 @@ class Twilighted(FanfictionSiteAdapter):
                     ps = s1.findAll('p')
                     if len(ps) > 0:
                         self.storyDescription = ps[0]
-                        logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
+                        #logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
                     else:
                         divs = meta.findAll('div')
                         #logging.debug('Divs: %s' % divs)
