@@ -120,7 +120,7 @@ class FictionAlley(FanfictionSiteAdapter):
 					logging.debug('self.storyCharacters=%s' % self.storyCharacters)
 				elif keystr == 'Summary:':
 					self.storyDescription = valstr
-					logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
+					#logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 	
 		
 	def extractIndividualUrls(self):
@@ -208,7 +208,7 @@ class FictionAlley(FanfictionSiteAdapter):
 					self.storyRating = ss1[1]
 					logging.debug('self.storyRating=%s' % self.storyRating)
 				self.storyDescription = unicode(ss[1]).replace("<br>","").replace("</br>","").replace('\n','')
-				logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
+				#logging.debug('self.storyDescription=%s' % self.storyDescription.replace("\n"," ").replace('\r',''))
 			
 			for li in links:
 				a = li.find('a', {'class' : 'chapterlink'})
