@@ -81,8 +81,6 @@ class MainHandler(webapp.RequestHandler):
 
 			self.response.out.write(template.render(path, template_values))
 		else:
-#			self.redirect(users.create_login_url(self.request.uri))
-#			self.redirect('/login')
 			logging.debug(users.create_login_url('/'))
 			url = users.create_login_url(self.request.uri)
 			template_values = {'login_url' : url, 'authorized': False}
@@ -91,8 +89,8 @@ class MainHandler(webapp.RequestHandler):
 
 
 class FileServer(webapp.RequestHandler):
+
 	def get(self):
-#		user  = users.get_current_user()
 		fileId = self.request.get('id')
 		
 		if fileId == None or len(fileId) < 3:
@@ -144,7 +142,6 @@ class FileServer(webapp.RequestHandler):
 
 class FileStatusServer(webapp.RequestHandler):
 	def get(self):
-		logging.info("Status id: %s" % id)
 		user = users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
@@ -159,8 +156,14 @@ class FileStatusServer(webapp.RequestHandler):
 		fic = db.get(key)
 
 		logging.info("Status url: %s" % fic.url)
-		
-		template_values = dict(fic = fic, nickname = user.nickname())
+		if fic.completed and fic.format=='epub':
+			escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+fileId+"&fake=file."+fic.format)
+		else:
+			escaped_url=False
+		template_values = dict(fic = fic,
+				       nickname = user.nickname(),
+				       escaped_url = escaped_url
+				       )
 		path = os.path.join(os.path.dirname(__file__), 'status.html')
 		self.response.out.write(template.render(path, template_values))
 		
@@ -174,6 +177,10 @@ class RecentFilesServer(webapp.RequestHandler):
 		q = DownloadMeta.all()
 		q.filter('user =', user).order('-date')
 		fics = q.fetch(100)
+
+		for fic in fics:
+			if fic.completed and fic.format == 'epub':
+				fic.escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+str(fic.key())+"&fake=file."+fic.format)
 		
 		template_values = dict(fics = fics, nickname = user.nickname())
 		path = os.path.join(os.path.dirname(__file__), 'recent.html')
@@ -412,7 +419,7 @@ def main():
   application = webapp.WSGIApplication([('/', MainHandler),
 					('/fdowntask', FanfictionDownloaderTask),
 					('/fdown', FanfictionDownloader),
-					('/file', FileServer),
+					(r'/file.*', FileServer),
 					('/status', FileStatusServer),
 					('/recent', RecentFilesServer),
 					('/r2d2', RecentAllFilesServer),
