@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<link href="/css/index.css" rel="stylesheet" type="text/css">
+		<title>Fanfiction Downloader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+	</head>
+	<body>
+		<div id='main'>
+			<h1>
+				<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
+			</h1>
+
+			<div style="text-align: center">
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0320924304307555";
+/* Standard */
+google_ad_slot = "8974025478";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+            </div>
+<!--			<div id='yourfile'> -->
+			{{yourfile}}
+<!--			</div> -->
+
+			{% if authorized %}
+			<form action="/fdown" method="post">
+				<div id='urlbox'>
+					<div id='greeting'>
+					  <p>Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
+					  much easier. </p>
+					  <p>For Amazon Kindle use Mobi output(see notice below), for Sony Reader, Nook and iPad use ePub</p>
+					  <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
+					</div>
+					<h3>Experimental New Feature</h3>
+					<p>
+					  If you select EPub format, when it's done you will also be given a 'Convert' link.
+					</p>
+					<p>
+					  That link will take you to <a href="http://convertfiles.com">convertfiles.com</a> where you can
+					  directly convert your new story to FictionBook (fb2), Mobipocket (mobi), MS Reader (lit) or Adobe Portable
+					  Document Format(pdf).
+					  There's also a 'Convert' link for EPubs on your <a href="/recent">recent downloads</a>
+					  page.  We'd really like to hear from users about this in our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>.
+					</p>
+					<p>
+					  We'd especially like Kindle and other Mobi users to try it.  The <a href="http://convertfiles.com">convertfiles.com</a> Mobi file
+					  appears to be more correct than our Mobi output.
+					</p>
+
+					<div id='error'>
+					{{ error_message }}
+					</div>
+					<input type="text" name="url" size="50" value='{{ url }}'>
+				</div>
+				
+				<div id='typebox'>
+					<div id='typelabel'>Ebook format</div>
+					<div id='typeoptions'>
+						<input type='radio' name='format' value='epub' checked>EPub</input>
+						<input type='radio' name='format' value='html'>HTML</input>
+						<input type='radio' name='format' value='text'>Plain Text</input>
+						<input type='radio' name='format' value='mobi'>Mobi (Kindle)</input>
+					</div>
+				</div>
+				
+				<div id='logpasswordtable'>
+				  <h3>Login and Password</h3>
+				  <div id='logpassword'>
+				    If the story requires a login and
+				    password to download, you may need
+				    to provide your credentials to
+				    download it, otherwise just leave
+				    it empty.  Currently only needed
+				    by twilighted.net and twiwrite.net.
+				  </div>
+				  <div class='fieldandlabel'>
+				    <div class='label'>Login</div>
+				    <div class='field'><input type='text' name='login' size='50'></div>
+				  </div>
+				  
+				  <div class='fieldandlabel'>
+				    <div class='label'>Password</div>
+				    <div class='field'><input type='password' name='password' size='50'></div>
+				  </div>
+				</div>
+				
+				<div id='submitbtn'>
+					<input type="submit" value="Download">
+				</div>
+			</form>
+			{% else %}
+			<div id='urlbox'>
+				<div id='greeting'>
+					<p>
+					  This is a fan fiction downloader, which makes reading stories from various websites much easier. Before you
+					  can start downloading fanfics, you need to login, so downloader can remember your fanfics and store them.
+					</p>
+					<p><a href="{{ login_url }}">Login using Google account</a></p>
+				</div>
+			</div>
+			{% endif %}
+			
+				<div id='helpbox'>
+				  <dl>
+				    <dt>fictionalley.org
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.fictionalley.org/authors/drt/DA.html">http://www.fictionalley.org/authors/drt/DA.html</a>.  Or the story text URL for
+				      fictionalley.org one-shots, such as
+				      <br /><a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">http://www.fictionalley.org/authors/drt/JOTP01a.html</a>.
+				    <dt>fanfiction.net
+				    <dd>Use the URL of any story chapter, with or without story title such as
+				      <br /><a href="http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo">http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo</a> or 
+				      <br /><a href="http://www.fanfiction.net/s/2345466/3/">http://www.fanfiction.net/s/2345466/3/</a>.
+				    <dt>fictionpress.com
+				    <dd>Use the URL of any story chapter, such as
+				      <br /><a href="http://www.fictionpress.com/s/2851771/1/Untouchable_Love">http://www.fictionpress.com/s/2851771/1/Untouchable_Love</a> or 
+				      <br /><a href="http://www.fictionpress.com/s/2847338/6/">http://www.fictionpress.com/s/2847338/6/</a>.
+				    <dt>twilighted.net
+				    <dd>Use the URL of the start of the story, such as
+				      <br /><a href="http://twilighted.net/viewstory.php?sid=8422">http://twilighted.net/viewstory.php?sid=8422</a>.
+				    <dt>twiwrite.net
+				    <dd>Use the URL of the start of the story, such as
+				      <br /><a href="http://twiwrite.net/viewstory.php?sid=427">http://twiwrite.net/viewstory.php?sid=427</a>.
+				    <dt>ficwad.com
+				    <dd>Use the URL of any story chapter, such as
+				      <br /><a href="http://www.ficwad.com/story/75246">http://www.ficwad.com/story/75246</a>.
+				    <dt>harrypotterfanfiction.com
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.harrypotterfanfiction.com/viewstory.php?psid=289208">http://www.harrypotterfanfiction.com/viewstory.php?psid=289208</a>.
+				    <dt>potionsandsnitches.net
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332">http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332</a>.
+				    <dt>mediaminer.org
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/156934">http://www.mediaminer.org/fanfic/view_st.php/166653</a>.
+				      Or the story URL for one-shots, such as
+				      <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/167618">http://www.mediaminer.org/fanfic/view_st.php/167618</a>.
+				    <dt>adastrafanfic.com
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.adastrafanfic.com/viewstory.php?sid=854">http://www.adastrafanfic.com/viewstory.php?sid=854</a>.
+				    <dt>whofic.com
+				    <dd>Use the URL of the story's chapter list, such as
+				      <br /><a href="http://www.whofic.com/viewstory.php?sid=16334">http://www.whofic.com/viewstory.php?sid=16334</a>.
+				  </dl>	
+
+				  
+				A few additional things to know, which will make your life substantially easier:
+				<ol>
+				  <li>
+				    First thing to know: I do not use your login and password. In fact, all I know about it is your ID &ndash; password
+				    is being verified by Google and is absolutely, totally unknown to anyone but you.
+				  </li>
+				  <li>
+				    Small <a href="http://www.sigizmund.com/reading-fanfiction-off-line-in-stanza-and-oth">post written by me</a>
+				    &mdash; how to read fiction in Stanza or any other ebook reader.
+				  </li>
+				  <li>
+				    You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
+				  </li>
+				  <li>
+				    Downloaded stories are deleted after some time (which should give you enough of time to download it and will keep
+				    Google happy about the app not going over the storage limit).
+				  </li>
+				  <li>
+				    If you see some funny characters in downloaded Plain Text file, make sure you choose text file encoding UTF-8 and
+				    not something else.
+				  </li>
+				  <li>
+				    If you think that something that should work in fact doesn't, drop me a mail
+				    to <a href='mailto:sigizmund@gmail.com'>sigizmund@gmail.com</a>, or, even better, write an email to
+				    our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>. I also encourage you to join it so
+				    you will find out about latest updates and fixes as soon as possible
+				  </li>
+				</ol>
+				Otherwise, just have fun, and if you want to say thank you &mdash; use the contacts above. 
+				</div>
+				<div style='text-align: center'>
+					<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+					alt="Powered by Google App Engine" />
+					<br/><br/>
+					FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
+					Copyright &copy; <a href="http://twitter.com/sigizmund">Roman Kirillov</a>
+				</div>
+
+			<div style="margin-top: 1em; text-align: center'">
+                <script type="text/javascript"><!--
+                google_ad_client = "pub-2027714004231956";
+                /* FFD */
+                google_ad_slot = "7330682770";
+                google_ad_width = 468;
+                google_ad_height = 60;
+                //-->
+                </script>
+                <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                </script>
+            </div>
+			
+		</div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0320924304307555";
+/* Standard */
+google_ad_slot = "8974025478";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+	</body>
+</html>

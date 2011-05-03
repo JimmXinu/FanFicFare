@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<link href="/css/index.css" rel="stylesheet" type="text/css">
+		<title>Fanfiction Downloader (fanfiction.net, fanficauthors, fictionalley, ficwad to epub and HTML)</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	</head>
+	<body>
+		<div id='main'>
+			<h1>
+				<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
+			</h1>
+			
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0320924304307555";
+/* Standard */
+google_ad_slot = "8974025478";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<!--			<div id='yourfile'> -->
+			{{yourfile}}
+<!--			</div> -->
+			
+				<div id='urlbox'>
+					<div id='greeting'>
+						Hi, {{ nickname }}! These are the fanfics you've recently requested.
+					</div>
+				</div>
+				
+				<div id='helpbox'>
+					{% for fic in fics %}
+					<p>
+					  {% if fic.completed %}
+					     <a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
+					     by {{ fic.author }} ({{ fic.format }})<br/>
+   					     {% if fic.escaped_url %}
+   					        <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}">Convert {{ fic.title }} to other formats</a><br />
+					     {% endif %}
+					  {% endif %}
+					  {% if fic.failure %}
+					     <div id='error'>{{ fic.failure }}</div>
+					  {% endif %}
+					  {% if not fic.completed and not fic.failure %}
+					     Request Processing...<br />
+					  {% endif %}
+					  <small><a href="{{ fic.url }}">{{ fic.url }}</a></small>
+					  
+					</p>
+					{% endfor %}
+				</div>
+				
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0320924304307555";
+/* Standard */
+google_ad_slot = "8974025478";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>				
+				
+		</div>
+		<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+		try {
+		var pageTracker = _gat._getTracker("UA-12136939-1");
+		pageTracker._trackPageview();
+		} catch(err) {}</script>
+	</body>
+</html>
