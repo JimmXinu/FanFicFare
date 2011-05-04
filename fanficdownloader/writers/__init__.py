@@ -3,9 +3,9 @@
 ## This could (should?) use a dynamic loader like adapters, but for
 ## now, it's static, since there's so few of them.
 
-from writers.writer_html import HTMLWriter
-from writers.writer_txt  import TextWriter
-from writers.writer_epub import EpubWriter
+from writer_html import HTMLWriter
+from writer_txt  import TextWriter
+from writer_epub import EpubWriter
 
 def getWriter(type,config,story):
     if type == "html":

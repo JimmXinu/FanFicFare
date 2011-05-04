@@ -6,10 +6,10 @@ import time
 import urllib2 as u2
 import urlparse as up
 
-from story import Story
-from configurable import Configurable
-from htmlcleanup import removeEntities, removeAllEntities, stripHTML
-from adapters import InvalidStoryURL
+from fanficdownloader.story import Story
+from fanficdownloader.configurable import Configurable
+from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
+from fanficdownloader.adapters.exceptions import InvalidStoryURL
 
 class BaseSiteAdapter(Configurable):
 

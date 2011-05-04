@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import sys, os
+logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
-import adapters
-import writers
+import sys, os
+import getpass
+
+from fanficdownloader import adapters,writers
 
 import ConfigParser
-
-from writers.writer_html import HTMLWriter
-
-logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 config = ConfigParser.ConfigParser()
 
@@ -27,13 +25,15 @@ def writeStory(adapter,writeformat):
 try:
     adapter = adapters.getAdapter(config,sys.argv[1])
         
-    #try:
-    print adapter.getStory()
-    #except adapters.FailedToLogin, ftl:
-        # print "Login Failed, trying with user/pass"
-        # adapter.username="BobsClue"
-        # adapter.password="XXXXXXXXX"
-        # print adapter.getStory()
+    try:
+        print adapter.getStory()
+    except adapters.FailedToLogin, ftl:
+        print "Login Failed, Need Username/Password."
+        sys.stdout.write("Username: ")
+        adapter.username = sys.stdin.readline().strip()
+        adapter.password = getpass.getpass(prompt='Password: ')
+        #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
+        print adapter.getStory()
 
     writeStory(adapter,"epub")
     writeStory(adapter,"html")

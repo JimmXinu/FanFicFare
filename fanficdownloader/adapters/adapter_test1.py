@@ -2,10 +2,9 @@
 
 import datetime
 
-import BeautifulSoup as bs
+import fanficdownloader.BeautifulSoup as bs
 
-from adapters import _register_handler
-from adapters.base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup
 
 class TestSiteAdapter(BaseSiteAdapter):
 
@@ -84,6 +83,6 @@ horizontal rules
 ''',selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         return utf8FromSoup(soup)
 
-
-_register_handler(TestSiteAdapter)
+def getClass():
+    return TestSiteAdapter
 

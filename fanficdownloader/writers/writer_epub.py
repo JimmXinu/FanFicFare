@@ -10,7 +10,7 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 ## use DOM to generate the XML files.
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
-from writers.base_writer import *
+from base_writer import *
 
 class EpubWriter(BaseStoryWriter):
 
