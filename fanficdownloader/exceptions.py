@@ -14,7 +14,7 @@ class InvalidStoryURL(Exception):
         self.example=example
         
     def __str__(self):
-        return "Bad Story URL: %s\nFor site: %s\nExample: %s" % (self.url, self.domain, self.example)
+        return "Bad Story URL: (%s) for site: (%s) Example: (%s)" % (self.url, self.domain, self.example)
 
 class FailedToLogin(Exception):
     def __init__(self,url,username):
@@ -22,14 +22,14 @@ class FailedToLogin(Exception):
         self.username=username
         
     def __str__(self):
-        return "Failed to Login for URL: %s with username: %s" % (self.url, self.username)
+        return "Failed to Login for URL: (%s) with username: (%s)" % (self.url, self.username)
 
 class StoryDoesNotExist(Exception):
     def __init__(self,url):
         self.url=url
         
     def __str__(self):
-        return "Story Does Not Exit: " + self.url
+        return "Story does not exist: (%s)" % self.url
 
 class UnknownSite(Exception):
     def __init__(self,url,supported_sites_list):
@@ -37,5 +37,5 @@ class UnknownSite(Exception):
         self.supported_sites_list=supported_sites_list
 
     def __str__(self):
-        return "Unknown Site("+self.url+").  Supported sites: "+", ".join(self.supported_sites_list)
+        return "Unknown Site(%s).  Supported sites: (%s)" % (self.url, ", ".join(self.supported_sites_list))
 

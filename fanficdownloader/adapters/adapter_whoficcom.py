@@ -7,6 +7,7 @@ import re
 import urllib2
 
 import fanficdownloader.BeautifulSoup as bs
+import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
@@ -44,7 +45,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             soup = bs.BeautifulSoup(self._fetchUrl(url))
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise adapters.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
 
@@ -173,7 +174,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         span = soup.find('span', {'style' : 'font-size: 100%;'})
 
         if None == span:
-            raise adapters.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
         return utf8FromSoup(span)
 

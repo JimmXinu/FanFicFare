@@ -9,7 +9,7 @@ import urlparse as up
 from fanficdownloader.story import Story
 from fanficdownloader.configurable import Configurable
 from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
-from fanficdownloader.adapters.exceptions import InvalidStoryURL
+from fanficdownloader.exceptions import InvalidStoryURL
 
 class BaseSiteAdapter(Configurable):
 
@@ -29,6 +29,7 @@ class BaseSiteAdapter(Configurable):
         self.addConfigSection(self.getSiteDomain())
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.storyDone = False
+        self.metadataDone = False
         self.story = Story()
         self.story.setMetadata('site',self.getSiteDomain())
         self.story.setMetadata('dateCreated',datetime.datetime.now())
@@ -58,11 +59,17 @@ class BaseSiteAdapter(Configurable):
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
-            self.extractChapterUrlsAndMetadata()
+            self.getStoryMetadataOnly()
             for (title,url) in self.chapterUrls:
                 self.story.addChapter(removeEntities(title),
                                       removeEntities(self.getChapterText(url)))
             self.storyDone = True
+        return self.story
+
+    def getStoryMetadataOnly(self):
+        if not self.metadataDone:
+            self.extractChapterUrlsAndMetadata()
+            self.metadataDone = True
         return self.story
 
     ###############################
