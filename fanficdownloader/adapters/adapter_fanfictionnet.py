@@ -5,8 +5,10 @@ import datetime
 import logging
 import re
 import urllib2
+import time
 
 import fanficdownloader.BeautifulSoup as bs
+import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
@@ -50,7 +52,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             soup = bs.BeautifulSoup(self._fetchUrl(url))
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise adapters.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
             
@@ -166,14 +168,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
-
+        time.sleep(0.5) ## ffnet tends to fail more if hit too fast.
+                        ## This is in additional to what ever the
+                        ## slow_down_sleep_time setting is.
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
         span = soup.find('div', {'id' : 'storytext'})
 
         if None == span:
-            raise adapters.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return utf8FromSoup(span)
 

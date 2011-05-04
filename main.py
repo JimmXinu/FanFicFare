@@ -15,10 +15,15 @@
 # limitations under the License.
 #
 
+import logging
+logging.getLogger().setLevel(logging.DEBUG)
+
 import os
+from os.path import dirname, basename, normpath
 import sys
 import zlib
-import logging
+import urllib
+
 import traceback
 import StringIO
 
@@ -41,6 +46,9 @@ from google.appengine.ext import db
 from fanficdownloader.zipdir import *
 
 from ffstorage import *
+
+from fanficdownloader import adapters, writers
+import ConfigParser
 
 class LoginRequired(webapp.RequestHandler):
 	def get(self):
@@ -104,29 +112,29 @@ class FileServer(webapp.RequestHandler):
 		
 		name = fanfic.name.encode('utf-8')
 		
-		name = makeAcceptableFilename(name)
+		#name = urllib.quote(name)
 		
 		logging.info("Serving file: %s" % name)
 
-		if fanfic.format == 'epub':
+		if name.endswith('.epub'):
 			self.response.headers['Content-Type'] = 'application/epub+zip'
-			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.epub'
-		elif fanfic.format == 'html':
+		elif name.endswith('.html'):
 			self.response.headers['Content-Type'] = 'text/html'
-			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.html.zip'
-		elif fanfic.format == 'text':
+		elif name.endswith('.txt'):
 			self.response.headers['Content-Type'] = 'text/plain'
-			self.response.headers['Content-disposition'] = 'attachment; filename=' +name + '.txt.zip'
-		elif fanfic.format == 'mobi':
-			self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
-			self.response.headers['Content-disposition'] = 'attachment; filename=' + name + '.mobi'
+		elif name.endswith('.zip'):
+			self.response.headers['Content-Type'] = 'application/zip'
+		else:
+			self.response.headers['Content-Type'] = 'application/octet-stream'
+			
+		self.response.headers['Content-disposition'] = 'attachment; filename="%s"' % name 
 
 		data = DownloadData.all().filter("download =", fanfic).order("index")
-		# epub, txt and html are all already compressed.
+		# epubs are all already compressed.
 		# Each chunk is compress individually to avoid having
 		# to hold the whole in memory just for the
 		# compress/uncompress
-		if fanfic.format == 'mobi':
+		if fanfic.format != 'epub':
 			def dc(data):
 				try:
 					return zlib.decompress(data)
@@ -230,18 +238,47 @@ class FanfictionDownloader(webapp.RequestHandler):
 		download.user = user
 		download.url = url
 		download.format = format
-		download.put()
 
+		adapter = None
 		
-		taskqueue.add(url='/fdowntask',
-			      queue_name="download",
-			      params={'format':format,
-				      'url':url,
-				      'login':login,
-				      'password':password,
-				      'user':user.email()})
+		try:
+			config = ConfigParser.ConfigParser()
+			logging.debug('reading defaults.ini config file, if present')
+			config.read('defaults.ini')
+			logging.debug('reading appengine.ini config file, if present')
+			config.read('appengine.ini')
+			adapter = adapters.getAdapter(config,url)
+			logging.info('Created an adaper: %s' % adapter)
 		
-		logging.info("enqueued download key: " + str(download.key()))
+			if len(login) > 1:
+				adapter.username=login
+				adapter.password=password
+			## This scrapes the metadata, which will be
+			## duplicated in the queue task, but it
+			## detects bad URLs, bad login, bad story, etc
+			## without waiting for the queue.  So I think
+			## it's worth the double up.  Could maybe save
+			## it all in the download object someday.
+			story = adapter.getStoryMetadataOnly()
+			download.title = story.getMetadata('title')
+			download.author = story.getMetadata('author')
+			download.put()
+
+			taskqueue.add(url='/fdowntask',
+				      queue_name="download",
+				      params={'format':format,
+					      'url':url,
+					      'login':login,
+					      'password':password,
+					      'user':user.email()})
+		
+			logging.info("enqueued download key: " + str(download.key()))
+
+		except Exception, e:
+			logging.exception(e)
+			download.failure = str(e)
+			download.put()
+		
 		self.redirect('/status?id='+str(download.key()))
 
 		return
@@ -289,120 +326,67 @@ class FanfictionDownloaderTask(webapp.RequestHandler):
 		logging.info('Creating adapter...')
 		
 		try:
-			if url.find('fictionalley') != -1:
-				adapter = fictionalley.FictionAlley(url)
-			elif url.find('ficwad') != -1:
-				adapter = ficwad.FicWad(url)
-			elif url.find('fanfiction.net') != -1:
-				adapter = ffnet.FFNet(url)
-			elif url.find('fictionpress.com') != -1:
-				adapter = fpcom.FPCom(url)
-			elif url.find('harrypotterfanfiction.com') != -1:
-				adapter = hpfiction.HPFiction(url)
-			elif url.find('twilighted.net') != -1:
-				adapter = twilighted.Twilighted(url)
-			elif url.find('twiwrite.net') != -1:
-				adapter = twiwrite.Twiwrite(url)
-			elif url.find('adastrafanfic.com') != -1:
-				adapter = adastrafanfic.Adastrafanfic(url)
-			elif url.find('whofic.com') != -1:
-				adapter = whofic.Whofic(url)
-			elif url.find('potionsandsnitches.net') != -1:
-				adapter = potionsNsnitches.PotionsNSnitches(url)
-			elif url.find('mediaminer.org') != -1:
-				adapter = mediaminer.MediaMiner(url)
-			else:
-				logging.debug("Bad URL detected")
-				download.failure = url +" is not a valid story URL."
-				download.put()
-				return
+			config = ConfigParser.ConfigParser()
+			logging.debug('reading defaults.ini config file, if present')
+			config.read('defaults.ini')
+			logging.debug('reading appengine.ini config file, if present')
+			config.read('appengine.ini')
+			adapter = adapters.getAdapter(config,url)
 		except Exception, e:
 			logging.exception(e)
-			download.failure = "Adapter was not created: " + str(e)
+			download.failure = str(e)
 			download.put()
 			return
 		
 		logging.info('Created an adaper: %s' % adapter)
 		
 		if len(login) > 1:
-			adapter.setLogin(login)
-			adapter.setPassword(password)
+			adapter.username=login
+			adapter.password=password
 
-		if format == 'epub':
-			writerClass = output.EPubFanficWriter
-		elif format == 'html':
-			writerClass = output.HTMLWriter
-		elif format == 'mobi':
-			writerClass = output.MobiWriter
-		else:
-			writerClass = output.TextWriter
-		
-		loader = FanficLoader(adapter,
-				      writerClass,
-				      quiet = True,
-				      inmemory=True,
-				      compress=False)
 		try:
-			data = loader.download()
-			
-			if format == 'html' or format == 'text':
-				# data is uncompressed hence huge
-				ext = '.html'
-				if format == 'text':
-					ext = '.txt'
-				logging.debug(data)
-				files = {makeAcceptableFilename(str(adapter.getOutputName())) + ext : StringIO.StringIO(data.decode('utf-8')) }
-				d = inMemoryZip(files)
-				data = d.getvalue()
-			
-		
-		except LoginRequiredException, e:
-			logging.exception(e)
-			download.failure = 'Login problem detected'
-			download.put()
-			return
+			# adapter.getStory() is what does all the heavy lifting.
+			writer = writers.getWriter(format,config,adapter.getStory())
 		except Exception, e:
 			logging.exception(e)
-			download.failure = 'Some exception happened in downloader: ' + str(e) 
+			download.failure = str(e)
 			download.put()
 			return
-			
-		if data == None:
-			if loader.badLogin:
-				logging.debug("Bad login detected")
-				download.failure = 'Login failed'
-				download.put()
-				return
-			download.failure = 'No data returned by adaptor'
-			download.put()
-		else:
-			download.name = self._printableVersion(adapter.getOutputName())
-			download.title = self._printableVersion(adapter.getStoryName())
-			download.author = self._printableVersion(adapter.getAuthorName())
-			download.put()
-			index=0
+		
+		download.name = writer.getOutputFileName()
+		download.title = adapter.getStory().getMetadata('title')
+		download.author = adapter.getStory().getMetadata('author')
+		download.put()
+		index=0
 
-			# epub, txt and html are all already compressed.
-			# Each chunk is compressed individually to avoid having
-			# to hold the whole in memory just for the
-			# compress/uncompress.
-			if format == 'mobi':
-				def c(data):
-					return zlib.compress(data)
-			else:
-				def c(data):
-					return data
-				
-			while( len(data) > 0 ):
-				DownloadData(download=download,
-					     index=index,
-					     blob=c(data[:1000000])).put()
-				index += 1
-				data = data[1000000:]
-			download.completed=True
-			download.put()
+		outbuffer = StringIO.StringIO()
+		writer.writeStory(outbuffer)
+		data = outbuffer.getvalue()
+		outbuffer.close()
+		del writer
+		del adapter
+
+		# epubs are all already compressed.
+		# Each chunk is compressed individually to avoid having
+		# to hold the whole in memory just for the
+		# compress/uncompress.
+		if format != 'epub':
+			def c(data):
+				return zlib.compress(data)
+		else:
+			def c(data):
+				return data
 			
-			logging.info("Download finished OK")
+		while( len(data) > 0 ):
+			DownloadData(download=download,
+				     index=index,
+				     blob=c(data[:1000000])).put()
+			index += 1
+			data = data[1000000:]
+		download.completed=True
+		download.put()
+			
+		logging.info("Download finished OK")
 		return
 				
 def toPercentDecimal(match): 

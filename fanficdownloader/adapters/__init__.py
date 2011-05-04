@@ -5,6 +5,8 @@ from os.path import dirname, basename, normpath
 import logging
 import urlparse as up
 
+import fanficdownloader.exceptions as exceptions
+
 ## This bit of complexity allows adapters to be added by just adding
 ## the source file.  It eliminates the long if/else clauses we used to
 ## need to pick out the adapter.
@@ -21,11 +23,10 @@ def getAdapter(config,url):
             adapter = cls(config,url) # raises InvalidStoryURL
             return adapter
     # No adapter found.
-    raise UnknownSite( url, (cls.getSiteDomain() for cls in __class_list) )
+    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
 ## Automatically import each adapter_*.py file.
-## Each must call _register_handler() with their class to be
-## registered.
+## Each implement getClass() to their class
 
 filelist = glob.glob(dirname(__file__)+'/adapter_*.py')
 sys.path.insert(0,normpath(dirname(__file__)))

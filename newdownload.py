@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lin
 import sys, os
 import getpass
 
-from fanficdownloader import adapters,writers
+from fanficdownloader import adapters,writers,exceptions
 
 import ConfigParser
 
@@ -27,7 +27,7 @@ try:
         
     try:
         print adapter.getStory()
-    except adapters.FailedToLogin, ftl:
+    except exceptions.FailedToLogin, ftl:
         print "Login Failed, Need Username/Password."
         sys.stdout.write("Username: ")
         adapter.username = sys.stdin.readline().strip()
@@ -40,9 +40,9 @@ try:
     writeStory(adapter,"txt")
     del adapter
 
-except adapters.InvalidStoryURL, isu:
+except exceptions.InvalidStoryURL, isu:
     print isu
-except adapters.StoryDoesNotExist, dne:
+except exceptions.StoryDoesNotExist, dne:
     print dne
-except adapters.UnknownSite, us:
+except exceptions.UnknownSite, us:
     print us

@@ -9,6 +9,7 @@ import urllib2
 
 import fanficdownloader.BeautifulSoup as bs
 from fanficdownloader.htmlcleanup import stripHTML
+import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
@@ -74,7 +75,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(d) :
             logging.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               data['penname']))
-            raise adapters.FailedToLogin(url,data['penname'])
+            raise exceptions.FailedToLogin(url,data['penname'])
             return False
         else:
             return True
@@ -88,7 +89,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise adapters.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
 
@@ -190,7 +191,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         span = soup.find('div', {'id' : 'story'})
 
         if None == span:
-            raise adapters.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
         return utf8FromSoup(span)
 
