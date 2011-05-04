@@ -6,11 +6,9 @@ import logging
 import re
 import urllib2
 
-import BeautifulSoup as bs
+import fanficdownloader.BeautifulSoup as bs
 
-import adapters
-from adapters import _register_handler
-from adapters.base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup
 
 class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
@@ -179,5 +177,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         return utf8FromSoup(span)
 
-_register_handler(FanFictionNetSiteAdapter)
+#_register_handler(FanFictionNetSiteAdapter)
+def getClass():
+    return FanFictionNetSiteAdapter
 

@@ -3,7 +3,7 @@
 import logging
 import string
 
-from writers.base_writer import *
+from base_writer import *
 
 class HTMLWriter(BaseStoryWriter):
 

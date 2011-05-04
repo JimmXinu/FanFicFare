@@ -6,12 +6,10 @@ import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
+import logging
 
-from story import Story
-from configurable import Configurable
-from htmlcleanup import removeEntities, removeAllEntities, stripHTML
-
-from adapters.base_adapter import *
+from fanficdownloader.configurable import Configurable
+from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
 
 class BaseStoryWriter(Configurable):
 
@@ -141,6 +139,8 @@ class BaseStoryWriter(Configurable):
             outfilename=filename
 
         if not outstream:
+            close=True
+            logging.debug("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
                 dirs = os.path.dirname(outfilename).split('/')
@@ -149,6 +149,10 @@ class BaseStoryWriter(Configurable):
                     if not os.path.exists(path):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
             outstream = open(outfilename,"wb")
+        else:
+            close=False
+            logging.debug("Save to stream")
+
 
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
@@ -160,7 +164,8 @@ class BaseStoryWriter(Configurable):
         else:
             self.writeStoryImpl(outstream)
 
-        outstream.close()
+        if close:
+            outstream.close()
 
     def writeStoryImpl(self, out):
         "Must be overriden by sub classes."

@@ -7,12 +7,10 @@ import re
 import urllib
 import urllib2
 
-import BeautifulSoup as bs
+import fanficdownloader.BeautifulSoup as bs
+from fanficdownloader.htmlcleanup import stripHTML
 
-import adapters
-from adapters import _register_handler
-from adapters.base_adapter import BaseSiteAdapter, utf8FromSoup
-from htmlcleanup import stripHTML
+from base_adapter import BaseSiteAdapter, utf8FromSoup
 
 class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
@@ -196,5 +194,6 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
     
         return utf8FromSoup(span)
 
-_register_handler(TwilightedNetSiteAdapter)
+def getClass():
+    return TwilightedNetSiteAdapter
 
