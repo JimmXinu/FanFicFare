@@ -80,7 +80,7 @@ h6 { text-align: center; }
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
-<h1><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h1>
+<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
 <table class="full">
 ''')
 
@@ -240,8 +240,11 @@ h6 { text-align: center; }
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
 
-        metadata.appendChild(newTag(contentdom,"dc:subject",text=
-                                                self.getMetadata('status')))
+        for entry in self.titleLabels.keys():
+            if entry in self.getConfigList("include_subject_tags") and \
+                    self.story.getMetadata(entry):
+                metadata.appendChild(newTag(contentdom,"dc:subject",text=
+                                            self.getMetadata(entry)))
         # listables all go into dc:suject tags, but only if they are configured.
         for (name,lst) in self.story.getLists().iteritems():
             if name in self.getConfigList("include_subject_tags"):
@@ -394,7 +397,6 @@ h6 { text-align: center; }
  
 	# declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.
-        logging.debug("outputepub create_system")
         for zf in outputepub.filelist:
             zf.create_system = 0
         outputepub.close()

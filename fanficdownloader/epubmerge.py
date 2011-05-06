@@ -81,10 +81,6 @@ def main():
     outputepub = ZipFile(outputopt, "w", compression=ZIP_STORED)
     outputepub.debug = 3
     outputepub.writestr("mimetype", "application/epub+zip")
-    # declares all the files created by Windows.  otherwise, when
-    # it runs in appengine, windows unzips the files as 000 perms.
-    for zf in outputepub.filelist:
-        zf.create_system = 0
     outputepub.close()
 
     ## Re-open file for content.
