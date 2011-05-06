@@ -81,6 +81,10 @@ def main():
     outputepub = ZipFile(outputopt, "w", compression=ZIP_STORED)
     outputepub.debug = 3
     outputepub.writestr("mimetype", "application/epub+zip")
+    # declares all the files created by Windows.  otherwise, when
+    # it runs in appengine, windows unzips the files as 000 perms.
+    for zf in outputepub.filelist:
+        zf.create_system = 0
     outputepub.close()
 
     ## Re-open file for content.
@@ -277,6 +281,10 @@ def main():
     outputepub.writestr("content.opf",contentdom.toxml('utf-8'))
     outputepub.writestr("toc.ncx",tocncxdom.toxml('utf-8'))
     
+    # declares all the files created by Windows.  otherwise, when
+    # it runs in appengine, windows unzips the files as 000 perms.
+    for zf in outputepub.filelist:
+        zf.create_system = 0
     outputepub.close()
 
 ## Utility method for creating new tags.
