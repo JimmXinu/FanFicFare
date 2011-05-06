@@ -25,7 +25,7 @@ class HTMLWriter(BaseStoryWriter):
 <title>${title} by ${author}</title>
 </head>
 <body>
-<h1><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h1>
+<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
 ''')
 
         self.HTML_TITLE_PAGE_START = string.Template('''
