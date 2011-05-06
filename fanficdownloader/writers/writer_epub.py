@@ -153,11 +153,13 @@ h6 { text-align: center; }
         ## ZipFile can't change compression type file-by-file, so we
         ## have to close and re-open
         outputepub = ZipFile(zipio, 'w', compression=ZIP_STORED)
+        outputepub.debug=3
         outputepub.writestr('mimetype','application/epub+zip')
         outputepub.close()
 
         ## Re-open file for content.
         outputepub = ZipFile(zipio, 'a', compression=ZIP_DEFLATED)
+        outputepub.debug=3
         
         ## Create META-INF/container.xml file.  The only thing it does is
         ## point to content.opf
@@ -238,6 +240,8 @@ h6 { text-align: center; }
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
 
+        metadata.appendChild(newTag(contentdom,"dc:subject",text=
+                                                self.getMetadata('status')))
         # listables all go into dc:suject tags, but only if they are configured.
         for (name,lst) in self.story.getLists().iteritems():
             if name in self.getConfigList("include_subject_tags"):
@@ -387,7 +391,12 @@ h6 { text-align: center; }
             fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
             outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
             del fullhtml
-
+ 
+	# declares all the files created by Windows.  otherwise, when
+        # it runs in appengine, windows unzips the files as 000 perms.
+        logging.debug("outputepub create_system")
+        for zf in outputepub.filelist:
+            zf.create_system = 0
         outputepub.close()
         out.write(zipio.getvalue())
         zipio.close()

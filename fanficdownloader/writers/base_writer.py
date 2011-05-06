@@ -159,6 +159,10 @@ class BaseStoryWriter(Configurable):
             self.writeStoryImpl(out)
             zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             zipout.writestr(filename,out.getvalue())
+            # declares all the files created by Windows.  otherwise, when
+            # it runs in appengine, windows unzips the files as 000 perms.
+            for zf in zipout.filelist:
+                zf.create_system = 0
             zipout.close()
             out.close()
         else:
