@@ -8,6 +8,19 @@
     {% if not fic.completed and not fic.failure %}
     <meta http-equiv="refresh" content="7">
     {% endif %}
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12136939-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
   </head>
   <body>
     <div id='main'>
@@ -37,9 +50,9 @@
 	  <p>Your fic has finished processing and you can download it now:</p>
 	  <p><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
 	    by {{ fic.author }} ({{ fic.format }})</p>
-   	    {% if escaped_url %}
-	      <p><a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}">Convert {{ fic.title }} to other formats</a></p>
-	    {% endif %}
+   	  {% if escaped_url %}
+	  <p><a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}">Convert {{ fic.title }} to other formats</a></p>
+	  {% endif %}
 	  {% else %}
 	  {% if fic.failure %}
 	  Your fic failed to process.  Please check the URL and the error message below.<br />
