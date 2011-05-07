@@ -57,7 +57,7 @@ h6 { text-align: center; }
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
-<h1><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h1>
+<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
 <div>
 ''')
 
