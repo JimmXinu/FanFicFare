@@ -27,6 +27,8 @@ class BaseSiteAdapter(Configurable):
     def __init__(self, config, url):
         Configurable.__init__(self, config)
         self.addConfigSection(self.getSiteDomain())
+        self.addConfigSection("commandline")
+        
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.storyDone = False
         self.metadataDone = False

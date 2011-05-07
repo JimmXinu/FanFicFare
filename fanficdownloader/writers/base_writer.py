@@ -24,6 +24,8 @@ class BaseStoryWriter(Configurable):
     def __init__(self, config, story):
         Configurable.__init__(self, config)
         self.addConfigSection(self.getFormatName())
+        ## Pass adapter instead, to check date before fetching all?
+        ## Or add 'check update' method to writer?
         self.story = story
         self.titleLabels = {
             'category':'Category',
@@ -127,6 +129,8 @@ class BaseStoryWriter(Configurable):
     def writeStory(self,outstream=None):
         self.addConfigSection(self.story.getMetadata('site'))
         self.addConfigSection(self.story.getMetadata('site')+":"+self.getFormatName())
+        self.addConfigSection("commandline")
+        
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
@@ -148,6 +152,8 @@ class BaseStoryWriter(Configurable):
                     path+=dir+"/"
                     if not os.path.exists(path):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
+
+            ## Check for output file date vs updated date here?
             outstream = open(outfilename,"wb")
         else:
             close=False
