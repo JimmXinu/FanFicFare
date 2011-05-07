@@ -17,3 +17,7 @@ class DownloadData(db.Model):
 					collection_name='data_chunks')
 	blob = db.BlobProperty()
 	index = db.IntegerProperty()
+
+class UserConfig(db.Model):
+	user = db.UserProperty()
+	config = db.TextProperty()

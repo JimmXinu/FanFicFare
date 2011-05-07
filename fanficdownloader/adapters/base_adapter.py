@@ -82,6 +82,7 @@ class BaseSiteAdapter(Configurable):
     ## URL pattern validation is done *after* picking an adaptor based
     ## on domain instead of *as* the adaptor selector so we can offer
     ## the user example(s) for that particular site.
+    ## Override validateURL(self) instead if you need more control.
     def getSiteURLPattern(self):
         "Used to validate URL.  Should be override in each adapter class."
         return '^http://'+re.escape(self.getSiteDomain())

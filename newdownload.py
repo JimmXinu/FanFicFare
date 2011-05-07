@@ -10,7 +10,7 @@ from fanficdownloader import adapters,writers,exceptions
 
 import ConfigParser
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser.SafeConfigParser()
 
 logging.debug('reading defaults.ini config file, if present')
 config.read('defaults.ini')

@@ -15,6 +15,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         self.crazystring = u" crazy tests:[bare amp(&) quote(&#39;) amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&T) pound(&pound;)]"
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+        self.username=''
 
     @staticmethod
     def getSiteDomain():
@@ -31,8 +32,11 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '666':
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if self.story.getMetadata('storyId') == '668':
-            raise exceptions.FailedToLogin(self.url,"FakeUser")
+        if self.getConfig("username"):
+            self.username = self.getConfig("username")
+        
+        if self.story.getMetadata('storyId') == '668' and self.username != "Me" :
+            raise exceptions.FailedToLogin(self.url,self.username)
         
         self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
         self.story.setMetadata('storyUrl',self.url)
