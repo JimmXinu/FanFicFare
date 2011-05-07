@@ -26,6 +26,9 @@ def main():
    parser.add_option("-o", "--option",
                      action="append", dest="options",
                      help="set an option NAME=VALUE", metavar="NAME=VALUE")
+   parser.add_option("-m", "--meta-only",
+                     action="store_true", dest="metaonly",
+                     help="Retrieve metadata and stop",)
    
    (options, args) = parser.parse_args()
 
@@ -49,16 +52,18 @@ def main():
        adapter = adapters.getAdapter(config,args[0])
            
        try:
-           print adapter.getStoryMetadataOnly()
+           adapter.getStoryMetadataOnly()
        except exceptions.FailedToLogin, ftl:
            print "Login Failed, Need Username/Password."
            sys.stdout.write("Username: ")
            adapter.username = sys.stdin.readline().strip()
            adapter.password = getpass.getpass(prompt='Password: ')
            #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
-           print adapter.getStoryMetadataOnly()
+           adapter.getStoryMetadataOnly()
 
-
+       if options.metaonly:
+           adapter.getStoryMetadataOnly()
+           return
        ## XXX Use format.
        print "format: %s" % options.format
        writeStory(config,adapter,"epub")

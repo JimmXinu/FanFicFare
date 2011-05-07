@@ -144,7 +144,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
-        if 'Complete' in a.findNext(text=re.compile(r'id:\d+')):
+        if 'Complete' in a.findNext(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
@@ -181,7 +181,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         return utf8FromSoup(span)
 
-#_register_handler(FanFictionNetSiteAdapter)
 def getClass():
     return FanFictionNetSiteAdapter
 
