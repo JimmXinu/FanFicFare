@@ -240,18 +240,22 @@ h6 { text-align: center; }
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
 
+        # set to avoid duplicates subject tags.
+        subjectset = set()
         for entry in self.titleLabels.keys():
             if entry in self.getConfigList("include_subject_tags") and \
+                    entry not in self.story.getLists() and \
                     self.story.getMetadata(entry):
-                metadata.appendChild(newTag(contentdom,"dc:subject",text=
-                                            self.getMetadata(entry)))
-        # listables all go into dc:suject tags, but only if they are configured.
+                subjectset.add(self.getMetadata(entry))
+        # listables all go into dc:subject tags, but only if they are configured.
         for (name,lst) in self.story.getLists().iteritems():
             if name in self.getConfigList("include_subject_tags"):
                 for tag in lst:
-                    metadata.appendChild(newTag(contentdom,"dc:subject",text=
-                                                tag))
+                    subjectset.add(tag)
+        for subject in subjectset:
+            metadata.appendChild(newTag(contentdom,"dc:subject",text=subject))
 
+                    
         if self.getMetadata('site'):
             metadata.appendChild(newTag(contentdom,"dc:publisher",
                                         text=self.getMetadata('site')))
