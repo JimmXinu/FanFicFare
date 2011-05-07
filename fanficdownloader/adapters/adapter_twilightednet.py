@@ -72,7 +72,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
     
         d = self._fetchUrl(loginUrl, urlvals)
     
-        if self.needToLoginCheck(d) :
+        if "Member Account" not in d : #Member Account
             logging.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               data['penname']))
             raise exceptions.FailedToLogin(url,data['penname'])
@@ -98,6 +98,9 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             self.performLogin(url)
             data = self._fetchUrl(url)
 
+        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+            
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
 
