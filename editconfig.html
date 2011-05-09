@@ -45,10 +45,9 @@
 	  <h3>Edit Config</h3>
 	  <div id='logpassword'>
 	    Editing configuration for {{ nickname }}.
-	    {% if default %} Default values are shown. {% else %} Empty this box and Save to go back to use the default values. {% endif %}
 	  </div>
 	  <div class='fieldandlabel'>
-	    <textarea name="config" style="width: 100%; height: 500px;" wrap='off'>{{ config }}</textarea>
+	    <textarea name="config" style="width: 100%; height: 200px;" wrap='off'>{{ config }}</textarea>
 	  </div>
 	</div>
 	
@@ -56,6 +55,13 @@
 	  <input type="submit" value="Save">
 	</div>
       </form>
+
+      <div>
+	<h3>Default System configuration</h3>
+<pre>
+{{ defaultsini }}
+</pre>
+      </div>
       
       <div style='text-align: center'>
 	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"

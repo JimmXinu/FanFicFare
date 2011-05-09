@@ -115,11 +115,16 @@ class EditConfigServer(webapp.RequestHandler):
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
             else:
-                template_values['default'] = True
-                configfile = open("defaults.ini","rb")
+                configfile = open("example.ini","rb")
                 config = configfile.read()
                 configfile.close()
             template_values['config'] = config
+
+            configfile = open("defaults.ini","rb")
+            config = configfile.read()
+            configfile.close()
+            template_values['defaultsini'] = config
+            
             path = os.path.join(os.path.dirname(__file__), 'editconfig.html')
             self.response.headers['Content-Type'] = 'text/html'
             self.response.out.write(template.render(path, template_values))
@@ -227,6 +232,9 @@ class UserConfigServer(webapp.RequestHandler):
     def getUserConfig(self,user):
         config = ConfigParser.SafeConfigParser()
 
+        logging.debug('reading defaults.ini config file')
+        config.read('defaults.ini')
+        
         ## Pull user's config record.
         l = UserConfig.all().filter('user =', user).fetch(1)
         ## TEST THIS
@@ -234,9 +242,6 @@ class UserConfigServer(webapp.RequestHandler):
             uconfig=l[0]
             logging.debug('reading config from UserConfig(%s)'%uconfig.config)
             config.readfp(StringIO.StringIO(uconfig.config))                
-        else:
-            logging.debug('reading defaults.ini config file')
-            config.read('defaults.ini')
 
         return config
         

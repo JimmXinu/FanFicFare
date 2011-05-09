@@ -20,4 +20,4 @@ class DownloadData(db.Model):
 
 class UserConfig(db.Model):
 	user = db.UserProperty()
-	config = db.TextProperty()
+	config = db.BlobProperty()

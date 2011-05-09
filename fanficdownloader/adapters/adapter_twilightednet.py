@@ -54,28 +54,27 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
           return False
 
     def performLogin(self, url):
-        data = {}
+        params = {}
 
         if self.password:
-            data['penname'] = self.username
-            data['password'] = self.password
+            params['penname'] = self.username
+            params['password'] = self.password
         else:
-            data['penname'] = self.getConfig("username")
-            data['password'] = self.getConfig("password")
-        data['cookiecheck'] = '1'
-        data['submit'] = 'Submit'
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
     
-        urlvals = urllib.urlencode(data)
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              data['penname']))
+                                                              params['penname']))
     
-        d = self._fetchUrl(loginUrl, urlvals)
+        d = self._fetchUrl(loginUrl, params)
     
         if "Member Account" not in d : #Member Account
             logging.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              data['penname']))
-            raise exceptions.FailedToLogin(url,data['penname'])
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
             return False
         else:
             return True
@@ -150,10 +149,10 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
-                self.story.setMetadata('rating', value.strip())
+                self.story.setMetadata('rating', value)
 
             if 'Word count' in label:
-                self.story.setMetadata('numWords', value.strip())
+                self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))

@@ -41,12 +41,15 @@ def main():
    config.read('defaults.ini')
    logging.debug('reading personal.ini config file, if present')
    config.read('personal.ini')
-   
-   config.add_section("commandline")
+
+   try:
+       config.add_section("overrides")
+   except ConfigParser.DuplicateSectionError:
+       pass
    if options.options:
        for opt in options.options:
            (var,val) = opt.split('=')
-           config.set("commandline",var,val)
+           config.set("overrides",var,val)
 
    try:
        adapter = adapters.getAdapter(config,args[0])
@@ -62,9 +65,11 @@ def main():
            adapter.getStoryMetadataOnly()
 
        if options.metaonly:
-           adapter.getStoryMetadataOnly()
+           print adapter.getStoryMetadataOnly()
            return
        ## XXX Use format.
+       ## XXX Doing all three formats actually causes some interesting
+       ## XXX config issues with format-specific sections.
        print "format: %s" % options.format
        writeStory(config,adapter,"epub")
        writeStory(config,adapter,"html")

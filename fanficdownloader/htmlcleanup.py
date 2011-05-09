@@ -26,7 +26,7 @@ def stripHTML(soup):
 
 def conditionalRemoveEntities(value):
     if isinstance(value,str) or isinstance(value,unicode) :
-        return removeEntities(value.strip())
+        return removeEntities(value).strip()
     else:
         return value
         
