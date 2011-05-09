@@ -240,7 +240,7 @@ class UserConfigServer(webapp.RequestHandler):
         ## TEST THIS
         if l and l[0].config:
             uconfig=l[0]
-            logging.debug('reading config from UserConfig(%s)'%uconfig.config)
+            #logging.debug('reading config from UserConfig(%s)'%uconfig.config)
             config.readfp(StringIO.StringIO(uconfig.config))                
 
         return config
@@ -260,6 +260,7 @@ class FanfictionDownloader(UserConfigServer):
         url = self.request.get('url')
         login = self.request.get('login')
         password = self.request.get('password')
+        is_adult = self.request.get('is_adult') == "on"
         
         logging.info("Queuing Download: " + url)
 
@@ -287,6 +288,7 @@ class FanfictionDownloader(UserConfigServer):
             if len(login) > 1:
                 adapter.username=login
                 adapter.password=password
+            adapter.is_adult=is_adult
             ## This scrapes the metadata, which will be
             ## duplicated in the queue task, but it
             ## detects bad URLs, bad login, bad story, etc
@@ -304,20 +306,23 @@ class FanfictionDownloader(UserConfigServer):
                               'url':url,
                               'login':login,
                               'password':password,
-                              'user':user.email()})
+                              'user':user.email(),
+                              'is_adult':is_adult})
         
             logging.info("enqueued download key: " + str(download.key()))
 
-        except exceptions.FailedToLogin, e:
+        except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
             logging.exception(e)
             download.failure = str(e)
             download.put()
             logging.debug('Need to Login, display log in page')
+            login= ( e is exceptions.FailedToLogin )
             template_values = dict(nickname = user.nickname(),
                                    url = url,
                                    format = format,
                                    site = adapter.getSiteDomain(),
-                                   fic = download
+                                   fic = download,
+                                   login=login,
                                    )
             path = os.path.join(os.path.dirname(__file__), 'login.html')
             self.response.out.write(template.render(path, template_values))
@@ -348,6 +353,7 @@ class FanfictionDownloaderTask(UserConfigServer):
         url = self.request.get('url')
         login = self.request.get('login')
         password = self.request.get('password')
+        is_adult = self.request.get('is_adult')
         # User object can't pass, just email address
         user = users.User(self.request.get('user'))
         
@@ -381,11 +387,12 @@ class FanfictionDownloaderTask(UserConfigServer):
             download.put()
             return
         
-        logging.info('Created an adaper: %s' % adapter)
+        logging.info('Created an adapter: %s' % adapter)
         
         if len(login) > 1:
             adapter.username=login
             adapter.password=password
+        adapter.is_adult=is_adult
 
         try:
             # adapter.getStory() is what does all the heavy lifting.

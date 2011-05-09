@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import logging
 
 import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
@@ -16,6 +17,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         self.username=''
+        self.is_adult=False
 
     @staticmethod
     def getSiteDomain():
@@ -28,6 +30,10 @@ class TestSiteAdapter(BaseSiteAdapter):
         return BaseSiteAdapter.getSiteURLPattern(self)+'\?sid=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
+
+        if self.story.getMetadata('storyId') == '665' and not (self.is_adult or self.getConfig("is_adult")):
+            logging.warn("self.is_adult:%s"%self.is_adult)
+            raise exceptions.AdultCheckRequired(self.url)
 
         if self.story.getMetadata('storyId') == '666':
             raise exceptions.StoryDoesNotExist(self.url)
@@ -86,6 +92,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <div>
 <h3>Prologue</h3>
 <p>This is a fake adapter for testing purposes.  Different storyId's will give different errors:</p>
+<p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
 <p>http://test1.com?sid=667 - raises FailedToDownload on chapter 1</p>
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>

@@ -45,15 +45,18 @@
       </div>
       {% endif %}
       <form action="/fdown" method="post">
+	<input type="hidden" name="url" value='{{ url }}'>	
+	<input type="hidden" name="format" value='{{ format }}'>	
 	<div id='logpasswordtable'>
+	  
+	  {% if login %}
+	  
 	  <h3>Login and Password</h3>
 	  <div id='logpassword'>
 	    {{ site }} requires a Login/Password for this story.
 	    You need to provide your Login/Password for {{ site }}
 	    to download it.
 	  </div>
-	<input type="hidden" name="url" value='{{ url }}'>	
-	<input type="hidden" name="format" value='{{ format }}'>	
 	  <div class='fieldandlabel'>
 	    <div class='label'>Login</div>
 	    <div class='field'><input type='text' name='login' size='50'></div>
@@ -63,6 +66,15 @@
 	    <div class='label'>Password</div>
 	    <div class='field'><input type='password' name='password' size='50'></div>
 	  </div>
+	  
+	  {% else %}
+
+	  <div class='fieldandlabel'>
+	    <div class='label'>Are you an Adult?  <input type='checkbox' name='is_adult'></div>
+	  </div>
+
+	  {% endif %}
+
 	</div>
 	
 	<div id='submitbtn'>
