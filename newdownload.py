@@ -7,6 +7,10 @@ import sys, os
 from optparse import OptionParser      
 import getpass
 
+if sys.version_info < (2, 5):
+    print "This program requires Python 2.5 or newer."
+    sys.exit(1)
+
 from fanficdownloader import adapters,writers,exceptions
 
 import ConfigParser
@@ -56,12 +60,17 @@ def main():
            
        try:
            adapter.getStoryMetadataOnly()
-       except exceptions.FailedToLogin, ftl:
+       except exceptions.FailedToLogin:
            print "Login Failed, Need Username/Password."
            sys.stdout.write("Username: ")
            adapter.username = sys.stdin.readline().strip()
            adapter.password = getpass.getpass(prompt='Password: ')
            #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
+           adapter.getStoryMetadataOnly()
+       except exceptions.AdultCheckRequired:
+           print "Please confirm you are an adult in your locale: (y/n)?"
+           if sys.stdin.readline().strip().lower().startswith('y'):
+               adapter.is_adult=True
            adapter.getStoryMetadataOnly()
 
        if options.metaonly:

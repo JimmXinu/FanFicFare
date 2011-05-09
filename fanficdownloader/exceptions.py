@@ -24,6 +24,13 @@ class FailedToLogin(Exception):
     def __str__(self):
         return "Failed to Login for URL: (%s) with username: (%s)" % (self.url, self.username)
 
+class AdultCheckRequired(Exception):
+    def __init__(self,url):
+        self.url=url
+        
+    def __str__(self):
+        return "Story requires confirmation of adult status: (%s)" % self.url
+
 class StoryDoesNotExist(Exception):
     def __init__(self,url):
         self.url=url
