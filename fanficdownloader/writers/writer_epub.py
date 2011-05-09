@@ -242,7 +242,7 @@ h6 { text-align: center; }
 
         # set to avoid duplicates subject tags.
         subjectset = set()
-        for entry in self.titleLabels.keys():
+        for entry in self.validEntries:
             if entry in self.getConfigList("include_subject_tags") and \
                     entry not in self.story.getLists() and \
                     self.story.getMetadata(entry):

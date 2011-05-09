@@ -27,6 +27,31 @@ class BaseStoryWriter(Configurable):
         ## Pass adapter instead, to check date before fetching all?
         ## Or add 'check update' method to writer?
         self.story = story
+        self.validEntries = [
+            'category',
+            'genre',
+            'status',
+            'datePublished',
+            'dateUpdated',
+            'dateCreated',
+            'rating',
+            'warnings',
+            'numChapters',
+            'numWords',
+            'site',
+            'storyId',
+            'authorId',
+            'extratags',
+            'title',
+            'storyUrl',
+            'description',
+            'author',
+            'authorUrl',
+            'formatname',
+            'formatext',
+            'siteabbrev']
+
+        # fall back labels.
         self.titleLabels = {
             'category':'Category',
             'genre':'Genre',
@@ -38,7 +63,7 @@ class BaseStoryWriter(Configurable):
             'warnings':'Warnings',
             'numChapters':'Chapters',
             'numWords':'Words',
-            'site':'Publisher',
+            'site':'Site',
             'storyId':'Story ID',
             'authorId':'Author ID',
             'extratags':'Extra Tags',
@@ -49,6 +74,7 @@ class BaseStoryWriter(Configurable):
             'authorUrl':'Author URL',
             'formatname':'File Format',
             'formatext':'File Extension',
+            'siteabbrev':'Site Abbrev'
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
@@ -61,17 +87,15 @@ class BaseStoryWriter(Configurable):
 
     def getFileName(self,template,extension="${formatext}"):
         values = self.story.metadata
-        fallback=False
         # fall back default:
         if not template:
             template="${title}-${siteabbrev}_${storyId}${formatext}"
-            fallback=True
 
         # Add extension if not already included.
         if extension not in template:
             template+=extension
 
-        if fallback or self.getConfig('safe_filename'):
+        if not self.getConfig('allow_unsafe_filename'):
             values={}
             pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
             for k in self.story.metadata.keys():
@@ -99,13 +123,17 @@ class BaseStoryWriter(Configurable):
             wideTitleEntriesList = self.getConfigList("wide_titlepage_entries")
 
             for entry in titleEntriesList:
-                if entry in self.titleLabels:
+                if entry in self.validEntries:
                     if self.story.getMetadata(entry):
                         if entry in wideTitleEntriesList:
                             TEMPLATE=WIDE_ENTRY
                         else:
                             TEMPLATE=ENTRY
-                        self._write(out,TEMPLATE.substitute({'label':self.titleLabels[entry],
+                        if self.getConfigList(entry):
+                            label=self.getConfig(entry+"_label")
+                        else:
+                            label=self.titleLabels[entry]
+                        self._write(out,TEMPLATE.substitute({'label':label,
                                                              'value':self.story.getMetadata(entry)}))
 
             self._write(out,END.substitute(self.story.metadata))
@@ -129,7 +157,7 @@ class BaseStoryWriter(Configurable):
     def writeStory(self,outstream=None):
         self.addConfigSection(self.story.getMetadata('site'))
         self.addConfigSection(self.story.getMetadata('site')+":"+self.getFormatName())
-        self.addConfigSection("commandline")
+        self.addConfigSection("overrides")
         
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)

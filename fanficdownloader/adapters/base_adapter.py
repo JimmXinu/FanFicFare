@@ -3,6 +3,7 @@
 import re
 import datetime
 import time
+import urllib
 import urllib2 as u2
 import urlparse as up
 
@@ -27,7 +28,7 @@ class BaseSiteAdapter(Configurable):
     def __init__(self, config, url):
         Configurable.__init__(self, config)
         self.addConfigSection(self.getSiteDomain())
-        self.addConfigSection("commandline")
+        self.addConfigSection("overrides")
         
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.storyDone = False
@@ -49,12 +50,30 @@ class BaseSiteAdapter(Configurable):
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path        
         self.story.setMetadata('storyUrl',self.url)
-        
+
+    # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
+    def _postUrl(self, url, parameters={}, headers={}):
+        if self.getConfig('slow_down_sleep_time'):
+            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+
+        ## u2.Request assumes POST when data!=None.  Also assumes data
+        ## is application/x-www-form-urlencoded.
+        if 'Content-type' not in headers:
+            headers['Content-type']='application/x-www-form-urlencoded'
+        if 'Accept' not in headers:
+            headers['Accept']="text/html,*/*"
+        req = u2.Request(url,
+                         data=urllib.urlencode(parameters),
+                         headers=headers)
+        return self.opener.open(req).read().decode(self.decode)
+
+    # parameters is a dict()
     def _fetchUrl(self, url, parameters=None):
         if self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
         if parameters:
-            return self.opener.open(url,parameters).read().decode(self.decode)
+            return self.opener.open(url,urllib.urlencode(parameters))\
+                .read().decode(self.decode)
         else:
             return self.opener.open(url).read().decode(self.decode)
 

@@ -156,12 +156,14 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
-        span = soup.find('div', {'id' : 'storytext'})
+        div = soup.find('div', {'id' : 'storytext'})
+        ## fp puts a padding style on the div that we don't want.
+        del div['style']
 
-        if None == span:
+        if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        return utf8FromSoup(span)
+        return utf8FromSoup(div)
 
 def getClass():
     return FictionPressComSiteAdapter
