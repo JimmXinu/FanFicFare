@@ -20,7 +20,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev','tw')
         self.decode = "utf8"
         self.story.addToList("category","Twilight")
-        self.username = "NoneGiven" # if left empty, twilighted.net doesn't return any message at all.
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -46,9 +46,9 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         return re.escape("http://")+r"(www\.)?"+re.escape("twilighted.net/viewstory.php?sid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
-        if 'Registered Users Only.' in data \
+        if 'Registered Users Only' in data \
                 or 'There is no such account on our website' in data \
-                or "That password doesn't match the one in our database." in data:
+                or "That password doesn't match the one in our database" in data:
           return True
         else:
           return False
@@ -119,14 +119,6 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-
-        ## <meta name='description' content='&lt;p&gt;Description&lt;/p&gt; ...' >
-        ## Summary, strangely, is in the content attr of a <meta name='description'> tag
-        ## which is escaped HTML.  Unfortunately, we can't use it because they don't
-        ## escape (') chars in the desc, breakin the tag.
-        #meta_desc = soup.find('meta',{'name':'description'})
-        #metasoup = bs.BeautifulStoneSoup(meta_desc['content'])
-        #self.story.setMetadata('description',stripHTML(metasoup))
 
         def defaultGetattr(d,k):
             try:

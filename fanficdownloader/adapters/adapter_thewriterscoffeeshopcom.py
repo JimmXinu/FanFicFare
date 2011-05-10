@@ -13,35 +13,37 @@ import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
-class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
+class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','pns')
-        self.decode = "utf8"
-        self.story.addToList("category","Harry Potter")
+        self.story.setMetadata('siteabbrev','twcs')
+        self.decode = "ISO-8859-1"
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
+        self.password = ""
+        self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/fanfiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/library/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
             
     @staticmethod
     def getSiteDomain():
-        return 'www.potionsandsnitches.net'
+        return 'www.thewriterscoffeeshop.com'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.potionsandsnitches.net','potionsandsnitches.net']
+        return [cls.getSiteDomain()]
 
     def getSiteExampleURLs(self):
-        return "http://www.potionsandsnitches.net/fanfiction/viewstory.php?sid=1234 http://potionsandsnitches.net/fanfiction/viewstory.php?sid=5678"
+        return "http://"+self.getSiteDomain()+"/library/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?"+re.escape("potionsandsnitches.net/fanfiction/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/library/viewstory.php?sid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -51,9 +53,40 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         else:
           return False
 
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/library/user.php?action=login'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+    
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Member Account" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
+
     def extractChapterUrlsAndMetadata(self):
 
-        url = self.url+'&index=1'
+        if self.is_adult or self.getConfig("is_adult"):
+            addurl = "&ageconsent=ok&warning=3"
+        else:
+            addurl=""
+            
+        url = self.url+'&index=1'+addurl
         logging.debug("URL: "+url)
 
         try:
@@ -64,6 +97,14 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+
+        if "Age Consent Required" in data:
+            raise exceptions.AdultCheckRequired(self.url)
+            
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
@@ -77,23 +118,15 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/fanfiction/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/library/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfiction/'+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/library/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-
-        ## <meta name='description' content='&lt;p&gt;Description&lt;/p&gt; ...' >
-        ## Summary, strangely, is in the content attr of a <meta name='description'> tag
-        ## which is escaped HTML.  Unfortunately, we can't use it because they don't
-        ## escape (') chars in the desc, breakin the tag.
-        #meta_desc = soup.find('meta',{'name':'description'})
-        #metasoup = bs.BeautifulStoneSoup(meta_desc['content'])
-        #self.story.setMetadata('description',stripHTML(metasoup))
 
         def defaultGetattr(d,k):
             try:
@@ -108,9 +141,9 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
             label = labelspan.string
 
             if 'Summary' in label:
-                ## Everything until the next div class='listbox'
+                ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'listbox':
+                while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
                 self.story.setMetadata('description',stripHTML(svalue))
@@ -141,12 +174,12 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
+                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%B %d, %Y"))))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
+                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%B %d, %Y"))))
 
 
     def getChapterText(self, url):
@@ -164,5 +197,5 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         return utf8FromSoup(span)
 
 def getClass():
-    return PotionsAndSnitchesNetSiteAdapter
+    return TheWritersCoffeeShopComSiteAdapter
 
