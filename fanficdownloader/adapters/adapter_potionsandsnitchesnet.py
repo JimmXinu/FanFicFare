@@ -13,45 +13,47 @@ import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
-class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
+class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','aaff')
+        self.story.setMetadata('siteabbrev','pns')
         self.decode = "utf8"
-        self.story.addToList("category","Star Trek")
-        self.is_adult=False
+        self.story.addToList("category","Harry Potter")
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/fanfiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
             
     @staticmethod
     def getSiteDomain():
-        return 'www.adastrafanfic.com'
+        return 'www.potionsandsnitches.net'
 
     @classmethod
     def getAcceptDomains(cls):
-        return [cls.getSiteDomain()]
+        return ['www.potionsandsnitches.net','potionsandsnitches.net']
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "http://www.potionsandsnitches.net/fanfiction/viewstory.php?sid=1234 http://potionsandsnitches.net/fanfiction/viewstory.php?sid=5678"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.)?"+re.escape("potionsandsnitches.net/fanfiction/viewstory.php?sid=")+r"\d+$"
+
+    def needToLoginCheck(self, data):
+        if 'Registered Users Only.' in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database." in data:
+          return True
+        else:
+          return False
 
     def extractChapterUrlsAndMetadata(self):
 
-        if self.is_adult or self.getConfig("is_adult"):
-            addurl = "&warning=5"
-        else:
-            addurl=""
-            
-        url = self.url+'&index=1'+addurl
+        url = self.url+'&index=1'
         logging.debug("URL: "+url)
 
         try:
@@ -62,8 +64,8 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
-            raise exceptions.AdultCheckRequired(self.url)
+        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -73,15 +75,15 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php"))
+        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/fanfiction/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfiction/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -106,9 +108,9 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             label = labelspan.string
 
             if 'Summary' in label:
-                ## Everything until the next span class='label'
-                svalue = ''
-                while not defaultGetattr(value,'class') == 'label':
+                ## Everything until the next div class='listbox'
+                svalue = ""
+                while not defaultGetattr(value,'class') == 'listbox':
                     svalue += str(value)
                     value = value.nextSibling
                 self.story.setMetadata('description',stripHTML(svalue))
@@ -126,18 +128,11 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.addToList('category',cat.string)
 
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
                 genrestext = [genre.string for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
                     self.story.addToList('genre',genre.string)
-
-            if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
-                warningstext = [warning.string for warning in warnings]
-                self.warning = ', '.join(warningstext)
-                for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
 
             if 'Completed' in label:
                 if 'Yes' in value:
@@ -146,12 +141,12 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%m/%d/%Y"))))
+                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%m/%d/%Y"))))
+                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
 
 
     def getChapterText(self, url):
@@ -169,5 +164,5 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         return utf8FromSoup(span)
 
 def getClass():
-    return AdAstraFanficComSiteAdapter
+    return PotionsAndSnitchesNetSiteAdapter
 

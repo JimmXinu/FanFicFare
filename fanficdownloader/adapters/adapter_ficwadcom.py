@@ -129,36 +129,36 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         ## perhaps not the most efficient way to parse this, using
         ## regexps for each rather than something more complex, but
         ## IMO, it's more readable and amenable to change.
-        metapstr = stripHTML(str(metap)).replace('\n',' ').replace('\t','')
-        #print "metap: (%s)"%metapstr
+        metastr = stripHTML(str(metap)).replace('\n',' ').replace('\t','')
+        #print "metap: (%s)"%metastr
 
-        m = re.match(r".*?Rating: (.+?) -.*?",metapstr)
+        m = re.match(r".*?Rating: (.+?) -.*?",metastr)
         if m:
             self.story.setMetadata('rating', m.group(1))
 
-        m = re.match(r".*?Genres: (.+?) -.*?",metapstr)
+        m = re.match(r".*?Genres: (.+?) -.*?",metastr)
         if m:
             for g in m.group(1).split(','):
                 self.story.addToList('genre',g)
         
-        m = re.match(r".*?Published: ([0-9/]+?) -.*?",metapstr)
+        m = re.match(r".*?Published: ([0-9/]+?) -.*?",metastr)
         if m:
             self.story.setMetadata('datePublished',
                                    datetime.datetime.fromtimestamp(\
                     time.mktime(time.strptime(m.group(1), "%Y/%m/%d"))))
 
         # Updated can have more than one space after it. <shrug>
-        m = re.match(r".*?Updated: ([0-9/]+?) +-.*?",metapstr) 
+        m = re.match(r".*?Updated: ([0-9/]+?) +-.*?",metastr) 
         if m:
             self.story.setMetadata('dateUpdated',
                                    datetime.datetime.fromtimestamp(\
                     time.mktime(time.strptime(m.group(1), "%Y/%m/%d"))))
 
-        m = re.match(r".*? - ([0-9/]+?) words.*?",metapstr)
+        m = re.match(r".*? - ([0-9/]+?) words.*?",metastr)
         if m:
             self.story.setMetadata('numWords',m.group(1))
 
-        if metapstr.endswith("Complete"):
+        if metastr.endswith("Complete"):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')

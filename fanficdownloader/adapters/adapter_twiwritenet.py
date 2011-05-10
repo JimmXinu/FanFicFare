@@ -13,14 +13,15 @@ import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup
 
-class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
+class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','aaff')
-        self.decode = "utf8"
-        self.story.addToList("category","Star Trek")
-        self.is_adult=False
+        self.story.setMetadata('siteabbrev','twrt')
+        self.decode = "ISO-8859-1"
+        self.story.addToList("category","Twilight")
+        self.username = "NoneGiven" # if left empty, twiwrite.net doesn't return any message at all.
+        self.password = ""
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
@@ -32,26 +33,55 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             
     @staticmethod
     def getSiteDomain():
-        return 'www.adastrafanfic.com'
+        return 'www.twiwrite.net'
 
     @classmethod
     def getAcceptDomains(cls):
-        return [cls.getSiteDomain()]
+        return ['www.twiwrite.net','twiwrite.net']
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "http://www.twiwrite.net/viewstory.php?sid=1234 http://twiwrite.net/viewstory.php?sid=5678"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.)?"+re.escape("twiwrite.net/viewstory.php?sid=")+r"\d+$"
+
+    def needToLoginCheck(self, data):
+        if 'Registered Users Only' in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database." in data:
+          return True
+        else:
+          return False
+
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+    
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Member Account" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
 
     def extractChapterUrlsAndMetadata(self):
 
-        if self.is_adult or self.getConfig("is_adult"):
-            addurl = "&warning=5"
-        else:
-            addurl=""
-            
-        url = self.url+'&index=1'+addurl
+        url = self.url+'&index=1'
         logging.debug("URL: "+url)
 
         try:
@@ -62,8 +92,13 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
-            raise exceptions.AdultCheckRequired(self.url)
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+
+        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -73,7 +108,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php"))
+        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
@@ -81,7 +116,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -107,7 +142,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
 
             if 'Summary' in label:
                 ## Everything until the next span class='label'
-                svalue = ''
+                svalue = ""
                 while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
@@ -126,18 +161,18 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.addToList('category',cat.string)
 
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3'))
                 genrestext = [genre.string for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
                     self.story.addToList('genre',genre.string)
 
             if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
+                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=8'))
                 warningstext = [warning.string for warning in warnings]
                 self.warning = ', '.join(warningstext)
                 for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
+                    self.story.addToList('warning',warning.string)
 
             if 'Completed' in label:
                 if 'Yes' in value:
@@ -146,12 +181,12 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%m/%d/%Y"))))
+                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%B %d, %Y"))))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
-                #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%m/%d/%Y"))))
+                value = value[0:-1]
+                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value.strip(), "%B %d, %Y"))))
 
 
     def getChapterText(self, url):
@@ -169,5 +204,5 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         return utf8FromSoup(span)
 
 def getClass():
-    return AdAstraFanficComSiteAdapter
+    return TwiwriteNetSiteAdapter
 
