@@ -316,7 +316,7 @@ class FanfictionDownloader(UserConfigServer):
             download.failure = str(e)
             download.put()
             logging.debug('Need to Login, display log in page')
-            login= ( e is exceptions.FailedToLogin )
+            login= ( isinstance(e, exceptions.FailedToLogin) )
             template_values = dict(nickname = user.nickname(),
                                    url = url,
                                    format = format,
