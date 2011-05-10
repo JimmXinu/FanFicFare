@@ -45,9 +45,9 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         return re.escape("http://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
-        if 'Registered Users Only.' in data \
+        if 'Registered Users Only' in data \
                 or 'There is no such account on our website' in data \
-                or "That password doesn't match the one in our database." in data:
+                or "That password doesn't match the one in our database" in data:
           return True
         else:
           return False

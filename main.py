@@ -316,14 +316,19 @@ class FanfictionDownloader(UserConfigServer):
             download.failure = str(e)
             download.put()
             logging.debug('Need to Login, display log in page')
-            login= ( isinstance(e, exceptions.FailedToLogin) )
+            is_login= ( isinstance(e, exceptions.FailedToLogin) )
             template_values = dict(nickname = user.nickname(),
                                    url = url,
                                    format = format,
                                    site = adapter.getSiteDomain(),
                                    fic = download,
-                                   login=login,
+                                   is_login=is_login,
                                    )
+            # thewriterscoffeeshop.com can do adult check *and* user required.
+            if isinstance(e,exceptions.AdultCheckRequired):
+                template_values['login']=login
+                template_values['password']=password
+                
             path = os.path.join(os.path.dirname(__file__), 'login.html')
             self.response.out.write(template.render(path, template_values))
             return

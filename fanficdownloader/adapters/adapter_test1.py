@@ -43,8 +43,11 @@ class TestSiteAdapter(BaseSiteAdapter):
         
         if self.story.getMetadata('storyId') == '668' and self.username != "Me" :
             raise exceptions.FailedToLogin(self.url,self.username)
-        
-        self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
+
+        if self.story.getMetadata('storyId') == '664':
+            self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
+        else:
+            self.story.setMetadata(u'title',"Test Story Title")
         self.story.setMetadata('storyUrl',self.url)
         self.story.setMetadata('description',u'Description '+self.crazystring+u''' Done
 
@@ -92,6 +95,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <div>
 <h3>Prologue</h3>
 <p>This is a fake adapter for testing purposes.  Different storyId's will give different errors:</p>
+<p>http://test1.com?sid=664 - Crazy string title</p>
 <p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
 <p>http://test1.com?sid=667 - raises FailedToDownload on chapter 1</p>

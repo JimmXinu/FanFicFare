@@ -49,7 +49,7 @@
 	<input type="hidden" name="format" value='{{ format }}'>	
 	<div id='logpasswordtable'>
 	  
-	  {% if login %}
+	  {% if is_login %}
 	  
 	  <h3>Login and Password</h3>
 	  <div id='logpassword'>
@@ -69,6 +69,8 @@
 	  
 	  {% else %}
 
+	  <input type="hidden" name="login" value='{{ login }}'>
+	  <input type="hidden" name="password" value='{{ password }}'>
 	  <div class='fieldandlabel'>
 	    <div class='label'>Are you an Adult?  <input type='checkbox' name='is_adult'></div>
 	  </div>
