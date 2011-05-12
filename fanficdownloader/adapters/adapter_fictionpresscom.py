@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib2
@@ -25,7 +24,7 @@ import time
 import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class FictionPressComSiteAdapter(BaseSiteAdapter):
 
@@ -124,10 +123,8 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
             m = re.match(r".*?Published: ([0-9-]+) - Updated: ([0-9-]+).*?",dataline)
             if m:
                 published,updated = m.groups()
-                self.story.setMetadata('datePublished',
-                                       datetime.datetime.fromtimestamp(time.mktime(time.strptime(published, '%m-%d-%y'))))
-                self.story.setMetadata('dateUpdated',
-                                       datetime.datetime.fromtimestamp(time.mktime(time.strptime(updated, '%m-%d-%y'))))
+                self.story.setMetadata('datePublished',makeDate(published, '%m-%d-%y'))
+                self.story.setMetadata('dateUpdated',makeDate(updated, '%m-%d-%y'))
                                
         # category, genres, then desc.
         # <meta name="description" content="Sci-Fi, Sci-Fi/Crime,  Gabriel Starr is a hardboiled former Planetary Marine turned cyborg detective. Philo Temple is a child genius who helped build him. Together, they form a detective agency in a retro-futuristic world of alien gangsters, beatiful dames, and blazing ray guns">

@@ -17,6 +17,7 @@
 
 import re
 import os.path
+import datetime
 import string
 import StringIO
 import zipfile
@@ -36,12 +37,15 @@ class BaseStoryWriter(Configurable):
     def getFormatExt():
         return '.bse'
 
-    def __init__(self, config, story):
+    def __init__(self, config, adapter):
         Configurable.__init__(self, config)
+        self.addConfigSection(adapter.getSiteDomain())
         self.addConfigSection(self.getFormatName())
-        ## Pass adapter instead, to check date before fetching all?
-        ## Or add 'check update' method to writer?
-        self.story = story
+        self.addConfigSection(adapter.getSiteDomain()+":"+self.getFormatName())
+        self.addConfigSection("overrides")
+        
+        self.adapter = adapter
+        self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
         self.validEntries = [
             'category',
             'genre',
@@ -170,10 +174,6 @@ class BaseStoryWriter(Configurable):
 
     # if no outstream is given, write to file.
     def writeStory(self,outstream=None):
-        self.addConfigSection(self.story.getMetadata('site'))
-        self.addConfigSection(self.story.getMetadata('site')+":"+self.getFormatName())
-        self.addConfigSection("overrides")
-        
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
@@ -196,13 +196,23 @@ class BaseStoryWriter(Configurable):
                     if not os.path.exists(path):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
 
-            ## Check for output file date vs updated date here?
+            ## Check for output file date vs updated date here
+            if not self.getConfig('always_overwrite'):
+                if os.path.exists(outfilename):
+                    ## date() truncs off time, which files have, but sites don't report.
+                    lastupdated=self.story.getMetadataRaw('dateUpdated').date()
+                    fileupdated=datetime.datetime.fromtimestamp(os.stat(outfilename)[8]).date()
+                    if fileupdated > lastupdated:
+                        print "File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated)
+                        return
+                    
             outstream = open(outfilename,"wb")
         else:
             close=False
             logging.debug("Save to stream")
 
-
+        self.story = self.adapter.getStory() # get full story now,
+                                             # just before writing.
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
             self.writeStoryImpl(out)

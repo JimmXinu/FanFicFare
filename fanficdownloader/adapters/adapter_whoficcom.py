@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib2
@@ -24,7 +23,7 @@ import urllib2
 import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class WhoficComSiteAdapter(BaseSiteAdapter):
 
@@ -165,9 +164,9 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             name=name.strip()
             value=value.strip()
             if name == 'Published':
-                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value, '%Y.%m.%d'))))
+                self.story.setMetadata('datePublished', makeDate(value, '%Y.%m.%d'))
             if name == 'Updated':
-                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(value, '%Y.%m.%d'))))
+                self.story.setMetadata('dateUpdated', makeDate(value, '%Y.%m.%d'))
             if name == 'Completed':
                 if value == 'Yes':
                     self.story.setMetadata('status', 'Completed')

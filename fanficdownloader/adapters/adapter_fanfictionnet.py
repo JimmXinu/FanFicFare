@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib2
@@ -25,7 +24,7 @@ import time
 import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
@@ -111,11 +110,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     if 'summary' in var:
                         self.story.setMetadata('description', value)
                     if 'datep' in var:
-                        self.story.setMetadata('datePublished',
-                                          datetime.datetime.fromtimestamp(time.mktime(time.strptime(value, '%m-%d-%y'))))
+                        self.story.setMetadata('datePublished',makeDate(value, '%m-%d-%y'))
                     if 'dateu' in var:
-                        self.story.setMetadata('dateUpdated',
-                                          datetime.datetime.fromtimestamp(time.mktime(time.strptime(value, '%m-%d-%y'))))
+                        self.story.setMetadata('dateUpdated',makeDate(value, '%m-%d-%y'))
                     if 'cat_title' in var:
                         if "Crossover" in value:
                             value = re.sub(r' Crossover$','',value)

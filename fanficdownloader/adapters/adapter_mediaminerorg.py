@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib
@@ -26,7 +25,7 @@ import fanficdownloader.BeautifulSoup as bs
 from fanficdownloader.htmlcleanup import stripHTML
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
@@ -132,8 +131,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # if firstdate, then the block below will only have last updated.
         if firstdate:
-            self.story.setMetadata('datePublished', 
-                                   datetime.datetime.fromtimestamp(time.mktime(time.strptime(firstdate, "%b %d, %Y"))))
+            self.story.setMetadata('datePublished', makeDate(firstdate, "%b %d, %Y"))
         # Everything else is in <tr bgcolor="#EEEED4">
 
         metastr = stripHTML(soup.find("tr",{"bgcolor":"#EEEED4"})).replace('\n',' ').replace('\r',' ').replace('\t',' ')
@@ -141,8 +139,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Latest Revision: August 03, 2010
         m = re.match(r".*?(?:Latest Revision|Uploaded On): ([a-zA-Z]+ \d\d, \d\d\d\d)",metastr)
         if m:
-            self.story.setMetadata('dateUpdated', 
-                                   datetime.datetime.fromtimestamp(time.mktime(time.strptime(m.group(1), "%B %d, %Y"))))
+            self.story.setMetadata('dateUpdated', makeDate(m.group(1), "%B %d, %Y"))
             if not firstdate:
                 self.story.setMetadata('datePublished',
                                        self.story.getMetadataRaw('dateUpdated'))

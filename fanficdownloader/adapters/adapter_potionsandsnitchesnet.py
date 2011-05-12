@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib
@@ -26,7 +25,7 @@ import fanficdownloader.BeautifulSoup as bs
 from fanficdownloader.htmlcleanup import stripHTML
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
 
@@ -156,12 +155,12 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
+                self.story.setMetadata('datePublished', makeDate(stripHTML(value), "%b %d %Y"))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(time.mktime(time.strptime(stripHTML(value), "%b %d %Y"))))
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), "%b %d %Y"))
 
 
     def getChapterText(self, url):
