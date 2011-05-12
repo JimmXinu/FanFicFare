@@ -139,7 +139,9 @@ class BaseSiteAdapter(Configurable):
         "Needs to be overriden in each adapter class."
         pass
         
-
+def makeDate(string,format):
+    return datetime.datetime.strptime(string,format)
+    
 # this gives us a unicode object, not just a string containing bytes.
 # (I gave soup a unicode string, you'd think it could give it back...)
 def utf8FromSoup(soup):

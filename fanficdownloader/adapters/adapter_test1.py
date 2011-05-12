@@ -21,7 +21,7 @@ import logging
 import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 
@@ -68,12 +68,12 @@ class TestSiteAdapter(BaseSiteAdapter):
 
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
-        self.story.setMetadata('datePublished',datetime.date(1972, 01, 31))
+        self.story.setMetadata('datePublished',makeDate("1972-01-31","%Y-%m-%d"))
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         if self.story.getMetadata('storyId') == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
-            self.story.setMetadata('dateUpdated',datetime.date(1975, 01, 31))
+            self.story.setMetadata('dateUpdated',makeDate("1975-01-31","%Y-%m-%d"))
         self.story.setMetadata('numChapters','5')
         self.story.setMetadata('numWords','123456')
         self.story.setMetadata('status','In-Completed')

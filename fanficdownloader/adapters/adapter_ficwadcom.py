@@ -16,7 +16,6 @@
 #
 
 import time
-import datetime
 import logging
 import re
 import urllib2
@@ -27,7 +26,7 @@ import fanficdownloader.BeautifulSoup as bs
 import fanficdownloader.exceptions as exceptions
 from fanficdownloader.htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup
+from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
 class FicwadComSiteAdapter(BaseSiteAdapter):
 
@@ -158,16 +157,12 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         
         m = re.match(r".*?Published: ([0-9/]+?) -.*?",metastr)
         if m:
-            self.story.setMetadata('datePublished',
-                                   datetime.datetime.fromtimestamp(\
-                    time.mktime(time.strptime(m.group(1), "%Y/%m/%d"))))
+            self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y/%m/%d"))
 
         # Updated can have more than one space after it. <shrug>
         m = re.match(r".*?Updated: ([0-9/]+?) +-.*?",metastr) 
         if m:
-            self.story.setMetadata('dateUpdated',
-                                   datetime.datetime.fromtimestamp(\
-                    time.mktime(time.strptime(m.group(1), "%Y/%m/%d"))))
+            self.story.setMetadata('dateUpdated',makeDate(m.group(1), "%Y/%m/%d"))
 
         m = re.match(r".*? - ([0-9/]+?) words.*?",metastr)
         if m:

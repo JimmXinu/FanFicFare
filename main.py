@@ -402,7 +402,7 @@ class FanfictionDownloaderTask(UserConfigServer):
 
         try:
             # adapter.getStory() is what does all the heavy lifting.
-            writer = writers.getWriter(format,config,adapter.getStory())
+            writer = writers.getWriter(format,config,adapter)
         except Exception, e:
             logging.exception(e)
             download.failure = str(e)
@@ -410,6 +410,8 @@ class FanfictionDownloaderTask(UserConfigServer):
             return
         
         download.name = writer.getOutputFileName()
+        logging.debug('output_filename:'+writer.getConfig('output_filename'))
+        logging.debug('getOutputFileName:'+writer.getOutputFileName())
         download.title = adapter.getStory().getMetadata('title')
         download.author = adapter.getStory().getMetadata('author')
         download.put()

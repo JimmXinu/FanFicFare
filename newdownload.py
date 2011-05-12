@@ -16,7 +16,8 @@
 #
 
 import logging
-logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+## XXX cli option for logging level.
+logging.basicConfig(level=logging.WARN,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 import sys, os
 from optparse import OptionParser      
@@ -31,7 +32,7 @@ from fanficdownloader import adapters,writers,exceptions
 import ConfigParser
 
 def writeStory(config,adapter,writeformat):
-    writer = writers.getWriter(writeformat,config,adapter.getStory())
+    writer = writers.getWriter(writeformat,config,adapter)
     writer.writeStory()
     del writer
 
