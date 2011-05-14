@@ -44,10 +44,6 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.ficwad.com'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['www.ficwad.com']
-
     def getSiteExampleURLs(self):
         return "http://www.ficwad.com/story/137169"
 
@@ -137,8 +133,9 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         # warnings
         # <span class="req"><a href="/help/38" title="Medium Spoilers">[!!] </a> <a href="/help/38" title="Rape/Sexual Violence">[R] </a> <a href="/help/38" title="Violence">[V] </a> <a href="/help/38" title="Child/Underage Sex">[Y] </a></span>
         spanreq = metap.find("span",{"class":"req"})
-        for a in spanreq.findAll("a"):
-            self.story.addToList('warnings',a['title'])
+        if spanreq: # can be no warnings.
+            for a in spanreq.findAll("a"):
+                self.story.addToList('warnings',a['title'])
 
         ## perhaps not the most efficient way to parse this, using
         ## regexps for each rather than something more complex, but

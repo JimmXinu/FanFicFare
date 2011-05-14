@@ -32,7 +32,7 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','pns')
-        self.decode = "utf8"
+        self.decode = "ISO-8859-1"
         self.story.addToList("category","Harry Potter")
         
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -171,6 +171,11 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         span = soup.find('div', {'id' : 'story'})
+        for p in span.findAll('p'):
+            if p.has_key('style'):
+                del p['style']
+            if p.has_key('class'):
+                del p['class']
 
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

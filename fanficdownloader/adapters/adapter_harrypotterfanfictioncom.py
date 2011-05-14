@@ -32,7 +32,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','hp')
-        self.decode = "ISO-8859-1"
+        self.decode = "Windows-1252" # Another site that lies to us.  <rolls eyes>
         self.story.addToList("category","Harry Potter")
         self.is_adult=False
         
@@ -115,7 +115,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         for chapter in tablelist.findAll('a', href=re.compile(r'\?chapterid=\d+')):
             #javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?chapterid=433441&i=1'
             # just in case there's tags, like <i> in chapter titles.
-            chpt=re.sub(r'^.*?(\?chapterid=433441).*?',r'\1',chapter['href'])
+            chpt=re.sub(r'^.*?(\?chapterid=\d+).*?',r'\1',chapter['href'])
             self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/viewstory.php'+chpt))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
@@ -178,12 +178,13 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        span = soup.find('div', {'id' : 'fluidtext'})
+        div = soup.find('div', {'id' : 'fluidtext'})
 
-        if None == span:
+        if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return utf8FromSoup(span)
+
+        print div
+        return utf8FromSoup(div)
 
 def getClass():
     return HarryPotterFanFictionComSiteAdapter
