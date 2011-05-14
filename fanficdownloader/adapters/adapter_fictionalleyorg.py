@@ -53,10 +53,6 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.fictionalley.org'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return [cls.getSiteDomain()]
-
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/authors/drt/DA.html http://"+self.getSiteDomain()+"/authors/drt/JOTP01a.html"
 

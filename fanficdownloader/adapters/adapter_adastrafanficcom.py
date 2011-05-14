@@ -32,7 +32,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','aaff')
-        self.decode = "utf8"
+        self.decode = "ISO-8859-1"
         self.story.addToList("category","Star Trek")
         self.is_adult=False
         
@@ -47,10 +47,6 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
     @staticmethod
     def getSiteDomain():
         return 'www.adastrafanfic.com'
-
-    @classmethod
-    def getAcceptDomains(cls):
-        return [cls.getSiteDomain()]
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"

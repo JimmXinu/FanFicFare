@@ -49,10 +49,6 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.thewriterscoffeeshop.com'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return [cls.getSiteDomain()]
-
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/library/viewstory.php?sid=1234"
 

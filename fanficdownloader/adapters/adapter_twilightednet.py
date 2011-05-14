@@ -32,7 +32,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tw')
-        self.decode = "utf8"
+        self.decode = "ISO-8859-1" ## tw *lies*.  It claims to be UTF8 in the headers, but it isn't. "utf8"
         self.story.addToList("category","Twilight")
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""

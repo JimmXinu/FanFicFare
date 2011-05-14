@@ -144,7 +144,7 @@ h6 { text-align: center; }
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
-<h2>${chapter}</h2>
+<h3>${chapter}</h3>
 ''')
 
         self.EPUB_CHAPTER_END = string.Template('''
