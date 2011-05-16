@@ -38,6 +38,21 @@ class HTMLWriter(BaseStoryWriter):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
+<style type="text/css">
+.CI {
+    text-align:center;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding:0px;
+    }
+.center   {text-align: center;}
+.cover    {text-align: center;}
+.full     {width: 100%; }
+.quarter  {width: 25%; }
+.smcap    {font-variant: small-caps;}
+.u        {text-decoration: underline;}
+.bold     {font-weight: bold;}
+</style>
 </head>
 <body>
 <h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>

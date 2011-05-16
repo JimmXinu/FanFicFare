@@ -32,7 +32,11 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fa')
-        self.decode = "ISO-8859-1" ## fa *lies*.  It claims to be UTF8 in the headers, but it isn't.
+        self.decode = "Windows-1252" # 1252 is a superset of
+                                     # iso-8859-1.  Most sites that
+                                     # claim to be iso-8859-1 (and
+                                     # some that claim to be utf8) are
+                                     # really windows-1252.
         self.story.addToList("category","Harry Potter")
         self.is_adult=False
         
@@ -127,7 +131,6 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',authora.string)
         self.story.setMetadata('authorUrl',authora['href'])
 
-        print chapterlinklist
         if len(chapterlinklist) == 1:
             self.chapterUrls.append((self.story.getMetadata('title'),chapterlinklist[0]['href']))
         else:

@@ -32,7 +32,11 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','pns')
-        self.decode = "ISO-8859-1"
+        self.decode = "Windows-1252" # 1252 is a superset of
+                                     # iso-8859-1.  Most sites that
+                                     # claim to be iso-8859-1 (and
+                                     # some that claim to be utf8) are
+                                     # really windows-1252.
         self.story.addToList("category","Harry Potter")
         
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -170,17 +174,12 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        span = soup.find('div', {'id' : 'story'})
-        for p in span.findAll('p'):
-            if p.has_key('style'):
-                del p['style']
-            if p.has_key('class'):
-                del p['class']
+        div = soup.find('div', {'id' : 'story'})
 
-        if None == span:
+        if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(span)
+        return utf8FromSoup(div)
 
 def getClass():
     return PotionsAndSnitchesNetSiteAdapter

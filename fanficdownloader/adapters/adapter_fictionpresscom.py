@@ -51,21 +51,24 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
 
-        # fetch the chapter.  From that we will get metadata and chapter list
-        # You'd think this would be very similar to ffnet.  But you'd be wrong.
+        # fetch the chapter.  From that we will get almost all the
+        # metadata and chapter list
 
         url = self.url
         logging.debug("URL: "+url)
-        logging.debug('Getting metadata from: %s' % url)
         
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            soup = bs.BeautifulSoup(self._fetchUrl(url))
+            data = self._fetchUrl(url)
+            soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+            
+        if "Unable to locate story with id of " in data:
+            raise exceptions.StoryDoesNotExist(self.url)
             
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
@@ -73,12 +76,63 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
-        # <title>Starr and Temple Detective Agency, a Sci-Fi fanfic - FictionPress.com</title>
-        title = soup.find('title')
-        m = re.match(r"^(.*?), a (.*?) fanfic - FictionPress.com",title.string)
-        title,category = m.groups()
-        self.story.setMetadata('title', title)
-        self.story.addToList('category',category)
+            
+        # start by finding a script towards the bottom that has a
+        # bunch of useful stuff in it.
+            
+        # var storyid = 6577076;
+        # var chapter = 1;
+        # var chapters = 17;
+        # var words = 42787;
+        # var userid = 2645830;
+        # var title = 'The+Invitation';
+        # var title_t = 'The Invitation';
+        # var summary = 'Dudley Dursley would be the first to say he lived a very normal life. But what happens when he gets invited to his cousin Harry Potter\'s wedding? Will Dudley get the courage to apologize for the torture he caused all those years ago? Harry/Ginny story.';
+        # var categoryid = 224;
+        # var cat_title = 'Harry Potter';
+        # var datep = '12-21-10';
+        # var dateu = '04-06-11';
+        # var author = 'U n F a b u l o u s M e';
+
+        for script in soup.findAll('script', src=None):
+            if not script:
+                continue
+            if not script.string:
+                continue
+            if 'var storyid' in script.string:
+                for line in script.string.split('\n'):
+                    m = re.match(r"^ +var ([^ ]+) = '?(.*?)'?;$",line)
+                    if m == None : continue
+                    var,value = m.groups()
+                    # remove javascript escaping from values.
+                    value = re.sub(r'\\(.)',r'\1',value)
+                    #print var,value
+                    if 'words' in var:
+                        self.story.setMetadata('numWords', value)
+                    if 'title_t' in var:
+                        self.story.setMetadata('title', value)
+                    if 'summary' in var:
+                        self.story.setMetadata('description', value)
+                    if 'datep' in var:
+                        self.story.setMetadata('datePublished',makeDate(value, '%m-%d-%y'))
+                    if 'dateu' in var:
+                        self.story.setMetadata('dateUpdated',makeDate(value, '%m-%d-%y'))
+                    if 'cat_title' in var:
+                        if "Crossover" in value:
+                            value = re.sub(r' Crossover$','',value)
+                            for c in value.split(' and '):
+                                self.story.addToList('category',c)
+                                # Screws up when the category itself
+                                # contains ' and '.  But that's rare
+                                # and the only alternative is to find
+                                # the 'Crossover' category URL and
+                                # parse that page to search for <a>
+                                # with href /crossovers/(name)/(num)/
+				# <a href="/crossovers/Harry_Potter/224/">Harry Potter</a>
+				# <a href="/crossovers/Naruto/1402/">Naruto</a>
+                        else:
+                            self.story.addToList('category',value)
+                break # for script in soup.findAll('script', src=None):
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
@@ -99,58 +153,31 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-        ## Pull some additional data from html.
+        ## Pull some additional data from html.  Find Rating and look around it.
 
-        # Find Rating and look around it.
-        a = soup.find('a', href=re.compile(r'^http://www.fictionratings.com'))
-        # "Fiction Rated: K+"
-        self.story.setMetadata('rating',a.string.split()[-1])
+        a = soup.find('a', href='http://www.fictionratings.com/')
+        self.story.setMetadata('rating',a.string)
 
         # after Rating, the same bit of text containing id:123456 contains
-        # Complete--if completed, and Published/Updated dates.
-        # - Published: 02-07-11 - Updated: 02-07-11 - Complete - id:2889508
-        dataline = a.findNext(text=re.compile(r'id:'+self.story.getMetadata('storyId')))
-        if dataline:
-            if 'Complete' in dataline:
-                self.story.setMetadata('status', 'Completed')
-            else:
-                self.story.setMetadata('status', 'In-Progress')
+        # Complete--if completed.
+        if 'Complete' in a.findNext(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
 
-            m = re.match(r".*?Published: ([0-9-]+) - Updated: ([0-9-]+).*?",dataline)
-            if m:
-                published,updated = m.groups()
-                self.story.setMetadata('datePublished',makeDate(published, '%m-%d-%y'))
-                self.story.setMetadata('dateUpdated',makeDate(updated, '%m-%d-%y'))
-                               
-        # category, genres, then desc.
-        # <meta name="description" content="Sci-Fi, Sci-Fi/Crime,  Gabriel Starr is a hardboiled former Planetary Marine turned cyborg detective. Philo Temple is a child genius who helped build him. Together, they form a detective agency in a retro-futuristic world of alien gangsters, beatiful dames, and blazing ray guns">
-        # Parse genre(s) and description from <meta name="description" content="..."
-        m = re.match(r"^(?P<category>.*?), (?P<genres>.*?), (?P<desc>.*?)$",
+        # Parse genre(s) from <meta name="description" content="..."
+        # <meta name="description" content="Chapter 1 of a Harry Potter  - Family/Friendship fanfiction. Dudley Dursley would be the first to say he lived a very normal life. But what happens when he gets invited to his cousin Harry Potter's wedding? Will Dudley get the courage to apologize for the torture he caused all those years ago? Harry/Ginny story..">
+        # <meta name="description" content="A Gundam Wing/AC and Gundam Seed  - Romance/Sci-Fi crossover fanfiction  with characters:  & Kira Y.. Story summary: One-Shoot dividido en dos partes. Kira va en camino a rescatar a Lacus, pero él no es el unico. Dos personajes de diferentes universos Gundams. SEED vs ZERO.">
+        # <meta name="description" content="Chapter 1 of a Alvin and the chipmunks and Alpha and Omega  crossover fanfiction  with characters: Alvin S. & Humphrey. You'll just have to read to find out... No Flames Plesae... and tell me what you want to see by PM'ing me....">
+        # genre is after first -, but before first 'fanfiction'.
+        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?)) (?:crossover )?fanfiction",
                      soup.find('meta',{'name':'description'})['content'])
         if m != None:
-            self.story.setMetadata('description', m.group('desc'))
             genres=m.group('genres')
             # Hurt/Comfort is one genre.
             genres=re.sub('Hurt/Comfort','Hurt-Comfort',genres)
             for g in genres.split('/'):
                 self.story.addToList('genre',g)
-
-        # Number of words only on author page.
-        # status, category, etc could also be parsed from here, but this way the one
-        # off-page hit is isolated.
-        logging.debug('Getting more metadata from: %s' % self.story.getMetadata('authorUrl'))
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(self.story.getMetadata('authorUrl')),
-                                     selfClosingTags=('br')) # normalize <br> tags to <br />
-        # Find the link for this story.
-        a = soup.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+'/'))
-        # Find the 'data line' after it.
-        # Complete - Sci-Fi - Fiction Rated: T - English - Suspense/Hurt/Comfort - Chapters: 1 - Words: 2,762 - Reviews: 2 - Updated: 2-7-11 - Published: 2-7-11
-        dataline = a.findNext(text=re.compile(r'Words: '))
-        if dataline:
-            m = re.match(r".*?Words: ([0-9,]+).*?",dataline)
-            if m:
-                words = m.group(1)
-                self.story.setMetadata('numWords',words)
         
         return
 
@@ -165,8 +192,6 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
         div = soup.find('div', {'id' : 'storytext'})
-        ## fp puts a padding style on the div that we don't want.
-        del div['style']
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

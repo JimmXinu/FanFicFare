@@ -68,7 +68,8 @@ class BaseStoryWriter(Configurable):
             'authorUrl',
             'formatname',
             'formatext',
-            'siteabbrev']
+            'siteabbrev',
+            'version']
 
         # fall back labels.
         self.titleLabels = {
@@ -93,7 +94,8 @@ class BaseStoryWriter(Configurable):
             'authorUrl':'Author URL',
             'formatname':'File Format',
             'formatext':'File Extension',
-            'siteabbrev':'Site Abbrev'
+            'siteabbrev':'Site Abbrev',
+            'version':'FFD Version'
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
@@ -206,6 +208,11 @@ class BaseStoryWriter(Configurable):
                         print "File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated)
                         return
                     
+            self.story = self.adapter.getStory() # get full story now,
+                                                 # just before
+                                                 # writing.  Fetch
+                                                 # before opening
+                                                 # file.
             outstream = open(outfilename,"wb")
         else:
             close=False
@@ -213,6 +220,9 @@ class BaseStoryWriter(Configurable):
 
         self.story = self.adapter.getStory() # get full story now,
                                              # just before writing.
+                                             # Okay if double called
+                                             # with above, it will
+                                             # only fetch once.
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
             self.writeStoryImpl(out)

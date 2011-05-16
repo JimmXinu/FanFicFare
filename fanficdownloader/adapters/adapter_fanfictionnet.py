@@ -63,12 +63,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            soup = bs.BeautifulSoup(self._fetchUrl(url))
+            data = self._fetchUrl(url)
+            soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+            
+        if "Unable to locate story with id of " in data:
+            raise exceptions.StoryDoesNotExist(self.url)
             
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
@@ -186,12 +190,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
-        span = soup.find('div', {'id' : 'storytext'})
+        div = soup.find('div', {'id' : 'storytext'})
 
-        if None == span:
+        if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        return utf8FromSoup(span)
+        return utf8FromSoup(div)
 
 def getClass():
     return FanFictionNetSiteAdapter
