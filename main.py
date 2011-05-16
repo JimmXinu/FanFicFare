@@ -21,6 +21,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 import os
 from os.path import dirname, basename, normpath
+import re
 import sys
 import zlib
 import urllib
@@ -36,15 +37,7 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-from fanficdownloader.downloader import *
-from fanficdownloader.ffnet import *
-from fanficdownloader.output import *
-from fanficdownloader import twilighted
-from fanficdownloader import adastrafanfic
-
 from google.appengine.ext import db
-
-from fanficdownloader.zipdir import *
 
 from ffstorage import *
 

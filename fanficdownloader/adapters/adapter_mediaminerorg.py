@@ -32,7 +32,11 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','mm')
-        self.decode = "ISO-8859-1"
+        self.decode = "Windows-1252" # 1252 is a superset of
+                                     # iso-8859-1.  Most sites that
+                                     # claim to be iso-8859-1 (and
+                                     # some that claim to be utf8) are
+                                     # really windows-1252.
         
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
@@ -80,26 +84,35 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         rating = soup.find("font",{"class":"smtxt"}).string[1:-1]
         self.story.setMetadata('rating',rating)
 
-        ## Title - Good grief.  Title varies by chaptered, 1chapter and 'type=one shot'.
-        ## <td class="ffh">Atmosphere: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td colspan=2 class="ffh">Hearts of Ice <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td colspan=2 class="ffh">Suzaku no Princess <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td class="ffh">The Kraut, The Bartender, and The Drunkard: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td class="ffh">Betrayal and Justice: A Cold Heart</b> <font size="-1">( Chapter 1 )</font> <font class="smtxt">[ A - All Readers ]</font></td>
-        title = soup.find('td',{'class':'ffh'})
-        for font in title.findAll('font'):
-            font.extract() # removes 'font' tags from inside the td.        
-        if title.has_key('colspan') or 'src.php/t/ONE_SHOT' in data:
-            titlet = title.text
-        else:
-            titlet = ':'.join(title.text.split(':')[:-1]) # strip trailing 'Chapter X', but only when no colspan and not one-shot
-        self.story.setMetadata('title',titlet)
-
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/fanfic/src.php/u/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[-1])
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
+
+        ## Title - Good grief.  Title varies by chaptered, 1chapter and 'type=one shot'--and even 'one-shot's can have titled chapter.
+        ## But, if colspan=2, there's no chapter title.
+        ## <td class="ffh">Atmosphere: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
+        ## <td colspan=2 class="ffh">Hearts of Ice <font class="smtxt">[ P - Pre-Teen ]</font></td>
+        ## <td colspan=2 class="ffh">Suzaku no Princess <font class="smtxt">[ P - Pre-Teen ]</font></td>
+        ## <td class="ffh">The Kraut, The Bartender, and The Drunkard: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
+        ## <td class="ffh">Betrayal and Justice: A Cold Heart</b> <font size="-1">( Chapter 1 )</font> <font class="smtxt">[ A - All Readers ]</font></td>
+        ## <td class="ffh">Question and Answer: Question and Answer</b> <font size="-1">( One-Shot )</font> <font class="smtxt">[ A - All Readers ]</font></td>
+        title = soup.find('td',{'class':'ffh'})
+        for font in title.findAll('font'):
+            font.extract() # removes 'font' tags from inside the td.        
+        if title.has_key('colspan'):
+            titlet = title.text
+        else:
+            ## No colspan, it's part chapter title--even if it's a one-shot.
+            titlet = ':'.join(title.text.split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
+        self.story.setMetadata('title',titlet)
+        ## The story title is difficult to reliably parse from the
+        ## story pages.  Getting it from the author page is, but costs
+        ## another fetch.
+        # authsoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        # titlea = authsoup.find('a',{'href':'/fanfic/view_st.php/'+self.story.getMetadata('storyId')})
+        # self.story.setMetadata('title',titlea.text)
 
         # save date from first for later.
         firstdate=None
@@ -114,13 +127,12 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 ## chapter can be: Chapter 7 [Jan 23, 2011]
                 ##             or: Vigilant Moonlight ( Chapter 1 ) [Jan 30, 2004]
                 ##        or even: Prologue ( Prologue ) [Jul 31, 2010]
-                m = re.match(r'^(.*?) (\( .*? \))? \[(.*?)\]$',chapter)
+                m = re.match(r'^(.*?) (\( .*? \) )?\[(.*?)\]$',chapter)
                 chapter = m.group(1)
                 # save date from first for later.
                 if not firstdate:
                     firstdate = m.group(3)
                 self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php/'+self.story.getMetadata('storyId')+'/'+option['value']))
-
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # category

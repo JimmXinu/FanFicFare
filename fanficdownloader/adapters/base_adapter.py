@@ -141,8 +141,25 @@ class BaseSiteAdapter(Configurable):
         
 def makeDate(string,format):
     return datetime.datetime.strptime(string,format)
-    
+
+acceptable_attributes = ['href','name']
+
 # this gives us a unicode object, not just a string containing bytes.
 # (I gave soup a unicode string, you'd think it could give it back...)
 def utf8FromSoup(soup):
+    for t in soup.findAll(recursive=True):
+        for attr in t._getAttrMap().keys():
+            if attr not in acceptable_attributes:
+                del t[attr] ## strip all tag attributes except href and name
+        # these are not acceptable strict XHTML.  But we do already have 
+	# CSS classes of the same names defined in constants.py
+	if t.name in ('u'):
+            t['class']=t.name
+            t.name='span'
+        if t.name in ('center'):
+            t['class']=t.name
+            t.name='div'
+	# removes paired, but empty tags.
+        if t.string != None and len(t.string.strip()) == 0 :
+            t.extract()
     return soup.__str__('utf8').decode('utf-8')

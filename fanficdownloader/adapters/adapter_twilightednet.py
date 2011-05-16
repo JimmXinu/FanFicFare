@@ -32,7 +32,11 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tw')
-        self.decode = "ISO-8859-1" ## tw *lies*.  It claims to be UTF8 in the headers, but it isn't. "utf8"
+        self.decode = "Windows-1252" # 1252 is a superset of
+                                     # iso-8859-1.  Most sites that
+                                     # claim to be iso-8859-1 (and
+                                     # some that claim to be utf8) are
+                                     # really windows-1252.
         self.story.addToList("category","Twilight")
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -148,7 +152,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
             if 'Summary' in label:
                 ## Everything until the next span class='label'
-                svalue = str(value)
+                svalue = ""
                 while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling

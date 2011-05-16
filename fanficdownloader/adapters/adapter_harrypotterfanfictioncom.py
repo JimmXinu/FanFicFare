@@ -87,7 +87,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         ## Title
         a = soup.find('a', href=re.compile(r'\?psid='+self.story.getMetadata('storyId')))
-        #print "title a:%s"%a
         self.story.setMetadata('title',a.string)
         ## javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?psid=290995'
         if "This story may contain adult themes." in a['href'] and not (self.is_adult or self.getConfig("is_adult")):
@@ -183,7 +182,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        print div
         return utf8FromSoup(div)
 
 def getClass():
