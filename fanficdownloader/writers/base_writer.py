@@ -101,12 +101,18 @@ class BaseStoryWriter(Configurable):
         self.story.setMetadata('formatext',self.getFormatExt())
 
     def getOutputFileName(self):
-        return self.getFileName(self.getConfig('output_filename'))
+        if self.getConfig('zip_output'):
+            return self.getZipFileName()
+        else:
+            return self.getBaseFileName()
 
+    def getBaseFileName(self):
+        return self.formatFileName(self.getConfig('output_filename'))
+    
     def getZipFileName(self):
-        return self.getFileName(self.getConfig('zip_filename'),extension=".zip")
+        return self.formatFileName(self.getConfig('zip_filename'),extension=".zip")
 
-    def getFileName(self,template,extension="${formatext}"):
+    def formatFileName(self,template,extension="${formatext}"):
         values = self.story.metadata
         # fall back default:
         if not template:
@@ -179,13 +185,7 @@ class BaseStoryWriter(Configurable):
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
-        zipfilename=self.getZipFileName()
-        filename=self.getOutputFileName()
-
-        if self.getConfig('zip_output'):
-            outfilename=zipfilename
-        else:
-            outfilename=filename
+        outfilename=self.getOutputFileName()
 
         if not outstream:
             close=True
@@ -227,7 +227,7 @@ class BaseStoryWriter(Configurable):
             out = StringIO.StringIO()
             self.writeStoryImpl(out)
             zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
-            zipout.writestr(filename,out.getvalue())
+            zipout.writestr(self.getBaseFileName(),out.getvalue())
             # declares all the files created by Windows.  otherwise, when
             # it runs in appengine, windows unzips the files as 000 perms.
             for zf in zipout.filelist:
