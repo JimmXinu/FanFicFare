@@ -55,7 +55,7 @@ class HTMLWriter(BaseStoryWriter):
 </style>
 </head>
 <body>
-<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
+<h1><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h1>
 ''')
 
         self.HTML_TITLE_PAGE_START = string.Template('''
@@ -71,7 +71,7 @@ class HTMLWriter(BaseStoryWriter):
 ''')
 
         self.HTML_TOC_PAGE_START = string.Template('''
-<a name="TOCTOP"><h3>Table of Contents</h3>
+<a name="TOCTOP"><h2>Table of Contents</h2>
 <p>
 ''')
 
