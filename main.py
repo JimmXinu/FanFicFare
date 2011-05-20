@@ -306,10 +306,9 @@ class FanfictionDownloader(UserConfigServer):
             logging.info("enqueued download key: " + str(download.key()))
 
         except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
-            logging.exception(e)
             download.failure = str(e)
             download.put()
-            logging.debug('Need to Login, display log in page')
+            logging.info(str(e))
             is_login= ( isinstance(e, exceptions.FailedToLogin) )
             template_values = dict(nickname = user.nickname(),
                                    url = url,
@@ -326,6 +325,10 @@ class FanfictionDownloader(UserConfigServer):
             path = os.path.join(os.path.dirname(__file__), 'login.html')
             self.response.out.write(template.render(path, template_values))
             return
+        except (exceptions.InvalidStoryURL,exceptions.UnknownSite), e:
+            logging.warn(str(e))
+            download.failure = str(e)
+            download.put()
         except Exception, e:
             logging.exception(e)
             download.failure = str(e)
