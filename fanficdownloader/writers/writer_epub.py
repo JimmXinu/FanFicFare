@@ -26,6 +26,7 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 from base_writer import *
+from fanficdownloader.htmlcleanup import stripHTML
 
 class EpubWriter(BaseStoryWriter):
 
@@ -153,7 +154,7 @@ h6 { text-align: center; }
 ''')
 
     def getMetadata(self,key):
-        return removeAllEntities(self.story.getMetadata(key))
+        return stripHTML(self.story.getMetadata(key))
 
     def writeStoryImpl(self, out):
 
@@ -361,7 +362,8 @@ h6 { text-align: center; }
                 tocnavMap.appendChild(navPoint)
                 navLabel = newTag(tocncxdom,"navLabel")
                 navPoint.appendChild(navLabel)
-                navLabel.appendChild(newTag(tocncxdom,"text",text=title))
+                ## the xml library will re-escape as needed.
+                navLabel.appendChild(newTag(tocncxdom,"text",text=stripHTML(title)))
                 navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
                 index=index+1
         
