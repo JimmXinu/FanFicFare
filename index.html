@@ -48,59 +48,55 @@
 	  <div id='greeting'>
 	    <p>Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
 	      much easier. </p>
-	    <p>For Amazon Kindle use Mobi output(see notice below), for Sony Reader, Nook and iPad use ePub</p>
-	    <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
 	  </div>
-	  <h3>Old Version</h3>
+	  <h3>New Version!</h3>
 	  <p>
-	    This version of the downloader has been superceded.
+	    This version is a new re-org/re-write of the code.
 	  </p>
 	  <p>
-	    The 
-	    <a href="http://4-0-0.fanfictionloader.appspot.com">New
-	    Version</a> is now the default.
+	    Login/Password is only asked for when required now, as is 'Are you an Adult?' where required.
+	  </p>
+	  <p>
+	    Mobi support (for Kindle) is only via EPub conversion in this version.
+	  </p>
+	  <p>
+	    If you have any problems with this new version, please
+	    report them in
+	    the <a href="http://groups.google.com/group/fanfic-downloader">Fanfiction
+	    Downloader Google Group</a>.  The
+	    <a href="http://3-0-2.fanfictionloader.appspot.com">Old
+	    Version</a> is also available for you to use if necessary.
 	  </p>
 
 	  <div id='error'>
 	    {{ error_message }}
 	  </div>
-	  <input type="text" name="url" size="50" value='{{ url }}'>
 	</div>
 	
 	<div id='typebox'>
+	  <div>URL: <input type="text" name="url" size="50" value='{{ url }}'></div>
+	  <br />
 	  <div id='typelabel'>Ebook format</div>
 	  <div id='typeoptions'>
 	    <input type='radio' name='format' value='epub' checked>EPub</input>
 	    <input type='radio' name='format' value='html'>HTML</input>
-	    <input type='radio' name='format' value='text'>Plain Text</input>
-	    <input type='radio' name='format' value='mobi'>Mobi (Kindle)</input>
+	    <input type='radio' name='format' value='txt'>Plain Text</input>
+	  </div>
+	  <div>
+	    <br />
+	    <input type="submit" value="Download">
+	    <p><i>For most readers, including Sony Reader, Nook and iPad, use EPub.</i></p>
+	    <p><i>For Kindle and other Mobi readers, select EPub and use the Convert link when it's finished.</i></p>
 	  </div>
 	</div>
-	
-	<div id='logpasswordtable'>
-	  <h3>Login and Password</h3>
-	  <div id='logpassword'>
-	    If the story requires a login and
-	    password to download, you may need
-	    to provide your credentials to
-	    download it, otherwise just leave
-	    it empty.  Currently only needed
-	    by twilighted.net and twiwrite.net.
-	  </div>
-	  <div class='fieldandlabel'>
-	    <div class='label'>Login</div>
-	    <div class='field'><input type='text' name='login' size='50'></div>
-	  </div>
-	  
-	  <div class='fieldandlabel'>
-	    <div class='label'>Password</div>
-	    <div class='field'><input type='password' name='password' size='50'></div>
-	  </div>
-	</div>
-	
-	<div id='submitbtn'>
-	  <input type="submit" value="Download">
-	</div>
+	<div id='typebox'>
+	  <p>
+	    Customize your <a href="/editconfig">User Configuration</a>.
+	  </p>
+	  <p>
+	    Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.
+	  </p>
+	</div>	
       </form>
       {% else %}
       <div id='urlbox'>
@@ -116,52 +112,82 @@
       
       <div id='helpbox'>
 	<dl>
-	  <dt>fictionalley.org
-	    <dd>Use the URL of the story's chapter list, such as
-	      <br /><a href="http://www.fictionalley.org/authors/drt/DA.html">http://www.fictionalley.org/authors/drt/DA.html</a>.  Or the story text URL for
-	      fictionalley.org one-shots, such as
-	      <br /><a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">http://www.fictionalley.org/authors/drt/JOTP01a.html</a>.
-	      <dt>fanfiction.net
-		<dd>Use the URL of any story chapter, with or without story title such as
-		  <br /><a href="http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo">http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo</a> or 
-		  <br /><a href="http://www.fanfiction.net/s/2345466/3/">http://www.fanfiction.net/s/2345466/3/</a>.
-		  <dt>fictionpress.com
-		    <dd>Use the URL of any story chapter, such as
-		      <br /><a href="http://www.fictionpress.com/s/2851771/1/Untouchable_Love">http://www.fictionpress.com/s/2851771/1/Untouchable_Love</a> or 
-		      <br /><a href="http://www.fictionpress.com/s/2847338/6/">http://www.fictionpress.com/s/2847338/6/</a>.
-		      <dt>twilighted.net
-			<dd>Use the URL of the start of the story, such as
-			  <br /><a href="http://twilighted.net/viewstory.php?sid=8422">http://twilighted.net/viewstory.php?sid=8422</a>.
-			  <dt>twiwrite.net
-			    <dd>Use the URL of the start of the story, such as
-			      <br /><a href="http://twiwrite.net/viewstory.php?sid=427">http://twiwrite.net/viewstory.php?sid=427</a>.
-			      <dt>ficwad.com
-				<dd>Use the URL of any story chapter, such as
-				  <br /><a href="http://www.ficwad.com/story/75246">http://www.ficwad.com/story/75246</a>.
-				  <dt>harrypotterfanfiction.com
-				    <dd>Use the URL of the story's chapter list, such as
-				      <br /><a href="http://www.harrypotterfanfiction.com/viewstory.php?psid=289208">http://www.harrypotterfanfiction.com/viewstory.php?psid=289208</a>.
-				      <dt>potionsandsnitches.net
-				        <dd>Use the URL of the story's chapter list, such as
-				          <br /><a href="http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332">http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332</a>.
-				          <dt>mediaminer.org
-				            <dd>Use the URL of the story's chapter list, such as
-				              <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/156934">http://www.mediaminer.org/fanfic/view_st.php/166653</a>.
-				              Or the story URL for one-shots, such as
-				              <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/167618">http://www.mediaminer.org/fanfic/view_st.php/167618</a>.
-				              <dt>adastrafanfic.com
-				                <dd>Use the URL of the story's chapter list, such as
-				                  <br /><a href="http://www.adastrafanfic.com/viewstory.php?sid=854">http://www.adastrafanfic.com/viewstory.php?sid=854</a>.
-				                  <dt>whofic.com
-				                    <dd>Use the URL of the story's chapter list, such as
-				                      <br /><a href="http://www.whofic.com/viewstory.php?sid=16334">http://www.whofic.com/viewstory.php?sid=16334</a>.
+	  <dt>fictionalley.org</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.fictionalley.org/authors/drt/DA.html">http://www.fictionalley.org/authors/drt/DA.html</a>.
+	    <br />Or a chapter URL (or one-shot text), such as
+	    <br /><a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">http://www.fictionalley.org/authors/drt/JOTP01a.html</a>.
+	    <br />Both will work for both chaptered and one-shot stories now.
+	  </dd>
+	  <dt>fanfiction.net</dt>
+	  <dd>
+	    Use the URL of any story chapter, with or without story title such as
+	    <br /><a href="http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo">http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo</a> or 
+	    <br /><a href="http://www.fanfiction.net/s/2345466/3/">http://www.fanfiction.net/s/2345466/3/</a>.
+	  </dd>
+	  <dt>fictionpress.com</dt>
+	  <dd>
+	    Use the URL of any story chapter, such as
+	    <br /><a href="http://www.fictionpress.com/s/2851771/1/Untouchable_Love">http://www.fictionpress.com/s/2851771/1/Untouchable_Love</a> or 
+	    <br /><a href="http://www.fictionpress.com/s/2847338/6/">http://www.fictionpress.com/s/2847338/6/</a>.
+	  </dd>
+	  <dt>twilighted.net</dt>
+	  <dd>
+	    Use the URL of the start of the story, such as
+	    <br /><a href="http://twilighted.net/viewstory.php?sid=8422">http://twilighted.net/viewstory.php?sid=8422</a>.
+	  </dd>
+	  <dt>twiwrite.net</dt>
+	  <dd>
+	    Use the URL of the start of the story, such as
+	    <br /><a href="http://twiwrite.net/viewstory.php?sid=427">http://twiwrite.net/viewstory.php?sid=427</a>.
+	  </dd>
+	  <dt>ficwad.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.ficwad.com/story/74884">http://www.ficwad.com/story/74884</a>.
+	    <br />Note that this is changed from the previous version.  The system will still accept chapter URLs, however.
+	  </dd>
+	  <dt>harrypotterfanfiction.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.harrypotterfanfiction.com/viewstory.php?psid=289208">http://www.harrypotterfanfiction.com/viewstory.php?psid=289208</a>.
+	  </dd>
+	  <dt>potionsandsnitches.net</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332">http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332</a>.
+	  </dd>
+	  <dt>mediaminer.org</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/156934">http://www.mediaminer.org/fanfic/view_st.php/166653</a>.
+	    <br />Or the story URL for one-shots, such as
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/167618">http://www.mediaminer.org/fanfic/view_st.php/167618</a> or 
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_ch.php/1234123/123444#fic_c">http://www.mediaminer.org/fanfic/view_ch.php/1234123/123444#fic_c</a>
+	  </dd>
+	  <dt>adastrafanfic.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.adastrafanfic.com/viewstory.php?sid=854">http://www.adastrafanfic.com/viewstory.php?sid=854</a>.
+	  </dd>
+	  <dt>whofic.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.whofic.com/viewstory.php?sid=16334">http://www.whofic.com/viewstory.php?sid=16334</a>.
+	  </dd>
+	  <dt>thewriterscoffeeshop.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.thewriterscoffeeshop.com/library/viewstory.php?sid=2110">http://www.thewriterscoffeeshop.com/library/viewstory.php?sid=2110</a>.
+	  </dd>
 	</dl>	
 
 	
 	A few additional things to know, which will make your life substantially easier:
 	<ol>
 	  <li>
-	    First thing to know: I do not use your login and password. In fact, all I know about it is your ID &ndash; password
+	    First thing to know: I do not use your Google login and password. In fact, all I know about it is your ID &ndash; password
 	    is being verified by Google and is absolutely, totally unknown to anyone but you.
 	  </li>
 	  <li>
@@ -180,8 +206,7 @@
 	    not something else.
 	  </li>
 	  <li>
-	    If you think that something that should work in fact doesn't, drop me a mail
-	    to <a href='mailto:sigizmund@gmail.com'>sigizmund@gmail.com</a>, or, even better, write an email to
+	    If you think that something that should work in fact doesn't, post a message to
 	    our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>. I also encourage you to join it so
 	    you will find out about latest updates and fixes as soon as possible
 	  </li>
@@ -193,7 +218,7 @@
 	     alt="Powered by Google App Engine" />
 	<br/><br/>
 	FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
-	Copyright &copy; <a href="http://twitter.com/sigizmund">Roman Kirillov</a>
+	Copyright &copy; Fanficdownloader team
       </div>
 
       <div style="margin-top: 1em; text-align: center'">
