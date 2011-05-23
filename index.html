@@ -48,18 +48,24 @@
 	  <div id='greeting'>
 	    <p>Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
 	      much easier. </p>
-	    <p>For Amazon Kindle use Mobi output(see notice below), for Sony Reader, Nook and iPad use ePub</p>
-	    <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
 	  </div>
-	  <h3>Experimental New Version!</h3>
+	  <h3>New Version!</h3>
 	  <p>
 	    This version is a new re-org/re-write of the code.
 	  </p>
 	  <p>
-	    Login/Password is asked for when required now, as is 'Are you an Adult?' where required.
+	    Login/Password is only asked for when required now, as is 'Are you an Adult?' where required.
 	  </p>
 	  <p>
 	    Mobi support (for Kindle) is only via EPub conversion in this version.
+	  </p>
+	  <p>
+	    If you have any problems with this new version, please
+	    report them in
+	    the <a href="http://groups.google.com/group/fanfic-downloader">Fanfiction
+	    Downloader Google Group</a>.  The
+	    <a href="http://3-0-2.fanfictionloader.appspot.com">Old
+	    Version</a> is also available for you to use if necessary.
 	  </p>
 
 	  <div id='error'>
@@ -75,14 +81,21 @@
 	    <input type='radio' name='format' value='epub' checked>EPub</input>
 	    <input type='radio' name='format' value='html'>HTML</input>
 	    <input type='radio' name='format' value='txt'>Plain Text</input>
-	    <p><i>For Mobi (Kindle) select EPub and use the Convert link when it's finished.</i></p>
 	  </div>
 	  <div>
+	    <br />
 	    <input type="submit" value="Download">
+	    <p><i>For most readers, including Sony Reader, Nook and iPad, use EPub.</i></p>
+	    <p><i>For Kindle and other Mobi readers, select EPub and use the Convert link when it's finished.</i></p>
 	  </div>
 	</div>
 	<div id='typebox'>
-	  Customize your <a href="/editconfig">User Configuration</a>.
+	  <p>
+	    Customize your <a href="/editconfig">User Configuration</a>.
+	  </p>
+	  <p>
+	    Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.
+	  </p>
 	</div>	
       </form>
       {% else %}
@@ -174,7 +187,7 @@
 	A few additional things to know, which will make your life substantially easier:
 	<ol>
 	  <li>
-	    First thing to know: I do not use your login and password. In fact, all I know about it is your ID &ndash; password
+	    First thing to know: I do not use your Google login and password. In fact, all I know about it is your ID &ndash; password
 	    is being verified by Google and is absolutely, totally unknown to anyone but you.
 	  </li>
 	  <li>
@@ -193,8 +206,7 @@
 	    not something else.
 	  </li>
 	  <li>
-	    If you think that something that should work in fact doesn't, drop me a mail
-	    to <a href='mailto:sigizmund@gmail.com'>sigizmund@gmail.com</a>, or, even better, write an email to
+	    If you think that something that should work in fact doesn't, post a message to
 	    our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>. I also encourage you to join it so
 	    you will find out about latest updates and fixes as soon as possible
 	  </li>

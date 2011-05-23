@@ -92,13 +92,17 @@ def main():
        if options.metaonly:
            print adapter.getStoryMetadataOnly()
            return
-       ## XXX Use format.
-       ## XXX Doing all three formats actually causes some interesting
-       ## XXX config issues with format-specific sections.
-       print "format: %s" % options.format
-       writeStory(config,adapter,"epub")
-       writeStory(config,adapter,"html")
-       writeStory(config,adapter,"txt")
+
+       if options.format == "all":
+           ## For testing.  Doing all three formats actually causes
+           ## some interesting config issues with format-specific
+           ## sections.  But it should rarely be an issue.
+           writeStory(config,adapter,"epub")
+           writeStory(config,adapter,"html")
+           writeStory(config,adapter,"txt")
+       else:
+           writeStory(config,adapter,options.format)
+       
        del adapter
    
    except exceptions.InvalidStoryURL, isu:
