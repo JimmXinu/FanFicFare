@@ -252,12 +252,11 @@ class FanfictionDownloader(UserConfigServer):
         
         format = self.request.get('format')
         url = self.request.get('url')
+        logging.info("Queuing Download: %s" % url)
         login = self.request.get('login')
         password = self.request.get('password')
         is_adult = self.request.get('is_adult') == "on"
         
-        logging.info("Queuing Download: " + url)
-
         # use existing record if available.
         q = DownloadMeta.all().filter('user =', user).filter('url =',url).filter('format =',format).fetch(1)
         if( q is None or len(q) < 1 ):
@@ -278,11 +277,12 @@ class FanfictionDownloader(UserConfigServer):
             config = self.getUserConfig(user)
             adapter = adapters.getAdapter(config,url)
             logging.info('Created an adaper: %s' % adapter)
-        
+
             if len(login) > 1:
                 adapter.username=login
                 adapter.password=password
             adapter.is_adult=is_adult
+            
             ## This scrapes the metadata, which will be
             ## duplicated in the queue task, but it
             ## detects bad URLs, bad login, bad story, etc
@@ -325,11 +325,12 @@ class FanfictionDownloader(UserConfigServer):
             path = os.path.join(os.path.dirname(__file__), 'login.html')
             self.response.out.write(template.render(path, template_values))
             return
-        except (exceptions.InvalidStoryURL,exceptions.UnknownSite), e:
+        except (exceptions.InvalidStoryURL,exceptions.UnknownSite,exceptions.StoryDoesNotExist), e:
             logging.warn(str(e))
             download.failure = str(e)
             download.put()
         except Exception, e:
+            logging.error("Failure Queuing Download: url:%s" % url)
             logging.exception(e)
             download.failure = str(e)
             download.put()
