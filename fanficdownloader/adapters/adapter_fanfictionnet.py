@@ -51,7 +51,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return "http://www.fanfiction.net/s/1234/1/ http://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title"
 
     def getSiteURLPattern(self):
-        return r"http://(www|m)?\.fanfiction\.net/s/\d+/\d+(/|/[a-zA-Z0-9_]+)?$"
+        return r"http://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[a-zA-Z0-9_-]+)?$"
 
     def extractChapterUrlsAndMetadata(self):
 
