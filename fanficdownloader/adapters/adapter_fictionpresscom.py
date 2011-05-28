@@ -47,7 +47,7 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
         return "http://www.fictionpress.com/s/1234/1/ http://www.fictionpress.com/s/1234/12/ http://www.fictionpress.com/s/1234/1/Story_Title"
 
     def getSiteURLPattern(self):
-        return r"http://www\.fictionpress\.com/s/\d+/\d+(/|/[a-zA-Z0-9_]+)?$"
+        return r"http://www\.fictionpress\.com/s/\d+(/\d)?(/|/[a-zA-Z0-9_-]+)?$"
 
     def extractChapterUrlsAndMetadata(self):
 

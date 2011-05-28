@@ -42,7 +42,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         return "http://"+self.getSiteDomain()+"?sid=1234"
 
     def getSiteURLPattern(self):
-        return BaseSiteAdapter.getSiteURLPattern(self)+'\?sid=\d+$'
+        return BaseSiteAdapter.getSiteURLPattern(self)+r'/?\?sid=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
 
