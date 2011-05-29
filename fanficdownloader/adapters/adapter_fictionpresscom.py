@@ -43,11 +43,15 @@ class FictionPressComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.fictionpress.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.fictionpress.com','m.fictionpress.com']
+
     def getSiteExampleURLs(self):
         return "http://www.fictionpress.com/s/1234/1/ http://www.fictionpress.com/s/1234/12/ http://www.fictionpress.com/s/1234/1/Story_Title"
 
     def getSiteURLPattern(self):
-        return r"http://www\.fictionpress\.com/s/\d+(/\d+)?(/|/[a-zA-Z0-9_-]+)?/?$"
+        return r"http://(www|m)?\.fictionpress\.com/s/\d+(/\d+)?(/|/[a-zA-Z0-9_-]+)?/?$"
 
     def extractChapterUrlsAndMetadata(self):
 
