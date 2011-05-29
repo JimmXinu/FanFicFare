@@ -25,6 +25,7 @@ class DownloadMeta(db.Model):
 	failure = db.StringProperty()
 	completed =  db.BooleanProperty(default=False)
 	date = db.DateTimeProperty(auto_now_add=True)
+	version = db.StringProperty()
 	# data_chunks is implicit from DownloadData def.
 
 class DownloadData(db.Model):

@@ -268,6 +268,7 @@ class FanfictionDownloader(UserConfigServer):
             for c in download.data_chunks:
                 c.delete()
                 
+        download.version = "%s:%s" % (os.environ['APPLICATION_ID'],os.environ['CURRENT_VERSION_ID'])
         download.user = user
         download.url = url
         download.format = format
@@ -375,6 +376,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             for c in download.data_chunks:
                 c.delete()
                 
+        download.version = "%s:%s" % (os.environ['APPLICATION_ID'],os.environ['CURRENT_VERSION_ID'])
         download.user = user
         download.url = url
         download.format = format
