@@ -293,6 +293,7 @@ class FanfictionDownloader(UserConfigServer):
             story = adapter.getStoryMetadataOnly()
             download.title = story.getMetadata('title')
             download.author = story.getMetadata('author')
+            download.url = story.getMetadata('storyUrl')
             download.put()
 
             taskqueue.add(url='/fdowntask',
@@ -413,6 +414,7 @@ class FanfictionDownloaderTask(UserConfigServer):
         logging.debug('getOutputFileName:'+writer.getOutputFileName())
         download.title = adapter.getStory().getMetadata('title')
         download.author = adapter.getStory().getMetadata('author')
+        download.url = adapter.getStory().getMetadata('storyUrl')
         download.put()
         index=0
 
