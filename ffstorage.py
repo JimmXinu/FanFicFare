@@ -22,7 +22,7 @@ class DownloadMeta(db.Model):
 	title = db.StringProperty()
 	author = db.StringProperty()
 	format = db.StringProperty()
-	failure = db.StringProperty()
+	failure = db.TextProperty()
 	completed =  db.BooleanProperty(default=False)
 	date = db.DateTimeProperty(auto_now_add=True)
 	version = db.StringProperty()
