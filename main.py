@@ -299,7 +299,7 @@ class FanfictionDownloader(UserConfigServer):
             taskqueue.add(url='/fdowntask',
                       queue_name="download",
                       params={'format':format,
-                              'url':url,
+                              'url':download.url,
                               'login':login,
                               'password':password,
                               'user':user.email(),
