@@ -42,9 +42,11 @@
       </div>
 
       <div id='urlbox'>
+	{% if fic.url %}
 	<div id='greeting'>
 	  <p><a href='{{ fic.url }}'>{{ fic.url }}</a></p>
 	</div>
+	{% endif %}
 	<div>
 	  {% if fic.completed %}
 	  <p>Your fic has finished processing and you can download it now:</p>

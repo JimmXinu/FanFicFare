@@ -25,6 +25,7 @@ import re
 import sys
 import zlib
 import urllib
+import datetime
 
 import traceback
 import StringIO
@@ -132,49 +133,60 @@ class FileServer(webapp.RequestHandler):
         if fileId == None or len(fileId) < 3:
             self.redirect('/')
             return
-        
-        key = db.Key(fileId)
-        fanfic = db.get(key)
 
-        # check for completed & failure.
-        
-        name = fanfic.name.encode('utf-8')
-        
-        #name = urllib.quote(name)
-        
-        logging.info("Serving file: %s" % name)
+        try:
+            key = db.Key(fileId)
+            fanfic = db.get(key)
 
-        if name.endswith('.epub'):
-            self.response.headers['Content-Type'] = 'application/epub+zip'
-        elif name.endswith('.html'):
-            self.response.headers['Content-Type'] = 'text/html'
-        elif name.endswith('.txt'):
-            self.response.headers['Content-Type'] = 'text/plain'
-        elif name.endswith('.zip'):
-            self.response.headers['Content-Type'] = 'application/zip'
-        else:
-            self.response.headers['Content-Type'] = 'application/octet-stream'
+            # check for completed & failure.
+        
+            name = fanfic.name.encode('utf-8')
+        
+            logging.info("Serving file: %s" % name)
+
+            if name.endswith('.epub'):
+                self.response.headers['Content-Type'] = 'application/epub+zip'
+            elif name.endswith('.html'):
+                self.response.headers['Content-Type'] = 'text/html'
+            elif name.endswith('.txt'):
+                self.response.headers['Content-Type'] = 'text/plain'
+            elif name.endswith('.zip'):
+                self.response.headers['Content-Type'] = 'application/zip'
+            else:
+                self.response.headers['Content-Type'] = 'application/octet-stream'
             
-        self.response.headers['Content-disposition'] = 'attachment; filename="%s"' % name 
+            self.response.headers['Content-disposition'] = 'attachment; filename="%s"' % name 
 
-        data = DownloadData.all().filter("download =", fanfic).order("index")
-        # epubs are all already compressed.
-        # Each chunk is compress individually to avoid having
-        # to hold the whole in memory just for the
-        # compress/uncompress
-        if fanfic.format != 'epub':
-            def dc(data):
-                try:
-                    return zlib.decompress(data)
-                # if error, assume it's a chunk from before we started compessing.
-                except zlib.error:
+            data = DownloadData.all().filter("download =", fanfic).order("index")
+            # epubs are all already compressed.
+            # Each chunk is compress individually to avoid having
+            # to hold the whole in memory just for the
+            # compress/uncompress
+            if fanfic.format != 'epub':
+                def dc(data):
+                    try:
+                        return zlib.decompress(data)
+                    # if error, assume it's a chunk from before we started compessing.
+                    except zlib.error:
+                        return data
+            else:
+                def dc(data):
                     return data
-        else:
-            def dc(data):
-                return data
                 
-        for datum in data:
-            self.response.out.write(dc(datum.blob))
+            for datum in data:
+                self.response.out.write(dc(datum.blob))
+
+        except Exception, e:
+            fic = DownloadMeta()
+            fic.failure = unicode(e)
+                        
+            template_values = dict(fic = fic,
+                                   #nickname = user.nickname(),
+                                   #escaped_url = escaped_url
+                                   )
+            path = os.path.join(os.path.dirname(__file__), 'status.html')
+            self.response.out.write(template.render(path, template_values))
+            
 
 class FileStatusServer(webapp.RequestHandler):
     def get(self):
@@ -187,19 +199,29 @@ class FileStatusServer(webapp.RequestHandler):
         
         if fileId == None or len(fileId) < 3:
             self.redirect('/')
-        
-        key = db.Key(fileId)
-        fic = db.get(key)
 
-        logging.info("Status url: %s" % fic.url)
-        if fic.completed and fic.format=='epub':
-            escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+fileId+"&fake=file."+fic.format)
-        else:
-            escaped_url=False
+        escaped_url=False
+
+        try:
+            key = db.Key(fileId)
+            fic = db.get(key)
+
+            if fic:
+                logging.info("Status url: %s" % fic.url)
+                if fic.completed and fic.format=='epub':
+                    escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+fileId+"&fake=file."+fic.format)
+            else:
+                fic = DownloadMeta()
+                fic.failure = "Download not found"
+                
+        except Exception, e:
+            fic = DownloadMeta()
+            fic.failure = unicode(e)
+                        
         template_values = dict(fic = fic,
-                       nickname = user.nickname(),
-                       escaped_url = escaped_url
-                       )
+                               nickname = user.nickname(),
+                               escaped_url = escaped_url
+                               )
         path = os.path.join(os.path.dirname(__file__), 'status.html')
         self.response.out.write(template.render(path, template_values))
         
@@ -249,9 +271,14 @@ class FanfictionDownloader(UserConfigServer):
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
-        
+
         format = self.request.get('format')
         url = self.request.get('url')
+        
+        if not url or url.strip() == "":
+            self.redirect('/')
+            return
+        
         logging.info("Queuing Download: %s" % url)
         login = self.request.get('login')
         password = self.request.get('password')
@@ -265,6 +292,7 @@ class FanfictionDownloader(UserConfigServer):
             download = q[0]
             download.completed=False
             download.failure=None
+            download.date=datetime.datetime.now()
             for c in download.data_chunks:
                 c.delete()
                 
@@ -308,9 +336,9 @@ class FanfictionDownloader(UserConfigServer):
             logging.info("enqueued download key: " + str(download.key()))
 
         except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
-            download.failure = str(e)
+            download.failure = unicode(e)
             download.put()
-            logging.info(str(e))
+            logging.info(unicode(e))
             is_login= ( isinstance(e, exceptions.FailedToLogin) )
             template_values = dict(nickname = user.nickname(),
                                    url = url,
@@ -328,13 +356,13 @@ class FanfictionDownloader(UserConfigServer):
             self.response.out.write(template.render(path, template_values))
             return
         except (exceptions.InvalidStoryURL,exceptions.UnknownSite,exceptions.StoryDoesNotExist), e:
-            logging.warn(str(e))
-            download.failure = str(e)
+            logging.warn(unicode(e))
+            download.failure = unicode(e)
             download.put()
         except Exception, e:
             logging.error("Failure Queuing Download: url:%s" % url)
             logging.exception(e)
-            download.failure = str(e)
+            download.failure = unicode(e)
             download.put()
         
         self.redirect('/status?id='+str(download.key()))
@@ -373,6 +401,8 @@ class FanfictionDownloaderTask(UserConfigServer):
             download = DownloadMeta()
         else:
             download = q[0]
+            download.failure=None
+            download.date=datetime.datetime.now()
             download.completed=False
             for c in download.data_chunks:
                 c.delete()
@@ -389,7 +419,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             adapter = adapters.getAdapter(config,url)
         except Exception, e:
             logging.exception(e)
-            download.failure = str(e)
+            download.failure = unicode(e)
             download.put()
             return
         
@@ -405,7 +435,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             writer = writers.getWriter(format,config,adapter)
         except Exception, e:
             logging.exception(e)
-            download.failure = str(e)
+            download.failure = unicode(e)
             download.put()
             return
         
