@@ -30,15 +30,23 @@ import datetime
 import traceback
 import StringIO
 
-from google.appengine.runtime import DeadlineExceededError
-
-from google.appengine.api import taskqueue
-from google.appengine.ext.webapp import template
-from google.appengine.api import users
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+## Just to shut up the appengine warning about "You are using the
+## default Django version (0.96). The default Django version will
+## change in an App Engine release in the near future. Please call
+## use_library() to explicitly select a Django version. For more
+## information see
+## http://code.google.com/appengine/docs/python/tools/libraries.html#Django"
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
 
 from google.appengine.ext import db
+from google.appengine.api import taskqueue
+from google.appengine.api import users
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
+from google.appengine.ext.webapp import util
+from google.appengine.runtime import DeadlineExceededError
 
 from ffstorage import *
 
