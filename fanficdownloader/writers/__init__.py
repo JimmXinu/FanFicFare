@@ -23,6 +23,7 @@ from fanficdownloader.exceptions import FailedToDownload
 from writer_html import HTMLWriter
 from writer_txt  import TextWriter
 from writer_epub import EpubWriter
+from writer_mobi import MobiWriter
 
 def getWriter(type,config,story):
     if type == "html":
@@ -31,5 +32,7 @@ def getWriter(type,config,story):
         return TextWriter(config,story)
     if type == "epub":
         return EpubWriter(config,story)
+    if type == "mobi":
+        return MobiWriter(config,story)
 
     raise FailedToDownload("(%s) is not a supported download format."%type)

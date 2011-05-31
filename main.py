@@ -158,6 +158,8 @@ class FileServer(webapp.RequestHandler):
                 self.response.headers['Content-Type'] = 'text/html'
             elif name.endswith('.txt'):
                 self.response.headers['Content-Type'] = 'text/plain'
+            elif name.endswith('.mobi'):
+                self.response.headers['Content-Type'] = 'application/x-mobipocket-ebook'
             elif name.endswith('.zip'):
                 self.response.headers['Content-Type'] = 'application/zip'
             else:
@@ -334,13 +336,14 @@ class FanfictionDownloader(UserConfigServer):
 
             taskqueue.add(url='/fdowntask',
                       queue_name="download",
-                      params={'format':format,
-                              'url':download.url,
-                              'login':login,
-                              'password':password,
-                              'user':user.email(),
-                              'is_adult':is_adult})
-        
+                          params={'id':str(download.key()),
+                                  'format':format,
+                                  'url':download.url,
+                                  'login':login,
+                                  'password':password,
+                                  'user':user.email(),
+                                  'is_adult':is_adult})
+            
             logging.info("enqueued download key: " + str(download.key()))
 
         except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
@@ -390,6 +393,7 @@ class FanfictionDownloaderTask(UserConfigServer):
 
     def post(self):
         logging.getLogger().setLevel(logging.DEBUG)
+        fileId = self.request.get('id')
         format = self.request.get('format')
         url = self.request.get('url')
         login = self.request.get('login')
@@ -399,27 +403,42 @@ class FanfictionDownloaderTask(UserConfigServer):
         user = users.User(self.request.get('user'))
         
         logging.info("Downloading: " + url + " for user: "+user.nickname())
+        logging.info("ID: " + fileId)
         
         adapter = None
         writerClass = None
 
-        # use existing record if available.
-        q = DownloadMeta.all().filter('user =', user).filter('url =',url).filter('format =',format).fetch(1)
-        if( q is None or len(q) < 1 ):
-            download = DownloadMeta()
-        else:
-            download = q[0]
-            download.failure=None
-            download.date=datetime.datetime.now()
-            download.completed=False
-            for c in download.data_chunks:
-                c.delete()
-                
+        if fileId:
+            try:
+                ## try to get download rec from passed id first.
+                ## may need to fall back to user/url/format during transition.
+                download = db.get(db.Key(fileId))
+                logging.info("DownloadMeta found by ID:"+fileId)
+            except:
+                pass
+
+        if not download:
+            # use existing record if available.
+            q = DownloadMeta.all().filter('user =', user).filter('url =',url).filter('format =',format).fetch(1)
+            if( q is None or len(q) < 1 ):
+                logging.info("New DownloadMeta")
+                download = DownloadMeta()
+            else:
+                logging.info("DownloadMeta found by user/url/format")
+                download = q[0]
+
+        ## populate DownloadMeta, regardless of how found or created.
+        download.failure=None
+        download.date=datetime.datetime.now()
+        download.completed=False
         download.version = "%s:%s" % (os.environ['APPLICATION_ID'],os.environ['CURRENT_VERSION_ID'])
         download.user = user
         download.url = url
         download.format = format
+        for c in download.data_chunks:
+            c.delete()
         download.put()
+        
         logging.info('Creating adapter...')
         
         try:
@@ -441,21 +460,19 @@ class FanfictionDownloaderTask(UserConfigServer):
         try:
             # adapter.getStory() is what does all the heavy lifting.
             writer = writers.getWriter(format,config,adapter)
+            download.name = writer.getOutputFileName()
+            logging.debug('output_filename:'+writer.getConfig('output_filename'))
+            logging.debug('getOutputFileName:'+writer.getOutputFileName())
+            download.title = adapter.getStory().getMetadata('title')
+            download.author = adapter.getStory().getMetadata('author')
+            download.url = adapter.getStory().getMetadata('storyUrl')
+            download.put()
         except Exception, e:
             logging.exception(e)
             download.failure = unicode(e)
             download.put()
             return
         
-        download.name = writer.getOutputFileName()
-        logging.debug('output_filename:'+writer.getConfig('output_filename'))
-        logging.debug('getOutputFileName:'+writer.getOutputFileName())
-        download.title = adapter.getStory().getMetadata('title')
-        download.author = adapter.getStory().getMetadata('author')
-        download.url = adapter.getStory().getMetadata('storyUrl')
-        download.put()
-        index=0
-
         outbuffer = StringIO.StringIO()
         writer.writeStory(outbuffer)
         data = outbuffer.getvalue()
@@ -474,6 +491,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             def c(data):
                 return data
             
+        index=0
         while( len(data) > 0 ):
             DownloadData(download=download,
                      index=index,
