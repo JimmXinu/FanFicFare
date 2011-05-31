@@ -44,29 +44,27 @@
       <div id='urlbox'>
 	{% if fic.url %}
 	<div id='greeting'>
-	  <p><a href='{{ fic.url }}'>{{ fic.url }}</a></p>
+	<p>
+	  {% if fic.completed %}
+ 	      <p>Your fic has finished processing and you can download it now.</p>
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a></span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  {% if fic.failure %}
+	      <span id='error'>{{ fic.failure }}</span>
+	  {% endif %}
+	  {% if  not fic.completed and not fic.failure %}
+  	      <span class="recent">Processing {{ fic.title }}</span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
+   	  {% if fic.completed and escaped_url %}
+   	      <a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
+	  {% endif %}
+	</p>
 	</div>
 	{% endif %}
-	<div>
-	  {% if fic.completed %}
-	  <p>Your fic has finished processing and you can download it now:</p>
-	  <p><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
-	    by {{ fic.author }} ({{ fic.format }})</p>
-   	  {% if escaped_url %}
-	  <p><a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}">Convert {{ fic.title }} to other formats</a></p>
-	  {% endif %}
-	  {% else %}
-	  {% if fic.failure %}
-	  Your fic failed to process.  Please check the URL and the error message below.<br />
-	  <div id='error'>
-	    {{ fic.failure }}
-	  </div>
-	  {% else %}
-	  <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
-	  {% endif %}
-	  {% endif %}
-	  <p>Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
-	</div>
+	  <p>See your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
       </div>
       <div style='text-align: center'>
 	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"

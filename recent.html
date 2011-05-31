@@ -49,20 +49,20 @@
 	{% for fic in fics %}
 	<p>
 	  {% if fic.completed %}
-	  <a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a>
-	  by {{ fic.author }} ({{ fic.format }})<br/>
-   	  {% if fic.escaped_url %}
-   	  <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}">Convert {{ fic.title }} to other formats</a><br />
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a></span>
+	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
+	  {% if  not fic.completed and not fic.failure %}
+  	      <span class="recent">Processing {{ fic.title }}</span>
+	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if fic.failure %}
-	  <div id='error'>{{ fic.failure }}</div>
+	      <span id='error'>{{ fic.failure }}</span>
 	  {% endif %}
-	  {% if not fic.completed and not fic.failure %}
-	  Request Processing...<br />
+	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
+   	  {% if fic.completed and fic.escaped_url %}
+   	      <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
 	  {% endif %}
-	  <small><a href="{{ fic.url }}">{{ fic.url }}</a></small>
-	  
 	</p>
 	{% endfor %}
       </div>

@@ -13,7 +13,7 @@ body
 
 #greeting
 {
-	margin-bottom: 1em;
+#	margin-bottom: 1em;
 	border-color: #efefef;
 }
 
@@ -66,6 +66,8 @@ div.field
 
 #error
 {
-	font-size: small;
 	color: #f00;
+}
+.recent {
+    font-size: large;
 }
