@@ -18,9 +18,26 @@
 import re
 import datetime
 import time
+import logging
 import urllib
 import urllib2 as u2
 import urlparse as up
+
+try:
+    from google.appengine.api import apiproxy_stub_map
+    def urlfetch_timeout_hook(service, call, request, response):
+        if call != 'Fetch':
+            return
+        # Make the default deadline 10 seconds instead of 5.
+        if not request.has_deadline():
+            request.set_deadline(10.0)
+
+    apiproxy_stub_map.apiproxy.GetPreCallHooks().Append(
+        'urlfetch_timeout_hook', urlfetch_timeout_hook, 'urlfetch')
+    logging.info("Hook to make default deadline 10.0 installed.")
+except:
+    pass
+    #logging.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
 
 from fanficdownloader.story import Story
 from fanficdownloader.configurable import Configurable
@@ -86,12 +103,24 @@ class BaseSiteAdapter(Configurable):
     def _fetchUrl(self, url, parameters=None):
         if self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
-        if parameters:
-            return self.opener.open(url,urllib.urlencode(parameters))\
-                .read().decode(self.decode)
-        else:
-            return self.opener.open(url).read().decode(self.decode)
 
+        excpt=None
+        for sleeptime in [0, 0.5, 4, 9]:
+            time.sleep(sleeptime)	
+            try:
+                if parameters:
+                    return self.opener.open(url,urllib.urlencode(parameters))\
+                        .read().decode(self.decode)
+                else:
+                    return self.opener.open(url).read().decode(self.decode)
+            except Exception, e:
+                excpt=e
+                logging.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
+                
+        logging.error("Giving up on %s" %url)
+        logging.exception(excpt)
+        raise(excpt)
+                
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
