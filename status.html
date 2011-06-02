@@ -54,6 +54,7 @@
 	      <span id='error'>{{ fic.failure }}</span>
 	  {% endif %}
 	  {% if  not fic.completed and not fic.failure %}
+	      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
   	      <span class="recent">Processing {{ fic.title }}</span>
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}

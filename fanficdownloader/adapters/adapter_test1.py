@@ -106,8 +106,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 
-        if self.story.getMetadata('storyId') == '670' and self.getConfig('slow_down_sleep_time'):
-            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+        if self.story.getMetadata('storyId') == '670':
+            time.sleep(2.0)
 
         
         if "chapter=1" in url :
@@ -121,7 +121,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=667 - raises FailedToDownload on chapter 1</p>
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
-<p>http://test1.com?sid=670 - Succeeds, but applies slow_down_sleep_time</p>
+<p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
 <p>And other storyId will succeed with the same output.</p>
 </div>
 '''
