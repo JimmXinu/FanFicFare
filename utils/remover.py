@@ -42,20 +42,18 @@ class Remover(webapp.RequestHandler):
         fics = DownloadMeta.all()
         fics.filter("date <",theDate).order("date")
         
-        num = 0
-        while( True ) :
-            results = fics.fetch(100)
-            if not results:
-                self.response.out.write('Finished<br>')
-                break
-            logging.debug([x.name for x in results])
+        results = fics.fetch(100)
+        if not results:
+            self.response.out.write('Finished<br>')
+            break
+        logging.debug([x.name for x in results])
 
-            for d in results:
-                d.delete()
-                for c in d.data_chunks:
-                    c.delete()
-                num += 1
-                logging.debug('Delete '+d.url)
+        for d in results:
+            d.delete()
+            for c in d.data_chunks:
+                c.delete()
+            num += 1
+            logging.debug('Delete '+d.url)
 
         logging.info('Deleted instances: %d' % num)
         self.response.out.write('Deleted instances: %d<br>' % num)
@@ -70,7 +68,7 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
 
         deleted = 0
         num = 0
-        step=2
+        step=100
         while( True ) :
             results = chunks.fetch(limit=step,offset=num-deleted)
             if not results:
