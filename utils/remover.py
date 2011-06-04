@@ -61,35 +61,32 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
 
     ## enqueue the task because it will run longer than 30sec.
     def get(self):
-        taskqueue.add(url='/r3m0v3rOrphans')
-        self.response.out.write('Task Enqueued<br>')
-        
-    def post(self):
         logging.debug("Starting RemoveOrphanDataChunks")
         user = users.get_current_user()
         logging.debug("Working as user %s" % user)
         
         chunks = DownloadData.all()
+        ## by ordering by download, it will look at older ones first.
+        ## Over time, the weekly cleanup will remove entire stories,
+        ## so the orphans, if any, will also migrate to the top.
+        ## Ideally, there shouldn't be any.
+        chunks.order("download")
 
         deleted = 0
         num = 0
-        step=100
-        while( True ) :
-            results = chunks.fetch(limit=step,offset=num-deleted)
-            if not results:
-                break
-
-            for d in results:
-                ## This is the only way to test for orphans I could find.
-                try:
-                    meta = d.download
-                except db.ReferencePropertyResolveError:
-                    ## delete orphan chunk.
-                    d.delete()
-                    deleted += 1
-                num += 1
+        results = chunks.fetch(100)
+        for d in results:
+            ## This is the only way to test for orphans I could find.
+            try:
+                meta = d.download
+            except db.ReferencePropertyResolveError:
+                ## delete orphan chunk.
+                d.delete()
+                deleted += 1
+            num += 1
         
         logging.info('Deleted %d orphan chunks from %d total.' % (deleted,num))
+        self.response.out.write('Deleted %d orphan chunks from %d total.' % (deleted,num))
 
 def main():
     application = webapp.WSGIApplication([('/r3m0v3r', Remover),
