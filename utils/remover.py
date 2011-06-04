@@ -29,6 +29,7 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext import webapp
 from google.appengine.api import users
 from google.appengine.api import taskqueue
+from google.appengine.api import memcache
 
 from ffstorage import *
 
@@ -59,22 +60,27 @@ class Remover(webapp.RequestHandler):
 
 class RemoveOrphanDataChunks(webapp.RequestHandler):
 
-    ## enqueue the task because it will run longer than 30sec.
     def get(self):
         logging.debug("Starting RemoveOrphanDataChunks")
         user = users.get_current_user()
         logging.debug("Working as user %s" % user)
+
+        ## Can't search for all chunks in web req because it's too
+        ## long.  Can't do it in a queue task, because it's still too
+        ## long.  Can't try ordering by id or download because the ids
+        ## are not increasing.  Instead, use a saved cursor to walk
+        ## all the way through over time, then starting at the top
+        ## again when finished.
         
         chunks = DownloadData.all()
-        ## by ordering by download, it will look at older ones first.
-        ## Over time, the weekly cleanup will remove entire stories,
-        ## so the orphans, if any, will also migrate to the top.
-        ## Ideally, there shouldn't be any.
-        chunks.order("download")
+
+        cursor = memcache.get('orphan_search_cursor')
+        if cursor:
+            chunks.with_cursor(cursor)
 
         deleted = 0
         num = 0
-        results = chunks.fetch(100)
+        results = chunks.fetch(200)
         for d in results:
             ## This is the only way to test for orphans I could find.
             try:
@@ -84,6 +90,10 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
                 d.delete()
                 deleted += 1
             num += 1
+        if num == 0:
+            memcache.delete('orphan_search_cursor')
+        else:
+            memcache.set('orphan_search_cursor',chunks.cursor())
         
         logging.info('Deleted %d orphan chunks from %d total.' % (deleted,num))
         self.response.out.write('Deleted %d orphan chunks from %d total.' % (deleted,num))
