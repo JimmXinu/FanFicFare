@@ -28,6 +28,7 @@ import logging
 from google.appengine.ext.webapp import util
 from google.appengine.ext import webapp
 from google.appengine.api import users
+from google.appengine.api import taskqueue
 
 from ffstorage import *
 
@@ -43,11 +44,9 @@ class Remover(webapp.RequestHandler):
         fics.filter("date <",theDate).order("date")
         
         results = fics.fetch(100)
-        if not results:
-            self.response.out.write('Finished<br>')
-            break
         logging.debug([x.name for x in results])
 
+        num=0
         for d in results:
             d.delete()
             for c in d.data_chunks:
@@ -59,7 +58,13 @@ class Remover(webapp.RequestHandler):
         self.response.out.write('Deleted instances: %d<br>' % num)
 
 class RemoveOrphanDataChunks(webapp.RequestHandler):
+
+    ## enqueue the task because it will run longer than 30sec.
     def get(self):
+        taskqueue.add(url='/r3m0v3rOrphans')
+        self.response.out.write('Task Enqueued<br>')
+        
+    def post(self):
         logging.debug("Starting RemoveOrphanDataChunks")
         user = users.get_current_user()
         logging.debug("Working as user %s" % user)
@@ -72,7 +77,6 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
         while( True ) :
             results = chunks.fetch(limit=step,offset=num-deleted)
             if not results:
-                self.response.out.write('Finished<br>')
                 break
 
             for d in results:
@@ -86,7 +90,6 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
                 num += 1
         
         logging.info('Deleted %d orphan chunks from %d total.' % (deleted,num))
-        self.response.out.write('Deleted %d orphan chunks from %d total.<br>' % (deleted,num))
 
 def main():
     application = webapp.WSGIApplication([('/r3m0v3r', Remover),
