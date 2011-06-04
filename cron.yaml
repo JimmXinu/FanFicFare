@@ -2,7 +2,3 @@ cron:
 - description: cleanup job
   url: /r3m0v3r
   schedule: every 2 hours
-
-- description: orphan cleanup job
-  url: /r3m0v3rOrphans
-  schedule: every 48 hours
