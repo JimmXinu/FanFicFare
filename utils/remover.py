@@ -80,7 +80,7 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
 
         deleted = 0
         num = 0
-        results = chunks.fetch(200)
+        results = chunks.fetch(100)
         for d in results:
             ## This is the only way to test for orphans I could find.
             try:
@@ -92,6 +92,7 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
             num += 1
         if num == 0:
             memcache.delete('orphan_search_cursor')
+            logging.warn('Orphan search reached end, starting over next time.')
         else:
             memcache.set('orphan_search_cursor',chunks.cursor())
         
