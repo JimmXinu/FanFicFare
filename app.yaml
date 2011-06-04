@@ -5,12 +5,8 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /r3m0v3r
+- url: /r3m0v3r.*
   script: utils/remover.py
-  login: admin
-
-- url: /r3m0v3r
-  script: main.py
   login: admin
 
 - url: /fdownloadtask

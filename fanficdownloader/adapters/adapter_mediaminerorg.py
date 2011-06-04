@@ -81,7 +81,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # [ A - All Readers ], strip '[' ']'
         ## Above title because we remove the smtxt font to get title.
-        rating = soup.find("font",{"class":"smtxt"}).string[1:-1]
+        smtxt = soup.find("font",{"class":"smtxt"})
+        if not smtxt:
+            raise exceptions.StoryDoesNotExist(self.url)
+        rating = smtxt.string[1:-1]
         self.story.setMetadata('rating',rating)
 
         # Find authorid and URL from... author url.

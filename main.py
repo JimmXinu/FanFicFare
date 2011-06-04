@@ -71,6 +71,8 @@ class MainHandler(webapp.RequestHandler):
                     template_values['error_message'] = 'Error happened: ' + self.request.get('errtext')
                 elif error == 'configsaved':
                     template_values['error_message'] = 'Configuration Saved'
+                elif error == 'recentcleared':
+                    template_values['error_message'] = 'Your Recent Downloads List has been Cleared'
             
             filename = self.request.get('file')
             if len(filename) > 1:
@@ -197,7 +199,6 @@ class FileServer(webapp.RequestHandler):
             path = os.path.join(os.path.dirname(__file__), 'status.html')
             self.response.out.write(template.render(path, template_values))
             
-
 class FileStatusServer(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
@@ -235,16 +236,42 @@ class FileStatusServer(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'status.html')
         self.response.out.write(template.render(path, template_values))
         
-class RecentFilesServer(webapp.RequestHandler):
+class ClearRecentServer(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
         
+        logging.info("Clearing Recent List for user: "+user.nickname())
+        q = DownloadMeta.all()
+        q.filter('user =', user)
+        num=0
+        while( True ):
+            results = q.fetch(100)
+            if results:
+                for d in results:
+                    d.delete()
+                    for c in d.data_chunks:
+                        c.delete()
+                    num = num + 1
+                    logging.debug('Delete '+d.url)
+            else:
+                break
+        logging.info('Deleted %d instances download.' % num)
+        self.redirect("/?error=recentcleared")
+            
+class RecentFilesServer(webapp.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+
         q = DownloadMeta.all()
         q.filter('user =', user).order('-date')
         fics = q.fetch(100)
+        logging.info("Recent fetched %d downloads for user %s."%(len(fics),user.nickname()))
 
         for fic in fics:
             if fic.completed and fic.format == 'epub':
@@ -522,6 +549,7 @@ def main():
                                         ('/status', FileStatusServer),
                                         ('/recent', RecentFilesServer),
                                         ('/editconfig', EditConfigServer),
+                                        ('/clearrecent', ClearRecentServer),
                                         ],
                                        debug=False)
   util.run_wsgi_app(application)
