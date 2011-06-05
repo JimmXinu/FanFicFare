@@ -32,7 +32,11 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','hp')
-        self.decode = "Windows-1252" # Another site that lies to us.  <rolls eyes>
+        self.decode = ["Windows-1252",
+                       "utf8"] # 1252 is a superset of iso-8859-1.
+                               # Most sites that claim to be
+                               # iso-8859-1 (and some that claim to be
+                               # utf8) are really windows-1252.
         self.story.addToList("category","Harry Potter")
         self.is_adult=False
         
