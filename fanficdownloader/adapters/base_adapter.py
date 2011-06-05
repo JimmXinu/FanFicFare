@@ -69,7 +69,13 @@ class BaseSiteAdapter(Configurable):
         self.story.setMetadata('site',self.getSiteDomain())
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
-        self.decode = "utf8"
+        ## order of preference for decoding.
+        self.decode = ["utf8",
+                       "Windows-1252"] # 1252 is a superset of
+                                       # iso-8859-1.  Most sites that
+                                       # claim to be iso-8859-1 (and
+                                       # some that claim to be utf8)
+                                       # are really windows-1252.
         self._setURL(url)
         if not self.validateURL():
             raise InvalidStoryURL(url,
@@ -82,6 +88,16 @@ class BaseSiteAdapter(Configurable):
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path        
         self.story.setMetadata('storyUrl',self.url)
+
+    def _decode(self,data):
+        for code in self.decode:
+            try:
+                return data.decode(code)
+            except:
+                logging.debug("code failed:"+code)
+                pass
+        logging.info("Could not decode story, tried:%s Stripping non-ASCII."%self.decode)
+        return "".join([x for x in data if ord(x) < 128])
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url, parameters={}, headers={}):
@@ -97,7 +113,7 @@ class BaseSiteAdapter(Configurable):
         req = u2.Request(url,
                          data=urllib.urlencode(parameters),
                          headers=headers)
-        return self.opener.open(req).read().decode(self.decode)
+        return self._decode(self.opener.open(req).read())
 
     # parameters is a dict()
     def _fetchUrl(self, url, parameters=None):
@@ -109,10 +125,9 @@ class BaseSiteAdapter(Configurable):
             time.sleep(sleeptime)	
             try:
                 if parameters:
-                    return self.opener.open(url,urllib.urlencode(parameters))\
-                        .read().decode(self.decode)
+                    return self._decode(self.opener.open(url,urllib.urlencode(parameters)).read())
                 else:
-                    return self.opener.open(url).read().decode(self.decode)
+                    return self._decode(self.opener.open(url).read())
             except Exception, e:
                 excpt=e
                 logging.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))

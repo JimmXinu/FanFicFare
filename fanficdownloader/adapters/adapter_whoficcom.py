@@ -30,12 +30,12 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','whof')
-        self.decode = "Windows-1252" # 1252 is a superset of
-                                     # iso-8859-1.  Most sites that
-                                     # claim to be iso-8859-1 (and
-                                     # some that claim to be utf8) are
-                                     # really windows-1252.
-
+        self.decode = ["Windows-1252",
+                       "utf8"] # 1252 is a superset of iso-8859-1.
+                               # Most sites that claim to be
+                               # iso-8859-1 (and some that claim to be
+                               # utf8) are really windows-1252.
+        
     @staticmethod
     def getSiteDomain():
         return 'www.whofic.com'
