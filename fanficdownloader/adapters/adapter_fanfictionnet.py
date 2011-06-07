@@ -39,6 +39,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         self._setURL("http://"+self.getSiteDomain()\
                          +"/s/"+self.story.getMetadata('storyId')+"/1/")
 
+        # ffnet update emails have the latest chapter URL.
+        # Frequently, when they arrive, not all the servers have the
+        # latest chapter yet and going back to chapter 1 to pull the
+        # chapter list doesn't get the latest.  So save and use the
+        # original URL given to pull chapter list & metadata.
+        self.origurl = url
+
     @staticmethod
     def getSiteDomain():
         return 'www.fanfiction.net'
@@ -58,7 +65,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # fetch the chapter.  From that we will get almost all the
         # metadata and chapter list
 
-        url = self.url
+        url = self.origurl
         logging.debug("URL: "+url)
         
         # use BeautifulSoup HTML parser to make everything easier to find.
@@ -67,12 +74,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist(url)
             else:
                 raise e
             
         if "Unable to locate story with id of " in data:
-            raise exceptions.StoryDoesNotExist(self.url)
+            raise exceptions.StoryDoesNotExist(url)
             
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
@@ -99,6 +106,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # var author = 'U n F a b u l o u s M e';
 
         for script in soup.findAll('script', src=None):
+            if not script:
+                continue
+            if not script.string:
+                continue
             if 'var storyid' in script.string:
                 for line in script.string.split('\n'):
                     m = re.match(r"^ +var ([^ ]+) = '?(.*?)'?;$",line)
@@ -184,8 +195,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
-        time.sleep(0.5) ## ffnet tends to fail more if hit too fast.
-                        ## This is in additional to what ever the
+        time.sleep(0.5) ## ffnet(and, I assume, fpcom) tends to fail
+                        ## more if hit too fast.  This is in
+                        ## additional to what ever the
                         ## slow_down_sleep_time setting is.
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
