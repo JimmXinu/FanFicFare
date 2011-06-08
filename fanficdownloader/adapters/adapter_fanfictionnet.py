@@ -45,6 +45,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # chapter list doesn't get the latest.  So save and use the
         # original URL given to pull chapter list & metadata.
         self.origurl = url
+        if "http://m." in self.origurl:
+            ## accept m(mobile)url, but use www.
+            self.origurl = self.origurl.replace("http://m.","http://www.")
 
     @staticmethod
     def getSiteDomain():
