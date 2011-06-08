@@ -199,8 +199,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         ## more if hit too fast.  This is in
                         ## additional to what ever the
                         ## slow_down_sleep_time setting is.
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url))
 
         ## Remove the 'share' button.
         sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
