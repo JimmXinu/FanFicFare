@@ -172,19 +172,21 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use index and chapter.
         """
         # Only do TOC if there's more than one chapter and it's configured.
-        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage"):
+        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             self._write(out,START.substitute(self.story.metadata))
 
             for index, (title,html) in enumerate(self.story.getChapters()):
-                self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
+                if html:
+                    self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
 
             self._write(out,END.substitute(self.story.metadata))
 
     # if no outstream is given, write to file.
-    def writeStory(self,outstream=None):
+    def writeStory(self,outstream=None,metaonly=False):
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
+        self.metaonly = metaonly
         outfilename=self.getOutputFileName()
 
         if not outstream:
@@ -207,22 +209,24 @@ class BaseStoryWriter(Configurable):
                     if fileupdated > lastupdated:
                         print "File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated)
                         return
-                    
-            self.story = self.adapter.getStory() # get full story now,
-                                                 # just before
-                                                 # writing.  Fetch
-                                                 # before opening
-                                                 # file.
+            if not metaonly:        
+                self.story = self.adapter.getStory() # get full story
+                                                     # now, just
+                                                     # before writing.
+                                                     # Fetch before
+                                                     # opening file.
             outstream = open(outfilename,"wb")
         else:
             close=False
             logging.debug("Save to stream")
 
-        self.story = self.adapter.getStory() # get full story now,
-                                             # just before writing.
-                                             # Okay if double called
-                                             # with above, it will
-                                             # only fetch once.
+        if not metaonly:
+            self.story = self.adapter.getStory() # get full story now,
+                                                 # just before
+                                                 # writing.  Okay if
+                                                 # double called with
+                                                 # above, it will only
+                                                 # fetch once.
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
             self.writeStoryImpl(out)

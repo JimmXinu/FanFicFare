@@ -50,11 +50,11 @@
 	{% for fic in fics %}
 	<p>
 	  {% if fic.completed %}
-  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a></span>
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if  not fic.completed and not fic.failure %}
-  	      <span class="recent">Processing {{ fic.title }}</span>
+  	      <span class="recent">Processing <i>{{ fic.title }}</i></span>
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if fic.failure %}

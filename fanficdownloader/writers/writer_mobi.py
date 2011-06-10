@@ -166,14 +166,16 @@ class MobiWriter(BaseStoryWriter):
         # tocpageIO.close()
 
         for index, (title,html) in enumerate(self.story.getChapters()):
-            logging.debug('Writing chapter text for: %s' % title)
-            fullhtml = self.MOBI_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.MOBI_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
-            # ffnet(& maybe others) gives the whole chapter text as
-            # one line.  This causes problems for nook(at least) when
-            # the chapter size starts getting big (200k+)
-            fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
-            files.append(fullhtml.encode('utf-8'))
-            del fullhtml
+            if html:
+                logging.debug('Writing chapter text for: %s' % title)
+                fullhtml = self.MOBI_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.MOBI_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
+                # ffnet(& maybe others) gives the whole chapter text
+                # as one line.  This causes problems for nook(at
+                # least) when the chapter size starts getting big
+                # (200k+)
+                fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
+                files.append(fullhtml.encode('utf-8'))
+                del fullhtml
 
         c = Converter(title=self.getMetadata('title'),
                       author=self.getMetadata('author'),

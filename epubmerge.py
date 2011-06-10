@@ -18,73 +18,108 @@
 # limitations under the License.
 
 import sys
-import getopt
 import os
+import re
+#import StringIO
+from optparse import OptionParser      
 
 import zlib
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from time import time
 
-from xml.dom.minidom import parse, parseString, getDOMImplementation
-    
-def usage():
-    print "epubmerge 1.0    Merges multiple epub format ebooks together"
-    print "\nUsage: " + sys.argv[0]+" [options] <input epub> [<input epub> ...]\n"
-    print " Options:"
-    print " -h                 --help"
-    print " -o <output file>   --output=<output file>   Default: merge.epub"
-    print " -t <output title>  --title=<output title>   Default: '<First Title> Anthology'"
-    print " -a <author name>   --author=<author name>   Default: <All authors from epubs>"
-    print "                                             Multiple authors may be given."
-    
-def main():
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:a:o:h", ["title=","author=", "output=","help"])
-    except getopt.GetoptError, err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
+from exceptions import KeyError
 
-    if( len(args) < 1 ):
-        usage()
-        sys.exit()
+from xml.dom.minidom import parse, parseString, getDOMImplementation
         
-    outputopt = "merge.epub"
-    titleopt = None
-    authoropts = [] # list of strings
+def main(argv):
+    # read in args, anything starting with -- will be treated as --<varible>=<value>
+    usage = "usage: %prog [options] <input epub> [<input epub>...]"
+    parser = OptionParser(usage)
+    parser.add_option("-o", "--output", dest="outputopt", default="merge.epub",
+                      help="Set OUTPUT file, Default: merge.epub", metavar="OUTPUT")
+    parser.add_option("-t", "--title", dest="titleopt", default=None,
+                      help="Use TITLE as the metadata title.  Default: '<first epub title> Anthology'", metavar="TITLE")
+    parser.add_option("-d", "--description", dest="descopt", default=None,
+                      help="Use DESC as the metadata description.  Default: '<epub title> by <author>' for each epub.", metavar="DESC")
+    parser.add_option("-a", "--author",
+                      action="append", dest="authoropts", default=[],
+                      help="Use AUTHOR as a metadata author, multiple authors may be given, Default: <All authors from epubs>", metavar="AUTHOR")
+    parser.add_option("-f", "--first",
+                      action="store_true", dest="fromfirst", default=False,
+                      help="Take all metadata from first input epub",)
+    parser.add_option("-n", "--titles-in-toc",
+                      action="store_true", dest="titlenavpoints",
+                      help="Put an entry in the TOC for each epub, in addition to each epub's chapters.",)
+    parser.add_option("-s", "--strip-title-toc",
+                      action="store_true", dest="striptitletoc",
+                      help="Strip any title_page.xhtml and toc_page.xhtml files.",)
     
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-t", "--title"):
-            titleopt = a
-        elif o in ("-a", "--author"):
-            authoropts.append(a)
-        elif o in ("-o", "--output"):
-            outputopt = a
-        else:
-            assert False, "unhandled option"
+    (options, args) = parser.parse_args()
 
     ## Add .epub if not already there.
-    if( not outputopt.lower().endswith(".epub") ):
-        outputopt=outputopt+".epub"
+    if not options.outputopt.lower().endswith(".epub"):
+        options.outputopt=options.outputopt+".epub"
 
-    print "output file: "+outputopt
-        
+    print "output file: "+options.outputopt
+    doMerge(options.outputopt,
+            args,
+            options.authoropts,
+            options.titleopt,
+            options.descopt,
+            options.fromfirst,
+            options.titlenavpoints,
+            options.striptitletoc)
+
+    # output = StringIO.StringIO()
+    # files = []
+    # for file in args:
+    #     f = open(file,"rb")
+    #     fio = StringIO.StringIO(f.read())
+    #     f.close()
+    #     files.append(fio)
+
+    # doMerge(output,files,authoropts,titleopt,descopt,fromfirst,titlenavpoints,striptitletoc)
+
+    # out = open(outputopt,"wb")
+    # out.write(output.getvalue())
+    
+def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
+            fromfirst=False,
+            titlenavpoints=True,
+            striptitletoc=False,
+            forceunique=True):
+    '''
+    outputio = output file name or StringIO.
+    files = list of input file names or StringIOs.
+    authoropts = list of authors to use, otherwise add from all input
+    titleopt = title, otherwise '<first title> Anthology'
+    descopt = description, otherwise '<title> by <author>' list for all input
+    fromfirst if true, take all metadata (including author, title, desc) from first input
+    titlenavpoints if true, put in a new TOC entry for each epub
+    striptitletoc if true, strip out any (title|toc)_page.xhtml files
+    forceunique if true, guarantee uniqueness of contents by adding a dir for each input
+    '''
+    ## Python 2.5 ZipFile is rather more primative than later
+    ## versions.  It can operate on a file, or on a StringIO, but
+    ## not on an open stream.  OTOH, I suspect we would have had
+    ## problems with closing and opening again to change the
+    ## compression type anyway.
+
+    filecount=0
+    source=None
+    
     ## Write mimetype file, must be first and uncompressed.
     ## Older versions of python(2.4/5) don't allow you to specify
     ## compression by individual file.
     ## Overwrite if existing output file.
-    outputepub = ZipFile(outputopt, "w", compression=ZIP_STORED)
+    outputepub = ZipFile(outputio, "w", compression=ZIP_STORED)
     outputepub.debug = 3
     outputepub.writestr("mimetype", "application/epub+zip")
     outputepub.close()
 
     ## Re-open file for content.
-    outputepub = ZipFile(outputopt, "a", compression=ZIP_DEFLATED)
+    outputepub = ZipFile(outputio, "a", compression=ZIP_DEFLATED)
     outputepub.debug = 3
 
     ## Create META-INF/container.xml file.  The only thing it does is
@@ -109,13 +144,21 @@ def main():
 
     booktitles = [] # list of strings -- Each book's title
     allauthors = [] # list of lists of strings -- Each book's list of authors.
+
+    filelist = []
     
     booknum=1
-    for filename in args:
-        print "input file: "+filename
+    firstmetadom = None
+    for file in files:
         book = "%d" % booknum
+        bookdir = ""
+        bookid = ""
+        if forceunique:
+            bookdir = "%d/" % booknum
+            bookid = "a%d" % booknum
+        #print "book %d" % booknum
         
-        epub = ZipFile(filename, 'r')
+        epub = ZipFile(file, 'r')
 
         ## Find the .opf file.
         container = epub.read("META-INF/container.xml")
@@ -129,6 +172,10 @@ def main():
             relpath=relpath+"/"
             
         metadom = parseString(epub.read(rootfilename))
+        if booknum==1:
+            firstmetadom = metadom.getElementsByTagName("metadata")[0]
+            source=firstmetadom.getElementsByTagName("dc:source")[0].firstChild.data.encode("utf-8")
+            #print "Source:%s"%source
 
         ## Save indiv book title
         booktitles.append(metadom.getElementsByTagName("dc:title")[0].firstChild.data)
@@ -147,22 +194,33 @@ def main():
                 tocdom = parseString(epub.read(relpath+item.getAttribute("href")))
                 
                 for navpoint in tocdom.getElementsByTagName("navPoint"):
-                    navpoint.setAttribute("id","a"+book+navpoint.getAttribute("id"))
+                    navpoint.setAttribute("id",bookid+navpoint.getAttribute("id"))
 
                 for content in tocdom.getElementsByTagName("content"):
-                    content.setAttribute("src",book+"/"+relpath+content.getAttribute("src"))
+                    content.setAttribute("src",bookdir+relpath+content.getAttribute("src"))
 
                 navmaps.append(tocdom.getElementsByTagName("navMap")[0])
             else:
-                id="a"+book+item.getAttribute("id")
-                href=book+"/"+relpath+item.getAttribute("href")
+                id=bookid+item.getAttribute("id")
+                href=bookdir+relpath+item.getAttribute("href")
                 href=href.encode('utf8')
-                items.append((id,href,item.getAttribute("media-type")))
-                outputepub.writestr(href,
-                                    epub.read(relpath+item.getAttribute("href")))
+                #print "href:"+href
+                if not striptitletoc or not re.match(r'.*/(title|toc)_page\.xhtml',
+                                                      item.getAttribute("href")):
+                    if href not in filelist:
+                        try:
+                            outputepub.writestr(href,
+                                                epub.read(relpath+item.getAttribute("href")))
+                            if re.match(r'.*/file\d+\.xhtml',href):
+                                filecount+=1
+                            items.append((id,href,item.getAttribute("media-type")))
+                            filelist.append(href)
+                        except KeyError, ke:
+                            pass # Skip missing files.
                 
         for itemref in metadom.getElementsByTagName("itemref"):
-            itemrefs.append("a"+book+itemref.getAttribute("idref"))
+            if not striptitletoc or not re.match(r'(title|toc)_page', itemref.getAttribute("idref")):
+                itemrefs.append(bookid+itemref.getAttribute("idref"))
 
         booknum=booknum+1;
 
@@ -170,41 +228,52 @@ def main():
     uniqueid="epubmerge-uid-%d" % time() # real sophisticated uid scheme.
     contentdom = getDOMImplementation().createDocument(None, "package", None)
     package = contentdom.documentElement
-    package.setAttribute("version","2.0")
-    package.setAttribute("xmlns","http://www.idpf.org/2007/opf")
-    package.setAttribute("unique-identifier","epubmerge-id")
-    metadata=newTag(contentdom,"metadata",
-                    attrs={"xmlns:dc":"http://purl.org/dc/elements/1.1/",
-                           "xmlns:opf":"http://www.idpf.org/2007/opf"})
-    package.appendChild(metadata)
-    metadata.appendChild(newTag(contentdom,"dc:identifier",text=uniqueid,attrs={"id":"epubmerge-id"}))
-    if( titleopt is None ):
-        titleopt = booktitles[0]+" Anthology"
-    metadata.appendChild(newTag(contentdom,"dc:title",text=titleopt))
-
-    # If cmdline authors, use those instead of those collected from the epubs
-    # (allauthors kept for TOC & description gen below.
-    if( len(authoropts) > 1  ):
-        useauthors=[authoropts]
+    if fromfirst and firstmetadom:
+        metadata = firstmetadom
+        firstpackage = firstmetadom.parentNode
+        package.setAttribute("version",firstpackage.getAttribute("version"))
+        package.setAttribute("xmlns",firstpackage.getAttribute("xmlns"))
+        package.setAttribute("unique-identifier",firstpackage.getAttribute("unique-identifier"))
     else:
-        useauthors=allauthors
-        
-    usedauthors=dict()
-    for authorlist in useauthors:
-        for author in authorlist:
-            if( not usedauthors.has_key(author) ):
-                usedauthors[author]=author
-                metadata.appendChild(newTag(contentdom,"dc:creator",
-                                            attrs={"opf:role":"aut"},
-                                            text=author))
-
-    metadata.appendChild(newTag(contentdom,"dc:contributor",text="epubmerge",attrs={"opf:role":"bkp"}))
-    metadata.appendChild(newTag(contentdom,"dc:rights",text="Copyrights as per source stories"))
-    metadata.appendChild(newTag(contentdom,"dc:language",text="en"))
-
-    # created now, but not filled in until TOC generation to save loops.
-    description = newTag(contentdom,"dc:description",text="Anthology containing:\n")
-    metadata.appendChild(description)
+        package.setAttribute("version","2.0")
+        package.setAttribute("xmlns","http://www.idpf.org/2007/opf")
+        package.setAttribute("unique-identifier","epubmerge-id")
+        metadata=newTag(contentdom,"metadata",
+                        attrs={"xmlns:dc":"http://purl.org/dc/elements/1.1/",
+                               "xmlns:opf":"http://www.idpf.org/2007/opf"})
+        metadata.appendChild(newTag(contentdom,"dc:identifier",text=uniqueid,attrs={"id":"epubmerge-id"}))
+        if( titleopt is None ):
+            titleopt = booktitles[0]+" Anthology"
+        metadata.appendChild(newTag(contentdom,"dc:title",text=titleopt))
+    
+        # If cmdline authors, use those instead of those collected from the epubs
+        # (allauthors kept for TOC & description gen below.
+        if( len(authoropts) > 1  ):
+            useauthors=[authoropts]
+        else:
+            useauthors=allauthors
+            
+        usedauthors=dict()
+        for authorlist in useauthors:
+            for author in authorlist:
+                if( not usedauthors.has_key(author) ):
+                    usedauthors[author]=author
+                    metadata.appendChild(newTag(contentdom,"dc:creator",
+                                                attrs={"opf:role":"aut"},
+                                                text=author))
+    
+        metadata.appendChild(newTag(contentdom,"dc:contributor",text="epubmerge",attrs={"opf:role":"bkp"}))
+        metadata.appendChild(newTag(contentdom,"dc:rights",text="Copyrights as per source stories"))
+        metadata.appendChild(newTag(contentdom,"dc:language",text="en"))
+    
+        if not descopt:
+            # created now, but not filled in until TOC generation to save loops.
+            description = newTag(contentdom,"dc:description",text="Anthology containing:\n")
+        else:
+            description = newTag(contentdom,"dc:description",text=descopt)
+        metadata.appendChild(description)
+    
+    package.appendChild(metadata)
     
     manifest = contentdom.createElement("manifest")
     package.appendChild(manifest)
@@ -245,24 +314,29 @@ def main():
     tocnavMap = tocncxdom.createElement("navMap")
     ncx.appendChild(tocnavMap)
 
-    ## TOC navPoints can ge nested, but this flattens them for
+    ## TOC navPoints can be nested, but this flattens them for
     ## simplicity, plus adds a navPoint for each epub.
     booknum=0
     for navmap in navmaps:
         navpoints = navmap.getElementsByTagName("navPoint")
-        ## Copy first navPoint of each epub, give a different id and
-        ## text: bookname by authorname
-        newnav = navpoints[0].cloneNode(True)
-        newnav.setAttribute("id","book"+newnav.getAttribute("id"))
-        ## For purposes of TOC titling & desc, use first book author
-        newtext = newTag(tocncxdom,"text",text=booktitles[booknum]+" by "+allauthors[booknum][0])
-        description.appendChild(contentdom.createTextNode(booktitles[booknum]+" by "+allauthors[booknum][0]+"\n"))
-        text = newnav.getElementsByTagName("text")[0]
-        text.parentNode.replaceChild(newtext,text)
-        tocnavMap.appendChild(newnav)
+        if titlenavpoints:
+           ## Copy first navPoint of each epub, give a different id and
+           ## text: bookname by authorname
+            newnav = navpoints[0].cloneNode(True)
+            newnav.setAttribute("id","book"+newnav.getAttribute("id"))
+            ## For purposes of TOC titling & desc, use first book author
+            newtext = newTag(tocncxdom,"text",text=booktitles[booknum]+" by "+allauthors[booknum][0])            
+            text = newnav.getElementsByTagName("text")[0]
+            text.parentNode.replaceChild(newtext,text)
+            tocnavMap.appendChild(newnav)
         
+        if not descopt and not fromfirst:
+            description.appendChild(contentdom.createTextNode(booktitles[booknum]+" by "+allauthors[booknum][0]+"\n"))
+            
         for navpoint in navpoints:
-            tocnavMap.appendChild(navpoint)
+            #print "navpoint:%s"%navpoint.getAttribute("id")
+            if not striptitletoc or not re.match(r'(title|toc)_page',navpoint.getAttribute("id")):
+                tocnavMap.appendChild(navpoint)
         booknum=booknum+1;
 
     ## Force strict ordering of playOrder
@@ -283,6 +357,8 @@ def main():
         zf.create_system = 0
     outputepub.close()
 
+    return (source,filecount)
+
 ## Utility method for creating new tags.
 def newTag(dom,name,attrs=None,text=None):
     tag = dom.createElement(name)
@@ -294,4 +370,4 @@ def newTag(dom,name,attrs=None,text=None):
     return tag
     
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

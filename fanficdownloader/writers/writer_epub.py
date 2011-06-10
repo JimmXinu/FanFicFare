@@ -292,16 +292,17 @@ h6 { text-align: center; }
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
-        if self.getConfig("include_tocpage"):
+        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
         for index, (title,html) in enumerate(self.story.getChapters()):
-            i=index+1
-            items.append(("file%04d"%i,
-                          "OEBPS/file%04d.xhtml"%i,
-                          "application/xhtml+xml",
-                          title))
-            itemrefs.append("file%04d"%i)
+            if html:
+                i=index+1
+                items.append(("file%04d"%i,
+                              "OEBPS/file%04d.xhtml"%i,
+                              "application/xhtml+xml",
+                              title))
+                itemrefs.append("file%04d"%i)
 
         manifest = contentdom.createElement("manifest")
         package.appendChild(manifest)
@@ -407,14 +408,16 @@ h6 { text-align: center; }
         tocpageIO.close()
 
         for index, (title,html) in enumerate(self.story.getChapters()):
-            logging.debug('Writing chapter text for: %s' % title)
-            fullhtml = self.EPUB_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.EPUB_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
-            # ffnet(& maybe others) gives the whole chapter text as
-            # one line.  This causes problems for nook(at least) when
-            # the chapter size starts getting big (200k+)
-            fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
-            outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
-            del fullhtml
+            if html:
+                logging.debug('Writing chapter text for: %s' % title)
+                fullhtml = self.EPUB_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.EPUB_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
+                # ffnet(& maybe others) gives the whole chapter text
+                # as one line.  This causes problems for nook(at
+                # least) when the chapter size starts getting big
+                # (200k+)
+                fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
+                outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
+                del fullhtml
  
 	# declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.

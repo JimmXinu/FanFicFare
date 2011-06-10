@@ -69,6 +69,8 @@ class BaseSiteAdapter(Configurable):
         self.story.setMetadata('site',self.getSiteDomain())
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
+        self.chapterFirst = None
+        self.chapterLast = None
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -135,14 +137,26 @@ class BaseSiteAdapter(Configurable):
         logging.error("Giving up on %s" %url)
         logging.exception(excpt)
         raise(excpt)
-                
+
+    # Limit chapters to download.  Input starts at 1, list starts at 0
+    def setChaptersRange(self,first=None,last=None):
+        if first:
+            self.chapterFirst=int(first)-1
+        if last:
+            self.chapterLast=int(last)-1
+    
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
             self.getStoryMetadataOnly()
-            for (title,url) in self.chapterUrls:
-                self.story.addChapter(removeEntities(title),
-                                      removeEntities(self.getChapterText(url)))
+            for index, (title,url) in enumerate(self.chapterUrls):
+                if (self.chapterFirst!=None and index < self.chapterFirst) or \
+                        (self.chapterLast!=None and index > self.chapterLast):
+                    self.story.addChapter(removeEntities(title),
+                                          None)
+                else:
+                    self.story.addChapter(removeEntities(title),
+                                          removeEntities(self.getChapterText(url)))
             self.storyDone = True
         return self.story
 

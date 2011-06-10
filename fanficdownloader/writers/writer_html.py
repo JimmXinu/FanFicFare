@@ -107,8 +107,9 @@ class HTMLWriter(BaseStoryWriter):
                           self.HTML_TOC_PAGE_END)
 
         for index, (title,html) in enumerate(self.story.getChapters()):
-            logging.debug('Writing chapter text for: %s' % title)
-            self._write(out,self.HTML_CHAPTER_START.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
-            self._write(out,html)
+            if html:
+                logging.debug('Writing chapter text for: %s' % title)
+                self._write(out,self.HTML_CHAPTER_START.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
+                self._write(out,html)
 
         self._write(out,self.HTML_FILE_END.substitute(self.story.metadata))

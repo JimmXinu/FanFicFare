@@ -75,7 +75,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
             self.story.setMetadata('dateUpdated',makeDate("1975-01-31","%Y-%m-%d"))
-        self.story.setMetadata('numChapters','5')
         self.story.setMetadata('numWords','123456')
         self.story.setMetadata('status','In-Completed')
         self.story.setMetadata('rating','Tweenie')
@@ -99,17 +98,39 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
                             ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
                             ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
-                            ('Epilogue',self.url+"&chapter=5")]
+                            ('Chapter 4',self.url+"&chapter=5"),
+                            ('Chapter 5',self.url+"&chapter=6"),
+                            ('Chapter 6',self.url+"&chapter=6"),
+                            ('Chapter 7',self.url+"&chapter=6"),
+                            ('Chapter 8',self.url+"&chapter=6"),
+                            ('Chapter 9',self.url+"&chapter=6"),
+                            ('Chapter 0',self.url+"&chapter=6"),
+                            ('Chapter a',self.url+"&chapter=6"),
+                            ('Chapter b',self.url+"&chapter=6"),
+                            ('Chapter c',self.url+"&chapter=6"),
+                            ('Chapter d',self.url+"&chapter=6"),
+                            ('Chapter e',self.url+"&chapter=6"),
+                            ('Chapter f',self.url+"&chapter=6"),
+                            ('Chapter g',self.url+"&chapter=6"),
+                            ('Chapter h',self.url+"&chapter=6"),
+                            ('Chapter i',self.url+"&chapter=6"),
+                            ('Chapter j',self.url+"&chapter=6"),
+                            ('Chapter k',self.url+"&chapter=6"),
+                            ('Chapter l',self.url+"&chapter=6"),
+                            ('Chapter m',self.url+"&chapter=6"),
+                            ('Chapter n',self.url+"&chapter=6"),
+                            ]
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
                             
 
     def getChapterText(self, url):
+        logging.debug('Getting chapter text from: %s' % url)
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 
         if self.story.getMetadata('storyId') == '670':
             time.sleep(2.0)
 
-        
         if "chapter=1" in url :
             text=u'''
 <div>
