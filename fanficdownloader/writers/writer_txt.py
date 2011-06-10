@@ -128,10 +128,10 @@ End file.
         self._write(out,self.lineends(self.wraplines(towrap)))
 
         for index, (title,html) in enumerate(self.story.getChapters()):
-            logging.debug('Writing chapter text for: %s' % title)
-            self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
-
-            self._write(out,self.lineends(html2text(html)))
+            if html:
+                logging.debug('Writing chapter text for: %s' % title)
+                self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
+                self._write(out,self.lineends(html2text(html)))
 
         self._write(out,self.lineends(self.wraplines(self.TEXT_FILE_END.substitute(self.story.metadata))))
 

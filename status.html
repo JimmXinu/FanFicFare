@@ -47,7 +47,7 @@
 	<p>
 	  {% if fic.completed %}
  	      <p>Your fic has finished processing and you can download it now.</p>
-  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download {{ fic.title }}</a></span>
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if fic.failure %}
@@ -55,7 +55,7 @@
 	  {% endif %}
 	  {% if  not fic.completed and not fic.failure %}
 	      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
-  	      <span class="recent">Processing {{ fic.title }}</span>
+  	      <span class="recent">Processing <i>{{ fic.title }}</i></span>
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
