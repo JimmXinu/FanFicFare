@@ -15,12 +15,17 @@
 # limitations under the License.
 #
 
+import os
+
 from htmlcleanup import conditionalRemoveEntities
 
 class Story:
     
     def __init__(self):
-        self.metadata = {'version':'4.0.0'}
+        try:
+            self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
+        except:
+            self.metadata = {'version':'4.0'}
         self.chapters = [] # chapters will be tuples of (title,html)
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 

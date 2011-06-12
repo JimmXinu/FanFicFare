@@ -188,6 +188,7 @@ h6 { text-align: center; }
         rootfiles.appendChild(newTag(containerdom,"rootfile",{"full-path":"content.opf",
                                                               "media-type":"application/oebps-package+xml"}))
         outputepub.writestr("META-INF/container.xml",containerdom.toxml(encoding='utf-8'))
+        containerdom.unlink()
         del containerdom
 
         ## Epub has two metadata files with real data.  We're putting
@@ -321,6 +322,7 @@ h6 { text-align: center; }
                                             "linear":"yes"}))
         # write content.opf to zip.
         outputepub.writestr("content.opf",contentdom.toxml(encoding='utf-8'))
+        contentdom.unlink()
         del contentdom
 
         ## create toc.ncx file
@@ -370,6 +372,7 @@ h6 { text-align: center; }
         
         # write toc.ncs to zip file
         outputepub.writestr("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
+        tocncxdom.unlink()
         del tocncxdom
 
         # write stylesheet.css file.
