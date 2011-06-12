@@ -9,6 +9,10 @@ handlers:
   script: utils/remover.py
   login: admin
 
+- url: /tally.*
+  script: utils/tally.py
+  login: admin
+
 - url: /fdownloadtask
   script: main.py
   login: admin
