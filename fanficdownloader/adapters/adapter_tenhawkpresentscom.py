@@ -27,11 +27,11 @@ import fanficdownloader.exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
-class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
+class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','twcs')
+        self.story.setMetadata('siteabbrev','thpc')
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
@@ -46,19 +46,19 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/library/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        self.dateformat = "%B %d, %Y"
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self.dateformat = "%b %d %Y"
 
             
     @staticmethod
     def getSiteDomain():
-        return 'www.thewriterscoffeeshop.com'
+        return 'fanfiction.tenhawkpresents.com'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/library/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/library/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -80,7 +80,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/library/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -114,6 +114,9 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
+            addurl = "&ageconsent=ok&warning=4"
+            url = self.url+'&index=1'+addurl
+            logging.debug("Changing URL: "+url)
             self.performLogin(url)
             data = self._fetchUrl(url)
 
@@ -122,24 +125,24 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
 
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')))
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/library/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/library/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -212,5 +215,5 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         return utf8FromSoup(span)
 
 def getClass():
-    return TheWritersCoffeeShopComSiteAdapter
+    return TenhawkPresentsComSiteAdapter
 

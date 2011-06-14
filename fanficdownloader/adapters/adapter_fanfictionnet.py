@@ -84,6 +84,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Unable to locate story with id of " in data:
             raise exceptions.StoryDoesNotExist(url)
             
+        if "Chapter not found. Please check to see you are not using an outdated url." in data:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
+            
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
