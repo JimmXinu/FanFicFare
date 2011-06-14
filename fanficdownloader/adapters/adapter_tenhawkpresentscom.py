@@ -120,7 +120,7 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
             self.performLogin(url)
             data = self._fetchUrl(url)
 
-        if "Age Consent Required" in data:
+        if "This story contains mature content which may include violence, sexual situations, and coarse language" in data:
             raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
