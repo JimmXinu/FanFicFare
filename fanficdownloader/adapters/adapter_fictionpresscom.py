@@ -21,11 +21,6 @@ import re
 import urllib2
 import time
 
-import fanficdownloader.BeautifulSoup as bs
-import fanficdownloader.exceptions as exceptions
-
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
-
 ## They're from the same people and pretty much identical.
 from adapter_fanfictionnet import FanFictionNetSiteAdapter
 
