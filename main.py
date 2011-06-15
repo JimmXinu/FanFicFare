@@ -57,6 +57,22 @@ from ffstorage import *
 
 from fanficdownloader import adapters, writers, exceptions
 
+class UserConfigServer(webapp.RequestHandler):
+    def getUserConfig(self,user):
+        config = ConfigParser.SafeConfigParser()
+
+        logging.debug('reading defaults.ini config file')
+        config.read('defaults.ini')
+
+        ## Pull user's config record.
+        l = UserConfig.all().filter('user =', user).fetch(1)
+        if l and l[0].config:
+            uconfig=l[0]
+            #logging.debug('reading config from UserConfig(%s)'%uconfig.config)
+            config.readfp(StringIO(uconfig.config))
+
+        return config
+
 class MainHandler(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
@@ -94,7 +110,7 @@ class MainHandler(webapp.RequestHandler):
             self.response.out.write(template.render(path, template_values))
 
 
-class EditConfigServer(webapp.RequestHandler):
+class EditConfigServer(UserConfigServer):
     def get(self):
         self.post()
 
@@ -119,7 +135,12 @@ class EditConfigServer(webapp.RequestHandler):
             uconfig.user = user
             uconfig.config = self.request.get('config').encode('utf8')[:10000] ## just in case.
             uconfig.put()
-            self.redirect("/?error=configsaved")
+            try:
+                config = self.getUserConfig(user)
+                self.redirect("/?error=configsaved")
+            except Exception, e:
+                logging.info("Saved Config Failed:%s"%e)
+                self.redirect("/?error=custom&errtext=%s"%urlEscape(str(e)))
         else: # not update, assume display for edit
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
@@ -281,22 +302,6 @@ class RecentFilesServer(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'recent.html')
         self.response.out.write(template.render(path, template_values))
 
-class UserConfigServer(webapp.RequestHandler):
-    def getUserConfig(self,user):
-        config = ConfigParser.SafeConfigParser()
-
-        logging.debug('reading defaults.ini config file')
-        config.read('defaults.ini')
-
-        ## Pull user's config record.
-        l = UserConfig.all().filter('user =', user).fetch(1)
-        if l and l[0].config:
-            uconfig=l[0]
-            #logging.debug('reading config from UserConfig(%s)'%uconfig.config)
-            config.readfp(StringIO(uconfig.config))
-
-        return config
-
 class FanfictionDownloader(UserConfigServer):
     def get(self):
         self.post()
@@ -327,7 +332,12 @@ class FanfictionDownloader(UserConfigServer):
 
         adapter = None
         try:
-            config = self.getUserConfig(user)
+            try:
+                config = self.getUserConfig(user)
+            except Exception, e:
+                self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+str(e)))
+                return
+
             adapter = adapters.getAdapter(config,url)
             logging.info('Created an adaper: %s' % adapter)
 
