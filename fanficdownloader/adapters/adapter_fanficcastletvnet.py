@@ -31,7 +31,7 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','twcs')
+        self.story.setMetadata('siteabbrev','csltv')
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
