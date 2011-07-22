@@ -110,17 +110,13 @@ class BaseStoryWriter(Configurable):
         return self.formatFileName(self.getConfig('output_filename'))
     
     def getZipFileName(self):
-        return self.formatFileName(self.getConfig('zip_filename'),extension=".zip")
+        return self.formatFileName(self.getConfig('zip_filename'))
 
-    def formatFileName(self,template,extension="${formatext}"):
+    def formatFileName(self,template):
         values = self.story.metadata
         # fall back default:
         if not template:
             template="${title}-${siteabbrev}_${storyId}${formatext}"
-
-        # Add extension if not already included.
-        if extension not in template:
-            template+=extension
 
         if not self.getConfig('allow_unsafe_filename'):
             values={}
