@@ -150,6 +150,8 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
     booknum=1
     firstmetadom = None
     for file in files:
+        if file == None : continue
+        
         book = "%d" % booknum
         bookdir = ""
         bookid = ""
@@ -174,7 +176,10 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
         metadom = parseString(epub.read(rootfilename))
         if booknum==1:
             firstmetadom = metadom.getElementsByTagName("metadata")[0]
-            source=firstmetadom.getElementsByTagName("dc:source")[0].firstChild.data.encode("utf-8")
+            try:
+                source=firstmetadom.getElementsByTagName("dc:source")[0].firstChild.data.encode("utf-8")
+            except:
+                source=""
             #print "Source:%s"%source
 
         ## Save indiv book title
@@ -211,7 +216,7 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
                         try:
                             outputepub.writestr(href,
                                                 epub.read(relpath+item.getAttribute("href")))
-                            if re.match(r'.*/file\d+\.xhtml',href):
+                            if re.match(r'.*/(file|chapter)\d+\.xhtml',href):
                                 filecount+=1
                             items.append((id,href,item.getAttribute("media-type")))
                             filelist.append(href)

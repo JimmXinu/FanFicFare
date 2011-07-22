@@ -55,10 +55,13 @@ def main():
                      help="set an option NAME=VALUE", metavar="NAME=VALUE")
    parser.add_option("-m", "--meta-only",
                      action="store_true", dest="metaonly",
-                     help="Retrieve metadata and stop.  Write title_page only epub if epub.",)
+                     help="Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.",)
    parser.add_option("-u", "--update-epub",
                      action="store_true", dest="update",
                      help="Update an existing epub with new chapter, give epub filename instead of storyurl.  Not compatible with inserted TOC.",)
+   parser.add_option("--force",
+                     action="store_true", dest="force",
+                     help="Force update of an existing epub, download and overwrite all chapters.",)
    
    (options, args) = parser.parse_args()
 
@@ -94,6 +97,8 @@ def main():
                                         striptitletoc=True,
                                         forceunique=False)
            print "Updating %s, URL: %s" % (args[0],url)
+           filename = args[0]
+           config.set("overrides","output_filename",args[0])
        else:
            url = args[0]
 
@@ -114,10 +119,10 @@ def main():
                adapter.is_adult=True
            adapter.getStoryMetadataOnly()
 
-       if options.update:
+       if options.update and not options.force:
            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
            
-           if chaptercount == urlchaptercount:
+           if chaptercount == urlchaptercount and not options.metaonly:
                print "%s already contains %d chapters." % (args[0],chaptercount)
            elif chaptercount > urlchaptercount:
                print "%s contains %d chapters, more than source: %d." % (args[0],chaptercount,urlchaptercount)
@@ -127,13 +132,15 @@ def main():
                ## Even if the title page isn't included, this carries the metadata.
                titleio = StringIO()
                writeStory(config,adapter,"epub",metaonly=True,outstream=titleio)
-               
-               ## Go get the new chapters only in another epub.
-               newchaptersio = StringIO()
-               adapter.setChaptersRange(chaptercount+1,urlchaptercount)
-               config.set("overrides",'include_tocpage','false')
-               config.set("overrides",'include_titlepage','false')
-               writeStory(config,adapter,"epub",outstream=newchaptersio)
+
+               newchaptersio = None
+               if not options.metaonly:
+                   ## Go get the new chapters only in another epub.
+                   newchaptersio = StringIO()
+                   adapter.setChaptersRange(chaptercount+1,urlchaptercount)
+                   config.set("overrides",'include_tocpage','false')
+                   config.set("overrides",'include_titlepage','false')
+                   writeStory(config,adapter,"epub",outstream=newchaptersio)
                
                # out = open("testing/titleio.epub","wb")
                # out.write(titleio.getvalue())
