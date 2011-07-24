@@ -51,6 +51,8 @@ class Story:
             return value
 
     def addToList(self,listname,value):
+        if value==None:
+            return
         if not self.listables.has_key(listname):
             self.listables[listname]=[]
         # prevent duplicates.
