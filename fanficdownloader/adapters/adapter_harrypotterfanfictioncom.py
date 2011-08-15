@@ -178,7 +178,9 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        ## most adapters use BeautifulStoneSoup here, but non-Stone
+        ## allows nested div tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'id' : 'fluidtext'})
