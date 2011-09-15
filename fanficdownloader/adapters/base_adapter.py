@@ -44,6 +44,11 @@ from fanficdownloader.configurable import Configurable
 from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from fanficdownloader.exceptions import InvalidStoryURL
 
+try:
+    import fanficdownloader.chardet as chardet
+except ImportError:
+    chardet = None
+
 class BaseSiteAdapter(Configurable):
 
     @classmethod
@@ -91,14 +96,36 @@ class BaseSiteAdapter(Configurable):
         self.path = self.parsedUrl.path        
         self.story.setMetadata('storyUrl',self.url)
 
+## website encoding(s)--in theory, each website reports the character
+## encoding they use for each page.  In practice, some sites report it
+## incorrectly.  Each adapter has a default list, usually "utf8,
+## Windows-1252" or "Windows-1252, utf8".  The special value 'auto'
+## will call chardet and use the encoding it reports if it has +90%
+## confidence.  'auto' is not reliable.
     def _decode(self,data):
-        for code in self.decode:
+        if self.getConfig('website_encodings'):
+            decode = self.getConfigList('website_encodings')
+        else:
+            decode = self.decode
+        
+        for code in decode:
             try:
+                #print code
+                if code == "auto":
+                    if not chardet:
+                        logging.info("chardet not available, skipping 'auto' encoding")
+                        continue
+                    detected = chardet.detect(data)
+                    #print detected
+                    if detected['confidence'] > 0.9:
+                        code=detected['encoding']
+                    else:
+                        continue
                 return data.decode(code)
             except:
                 logging.debug("code failed:"+code)
                 pass
-        logging.info("Could not decode story, tried:%s Stripping non-ASCII."%self.decode)
+        logging.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
