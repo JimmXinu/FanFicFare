@@ -20,6 +20,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 import sys, os
+from os.path import normpath, expanduser, isfile, join
 from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
@@ -40,12 +41,15 @@ def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     del writer
 
 def main():
-       
+
    # read in args, anything starting with -- will be treated as --<varible>=<value>
    usage = "usage: %prog [options] storyurl"
    parser = OptionParser(usage)
    parser.add_option("-f", "--format", dest="format", default="epub",
                      help="write story as FORMAT, epub(default), text or html", metavar="FORMAT")
+   parser.add_option("-c", "--config",
+                     action="append", dest="configfile", default=None,
+                     help="read config from specified file(s) in addition to ~/.fanficdownloader/defaults.ini, ~/.fanficdownloader/personal.ini, ./defaults.ini, ./personal.ini", metavar="CONFIG")
    parser.add_option("-b", "--begin", dest="begin", default=None,
                      help="Begin with Chapter START", metavar="START")
    parser.add_option("-e", "--end", dest="end", default=None,
@@ -72,11 +76,22 @@ def main():
        parser.error("-u/--update-epub only works with epub")
 
    config = ConfigParser.SafeConfigParser()
-   
-   #logging.debug('reading defaults.ini config file, if present')
-   config.read('defaults.ini')
-   #logging.debug('reading personal.ini config file, if present')
-   config.read('personal.ini')
+
+   conflist = []
+   homepath = join(expanduser("~"),".fanficdownloader")
+   if isfile(join(homepath,"defaults.ini")):
+       conflist.append(join(homepath,"defaults.ini"))
+   if isfile(join(homepath,"personal.ini")):
+       conflist.append(join(homepath,"personal.ini"))
+   if isfile("defaults.ini"):
+       conflist.append("defaults.ini")
+   if isfile("personal.ini"):
+       conflist.append("personal.ini")
+   if options.configfile:
+       conflist.extend(options.configfile)
+      
+   logging.debug('reading %s config file(s), if present'%conflist)
+   config.read(conflist)
 
    try:
        config.add_section("overrides")
