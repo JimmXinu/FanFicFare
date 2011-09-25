@@ -49,6 +49,7 @@ class BaseStoryWriter(Configurable):
         self.validEntries = [
             'category',
             'genre',
+            'characters',
             'status',
             'datePublished',
             'dateUpdated',
@@ -76,6 +77,7 @@ class BaseStoryWriter(Configurable):
             'category':'Category',
             'genre':'Genre',
             'status':'Status',
+            'characters':'Characters',
             'datePublished':'Published',
             'dateUpdated':'Updated',
             'dateCreated':'Packaged',
