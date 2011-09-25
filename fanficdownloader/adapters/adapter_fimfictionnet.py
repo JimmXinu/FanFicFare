@@ -19,7 +19,7 @@ import time
 import logging
 import re
 import urllib2
-from datetime import datetime
+import cookielib as cl
 
 import fanficdownloader.BeautifulSoup as bs
 from fanficdownloader.htmlcleanup import stripHTML
@@ -37,22 +37,40 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev','fimficnet')
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
         self._setURL("http://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
-    
+        self.is_adult = False
+        
     @staticmethod
     def getSiteDomain():
         return 'www.fimfiction.net'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.fimfiction.net','mobile.fimfiction.net', 'www.fimfiction.com']
+        # mobile.fimifction.com isn't actually a valid domain, but we can still get the story id from URLs anyway
+        return ['www.fimfiction.net','mobile.fimfiction.net', 'www.fimfiction.com', 'mobile.fimfiction.com']
 
     def getSiteExampleURLs(self):
-        return "http://www.fimfiction.net/story/1234/story-title-here http://www.fimfiction.net/story/1234/ http://www.fimfiction.com/story/1234/ http://mobile.fimfiction.net/story/1234/"
+        return "http://www.fimfiction.net/story/1234/story-title-here http://www.fimfiction.net/story/1234/ http://www.fimfiction.com/story/1234/1/ http://mobile.fimfiction.net/story/1234/1/story-title-here/chapter-title-here"
 
     def getSiteURLPattern(self):
         return r"http://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
         
     def extractChapterUrlsAndMetadata(self):
+        
+        if self.is_adult or self.getConfig("is_adult"):
+            cookieproc = urllib2.HTTPCookieProcessor()
+            cookie = cl.Cookie(version=0, name='view_mature', value='true',
+                               port=None, port_specified=False,
+                               domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
+                               path='/story', path_specified=True,
+                               secure=False,
+                               expires=time.time()+10000,
+                               discard=False,
+                               comment=None,
+                               comment_url=None,
+                               rest={'HttpOnly': None},
+                               rfc2109=False)
+            cookieproc.cookiejar.set_cookie(cookie)
+            self.opener = urllib2.build_opener(cookieproc)
         
         try:
             data = self._fetchUrl(self.url)
@@ -65,6 +83,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
         
+        if "This story has been marked as having adult content." in data:
+            raise exceptions.AdultCheckRequired(self.url)
+        
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
         
         title, author = [link.text for link in soup.find("h2").findAll("a")]
@@ -73,12 +94,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("authorId", author) # The author's name will be unique
         self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(),author))
         
-        self.chapterUrls = [(chapter.text, "http://"+self.getSiteDomain() + chapter['href']) for chapter in soup.findAll("a", "chapter_link")]
+        self.chapterUrls = [(chapter.text, "http://"+self.getSiteDomain() + chapter['href']) for chapter in soup.findAll("a", {"class":"chapter_link"})]
         
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
         for character in [character_icon['title'] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
-            self.story.addToList("category", character)
+            self.story.addToList("characters", character)
         for category in [category.text for category in soup.find("div", {"class":"categories"}).findAll("a")]:
             self.story.addToList("category", category)
         self.story.addToList("category", "My Little Pony")
@@ -102,15 +123,14 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # Sometimes the description has an expanding element
         # This removes the ellipsis and the expand button
         try:
-            description_soup.span.extract()
-            description_soup.a.extract()
+            description_soup.find('span', {"id":re.compile(r"description_more_elipses_\d+")}).extract() # Web designer can't spell 'ellipsis'
+            description_soup.find('a', {"class":"more"}).extract()
         except:
             pass
         self.story.setMetadata('description', description_soup.text)
         
         # Unfortunately, nowhere on the page is the year mentioned. Because we would much rather update the story needlessly
-        # than miss an update, we hardcode the year of creation to be 2011 (when the site was created) and the year in which
-        # the story was updated to the current one. Nevertheless, it may be prudent to always force an update in defaults.ini
+        # than miss an update, we hardcode the year of creation and update to be 2011.
 
         # Get the date of creation from the first chapter
         datePublished_soup = bs.BeautifulSoup(self._fetchUrl(self.chapterUrls[0][1])).find("div", {"class":"calendar"})
@@ -119,7 +139,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("datePublished", datePublished)
         dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
         dateUpdated_soup.find('span').extract()
-        dateUpdated = makeDate(str(datetime.now().year)+dateUpdated_soup.text, "%Y%b%d")
+        dateUpdated = makeDate("2011"+dateUpdated_soup.text, "%Y%b%d")
         self.story.setMetadata("dateUpdated", dateUpdated)
         
     def getChapterText(self, url):
