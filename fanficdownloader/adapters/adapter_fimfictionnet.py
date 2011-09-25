@@ -115,7 +115,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         #
 
         status_bar = soup.findAll('li')[-1]
-        self.story.setMetadata('status', status_bar.text.split("|")[0].strip())
+        # In the case of fimfiction.net, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
+        # For the sake of bringing it in line with the other adapters, 'Incomplete' and 'On Hiatus' become 'In-Progress'
+        # and 'Complete' beomes 'Completed'. 'Cancelled' seems an important enough (not to mention more strictly true) 
+        # status to leave unchanged.
+        status = status_bar.text.split("|")[0].strip().replace("Incomplete", "In-Progress").replace("On Hiatus", "In-Progress").replace("Complete", "Completed")
+        self.story.setMetadata('status', status)
         self.story.setMetadata('rating', status_bar.span.text)
         self.story.setMetadata('numWords', status_bar.div.b.text)
         
