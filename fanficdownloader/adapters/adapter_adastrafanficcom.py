@@ -122,9 +122,12 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ''
-                while not defaultGetattr(value,'class') == 'label':
+                while value and not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
+                # sometimes poorly formated desc (<p> w/o </p>) leads
+                # to all labels being included.
+                svalue=svalue[:svalue.find('<span class="label">')]
                 self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
