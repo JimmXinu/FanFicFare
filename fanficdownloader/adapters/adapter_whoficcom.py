@@ -112,11 +112,13 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         logging.debug("Author URL: "+self.story.getMetadata('authorUrl'))
         soup = bs.BeautifulStoneSoup(self._fetchUrl(self.story.getMetadata('authorUrl')),
                                      selfClosingTags=('br')) # normalize <br> tags to <br />
-        
         # find this story in the list, parse it's metadata based on
         # lots of assumptions about the html, since there's little
         # tagging.
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')))
+        # Found a story once that had the story URL in the desc for a
+        # series on the same author's page.  Now using the reviews
+        # link instead to find the appropriate metadata.
+        a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
         metadatachunks = utf8FromSoup(metadata).split('<br />')
         # process metadata for this story.
@@ -156,7 +158,6 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         for g in genre.split(r', '):
             self.story.addToList('genre',g)
 
-        
         # the next line is stuff with ' - ' separators *and* names--with tags.
         moremeta = metadatachunks[5]
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
