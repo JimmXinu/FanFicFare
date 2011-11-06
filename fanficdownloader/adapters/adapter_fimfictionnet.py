@@ -94,7 +94,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("authorId", author) # The author's name will be unique
         self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(),author))
         
-        self.chapterUrls = [(chapter.text, "http://"+self.getSiteDomain() + chapter['href']) for chapter in soup.findAll("a", {"class":"chapter_link"})]
+        chapterDates = []
+
+        for chapter in soup.findAll("a", {"class":"chapter_link"}):
+            chapterDates.append(chapter.span.extract().text.strip("()"))
+            self.chapterUrls.append((chapter.text.strip(), "http://"+self.getSiteDomain() + chapter['href']))
         
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
@@ -138,9 +142,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # than miss an update, we hardcode the year of creation and update to be 2011.
 
         # Get the date of creation from the first chapter
-        datePublished_soup = bs.BeautifulSoup(self._fetchUrl(self.chapterUrls[0][1])).find("div", {"class":"calendar"})
-        datePublished_soup.find('span').extract()
-        datePublished = makeDate("2011"+datePublished_soup.text, "%Y%b%d")
+        datePublished_text = chapterDates[0]
+        day, month = datePublished_text.split()
+        day = re.sub(r"[^\d.]+", '', day)
+        datePublished = makeDate("2011"+month+day, "%Y%b%d")
         self.story.setMetadata("datePublished", datePublished)
         dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
         dateUpdated_soup.find('span').extract()
