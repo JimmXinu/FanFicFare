@@ -18,15 +18,16 @@
 import datetime
 import logging
 
-from google.appengine.ext.webapp import util
-from google.appengine.ext import webapp
+#from google.appengine.ext.webapp import util
+import webapp2
+#from google.appengine.ext import webapp
 from google.appengine.api import users
 from google.appengine.api import taskqueue
 from google.appengine.api import memcache
 
 from ffstorage import *
 
-class Tally(webapp.RequestHandler):
+class Tally(webapp2.RequestHandler):
     def get(self):
         logging.debug("Starting Tally")
         user = users.get_current_user()
@@ -57,13 +58,7 @@ class Tally(webapp.RequestHandler):
         logging.info('Tallied %d fics.' % num)
         self.response.out.write('<br/>Tallied %d fics.<br/>' % num)
 
-def main():
-    application = webapp.WSGIApplication([('/tally', Tally),
-                                          ],
-                                         debug=False)
-    util.run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
-    main()
+logging.getLogger().setLevel(logging.DEBUG)
+app = webapp2.WSGIApplication([('/tally', Tally),
+                               ],
+                              debug=False)

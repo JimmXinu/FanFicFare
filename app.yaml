@@ -1,20 +1,24 @@
 # fanfictionloader ffd-retief
 application: fanfictionloader
-version: 4-0-7
-runtime: python
+version: 4-1-0
+runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
+- url: /hello
+  script: utils.helloworld.app
+
 - url: /r3m0v3r.*
-  script: utils/remover.py
+  script: utils.remover.app
   login: admin
 
 - url: /tally.*
-  script: utils/tally.py
+  script: utils.tally.app
   login: admin
 
 - url: /fdownloadtask
-  script: main.py
+  script: main.app
   login: admin
   
 - url: /css
@@ -31,7 +35,13 @@ handlers:
   upload: static/favicon\.ico
 
 - url: /.*
-  script: main.py
+  script: main.app
 
 builtins:
 - datastore_admin: on
+
+libraries:
+- name: django
+  version: "1.2"
+- name: PIL
+  version: "1.1.7"
