@@ -41,23 +41,24 @@ import ConfigParser
 ## Console page first, you will get a django version mismatch error when you
 ## to go hit one of the application pages.  Just change a file again, and
 ## make sure to hit an app page before the SDK page to clear it.
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-from google.appengine.dist import use_library
-use_library('django', '1.2')
+#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+#from google.appengine.dist import use_library
+#use_library('django', '1.2')
 
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
 from google.appengine.api import users
-from google.appengine.ext import webapp
+#from google.appengine.ext import webapp
+import webapp2
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp import util
+#from google.appengine.ext.webapp2 import util
 from google.appengine.runtime import DeadlineExceededError
 
 from ffstorage import *
 
 from fanficdownloader import adapters, writers, exceptions
 
-class UserConfigServer(webapp.RequestHandler):
+class UserConfigServer(webapp2.RequestHandler):
     def getUserConfig(self,user):
         config = ConfigParser.SafeConfigParser()
 
@@ -73,7 +74,7 @@ class UserConfigServer(webapp.RequestHandler):
 
         return config
 
-class MainHandler(webapp.RequestHandler):
+class MainHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if user:
@@ -160,7 +161,7 @@ class EditConfigServer(UserConfigServer):
             self.response.out.write(template.render(path, template_values))
 
 
-class FileServer(webapp.RequestHandler):
+class FileServer(webapp2.RequestHandler):
 
     def get(self):
         fileId = self.request.get('id')
@@ -221,7 +222,7 @@ class FileServer(webapp.RequestHandler):
             path = os.path.join(os.path.dirname(__file__), 'status.html')
             self.response.out.write(template.render(path, template_values))
 
-class FileStatusServer(webapp.RequestHandler):
+class FileStatusServer(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if not user:
@@ -257,7 +258,7 @@ class FileStatusServer(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'status.html')
         self.response.out.write(template.render(path, template_values))
 
-class ClearRecentServer(webapp.RequestHandler):
+class ClearRecentServer(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if not user:
@@ -282,7 +283,7 @@ class ClearRecentServer(webapp.RequestHandler):
         logging.info('Deleted %d instances download.' % num)
         self.redirect("/?error=recentcleared")
 
-class RecentFilesServer(webapp.RequestHandler):
+class RecentFilesServer(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if not user:
@@ -556,20 +557,14 @@ def urlEscape(data):
     p = re.compile(r'([^\w])')
     return p.sub(toPercentDecimal, data.encode("utf-8"))
 
-def main():
-  application = webapp.WSGIApplication([('/', MainHandler),
-                                        ('/fdowntask', FanfictionDownloaderTask),
-                                        ('/fdown', FanfictionDownloader),
-                                        (r'/file.*', FileServer),
-                                        ('/status', FileStatusServer),
-                                        ('/recent', RecentFilesServer),
-                                        ('/editconfig', EditConfigServer),
-                                        ('/clearrecent', ClearRecentServer),
-                                        ],
-                                       debug=False)
-  util.run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
-    main()
+logging.getLogger().setLevel(logging.DEBUG)
+app = webapp2.WSGIApplication([('/', MainHandler),
+                               ('/fdowntask', FanfictionDownloaderTask),
+                               ('/fdown', FanfictionDownloader),
+                               (r'/file.*', FileServer),
+                               ('/status', FileStatusServer),
+                               ('/recent', RecentFilesServer),
+                               ('/editconfig', EditConfigServer),
+                               ('/clearrecent', ClearRecentServer),
+                               ],
+                              debug=False)
