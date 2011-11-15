@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <title>Fanfiction Downloader (fanfiction.net, fanficauthors, fictionalley, ficwad to epub and HTML)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12136939-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
+  <body>
+    <div id='main'>
+      <h1>
+	<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a>
+      </h1>
+      
+      <script type="text/javascript"><!--
+                                        google_ad_client = "ca-pub-0320924304307555";
+                                        /* Standard */
+                                        google_ad_slot = "8974025478";
+                                        google_ad_width = 468;
+                                        google_ad_height = 60;
+                                        //-->
+      </script>
+      <script type="text/javascript"
+              src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+      </script>
+      <!--			<div id='yourfile'> -->
+      {{yourfile}}
+      <!--			</div> -->
+      
+      <div id='urlbox'>
+	<div id='greeting'>
+	  <p>Hi, {{ nickname }}! These are the fanfics you've recently requested.</p>
+	  <p><a href="/clearrecent">Clear your Recent Downloads List</a></p>
+	  <h3>Please Help Test New Version</h3>
+	  <p>
+	    We have a new, more efficient, version of the system up
+	    for testing.  Please try the 
+	    <a href="http://fanfictiondownloader.appspot.com">Testing 
+	      Version here</a>.
+	  </p>
+	</div>
+      </div>
+      
+      <div id='helpbox'>
+	{% for fic in fics %}
+	<p>
+	  {% if fic.completed %}
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  {% if  not fic.completed and not fic.failure %}
+  	      <span class="recent">Processing <i>{{ fic.title }}</i></span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  {% if fic.failure %}
+	      <span id='error'>{{ fic.failure }}</span>
+	  {% endif %}
+	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
+   	  {% if fic.completed and fic.escaped_url %}
+   	      <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
+	  {% endif %}
+	</p>
+	{% endfor %}
+      </div>
+      
+      <script type="text/javascript"><!--
+                                        google_ad_client = "ca-pub-0320924304307555";
+                                        /* Standard */
+                                        google_ad_slot = "8974025478";
+                                        google_ad_width = 468;
+                                        google_ad_height = 60;
+                                        //-->
+      </script>
+      <script type="text/javascript"
+              src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+      </script>				
+      
+    </div>
+  </body>
+</html>
