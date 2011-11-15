@@ -1,13 +1,11 @@
-# fanfictionloader ffd-retief
-application: fanfictionloader
+# fanfictionloader ffd-retief ffd-retief-hrd fanfictiondownloader
+application: fanfictiondownloader
 version: 4-1-0
 runtime: python27
 api_version: 1
 threadsafe: true
 
 handlers:
-- url: /hello
-  script: utils.helloworld.app
 
 - url: /r3m0v3r.*
   script: utils.remover.app
@@ -43,5 +41,6 @@ builtins:
 libraries:
 - name: django
   version: "1.2"
+
 - name: PIL
   version: "1.1.7"
