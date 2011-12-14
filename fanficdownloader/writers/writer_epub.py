@@ -41,7 +41,10 @@ class EpubWriter(BaseStoryWriter):
     def __init__(self, config, story):
         BaseStoryWriter.__init__(self, config, story)
 
-        self.EPUB_CSS='''body { margin-left: 2%; margin-right: 2%; margin-top: 2%; margin-bottom: 2%; text-align: justify; }
+        self.EPUB_CSS = string.Template('''
+body { margin: 2%;
+       text-align: justify;
+       background-color: #${background_color}; }
 pre { font-size: x-small; }
 sml { font-size: small; }
 h1 { text-align: center; }
@@ -63,7 +66,7 @@ h6 { text-align: center; }
 .smcap    {font-variant: small-caps;}
 .u        {text-decoration: underline;}
 .bold     {font-weight: bold;}
-'''
+''')
         
         self.EPUB_TITLE_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -376,7 +379,7 @@ h6 { text-align: center; }
         del tocncxdom
 
         # write stylesheet.css file.
-        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS)
+        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute({"background_color":self.getConfig("background_color")})) 
 
         # write title page.
         if self.getConfig("titlepage_use_table"):
