@@ -216,7 +216,7 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
                         try:
                             outputepub.writestr(href,
                                                 epub.read(relpath+item.getAttribute("href")))
-                            if re.match(r'.*/(file|chapter)\d+\.xhtml',href):
+                            if re.match(r'.*/(file|chapter)\d+\.x?html',href):
                                 filecount+=1
                             items.append((id,href,item.getAttribute("media-type")))
                             filelist.append(href)

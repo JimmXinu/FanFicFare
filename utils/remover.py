@@ -25,15 +25,16 @@ Copyright 2011 Fanficdownloader team
 import datetime
 import logging
 
-from google.appengine.ext.webapp import util
-from google.appengine.ext import webapp
+#from google.appengine.ext.webapp import util
+import webapp2
+#from google.appengine.ext import webapp
 from google.appengine.api import users
 from google.appengine.api import taskqueue
 from google.appengine.api import memcache
 
 from ffstorage import *
 
-class Remover(webapp.RequestHandler):
+class Remover(webapp2.RequestHandler):
     def get(self):
         logging.debug("Starting r3m0v3r")
         user = users.get_current_user()
@@ -56,9 +57,10 @@ class Remover(webapp.RequestHandler):
             logging.debug('Delete '+d.url)
 
         logging.info('Deleted instances: %d' % num)
+        self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write('Deleted instances: %d<br>' % num)
 
-class RemoveOrphanDataChunks(webapp.RequestHandler):
+class RemoveOrphanDataChunks(webapp2.RequestHandler):
 
     def get(self):
         logging.debug("Starting RemoveOrphanDataChunks")
@@ -98,15 +100,10 @@ class RemoveOrphanDataChunks(webapp.RequestHandler):
             memcache.set('orphan_search_cursor',chunks.cursor())
         
         logging.info('Deleted %d orphan chunks from %d total.' % (deleted,num))
+        self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write('Deleted %d orphan chunks from %d total.' % (deleted,num))
 
-def main():
-    application = webapp.WSGIApplication([('/r3m0v3r', Remover),
-                                          ('/r3m0v3rOrphans', RemoveOrphanDataChunks)],
-                                         debug=False)
-    util.run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
-    main()
+logging.getLogger().setLevel(logging.DEBUG)
+app = webapp2.WSGIApplication([('/r3m0v3r', Remover),
+                               ('/r3m0v3rOrphans', RemoveOrphanDataChunks)],
+                              debug=False)

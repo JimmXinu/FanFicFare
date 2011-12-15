@@ -88,7 +88,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
         
-        title, author = [link.text for link in soup.find("h2").findAll("a")]
+        title = soup.find("h2").find("a").text # first a link in first h2 is title.
+        author = soup.find("h2").find("span",{'class':'author'}).find("a").text
         self.story.setMetadata("title", title)
         self.story.setMetadata("author", author)
         self.story.setMetadata("authorId", author) # The author's name will be unique
