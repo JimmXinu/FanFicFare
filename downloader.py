@@ -70,7 +70,7 @@ def main():
                      help="Update an existing epub with new chapter, give epub filename instead of storyurl.  Not compatible with inserted TOC.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
-                     help="Force update of an existing epub, download and overwrite all chapters.",)
+                     help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
    
    (options, args) = parser.parse_args()
 
@@ -102,6 +102,10 @@ def main():
        config.add_section("overrides")
    except ConfigParser.DuplicateSectionError:
        pass
+
+   if options.force:
+       config.set("overrides","always_overwrite","true")
+       
    if options.options:
        for opt in options.options:
            (var,val) = opt.split('=')

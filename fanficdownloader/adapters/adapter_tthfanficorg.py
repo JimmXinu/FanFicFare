@@ -98,7 +98,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r"^/AuthorStories-\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[1].split('-')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
-        self.story.setMetadata('author',a.string)
+        self.story.setMetadata('author',stripHTML(a))
 
         try:
             # going to pull part of the meta data from author list page.
