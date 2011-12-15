@@ -39,6 +39,7 @@ class HTMLWriter(BaseStoryWriter):
 <head>
 <title>${title} by ${author}</title>
 <style type="text/css">
+body { background-color: #${background_color}; }
 .CI {
     text-align:center;
     margin-top:0px;
@@ -94,6 +95,9 @@ class HTMLWriter(BaseStoryWriter):
 
     def writeStoryImpl(self, out):
 
+        # minor cheat, tucking bg into metadata.
+        if self.getConfig("background_color"):
+            self.story.metadata["background_color"] = self.getConfig("background_color")
         self._write(out,self.HTML_FILE_START.substitute(self.story.metadata))
 
         self.writeTitlePage(out,

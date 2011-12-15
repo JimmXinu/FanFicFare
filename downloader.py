@@ -24,6 +24,9 @@ from os.path import normpath, expanduser, isfile, join
 from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
+import string
+
+from subprocess import call
 
 from epubmerge import doMerge
 
@@ -38,7 +41,9 @@ import ConfigParser
 def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     writer = writers.getWriter(writeformat,config,adapter)
     writer.writeStory(outstream=outstream,metaonly=metaonly)
+    output_filename=writer.getOutputFileName()
     del writer
+    return output_filename
 
 def main():
 
@@ -65,7 +70,7 @@ def main():
                      help="Update an existing epub with new chapter, give epub filename instead of storyurl.  Not compatible with inserted TOC.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
-                     help="Force update of an existing epub, download and overwrite all chapters.",)
+                     help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
    
    (options, args) = parser.parse_args()
 
@@ -97,6 +102,10 @@ def main():
        config.add_section("overrides")
    except ConfigParser.DuplicateSectionError:
        pass
+
+   if options.force:
+       config.set("overrides","always_overwrite","true")
+       
    if options.options:
        for opt in options.options:
            (var,val) = opt.split('=')
@@ -112,7 +121,7 @@ def main():
                                         striptitletoc=True,
                                         forceunique=False)
            print "Updating %s, URL: %s" % (args[0],url)
-           filename = args[0]
+           output_filename = args[0]
            config.set("overrides","output_filename",args[0])
        else:
            url = args[0]
@@ -184,16 +193,14 @@ def main():
            
            adapter.setChaptersRange(options.begin,options.end)
            
-           if options.format == "all":
-               ## For testing.  Doing all three formats actually causes
-               ## some interesting config issues with format-specific
-               ## sections.  But it should rarely be an issue.
-               writeStory(config,adapter,"epub",options.metaonly)
-               writeStory(config,adapter,"html",options.metaonly)
-               writeStory(config,adapter,"txt",options.metaonly)
-           else:
-               writeStory(config,adapter,options.format,options.metaonly)
+           output_filename=writeStory(config,adapter,options.format,options.metaonly)
        
+       if not options.metaonly and adapter.getConfig("post_process_cmd"):
+           metadata = adapter.story.metadata
+           metadata['output_filename']=output_filename
+           call(string.Template(adapter.getConfig("post_process_cmd"))
+                .substitute(metadata))
+           
        del adapter
    
    except exceptions.InvalidStoryURL, isu:
