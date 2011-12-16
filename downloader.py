@@ -199,7 +199,7 @@ def main():
            metadata = adapter.story.metadata
            metadata['output_filename']=output_filename
            call(string.Template(adapter.getConfig("post_process_cmd"))
-                .substitute(metadata))
+                .substitute(metadata), shell=True)
            
        del adapter
    
