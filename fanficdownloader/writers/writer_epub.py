@@ -26,7 +26,7 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 from base_writer import *
-from fanficdownloader.htmlcleanup import stripHTML
+from ..htmlcleanup import stripHTML
 
 class EpubWriter(BaseStoryWriter):
 

@@ -15,21 +15,51 @@
 # limitations under the License.
 #
 
-import os, re, sys, glob
+import os, re, sys, glob, types
 from os.path import dirname, basename, normpath
 import logging
 import urlparse as up
 
-import fanficdownloader.exceptions as exceptions
+from .. import exceptions as exceptions
+
+## must import each adapter here.
+
+import adapter_test1
+import adapter_fanfictionnet
+import adapter_fanficcastletvnet
+import adapter_fanfictionnet
+import adapter_fictionalleyorg
+import adapter_fictionpresscom
+import adapter_ficwadcom
+import adapter_fimfictionnet
+import adapter_harrypotterfanfictioncom
+import adapter_mediaminerorg
+import adapter_potionsandsnitchesnet
+import adapter_tenhawkpresentscom
+import adapter_adastrafanficcom
+import adapter_thewriterscoffeeshopcom
+import adapter_tthfanficorg
+import adapter_twilightednet
+import adapter_twiwritenet
+import adapter_whoficcom
 
 ## This bit of complexity allows adapters to be added by just adding
-## the source file.  It eliminates the long if/else clauses we used to
-## need to pick out the adapter.
+## importing.  It eliminates the long if/else clauses we used to need
+## to pick out the adapter.
     
 ## List of registered site adapters.
-    
 __class_list = []
 
+def imports():
+    for name, val in globals().items():
+        if isinstance(val, types.ModuleType):
+            yield val.__name__
+
+for x in imports():
+    if "fanficdownloader.adapters.adapter_" in x:
+        #print x
+        __class_list.append(sys.modules[x].getClass())
+            
 def getAdapter(config,url):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htp]+[:/]+","http://",url.strip())
@@ -63,16 +93,3 @@ def getClassFor(domain):
     for cls in __class_list:
         if cls.matchesSite(domain):
             return cls
-
-## Automatically import each adapter_*.py file.
-## Each implement getClass() to their class
-
-filelist = glob.glob(dirname(__file__)+'/adapter_*.py')
-sys.path.insert(0,normpath(dirname(__file__)))
-
-for file in filelist:
-    #print "file: "+basename(file)[:-3]
-    module = __import__(basename(file)[:-3])
-    __class_list.append(module.getClass())
-
-del sys.path[0]
