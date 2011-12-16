@@ -19,8 +19,8 @@ import datetime
 import time
 import logging
 
-import fanficdownloader.BeautifulSoup as bs
-import fanficdownloader.exceptions as exceptions
+from .. import BeautifulSoup as bs
+from .. import exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 

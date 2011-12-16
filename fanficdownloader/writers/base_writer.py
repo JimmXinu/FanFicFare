@@ -24,8 +24,8 @@ import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
 
-from fanficdownloader.configurable import Configurable
-from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
+from ..configurable import Configurable
+from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 
 class BaseStoryWriter(Configurable):
 

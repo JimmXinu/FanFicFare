@@ -20,8 +20,8 @@ import logging
 import re
 import urllib2
 
-import fanficdownloader.BeautifulSoup as bs
-import fanficdownloader.exceptions as exceptions
+from .. import BeautifulSoup as bs
+from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
