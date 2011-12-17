@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Fanficdownloader team'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QHBoxLayout, QLabel, QLineEdit
+from PyQt4.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit 
 
 from calibre.utils.config import JSONConfig
 
@@ -20,12 +20,13 @@ prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # Set defaults
 prefs.defaults['hello_world_msg'] = 'Hello, World!'
+prefs.defaults['personal.ini'] = get_resources('example.ini')
 
 class ConfigWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.l = QHBoxLayout()
+        self.l = QVBoxLayout()
         self.setLayout(self.l)
 
         self.label = QLabel('Hello world &message:')
@@ -36,6 +37,12 @@ class ConfigWidget(QWidget):
         self.l.addWidget(self.msg)
         self.label.setBuddy(self.msg)
 
+        self.ini = QTextEdit(self)
+        self.ini.setLineWrapMode(QTextEdit.NoWrap)
+        self.ini.setText(prefs['personal.ini'])
+        self.l.addWidget(self.ini)
+        
     def save_settings(self):
         prefs['hello_world_msg'] = unicode(self.msg.text())
+        prefs['personal.ini'] = unicode(self.ini.toPlainText())
 

@@ -63,7 +63,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '664':
             self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
         else:
-            self.story.setMetadata(u'title',"Test Story Title")
+            self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId'))
         self.story.setMetadata('storyUrl',self.url)
         self.story.setMetadata('description',u'Description '+self.crazystring+u''' Done
 
