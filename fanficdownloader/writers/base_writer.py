@@ -102,6 +102,9 @@ class BaseStoryWriter(Configurable):
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
 
+    def getMetadata(self,key):
+        return stripHTML(self.story.getMetadata(key))
+
     def getOutputFileName(self):
         if self.getConfig('zip_output'):
             return self.getZipFileName()
@@ -242,6 +245,22 @@ class BaseStoryWriter(Configurable):
         if close:
             outstream.close()
 
+    def getTags(self):
+        # set to avoid duplicates subject tags.
+        subjectset = set()
+        for entry in self.validEntries:
+            if entry in self.getConfigList("include_subject_tags") and \
+                    entry not in self.story.getLists() and \
+                    self.story.getMetadata(entry):
+                subjectset.add(self.getMetadata(entry))
+        # listables all go into dc:subject tags, but only if they are configured.
+        for (name,lst) in self.story.getLists().iteritems():
+            if name in self.getConfigList("include_subject_tags"):
+                for tag in lst:
+                    subjectset.add(tag)
+
+        return subjectset
+            
     def writeStoryImpl(self, out):
         "Must be overriden by sub classes."
         pass
