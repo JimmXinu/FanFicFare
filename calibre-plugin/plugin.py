@@ -15,7 +15,8 @@ if False:
 
 from StringIO import StringIO
 
-from PyQt4.Qt import (QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QLineEdit)
+from PyQt4.Qt import (QDialog, QVBoxLayout, QGridLayout, QPushButton, QMessageBox,
+                      QLabel, QLineEdit, QInputDialog )
 from calibre.ptempfile import PersistentTemporaryFile
 
 from calibre.ebooks.metadata.epub import get_metadata
@@ -62,13 +63,12 @@ class DemoDialog(QDialog):
         # self.view_button.clicked.connect(self.view)
         # self.l.addWidget(self.view_button)
 
-        self.label = QLabel('Story URL:')
-        self.l.addWidget(self.label)
+        self.l.addWidget(QLabel('Story &URL:'))
         
-        self.msg = QLineEdit(self)
-#        self.msg.setText(prefs['hello_world_msg'])
-        self.l.addWidget(self.msg)
-        self.label.setBuddy(self.msg)
+        self.url = QLineEdit(self)
+        #self.url.setText('http://test1.com?sid=668')
+        self.l.addWidget(self.url)
+        self.label.setBuddy(self.url)
 
         self.ffdl_button = QPushButton(
             'Download Story', self)
@@ -116,14 +116,36 @@ class DemoDialog(QDialog):
 
         config = ConfigParser.SafeConfigParser()
         config.readfp(StringIO(get_resources("defaults.ini")))
-        print("URL:"+unicode(self.msg.text()))
-        adapter = adapters.getAdapter(config,unicode(self.msg.text()))
+        config.readfp(StringIO(prefs['personal.ini']))
+        print("URL:"+unicode(self.url.text()))
+        adapter = adapters.getAdapter(config,unicode(self.url.text()))
         # "http://test1.com?sid=6646") # http://www.fanfiction.net/s/6439390/1/All_Hallows_Eve") #
 
+        try:
+            adapter.getStoryMetadataOnly()
+        except exceptions.FailedToLogin:
+            print("Login Failed, Need Username/Password.")
+            userpass = UserPassDialog(self.gui)
+            userpass.exec_() # exec_ will make it act modal
+            if userpass.status:
+                adapter.username = userpass.user.text()
+                adapter.password = userpass.passwd.text()
+        except exceptions.AdultCheckRequired:
+            adult = QMessageBox.warning(self, 'Are You Adult?',
+                                        "This story requires that you be an adult.  Please confirm you are an adult in your locale:",
+                                        QMessageBox.Yes |  QMessageBox.No,
+                                        QMessageBox.No)
+
+            if adult == QMessageBox.Yes:
+                adapter.is_adult=True
+                
+        adapter.getStoryMetadataOnly()
+        
         writer = writers.getWriter("epub",config,adapter)
         tmp = PersistentTemporaryFile(".epub")
-        writer.writeStory(tmp)
         print("tmp: "+tmp.name)
+        
+        writer.writeStory(tmp)
         mi = get_metadata(tmp,extract_cover=False)
         self.db.add_books([tmp],["EPUB"],[mi])
         self.hide()
@@ -154,3 +176,41 @@ class DemoDialog(QDialog):
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
 
+class UserPassDialog(QDialog):
+    
+    def __init__(self, gui):
+        QDialog.__init__(self, gui)
+        self.gui = gui
+        self.status=False
+        self.setWindowTitle('User/Password')
+
+        self.l = QGridLayout()
+        self.setLayout(self.l)
+
+        self.l.addWidget(QLabel("This site/story requires you to login."),0,0,1,2)
+        
+        self.l.addWidget(QLabel("User:"),1,0)
+        self.user = QLineEdit(self)
+        self.l.addWidget(self.user,1,1)
+   
+        self.l.addWidget(QLabel("Password:"),2,0)
+        self.passwd = QLineEdit(self)
+        self.l.addWidget(self.passwd,2,1)
+   
+        self.ok_button = QPushButton('OK', self)
+        self.ok_button.clicked.connect(self.ok)
+        self.l.addWidget(self.ok_button,3,0)
+
+        self.cancel_button = QPushButton('Cancel', self)
+        self.cancel_button.clicked.connect(self.cancel)
+        self.l.addWidget(self.cancel_button,3,1)
+
+        self.resize(self.sizeHint())
+
+    def ok(self):
+        self.status=True
+        self.hide()
+
+    def cancel(self):
+        self.status=False
+        self.hide()
