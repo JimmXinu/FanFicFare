@@ -124,9 +124,6 @@ class MobiWriter(BaseStoryWriter):
 </html>
 ''')
 
-    def getMetadata(self,key):
-        return stripHTML(self.story.getMetadata(key))
-
     def writeStoryImpl(self, out):
 
         files = []

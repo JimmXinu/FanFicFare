@@ -19,7 +19,6 @@ from calibre.utils.config import JSONConfig
 prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # Set defaults
-prefs.defaults['hello_world_msg'] = 'Hello, World!'
 prefs.defaults['personal.ini'] = get_resources('example.ini')
 
 class ConfigWidget(QWidget):
@@ -29,13 +28,8 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.label = QLabel('Hello world &message:')
+        self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
-
-        self.msg = QLineEdit(self)
-        self.msg.setText(prefs['hello_world_msg'])
-        self.l.addWidget(self.msg)
-        self.label.setBuddy(self.msg)
 
         self.ini = QTextEdit(self)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
@@ -43,6 +37,11 @@ class ConfigWidget(QWidget):
         self.l.addWidget(self.ini)
         
     def save_settings(self):
-        prefs['hello_world_msg'] = unicode(self.msg.text())
-        prefs['personal.ini'] = unicode(self.ini.toPlainText())
+        ini = unicode(self.ini.toPlainText())
+        if ini:
+            prefs['personal.ini'] = ini
+        else:
+            # if they've removed everything, clear it so they get the
+            # default next time.
+            del prefs['personal.ini']
 
