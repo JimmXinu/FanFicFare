@@ -54,6 +54,9 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '666':
             raise exceptions.StoryDoesNotExist(self.url)
 
+        if self.story.getMetadata('storyId') == '670':
+            time.sleep(2.0)
+            
         if self.getConfig("username"):
             self.username = self.getConfig("username")
         

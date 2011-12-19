@@ -9,11 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 from StringIO import StringIO
 
-from PyQt4.Qt import (QDialog, QVBoxLayout, QGridLayout, QPushButton, QMessageBox,
+from PyQt4.Qt import (QDialog, QVBoxLayout, QGridLayout, QPushButton,
                       QLabel, QLineEdit, QInputDialog, QComboBox )
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata import MetaInformation
+from calibre.gui2 import question_dialog
 
 from calibre_plugins.fanfictiondownloader_plugin.config import prefs
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
@@ -88,13 +89,14 @@ class DemoDialog(QDialog):
         config.readfp(StringIO(get_resources("defaults.ini")))
         config.readfp(StringIO(prefs['personal.ini']))
         print("URL:"+unicode(self.url.text()))
+
         adapter = adapters.getAdapter(config,unicode(self.url.text()))
 
         try:
             adapter.getStoryMetadataOnly()
         except exceptions.FailedToLogin:
             print("Login Failed, Need Username/Password.")
-            userpass = UserPassDialog(self.gui)
+            userpass = UserPassDialog(self.gui,adapter.getSiteDomain())
             userpass.exec_() # exec_ will make it act modal
             if userpass.status:
                 adapter.username = userpass.user.text()
@@ -103,12 +105,9 @@ class DemoDialog(QDialog):
                 del adapter
                 return
         except exceptions.AdultCheckRequired:
-            adult = QMessageBox.warning(self, 'Are You Adult?',
-                                        "This story requires that you be an adult.  Please confirm you are an adult in your locale:",
-                                        QMessageBox.Yes |  QMessageBox.No,
-                                        QMessageBox.No)
-
-            if adult == QMessageBox.Yes:
+            if question_dialog(self.gui, 'Are You Adult?', '<p>'+
+                               "This story requires that you be an adult.  Please confirm you are an adult in your locale:",
+                               show_copy_button=False):
                 adapter.is_adult=True
             else:
                 del adapter
@@ -117,33 +116,48 @@ class DemoDialog(QDialog):
                 
         story = adapter.getStoryMetadataOnly()
         fileform = unicode(self.format.currentText())
-        writer = writers.getWriter(fileform,config,adapter)
-        tmp = PersistentTemporaryFile("."+fileform)
-        print("tmp: "+tmp.name)
-        
-        writer.writeStory(tmp)
-        
+
         mi = MetaInformation(story.getMetadata("title"),
                              (story.getMetadata("author"),)) # author is a list.
-        mi.set_identifiers({'url':story.getMetadata("storyUrl")})
-        mi.publisher = story.getMetadata("site")
 
-        mi.tags = writer.getTags()
-        mi.languages = ['en']
-        mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
-        mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
-        mi.comments = story.getMetadata("description")
+        add=True
+        identicalbooks = self.db.find_identical_books(mi)
+        if identicalbooks:
+            add=False
+            if question_dialog(self.gui, 'Add Duplicate?', '<p>'+
+                               "That story is already in your library.  Create a new one?",
+                               show_copy_button=False):
+                add=True
+
+        if add:
+            writer = writers.getWriter(fileform,config,adapter)
+            tmp = PersistentTemporaryFile("."+fileform)
+            print("tmp: "+tmp.name)
+            
+            writer.writeStory(tmp)
         
-        self.db.add_books([tmp],[fileform],[mi])
-        self.hide()
+            mi.set_identifiers({'url':story.getMetadata("storyUrl")})
+            mi.publisher = story.getMetadata("site")
 
-        # Otherwise list of books doesn't update right away.
-        self.gui.library_view.model().books_added(1)
+            mi.tags = writer.getTags()
+            mi.languages = ['en']
+            mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
+            mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
+            mi.comments = story.getMetadata("description")
+
+            (notadded,addedcount)=self.db.add_books([tmp],[fileform],[mi], add_duplicates=True)
+            # Otherwise list of books doesn't update right away.
+            self.gui.library_view.model().books_added(addedcount)
+
+        self.hide()
         
         # QMessageBox.about(self, 'FFDL Metadata',
         #                   str(adapter.getStoryMetadataOnly()).decode('utf-8'))
         del adapter
-        del writer
+        try:
+            del writer
+        except:
+            pass
 
 
     def config(self):
@@ -153,7 +167,7 @@ class DemoDialog(QDialog):
 
 class UserPassDialog(QDialog):
     
-    def __init__(self, gui):
+    def __init__(self, gui, site):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.status=False
@@ -162,7 +176,7 @@ class UserPassDialog(QDialog):
         self.l = QGridLayout()
         self.setLayout(self.l)
 
-        self.l.addWidget(QLabel("This site/story requires you to login."),0,0,1,2)
+        self.l.addWidget(QLabel("%s requires you to login to download this story."%site),0,0,1,2)
         
         self.l.addWidget(QLabel("User:"),1,0)
         self.user = QLineEdit(self)
