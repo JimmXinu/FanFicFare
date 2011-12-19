@@ -63,6 +63,7 @@ class BaseSiteAdapter(Configurable):
         return re.match(self.getSiteURLPattern(), self.url)
 
     def __init__(self, config, url):
+        self.config = config
         Configurable.__init__(self, config)
         self.addConfigSection(self.getSiteDomain())
         self.addConfigSection("overrides")

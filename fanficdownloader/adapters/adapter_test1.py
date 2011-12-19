@@ -54,7 +54,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '666':
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if self.story.getMetadata('storyId') == '670':
+        if self.story.getMetadata('storyId').startswith('670'):
             time.sleep(2.0)
             
         if self.getConfig("username"):
@@ -131,7 +131,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 
-        if self.story.getMetadata('storyId') == '670':
+        if self.story.getMetadata('storyId').startswith('670'):
             time.sleep(2.0)
 
         if "chapter=1" in url :

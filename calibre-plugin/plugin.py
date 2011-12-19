@@ -1,38 +1,26 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
+from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Fanficdownloader team'
 __docformat__ = 'restructuredtext en'
 
-from StringIO import StringIO
+from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QGridLayout, QPushButton, QProgressDialog, QString,
+                      QLabel, QLineEdit, QInputDialog, QComboBox, QProgressDialog, QTimer )
 
-from PyQt4.Qt import (QDialog, QVBoxLayout, QGridLayout, QPushButton,
-                      QLabel, QLineEdit, QInputDialog, QComboBox )
+from calibre.gui2 import error_dialog, warning_dialog, question_dialog
 
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata import MetaInformation
-from calibre.gui2 import question_dialog
-
-from calibre_plugins.fanfictiondownloader_plugin.config import prefs
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
 
-import ConfigParser
+class DownloadDialog(QDialog):
 
-class DemoDialog(QDialog):
-
-    def __init__(self, gui, icon, do_user_config):
+    def __init__(self, gui, icon, do_user_config, pluginaction):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
-
-        # The current database shown in the GUI
-        # db is an instance of the class LibraryDatabase2 from database.py
-        # This class has many, many methods that allow you to do a lot of
-        # things.
-        self.db = gui.current_db
+        self.pluginaction = pluginaction
 
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -46,12 +34,12 @@ class DemoDialog(QDialog):
         self.l.addWidget(self.url)
 
         self.l.addWidget(QLabel('Output Format:'))
-        self.format = QComboBox(self)
-        self.format.addItem('epub')
-        self.format.addItem('mobi')
-        self.format.addItem('html')
-        self.format.addItem('txt')
-        self.l.addWidget(self.format)
+        self.fileform = QComboBox(self)
+        self.fileform.addItem('epub')
+        self.fileform.addItem('mobi')
+        self.fileform.addItem('html')
+        self.fileform.addItem('txt')
+        self.l.addWidget(self.fileform)
 
         self.ffdl_button = QPushButton(
             'Download Story', self)
@@ -84,81 +72,9 @@ class DemoDialog(QDialog):
                 text.decode('utf-8'))
 
     def ffdl(self):
-
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(StringIO(get_resources("defaults.ini")))
-        config.readfp(StringIO(prefs['personal.ini']))
-        print("URL:"+unicode(self.url.text()))
-
-        adapter = adapters.getAdapter(config,unicode(self.url.text()))
-
-        try:
-            adapter.getStoryMetadataOnly()
-        except exceptions.FailedToLogin:
-            print("Login Failed, Need Username/Password.")
-            userpass = UserPassDialog(self.gui,adapter.getSiteDomain())
-            userpass.exec_() # exec_ will make it act modal
-            if userpass.status:
-                adapter.username = userpass.user.text()
-                adapter.password = userpass.passwd.text()
-            else:
-                del adapter
-                return
-        except exceptions.AdultCheckRequired:
-            if question_dialog(self.gui, 'Are You Adult?', '<p>'+
-                               "This story requires that you be an adult.  Please confirm you are an adult in your locale:",
-                               show_copy_button=False):
-                adapter.is_adult=True
-            else:
-                del adapter
-                return
-#        except exceptions.StoryDoesNotExist
-                
-        story = adapter.getStoryMetadataOnly()
-        fileform = unicode(self.format.currentText())
-
-        mi = MetaInformation(story.getMetadata("title"),
-                             (story.getMetadata("author"),)) # author is a list.
-
-        add=True
-        identicalbooks = self.db.find_identical_books(mi)
-        if identicalbooks:
-            add=False
-            if question_dialog(self.gui, 'Add Duplicate?', '<p>'+
-                               "That story is already in your library.  Create a new one?",
-                               show_copy_button=False):
-                add=True
-
-        if add:
-            writer = writers.getWriter(fileform,config,adapter)
-            tmp = PersistentTemporaryFile("."+fileform)
-            print("tmp: "+tmp.name)
-            
-            writer.writeStory(tmp)
-        
-            mi.set_identifiers({'url':story.getMetadata("storyUrl")})
-            mi.publisher = story.getMetadata("site")
-
-            mi.tags = writer.getTags()
-            mi.languages = ['en']
-            mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
-            mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
-            mi.comments = story.getMetadata("description")
-
-            (notadded,addedcount)=self.db.add_books([tmp],[fileform],[mi], add_duplicates=True)
-            # Otherwise list of books doesn't update right away.
-            self.gui.library_view.model().books_added(addedcount)
-
+        self.pluginaction.start_downloads(unicode(self.url.text()),
+                                     unicode(self.fileform.currentText()))
         self.hide()
-        
-        # QMessageBox.about(self, 'FFDL Metadata',
-        #                   str(adapter.getStoryMetadataOnly()).decode('utf-8'))
-        del adapter
-        try:
-            del writer
-        except:
-            pass
-
 
     def config(self):
         self.do_user_config(parent=self)
@@ -203,3 +119,57 @@ class UserPassDialog(QDialog):
     def cancel(self):
         self.status=False
         self.hide()
+
+class QueueProgressDialog(QProgressDialog):
+
+    def __init__(self, gui, title, loop_list, fileform, loop_function, enqueue_function, db):
+        QProgressDialog.__init__(self, title, QString(), 0, len(loop_list), gui)
+        self.setWindowTitle(title)
+        self.setMinimumWidth(500)
+        self.gui = gui
+        self.db = db
+        self.loop_list = loop_list
+        self.fileform = fileform
+        self.loop_function = loop_function
+        self.enqueue_function = enqueue_function
+        # self.book_ids, self.tdir, self.format_order, self.queue, self.db = \
+        #                             book_ids, tdir, format_order, queue, db
+        # self.pages_algorithm, self.pages_custom_column = pages_algorithm, pages_col
+        # self.words_algorithm, self.words_custom_column = words_algorithm, words_col
+        self.i, self.loop_bad, self.loop_good = 0, [], []
+        self.setValue(0)
+        self.setLabelText("Fetching metadata for %d of %d"%(0,len(self.loop_list)))
+        QTimer.singleShot(0, self.do_loop)
+        self.exec_()
+
+    def do_loop(self):
+        current = self.loop_list[self.i]
+        self.i += 1
+
+        try:
+            retval = self.loop_function(current,self.fileform)
+            self.loop_good.append((current,retval))
+        except Exception as e:
+            self.loop_bad.append(current)
+
+        self.setValue(self.i)
+        self.setLabelText("Fetching metadata for %d of %d"%(self.i,len(self.loop_list)))
+        if self.i >= len(self.loop_list):
+            return self.do_queue()
+        else:
+            QTimer.singleShot(0, self.do_loop)
+
+    def do_queue(self):
+        self.hide()
+        if self.loop_bad != []:
+            res = []
+            for current in self.loop_bad:
+                res.append('%s'%current)
+            msg = '%s' % '\n'.join(res)
+            warning_dialog(self.gui, _('Could not get metadata for some stories'),
+                _('Could not get metadata for %d of %d stories.') %
+                (len(self.loop_bad), len(self.loop_list)),
+                msg).exec_()
+        self.gui = None
+        # Queue a job to process these ePub/Mobi books
+        self.enqueue_function(self.loop_good,self.fileform)
