@@ -26,8 +26,10 @@ class InterfacePlugin(InterfaceAction):
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     action_spec = ('FanFictionDownLoader', None,
-            'Run the FanFictionDownLoader Plugin', None)
+            'Download FanFiction stories from various web sites', None)
 
+    action_type = 'current'
+    
     def genesis(self):
         # This method is called once per plugin, do initial setup here
 
