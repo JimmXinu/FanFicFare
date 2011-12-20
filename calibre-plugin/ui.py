@@ -4,28 +4,26 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Fanficdownloader team'
+__copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from StringIO import StringIO
 import ConfigParser
 
-from PyQt4.Qt import (QMessageBox)
-
 # The class that all interface action plugins must inherit from
-from calibre.gui2.actions import InterfaceAction
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
-from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
+from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.threaded_jobs import ThreadedJob
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
-
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.config import prefs
-from calibre_plugins.fanfictiondownloader_plugin.plugin import (DownloadDialog, QueueProgressDialog,UserPassDialog)
+from calibre_plugins.fanfictiondownloader_plugin.plugin import DownloadDialog, MetadataProgressDialog, UserPassDialog
 
-from calibre_plugins.fanfictiondownloader_plugin.jobs import do_story_downloads
+#from calibre_plugins.fanfictiondownloader_plugin.jobs import do_story_downloads
 
-class InterfacePlugin(InterfaceAction):
+class FanFictionDownLoaderPlugin(InterfaceAction):
 
     name = 'FanFictionDownLoader'
 
@@ -33,8 +31,10 @@ class InterfacePlugin(InterfaceAction):
     # The keyboard shortcut can be None if you dont want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
+    # (text, icon_path, tooltip, keyboard shortcut)
+    # icon_path isn't in the zip--icon loaded below.
     action_spec = ('FanFictionDownLoader', None,
-            'Download FanFiction stories from various web sites', None)
+                   'Download FanFiction stories from various web sites', None)
 
     action_type = 'current'
     
@@ -56,6 +56,7 @@ class InterfacePlugin(InterfaceAction):
         # The qaction is automatically created from the action_spec defined
         # above
         self.qaction.setIcon(icon)
+        # Call function when plugin triggered.
         self.qaction.triggered.connect(self.show_dialog)
 
     def show_dialog(self):
@@ -76,45 +77,49 @@ class InterfacePlugin(InterfaceAction):
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
-        d = DownloadDialog(self.gui, self.qaction.icon(), do_user_config, self)
+        # DownloadDialog just collects URLs, format and presents buttons.
+        d = DownloadDialog(self.gui,
+                           self.qaction.icon(),
+                           do_user_config,  # method for config button
+                           self.start_downloads, # method to start downloads
+                           )
         d.show()
 
     def apply_settings(self):
-        # In an actual non trivial plugin, you would probably need to
-        # do something based on the settings in prefs
+        # No need to do anything with perfs here, but we could.
         prefs
 
-
-    def start_downloads(self,url,fileform):
+    def start_downloads(self,urls,fileform):
         self.ffdlconfig = ConfigParser.SafeConfigParser()
         self.ffdlconfig.readfp(StringIO(get_resources("defaults.ini")))
         self.ffdlconfig.readfp(StringIO(prefs['personal.ini']))
 
         ## XXX including code for Things to Come, namely, a list of
         ## URLs rather than just one.
-        url_list = [url,
-                    #"http://test1.com?sid=6700",
-                    #"http://test1.com?sid=6701",
-                    # "http://test1.com?sid=6702",
-                    # "http://test1.com?sid=6703",
-                    # "http://test1.com?sid=6704",
-                    # "http://test1.com?sid=6705",
-                    # "http://test1.com?sid=6706"
-                    ]
+        url_list = urls.splitlines()
+        '''
+        http://test1.com?sid=6700
+        http://test1.com?sid=6701
+        http://test1.com?sid=6702
+        http://test1.com?sid=6703
+        http://test1.com?sid=6704
+        http://test1.com?sid=6705
+        http://test1.com?sid=6706
+        '''
 
         self.fetchmeta_qpd = \
-            QueueProgressDialog(self.gui,
+            MetadataProgressDialog(self.gui,
                                 "Getting Metadata for Stories",
                                 url_list,
                                 fileform,
                                 self.get_adapter_for_story,
-                                self.enqueue_story_list_for_download,
+                                self.download_list,
                                 self.db)
             
     def get_adapter_for_story(self,url,fileform):
         '''
         Returns adapter object for story at URL.  To be called from
-        QueueProgressDialog 'loop' to build up list of adapters.  Also
+        MetadataProgressDialog 'loop' to build up list of adapters.  Also
         pops dialogs for is adult, user/pass, duplicate
         '''
         
@@ -162,9 +167,9 @@ class InterfacePlugin(InterfaceAction):
         else:
             return None
         
-    def enqueue_story_list_for_download(self,adaptertuple_list,fileform):
+    def download_list(self,adaptertuple_list,fileform):
         '''
-        Called by QueueProgressDialog to enqueue story downloads for BG processing.
+        Called by MetadataProgressDialog to enqueue story downloads for BG processing.
         adapter_list is a list of tuples of (url,adapter)
         '''
         print("enqueue_story_list_for_download")
@@ -219,3 +224,58 @@ class InterfacePlugin(InterfaceAction):
         #             show_copy_button=False, parent=self.gui)
         # p.show()
         #info_dialog(self.gui,'FFDL Complete','It worked?')        
+
+def do_story_downloads(adaptertuple_list, fileform, db,
+                       abort=None, log=None, notifications=[]): # lambda x,y:x lambda makes small anonymous function.
+    '''
+    Master job, to launch child jobs to download this list of stories
+    '''
+    print("do_story_downloads")
+    notifications.put((0.01, 'Start Downloading Stories'))
+    count = 0
+    total = len(adaptertuple_list)
+    # Queue all the jobs
+    for (url,adapter) in adaptertuple_list:
+        do_story_download(adapter,fileform,db)
+        count = count + 1
+        notifications.put((float(count)/total, 'Downloading Stories'))
+    # return the map as the job result
+    # return book_pages_map, book_words_map
+    return {},{}
+
+def do_story_download(adapter,fileform,db):
+    print("do_story_download")
+
+#    ffdlconfig = ConfigParser.SafeConfigParser()
+#    adapter = adapters.getAdapter(ffdlconfig,url)
+
+    story = adapter.getStoryMetadataOnly()
+
+    mi = MetaInformation(story.getMetadata("title"),
+                         (story.getMetadata("author"),)) # author is a list.
+    
+    writer = writers.getWriter(fileform,adapter.config,adapter)
+    tmp = PersistentTemporaryFile("."+fileform)
+    print("tmp: "+tmp.name)
+    
+    writer.writeStory(tmp)
+    
+    print("post write tmp: "+tmp.name)
+    
+    mi.set_identifiers({'url':story.getMetadata("storyUrl")})
+    mi.publisher = story.getMetadata("site")
+
+    mi.tags = writer.getTags()
+    mi.languages = ['en']
+    mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
+    mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
+    mi.comments = story.getMetadata("description")
+
+    (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
+    # Otherwise list of books doesn't update right away.
+    #self.gui.library_view.model().books_added(addedcount)
+
+    del adapter
+    del writer
+
+        
