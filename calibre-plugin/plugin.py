@@ -4,11 +4,13 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Fanficdownloader team'
+__copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QGridLayout, QPushButton, QProgressDialog, QString,
-                      QLabel, QLineEdit, QInputDialog, QComboBox, QProgressDialog, QTimer )
+from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QGridLayout,
+                      QPushButton, QProgressDialog, QString, QLabel,
+                      QTextEdit, QLineEdit, QInputDialog, QComboBox,
+                      QProgressDialog, QTimer )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog
 
@@ -16,22 +18,28 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapter
 
 class DownloadDialog(QDialog):
 
-    def __init__(self, gui, icon, do_user_config, pluginaction):
+    def __init__(self, gui, icon, do_user_config, start_downloads):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
-        self.pluginaction = pluginaction
+        self.start_downloads = start_downloads
 
+        self.setMinimumWidth(300)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
         self.setWindowTitle('FanFictionDownLoader')
         self.setWindowIcon(icon)
 
-        self.l.addWidget(QLabel('Story URL:'))
-        self.url = QLineEdit(self)
+        self.l.addWidget(QLabel('Story URL(s), one per line:'))
+        self.url = QTextEdit(self)
+        self.url.setLineWrapMode(QTextEdit.NoWrap)
         self.url.setText('http://test1.com?sid=12345')
         self.l.addWidget(self.url)
+        
+        # self.url = QLineEdit(self)
+        # self.url.setText('http://test1.com?sid=12345')
+        # self.l.addWidget(self.url)
 
         self.l.addWidget(QLabel('Output Format:'))
         self.fileform = QComboBox(self)
@@ -42,7 +50,7 @@ class DownloadDialog(QDialog):
         self.l.addWidget(self.fileform)
 
         self.ffdl_button = QPushButton(
-            'Download Story', self)
+            'Download Stories', self)
         self.ffdl_button.clicked.connect(self.ffdl)
         self.l.addWidget(self.ffdl_button)
 
@@ -68,21 +76,22 @@ class DownloadDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About the Interface Plugin Demo',
+        QMessageBox.about(self, 'About the FanFictionDownLoader Plugin',
                 text.decode('utf-8'))
 
     def ffdl(self):
-        self.pluginaction.start_downloads(unicode(self.url.text()),
-                                     unicode(self.fileform.currentText()))
+        self.start_downloads(unicode(self.url.toPlainText()),
+                             unicode(self.fileform.currentText()))
         self.hide()
 
     def config(self):
         self.do_user_config(parent=self)
-        # Apply the changes
-        #self.label.setText(prefs['hello_world_msg'])
 
+        
 class UserPassDialog(QDialog):
-    
+    '''
+    Need to collect User/Pass for some sites.
+    '''
     def __init__(self, gui, site):
         QDialog.__init__(self, gui)
         self.gui = gui
@@ -120,9 +129,11 @@ class UserPassDialog(QDialog):
         self.status=False
         self.hide()
 
-class QueueProgressDialog(QProgressDialog):
-
-    def __init__(self, gui, title, loop_list, fileform, loop_function, enqueue_function, db):
+class MetadataProgressDialog(QProgressDialog):
+    '''
+    ProgressDialog displayed while fetching metadata for each story.
+    '''
+    def __init__(self, gui, title, loop_list, fileform, getadapter_function, download_list_function, db):
         QProgressDialog.__init__(self, title, QString(), 0, len(loop_list), gui)
         self.setWindowTitle(title)
         self.setMinimumWidth(500)
@@ -130,41 +141,39 @@ class QueueProgressDialog(QProgressDialog):
         self.db = db
         self.loop_list = loop_list
         self.fileform = fileform
-        self.loop_function = loop_function
-        self.enqueue_function = enqueue_function
-        # self.book_ids, self.tdir, self.format_order, self.queue, self.db = \
-        #                             book_ids, tdir, format_order, queue, db
-        # self.pages_algorithm, self.pages_custom_column = pages_algorithm, pages_col
-        # self.words_algorithm, self.words_custom_column = words_algorithm, words_col
+        self.getadapter_function = getadapter_function
+        self.download_list_function = download_list_function
         self.i, self.loop_bad, self.loop_good = 0, [], []
-        self.setValue(0)
-        self.setLabelText("Fetching metadata for %d of %d"%(0,len(self.loop_list)))
         QTimer.singleShot(0, self.do_loop)
         self.exec_()
 
+    def bump(self):
+        self.i += 1
+        self.setValue(self.i)
+        self.setLabelText("Fetching metadata for %d of %d"%(0,len(self.loop_list)))
+        
+
     def do_loop(self):
         current = self.loop_list[self.i]
-        self.i += 1
 
+        self.bump()
         try:
-            retval = self.loop_function(current,self.fileform)
+            retval = self.getadapter_function(current,self.fileform)
             self.loop_good.append((current,retval))
         except Exception as e:
-            self.loop_bad.append(current)
+            self.loop_bad.append((current,e))
 
-        self.setValue(self.i)
-        self.setLabelText("Fetching metadata for %d of %d"%(self.i,len(self.loop_list)))
         if self.i >= len(self.loop_list):
-            return self.do_queue()
+            return self.do_when_finished()
         else:
             QTimer.singleShot(0, self.do_loop)
 
-    def do_queue(self):
+    def do_when_finished(self):
         self.hide()
         if self.loop_bad != []:
             res = []
-            for current in self.loop_bad:
-                res.append('%s'%current)
+            for j in self.loop_bad:
+                res.append('%s : %s'%j)
             msg = '%s' % '\n'.join(res)
             warning_dialog(self.gui, _('Could not get metadata for some stories'),
                 _('Could not get metadata for %d of %d stories.') %
@@ -172,4 +181,4 @@ class QueueProgressDialog(QProgressDialog):
                 msg).exec_()
         self.gui = None
         # Queue a job to process these ePub/Mobi books
-        self.enqueue_function(self.loop_good,self.fileform)
+        self.download_list_function(self.loop_good,self.fileform)

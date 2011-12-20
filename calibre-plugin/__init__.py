@@ -5,7 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Fanficdownloader team'
+__copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 # The class that all Interface Action plugin wrappers must inherit from
@@ -22,7 +22,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     calibre utilities to run without needing to load the GUI libraries.
     '''
     name                = 'aa FanFictionDownLoader Plugin'
-    description         = 'UI plugin to download and maintain FanFiction from various sites.'
+    description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
     version             = (1, 0, 0)
@@ -31,7 +31,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ui:InterfacePlugin'
+    actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ui:FanFictionDownLoaderPlugin'
 
     def is_customizable(self):
         '''
@@ -78,11 +78,9 @@ class InterfacePluginDemo(InterfaceActionBase):
         if ac is not None:
             ac.apply_settings()
 
-
-
-
 # For testing, run from command line with this:
 # calibre-debug -e __init__.py
+# 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     from calibre.gui2.preferences import test_widget

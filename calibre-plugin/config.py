@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Fanficdownloader team'
+__copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit 
