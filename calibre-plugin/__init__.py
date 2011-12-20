@@ -13,10 +13,10 @@ from calibre.customize import InterfaceActionBase
 
 class InterfacePluginDemo(InterfaceActionBase):
     '''
-    This class is a simple wrapper that provides information about the actual
-    plugin class. The actual interface plugin class is called InterfacePlugin
-    and is defined in the ui.py file, as specified in the actual_plugin field
-    below.
+    This class is a simple wrapper that provides information about the
+    actual plugin class. The actual interface plugin class is called
+    InterfacePlugin and is defined in the ffdl_plugin.py file, as
+    specified in the actual_plugin field below.
 
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
@@ -31,7 +31,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ui:FanFictionDownLoaderPlugin'
+    actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ffdl_plugin:FanFictionDownLoaderPlugin'
 
     def is_customizable(self):
         '''

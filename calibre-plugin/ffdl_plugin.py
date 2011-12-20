@@ -19,9 +19,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.config import prefs
-from calibre_plugins.fanfictiondownloader_plugin.plugin import DownloadDialog, MetadataProgressDialog, UserPassDialog
-
-#from calibre_plugins.fanfictiondownloader_plugin.jobs import do_story_downloads
+from calibre_plugins.fanfictiondownloader_plugin.dialogs import DownloadDialog, MetadataProgressDialog, UserPassDialog
 
 class FanFictionDownLoaderPlugin(InterfaceAction):
 
@@ -94,9 +92,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self.ffdlconfig.readfp(StringIO(get_resources("defaults.ini")))
         self.ffdlconfig.readfp(StringIO(prefs['personal.ini']))
 
-        ## XXX including code for Things to Come, namely, a list of
-        ## URLs rather than just one.
-        url_list = urls.splitlines()
+        url_list = get_url_list(urls)
         '''
         http://test1.com?sid=6700
         http://test1.com?sid=6701
@@ -109,7 +105,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.fetchmeta_qpd = \
             MetadataProgressDialog(self.gui,
-                                "Getting Metadata for Stories",
                                 url_list,
                                 fileform,
                                 self.get_adapter_for_story,
@@ -158,7 +153,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if identicalbooks:
             add=False
             if question_dialog(self.gui, 'Add Duplicate?', '<p>'+
-                               "That story is already in your library.  Create a new one?",
+                               "%s by %s is already in your library.  Create a new one?"%
+                               (story.getMetadata("title"),story.getMetadata("author")),
                                show_copy_button=False):
                 add=True
 
@@ -169,34 +165,20 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def download_list(self,adaptertuple_list,fileform):
         '''
-        Called by MetadataProgressDialog to enqueue story downloads for BG processing.
+        Called by MetadataProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
         '''
-        print("enqueue_story_list_for_download")
-        print(adaptertuple_list)
+        print("download_list")
         
-        func = 'arbitrary_n'
-        args = ['calibre_plugins.fanfictiondownloader_plugin.jobs', 'do_story_downloads',
-                (adaptertuple_list, fileform)] # adaptertuple_list
-        desc = 'Download FanFiction Stories'
-
-        print("pre self.gui.job_manager.run_job")
-        # job = self.gui.job_manager.run_job(
-        #         self.Dispatcher(self._get_stories_completed), func, args=args,
-        #             description=desc)
-
         job = ThreadedJob('FanFictionDownload',
                           'Downloading FanFiction Stories',
-                          func=do_story_downloads,
+                          func=self.do_story_downloads,
                           args=(adaptertuple_list, fileform, self.db),
                           kwargs={},
                           callback=self._get_stories_completed)
         
         self.gui.job_manager.run_threaded_job(job)
-        print("post self.gui.job_manager.run_job")
-        # job.tdir = tdir
-        # job.pages_custom_column = pages_custom_column
-        # job.words_custom_column = words_custom_column
+        
         self.gui.status_bar.show_message('Downloading %d stories'%len(adaptertuple_list))
 
     def _get_stories_completed(self, job):
@@ -225,57 +207,61 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # p.show()
         #info_dialog(self.gui,'FFDL Complete','It worked?')        
 
-def do_story_downloads(adaptertuple_list, fileform, db,
-                       abort=None, log=None, notifications=[]): # lambda x,y:x lambda makes small anonymous function.
-    '''
-    Master job, to launch child jobs to download this list of stories
-    '''
-    print("do_story_downloads")
-    notifications.put((0.01, 'Start Downloading Stories'))
-    count = 0
-    total = len(adaptertuple_list)
-    # Queue all the jobs
-    for (url,adapter) in adaptertuple_list:
-        do_story_download(adapter,fileform,db)
-        count = count + 1
-        notifications.put((float(count)/total, 'Downloading Stories'))
-    # return the map as the job result
-    # return book_pages_map, book_words_map
-    return {},{}
-
-def do_story_download(adapter,fileform,db):
-    print("do_story_download")
-
-#    ffdlconfig = ConfigParser.SafeConfigParser()
-#    adapter = adapters.getAdapter(ffdlconfig,url)
-
-    story = adapter.getStoryMetadataOnly()
-
-    mi = MetaInformation(story.getMetadata("title"),
-                         (story.getMetadata("author"),)) # author is a list.
+    def do_story_downloads(self, adaptertuple_list, fileform, db,
+                           **kwargs): # lambda x,y:x lambda makes small anonymous function.
+        # abort=None, log=None, 
+        '''
+        Master job, loop to download this list of stories
+        '''
+        print("do_story_downloads")
+        notifications=kwargs['notifications']
+        notifications.put((0.01, 'Start Downloading Stories'))
+        count = 0
+        total = len(adaptertuple_list)
+        # Queue all the jobs
+        for (url,adapter) in adaptertuple_list:
+            self.do_story_download(adapter,fileform,db)
+            count = count + 1
+            notifications.put((float(count)/total, 'Downloading Stories'))
+        # return the map as the job result
+        # return book_pages_map, book_words_map
+        return {},{}
     
-    writer = writers.getWriter(fileform,adapter.config,adapter)
-    tmp = PersistentTemporaryFile("."+fileform)
-    print("tmp: "+tmp.name)
+    def do_story_download(self,adapter,fileform,db):
+        print("do_story_download")
     
-    writer.writeStory(tmp)
+        story = adapter.getStoryMetadataOnly()
     
-    print("post write tmp: "+tmp.name)
-    
-    mi.set_identifiers({'url':story.getMetadata("storyUrl")})
-    mi.publisher = story.getMetadata("site")
-
-    mi.tags = writer.getTags()
-    mi.languages = ['en']
-    mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
-    mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
-    mi.comments = story.getMetadata("description")
-
-    (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
-    # Otherwise list of books doesn't update right away.
-    #self.gui.library_view.model().books_added(addedcount)
-
-    del adapter
-    del writer
-
+        mi = MetaInformation(story.getMetadata("title"),
+                             (story.getMetadata("author"),)) # author is a list.
         
+        writer = writers.getWriter(fileform,adapter.config,adapter)
+        tmp = PersistentTemporaryFile("."+fileform)
+        print("tmp: "+tmp.name)
+        
+        writer.writeStory(tmp)
+        
+        print("post write tmp: "+tmp.name)
+        
+        mi.set_identifiers({'url':story.getMetadata("storyUrl")})
+        mi.publisher = story.getMetadata("site")
+    
+        mi.tags = writer.getTags()
+        mi.languages = ['en']
+        mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
+        mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
+        mi.comments = story.getMetadata("description")
+    
+        (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
+        # Otherwise list of books doesn't update right away.
+        self.gui.library_view.model().books_added(addedcount)
+    
+        del adapter
+        del writer
+
+def f(x):
+    if x.strip(): return True
+    else: return False
+    
+def get_url_list(urls):
+    return filter(f,urls.strip().splitlines())
