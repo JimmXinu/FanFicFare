@@ -55,7 +55,10 @@ class TestSiteAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         if self.story.getMetadata('storyId').startswith('670'):
-            time.sleep(2.0)
+            time.sleep(1.0)
+            
+        if self.story.getMetadata('storyId').startswith('671'):
+            time.sleep(1.0)
             
         if self.getConfig("username"):
             self.username = self.getConfig("username")
@@ -131,8 +134,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 
-        if self.story.getMetadata('storyId').startswith('670'):
-            time.sleep(2.0)
+        if self.story.getMetadata('storyId').startswith('670') or \
+                self.story.getMetadata('storyId').startswith('672'):
+            time.sleep(1.0)
 
         if "chapter=1" in url :
             text=u'''
@@ -146,6 +150,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
+<p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
+<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>And other storyId will succeed with the same output.</p>
 </div>
 '''

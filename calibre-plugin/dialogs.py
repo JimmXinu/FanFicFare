@@ -12,7 +12,7 @@ from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QGridLayout,
                       QTextEdit, QLineEdit, QInputDialog, QComboBox,
                       QProgressDialog, QTimer )
 
-from calibre.gui2 import error_dialog, warning_dialog, question_dialog
+from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
 
@@ -34,7 +34,17 @@ class DownloadDialog(QDialog):
         self.l.addWidget(QLabel('Story URL(s), one per line:'))
         self.url = QTextEdit(self)
         self.url.setLineWrapMode(QTextEdit.NoWrap)
-        self.url.setText('http://test1.com?sid=12345')
+#         self.url.setText('''http://test1.com?sid=6700
+# http://test1.com?sid=6701
+# http://test1.com?sid=6702
+# http://test1.com?sid=6703
+# http://test1.com?sid=6704
+# http://test1.com?sid=6705
+# http://test1.com?sid=6706
+# http://test1.com?sid=6707
+# http://test1.com?sid=6708
+# http://test1.com?sid=6709
+# ''')
         self.l.addWidget(self.url)
         
         # self.url = QLineEdit(self)
@@ -133,9 +143,11 @@ class MetadataProgressDialog(QProgressDialog):
     '''
     ProgressDialog displayed while fetching metadata for each story.
     '''
-    def __init__(self, gui, title, loop_list, fileform, getadapter_function, download_list_function, db):
-        QProgressDialog.__init__(self, title, QString(), 0, len(loop_list), gui)
-        self.setWindowTitle(title)
+    def __init__(self, gui, loop_list, fileform, getadapter_function, download_list_function, db):
+        QProgressDialog.__init__(self,
+                                 "Fetching metadata for stories...",
+                                 QString(), 0, len(loop_list), gui)
+        self.setWindowTitle("Downloading metadata for stories")
         self.setMinimumWidth(500)
         self.gui = gui
         self.db = db
@@ -144,32 +156,44 @@ class MetadataProgressDialog(QProgressDialog):
         self.getadapter_function = getadapter_function
         self.download_list_function = download_list_function
         self.i, self.loop_bad, self.loop_good = 0, [], []
+        
+        ## self.do_loop does QTimer.singleShot on self.do_loop also.
+        ## A weird way to do a loop, but that was the example I had.
         QTimer.singleShot(0, self.do_loop)
         self.exec_()
 
-    def bump(self):
-        self.i += 1
-        self.setValue(self.i)
-        self.setLabelText("Fetching metadata for %d of %d"%(0,len(self.loop_list)))
-        
+    def updateStatus(self):
+        self.setLabelText("Fetched metadata for %d of %d"%(self.i+1,len(self.loop_list)))
+        self.setValue(self.i+1)
+        print(self.labelText())
 
     def do_loop(self):
-        current = self.loop_list[self.i]
+        print("self.i:%d"%self.i)
 
-        self.bump()
-        try:
-            retval = self.getadapter_function(current,self.fileform)
-            self.loop_good.append((current,retval))
-        except Exception as e:
-            self.loop_bad.append((current,e))
+        if self.i == 0:
+            self.setValue(0)
 
-        if self.i >= len(self.loop_list):
+        if self.i >= len(self.loop_list) or self.wasCanceled():
             return self.do_when_finished()
+
         else:
+            current = self.loop_list[self.i]
+            try:
+                retval = self.getadapter_function(current,self.fileform)
+                self.loop_good.append((current,retval))
+            except Exception as e:
+                self.loop_bad.append((current,e))
+            
+            self.updateStatus()
+            self.i += 1
             QTimer.singleShot(0, self.do_loop)
 
     def do_when_finished(self):
         self.hide()
+        
+        # Queues a job to process these ePub/Mobi books in the background.
+        self.download_list_function(self.loop_good,self.fileform)
+        
         if self.loop_bad != []:
             res = []
             for j in self.loop_bad:
@@ -179,6 +203,8 @@ class MetadataProgressDialog(QProgressDialog):
                 _('Could not get metadata for %d of %d stories.') %
                 (len(self.loop_bad), len(self.loop_list)),
                 msg).exec_()
+        else:
+            info_dialog(self.gui, "Starting Downloads",
+                        "Got metadata and started download for %d stories."%len(self.loop_good),
+                        show_copy_button=False).exec_()
         self.gui = None
-        # Queue a job to process these ePub/Mobi books
-        self.download_list_function(self.loop_good,self.fileform)
