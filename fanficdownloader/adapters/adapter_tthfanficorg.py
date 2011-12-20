@@ -34,6 +34,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev','tth')
         self.dateformat = "%d %b %y"
         self.is_adult=False
+        self.username = None
+        self.password = None
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
@@ -60,6 +62,48 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://www.tthfanfic.org/(T-\d+/)?Story-(?P<id>\d+)(-\d+)?(/.*)?$"
 
+    # tth won't send you future updates if you aren't 'caught up'
+    # on the story.  Login isn't required for F21, but logging in will
+    # mark stories you've downloaded as 'read' on tth.
+    def performLogin(self):
+        params = {}
+
+        if self.password:
+            params['urealname'] = self.username
+            params['password'] = self.password
+        else:
+            params['urealname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['loginsubmit'] = 'Login'
+
+        if not params['password']:
+            return
+        
+        loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['urealname']))
+
+        ## need to pull empty login page first to get ctkn and
+        ## password name, which are BUSs
+# <form method='post' action='/login.php' accept-charset="utf-8">
+# <input type='hidden' name='ctkn' value='4bdf761f5bea06bf4477072afcbd0f8d721d1a4f989c09945a9e87afb7a66de1'/>
+# <input type='text' id='urealname' name='urealname' value=''/>
+# <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
+# <input type='submit' value='Login' name='loginsubmit'/>
+        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl))
+        params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
+        params[soup.find('input', {'id':'password'})['name']] = params['password']
+        
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Stories Published" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
+
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter.  From that we will get almost all the
         # metadata and chapter list
@@ -67,6 +111,11 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         url=self.url
         logging.debug("URL: "+url)
 
+        # tth won't send you future updates if you aren't 'caught up'
+        # on the story.  Login isn't required for F21, but logging in will
+        # mark stories you've downloaded as 'read' on tth.
+        self.performLogin()
+        
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
