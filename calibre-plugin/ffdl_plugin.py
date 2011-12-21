@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from StringIO import StringIO
 import ConfigParser
+from functools import partial
 
 # The class that all interface action plugins must inherit from
 from calibre.ptempfile import PersistentTemporaryFile
@@ -19,7 +20,18 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.config import prefs
-from calibre_plugins.fanfictiondownloader_plugin.dialogs import DownloadDialog, MetadataProgressDialog, UserPassDialog
+from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
+    DownloadDialog, MetadataProgressDialog, UserPassDialog, OVERWRITE, ADDNEW, SKIP)
+
+# because calibre immediately transforms html into zip and don't want
+# to have an 'if html'.  db.has_format is cool with the case mismatch,
+# but if I'm doing it anyway...
+formmapping = {
+    'epub':'EPUB',
+    'mobi':'MOBI',
+    'html':'ZIP',
+    'txt':'TXT'
+    }
 
 class FanFictionDownLoaderPlugin(InterfaceAction):
 
@@ -34,7 +46,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     action_spec = ('FanFictionDownLoader', None,
                    'Download FanFiction stories from various web sites', None)
 
-    action_type = 'current'
+    action_type = 'global'
     
     def genesis(self):
         # This method is called once per plugin, do initial setup here
@@ -72,11 +84,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # things.
         self.db = self.gui.current_db
 
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if rows:
+            book_ids = self.gui.library_view.get_selected_ids()
+            print("book_ids: %s"%book_ids)
+
+        row = self.gui.library_view.currentIndex()
+        if row.isValid():
+            print("current id:%d"%self.gui.library_view.model().id(row))
+        #self.db.get_identifiers()['url']
+            
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
         # DownloadDialog just collects URLs, format and presents buttons.
         d = DownloadDialog(self.gui,
+                           prefs,
                            self.qaction.icon(),
                            do_user_config,  # method for config button
                            self.start_downloads, # method to start downloads
@@ -87,31 +110,23 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # No need to do anything with perfs here, but we could.
         prefs
 
-    def start_downloads(self,urls,fileform):
+    def start_downloads(self,urls,fileform,
+                        collision,updatemeta):
         self.ffdlconfig = ConfigParser.SafeConfigParser()
         self.ffdlconfig.readfp(StringIO(get_resources("defaults.ini")))
         self.ffdlconfig.readfp(StringIO(prefs['personal.ini']))
 
         url_list = get_url_list(urls)
-        '''
-        http://test1.com?sid=6700
-        http://test1.com?sid=6701
-        http://test1.com?sid=6702
-        http://test1.com?sid=6703
-        http://test1.com?sid=6704
-        http://test1.com?sid=6705
-        http://test1.com?sid=6706
-        '''
 
         self.fetchmeta_qpd = \
             MetadataProgressDialog(self.gui,
                                 url_list,
                                 fileform,
-                                self.get_adapter_for_story,
-                                self.download_list,
+                                partial(self.get_adapter_for_story, collision=collision),
+                                partial(self.download_list,collision=collision,updatemeta=updatemeta),
                                 self.db)
             
-    def get_adapter_for_story(self,url,fileform):
+    def get_adapter_for_story(self,url,fileform,collision=SKIP):
         '''
         Returns adapter object for story at URL.  To be called from
         MetadataProgressDialog 'loop' to build up list of adapters.  Also
@@ -145,25 +160,34 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # let exceptions percolate up.
         story = adapter.getStoryMetadataOnly()
 
-        mi = MetaInformation(story.getMetadata("title"),
-                             (story.getMetadata("author"),)) # author is a list.
-
         add=True
-        identicalbooks = self.db.find_identical_books(mi)
-        if identicalbooks:
-            add=False
-            if question_dialog(self.gui, 'Add Duplicate?', '<p>'+
-                               "%s by %s is already in your library.  Create a new one?"%
-                               (story.getMetadata("title"),story.getMetadata("author")),
-                               show_copy_button=False):
-                add=True
+        if collision != ADDNEW:
+            mi = MetaInformation(story.getMetadata("title"),
+                                 (story.getMetadata("author"),)) # author is a list.
+
+            identicalbooks = self.db.find_identical_books(mi)
+            print(identicalbooks)
+            ## more than one match will need to be handled differently.
+            if identicalbooks and collision == SKIP:
+                add=False
+                #            book_id = identicalbooks.pop()
+                #            print("formats:"+self.db.formats(book_id,index_is_id=True))
+                #            print("has format:%s"%self.db.has_format(book_id,formmapping[fileform],index_is_id=True))
+                #            if self.db.has_format(book_id,formmapping[fileform],index_is_id=True):
+                # if question_dialog(self.gui, 'Update?', '<p>'+
+                #                    "%s by %s is already in your library more than once.  Add/Replace this format?"%
+                #                    (story.getMetadata("title"),story.getMetadata("author")),
+                #                    show_copy_button=False):
+                #     add=True
 
         if add:
             return adapter
         else:
             return None
         
-    def download_list(self,adaptertuple_list,fileform):
+    def download_list(self,adaptertuple_list,fileform,
+                      collision=ADDNEW,
+                      updatemeta=True):
         '''
         Called by MetadataProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
@@ -174,8 +198,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                           'Downloading FanFiction Stories',
                           func=self.do_story_downloads,
                           args=(adaptertuple_list, fileform, self.db),
-                          kwargs={},
+                          kwargs={'collision':collision,'updatemeta':updatemeta},
                           callback=self._get_stories_completed)
+        
         
         self.gui.job_manager.run_threaded_job(job)
         
@@ -183,29 +208,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def _get_stories_completed(self, job):
         print("_get_stories_completed")
-        # remove_dir(job.tdir)
-        if job.failed:
-            return self.gui.job_exception(job, dialog_title='Failed to download stories')
-#        self.gui.status_bar.show_message('Download Stories completed', 3000)
-        # not really, but leave it for now.
-        book_pages_map, book_words_map = job.result
-
-        # if len(book_pages_map) + len(book_words_map) == 0:
-        #     # Must have been some sort of error in processing this book
-        #     msg = 'Failed to generate any statistics. <b>View Log</b> for details'
-        #     p = ErrorNotification(job.details, 'Count log', 'Count Pages failed', msg,
-        #             show_copy_button=False, parent=self.gui)
-        # else:
-        #     payload = (book_pages_map, job.pages_custom_column, book_words_map, job.words_custom_column)
-        #     all_ids = set(book_pages_map.keys()) | set(book_words_map.keys())
-        #     msg = '<p>Count Pages plugin found <b>%d statistics(s)</b>. ' % len(all_ids) + \
-        #           'Proceed with updating your library?'
-        #     p = ProceedNotification(self._update_database_columns,
-        #             payload, job.details,
-        #             'Count log', 'Count complete', msg,
-        #             show_copy_button=False, parent=self.gui)
-        # p.show()
-        #info_dialog(self.gui,'FFDL Complete','It worked?')        
 
     def do_story_downloads(self, adaptertuple_list, fileform, db,
                            **kwargs): # lambda x,y:x lambda makes small anonymous function.
@@ -214,20 +216,30 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         Master job, loop to download this list of stories
         '''
         print("do_story_downloads")
+        abort = kwargs['abort']
         notifications=kwargs['notifications']
+        log = kwargs['log']
         notifications.put((0.01, 'Start Downloading Stories'))
-        count = 0
+        count = 0.01
         total = len(adaptertuple_list)
         # Queue all the jobs
         for (url,adapter) in adaptertuple_list:
-            self.do_story_download(adapter,fileform,db)
+            if abort.is_set():
+                notifications.put(1.0,'Aborting...')
+                return
+            notifications.put((float(count)/total,
+                               'Downloading %s'%adapter.getStoryMetadataOnly().getMetadata("title")))
+            log.prints(log.INFO,'Downloading %s'%adapter.getStoryMetadataOnly().getMetadata("title"))
+            try:
+                self.do_story_download(adapter,fileform,db,kwargs['collision'],kwargs['updatemeta'])
+            except Exception as e:
+                log.prints(log.ERROR,'Failed Downloading %s: %s'%
+                           (adapter.getStoryMetadataOnly().getMetadata("title"),e))
+                
             count = count + 1
-            notifications.put((float(count)/total, 'Downloading Stories'))
-        # return the map as the job result
-        # return book_pages_map, book_words_map
-        return {},{}
+        return
     
-    def do_story_download(self,adapter,fileform,db):
+    def do_story_download(self,adapter,fileform,db,collision,updatemeta):
         print("do_story_download")
     
         story = adapter.getStoryMetadataOnly()
@@ -237,24 +249,35 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         writer = writers.getWriter(fileform,adapter.config,adapter)
         tmp = PersistentTemporaryFile("."+fileform)
+        print("%s by %s"%(story.getMetadata("title"), story.getMetadata("author")))
         print("tmp: "+tmp.name)
-        
+
         writer.writeStory(tmp)
         
-        print("post write tmp: "+tmp.name)
-        
         mi.set_identifiers({'url':story.getMetadata("storyUrl")})
-        mi.publisher = story.getMetadata("site")
-    
+        mi.publisher = story.getMetadata("site")    
         mi.tags = writer.getTags()
         mi.languages = ['en']
         mi.pubdate = story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")
         mi.timestamp = story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")
         mi.comments = story.getMetadata("description")
     
-        (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
+        identicalbooks = self.db.find_identical_books(mi)
+        print(identicalbooks)
+        addedcount=0
+        if identicalbooks and collision == OVERWRITE:
+            ## more than one match?  add to first off the list.
+            book_id = identicalbooks.pop()
+            if updatemeta:
+                db.set_metadata(book_id,mi)
+            db.add_format_with_hooks(book_id, fileform, tmp, index_is_id=True)
+        else:
+            (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
+            
+            
         # Otherwise list of books doesn't update right away.
-        self.gui.library_view.model().books_added(addedcount)
+        if addedcount:
+            self.gui.library_view.model().books_added(addedcount)
     
         del adapter
         del writer

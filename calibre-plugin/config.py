@@ -7,9 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit 
+from PyQt4.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit,
+                      QComboBox, QCheckBox)
 
 from calibre.utils.config import JSONConfig
+
+from calibre_plugins.fanfictiondownloader_plugin.dialogs import (OVERWRITE, ADDNEW, SKIP)
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
@@ -20,6 +23,9 @@ prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # Set defaults
 prefs.defaults['personal.ini'] = get_resources('example.ini')
+prefs.defaults['updatemeta'] = True
+prefs.defaults['fileform'] = 'epub'
+prefs.defaults['collision'] = OVERWRITE
 
 class ConfigWidget(QWidget):
 
@@ -27,6 +33,43 @@ class ConfigWidget(QWidget):
         QWidget.__init__(self)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
+
+        horz = QHBoxLayout()
+        label = QLabel('Default Output &Format:')
+        horz.addWidget(label)
+        self.fileform = QComboBox(self)
+        self.fileform.addItem('epub')
+        self.fileform.addItem('mobi')
+        self.fileform.addItem('html')
+        self.fileform.addItem('txt')
+        self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
+        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        label.setBuddy(self.fileform)
+        horz.addWidget(self.fileform)
+        self.l.addLayout(horz)
+
+        horz = QHBoxLayout()
+        label = QLabel('Default On &Collision?')
+        label.setToolTip("What to do if there's already an existing story with the same title and author.")
+        horz.addWidget(label)
+        self.collision = QComboBox(self)
+        self.collision.addItem(OVERWRITE)
+        self.collision.addItem(ADDNEW)
+        self.collision.addItem(SKIP)
+        self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
+        self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
+        label.setBuddy(self.collision)
+        horz.addWidget(self.collision)
+        self.l.addLayout(horz)
+
+        horz = QHBoxLayout()
+        horz.addStretch(1)
+        
+        self.updatemeta = QCheckBox('Default Update &Metadata?',self)
+        self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
+        horz.addWidget(self.updatemeta)
+        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.l.addLayout(horz)
 
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
@@ -37,6 +80,10 @@ class ConfigWidget(QWidget):
         self.l.addWidget(self.ini)
         
     def save_settings(self):
+        prefs['fileform'] = unicode(self.fileform.currentText())
+        prefs['collision'] = unicode(self.collision.currentText())
+        prefs['updatemeta'] = self.updatemeta.isChecked()
+        
         ini = unicode(self.ini.toPlainText())
         if ini:
             prefs['personal.ini'] = ini
@@ -44,4 +91,5 @@ class ConfigWidget(QWidget):
             # if they've removed everything, clear it so they get the
             # default next time.
             del prefs['personal.ini']
+        
 
