@@ -28,6 +28,8 @@ class InterfacePluginDemo(InterfaceActionBase):
     version             = (1, 0, 0)
     minimum_calibre_version = (0, 7, 53)
 
+#    action_menu_clone_qaction = True
+
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.

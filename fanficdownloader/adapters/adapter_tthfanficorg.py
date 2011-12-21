@@ -174,10 +174,10 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         BtVS = True
         for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
-            if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'BtVS/AtS Non-Crossover']:
+            if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
                 self.story.addToList('category',cat.string)
             else:
-                if cat.string == 'Non-BtVS/AtS Stories':
+                if 'Non-BtVS' in cat.string:
                     BtVS = False
         if BtVS:
             self.story.addToList('category','Buffy: The Vampire Slayer')

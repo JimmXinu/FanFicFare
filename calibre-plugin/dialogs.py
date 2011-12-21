@@ -7,18 +7,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QGridLayout,
-                      QPushButton, QProgressDialog, QString, QLabel,
-                      QTextEdit, QLineEdit, QInputDialog, QComboBox,
-                      QProgressDialog, QTimer )
+from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
+                      QPushButton, QProgressDialog, QString, QLabel, QCheckBox, 
+                      QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, 
+                      QProgressDialog, QTimer, QApplication )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
 
+OVERWRITE='Overwrite'
+ADDNEW='Add New'
+SKIP='Skip'
+
 class DownloadDialog(QDialog):
 
-    def __init__(self, gui, icon, do_user_config, start_downloads):
+    def __init__(self, gui, prefs, icon, do_user_config, start_downloads):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -33,8 +37,12 @@ class DownloadDialog(QDialog):
 
         self.l.addWidget(QLabel('Story URL(s), one per line:'))
         self.url = QTextEdit(self)
+        self.url.setToolTip('URLs for stories, one per line.')
         self.url.setLineWrapMode(QTextEdit.NoWrap)
-#         self.url.setText('''http://test1.com?sid=6700
+        clipboard = QApplication.instance().clipboard()
+        self.url.setText(clipboard.text())
+            #'''http://test1.com?sid=6
+#''')
 # http://test1.com?sid=6701
 # http://test1.com?sid=6702
 # http://test1.com?sid=6703
@@ -44,34 +52,64 @@ class DownloadDialog(QDialog):
 # http://test1.com?sid=6707
 # http://test1.com?sid=6708
 # http://test1.com?sid=6709
-# ''')
         self.l.addWidget(self.url)
         
         # self.url = QLineEdit(self)
         # self.url.setText('http://test1.com?sid=12345')
         # self.l.addWidget(self.url)
 
-        self.l.addWidget(QLabel('Output Format:'))
+        self.ffdl_button = QPushButton(
+            'Download Stories', self)
+        self.ffdl_button.setToolTip('Start download(s).')
+        self.ffdl_button.clicked.connect(self.ffdl)
+        self.l.addWidget(self.ffdl_button)
+
+        horz = QHBoxLayout()
+        label = QLabel('Output &Format:')
+        horz.addWidget(label)
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
         self.fileform.addItem('mobi')
         self.fileform.addItem('html')
         self.fileform.addItem('txt')
-        self.l.addWidget(self.fileform)
+        self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
+        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        label.setBuddy(self.fileform)
+        horz.addWidget(self.fileform)
+        self.l.addLayout(horz)
 
-        self.ffdl_button = QPushButton(
-            'Download Stories', self)
-        self.ffdl_button.clicked.connect(self.ffdl)
-        self.l.addWidget(self.ffdl_button)
+        horz = QHBoxLayout()
+        label = QLabel('On &Collision?')
+        label.setToolTip("What to do if there's already an existing story with the same title and author.")
+        horz.addWidget(label)
+        self.collision = QComboBox(self)
+        self.collision.addItem(OVERWRITE)
+        self.collision.addItem(ADDNEW)
+        self.collision.addItem(SKIP)
+        self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
+        self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
+        label.setBuddy(self.collision)
+        horz.addWidget(self.collision)
+        self.l.addLayout(horz)
 
+        horz = QHBoxLayout()
+        horz.addStretch(1)
+        
+        self.updatemeta = QCheckBox('Update &Metadata?',self)
+        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
+        horz.addWidget(self.updatemeta)
+        self.l.addLayout(horz)
+
+        horz = QHBoxLayout()
+        self.about_button = QPushButton('About', self)
+        self.about_button.clicked.connect(self.about)
+        horz.addWidget(self.about_button)
         self.conf_button = QPushButton(
                 'Configure this plugin', self)
         self.conf_button.clicked.connect(self.config)
-        self.l.addWidget(self.conf_button)
-
-        self.about_button = QPushButton('About', self)
-        self.about_button.clicked.connect(self.about)
-        self.l.addWidget(self.about_button)
+        horz.addWidget(self.conf_button)
+        self.l.addLayout(horz)
 
         self.resize(self.sizeHint())
 
@@ -91,7 +129,9 @@ class DownloadDialog(QDialog):
 
     def ffdl(self):
         self.start_downloads(unicode(self.url.toPlainText()),
-                             unicode(self.fileform.currentText()))
+                             unicode(self.fileform.currentText()),
+                             unicode(self.collision.currentText()),
+                             self.updatemeta.isChecked())
         self.hide()
 
     def config(self):
@@ -180,7 +220,10 @@ class MetadataProgressDialog(QProgressDialog):
             current = self.loop_list[self.i]
             try:
                 retval = self.getadapter_function(current,self.fileform)
-                self.loop_good.append((current,retval))
+                if retval:
+                    self.loop_good.append((current,retval))
+                else:
+                    self.loop_bad.append((current,'Duplicate--skipped.'))
             except Exception as e:
                 self.loop_bad.append((current,e))
             
@@ -203,8 +246,8 @@ class MetadataProgressDialog(QProgressDialog):
                 _('Could not get metadata for %d of %d stories.') %
                 (len(self.loop_bad), len(self.loop_list)),
                 msg).exec_()
-        else:
-            info_dialog(self.gui, "Starting Downloads",
-                        "Got metadata and started download for %d stories."%len(self.loop_good),
-                        show_copy_button=False).exec_()
+        # else:
+        #     info_dialog(self.gui, "Starting Downloads",
+        #                 "Got metadata and started download for %d stories."%len(self.loop_good),
+        #                 show_copy_button=False).exec_()
         self.gui = None
