@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
                       QPushButton, QProgressDialog, QString, QLabel, QCheckBox, 
                       QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, 
-                      QProgressDialog, QTimer, QApplication )
+                      QProgressDialog, QTimer )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 
@@ -22,7 +22,7 @@ SKIP='Skip'
 
 class DownloadDialog(QDialog):
 
-    def __init__(self, gui, prefs, icon, do_user_config, start_downloads):
+    def __init__(self, gui, prefs, icon, url_list_text, do_user_config, start_downloads):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -39,25 +39,9 @@ class DownloadDialog(QDialog):
         self.url = QTextEdit(self)
         self.url.setToolTip('URLs for stories, one per line.')
         self.url.setLineWrapMode(QTextEdit.NoWrap)
-        clipboard = QApplication.instance().clipboard()
-        self.url.setText(clipboard.text())
-            #'''http://test1.com?sid=6
-#''')
-# http://test1.com?sid=6701
-# http://test1.com?sid=6702
-# http://test1.com?sid=6703
-# http://test1.com?sid=6704
-# http://test1.com?sid=6705
-# http://test1.com?sid=6706
-# http://test1.com?sid=6707
-# http://test1.com?sid=6708
-# http://test1.com?sid=6709
+        self.url.setText(url_list_text)
         self.l.addWidget(self.url)
         
-        # self.url = QLineEdit(self)
-        # self.url.setText('http://test1.com?sid=12345')
-        # self.l.addWidget(self.url)
-
         self.ffdl_button = QPushButton(
             'Download Stories', self)
         self.ffdl_button.setToolTip('Start download(s).')

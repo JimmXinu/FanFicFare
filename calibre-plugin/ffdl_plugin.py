@@ -11,9 +11,12 @@ from StringIO import StringIO
 import ConfigParser
 from functools import partial
 
+from PyQt4.Qt import (QApplication)
+
 # The class that all interface action plugins must inherit from
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.threaded_jobs import ThreadedJob
@@ -84,15 +87,63 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # things.
         self.db = self.gui.current_db
 
+        ## if there's rows selected, try to find a source URL from
+        ## either identifier in the metadata, or from the epub
+        ## metadata.
+        url_list = []
         rows = self.gui.library_view.selectionModel().selectedRows()
         if rows:
             book_ids = self.gui.library_view.get_selected_ids()
             print("book_ids: %s"%book_ids)
+            for book_id in book_ids:
+                identifiers = self.db.get_identifiers(book_id,index_is_id=True) 
+                if 'url' in identifiers:
+                    # identifiers have :->| in url.
+                    #print("url from book:"+identifiers['url'].replace('|',':'))
+                    url_list.append(identifiers['url'].replace('|',':'))
+                else:
+                    ## only epub has that in it.
+                    if self.db.has_format(book_id,'EPUB',index_is_id=True):
+                        stream = self.db.format(book_id,'EPUB',index_is_id=True, as_file=True)
+                        mi = get_metadata(stream,'EPUB')
+                        #print("mi:%s"%mi)
+                        identifiers = mi.get_identifiers()
+                        if 'url' in identifiers:
+                            #print("url from epub:"+identifiers['url'].replace('|',':'))
+                            url_list.append(identifiers['url'].replace('|',':'))
+        else:
+            # no rows selected, check for valid URLs in the clipboard.
+            cliptext = unicode(QApplication.instance().clipboard().text())
+            url_list.extend(cliptext.split())
 
-        row = self.gui.library_view.currentIndex()
-        if row.isValid():
-            print("current id:%d"%self.gui.library_view.model().id(row))
-        #self.db.get_identifiers()['url']
+        url_list_text = ""
+        # Check and make sure the URLs are valid ffdl URLs.
+        if url_list:
+            dummyconfig = ConfigParser.SafeConfigParser()
+            for url in url_list:
+                # pulling up an adapter is pretty low over-head.  If
+                # it fails, it's a bad url.
+                try:
+                    adapters.getAdapter(dummyconfig,url)
+                except:
+                    pass
+                else:
+                    if url_list_text:
+                        url_list_text += "\n"
+                    url_list_text += url
+            
+            #'''http://test1.com?sid=6
+#''')
+# http://test1.com?sid=6701
+# http://test1.com?sid=6702
+# http://test1.com?sid=6703
+# http://test1.com?sid=6704
+# http://test1.com?sid=6705
+# http://test1.com?sid=6706
+# http://test1.com?sid=6707
+# http://test1.com?sid=6708
+# http://test1.com?sid=6709
+
             
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
@@ -101,6 +152,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         d = DownloadDialog(self.gui,
                            prefs,
                            self.qaction.icon(),
+                           url_list_text,
                            do_user_config,  # method for config button
                            self.start_downloads, # method to start downloads
                            )
@@ -120,11 +172,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.fetchmeta_qpd = \
             MetadataProgressDialog(self.gui,
-                                url_list,
-                                fileform,
-                                partial(self.get_adapter_for_story, collision=collision),
-                                partial(self.download_list,collision=collision,updatemeta=updatemeta),
-                                self.db)
+                                   url_list,
+                                   fileform,
+                                   partial(self.get_adapter_for_story, collision=collision),
+                                   partial(self.download_list,collision=collision,updatemeta=updatemeta),
+                                   self.db)
             
     def get_adapter_for_story(self,url,fileform,collision=SKIP):
         '''
