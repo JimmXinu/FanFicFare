@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import traceback
+
 from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
                       QPushButton, QProgressDialog, QString, QLabel, QCheckBox, 
                       QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, 
@@ -17,8 +19,10 @@ from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dia
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
 
 OVERWRITE='Overwrite'
+UPDATE='Update EPUB'
 ADDNEW='Add New'
 SKIP='Skip'
+CALIBREONLY='Update Calibre Metadata Only'
 
 class DownloadDialog(QDialog):
 
@@ -37,7 +41,7 @@ class DownloadDialog(QDialog):
 
         self.l.addWidget(QLabel('Story URL(s), one per line:'))
         self.url = QTextEdit(self)
-        self.url.setToolTip('URLs for stories, one per line.')
+        self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from selected books or clipboard, but only valid URLs.')
         self.url.setLineWrapMode(QTextEdit.NoWrap)
         self.url.setText(url_list_text)
         self.l.addWidget(self.url)
@@ -46,6 +50,9 @@ class DownloadDialog(QDialog):
             'Download Stories', self)
         self.ffdl_button.setToolTip('Start download(s).')
         self.ffdl_button.clicked.connect(self.ffdl)
+        # if there's already URL(s), focus 'go' button
+        if url_list_text:
+            self.ffdl_button.setFocus()
         self.l.addWidget(self.ffdl_button)
 
         horz = QHBoxLayout()
@@ -63,28 +70,36 @@ class DownloadDialog(QDialog):
         self.l.addLayout(horz)
 
         horz = QHBoxLayout()
-        label = QLabel('On &Collision?')
+        label = QLabel('If Story Already Exists?')
         label.setToolTip("What to do if there's already an existing story with the same title and author.")
         horz.addWidget(label)
         self.collision = QComboBox(self)
         self.collision.addItem(OVERWRITE)
+        self.collision.addItem(UPDATE)
         self.collision.addItem(ADDNEW)
         self.collision.addItem(SKIP)
+        self.collision.addItem(CALIBREONLY)
         self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
-        self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
+        self.collision.setToolTip(OVERWRITE+' will replace the existing story.\n'+
+                                  UPDATE+' will download new chapters only and add to existing EPUB.\n'+
+                                  ADDNEW+' will create a new story with the same title and author.\n'+
+                                  SKIP+' will not download existing stories.\n'+
+                                  CALIBREONLY+' will not download stories, but will update Calibre metadata.')
         label.setBuddy(self.collision)
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
 
-        horz = QHBoxLayout()
-        horz.addStretch(1)
-        
-        self.updatemeta = QCheckBox('Update &Metadata?',self)
-        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
         self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
-        horz.addWidget(self.updatemeta)
-        self.l.addLayout(horz)
+        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.l.addWidget(self.updatemeta)
 
+        self.onlyoverwriteifnewer = QCheckBox('Only Overwrite Story if Newer',self)
+        self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer.\n"+
+                                             "From the same day counts as 'newer' because the sites don't give update time.")
+        self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
+        self.l.addWidget(self.onlyoverwriteifnewer)
+        
         horz = QHBoxLayout()
         self.about_button = QPushButton('About', self)
         self.about_button.clicked.connect(self.about)
@@ -115,7 +130,8 @@ class DownloadDialog(QDialog):
         self.start_downloads(unicode(self.url.toPlainText()),
                              unicode(self.fileform.currentText()),
                              unicode(self.collision.currentText()),
-                             self.updatemeta.isChecked())
+                             self.updatemeta.isChecked(),
+                             self.onlyoverwriteifnewer.isChecked())
         self.hide()
 
     def config(self):
@@ -203,13 +219,14 @@ class MetadataProgressDialog(QProgressDialog):
         else:
             current = self.loop_list[self.i]
             try:
+                ## collision spec passed into getadapter by partial from ffdl_plugin
+                ## no retval only if it exists, but collision is SKIP
                 retval = self.getadapter_function(current,self.fileform)
-                if retval:
-                    self.loop_good.append((current,retval))
-                else:
-                    self.loop_bad.append((current,'Duplicate--skipped.'))
+                self.loop_good.append((current,retval))
             except Exception as e:
+                print("%s:%s"%(current,e))
                 self.loop_bad.append((current,e))
+                traceback.print_exc()
             
             self.updateStatus()
             self.i += 1
@@ -226,8 +243,8 @@ class MetadataProgressDialog(QProgressDialog):
             for j in self.loop_bad:
                 res.append('%s : %s'%j)
             msg = '%s' % '\n'.join(res)
-            warning_dialog(self.gui, _('Could not get metadata for some stories'),
-                _('Could not get metadata for %d of %d stories.') %
+            warning_dialog(self.gui, _('Not going to download some stories'),
+                _('Not going to download %d of %d stories.') %
                 (len(self.loop_bad), len(self.loop_list)),
                 msg).exec_()
         # else:
@@ -235,3 +252,10 @@ class MetadataProgressDialog(QProgressDialog):
         #                 "Got metadata and started download for %d stories."%len(self.loop_good),
         #                 show_copy_button=False).exec_()
         self.gui = None
+
+class NotGoingToDownload(Exception):
+    def __init__(self,error):
+        self.error=error
+
+    def __str__(self):
+        return self.error

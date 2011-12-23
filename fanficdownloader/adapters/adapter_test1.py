@@ -75,12 +75,12 @@ class TestSiteAdapter(BaseSiteAdapter):
 
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
-        self.story.setMetadata('datePublished',makeDate("1972-01-31","%Y-%m-%d"))
+        self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         if self.story.getMetadata('storyId') == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
-            self.story.setMetadata('dateUpdated',makeDate("1975-01-31","%Y-%m-%d"))
+            self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
         self.story.setMetadata('numWords','123456')
         self.story.setMetadata('status','In-Completed')
         self.story.setMetadata('rating','Tweenie')
@@ -104,8 +104,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
                             ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
                             ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
-                            ('Chapter 4',self.url+"&chapter=5"),
-                            ('Chapter 5',self.url+"&chapter=6"),
+                            # ('Chapter 4',self.url+"&chapter=5"),
+                            # ('Chapter 5',self.url+"&chapter=6"),
                             # ('Chapter 6',self.url+"&chapter=6"),
                             # ('Chapter 7',self.url+"&chapter=6"),
                             # ('Chapter 8',self.url+"&chapter=6"),
