@@ -359,7 +359,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         identicalbooks = self.db.find_identical_books(mi)
         print(identicalbooks)
         addedcount=0
-        if identicalbooks:
+        if identicalbooks and collision != ADDNEW:
             ## more than one match?  add to first off the list.
             ## Shouldn't happen--we checked above.
             book_id = identicalbooks.pop()
