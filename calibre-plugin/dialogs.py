@@ -12,7 +12,7 @@ import traceback
 from PyQt4.Qt import (QDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
                       QPushButton, QProgressDialog, QString, QLabel, QCheckBox, 
                       QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, 
-                      QProgressDialog, QTimer )
+                      QProgressDialog, QTimer, QDialogButtonBox, QPixmap, Qt )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 
@@ -123,8 +123,9 @@ class DownloadDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About the FanFictionDownLoader Plugin',
-                text.decode('utf-8'))
+#        QMessageBox.about(self, 'About the FanFictionDownLoader Plugin',
+ #               text.decode('utf-8'))
+        AboutDialog(self.windowIcon(),text,self).exec_()
 
     def ffdl(self):
         self.start_downloads(unicode(self.url.toPlainText()),
@@ -253,6 +254,30 @@ class MetadataProgressDialog(QProgressDialog):
         #                 show_copy_button=False).exec_()
         self.gui = None
 
+class AboutDialog(QDialog):
+
+    def __init__(self, icon, text, parent=None):
+        QDialog.__init__(self, parent)
+        self.resize(400, 250)
+        self.l = QGridLayout()
+        self.setLayout(self.l)
+        self.logo = QLabel()
+        self.logo.setMaximumWidth(110)
+        self.logo.setPixmap(QPixmap(icon.pixmap(100,100)))
+        self.label = QLabel(text)
+        self.label.setOpenExternalLinks(True)
+        self.label.setWordWrap(True)
+        self.setWindowTitle(_('Update available!'))
+        self.setWindowIcon(icon)
+        self.l.addWidget(self.logo, 0, 0)
+        self.l.addWidget(self.label, 0, 1)
+        self.bb = QDialogButtonBox(self)
+        b = self.bb.addButton(_('OK'), self.bb.AcceptRole)
+        b.setDefault(True)
+        self.l.addWidget(self.bb, 2, 0, 1, -1)
+        self.bb.accepted.connect(self.accept)
+
+        
 class NotGoingToDownload(Exception):
     def __init__(self,error):
         self.error=error
