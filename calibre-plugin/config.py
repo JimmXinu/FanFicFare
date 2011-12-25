@@ -21,10 +21,17 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs import (OVERWRITE, ADDN
 # so as to ensure you dont accidentally clobber a calibre config file
 prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
+# urlsfrompriority values
+CLIP = 'Clipboard'
+SELECTED = 'Selected Stories'
+
 # Set defaults
 prefs.defaults['personal.ini'] = get_resources('example.ini')
 prefs.defaults['updatemeta'] = True
 prefs.defaults['onlyoverwriteifnewer'] = False
+prefs.defaults['urlsfromclip'] = True
+prefs.defaults['urlsfromselected'] = True
+prefs.defaults['urlsfrompriority'] = SELECTED
 prefs.defaults['fileform'] = 'epub'
 prefs.defaults['collision'] = OVERWRITE
 
@@ -75,6 +82,29 @@ class ConfigWidget(QWidget):
         self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
         self.l.addWidget(self.onlyoverwriteifnewer)
         
+        self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
+        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when starting plugin?')
+        self.urlsfromclip.setChecked(prefs['urlsfromclip'])
+        self.l.addWidget(self.urlsfromclip)
+
+        self.urlsfromselected = QCheckBox('Take URLs from Selected Stories?',self)
+        self.urlsfromselected.setToolTip('Prefill URLs from valid URLs in selected stories when starting plugin?')
+        self.urlsfromselected.setChecked(prefs['urlsfromselected'])
+        self.l.addWidget(self.urlsfromselected)
+
+        horz = QHBoxLayout()
+        label = QLabel('Take URLs from which first:')
+        label.setToolTip("If both clipbaord and selected enabled and populated, which is used?")
+        horz.addWidget(label)
+        self.urlsfrompriority = QComboBox(self)
+        self.urlsfrompriority.addItem(SELECTED)
+        self.urlsfrompriority.addItem(CLIP)
+        self.urlsfrompriority.setCurrentIndex(self.urlsfrompriority.findText(prefs['urlsfrompriority']))
+        self.urlsfrompriority.setToolTip('If both clipbaord and selected enabled and populated, which is used?')
+        label.setBuddy(self.urlsfrompriority)
+        horz.addWidget(self.urlsfrompriority)
+        self.l.addLayout(horz)
+
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
 
@@ -87,6 +117,9 @@ class ConfigWidget(QWidget):
         prefs['fileform'] = unicode(self.fileform.currentText())
         prefs['collision'] = unicode(self.collision.currentText())
         prefs['updatemeta'] = self.updatemeta.isChecked()
+        prefs['urlsfrompriority'] = unicode(self.urlsfrompriority.currentText())
+        prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
+        prefs['urlsfromselected'] = self.urlsfromselected.isChecked()
         prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
         
         ini = unicode(self.ini.toPlainText())

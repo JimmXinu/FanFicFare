@@ -25,7 +25,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
 
-from calibre_plugins.fanfictiondownloader_plugin.config import prefs
+from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, CLIP, SELECTED)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     DownloadDialog, MetadataProgressDialog, UserPassDialog,
     OVERWRITE, UPDATE, ADDNEW, SKIP, CALIBREONLY, NotGoingToDownload )
@@ -91,55 +91,19 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # things.
         self.db = self.gui.current_db
 
-        ## if there's rows selected, try to find a source URL from
-        ## either identifier in the metadata, or from the epub
-        ## metadata.
-        url_list = []
-        rows = self.gui.library_view.selectionModel().selectedRows()
-        if rows:
-            book_ids = self.gui.library_view.get_selected_ids()
-            print("book_ids: %s"%book_ids)
-            for book_id in book_ids:
-                identifiers = self.db.get_identifiers(book_id,index_is_id=True) 
-                if 'url' in identifiers:
-                    # identifiers have :->| in url.
-                    #print("url from book:"+identifiers['url'].replace('|',':'))
-                    url_list.append(identifiers['url'].replace('|',':'))
-                else:
-                    ## only epub has that in it.
-                    if self.db.has_format(book_id,'EPUB',index_is_id=True):
-                        existingepub = self.db.format(book_id,'EPUB',index_is_id=True, as_file=True)
-                        mi = get_metadata(existingepub,'EPUB')
-                        #print("mi:%s"%mi)
-                        identifiers = mi.get_identifiers()
-                        if 'url' in identifiers:
-                            #print("url from epub:"+identifiers['url'].replace('|',':'))
-                            url_list.append(identifiers['url'].replace('|',':'))
-        else:
-            # no rows selected, check for valid URLs in the clipboard.
-            cliptext = unicode(QApplication.instance().clipboard().text())
-            url_list.extend(cliptext.split())
+        # pre-pop urls from selected stories or clipboard.  but with
+        # configurable priority and on/off option on each
+        if prefs['urlsfrompriority'] == SELECTED:
+            from_first_func = self.get_urls_select
+            from_second_func = self.get_urls_clip
+        elif prefs['urlsfrompriority'] == CLIP:
+            from_first_func = self.get_urls_clip
+            from_second_func = self.get_urls_select
 
-        url_list_text = ""
-        # Check and make sure the URLs are valid ffdl URLs.
-        if url_list:
-            dummyconfig = ConfigParser.SafeConfigParser()
-            alreadyin=[]
-            for url in url_list:
-                if url in alreadyin:
-                    continue
-                alreadyin.append(url)
-                # pulling up an adapter is pretty low over-head.  If
-                # it fails, it's a bad url.
-                try:
-                    adapters.getAdapter(dummyconfig,url)
-                except:
-                    pass
-                else:
-                    if url_list_text:
-                        url_list_text += "\n"
-                    url_list_text += url
-            
+        url_list_text = from_first_func()
+        if not url_list_text:
+            url_list_text = from_second_func()
+
             #'''http://test1.com?sid=6
 #''')
 # http://test1.com?sid=6701
@@ -166,6 +130,70 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            )
         d.show()
 
+    ## if there's rows selected, try to find a source URL from
+    ## either identifier in the metadata, or from the epub
+    ## metadata.
+    def get_urls_select(self):
+        url_list = []
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if rows and prefs['urlsfromselected']:
+            book_ids = self.gui.library_view.get_selected_ids()
+            print("book_ids: %s"%book_ids)
+            for book_id in book_ids:
+                identifiers = self.db.get_identifiers(book_id,index_is_id=True) 
+                if 'url' in identifiers:
+                    # identifiers have :->| in url.
+                    #print("url from book:"+identifiers['url'].replace('|',':'))
+                    url_list.append(identifiers['url'].replace('|',':'))
+                else:
+                    ## only epub has that in it.
+                    if self.db.has_format(book_id,'EPUB',index_is_id=True):
+                        existingepub = self.db.format(book_id,'EPUB',index_is_id=True, as_file=True)
+                        mi = get_metadata(existingepub,'EPUB')
+                        #print("mi:%s"%mi)
+                        identifiers = mi.get_identifiers()
+                        if 'url' in identifiers:
+                            #print("url from epub:"+identifiers['url'].replace('|',':'))
+                            url_list.append(identifiers['url'].replace('|',':'))
+        return self.get_valid_urls(url_list)
+        
+    def get_urls_clip(self):
+        url_list = []
+        if prefs['urlsfromclip']:
+            # no rows selected, check for valid URLs in the clipboard.
+            cliptext = unicode(QApplication.instance().clipboard().text())
+            url_list.extend(cliptext.split())
+        return self.get_valid_urls(url_list)
+
+    def get_valid_urls(self,url_list):
+        url_list_text = ""
+            
+        # Check and make sure the URLs are valid ffdl URLs.
+        if url_list:
+            # this is the accepted way to 'check for existance'?  really?
+            try:
+                self.dummyconfig
+            except AttributeError:
+                self.dummyconfig = ConfigParser.SafeConfigParser()
+                
+            alreadyin=[]
+            for url in url_list:
+                if url in alreadyin:
+                    continue
+                alreadyin.append(url)
+                # pulling up an adapter is pretty low over-head.  If
+                # it fails, it's a bad url.
+                try:
+                    adapters.getAdapter(self.dummyconfig,url)
+                except:
+                    pass
+                else:
+                    if url_list_text:
+                        url_list_text += "\n"
+                    url_list_text += url
+                    
+        return url_list_text
+    
     def apply_settings(self):
         # No need to do anything with perfs here, but we could.
         prefs
@@ -419,6 +447,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Otherwise list of books doesn't update right away.
         if addedcount:
             self.gui.library_view.model().books_added(addedcount)
+
+        self.gui.library_view.model().refresh()
+        #self.gui.library_view.model().research()
+        #self.gui.tags_view.recount()
     
         del adapter
         del writer
