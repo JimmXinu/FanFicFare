@@ -258,6 +258,9 @@ class BaseStoryWriter(Configurable):
             if name in self.getConfigList("include_subject_tags"):
                 for tag in lst:
                     subjectset.add(tag)
+                    
+        for tag in self.getConfigList("extratags"):
+            subjectset.add(tag)
 
         return subjectset
             
