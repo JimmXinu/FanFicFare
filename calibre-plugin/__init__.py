@@ -25,8 +25,8 @@ class InterfacePluginDemo(InterfaceActionBase):
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (1, 0, 0)
-    minimum_calibre_version = (0, 7, 53)
+    version             = (1, 0, 2)
+    minimum_calibre_version = (0, 8, 32)
 
 #    action_menu_clone_qaction = True
 
