@@ -21,7 +21,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
     '''
-    name                = 'FanFictionDownLoader Plugin'
+    name                = 'FanFictionDownLoader'
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
