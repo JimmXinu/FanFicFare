@@ -34,6 +34,7 @@ prefs.defaults['urlsfromselected'] = True
 prefs.defaults['urlsfrompriority'] = SELECTED
 prefs.defaults['fileform'] = 'epub'
 prefs.defaults['collision'] = OVERWRITE
+prefs.defaults['deleteotherforms'] = False
 
 class ConfigWidget(QWidget):
 
@@ -105,6 +106,11 @@ class ConfigWidget(QWidget):
         horz.addWidget(self.urlsfrompriority)
         self.l.addLayout(horz)
 
+        self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
+        self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
+        self.deleteotherforms.setChecked(prefs['deleteotherforms'])
+        self.l.addWidget(self.deleteotherforms)
+        
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
 
@@ -121,6 +127,7 @@ class ConfigWidget(QWidget):
         prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
         prefs['urlsfromselected'] = self.urlsfromselected.isChecked()
         prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
+        prefs['deleteotherforms'] = self.deleteotherforms.isChecked()
         
         ini = unicode(self.ini.toPlainText())
         if ini:
