@@ -19,6 +19,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
+from calibre.gui2.tools import convert_single_ebook
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.threaded_jobs import ThreadedJob
 
@@ -385,7 +386,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         mi.comments = story.getMetadata("description")
     
         identicalbooks = self.db.find_identical_books(mi)
-        print(identicalbooks)
+        #print(identicalbooks)
         addedcount=0
         if identicalbooks and collision != ADDNEW:
             ## more than one match?  add to first off the list.
@@ -435,6 +436,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 writer.writeStory(tmp)
 
             db.add_format_with_hooks(book_id, fileform, tmp, index_is_id=True)
+
+            # get all formats.
+            fmts = set([x.lower() for x in db.formats(book_id, index_is_id=True).split(',')])
+            for fmt in fmts:
+                if fmt != fileform:
+                    print("f:"+fmt)
+                    ## calling convert doesn't work here because we're in a BG thread.
+                    # (jobs,changed,bad)=convert_single_ebook(self.gui,
+                    #                      db,
+                    #                      [book_id],
+                    #                      auto_conversion=True,
+                    #                      out_format=fmt)
+                    # print("jobs:%s changed:%s bad:%s"%(jobs,changed,bad))
+                    db.remove_format(book_id, fmt,index_is_id=True)#, notify=False
+
+            for a in self.gui.iactions: # ['Convert Books']
+                print("a:%s"%a)
+
 
             if updatemeta or collision == CALIBREONLY:
                 db.set_metadata(book_id,mi)
