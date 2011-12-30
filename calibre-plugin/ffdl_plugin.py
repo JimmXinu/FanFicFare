@@ -437,22 +437,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             db.add_format_with_hooks(book_id, fileform, tmp, index_is_id=True)
 
             # get all formats.
-            # fmts = set([x.lower() for x in db.formats(book_id, index_is_id=True).split(',')])
-            # for fmt in fmts:
-            #     if fmt != fileform:
-            #         print("f:"+fmt)
-            #         ## calling convert doesn't work here because we're in a BG thread.
-            #         # (jobs,changed,bad)=convert_single_ebook(self.gui,
-            #         #                      db,
-            #         #                      [book_id],
-            #         #                      auto_conversion=True,
-            #         #                      out_format=fmt)
-            #         # print("jobs:%s changed:%s bad:%s"%(jobs,changed,bad))
-            #         db.remove_format(book_id, fmt,index_is_id=True)#, notify=False
-
-            # for a in self.gui.iactions: # ['Convert Books']
-            #     print("a:%s"%a)
-
+            if prefs['deleteotherforms']:
+                fmts = set([x.lower() for x in db.formats(book_id, index_is_id=True).split(',')])
+                for fmt in fmts:
+                    if fmt != fileform:
+                        print("remove f:"+fmt)
+                        db.remove_format(book_id, fmt,index_is_id=True)#, notify=False
 
             if updatemeta or collision == CALIBREONLY:
                 db.set_metadata(book_id,mi)
