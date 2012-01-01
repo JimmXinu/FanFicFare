@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit,
-                      QComboBox, QCheckBox)
+from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
+                      QTextEdit, QComboBox, QCheckBox, QPushButton)
 
 from calibre.utils.config import JSONConfig
 
@@ -118,6 +118,11 @@ class ConfigWidget(QWidget):
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(prefs['personal.ini'])
         self.l.addWidget(self.ini)
+
+        self.defaults = QPushButton('View Defaults', self)
+        self.defaults.setToolTip("View all of the plugin's configurable settings\nand their default settings.")
+        self.defaults.clicked.connect(self.show_defaults)
+        self.l.addWidget(self.defaults)
         
     def save_settings(self):
         prefs['fileform'] = unicode(self.fileform.currentText())
@@ -137,4 +142,31 @@ class ConfigWidget(QWidget):
             # default next time.
             del prefs['personal.ini']
         
+    def show_defaults(self):
+        text = get_resources('defaults.ini')
+        ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
+            
+class ShowDefaultsIniDialog(QDialog):
 
+    def __init__(self, icon, text, parent=None):
+        QDialog.__init__(self, parent)
+        self.resize(600, 500)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.label = QLabel("Plugin Defaults (Read-Only)")
+        self.label.setToolTip("These all of the plugin's configurable settings\nand their default settings.")
+        self.setWindowTitle(_('Plugin Defaults'))
+        self.setWindowIcon(icon)
+        self.l.addWidget(self.label)
+        
+        self.ini = QTextEdit(self)
+        self.ini.setToolTip("These all of the plugin's configurable settings\nand their default settings.")
+        self.ini.setLineWrapMode(QTextEdit.NoWrap)
+        self.ini.setText(text)
+        self.ini.setReadOnly(True)
+        self.l.addWidget(self.ini)
+        
+        self.ok_button = QPushButton('OK', self)
+        self.ok_button.clicked.connect(self.hide)
+        self.l.addWidget(self.ok_button)
+        

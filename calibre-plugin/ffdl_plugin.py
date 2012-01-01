@@ -104,19 +104,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not url_list_text:
             url_list_text = from_second_func()
 
-            #'''http://test1.com?sid=6
-#''')
-# http://test1.com?sid=6701
-# http://test1.com?sid=6702
-# http://test1.com?sid=6703
-# http://test1.com?sid=6704
-# http://test1.com?sid=6705
-# http://test1.com?sid=6706
-# http://test1.com?sid=6707
-# http://test1.com?sid=6708
-# http://test1.com?sid=6709
-
-            
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
@@ -138,8 +125,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if rows and prefs['urlsfromselected']:
             book_ids = self.gui.library_view.get_selected_ids()
-            print("book_ids: %s"%book_ids)
+            #print("book_ids: %s"%book_ids)
             for book_id in book_ids:
+                #print("book_on_device:%s"%self.db.book_on_device(book_id))
                 identifiers = self.db.get_identifiers(book_id,index_is_id=True) 
                 if 'url' in identifiers:
                     # identifiers have :->| in url.
@@ -264,6 +252,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if collision == SKIP:
                     raise NotGoingToDownload("Skipping duplicate story.")
 
+                # print("Attempting to add to list.")
+                # rl_plugin = self.gui.iactions['Reading List']
+                # rl_plugin.remove_books_from_list('Send',[book_id],refresh_screen=False)
+                # rl_plugin.add_books_to_list('Send',[book_id],refresh_screen=False)
+                #rl_plugin.view_list('Send')
+                        
                 if collision == OVERWRITE and len(identicalbooks) > 1:
                     raise NotGoingToDownload("More than one identical books--can't tell which to overwrite.")
 
@@ -391,6 +385,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             ## more than one match?  add to first off the list.
             ## Shouldn't happen--we checked above.
             book_id = identicalbooks.pop()
+
             if collision == UPDATE:
                 if self.db.has_format(book_id,fileform,index_is_id=True):
                     urlchaptercount = int(story.getMetadata('numChapters'))
@@ -437,7 +432,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             db.add_format_with_hooks(book_id, fileform, tmp, index_is_id=True)
 
             # get all formats.
-            if prefs['deleteotherforms']:
+            if prefs['deleteotherforms'] and collision in (OVERWRITE, UPDATE):
                 fmts = set([x.lower() for x in db.formats(book_id, index_is_id=True).split(',')])
                 for fmt in fmts:
                     if fmt != fileform:
@@ -446,7 +441,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             if updatemeta or collision == CALIBREONLY:
                 db.set_metadata(book_id,mi)
-                
+
         else: # no matching, adding new.
             writer.writeStory(tmp)
             (notadded,addedcount)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
@@ -455,10 +450,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Otherwise list of books doesn't update right away.
         if addedcount:
             self.gui.library_view.model().books_added(addedcount)
-
+            
         self.gui.library_view.model().refresh()
-        #self.gui.library_view.model().research()
-        #self.gui.tags_view.recount()
     
         del adapter
         del writer
