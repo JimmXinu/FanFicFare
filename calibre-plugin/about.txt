@@ -1,0 +1,11 @@
+<p>FanFictionDownLoader Plugin</p>
+<hr />
+
+<p><a href="http://code.google.com/p/fanficdownloader/">http://code.google.com/p/fanficdownloader/</a></p>
+
+<p>Created by Jim Miller, borrowing heavily from
+Kovid Goyal's 'The InterfacePlugin Demo' and
+Grant Drake's 'Count Pages' plugins.</p>
+
+<p>Requires calibre >= 0.8.30</p>
+

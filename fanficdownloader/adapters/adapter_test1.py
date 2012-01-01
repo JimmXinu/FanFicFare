@@ -19,8 +19,8 @@ import datetime
 import time
 import logging
 
-import fanficdownloader.BeautifulSoup as bs
-import fanficdownloader.exceptions as exceptions
+from .. import BeautifulSoup as bs
+from .. import exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
@@ -54,6 +54,12 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '666':
             raise exceptions.StoryDoesNotExist(self.url)
 
+        if self.story.getMetadata('storyId').startswith('670'):
+            time.sleep(1.0)
+            
+        if self.story.getMetadata('storyId').startswith('671'):
+            time.sleep(1.0)
+            
         if self.getConfig("username"):
             self.username = self.getConfig("username")
         
@@ -63,18 +69,18 @@ class TestSiteAdapter(BaseSiteAdapter):
         if self.story.getMetadata('storyId') == '664':
             self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
         else:
-            self.story.setMetadata(u'title',"Test Story Title")
+            self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId'))
         self.story.setMetadata('storyUrl',self.url)
         self.story.setMetadata('description',u'Description '+self.crazystring+u''' Done
 
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
-        self.story.setMetadata('datePublished',makeDate("1972-01-31","%Y-%m-%d"))
+        self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         if self.story.getMetadata('storyId') == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
-            self.story.setMetadata('dateUpdated',makeDate("1975-01-31","%Y-%m-%d"))
+            self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
         self.story.setMetadata('numWords','123456')
         self.story.setMetadata('status','In-Completed')
         self.story.setMetadata('rating','Tweenie')
@@ -100,7 +106,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
                             ('Chapter 4',self.url+"&chapter=5"),
                             ('Chapter 5',self.url+"&chapter=6"),
-                            # ('Chapter 6',self.url+"&chapter=6"),
+                            ('Chapter 6',self.url+"&chapter=6"),
                             # ('Chapter 7',self.url+"&chapter=6"),
                             # ('Chapter 8',self.url+"&chapter=6"),
                             # ('Chapter 9',self.url+"&chapter=6"),
@@ -128,8 +134,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 
-        if self.story.getMetadata('storyId') == '670':
-            time.sleep(2.0)
+        if self.story.getMetadata('storyId').startswith('670') or \
+                self.story.getMetadata('storyId').startswith('672'):
+            time.sleep(1.0)
 
         if "chapter=1" in url :
             text=u'''
@@ -143,6 +150,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
+<p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
+<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>And other storyId will succeed with the same output.</p>
 </div>
 '''

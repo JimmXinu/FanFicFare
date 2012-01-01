@@ -53,11 +53,12 @@ class Story:
     def addToList(self,listname,value):
         if value==None:
             return
+        value = conditionalRemoveEntities(value)
         if not self.listables.has_key(listname):
             self.listables[listname]=[]
         # prevent duplicates.
         if not value in self.listables[listname]:
-            self.listables[listname].append(conditionalRemoveEntities(value))
+            self.listables[listname].append(value)
 
     def getList(self,listname):
         if not self.listables.has_key(listname):

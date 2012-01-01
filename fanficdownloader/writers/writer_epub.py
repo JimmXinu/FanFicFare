@@ -26,7 +26,7 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 from base_writer import *
-from fanficdownloader.htmlcleanup import stripHTML
+from ..htmlcleanup import stripHTML
 
 class EpubWriter(BaseStoryWriter):
 
@@ -156,9 +156,6 @@ h6 { text-align: center; }
 </html>
 ''')
 
-    def getMetadata(self,key):
-        return stripHTML(self.story.getMetadata(key))
-
     def writeStoryImpl(self, out):
 
         ## Python 2.5 ZipFile is rather more primative than later
@@ -260,19 +257,7 @@ h6 { text-align: center; }
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
 
-        # set to avoid duplicates subject tags.
-        subjectset = set()
-        for entry in self.validEntries:
-            if entry in self.getConfigList("include_subject_tags") and \
-                    entry not in self.story.getLists() and \
-                    self.story.getMetadata(entry):
-                subjectset.add(self.getMetadata(entry))
-        # listables all go into dc:subject tags, but only if they are configured.
-        for (name,lst) in self.story.getLists().iteritems():
-            if name in self.getConfigList("include_subject_tags"):
-                for tag in lst:
-                    subjectset.add(tag)
-        for subject in subjectset:
+        for subject in self.getTags():
             metadata.appendChild(newTag(contentdom,"dc:subject",text=subject))
 
                     
