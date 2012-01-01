@@ -21,9 +21,9 @@ import re
 import urllib2
 import cookielib as cl
 
-import fanficdownloader.BeautifulSoup as bs
-from fanficdownloader.htmlcleanup import stripHTML
-import fanficdownloader.exceptions as exceptions
+from .. import BeautifulSoup as bs
+from ..htmlcleanup import stripHTML
+from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 
@@ -88,8 +88,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
         
-        title = soup.find("h2").find("a").text # first a link in first h2 is title.
-        author = soup.find("h2").find("span",{'class':'author'}).find("a").text
+        title, author = [link.text for link in soup.find("h2").findAll("a")]
         self.story.setMetadata("title", title)
         self.story.setMetadata("author", author)
         self.story.setMetadata("authorId", author) # The author's name will be unique

@@ -22,9 +22,9 @@ import urllib2
 import time
 import httplib, urllib
 
-import fanficdownloader.BeautifulSoup as bs
-import fanficdownloader.exceptions as exceptions
-from fanficdownloader.htmlcleanup import stripHTML
+from .. import BeautifulSoup as bs
+from .. import exceptions as exceptions
+from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 

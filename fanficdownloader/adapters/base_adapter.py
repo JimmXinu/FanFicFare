@@ -39,13 +39,13 @@ except:
     pass
     #logging.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
 
-from fanficdownloader.story import Story
-from fanficdownloader.configurable import Configurable
-from fanficdownloader.htmlcleanup import removeEntities, removeAllEntities, stripHTML
-from fanficdownloader.exceptions import InvalidStoryURL
+from ..story import Story
+from ..configurable import Configurable
+from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
+from ..exceptions import InvalidStoryURL
 
 try:
-    import fanficdownloader.chardet as chardet
+    from .. import chardet as chardet
 except ImportError:
     chardet = None
 
@@ -63,6 +63,7 @@ class BaseSiteAdapter(Configurable):
         return re.match(self.getSiteURLPattern(), self.url)
 
     def __init__(self, config, url):
+        self.config = config
         Configurable.__init__(self, config)
         self.addConfigSection(self.getSiteDomain())
         self.addConfigSection("overrides")

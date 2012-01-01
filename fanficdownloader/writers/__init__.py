@@ -18,7 +18,7 @@
 ## This could (should?) use a dynamic loader like adapters, but for
 ## now, it's static, since there's so few of them.
 
-from fanficdownloader.exceptions import FailedToDownload
+from ..exceptions import FailedToDownload
 
 from writer_html import HTMLWriter
 from writer_txt  import TextWriter

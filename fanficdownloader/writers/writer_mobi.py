@@ -20,8 +20,8 @@ import string
 import StringIO
 
 from base_writer import *
-from fanficdownloader.htmlcleanup import stripHTML
-from fanficdownloader.mobi import Converter
+from ..htmlcleanup import stripHTML
+from ..mobi import Converter
 
 class MobiWriter(BaseStoryWriter):
 
@@ -123,9 +123,6 @@ class MobiWriter(BaseStoryWriter):
 </body>
 </html>
 ''')
-
-    def getMetadata(self,key):
-        return stripHTML(self.story.getMetadata(key))
 
     def writeStoryImpl(self, out):
 

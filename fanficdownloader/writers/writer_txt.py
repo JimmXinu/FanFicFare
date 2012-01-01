@@ -21,7 +21,7 @@ from textwrap import wrap
 
 from base_writer import *
 
-from fanficdownloader.html2text import html2text, BODY_WIDTH
+from ..html2text import html2text, BODY_WIDTH
 
 ## In BaseStoryWriter, we define _write to encode <unicode> objects
 ## back into <string> for true output.  But txt needs to write the
