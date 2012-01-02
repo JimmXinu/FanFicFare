@@ -263,12 +263,16 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url))
+        # soup = bs.BeautifulSoup(self._fetchUrl(url))
+        # BeautifulSoup objects to <p> inside <span>, which
+        # technically isn't allowed.
+        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
-        # not the most unique thing in the work, bit it appears to be
-        # the best we can do there.
+        # not the most unique thing in the world, but it appears to be
+        # the best we can do here.
         story = soup.find('span', {'style' : 'font-size: 100%;'})
-
+        
         if None == story:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
