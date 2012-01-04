@@ -118,7 +118,7 @@ class BaseStoryWriter(Configurable):
         return self.formatFileName(self.getConfig('zip_filename'))
 
     def formatFileName(self,template):
-        values = self.story.metadata
+        values = origvalues = self.story.getAllMetadata()
         # fall back default:
         if not template:
             template="${title}-${siteabbrev}_${storyId}${formatext}"
@@ -126,7 +126,7 @@ class BaseStoryWriter(Configurable):
         if not self.getConfig('allow_unsafe_filename'):
             values={}
             pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
-            for k in self.story.metadata.keys():
+            for k in origvalues.keys():
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.story.getMetadata(k)))
 
         return string.Template(template).substitute(values).encode('utf8')
@@ -183,12 +183,13 @@ class BaseStoryWriter(Configurable):
             self._write(out,END.substitute(self.story.metadata))
 
     # if no outstream is given, write to file.
-    def writeStory(self,outstream=None,metaonly=False):
+    def writeStory(self,outstream=None,metaonly=False, outfilename=None):
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
         self.metaonly = metaonly
-        outfilename=self.getOutputFileName()
+        if outfilename != None:
+            outfilename=self.getOutputFileName()
 
         if not outstream:
             close=True
