@@ -68,6 +68,10 @@ class BaseSiteAdapter(Configurable):
         self.addConfigSection(self.getSiteDomain())
         self.addConfigSection("overrides")
         
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
+        self.password = ""
+        self.is_adult=False
+        
         self.opener = u2.build_opener(u2.HTTPCookieProcessor())
         self.storyDone = False
         self.metadataDone = False

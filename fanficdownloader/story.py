@@ -25,7 +25,7 @@ class Story:
         try:
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
-            self.metadata = {'version':'4.1'}
+            self.metadata = {'version':'4.2'}
         self.chapters = [] # chapters will be tuples of (title,html)
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
@@ -50,6 +50,18 @@ class Story:
                  value = value.strftime("%Y-%m-%d")
             return value
 
+    def getAllMetadata(self):
+        '''
+        All single value *and* list value metadata as strings.
+        '''
+        allmetadata = {}
+        for k in self.metadata.keys():
+            allmetadata[k] = self.getMetadata(k)
+        for l in self.listables.keys():
+            allmetadata[l] = self.getMetadata(l)
+
+        return allmetadata
+        
     def addToList(self,listname,value):
         if value==None:
             return
