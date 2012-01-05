@@ -188,7 +188,7 @@ class BaseStoryWriter(Configurable):
             self.story.addToList("extratags",tag)
 
         self.metaonly = metaonly
-        if outfilename != None:
+        if outfilename == None:
             outfilename=self.getOutputFileName()
 
         if not outstream:
