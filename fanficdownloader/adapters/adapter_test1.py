@@ -67,9 +67,11 @@ class TestSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(self.url,self.username)
 
         if self.story.getMetadata('storyId') == '664':
-            self.story.setMetadata(u'title',"Test Story Title "+self.crazystring)
+            self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId')+self.crazystring)
+            self.story.setMetadata('author','Test Author aa bare amp(&) quote(&#39;) amp(&amp;)')
         else:
             self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId'))
+            self.story.setMetadata('author','Test Author aa')
         self.story.setMetadata('storyUrl',self.url)
         self.story.setMetadata('description',u'Description '+self.crazystring+u''' Done
 
@@ -85,7 +87,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.setMetadata('status','In-Completed')
         self.story.setMetadata('rating','Tweenie')
         
-        self.story.setMetadata('author','Test Author aa')
         self.story.setMetadata('authorId','98765')
         self.story.setMetadata('authorUrl','http://author/url')
 

@@ -10,9 +10,12 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
                       QTextEdit, QComboBox, QCheckBox, QPushButton)
 
+from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
 
-from calibre_plugins.fanfictiondownloader_plugin.dialogs import (OVERWRITE, ADDNEW, SKIP,CALIBREONLY,UPDATE)
+from calibre_plugins.fanfictiondownloader_plugin.dialogs \
+    import (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
+             CALIBREONLY,collision_order)
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
@@ -21,17 +24,12 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs import (OVERWRITE, ADDN
 # so as to ensure you dont accidentally clobber a calibre config file
 prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
-# urlsfrompriority values
-CLIP = 'Clipboard'
-SELECTED = 'Selected Stories'
-
 # Set defaults
 prefs.defaults['personal.ini'] = get_resources('example.ini')
 prefs.defaults['updatemeta'] = True
-prefs.defaults['onlyoverwriteifnewer'] = False
+#prefs.defaults['onlyoverwriteifnewer'] = False
 prefs.defaults['urlsfromclip'] = True
-prefs.defaults['urlsfromselected'] = True
-prefs.defaults['urlsfrompriority'] = SELECTED
+prefs.defaults['updatedefault'] = True
 prefs.defaults['fileform'] = 'epub'
 prefs.defaults['collision'] = OVERWRITE
 prefs.defaults['deleteotherforms'] = False
@@ -62,13 +60,10 @@ class ConfigWidget(QWidget):
         label.setToolTip("What to do if there's already an existing story with the same title and author.")
         horz.addWidget(label)
         self.collision = QComboBox(self)
-        self.collision.addItem(OVERWRITE)
-        self.collision.addItem(UPDATE)
-        self.collision.addItem(ADDNEW)
-        self.collision.addItem(SKIP)
-        self.collision.addItem(CALIBREONLY)
+        for o in collision_order:
+            self.collision.addItem(o)
         self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
-        self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
+        # self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
         label.setBuddy(self.collision)
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
@@ -78,33 +73,21 @@ class ConfigWidget(QWidget):
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
-        self.onlyoverwriteifnewer = QCheckBox('Default Only Overwrite Story if Newer',self)
-        self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer or from the same day.")
-        self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
-        self.l.addWidget(self.onlyoverwriteifnewer)
+        # self.onlyoverwriteifnewer = QCheckBox('Default Only Overwrite Story if Newer',self)
+        # self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer or from the same day.")
+        # self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
+        # self.l.addWidget(self.onlyoverwriteifnewer)
         
         self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
-        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when starting plugin?')
+        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New?')
         self.urlsfromclip.setChecked(prefs['urlsfromclip'])
         self.l.addWidget(self.urlsfromclip)
 
-        self.urlsfromselected = QCheckBox('Take URLs from Selected Stories?',self)
-        self.urlsfromselected.setToolTip('Prefill URLs from valid URLs in selected stories when starting plugin?')
-        self.urlsfromselected.setChecked(prefs['urlsfromselected'])
-        self.l.addWidget(self.urlsfromselected)
-
-        horz = QHBoxLayout()
-        label = QLabel('Take URLs from which first:')
-        label.setToolTip("If both clipbaord and selected enabled and populated, which is used?")
-        horz.addWidget(label)
-        self.urlsfrompriority = QComboBox(self)
-        self.urlsfrompriority.addItem(SELECTED)
-        self.urlsfrompriority.addItem(CLIP)
-        self.urlsfrompriority.setCurrentIndex(self.urlsfrompriority.findText(prefs['urlsfrompriority']))
-        self.urlsfrompriority.setToolTip('If both clipbaord and selected enabled and populated, which is used?')
-        label.setBuddy(self.urlsfrompriority)
-        horz.addWidget(self.urlsfrompriority)
-        self.l.addLayout(horz)
+        self.updatedefault = QCheckBox('Default to Update when books selected?',self)
+        self.updatedefault.setToolTip('The top FanFictionDownLoader plugin button will start Update if\n'+
+                                      'books are selected.  If unchecked, it will always bring up \'Add New\'.')
+        self.updatedefault.setChecked(prefs['updatedefault'])
+        self.l.addWidget(self.updatedefault)
 
         self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
@@ -124,14 +107,19 @@ class ConfigWidget(QWidget):
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
         
+        reset_confirmation_button = QPushButton(_('Reset disabled &confirmation dialogs'), self)
+        reset_confirmation_button.setToolTip(_(
+                    'Reset all show me again dialogs for the FanFictionDownLoader plugin'))
+        reset_confirmation_button.clicked.connect(self.reset_dialogs)
+        self.l.addWidget(reset_confirmation_button)
+        
     def save_settings(self):
         prefs['fileform'] = unicode(self.fileform.currentText())
         prefs['collision'] = unicode(self.collision.currentText())
         prefs['updatemeta'] = self.updatemeta.isChecked()
-        prefs['urlsfrompriority'] = unicode(self.urlsfrompriority.currentText())
         prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
-        prefs['urlsfromselected'] = self.urlsfromselected.isChecked()
-        prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
+        prefs['updatedefault'] = self.updatedefault.isChecked()
+#        prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
         prefs['deleteotherforms'] = self.deleteotherforms.isChecked()
         
         ini = unicode(self.ini.toPlainText())
@@ -145,7 +133,16 @@ class ConfigWidget(QWidget):
     def show_defaults(self):
         text = get_resources('defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
-            
+
+    def reset_dialogs(self):
+        for key in dynamic.keys():
+            if key.startswith('fanfictiondownloader_') and key.endswith('_again') \
+                                                  and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
+
+        
 class ShowDefaultsIniDialog(QDialog):
 
     def __init__(self, icon, text, parent=None):
