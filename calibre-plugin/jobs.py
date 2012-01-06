@@ -183,6 +183,7 @@ def do_download_for_worker(book,options):
     except Exception as e:
         book['good']=False
         book['comment']=unicode(e)
+        book['icon']='dialog_error.png'
         print("%s:%s"%(book,unicode(e)))
         # XXX trace for not-expected exceptions
         traceback.print_exc()
