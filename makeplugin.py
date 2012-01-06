@@ -23,7 +23,7 @@ from glob import glob
 from makezip import createZipFile
 
 if __name__=="__main__":
-    filename="FanFictionDownLoaderPlugin.zip"
+    filename="FanFictionDownLoader.zip"
     exclude=['*.pyc','*~','*.xcf']
     # from top dir. 'w' for overwrite
     createZipFile(filename,"w",
