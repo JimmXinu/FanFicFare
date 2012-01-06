@@ -17,7 +17,7 @@
 
 import os
 
-from htmlcleanup import conditionalRemoveEntities
+from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
 class Story:
     
@@ -30,15 +30,17 @@ class Story:
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
     def setMetadata(self, key, value):
+        ## still keeps &lt; &lt; and &amp;
         self.metadata[key]=conditionalRemoveEntities(value)
 
     def getMetadataRaw(self,key):
         if self.metadata.has_key(key):
             return self.metadata[key]
         
-    def getMetadata(self, key):
+    def getMetadata(self, key, removeallentities=False):
+        value = None
         if self.getLists().has_key(key):
-            return ', '.join(self.getList(key))
+            value = ', '.join(self.getList(key))
         if self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -48,6 +50,10 @@ class Story:
                     value = value.strftime("%Y-%m-%d %H:%M:%S")
                 if key == "datePublished" or key == "dateUpdated":
                  value = value.strftime("%Y-%m-%d")
+                 
+        if removeallentities and value != None:
+            return removeAllEntities(value)
+        else:
             return value
 
     def getAllMetadata(self):
