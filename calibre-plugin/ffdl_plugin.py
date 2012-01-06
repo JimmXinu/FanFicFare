@@ -19,9 +19,9 @@ from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirect
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
+
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2.threaded_jobs import ThreadedJob
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin_icon_resources, get_icon,
                                          create_menu_action_unique, get_library_uuid)
@@ -66,6 +66,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     #popup_type = QToolButton.InstantPopup
 
     def genesis(self):
+
         # This method is called once per plugin, do initial setup here
 
         # Read the plugin icons and store for potential sharing with the config widget
@@ -165,12 +166,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         #print("add_dialog()")
 
-        # Show the config dialog
-        # The config dialog can also be shown from within
-        # Preferences->Plugins, which is why the do_user_config
-        # method is defined on the base plugin class
-        do_user_config = self.interface_action_base_plugin.do_user_config
-
         url_list = self.get_urls_clip()
         url_list_text = "\n".join(url_list)
         
@@ -247,10 +242,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                options,
                                partial(self.get_metadata_for_book, options = options),
                                partial(self.start_download_list, options = options))
-        # MetadataProgressDialog calls get_adapter_for_story for each 'good' story,
-        # get_adapter_for_story updates book for each,
-        # MetadataProgressDialog calls download_list at the end which goes into the BG.
-        # Not sure yet how I get back to display the 'do updates?' list.
+        # MetadataProgressDialog calls get_metadata_for_book for each 'good' story,
+        # get_metadata_for_book updates book for each,
+        # MetadataProgressDialog calls start_download_list at the end which goes
+        # into the BG, or shows list if no 'good' books.
 
     def get_metadata_for_book(self,book,
                               options={'fileform':'epub',
@@ -285,7 +280,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ffdlconfig.readfp(StringIO(prefs['personal.ini']))
         adapter = adapters.getAdapter(ffdlconfig,url)
 
-        #options['defaults.ini'] = get_resources("defaults.ini")
         options['personal.ini'] = prefs['personal.ini']
 
         try:
@@ -330,7 +324,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if collision in (CALIBREONLY):
             book['icon'] = 'metadata.png'
         
-        # XXX should really do a 'you can't do that' dialog when the
+        # XXX should really do a 'you can't do that' dialog when they
         # hit 'OK' for this case.
         if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
             raise NotGoingToDownload("Cannot update non-epub format.")
@@ -429,57 +423,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
         return
         
-        # if collision != ADDNEW:
-        #     mi = MetaInformation(story.getMetadata("title"),
-        #                          (story.getMetadata("author"),)) # author is a list.
-
-        #     identicalbooks = self.db.find_identical_books(mi)
-        #     ## more than one match will need to be handled differently.
-        #     if identicalbooks:
-        #         book_id = identicalbooks.pop()
-        #         if collision == SKIP:
-        #             raise NotGoingToDownload("Skipping duplicate story.")
-
-        #         if collision == OVERWRITE and len(identicalbooks) > 1:
-        #             raise NotGoingToDownload("More than one identical books--can't tell which to overwrite.")
-
-        #         if collision == OVERWRITE and \
-        #                 onlyoverwriteifnewer and \
-        #                 self.db.has_format(book_id,fileform,index_is_id=True):
-        #             # check make sure incoming is newer.
-        #             lastupdated=story.getMetadataRaw('dateUpdated').date()
-        #             fileupdated=datetime.fromtimestamp(os.stat(self.db.format_abspath(book_id, fileform, index_is_id=True))[8]).date()
-        #             if fileupdated > lastupdated:
-        #                 raise NotGoingToDownload("Not Overwriting, story is not newer.")
-
-        #         if collision == UPDATE:
-        #             if fileform != 'epub':
-        #                 raise NotGoingToDownload("Not updating non-epub format.")
-        #             # 'book' can exist without epub.  If there's no existing epub,
-        #             # let it go and it will download it.
-        #             if self.db.has_format(book_id,fileform,index_is_id=True):
-        #                 toupdateio = StringIO()
-        #                 (epuburl,chaptercount) = doMerge(toupdateio,
-        #                                                  [StringIO(self.db.format(book_id,'EPUB',
-        #                                                                           index_is_id=True))],
-        #                                                  titlenavpoints=False,
-        #                                                  striptitletoc=True,
-        #                                                  forceunique=False)
-
-        #                 urlchaptercount = int(story.getMetadata('numChapters'))
-        #                 if chaptercount == urlchaptercount: # and not onlyoverwriteifnewer:
-        #                     raise NotGoingToDownload("%s already contains %d chapters." % (url,chaptercount))
-        #                 elif chaptercount > urlchaptercount:
-        #                     raise NotGoingToDownload("%s contains %d chapters, more than epub." % (url,chaptercount))
-        #                 else:
-        #                     print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
-
-        #     else: # not identicalbooks
-        #         if collision == CALIBREONLY:
-        #             raise NotGoingToDownload("Not updating Calibre Metadata, no existing book to update.")
-
-        # return adapter
-
     def start_download_list(self,book_list,
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
@@ -518,8 +461,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
         func = 'arbitrary_n'
         cpus = self.gui.job_manager.server.pool_size
-        #print("cpus:%s <<<======================================"%cpus)
-        # XXX - option for parallel downloads?
         args = ['calibre_plugins.fanfictiondownloader_plugin.jobs', 'do_download_worker',
                 (book_list, options, cpus)]
         desc = 'Download FanFiction Book'
@@ -565,7 +506,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good), 3000)
             
-            print("==================================================")
+            #print("==================================================")
             addfiles,addfileforms,addmis=[],[],[]
             
             added=0
@@ -578,8 +519,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             (notadded,added)=db.add_books(addfiles,addfileforms,addmis,
                                                add_duplicates=True)
 
-            print("==================================================")
+            #print("==================================================")
             updated=0
+            updated_ids = set()
             for book in update_list:
                 print("updating (%s)%s %s"%(book['calibre_id'],book['title'],book['url']))
 
@@ -592,6 +534,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         book['icon']='dialog_error.png'
                     else:
                         updated += 1
+                        updated_ids.add(book['calibre_id'])
                         # get all formats.
                         if prefs['deleteotherforms']:
                             fmts = set([x.lower() for x in db.formats(book['calibre_id'], index_is_id=True).split(',')])
@@ -602,15 +545,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                 if options['collision'] == CALIBREONLY or \
                         (options['updatemeta'] or book['good']) :
+                    updated_ids.add(book['calibre_id'])
                     db.set_metadata(book['calibre_id'],
                                     self._make_mi_from_book(book))
                     
             if added:
+                ## even shows up added to searchs.  Nice.
                 self.gui.library_view.model().books_added(added)
 
             # the refresh causes problems sometimes?  Switching libraries
-            # and back cleared it?
-            self.gui.library_view.model().refresh()
+            # and back cleared it?--No problems with BG proc, but clears selected and search?
+            if updated_ids:
+                self.gui.library_view.model().refresh_ids(updated_ids)
 
             self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(updated + added)), 3000)
             
@@ -704,7 +650,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             #print("url from book:"+identifiers['url'].replace('|',':'))
             return identifiers['url'].replace('|',':')
         else:
-            ## only epub has URL in it.
+            ## only epub has URL in it--at least where I can easily find it.
             if db.has_format(book_id,'EPUB',index_is_id=True):
                 existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
                 mi = get_metadata(existingepub,'EPUB')
@@ -772,137 +718,3 @@ def get_url_list(urls):
     # set removes dups.
     return set(filter(f,urls.strip().splitlines()))
 
-############################################################################3
-        
-    # def do_story_downloads(self, adaptertuple_list, fileform, db,
-    #                        **kwargs):
-    #     '''
-    #     Master job, loop to download this list of stories
-    #     '''
-    #     print("do_story_downloads")
-    #     abort = kwargs['abort']
-    #     notifications=kwargs['notifications']
-    #     log = kwargs['log']
-    #     notifications.put((0.01, 'Start Downloading Stories'))
-    #     count = 0.01
-    #     total = len(adaptertuple_list)
-    #     # Queue all the jobs
-    #     for (url,adapter) in adaptertuple_list:
-    #         if abort.is_set():
-    #             notifications.put(1.0,'Aborting...')
-    #             return
-    #         notifications.put((float(count)/total,
-    #                            'Downloading %s'%adapter.getStoryMetadataOnly().getMetadata("title")))
-    #         log.prints(log.INFO,'Downloading %s'%adapter.getStoryMetadataOnly().getMetadata("title"))
-    #         try:
-    #             self.do_story_download(adapter,fileform,db,
-    #                                    kwargs['collision'],kwargs['updatemeta'],kwargs['onlyoverwriteifnewer'])
-    #         except Exception as e:
-    #             log.prints(log.ERROR,'Failed Downloading %s: %s'%
-    #                        (adapter.getStoryMetadataOnly().getMetadata("title"),e))
-
-    #         count = count + 1
-    #     return
-
-    # def do_story_download(self,adapter,fileform,db,collision,
-    #                       updatemeta,onlyoverwriteifnewer):
-    #     print("do_story_download")
-
-    #     story = adapter.getStoryMetadataOnly()
-
-    #     mi = MetaInformation(story.getMetadata("title"),
-    #                          (story.getMetadata("author"),)) # author is a list.
-
-    #     writer = writers.getWriter(fileform,adapter.config,adapter)
-    #     tmp = PersistentTemporaryFile("."+fileform)
-    #     titleauth = "%s by %s"%(story.getMetadata("title"), story.getMetadata("author"))
-    #     url = story.getMetadata("storyUrl")
-    #     print(titleauth)
-    #     print("tmp: "+tmp.name)
-
-    #     mi.set_identifiers({'url':story.getMetadata("storyUrl")})
-    #     mi.publisher = story.getMetadata("site")
-    #     mi.tags = writer.getTags()
-    #     mi.languages = ['en']
-    #     mi.pubdate = story.getMetadataRaw('datePublished')
-    #     mi.timestamp = story.getMetadataRaw('dateCreated')
-    #     mi.comments = story.getMetadata("description")
-
-    #     identicalbooks = self.db.find_identical_books(mi)
-    #     #print(identicalbooks)
-    #     added=0
-    #     if identicalbooks and collision != ADDNEW:
-    #         ## more than one match?  add to first off the list.
-    #         ## Shouldn't happen--we checked above.
-    #         book_id = identicalbooks.pop()
-
-    #         if collision == UPDATE:
-    #             if self.db.has_format(book_id,fileform,index_is_id=True):
-    #                 urlchaptercount = int(story.getMetadata('numChapters'))
-    #                 ## First, get existing epub with titlepage and tocpage stripped.
-    #                 updateio = StringIO()
-    #                 (epuburl,chaptercount) = doMerge(updateio,
-    #                                                  [StringIO(self.db.format(book_id,'EPUB',
-    #                                                                           index_is_id=True))],
-    #                                                  titlenavpoints=False,
-    #                                                  striptitletoc=True,
-    #                                                  forceunique=False)
-    #                 print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
-
-    #                 ## Get updated title page/metadata by itself in an epub.
-    #                 ## Even if the title page isn't included, this carries the metadata.
-    #                 titleio = StringIO()
-    #                 writer.writeStory(outstream=titleio,metaonly=True)
-
-    #                 newchaptersio = None
-    #                 if urlchaptercount > chaptercount :
-    #                     ## Go get the new chapters only in another epub.
-    #                     newchaptersio = StringIO()
-    #                     adapter.setChaptersRange(chaptercount+1,urlchaptercount)
-
-    #                     adapter.config.set("overrides",'include_tocpage','false')
-    #                     adapter.config.set("overrides",'include_titlepage','false')
-    #                     writer.writeStory(outstream=newchaptersio)
-
-    #                 ## Merge the three epubs together.
-    #                 doMerge(tmp,
-    #                         [titleio,updateio,newchaptersio],
-    #                         fromfirst=True,
-    #                         titlenavpoints=False,
-    #                         striptitletoc=False,
-    #                         forceunique=False)
-
-
-    #             else: # update, but there's no epub extant, so do overwrite.
-    #                 collision = OVERWRITE
-
-    #         if collision == OVERWRITE:
-    #             writer.writeStory(tmp)
-
-    #         db.add_format_with_hooks(book_id, fileform, tmp, index_is_id=True)
-
-    #         # get all formats.
-    #         if prefs['deleteotherforms'] and collision in (OVERWRITE, UPDATE):
-    #             fmts = set([x.lower() for x in db.formats(book_id, index_is_id=True).split(',')])
-    #             for fmt in fmts:
-    #                 if fmt != fileform:
-    #                     print("remove f:"+fmt)
-    #                     db.remove_format(book_id, fmt,index_is_id=True)#, notify=False
-
-    #         if updatemeta or collision == CALIBREONLY:
-    #             db.set_metadata(book_id,mi)
-
-    #     else: # no matching, adding new.
-    #         writer.writeStory(tmp)
-    #         (notadded,added)=db.add_books([tmp],[fileform],[mi], add_duplicates=True)
-
-    #     # Otherwise list of books doesn't update right away.
-    #     if added:
-    #         self.gui.library_view.model().books_added(added)
-
-    #     # the refresh causes problems sometimes?  Switching libraries
-    #     # and back cleared it?
-    #     self.gui.library_view.model().refresh()
-
-    #     del adapter
-    #     del writer
