@@ -11,7 +11,9 @@ __docformat__ = 'restructuredtext en'
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
-class InterfacePluginDemo(InterfaceActionBase):
+## Apparently the name for this class doesn't matter--it was still
+## 'demo' for the first few versions.
+class FanFictionDownLoaderBase(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the
     actual plugin class. The actual interface plugin class is called
@@ -25,7 +27,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (1, 1, 0)
+    version             = (1, 1, 1)
     minimum_calibre_version = (0, 8, 30)
 
     #: This field defines the GUI plugin class that contains all the code

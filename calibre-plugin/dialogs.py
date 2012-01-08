@@ -66,15 +66,6 @@ class AddNewDialog(SizePersistedDialog):
         self.url.setText(url_list_text)
         self.l.addWidget(self.url)
         
-        # self.ffdl_button = QPushButton(
-        #     'Download Stories', self)
-        # self.ffdl_button.setToolTip('Start download(s).')
-        # self.ffdl_button.clicked.connect(self.ffdl)
-        # # if there's already URL(s), focus 'go' button
-        # if url_list_text:
-        #     self.ffdl_button.setFocus()
-        # self.l.addWidget(self.ffdl_button)
-
         horz = QHBoxLayout()
         label = QLabel('Output &Format:')
         horz.addWidget(label)
@@ -85,6 +76,8 @@ class AddNewDialog(SizePersistedDialog):
         self.fileform.addItem('txt')
         self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
         self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.activated.connect(self.set_collisions)
+        
         label.setBuddy(self.fileform)
         horz.addWidget(self.fileform)
         self.l.addLayout(horz)
@@ -95,10 +88,10 @@ class AddNewDialog(SizePersistedDialog):
         horz.addWidget(label)
         self.collision = QComboBox(self)
         # add collision options
-        for o in collision_order:
-            self.collision.addItem(o)
-
-        self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
+        self.set_collisions()
+        i = self.collision.findText(prefs['collision'])
+        if i > -1:
+            self.collision.setCurrentIndex(i)
         # self.collision.setToolTip(OVERWRITE+' will replace the existing story.\n'+
         #                           UPDATE+' will download new chapters only and add to existing EPUB.\n'+
         #                           ADDNEW+' will create a new story with the same title and author.\n'+
@@ -113,22 +106,6 @@ class AddNewDialog(SizePersistedDialog):
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
-        # self.onlyoverwriteifnewer = QCheckBox('Only Overwrite Story if Newer',self)
-        # self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer.\n"+
-        #                                      "From the same day counts as 'newer' because the sites don't give update time.")
-        # self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
-        # self.l.addWidget(self.onlyoverwriteifnewer)
-        
-        # horz = QHBoxLayout()
-        # self.about_button = QPushButton('About', self)
-        # self.about_button.clicked.connect(self.about)
-        # horz.addWidget(self.about_button)
-        # self.conf_button = QPushButton(
-        #         'Configure this plugin', self)
-        # self.conf_button.clicked.connect(self.config)
-        # horz.addWidget(self.conf_button)
-        # self.l.addLayout(horz)
-
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -136,10 +113,21 @@ class AddNewDialog(SizePersistedDialog):
         
         if url_list_text:
             button_box.button(QDialogButtonBox.Ok).setFocus()
-        
+
+        # restore saved size.
         self.resize_dialog()
         #self.resize(self.sizeHint())
 
+    def set_collisions(self):
+        prev=self.collision.currentText()
+        self.collision.clear()
+        for o in collision_order:
+            if self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
+                self.collision.addItem(o)
+        i = self.collision.findText(prev)
+        if i > -1:
+            self.collision.setCurrentIndex(i)
+        
     def get_ffdl_options(self):
         return {
             'fileform': unicode(self.fileform.currentText()),
@@ -171,6 +159,7 @@ class UserPassDialog(QDialog):
    
         self.l.addWidget(QLabel("Password:"),2,0)
         self.passwd = QLineEdit(self)
+        self.passwd.setEchoMode(QLineEdit.Password)
         self.l.addWidget(self.passwd,2,1)
    
         self.ok_button = QPushButton('OK', self)
@@ -223,7 +212,6 @@ class MetadataProgressDialog(QProgressDialog):
         print(self.labelText())
 
     def do_loop(self):
-        print("self.i:%d"%self.i)
 
         if self.i == 0:
             self.setValue(0)
@@ -242,9 +230,8 @@ class MetadataProgressDialog(QProgressDialog):
         except Exception as e:
             book['good']=False
             book['comment']=unicode(e)
-            print("%s:%s"%(book,unicode(e)))
-            # XXX trace for not-expected exceptions
-            #traceback.print_exc()
+            print("Exception: %s:%s"%(book,unicode(e)))
+            traceback.print_exc()
             
         self.updateStatus()
         self.i += 1
@@ -354,6 +341,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.addItem('txt')
         self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
         self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
         options_layout.addWidget(self.fileform)
         
@@ -361,10 +349,11 @@ class UpdateExistingDialog(SizePersistedDialog):
         label.setToolTip("What sort of update to perform.  May set default from plugin configuration.")
         options_layout.addWidget(label)
         self.collision = QComboBox(self)
-        for o in collision_order:
-            if o not in [ADDNEW,SKIP]:
-                self.collision.addItem(o)
-        self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
+        # add collision options
+        self.set_collisions()
+        i = self.collision.findText(prefs['collision'])
+        if i > -1:
+            self.collision.setCurrentIndex(i)
         # self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
         label.setBuddy(self.collision)
         options_layout.addWidget(self.collision)
@@ -384,6 +373,17 @@ class UpdateExistingDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
         self.books_table.populate_table(books)
+
+    def set_collisions(self):
+        prev=self.collision.currentText()
+        self.collision.clear()
+        for o in collision_order:
+            if o not in [ADDNEW,SKIP] and \
+                    (self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]):
+                self.collision.addItem(o)        
+        i = self.collision.findText(prev)
+        if i > -1:
+            self.collision.setCurrentIndex(i)
         
     def remove_from_list(self):
         self.books_table.remove_selected_rows()
@@ -507,26 +507,12 @@ class StoryListTableWidget(QTableWidget):
         #comment_cell.setData(Qt.UserRole, QVariant(book))
         self.setItem(row, 4, comment_cell)
 
-    # def get_calibre_ids(self):
-    #     ids = []
-    #     for row in range(self.rowCount()):
-    #         ids.append(self.item(row, 1).data(Qt.UserRole).toPyObject())
-    #     return ids
-
-    # def get_urls(self):
-    #     urls = []
-    #     for row in range(self.rowCount()):
-    #         urls.append(self.item(row, 2).data(Qt.UserRole).toPyObject())
-    #     return urls
-
     def get_books(self):
         books = []
         #print("=========================\nbooks:%s"%self.books)
         for row in range(self.rowCount()):
             rnum = self.item(row, 1).data(Qt.UserRole).toPyObject()
-            #print("get_books rnum:%s"%rnum)
             book = self.books[rnum]
-            #if book['good']:
             books.append(book)
         return books
 

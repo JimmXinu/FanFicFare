@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import time, os
+import time, os, copy
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from functools import partial
@@ -78,6 +78,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Preferences->Plugins, which is why the do_user_config
         # method is defined on the base plugin class
         do_user_config = self.interface_action_base_plugin.do_user_config
+        base = self.interface_action_base_plugin
+        self.version = base.name+" v%d.%d.%d"%base.version
 
         # Set the icon for this interface action
         # The get_icons function is a builtin function defined for all your
@@ -187,7 +189,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("add_books:%s"%add_books)
         #print("options:%s"%d.get_ffdl_options())
 
-        self.start_downloads( d.get_ffdl_options(),add_books )
+        options = d.get_ffdl_options()
+        options['version'] = self.version
+        print(self.version)
+        
+        self.start_downloads( options, add_books )
         
     def update_existing(self):
         #print("update_existing()")
@@ -213,7 +219,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("options:%s"%d.get_ffdl_options())
         # only if there's some good ones.
         if 0 < len(filter(lambda x : x['good'], update_books)):
-            self.start_downloads( d.get_ffdl_options(), update_books )
+            options = d.get_ffdl_options()
+            options['version'] = self.version
+            print(self.version)
+            self.start_downloads( options, update_books )
         
     def get_urls_clip(self):
         url_list = []
@@ -272,6 +281,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             return
         
         url = book['url']
+        print("url:%s"%url)
         
         ## was self.ffdlconfig, but we need to be able to change it
         ## when doing epub update.
@@ -333,7 +343,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         if book['calibre_id'] != None:
             # updating an existing book.  Update mode applies.
-            print("update id:%s"%book['calibre_id'])            
+            print("update existing id:%s"%book['calibre_id'])
             book_id = book['calibre_id']
             # No handling needed: OVERWRITEALWAYS,CALIBREONLY
             
@@ -347,12 +357,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                  (story.getMetadata("author", removeallentities=True),)) # author is a list.
             identicalbooks = db.find_identical_books(mi)
             ## removed for being overkill.
-            # for ib in db.find_identical_books(mi):
+            # for ib in identicalbooks:
             #     # only *really* identical if URL matches, too.
             #     # XXX make an option?
             #     if self._get_story_url(db,ib) == url:
             #         identicalbooks.append(ib)
-            print("identicalbooks:%s"%identicalbooks)
+            #print("identicalbooks:%s"%identicalbooks)
 
             if collision == SKIP and identicalbooks:
                 raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
@@ -418,6 +428,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             tmp = PersistentTemporaryFile(prefix='new-%s-'%book['calibre_id'],
                                                suffix='.'+options['fileform'],
                                                dir=options['tdir'])
+            print("title:"+book['title'])
             print("outfile:"+tmp.name)
             book['outfile'] = tmp.name            
                 
@@ -443,6 +454,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.download_list_completed(notjob,options=options)
             return
 
+        # ## XXX show list before starting download.
+        # d = DisplayStoryListDialog(self.gui,
+        #                            'Download List',
+        #                            prefs,
+        #                            self.qaction.icon(),
+        #                            book_list,
+        #                            label_text='Status of stories to be downloaded'
+        #                            )
+        # d.exec_()
+        # if d.result() != d.Accepted:
+        #     return
+            
         for book in book_list:
             if book['good']:
                 break
@@ -496,71 +519,52 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # for b in book_list:
             #     print("d list: %s"%b['title'])
 
-            update_list = filter(lambda x : x['good'] and x['calibre_id'] != None,
-                                 book_list)
+            # update_list = filter(lambda x : x['good'] and x['calibre_id'] != None,
+            #                      book_list)
 
-            add_list = filter(lambda x : x['good'] and x['calibre_id'] == None,
-                              book_list)
+            # add_list = filter(lambda x : x['good'] and x['calibre_id'] == None,
+            #                   book_list)
 
-            total_good = len(update_list)+len(add_list)
+            good_list = filter(lambda x : x['good'], book_list)
+
+            total_good = len(good_list) #update_list)+len(add_list)
 
             self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good), 3000)
             
             #print("==================================================")
-            addfiles,addfileforms,addmis=[],[],[]
+            # addfiles,addfileforms,addmis=[],[],[]
+
+            list_000_ids = []
             
-            added=0
-            for book in add_list:
-                print("adding %s %s"%(book['title'],book['url']))
-                addfiles.append(book['outfile'])
-                addfileforms.append(options['fileform'])
-                addmis.append(self._make_mi_from_book(book))
-                    
-            (notadded,added)=db.add_books(addfiles,addfileforms,addmis,
-                                               add_duplicates=True)
-
-            #print("==================================================")
-            updated=0
-            updated_ids = set()
-            for book in update_list:
-                print("updating (%s)%s %s"%(book['calibre_id'],book['title'],book['url']))
-
-                if options['collision'] == CALIBREONLY:
-                    updated += 1
-                else:
-                    if not db.add_format_with_hooks(book['calibre_id'], options['fileform'], book['outfile'], index_is_id=True):
-                        book['comment'] = "Adding format to book failed for some reason..."
-                        book['good']=False
-                        book['icon']='dialog_error.png'
-                    else:
-                        updated += 1
-                        updated_ids.add(book['calibre_id'])
-                        # get all formats.
-                        if prefs['deleteotherforms']:
-                            fmts = set([x.lower() for x in db.formats(book['calibre_id'], index_is_id=True).split(',')])
-                            for fmt in fmts:
-                                if fmt != options['fileform']:
-                                    print("remove f:"+fmt)
-                                    db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+            for book in good_list:
+                print("add/update %s %s"%(book['title'],book['url']))
+                mi = self._make_mi_from_book(book)
+                
+                if options['collision'] != CALIBREONLY:
+                    self._add_or_update_book(book,options,prefs,mi)
+                    # book000 = copy.copy(book)
+                    # book000['title'] = "000 %s"%book000['title']
+                    # book000['calibre_id'] = self._find_existing_book_id(db,book000)
+                    # list_000_ids.append(self._add_or_update_book(book000,options,prefs))
 
                 if options['collision'] == CALIBREONLY or \
-                        (options['updatemeta'] or book['good']) :
-                    updated_ids.add(book['calibre_id'])
-                    db.set_metadata(book['calibre_id'],
-                                    self._make_mi_from_book(book))
+                        (options['updatemeta'] and book['good']) :
+                    db.set_metadata(book['calibre_id'],mi)
                     
-            if added:
+            add_list = filter(lambda x : x['good'] and x['added'], book_list)
+            update_list = filter(lambda x : x['good'] and not x['added'], book_list)
+            update_ids = [ x['calibre_id'] for x in update_list ]
+                    
+            if len(add_list)+len(list_000_ids):
                 ## even shows up added to searchs.  Nice.
-                self.gui.library_view.model().books_added(added)
+                self.gui.library_view.model().books_added(len(add_list)+len(list_000_ids))
 
-            # the refresh causes problems sometimes?  Switching libraries
-            # and back cleared it?--No problems with BG proc, but clears selected and search?
-            if updated_ids:
-                self.gui.library_view.model().refresh_ids(updated_ids)
+            if update_ids:
+                self.gui.library_view.model().refresh_ids(update_ids+list_000_ids)
 
-            self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(updated + added)), 3000)
+            self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
-            if updated + added != total_good:
+            if len(update_list) + len(add_list) != total_good:
                 d = DisplayStoryListDialog(self.gui,
                                            'Updates completed, final status',
                                            prefs,
@@ -573,6 +577,54 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
 
+    def _add_or_update_book(self,book,options,prefs,mi=None):
+        db = self.gui.current_db
+        
+        if mi == None:
+            mi = self._make_mi_from_book(book)
+
+        book_id = book['calibre_id']
+        if book_id == None:
+            book_id = db.create_book_entry(mi,
+                                           add_duplicates=True)
+            book['calibre_id'] = book_id
+            book['added'] = True
+        else:
+            book['added'] = False
+
+        if not db.add_format_with_hooks(book_id,
+                                        options['fileform'],
+                                        book['outfile'], index_is_id=True):
+            book['comment'] = "Adding format to book failed for some reason..."
+            book['good']=False
+            book['icon']='dialog_error.png'
+
+        if prefs['deleteotherforms']:
+            fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
+            for fmt in fmts:
+                if fmt != formmapping[options['fileform']]:
+                    print("remove f:"+fmt)
+                    db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+
+        # rl_plugin = self.gui.iactions['Reading List']    
+        # rl_plugin.add_books_to_list("Send",
+        #                             [book_id],
+        #                             refresh_screen=False,
+        #                             display_warnings=False)
+                
+        return book_id
+
+    def _find_existing_book_id(self,db,book,matchurl=True):
+        mi = MetaInformation(book["title"],(book["author"],)) # author is a list.
+        identicalbooks = db.find_identical_books(mi)
+        if matchurl: # only *really* identical if URL matches, too.
+            for ib in identicalbooks:
+                if self._get_story_url(db,ib) == book['url']:
+                    return ib
+        if identicalbooks:
+            return identicalbooks.pop()
+    
+        
 
     def _make_mi_from_book(self,book):
         mi = MetaInformation(book['title'],(book['author'],)) # author is a list.
@@ -598,6 +650,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             book['comment'] = ''
             book['url'] = ''
+            book['added'] = False
             
             self._set_book_url_and_comment(book,url)
                     
@@ -622,6 +675,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             book['comment'] = ''
             book['url'] = ""
+            book['added'] = False
             
             url = self._get_story_url(db,book_id)
             self._set_book_url_and_comment(book,url)
