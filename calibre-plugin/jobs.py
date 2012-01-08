@@ -132,7 +132,7 @@ def do_download_for_worker(book,options):
         elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
                 ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
             print("write to %s"%outfile)
-            writer.writeStory(outfilename=outfile)
+            writer.writeStory(outfilename=outfile, forceOverwrite=True)
             book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
             
         ## checks were done earlier, just update it.
