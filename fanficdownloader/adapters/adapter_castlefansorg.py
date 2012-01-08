@@ -51,11 +51,11 @@ from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return FanficCastleTVNetAdapter # XXX
+    return CastleFansOrgAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
+class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -74,10 +74,10 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/fanfic/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','csltv') # XXX
+        self.story.setMetadata('siteabbrev','cslf') # XXX
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
@@ -91,13 +91,13 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'fanfic.castletv.net' # XXX
+        return 'castlefans.org' # XXX
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -120,7 +120,7 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/fanfic/user.php?action=login'
         logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -192,7 +192,7 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfic/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
