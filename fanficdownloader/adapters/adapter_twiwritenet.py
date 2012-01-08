@@ -84,7 +84,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         params['submit'] = 'Submit'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logging.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
         d = self._fetchUrl(loginUrl, params)
@@ -119,6 +119,8 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
+        data = data[data.index("<body"):] # desperate--strip before <body
+        # in calibre plugin only, soup wasn't parsing the html properly.
         soup = bs.BeautifulSoup(data)
 
         ## Title
@@ -211,7 +213,10 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        data = self._fetchUrl(url)
+        data = data[data.index("<body"):] # desperate--strip before <body
+        # in calibre plugin only, soup wasn't parsing the html properly.
+        soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         span = soup.find('div', {'id' : 'story'})
