@@ -127,21 +127,22 @@ def main():
            url = args[0]
 
        adapter = adapters.getAdapter(config,url)
-           
-       try:
-           adapter.getStoryMetadataOnly()
-       except exceptions.FailedToLogin:
-           print "Login Failed, Need Username/Password."
-           sys.stdout.write("Username: ")
-           adapter.username = sys.stdin.readline().strip()
-           adapter.password = getpass.getpass(prompt='Password: ')
-           #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
-           adapter.getStoryMetadataOnly()
-       except exceptions.AdultCheckRequired:
-           print "Please confirm you are an adult in your locale: (y/n)?"
-           if sys.stdin.readline().strip().lower().startswith('y'):
-               adapter.is_adult=True
-           adapter.getStoryMetadataOnly()
+
+       ## three tries, that's enough if both user/pass & is_adult needed,
+       ## or a couple tries of one or the other
+       for x in range(0,2):
+           try:
+               adapter.getStoryMetadataOnly()
+           except exceptions.FailedToLogin:
+               print "Login Failed, Need Username/Password."
+               sys.stdout.write("Username: ")
+               adapter.username = sys.stdin.readline().strip()
+               adapter.password = getpass.getpass(prompt='Password: ')
+               #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
+           except exceptions.AdultCheckRequired:
+               print "Please confirm you are an adult in your locale: (y/n)?"
+               if sys.stdin.readline().strip().lower().startswith('y'):
+                   adapter.is_adult=True
 
        if options.update and not options.force:
            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
