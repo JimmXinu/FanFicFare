@@ -42,11 +42,11 @@ def do_download_worker(book_list, options,
     '''
     server = Server(pool_size=cpus)
 
+    print(options['version'])
     total = 0
     # Queue all the jobs
     for book in book_list:
         if book['good']:
-            print("add job for %s"%book['url'])
             total += 1
             args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
                     'do_download_for_worker',
@@ -103,7 +103,6 @@ def do_download_for_worker(book,options):
     when run as a worker job
     '''
     try:
-        print("do_download_for_worker")
         # print("is_adult:%s"%book['is_adult'])
         # print("personal.ini len:%s"%len(options['personal.ini']))
         # print("defaults.ini len:%s"%len(get_resources("defaults.ini")))
@@ -148,6 +147,7 @@ def do_download_for_worker(book,options):
                                              striptitletoc=True,
                                              forceunique=False)
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
+            print("write to %s"%outfile)
 
             ## Get updated title page/metadata by itself in an epub.
             ## Even if the title page isn't included, this carries the metadata.
@@ -184,8 +184,7 @@ def do_download_for_worker(book,options):
         book['good']=False
         book['comment']=unicode(e)
         book['icon']='dialog_error.png'
-        print("%s:%s"%(book,unicode(e)))
-        # XXX trace for not-expected exceptions
+        print("Exception: %s:%s"%(book,unicode(e)))
         traceback.print_exc()
 
     #time.sleep(10)

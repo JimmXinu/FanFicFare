@@ -51,6 +51,7 @@ class ConfigWidget(QWidget):
         self.fileform.addItem('txt')
         self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
         self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
         horz.addWidget(self.fileform)
         self.l.addLayout(horz)
@@ -60,9 +61,11 @@ class ConfigWidget(QWidget):
         label.setToolTip("What to do if there's already an existing story with the same title and author.")
         horz.addWidget(label)
         self.collision = QComboBox(self)
-        for o in collision_order:
-            self.collision.addItem(o)
-        self.collision.setCurrentIndex(self.collision.findText(prefs['collision']))
+        # add collision options
+        self.set_collisions()
+        i = self.collision.findText(prefs['collision'])
+        if i > -1:
+            self.collision.setCurrentIndex(i)
         # self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
         label.setBuddy(self.collision)
         horz.addWidget(self.collision)
@@ -112,6 +115,16 @@ class ConfigWidget(QWidget):
                     'Reset all show me again dialogs for the FanFictionDownLoader plugin'))
         reset_confirmation_button.clicked.connect(self.reset_dialogs)
         self.l.addWidget(reset_confirmation_button)
+        
+    def set_collisions(self):
+        prev=self.collision.currentText()
+        self.collision.clear()
+        for o in collision_order:
+            if self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
+                self.collision.addItem(o)
+        i = self.collision.findText(prev)
+        if i > -1:
+            self.collision.setCurrentIndex(i)
         
     def save_settings(self):
         prefs['fileform'] = unicode(self.fileform.currentText())
