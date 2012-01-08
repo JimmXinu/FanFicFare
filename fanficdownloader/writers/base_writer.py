@@ -183,7 +183,7 @@ class BaseStoryWriter(Configurable):
             self._write(out,END.substitute(self.story.metadata))
 
     # if no outstream is given, write to file.
-    def writeStory(self,outstream=None,metaonly=False, outfilename=None):
+    def writeStory(self,outstream=None, metaonly=False, outfilename=None, forceOverwrite=False):
         for tag in self.getConfigList("extratags"):
             self.story.addToList("extratags",tag)
 
@@ -203,7 +203,7 @@ class BaseStoryWriter(Configurable):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
 
             ## Check for output file date vs updated date here
-            if not self.getConfig('always_overwrite'):
+            if not (self.getConfig('always_overwrite') or forceOverwrite):
                 if os.path.exists(outfilename):
                     ## date() truncs off time, which files have, but sites don't report.
                     lastupdated=self.story.getMetadataRaw('dateUpdated').date()
