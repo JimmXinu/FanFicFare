@@ -292,21 +292,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         options['personal.ini'] = prefs['personal.ini']
 
-        try:
-            adapter.getStoryMetadataOnly()
-        except exceptions.FailedToLogin:
-            print("Login Failed, Need Username/Password.")
-            userpass = UserPassDialog(self.gui,url)
-            userpass.exec_() # exec_ will make it act modal
-            if userpass.status:
-                adapter.username = userpass.user.text()
-                adapter.password = userpass.passwd.text()
+        ## three tries, that's enough if both user/pass & is_adult needed,
+        ## or a couple tries of one or the other
+        for x in range(0,2):
+            try:
+                adapter.getStoryMetadataOnly()
+            except exceptions.FailedToLogin:
+                print("Login Failed, Need Username/Password.")
+                userpass = UserPassDialog(self.gui,url)
+                userpass.exec_() # exec_ will make it act modal
+                if userpass.status:
+                    adapter.username = userpass.user.text()
+                    adapter.password = userpass.passwd.text()
                 
-        except exceptions.AdultCheckRequired:
-            if question_dialog(self.gui, 'Are You Adult?', '<p>'+
-                               "%s requires that you be an adult.  Please confirm you are an adult in your locale:"%url,
-                               show_copy_button=False):
-                adapter.is_adult=True
+            except exceptions.AdultCheckRequired:
+                if question_dialog(self.gui, 'Are You Adult?', '<p>'+
+                                   "%s requires that you be an adult.  Please confirm you are an adult in your locale:"%url,
+                                   show_copy_button=False):
+                    adapter.is_adult=True
 
         # let other exceptions percolate up.
         story = adapter.getStoryMetadataOnly()
