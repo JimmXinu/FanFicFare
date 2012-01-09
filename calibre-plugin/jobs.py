@@ -85,7 +85,7 @@ def do_download_worker(book_list, options,
         count = count + 1
         notification(float(count)/total, 'Downloaded Story')
         # Add this job's output to the current log
-        print('Logfile for book ID %s (%s)'%(book_id, book['title']))
+        print('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         print(job.details)
 
         if count >= total:
