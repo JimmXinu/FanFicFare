@@ -87,8 +87,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
-        
-        title, author = [link.text for link in soup.find("h2").findAll("a")]
+
+        titleheader = soup.find("h2")
+        title = titleheader.find("a", href=re.compile(r'^/story/')).text
+        author = titleheader.find("a", href=re.compile(r'^/user/')).text
         self.story.setMetadata("title", title)
         self.story.setMetadata("author", author)
         self.story.setMetadata("authorId", author) # The author's name will be unique
@@ -126,7 +128,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         status = status_bar.text.split("|")[0].strip().replace("Incomplete", "In-Progress").replace("On Hiatus", "In-Progress").replace("Complete", "Completed")
         self.story.setMetadata('status', status)
         self.story.setMetadata('rating', status_bar.span.text)
-        self.story.setMetadata('numWords', status_bar.div.b.text)
+        # This way is less elegant, perhaps, but more robust in face of format changes.
+        numWords = status_bar.find("div",{"class":"word_count"}).b.text
+        self.story.setMetadata('numWords', numWords)
         
         description_soup = soup.find("div", {"class":"description"})
         # Sometimes the description has an expanding element
