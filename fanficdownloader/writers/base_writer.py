@@ -263,7 +263,7 @@ class BaseStoryWriter(Configurable):
         for tag in self.getConfigList("extratags"):
             subjectset.add(tag)
 
-        return subjectset
+        return list(subjectset)
             
     def writeStoryImpl(self, out):
         "Must be overriden by sub classes."
