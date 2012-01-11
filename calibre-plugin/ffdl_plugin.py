@@ -286,7 +286,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ## was self.ffdlconfig, but we need to be able to change it
         ## when doing epub update.
         ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("defaults.ini")))
+        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(prefs['personal.ini']))
         adapter = adapters.getAdapter(ffdlconfig,url)
 
@@ -552,6 +552,17 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                 if options['collision'] == CALIBREONLY or \
                         (options['updatemeta'] and book['good']) :
+                    if prefs['keeptags']:
+                        old_tags = db.get_tags(book['calibre_id'])
+                        # remove old Completed/In-Progress only if there's a new one.
+                        if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
+                            old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
+                        # remove old Last Update tags if there are new ones.
+                        if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
+                            old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
+                        # mi.tags needs to be list, but set kills dups.
+                        mi.tags = list(set(list(old_tags)+mi.tags)) 
+                        
                     db.set_metadata(book['calibre_id'],mi)
                     
             add_list = filter(lambda x : x['good'] and x['added'], book_list)

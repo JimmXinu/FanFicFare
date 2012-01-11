@@ -103,14 +103,10 @@ def do_download_for_worker(book,options):
     when run as a worker job
     '''
     try:
-        # print("is_adult:%s"%book['is_adult'])
-        # print("personal.ini len:%s"%len(options['personal.ini']))
-        # print("defaults.ini len:%s"%len(get_resources("defaults.ini")))
-        #time.sleep(2.0)
         book['comment'] = 'Download started...'
 
         ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("defaults.ini")))
+        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(options['personal.ini']))
         
         adapter = adapters.getAdapter(ffdlconfig,book['url'])

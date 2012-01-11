@@ -27,6 +27,7 @@ prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 # Set defaults
 prefs.defaults['personal.ini'] = get_resources('example.ini')
 prefs.defaults['updatemeta'] = True
+prefs.defaults['keeptags'] = False
 #prefs.defaults['onlyoverwriteifnewer'] = False
 prefs.defaults['urlsfromclip'] = True
 prefs.defaults['updatedefault'] = True
@@ -72,9 +73,14 @@ class ConfigWidget(QWidget):
         self.l.addLayout(horz)
 
         self.updatemeta = QCheckBox('Default Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
+        self.updatemeta.setToolTip('Update title, author, URL, tags, etc for story in Calibre from web site.')
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
+
+        self.keeptags = QCheckBox('Keep Existing Tags when Updating Metadata?',self)
+        self.keeptags.setToolTip('Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.')
+        self.keeptags.setChecked(prefs['keeptags'])
+        self.l.addWidget(self.keeptags)
 
         # self.onlyoverwriteifnewer = QCheckBox('Default Only Overwrite Story if Newer',self)
         # self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer or from the same day.")
@@ -130,6 +136,7 @@ class ConfigWidget(QWidget):
         prefs['fileform'] = unicode(self.fileform.currentText())
         prefs['collision'] = unicode(self.collision.currentText())
         prefs['updatemeta'] = self.updatemeta.isChecked()
+        prefs['keeptags'] = self.keeptags.isChecked()
         prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.updatedefault.isChecked()
 #        prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
@@ -144,7 +151,7 @@ class ConfigWidget(QWidget):
             del prefs['personal.ini']
         
     def show_defaults(self):
-        text = get_resources('defaults.ini')
+        text = get_resources('plugin-defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
 
     def reset_dialogs(self):

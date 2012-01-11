@@ -249,11 +249,18 @@ class BaseStoryWriter(Configurable):
     def getTags(self):
         # set to avoid duplicates subject tags.
         subjectset = set()
+        
+        if self.story.getMetadataRaw('dateUpdated'):
+            # Last Update tags for Bill.
+            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update Year/Month: %Y/%m"))
+            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update: %Y/%m/%d"))
+        
         for entry in self.validEntries:
             if entry in self.getConfigList("include_subject_tags") and \
                     entry not in self.story.getLists() and \
                     self.story.getMetadata(entry):
                 subjectset.add(self.getMetadata(entry))
+                
         # listables all go into dc:subject tags, but only if they are configured.
         for (name,lst) in self.story.getLists().iteritems():
             if name in self.getConfigList("include_subject_tags"):

@@ -249,9 +249,6 @@ h6 { text-align: center; }
             metadata.appendChild(newTag(contentdom,"meta",
                                         attrs={"name":"calibre:timestamp",
                                                "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
-            # Last Update tags for Bill.
-            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update Year/Month: %Y/%m"))
-            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update: %Y/%m/%d"))
         
         if self.getMetadata('description'):
             metadata.appendChild(newTag(contentdom,"dc:description",text=
