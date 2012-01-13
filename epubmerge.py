@@ -224,10 +224,21 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
                             pass # Skip missing files.
                 
         for itemref in metadom.getElementsByTagName("itemref"):
+
             if not striptitletoc or not re.match(r'(title|toc)_page', itemref.getAttribute("idref")):
                 itemrefs.append(bookid+itemref.getAttribute("idref"))
 
         booknum=booknum+1;
+        if not forceunique:
+            # If not forceunique, it's an epub update.
+            # If there's a "calibre_bookmarks.txt", it's from reading
+            # in Calibre and should be preserved.
+            try:
+                fn = "META-INF/calibre_bookmarks.txt"
+                outputepub.writestr(fn,epub.read(fn))
+            except:
+                pass
+        
 
     ## create content.opf file. 
     uniqueid="epubmerge-uid-%d" % time() # real sophisticated uid scheme.
@@ -355,7 +366,7 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
     ## during TOC generation to save loops.
     outputepub.writestr("content.opf",contentdom.toxml('utf-8'))
     outputepub.writestr("toc.ncx",tocncxdom.toxml('utf-8'))
-    
+
     # declares all the files created by Windows.  otherwise, when
     # it runs in appengine, windows unzips the files as 000 perms.
     for zf in outputepub.filelist:
