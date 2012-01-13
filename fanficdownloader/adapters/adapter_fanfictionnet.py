@@ -175,6 +175,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         a = soup.find('a', href='http://www.fictionratings.com/')
         self.story.setMetadata('rating',a.string)
 
+        # used below to get correct characters.
+        metatext = a.findNext(text=re.compile(r' - Reviews:'))
+        if metatext == None: # indicates there's no Reviews, look for id: instead.
+            metatext = a.findNext(text=re.compile(r' - id:'))
+        #print("========= metatext:\n%s"%metatext)
+
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
         if 'Complete' in a.findNext(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
@@ -183,18 +189,33 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         # Parse genre(s) from <meta name="description" content="..."
-        # <meta name="description" content="Chapter 1 of a Harry Potter  - Family/Friendship fanfiction. Dudley Dursley would be the first to say he lived a very normal life. But what happens when he gets invited to his cousin Harry Potter's wedding? Will Dudley get the courage to apologize for the torture he caused all those years ago? Harry/Ginny story..">
-        # <meta name="description" content="A Gundam Wing/AC and Gundam Seed  - Romance/Sci-Fi crossover fanfiction  with characters:  & Kira Y.. Story summary: One-Shoot dividido en dos partes. Kira va en camino a rescatar a Lacus, pero él no es el unico. Dos personajes de diferentes universos Gundams. SEED vs ZERO.">
-        # <meta name="description" content="Chapter 1 of a Alvin and the chipmunks and Alpha and Omega  crossover fanfiction  with characters: Alvin S. & Humphrey. You'll just have to read to find out... No Flames Plesae... and tell me what you want to see by PM'ing me....">
-        # genre is after first -, but before first 'fanfiction'.
-        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?)) (?:crossover )?fanfiction",
+        # <meta name="description" content="A Transformers/Beast Wars  - Humor fanfiction with characters Prowl & Sideswipe. Story summary: Sideswipe is bored. Prowl appears to be so, too  or at least, Sideswipe thinks he looks bored . So Sideswipe entertains them. After all, what's more fun than a race? Song-fic.">
+        # <meta name="description" content="Chapter 1 of a Transformers/Beast Wars  - Adventure/Friendship fanfiction with characters Bumblebee. TFA: What would you do if you was being abused all you life? Follow NightRunner as she goes through her spark breaking adventure of getting away from her father..">
+        # (fp)<meta name="description" content="Chapter 1 of a Sci-Fi  - Adventure/Humor fiction. Felix Max was just your regular hyperactive kid until he accidently caused his own fathers death. Now he has meta-humans trying to hunt him down with a corrupt goverment to back them up. Oh, and did I mention he has no Powers yet?.">
+        # <meta name="description" content="Chapter 1 of a Bleach  - Adventure/Angst fanfiction with characters Ichigo K. & Neliel T. O./Nel. Time travel with a twist. Time can be a real bi***. Ichigo finds that fact out when he accidentally goes back in time. Is this his second chance or is fate just screwing with him. Not a crack fic.IchixNelXHime.">
+        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?:[ ]+with characters (?P<char1>.*?\.?)(?: & (?P<char2>.*?\.?))?\. )?",
                      soup.find('meta',{'name':'description'})['content'])
         if m != None:
             genres=m.group('genres')
-            # Hurt/Comfort is one genre.
-            genres=re.sub('Hurt/Comfort','Hurt-Comfort',genres)
-            for g in genres.split('/'):
-                self.story.addToList('genre',g)
+            if genres != None:
+                # Hurt/Comfort is one genre.
+                genres=re.sub('Hurt/Comfort','Hurt-Comfort',genres)
+                for g in genres.split('/'):
+                    self.story.addToList('genre',g)
+
+            if m.group('char1') != None:
+                # At this point we've proven that there's character(s)
+                # We can't reliably parse characters out of meta name="description".
+                # There's no way to tell that "with characters Ichigo K. & Neliel T. O./Nel. " ends at "Nel.", not "T."
+                # But we can pull them from the reviewstext line, now that we know about existance of chars.
+                # reviewstext can take form of:
+                # - English -  Shinji H. - Updated: 01-13-12 - Published: 12-20-11 - id:7654123
+                # - English - Adventure/Angst -  Ichigo K. & Neliel T. O./Nel - Reviews:
+                mc = re.match(r" - (?P<lang>[^ ]+ - )(?P<genres>[^ ]+ - )? (?P<chars>.+?) - (Reviews|Updated|Published)",
+                              metatext)
+                chars = mc.group("chars")
+                for c in chars.split(' & '):
+                    self.story.addToList('characters',c)
         
         return
 
