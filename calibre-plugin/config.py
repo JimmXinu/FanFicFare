@@ -7,38 +7,95 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import traceback, copy
+
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
                       QTextEdit, QComboBox, QCheckBox, QPushButton)
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
+from calibre.gui2.ui import get_gui
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
              CALIBREONLY,collision_order)
+
+from calibre_plugins.fanfictiondownloader_plugin.common_utils \
+    import ( get_library_uuid )
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
 # in a global namespace, so make it as unique as possible.
 # You should always prefix your config file name with plugins/,
 # so as to ensure you dont accidentally clobber a calibre config file
-prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
+all_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
-# Set defaults
-prefs.defaults['personal.ini'] = get_resources('example.ini')
-prefs.defaults['updatemeta'] = True
-prefs.defaults['keeptags'] = False
-#prefs.defaults['onlyoverwriteifnewer'] = False
-prefs.defaults['urlsfromclip'] = True
-prefs.defaults['updatedefault'] = True
-prefs.defaults['fileform'] = 'epub'
-prefs.defaults['collision'] = OVERWRITE
-prefs.defaults['deleteotherforms'] = False
+# Set defaults used by all.  Library specific settings continue to
+# take from here.
+all_prefs.defaults['personal.ini'] = get_resources('example.ini')
+all_prefs.defaults['updatemeta'] = True
+all_prefs.defaults['keeptags'] = False
+all_prefs.defaults['urlsfromclip'] = True
+all_prefs.defaults['updatedefault'] = True
+all_prefs.defaults['fileform'] = 'epub'
+all_prefs.defaults['collision'] = OVERWRITE
+all_prefs.defaults['deleteotherforms'] = False
+all_prefs.defaults['addtolists'] = False
 
+# The list of settings to copy from all_prefs or the previous library
+# when config is called for the first time on a library.
+copylist = ['personal.ini',
+            'updatemeta',
+            'keeptags',
+            'urlsfromclip',
+            'updatedefault',
+            'fileform',
+            'collision',
+            'deleteotherforms',
+            'addtolists']
+
+## fake out so I don't have to change the prefs calls anywhere.  The
+## Java programmer in me is offended by op-overloading, but it's very
+## tidy.
+class PrefsFacade():
+    def __init__(self,all_prefs):
+        self.all_prefs = all_prefs
+        self.lastlibid = None
+
+    def _get_copylist_prefs(self,frompref):
+        return filter( lambda x : x[0] in copylist, frompref.items() )
+        
+    def _get_prefs(self):
+        libraryid = get_library_uuid(get_gui().current_db)
+        if libraryid not in self.all_prefs:
+            if self.lastlibid == None:
+                self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs))
+            else:
+                self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs[self.lastlibid]))
+            self.lastlibid = libraryid
+            
+        return self.all_prefs[libraryid]
+        
+    def __getitem__(self,k):            
+        prefs = self._get_prefs()
+        if k not in prefs:
+            ## pulls from all_prefs.defaults automatically if not set
+            ## in all_prefs
+            return self.all_prefs[k]
+        return prefs[k]
+
+    def __setitem__(self,k,v):
+        prefs = self._get_prefs()
+        prefs[k]=v
+
+prefs = PrefsFacade(all_prefs)
+    
 class ConfigWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, plugin_action):
         QWidget.__init__(self)
+        self.plugin_action = plugin_action
+        
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -82,11 +139,6 @@ class ConfigWidget(QWidget):
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
 
-        # self.onlyoverwriteifnewer = QCheckBox('Default Only Overwrite Story if Newer',self)
-        # self.onlyoverwriteifnewer.setToolTip("Don't overwrite existing book unless the story on the web site is newer or from the same day.")
-        # self.onlyoverwriteifnewer.setChecked(prefs['onlyoverwriteifnewer'])
-        # self.l.addWidget(self.onlyoverwriteifnewer)
-        
         self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
         self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New?')
         self.urlsfromclip.setChecked(prefs['urlsfromclip'])
@@ -102,6 +154,19 @@ class ConfigWidget(QWidget):
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
+
+        try:
+            ## XXX hide when Reading List not installed?
+            rl_plugin = plugin_action.gui.iactions['Reading List']
+            print("Reading Lists:%s"%rl_plugin.get_list_names())
+            
+            self.addtolists = QCheckBox('Add new/updated stories to Reading List(s)?',self)
+            self.addtolists.setToolTip('Check this to automatically add new/updated stories to list in the Reading List plugin.')
+            self.addtolists.setChecked(prefs['addtolists'])
+            self.l.addWidget(self.addtolists)
+        except Exception as e:
+            print("no Reading List available:%s"%unicode(e))
+            traceback.print_exc()
         
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
@@ -139,8 +204,8 @@ class ConfigWidget(QWidget):
         prefs['keeptags'] = self.keeptags.isChecked()
         prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.updatedefault.isChecked()
-#        prefs['onlyoverwriteifnewer'] = self.onlyoverwriteifnewer.isChecked()
         prefs['deleteotherforms'] = self.deleteotherforms.isChecked()
+        prefs['addtolists'] = self.addtolists.isChecked()
         
         ini = unicode(self.ini.toPlainText())
         if ini:

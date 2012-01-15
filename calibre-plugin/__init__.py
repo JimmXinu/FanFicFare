@@ -27,7 +27,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (1, 1, 5)
+    version             = (1, 2, 0)
     minimum_calibre_version = (0, 8, 30)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -65,7 +65,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
         # GUI libraries to be loaded, which we do not want when using calibre
         # from the command line
         from calibre_plugins.fanfictiondownloader_plugin.config import ConfigWidget
-        return ConfigWidget()
+        return ConfigWidget(self.actual_plugin_)
 
     def save_settings(self, config_widget):
         '''
