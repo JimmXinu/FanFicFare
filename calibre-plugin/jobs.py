@@ -16,7 +16,6 @@ from StringIO import StringIO
 #from threading import Event
 
 #from calibre.gui2.convert.single import sort_formats_by_preference
-from calibre.utils.config import prefs
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.logging import Log
