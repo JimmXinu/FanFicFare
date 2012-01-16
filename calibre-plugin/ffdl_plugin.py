@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import time, os, copy
+import time, os, copy, threading
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from functools import partial
@@ -20,6 +20,7 @@ from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
@@ -78,11 +79,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         icon_resources = self.load_resources(PLUGIN_ICONS)
         set_plugin_icon_resources(self.name, icon_resources)
         
-        # Show the config dialog
-        # The config dialog can also be shown from within
-        # Preferences->Plugins, which is why the do_user_config
-        # method is defined on the base plugin class
-        do_user_config = self.interface_action_base_plugin.do_user_config
         base = self.interface_action_base_plugin
         self.version = base.name+" v%d.%d.%d"%base.version
 
@@ -107,58 +103,99 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         # Assign our menu to this action
         self.menu = QMenu(self.gui)
+        self.old_actions_unique_map = {}
         self.qaction.setMenu(self.menu)
-
         self.menu.aboutToShow.connect(self.about_to_show_menu)
 
-        self.actions_unique_map = {}
-
-        self.add_action = self.create_menu_item_ex(self.menu, '&Add New from URL(s)', image='plus.png',
-                                                   unique_name='Add New FanFiction Book(s) from URL(s)',
-                                                   shortcut_name='Add New FanFiction Book(s) from URL(s)',
-                                                   triggered=self.add_dialog )
-
-        self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
-                                                      unique_name='Update Existing FanFiction Book(s)',
-                                                      shortcut_name='Update Existing FanFiction Book(s)',
-                                                      triggered=self.update_existing)
-
-        self.menu.addSeparator()
-        self.add_send_action = self.create_menu_item_ex(self.menu, 'Add Selected to 000 and Send Lists', image='plusplus.png',
-                                                      unique_name='Add Selected to 000 and Send Lists',
-                                                      shortcut_name='Add Selected to 000 and Send Lists',
-                                                      triggered=partial(self.update_lists,add=True))
-
-        self.add_remove_action = self.create_menu_item_ex(self.menu, 'Remove Selected from 000, add to Send Lists', image='minusminus.png',
-                                                      unique_name='Remove Selected from 000, add to Send Lists',
-                                                      shortcut_name='Remove Selected from 000, add to Send Lists',
-                                                      triggered=partial(self.update_lists,add=False))
-
-        self.menu.addSeparator()
-        self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
-                                                        unique_name='Get URLs from Selected Books',
-                                                        shortcut_name='Get URLs from Selected Books',
-                                                        triggered=self.get_list_urls)
-
-        self.menu.addSeparator()
-        self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
-                                                       image= 'config.png',
-                                                       unique_name='Configure FanFictionDownLoader',
-                                                       shortcut_name='Configure FanFictionDownLoader',
-                                                       triggered=partial(do_user_config,parent=self.gui))
-
-        self.config_action = create_menu_action_unique(self, self.menu, '&About Plugin', shortcut=False,
-                                                       image= 'images/icon.png',
-                                                       unique_name='About FanFictionDownLoader',
-                                                       shortcut_name='About FanFictionDownLoader',
-                                                       triggered=self.about)
-
+        self.menus_lock = threading.RLock()
 
     def about_to_show_menu(self):
-        self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-        self.add_send_action.setEnabled( prefs['addtolists'] and len(self.gui.library_view.get_selected_ids()) > 0 )
-        self.add_remove_action.setEnabled( prefs['addtolists'] and len(self.gui.library_view.get_selected_ids()) > 0 )
-        self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+        self.rebuild_menus()
+
+    def rebuild_menus(self):
+        with self.menus_lock:
+            # Show the config dialog
+            # The config dialog can also be shown from within
+            # Preferences->Plugins, which is why the do_user_config
+            # method is defined on the base plugin class
+            do_user_config = self.interface_action_base_plugin.do_user_config
+            self.menu.clear()
+            self.actions_unique_map = {}
+            self.add_action = self.create_menu_item_ex(self.menu, '&Add New from URL(s)', image='plus.png',
+                                                       unique_name='Add New FanFiction Book(s) from URL(s)',
+                                                       shortcut_name='Add New FanFiction Book(s) from URL(s)',
+                                                       triggered=self.add_dialog )
+
+            self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
+                                                          unique_name='Update Existing FanFiction Book(s)',
+                                                          shortcut_name='Update Existing FanFiction Book(s)',
+                                                          triggered=self.update_existing)
+
+            if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
+                ## XXX mod and rebuild menu when lists selected/empty
+                self.menu.addSeparator()
+                addmenutxt, rmmenutxt = None, None
+                if prefs['addtolists'] and prefs['addtoreadlists'] :
+                    addmenutxt = 'Add to "To Read" and "Send to Device" Lists'
+                    if prefs['addtolistsonread']:
+                        rmmenutxt = 'Remove from "To Read" and add to "Send to Device" Lists'
+                    else:
+                        rmmenutxt = 'Remove from "To Read" Lists'
+                elif prefs['addtolists'] :
+                    addmenutxt = 'Add Selected to "Send to Device" Lists'
+                elif prefs['addtoreadlists']:
+                    addmenutxt = 'Add to "To Read" Lists'
+                    rmmenutxt = 'Remove from "To Read" Lists'
+
+                if addmenutxt:
+                    self.add_send_action = self.create_menu_item_ex(self.menu, addmenutxt, image='plusplus.png',
+                                                                    unique_name=addmenutxt,
+                                                                    shortcut_name=addmenutxt,
+                                                                    triggered=partial(self.update_lists,add=True))
+
+                if rmmenutxt:
+                    self.add_remove_action = self.create_menu_item_ex(self.menu, rmmenutxt, image='minusminus.png',
+                                                                      unique_name=rmmenutxt,
+                                                                      shortcut_name=rmmenutxt,
+                                                                      triggered=partial(self.update_lists,add=False))
+                
+                try:
+                    self.add_send_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+                except:
+                    pass
+                try:
+                    self.add_remove_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+                except:
+                    pass
+
+            self.menu.addSeparator()
+            self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
+                                                            unique_name='Get URLs from Selected Books',
+                                                            shortcut_name='Get URLs from Selected Books',
+                                                            triggered=self.get_list_urls)
+
+            self.menu.addSeparator()
+            self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
+                                                           image= 'config.png',
+                                                           unique_name='Configure FanFictionDownLoader',
+                                                           shortcut_name='Configure FanFictionDownLoader',
+                                                           triggered=partial(do_user_config,parent=self.gui))
+            
+            self.config_action = create_menu_action_unique(self, self.menu, '&About Plugin', shortcut=False,
+                                                           image= 'images/icon.png',
+                                                           unique_name='About FanFictionDownLoader',
+                                                           shortcut_name='About FanFictionDownLoader',
+                                                           triggered=self.about)
+            
+            self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+            self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+
+            # Before we finalize, make sure we delete any actions for menus that are no longer displayed
+            for menu_id, unique_name in self.old_actions_unique_map.iteritems():
+                if menu_id not in self.actions_unique_map:
+                    self.gui.keyboard.unregister_shortcut(unique_name)
+            self.old_actions_unique_map = self.actions_unique_map
+            self.gui.keyboard.finalize()            
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -170,8 +207,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # should pass a list of names to get_resources. In this case,
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
+        
         text = get_resources('about.txt')
-        AboutDialog(self.gui,self.qaction.icon(),text).exec_()
+        AboutDialog(self.gui,self.qaction.icon(),self.version + text).exec_()
         
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
@@ -188,9 +226,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.add_dialog()
 
     def update_lists(self,add=True):
-        if len(self.gui.library_view.get_selected_ids()) > 0 and prefs['addtolists']:
+        if len(self.gui.library_view.get_selected_ids()) > 0 and \
+                (prefs['addtolists'] or prefs['addtoreadlists']) :
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
-        self.gui.library_view.model().refresh_ids(self.gui.library_view.get_selected_ids())
+        #self.gui.library_view.model().refresh_ids(self.gui.library_view.get_selected_ids())
 
     def get_list_urls(self):
         if len(self.gui.library_view.get_selected_ids()) > 0:
@@ -547,6 +586,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
 
+        previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
 
         d = DisplayStoryListDialog(self.gui,
@@ -590,6 +630,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if update_ids:
                 self.gui.library_view.model().refresh_ids(update_ids)
 
+            current = self.gui.library_view.currentIndex()
+            self.gui.library_view.model().current_changed(current, previous)
+            self.gui.tags_view.recount()
+            
             self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
             if len(update_list) + len(add_list) != total_good:
@@ -634,7 +678,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     print("remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
 
-        if prefs['addtolists']:
+        if prefs['addtolists'] or prefs['addtoreadlists']:
             self._update_reading_lists([book_id],add=True)
                 
         return book_id
@@ -653,35 +697,59 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 mi.tags = list(set(list(old_tags)+mi.tags)) 
                         
         db.set_metadata(book_id,mi)
-    
+
+    def _get_clean_reading_lists(self,lists):
+        if lists == None or lists.strip() == "" :
+            return []
+        else:
+            return filter( lambda x : x, map( lambda x : x.strip(), lists.split(',') ) )
+        
     def _update_reading_lists(self,book_ids,add=True):
         try:
             rl_plugin = self.gui.iactions['Reading List']
         except:
-            confirm("You don't have the plugin Reading List installed.",'fanfictiondownloader_no_readinglist_plugin_item', self)
+            if prefs['addtolists'] or prefs['addtoreadlists']:
+                message="<p>You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the Reading List plugin installed anymore?</p>"
+                confirm(message,'fanfictiondownloader_no_reading_list_plugin', self.gui)
             return
-
-        if add:
-            for l in readlists:
+        
+        # XXX check for existence of lists, warning if not.
+        if prefs['addtoreadlists']:
+            if add:
+                addremovefunc = rl_plugin.add_books_to_list
+            else:
+                addremovefunc = rl_plugin.remove_books_from_list
+                
+            lists = self._get_clean_reading_lists(prefs['read_lists'])
+            if len(lists) < 1 :
+                message="<p>You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?</p>"
+                confirm(message,'fanfictiondownloader_no_read_lists', self.gui)
+            for l in lists:
                 if l in rl_plugin.get_list_names():
+                    #print("add good read l:(%s)"%l)
+                    addremovefunc(l,
+                                  book_ids,
+                                  display_warnings=False)
+                else:
+                    if l != '':
+                        message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
+                        confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
+                        
+        if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
+            lists = self._get_clean_reading_lists(prefs['send_lists'])
+            if len(lists) < 1 :
+                message="<p>You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?</p>"
+                confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
+            for l in lists:
+                if l in rl_plugin.get_list_names():
+                    #print("good send l:(%s)"%l)
                     rl_plugin.add_books_to_list(l,
                                                 book_ids,
-                                                refresh_screen=False,
                                                 display_warnings=False)
-        else:
-            for l in readlists:
-                if l in rl_plugin.get_list_names():
-                    rl_plugin.remove_books_from_list(l,
-                                                     book_ids,
-                                                     refresh_screen=False,
-                                                     display_warnings=False)
-        
-        for l in sendlists:
-            if l in rl_plugin.get_list_names():
-                rl_plugin.add_books_to_list(l,
-                                            book_ids,
-                                            refresh_screen=False,
-                                            display_warnings=False)
+                else:
+                    if l != '':
+                        message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
+                        confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
     def _find_existing_book_id(self,db,book,matchurl=True):
         mi = MetaInformation(book["title"],(book["author"],)) # author is a list.
@@ -708,8 +776,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def _convert_urls_to_books(self, urls):
         books = []
+        uniqueurls = set()
         for url in urls:
-            books.append(self._convert_url_to_book(url))
+            book = self._convert_url_to_book(url)
+            if book['url'] in uniqueurls:
+                book['good'] = False
+                book['comment'] = "Same story already included."
+            uniqueurls.add(book['url'])
+            books.append(book)
         return books
 
     def _convert_url_to_book(self, url):
