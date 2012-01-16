@@ -159,6 +159,11 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                     for g in m.group(1).split(','):
                         self.story.addToList('genre',g)
         
+                m = re.match(r".*?Characters: (.+?) Genre.*?",metastr)
+                if m:
+                    for g in m.group(1).split(','):
+                        self.story.addToList('characters',g)
+        
                 m = re.match(r".*?Warnings: (.+).*?",metastr)
                 if m:
                     for w in m.group(1).split(','):

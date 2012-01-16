@@ -232,6 +232,12 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
+            if 'Characters' in label:
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                charstext = [char.string for char in chars]
+                for char in charstext:
+                    self.story.addToList('characters',char.string)
+
             ## Not all sites use Genre, but there's no harm to
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.

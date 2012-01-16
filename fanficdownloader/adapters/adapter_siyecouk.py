@@ -203,7 +203,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             if part.startswith("Characters:"):
                 part = part[part.find(':')+1:]
                 for item in part.split(','):
-                    if item.strip() != "None":
+                    if item.strip() == "Harry/Ginny":
+                        self.story.addToList('characters',"Harry")
+                        self.story.addToList('characters',"Ginny")
+                    elif item.strip() not in ("None","All"):
                         self.story.addToList('characters',item)
 
             if part.startswith("Genres:"):

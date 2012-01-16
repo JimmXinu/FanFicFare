@@ -109,6 +109,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.menus_lock = threading.RLock()
 
+    def initialization_complete(self):
+        # otherwise configured hot keys won't work until the menu's
+        # been displayed once.
+        self.rebuild_menus()
+
     def about_to_show_menu(self):
         self.rebuild_menus()
 
