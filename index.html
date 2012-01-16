@@ -61,15 +61,46 @@
 	    considers Python 2.7 Experimental still, so there may be issues.
 	  </p>
 	  <p>
-	    <b>Changed Site</b><br />
-	    fanfic.castletv.net changed to castlefans.org.
+	    <b>FanFictionDownLoader calibre Plugin</b>
+	    <br /><br />
+	    
+	    There's now a version of this downloader that runs
+	    entirely inside the
+	    popular <a href="http://calibre-ebook.com/">calibre</a>
+	    ebook management package as a plugin.
+	    
+	    <br /><br />
+	    
+	    Once you have calibre installed and running, inside
+	    calibre, you can go to 'Get plugins to enhance calibre' or
+	    'Get new plugins' and
+	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>.
+	    
+	  </p>
+	  <p>
+	    <b>Wider support for 'Characters'</b>
+	    <br /><br />
+	    We now collect 'Character' lists for most of the supported sites.  
+	    <br /><br />
+	    There's huge variation in how different sites choose to define characters--well beyond our ability to standardize.
+	    <br /><br />
+	    So if you don't like and don't want to see characters in your title pages or tags, you can turn them off in your configuration with:
+	    <pre>
+[defaults]
+# note that characters is removed.  This removes it from your title page.
+titlepage_entries: category,genre,status,datePublished,dateUpdated,dateCreated,rating,warnings,numChapters,numWords,site,description
+
+# note that characters is removed.  This removes it from your tags.
+include_subject_tags: extratags, genre, category, status
+	    </pre>
+	    If you like them for some sites, but not others, just copy the titlepage_entries and include_subject_tags to sections for different sites and edit to taste.
 	  </p>
 	  <p>
 	    If you have any problems with this application, please
 	    report them in
 	    the <a href="http://groups.google.com/group/fanfic-downloader">Fanfiction
 	      Downloader Google Group</a>.  The
-	    <a href="http://4-0-7.fanfictiondownloader.appspot.com">Previous
+	    <a href="http://4-2-0.fanfictiondownloader.appspot.com">Previous
 	      Version</a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
