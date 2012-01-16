@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, copy
 
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-                      QTextEdit, QComboBox, QCheckBox, QPushButton)
+                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget)
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
@@ -21,7 +21,9 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs \
              CALIBREONLY,collision_order)
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
-    import ( get_library_uuid )
+    import ( get_library_uuid, KeyboardConfigDialog )
+
+from calibre.gui2.complete import MultiCompleteLineEdit
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
@@ -32,7 +34,7 @@ all_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # Set defaults used by all.  Library specific settings continue to
 # take from here.
-all_prefs.defaults['personal.ini'] = get_resources('example.ini')
+all_prefs.defaults['personal.ini'] = get_resources('plugin-example.ini')
 all_prefs.defaults['updatemeta'] = True
 all_prefs.defaults['keeptags'] = False
 all_prefs.defaults['urlsfromclip'] = True
@@ -40,7 +42,11 @@ all_prefs.defaults['updatedefault'] = True
 all_prefs.defaults['fileform'] = 'epub'
 all_prefs.defaults['collision'] = OVERWRITE
 all_prefs.defaults['deleteotherforms'] = False
+all_prefs.defaults['send_lists'] = ''
+all_prefs.defaults['read_lists'] = ''
 all_prefs.defaults['addtolists'] = False
+all_prefs.defaults['addtoreadlists'] = False
+all_prefs.defaults['addtolistsonread'] = False
 
 # The list of settings to copy from all_prefs or the previous library
 # when config is called for the first time on a library.
@@ -52,11 +58,13 @@ copylist = ['personal.ini',
             'fileform',
             'collision',
             'deleteotherforms',
-            'addtolists']
+            'addtolists',
+            'addtoreadlists',
+            'addtolistsonread']
 
-## fake out so I don't have to change the prefs calls anywhere.  The
-## Java programmer in me is offended by op-overloading, but it's very
-## tidy.
+# fake out so I don't have to change the prefs calls anywhere.  The
+# Java programmer in me is offended by op-overloading, but it's very
+# tidy.
 class PrefsFacade():
     def __init__(self,all_prefs):
         self.all_prefs = all_prefs
@@ -75,18 +83,30 @@ class PrefsFacade():
             self.lastlibid = libraryid
             
         return self.all_prefs[libraryid]
+
+    def _save_prefs(self,prefs):
+        libraryid = get_library_uuid(get_gui().current_db)
+        self.all_prefs[libraryid] = prefs
         
     def __getitem__(self,k):            
         prefs = self._get_prefs()
         if k not in prefs:
-            ## pulls from all_prefs.defaults automatically if not set
-            ## in all_prefs
+            # pulls from all_prefs.defaults automatically if not set
+            # in all_prefs
             return self.all_prefs[k]
         return prefs[k]
 
     def __setitem__(self,k,v):
         prefs = self._get_prefs()
         prefs[k]=v
+        self._save_prefs(prefs)
+
+    # to be avoided--can cause unexpected results as possibly ancient
+    # all_pref settings may be pulled.
+    def __delitem__(self,k):
+        prefs = self._get_prefs()
+        del prefs[k]
+        self._save_prefs(prefs)
 
 prefs = PrefsFacade(all_prefs)
     
@@ -95,6 +115,71 @@ class ConfigWidget(QWidget):
     def __init__(self, plugin_action):
         QWidget.__init__(self)
         self.plugin_action = plugin_action
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        tab_widget = QTabWidget(self)
+        self.l.addWidget(tab_widget)
+
+        self.basic_tab = BasicTab(self, plugin_action)
+        tab_widget.addTab(self.basic_tab, 'Basic')
+
+        self.personalini_tab = PersonalIniTab(self, plugin_action)
+        tab_widget.addTab(self.personalini_tab, 'personal.ini')
+        
+        if 'Reading List' in plugin_action.gui.iactions:
+            self.list_tab = ListTab(self, plugin_action)
+            tab_widget.addTab(self.list_tab, 'Reading Lists')
+        else:
+            self.list_tab = None
+            
+        self.other_tab = OtherTab(self, plugin_action)
+        tab_widget.addTab(self.other_tab, 'Other')
+
+    def save_settings(self):
+
+        # basic
+        prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
+        prefs['collision'] = unicode(self.basic_tab.collision.currentText())
+        prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
+        prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
+        prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
+        prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
+        prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
+
+        if self.list_tab:
+            # lists
+            prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.list_tab.send_lists_box.text()).split(','))))
+            prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.list_tab.read_lists_box.text()).split(','))))
+            # print("send_lists: %s"%prefs['send_lists'])
+            # print("read_lists: %s"%prefs['read_lists'])
+            prefs['addtolists'] = self.list_tab.addtolists.isChecked()
+            prefs['addtoreadlists'] = self.list_tab.addtoreadlists.isChecked()
+            prefs['addtolistsonread'] = self.list_tab.addtolistsonread.isChecked()
+
+        # personal.ini
+        ini = unicode(self.personalini_tab.ini.toPlainText())
+        if ini:
+            prefs['personal.ini'] = ini
+        else:
+            # if they've removed everything, reset to default.
+            prefs['personal.ini'] = get_resources('plugin-example.ini')
+        
+    def edit_shortcuts(self):
+        self.save_settings()
+        # Force the menus to be rebuilt immediately, so we have all our actions registered
+        self.plugin_action.rebuild_menus()
+        d = KeyboardConfigDialog(self.plugin_action.gui, self.plugin_action.action_spec[0])
+        if d.exec_() == d.Accepted:
+            self.plugin_action.gui.keyboard.finalize()
+
+class BasicTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
         
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -140,7 +225,7 @@ class ConfigWidget(QWidget):
         self.l.addWidget(self.keeptags)
 
         self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
-        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New?')
+        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New.')
         self.urlsfromclip.setChecked(prefs['urlsfromclip'])
         self.l.addWidget(self.urlsfromclip)
 
@@ -154,20 +239,33 @@ class ConfigWidget(QWidget):
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
-
-        try:
-            ## XXX hide when Reading List not installed?
-            rl_plugin = plugin_action.gui.iactions['Reading List']
-            print("Reading Lists:%s"%rl_plugin.get_list_names())
-            
-            self.addtolists = QCheckBox('Add new/updated stories to Reading List(s)?',self)
-            self.addtolists.setToolTip('Check this to automatically add new/updated stories to list in the Reading List plugin.')
-            self.addtolists.setChecked(prefs['addtolists'])
-            self.l.addWidget(self.addtolists)
-        except Exception as e:
-            print("no Reading List available:%s"%unicode(e))
-            traceback.print_exc()
         
+        self.l.insertStretch(-1)
+        
+    def set_collisions(self):
+        prev=self.collision.currentText()
+        self.collision.clear()
+        for o in collision_order:
+            if self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
+                self.collision.addItem(o)
+        i = self.collision.findText(prev)
+        if i > -1:
+            self.collision.setCurrentIndex(i)
+        
+    def show_defaults(self):
+        text = get_resources('plugin-defaults.ini')
+        ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
+        
+class PersonalIniTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
 
@@ -181,53 +279,13 @@ class ConfigWidget(QWidget):
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
         
-        reset_confirmation_button = QPushButton(_('Reset disabled &confirmation dialogs'), self)
-        reset_confirmation_button.setToolTip(_(
-                    'Reset all show me again dialogs for the FanFictionDownLoader plugin'))
-        reset_confirmation_button.clicked.connect(self.reset_dialogs)
-        self.l.addWidget(reset_confirmation_button)
-        
-    def set_collisions(self):
-        prev=self.collision.currentText()
-        self.collision.clear()
-        for o in collision_order:
-            if self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
-                self.collision.addItem(o)
-        i = self.collision.findText(prev)
-        if i > -1:
-            self.collision.setCurrentIndex(i)
-        
-    def save_settings(self):
-        prefs['fileform'] = unicode(self.fileform.currentText())
-        prefs['collision'] = unicode(self.collision.currentText())
-        prefs['updatemeta'] = self.updatemeta.isChecked()
-        prefs['keeptags'] = self.keeptags.isChecked()
-        prefs['urlsfromclip'] = self.urlsfromclip.isChecked()
-        prefs['updatedefault'] = self.updatedefault.isChecked()
-        prefs['deleteotherforms'] = self.deleteotherforms.isChecked()
-        prefs['addtolists'] = self.addtolists.isChecked()
-        
-        ini = unicode(self.ini.toPlainText())
-        if ini:
-            prefs['personal.ini'] = ini
-        else:
-            # if they've removed everything, clear it so they get the
-            # default next time.
-            del prefs['personal.ini']
+        # self.l.insertStretch(-1)
+        # let edit box fill the space.
         
     def show_defaults(self):
         text = get_resources('plugin-defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
 
-    def reset_dialogs(self):
-        for key in dynamic.keys():
-            if key.startswith('fanfictiondownloader_') and key.endswith('_again') \
-                                                  and dynamic[key] is False:
-                dynamic[key] = True
-        info_dialog(self, _('Done'),
-                _('Confirmation dialogs have all been reset'), show=True)
-
-        
 class ShowDefaultsIniDialog(QDialog):
 
     def __init__(self, icon, text, parent=None):
@@ -252,3 +310,93 @@ class ShowDefaultsIniDialog(QDialog):
         self.ok_button.clicked.connect(self.hide)
         self.l.addWidget(self.ok_button)
         
+class ListTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        rl_plugin = plugin_action.gui.iactions['Reading List']
+        reading_lists = rl_plugin.get_list_names()
+        # print("Reading Lists:%s"%reading_lists)
+
+        label = QLabel('These settings provide integration with the Reading List Plugin.  Reading List can automatically send to devices and change custom columns.  You have to create and configure the lists in Reading List to be useful.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
+        self.addtolists = QCheckBox('Add new/updated stories to "Send to Device" Reading List(s).',self)
+        self.addtolists.setToolTip('Automatically add new/updated stories to these lists in the Reading List plugin.')
+        self.addtolists.setChecked(prefs['addtolists'])
+        self.l.addWidget(self.addtolists)
+            
+        horz = QHBoxLayout()
+        label = QLabel('"Send to Device" Reading Lists')
+        label.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        horz.addWidget(label)        
+        self.send_lists_box = MultiCompleteLineEdit(self)
+        self.send_lists_box.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        self.send_lists_box.update_items_cache(reading_lists)
+        self.send_lists_box.setText(prefs['send_lists'])
+        horz.addWidget(self.send_lists_box)
+        self.l.addLayout(horz)
+        
+        self.addtoreadlists = QCheckBox('Add new/updated stories to "To Read" Reading List(s).',self)
+        self.addtoreadlists.setToolTip('Automatically add new/updated stories to these lists in the Reading List plugin.\nAlso offers menu option to remove stories from the "To Read" lists.')
+        self.addtoreadlists.setChecked(prefs['addtoreadlists'])
+        self.l.addWidget(self.addtoreadlists)
+            
+        horz = QHBoxLayout()
+        label = QLabel('"To Read" Reading Lists')
+        label.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        horz.addWidget(label)        
+        self.read_lists_box = MultiCompleteLineEdit(self)
+        self.read_lists_box.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        self.read_lists_box.update_items_cache(reading_lists)
+        self.read_lists_box.setText(prefs['read_lists'])
+        horz.addWidget(self.read_lists_box)
+        self.l.addLayout(horz)
+        
+        self.addtolistsonread = QCheckBox('Add stories back to "Send to Device" Reading List(s) when marked "Read".',self)
+        self.addtolistsonread.setToolTip('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)')
+        self.addtolistsonread.setChecked(prefs['addtolistsonread'])
+        self.l.addWidget(self.addtolistsonread)
+            
+        self.l.insertStretch(-1)
+        
+class OtherTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        keyboard_shortcuts_button = QPushButton('Keyboard shortcuts...', self)
+        keyboard_shortcuts_button.setToolTip(_(
+                    'Edit the keyboard shortcuts associated with this plugin'))
+        keyboard_shortcuts_button.clicked.connect(parent_dialog.edit_shortcuts)
+        self.l.addWidget(keyboard_shortcuts_button)
+
+        reset_confirmation_button = QPushButton(_('Reset disabled &confirmation dialogs'), self)
+        reset_confirmation_button.setToolTip(_(
+                    'Reset all show me again dialogs for the FanFictionDownLoader plugin'))
+        reset_confirmation_button.clicked.connect(self.reset_dialogs)
+        self.l.addWidget(reset_confirmation_button)
+        
+        self.l.insertStretch(-1)
+        
+    def reset_dialogs(self):
+        for key in dynamic.keys():
+            if key.startswith('fanfictiondownloader_') and key.endswith('_again') \
+                                                  and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
+

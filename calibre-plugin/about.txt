@@ -1,4 +1,3 @@
-<p>FanFictionDownLoader Plugin</p>
 <hr />
 
 <p>Created by Jim Miller, borrowing heavily from Grant Drake's
@@ -12,10 +11,10 @@ Calibre officially distributes plugins from the mobileread.com forum site.
 The official distro channel for this plugin is there: <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>
 </p>
 
-<p> However, I monitor the
+<p> I also monitor the
 <a href="http://groups.google.com/group/fanfic-downloader">general users
-group</a> for the downloader more closely.  That also covers the web application and CLI.
+group</a> for the downloader.  That covers the web application and CLI, too.
 </p>
 
-The source project for this plugin is <a href="http://code.google.com/p/fanficdownloader/source/checkout">
-also available</a>.
+The source for this plugin is available
+<a href="http://code.google.com/p/fanficdownloader/source/checkout">here</a>.
