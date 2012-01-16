@@ -117,10 +117,13 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
+        # problems with some stories, but only in calibre.  I suspect
+        # issues with different SGML parsers in python.  This is a
+        # nasty hack, but it works.
+        data = data[data.index("<body"):] 
+        
         # use BeautifulSoup HTML parser to make everything easier to find.
-        data = data[data.index("<body"):] # desperate--strip before <body
-        # in calibre plugin only, soup wasn't parsing the html properly.
         soup = bs.BeautifulSoup(data)
 
         ## Title
@@ -180,6 +183,12 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
+            if 'Characters' in label:
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                charstext = [char.string for char in chars]
+                for char in charstext:
+                    self.story.addToList('characters',char.string)
+
             if 'Genre' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3'))
                 genrestext = [genre.string for genre in genres]
@@ -214,8 +223,11 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         logging.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
-        data = data[data.index("<body"):] # desperate--strip before <body
-        # in calibre plugin only, soup wasn't parsing the html properly.
+        # problems with some stories, but only in calibre.  I suspect
+        # issues with different SGML parsers in python.  This is a
+        # nasty hack, but it works.
+        data = data[data.index("<body"):]
+        
         soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         

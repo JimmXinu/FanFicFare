@@ -152,6 +152,12 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             for g in m.group(1).split(','):
                 self.story.addToList('genre',g)
         
+        m = re.match(r".*?Characters: (.*?) -.*?",metastr)
+        if m:
+            for g in m.group(1).split(','):
+                if g:
+                    self.story.addToList('characters',g)
+        
         m = re.match(r".*?Published: ([0-9/]+?) -.*?",metastr)
         if m:
             self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y/%m/%d"))

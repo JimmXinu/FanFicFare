@@ -158,6 +158,15 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         for g in genre.split(r', '):
             self.story.addToList('genre',g)
 
+        # line 3 is characters.
+        chars = metadatachunks[3]
+        charsearch="<i>Characters:</i>"
+        if charsearch in chars:
+            chars = chars[metadatachunks[3].index(charsearch)+len(charsearch):]
+            for c in chars.split(','):
+                if c.strip() != u'None':
+                    self.story.addToList('characters',c)
+            
         # the next line is stuff with ' - ' separators *and* names--with tags.
         moremeta = metadatachunks[5]
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.

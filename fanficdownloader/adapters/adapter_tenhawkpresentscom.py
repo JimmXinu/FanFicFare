@@ -178,6 +178,12 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
+            if 'Characters' in label:
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                charstext = [char.string for char in chars]
+                for char in charstext:
+                    self.story.addToList('characters',char.string)
+
             if 'Genre' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
                 genrestext = [genre.string for genre in genres]

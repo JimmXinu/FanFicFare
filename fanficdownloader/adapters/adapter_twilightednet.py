@@ -118,6 +118,12 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
+        # problems with some stories, but only in calibre.  I suspect
+        # issues with different SGML parsers in python.  This is a
+        # nasty hack, but it works.
+        # twilighted isn't writing <body> ??? wtf?
+        data = "<html><body>"+data[data.index("</head>"):] 
+        
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
 
@@ -170,6 +176,12 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
+            if 'Characters' in label:
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                charstext = [char.string for char in chars]
+                for char in charstext:
+                    self.story.addToList('characters',char.string)
+
             ## twilighted.net doesn't use genre.
             # if 'Genre' in label:
             #     genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
@@ -197,7 +209,14 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        data = self._fetchUrl(url)
+        # problems with some stories, but only in calibre.  I suspect
+        # issues with different SGML parsers in python.  This is a
+        # nasty hack, but it works.
+        # twilighted isn't writing <body> ??? wtf?
+        data = "<html><body>"+data[data.index("</head>"):] 
+        
+        soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         span = soup.find('div', {'id' : 'story'})
