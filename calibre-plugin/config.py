@@ -128,11 +128,10 @@ class ConfigWidget(QWidget):
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
         
-        if 'Reading List' in plugin_action.gui.iactions:
-            self.list_tab = ListTab(self, plugin_action)
-            tab_widget.addTab(self.list_tab, 'Reading Lists')
-        else:
-            self.list_tab = None
+        self.list_tab = ListTab(self, plugin_action)
+        tab_widget.addTab(self.list_tab, 'Reading Lists')
+        if 'Reading List' not in plugin_action.gui.iactions:
+            self.list_tab.setEnabled(False)
             
         self.other_tab = OtherTab(self, plugin_action)
         tab_widget.addTab(self.other_tab, 'Other')
@@ -320,10 +319,12 @@ class ListTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        rl_plugin = plugin_action.gui.iactions['Reading List']
-        reading_lists = rl_plugin.get_list_names()
-        # print("Reading Lists:%s"%reading_lists)
-
+        try:
+            rl_plugin = plugin_action.gui.iactions['Reading List']
+            reading_lists = rl_plugin.get_list_names()
+        except KeyError:
+            reading_lists= []
+            
         label = QLabel('These settings provide integration with the Reading List Plugin.  Reading List can automatically send to devices and change custom columns.  You have to create and configure the lists in Reading List to be useful.')
         label.setWordWrap(True)
         self.l.addWidget(label)
