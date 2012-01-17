@@ -372,6 +372,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         url = book['url']
         print("url:%s"%url)
+        skip_date_update = False
         
         ## was self.ffdlconfig, but we need to be able to change it
         ## when doing epub update.
@@ -409,8 +410,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = writer.getTags()
-        book['pubdate'] = story.getMetadataRaw('datePublished')
-        book['timestamp'] = story.getMetadataRaw('dateCreated')
         book['comments'] = story.getMetadata("description") #, removeallentities=True) comments handles entities better.
         
         # adapter.opener is the element with a threadlock.  But del
@@ -478,7 +477,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
             ## newer/chaptercount checks are the same for both:
             # Update epub, but only if more chapters.
-            if collision == UPDATE:
+            if collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
                 # 'book' can exist without epub.  If there's no existing epub,
                 # let it go and it will download it.
                 if db.has_format(book_id,fileform,index_is_id=True):
@@ -489,12 +488,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                      titlenavpoints=False,
                                                      striptitletoc=True,
                                                      forceunique=False)
-    
                     urlchaptercount = int(story.getMetadata('numChapters'))
-                    if chaptercount == urlchaptercount: # and not onlyoverwriteifnewer:
-                        raise NotGoingToDownload("Already contains %d chapters."%chaptercount,'edit-undo.png')
+                    if chaptercount == urlchaptercount:
+                        if collision == UPDATE:
+                            raise NotGoingToDownload("Already contains %d chapters."%chaptercount,'edit-undo.png')
+                        else:
+                            # UPDATEALWAYS
+                            skip_date_update = True
                     elif chaptercount > urlchaptercount:
-                        raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d." % (chaptercount,urlchaptercount),'dialog_error.png')
+                        raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
     
             if collision == OVERWRITE and \
                     db.has_format(book_id,formmapping[fileform],index_is_id=True):
@@ -515,6 +517,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 print("existing epub tmp:"+tmp.name)
                 book['epub_for_update'] = tmp.name
 
+        book['pubdate'] = story.getMetadataRaw('datePublished')
+
+        if collision != CALIBREONLY and not skip_date_update:
+            # I'm half convinced this should be dateUpdated instead, but
+            # this behavior matches how epubs come out when imported
+            # dateCreated == packaged--epub/etc created.
+            book['timestamp'] = story.getMetadataRaw('dateCreated')
+        else:
+            book['timestamp'] = None
+        
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
             tmp = PersistentTemporaryFile(prefix='new-%s-'%book['calibre_id'],
@@ -700,7 +712,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
                     # mi.tags needs to be list, but set kills dups.
                 mi.tags = list(set(list(old_tags)+mi.tags)) 
-                        
+        # Set language english, but only if not already set.
+        oldmi = db.get_metadata(book_id,index_is_id=True)
+        if not oldmi.languages:
+            mi.languages=['eng']
         db.set_metadata(book_id,mi)
 
     def _get_clean_reading_lists(self,lists):
@@ -772,7 +787,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         mi.set_identifiers({'url':book['url']})
         mi.publisher = book['publisher']
         mi.tags = book['tags']
-        #mi.languages = ['en']
+        #mi.languages = ['en'] # handled in _update_metadata so it can check for existing lang.
         mi.pubdate = book['pubdate']
         mi.timestamp = book['timestamp']
         mi.comments = book['comments']
@@ -861,7 +876,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if db.has_format(book_id,'EPUB',index_is_id=True):
                 existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
                 mi = get_metadata(existingepub,'EPUB')
-                #print("mi:%s"%mi)
                 identifiers = mi.get_identifiers()
                 if 'url' in identifiers:
                     #print("url from epub:"+identifiers['url'].replace('|',':'))

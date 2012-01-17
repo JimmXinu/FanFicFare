@@ -44,8 +44,10 @@ def do_download_worker(book_list, options,
     print(options['version'])
     total = 0
     # Queue all the jobs
+    print("Adding jobs for URLs:")
     for book in book_list:
         if book['good']:
+            print("%s"%book['url'])
             total += 1
             args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
                     'do_download_for_worker',
