@@ -228,8 +228,29 @@ class BaseSiteAdapter(Configurable):
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
         pass
-        
+
+fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
+           "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
+           "November":"11", "December":"12" }
+
 def makeDate(string,format):
+    # Surprise!  Abstracting this turned out to be more useful than
+    # just saving bytes.
+
+    # fudge english month names for people who's locale is set to
+    # non-english.  All our current sites date in english, even if
+    # there's non-english content.
+    do_abbrev = "%b" in format
+        
+    if "%B" in format or do_abbrev:
+        format = format.replace("%B","%m")
+        for (name,num) in fullmon.items():
+            if do_abbrev:
+                name = name[:3] # first three for abbrev
+            if name in string:
+                string = string.replace(name,num)
+                break
+            
     return datetime.datetime.strptime(string,format)
 
 acceptable_attributes = ['href','name']
