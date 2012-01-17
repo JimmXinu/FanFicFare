@@ -54,13 +54,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         return 'www.tthfanfic.org'
 
     def getSiteExampleURLs(self):
-        return "http://www.tthfanfic.org/Story-5583 http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm ttp://www.tthfanfic.org/T-526321777890480578489880055880/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm"
+        return "http://www.tthfanfic.org/Story-5583 http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm http://www.tthfanfic.org/T-526321777890480578489880055880/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm"
 
     # http://www.tthfanfic.org/T-526321777848988007890480555880/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm
     # http://www.tthfanfic.org/Story-5583
     # http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm
+    # http://www.tthfanfic.org/story.php?no=26093
     def getSiteURLPattern(self):
-        return r"http://www.tthfanfic.org/(T-\d+/)?Story-(?P<id>\d+)(-\d+)?(/.*)?$"
+        return r"http://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 
     # tth won't send you future updates if you aren't 'caught up'
     # on the story.  Login isn't required for F21, but logging in will
@@ -151,13 +152,13 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         try:
             # going to pull part of the meta data from author list page.
-            logging.debug("author URL: "+self.story.getMetadata('authorUrl'))
+            logging.debug("**AUTHOR** URL: "+self.story.getMetadata('authorUrl'))
             authordata = self._fetchUrl(self.story.getMetadata('authorUrl'))
             authorsoup = bs.BeautifulSoup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
                 nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
-                logging.debug("author nextpage URL: "+nextpage)
+                logging.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 authorsoup = bs.BeautifulSoup(authordata)
         except urllib2.HTTPError, e:
