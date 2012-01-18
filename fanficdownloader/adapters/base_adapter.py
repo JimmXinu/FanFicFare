@@ -243,7 +243,7 @@ def makeDate(string,format):
     do_abbrev = "%b" in format
         
     if "%B" in format or do_abbrev:
-        format = format.replace("%B","%m")
+        format = format.replace("%B","%m").replace("%b","%m")
         for (name,num) in fullmon.items():
             if do_abbrev:
                 name = name[:3] # first three for abbrev
