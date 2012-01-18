@@ -422,6 +422,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['password'] = adapter.password
 
         book['icon'] = 'plus.png'
+        book['pubdate'] = story.getMetadataRaw('datePublished')
+        book['timestamp'] = None # filled below if not skipped.
         
         if collision in (CALIBREONLY):
             book['icon'] = 'metadata.png'
@@ -517,15 +519,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 print("existing epub tmp:"+tmp.name)
                 book['epub_for_update'] = tmp.name
 
-        book['pubdate'] = story.getMetadataRaw('datePublished')
-
         if collision != CALIBREONLY and not skip_date_update:
             # I'm half convinced this should be dateUpdated instead, but
             # this behavior matches how epubs come out when imported
             # dateCreated == packaged--epub/etc created.
             book['timestamp'] = story.getMetadataRaw('dateCreated')
-        else:
-            book['timestamp'] = None
         
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.

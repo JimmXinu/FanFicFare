@@ -84,14 +84,17 @@ def main():
 
    conflist = []
    homepath = join(expanduser("~"),".fanficdownloader")
+   
    if isfile(join(homepath,"defaults.ini")):
        conflist.append(join(homepath,"defaults.ini"))
-   if isfile(join(homepath,"personal.ini")):
-       conflist.append(join(homepath,"personal.ini"))
    if isfile("defaults.ini"):
        conflist.append("defaults.ini")
+       
+   if isfile(join(homepath,"personal.ini")):
+       conflist.append(join(homepath,"personal.ini"))
    if isfile("personal.ini"):
        conflist.append("personal.ini")
+       
    if options.configfile:
        conflist.extend(options.configfile)
       
