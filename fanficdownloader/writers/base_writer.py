@@ -101,6 +101,9 @@ class BaseStoryWriter(Configurable):
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
+        
+        for tag in self.getConfigList("extratags"):
+            self.story.addToList("extratags",tag)
 
     def getMetadata(self,key):
         return stripHTML(self.story.getMetadata(key))
@@ -184,8 +187,6 @@ class BaseStoryWriter(Configurable):
 
     # if no outstream is given, write to file.
     def writeStory(self,outstream=None, metaonly=False, outfilename=None, forceOverwrite=False):
-        for tag in self.getConfigList("extratags"):
-            self.story.addToList("extratags",tag)
 
         self.metaonly = metaonly
         if outfilename == None:
@@ -266,9 +267,6 @@ class BaseStoryWriter(Configurable):
             if name in self.getConfigList("include_subject_tags"):
                 for tag in lst:
                     subjectset.add(tag)
-                    
-        for tag in self.getConfigList("extratags"):
-            subjectset.add(tag)
 
         return list(subjectset)
             

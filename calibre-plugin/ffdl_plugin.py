@@ -700,16 +700,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def _update_metadata(self, db, book_id, book, mi):
         if prefs['keeptags']:
-            mi = copy.deepcopy(mi)
             old_tags = db.get_tags(book_id)
             # remove old Completed/In-Progress only if there's a new one.
             if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
                 old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
                 # remove old Last Update tags if there are new ones.
-                if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
-                    old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
-                    # mi.tags needs to be list, but set kills dups.
-                mi.tags = list(set(list(old_tags)+mi.tags)) 
+            if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
+                old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
+            # mi.tags needs to be list, but set kills dups.
+            mi.tags = list(set(list(old_tags)+mi.tags)) 
         # Set language english, but only if not already set.
         oldmi = db.get_metadata(book_id,index_is_id=True)
         if not oldmi.languages:
