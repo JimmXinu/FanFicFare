@@ -91,17 +91,20 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # rather nasty way to check for a newer chapter.  ffnet has a
             # tendency to send out update notices in email before all
             # their servers are showing the update on the first chapter.
-            chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+            try:
+                chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
             # get chapter part of url.
+            except:
+                chapcount = 1
             chapter = url.split('/',)[5]
             tryurl = "http://%s/s/%s/%d/"%(self.getSiteDomain(),
                                            self.story.getMetadata('storyId'),
                                            chapcount+1)
-            #print('=Trying newer chapter: %s' % tryurl)
+            print('=Trying newer chapter: %s' % tryurl)
             newdata = self._fetchUrl(tryurl)
             if "Chapter not found. Please check to see you are not using an outdated url." \
                     not in newdata:
-                #print('=======Found newer chapter: %s' % tryurl)
+                print('=======Found newer chapter: %s' % tryurl)
                 soup = bs.BeautifulSoup(newdata)
         except:
             pass

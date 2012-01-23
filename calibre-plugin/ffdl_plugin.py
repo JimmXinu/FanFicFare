@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.utils.date import local_tz
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
@@ -422,7 +423,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['password'] = adapter.password
 
         book['icon'] = 'plus.png'
-        book['pubdate'] = story.getMetadataRaw('datePublished')
+        book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
         book['timestamp'] = None # filled below if not skipped.
         
         if collision in (CALIBREONLY):
@@ -523,7 +524,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # I'm half convinced this should be dateUpdated instead, but
             # this behavior matches how epubs come out when imported
             # dateCreated == packaged--epub/etc created.
-            book['timestamp'] = story.getMetadataRaw('dateCreated')
+            book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
         
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
@@ -604,6 +605,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
 
+        # XXX Switch this to a calibre standard confirm that has a
+        # 'don't show this anymore' checkbox.  (But only if all good?)
         d = DisplayStoryListDialog(self.gui,
                                    'Downloads finished, confirm to update Calibre',
                                    prefs,
