@@ -557,18 +557,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.download_list_completed(notjob,options=options)
             return
 
-        # ## XXX show list before starting download.
-        # d = DisplayStoryListDialog(self.gui,
-        #                            'Download List',
-        #                            prefs,
-        #                            self.qaction.icon(),
-        #                            book_list,
-        #                            label_text='Status of stories to be downloaded'
-        #                            )
-        # d.exec_()
-        # if d.result() != d.Accepted:
-        #     return
-            
         for book in book_list:
             if book['good']:
                 break

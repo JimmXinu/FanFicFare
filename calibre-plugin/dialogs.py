@@ -11,7 +11,7 @@ import traceback
 
 from PyQt4 import QtGui
 from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
-                      QPushButton, QProgressDialog, QString, QLabel, QCheckBox, QIcon,
+                      QPushButton, QProgressDialog, QString, QLabel, QCheckBox, QIcon, QTextCursor,
                       QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, QVariant,
                       QProgressDialog, QTimer, QDialogButtonBox, QPixmap, Qt,QAbstractItemView )
 
@@ -45,7 +45,24 @@ class NotGoingToDownload(Exception):
 
     def __str__(self):
         return self.error
-    
+
+class DroppableQTextEdit(QTextEdit):
+    def __init__(self,parent):
+        QTextEdit.__init__(self,parent)
+        
+    def canInsertFromMimeData(self, source):
+        if source.hasUrls():
+            return True;
+        else:
+            return QTextEdit.canInsertFromMimeData(self,source)
+
+    def insertFromMimeData(self, source):
+        if source.hasUrls():
+            for u in source.urls():
+                self.append(u.toString())
+        else:
+            return QTextEdit.insertFromMimeData(self, source)
+                            
 class AddNewDialog(SizePersistedDialog):
 
     def __init__(self, gui, prefs, icon, url_list_text):
@@ -60,7 +77,7 @@ class AddNewDialog(SizePersistedDialog):
         self.setWindowIcon(icon)
 
         self.l.addWidget(QLabel('Story URL(s), one per line:'))
-        self.url = QTextEdit(self)
+        self.url = DroppableQTextEdit(self)
         self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.')
         self.url.setLineWrapMode(QTextEdit.NoWrap)
         self.url.setText(url_list_text)
