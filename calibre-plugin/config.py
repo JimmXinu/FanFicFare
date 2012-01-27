@@ -176,7 +176,7 @@ class ConfigWidget(QWidget):
             val = unicode(combo.itemData(combo.currentIndex()).toString())
             if val != 'none':
                 colsmap[col] = val
-                print("colsmap[%s]:%s"%(col,colsmap[col]))
+                #print("colsmap[%s]:%s"%(col,colsmap[col]))
         prefs['custom_cols'] = colsmap
         
     def edit_shortcuts(self):
@@ -197,6 +197,11 @@ class BasicTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        label = QLabel('These settings control the basic features of the plugin--downloading FanFiction.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
         horz = QHBoxLayout()
         label = QLabel('Default Output &Format:')
         horz.addWidget(label)
@@ -228,7 +233,7 @@ class BasicTab(QWidget):
         self.l.addLayout(horz)
 
         self.updatemeta = QCheckBox('Default Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip('Update title, author, URL, tags, etc for story in Calibre from web site.')
+        self.updatemeta.setToolTip('Update title, author, URL, tags, custom columns, etc for story in Calibre from web site.')
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
@@ -279,6 +284,11 @@ class PersonalIniTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        label = QLabel('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set is_adult and user/password for different sites.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
         self.label = QLabel('personal.ini:')
         self.l.addWidget(self.label)
 
@@ -307,13 +317,13 @@ class ShowDefaultsIniDialog(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel("Plugin Defaults (Read-Only)")
-        self.label.setToolTip("These all of the plugin's configurable settings\nand their default settings.")
+        self.label.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
         self.setWindowTitle(_('Plugin Defaults'))
         self.setWindowIcon(icon)
         self.l.addWidget(self.label)
         
         self.ini = QTextEdit(self)
-        self.ini.setToolTip("These all of the plugin's configurable settings\nand their default settings.")
+        self.ini.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(text)
         self.ini.setReadOnly(True)
@@ -393,6 +403,11 @@ class OtherTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        label = QLabel("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFictionDownLoader confirmation dialogs back again.")
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
         keyboard_shortcuts_button = QPushButton('Keyboard shortcuts...', self)
         keyboard_shortcuts_button.setToolTip(_(
                     'Edit the keyboard shortcuts associated with this plugin'))
@@ -440,10 +455,11 @@ permitted_values = {
                      'description',
                      'author',
                      'authorUrl',
-                     'formatname',
-                     'formatext',
-                     'siteabbrev',
-                     'version']
+                     'formatname'
+                     #,'formatext'   # not useful information.
+                     #,'siteabbrev'
+                     #,'version'
+                     ]
     }
 # no point copying the whole list.
 permitted_values['text'] = permitted_values['enumeration']
@@ -488,6 +504,11 @@ class ColumnsTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        label = QLabel("If you have custom columns defined, they will be listed below.  Choose a metadata value type to fill your columns automatically.")
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
         self.custcol_dropdowns = {}
 
         custom_columns = self.plugin_action.gui.library_view.model().custom_columns
