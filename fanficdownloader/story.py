@@ -56,15 +56,15 @@ class Story:
         else:
             return value
 
-    def getAllMetadata(self):
+    def getAllMetadata(self, removeallentities=False):
         '''
         All single value *and* list value metadata as strings.
         '''
         allmetadata = {}
         for k in self.metadata.keys():
-            allmetadata[k] = self.getMetadata(k)
+            allmetadata[k] = self.getMetadata(k, removeallentities)
         for l in self.listables.keys():
-            allmetadata[l] = self.getMetadata(l)
+            allmetadata[l] = self.getMetadata(l, removeallentities)
 
         return allmetadata
         
