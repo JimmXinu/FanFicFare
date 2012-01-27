@@ -66,7 +66,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     # (text, icon_path, tooltip, keyboard shortcut)
     # icon_path isn't in the zip--icon loaded below.
     action_spec = (name, None,
-                   'Download FanFiction stories from various web sites', None)
+                   'Download FanFiction stories from various web sites', ())
+    # None for keyboard shortcut doesn't allow shortcut.  () does, there just isn't one yet
 
     action_type = 'global'
     # make button menu drop down only
@@ -138,7 +139,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                           triggered=self.update_existing)
 
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
-                ## XXX mod and rebuild menu when lists selected/empty
                 self.menu.addSeparator()
                 addmenutxt, rmmenutxt = None, None
                 if prefs['addtolists'] and prefs['addtoreadlists'] :
@@ -165,14 +165,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                                       shortcut_name=rmmenutxt,
                                                                       triggered=partial(self.update_lists,add=False))
                 
-                try:
-                    self.add_send_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-                except:
-                    pass
-                try:
-                    self.add_remove_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-                except:
-                    pass
+                # try:
+                #     self.add_send_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+                # except:
+                #     pass
+                # try:
+                #     self.add_remove_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+                # except:
+                #     pass
 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
@@ -193,8 +193,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                            shortcut_name='About FanFictionDownLoader',
                                                            triggered=self.about)
             
-            self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-            self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+            # self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
+            # self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
 
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
@@ -287,6 +287,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self.start_downloads( options, add_books )
         
     def update_existing(self):
+        if len(self.gui.library_view.get_selected_ids()) == 0:
+            return
         #print("update_existing()")
         previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
