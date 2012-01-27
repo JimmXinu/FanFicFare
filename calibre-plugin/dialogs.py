@@ -18,6 +18,9 @@ from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayo
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+from calibre import confirm_config_name
+from calibre.gui2 import dynamic
+
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
@@ -197,25 +200,27 @@ class UserPassDialog(QDialog):
         self.status=False
         self.hide()
 
-class MetadataProgressDialog(QProgressDialog):
+class LoopProgressDialog(QProgressDialog):
     '''
     ProgressDialog displayed while fetching metadata for each story.
     '''
     def __init__(self, gui,
                  book_list,
-                 options,
-                 metadata_function,
-                 startdownload_function):
+                 foreach_function,
+                 finish_function,
+                 init_label="Fetching metadata for stories...",
+                 win_title="Downloading metadata for stories",
+                 status_prefix="Fetched metadata for"):
         QProgressDialog.__init__(self,
-                                 "Fetching metadata for stories...",
+                                 init_label,
                                  QString(), 0, len(book_list), gui)
-        self.setWindowTitle("Downloading metadata for stories")
+        self.setWindowTitle(win_title)
         self.setMinimumWidth(500)
         self.gui = gui
         self.book_list = book_list
-        self.options = options
-        self.metadata_function = metadata_function
-        self.startdownload_function = startdownload_function
+        self.foreach_function = foreach_function
+        self.finish_function = finish_function
+        self.status_prefix = status_prefix
         self.i = 0
         
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
@@ -224,7 +229,7 @@ class MetadataProgressDialog(QProgressDialog):
         self.exec_()
 
     def updateStatus(self):
-        self.setLabelText("Fetched metadata for %d of %d"%(self.i+1,len(self.book_list)))
+        self.setLabelText("%s %d of %d"%(self.status_prefix,self.i+1,len(self.book_list)))
         self.setValue(self.i+1)
         print(self.labelText())
 
@@ -237,7 +242,7 @@ class MetadataProgressDialog(QProgressDialog):
         try:
             ## collision spec passed into getadapter by partial from ffdl_plugin
             ## no retval only if it exists, but collision is SKIP
-            self.metadata_function(book)
+            self.foreach_function(book)
             
         except NotGoingToDownload as d:
             book['good']=False
@@ -262,7 +267,7 @@ class MetadataProgressDialog(QProgressDialog):
         self.hide()
         self.gui = None        
         # Queues a job to process these books in the background.
-        self.startdownload_function(self.book_list)
+        self.finish_function(self.book_list)
 
 class AboutDialog(QDialog):
 
@@ -307,7 +312,7 @@ class AuthorTableWidgetItem(ReadOnlyTableWidgetItem):
 
 class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
-                 save_size_name='FanFictionDownLoader plugin:update list dialog'):
+                 save_size_name='fanfictiondownloader_plugin:update list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
         self.gui = gui
         
@@ -415,14 +420,35 @@ class UpdateExistingDialog(SizePersistedDialog):
             'updatemeta': unicode(self.updatemeta.isChecked()),
             }
 
+def display_story_list(gui, header, prefs, icon, books,
+                       label_text='',
+                       save_size_name='fanfictiondownloader_plugin:display list dialog',
+                       offer_skip=False):
+    all_good = True
+    for b in books:
+        if not b['good']:
+            all_good=False
+            break
+        
+    ## 
+    if all_good and not dynamic.get(confirm_config_name(save_size_name), True):
+        return True
+        pass
+            ## fake accept?
+    d = DisplayStoryListDialog(gui, header, prefs, icon, books,
+                               label_text,
+                               save_size_name,
+                               offer_skip and all_good)
+    d.exec_()
+    return d.result() == d.Accepted
+
 class DisplayStoryListDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
                  label_text='',
-                 save_size_name='FanFictionDownLoader plugin:display list dialog'):
+                 save_size_name='fanfictiondownloader_plugin:display list dialog',
+                 offer_skip=False):
         SizePersistedDialog.__init__(self, gui, save_size_name)
-        # UpdateExistingDialog.__init__(self, gui, header, prefs, icon, books,
-        #                               save_size_name='FanFictionDownLoader plugin:display list dialog')
-
+        self.name = save_size_name
         self.gui = gui
         
         self.setWindowTitle(header)
@@ -443,6 +469,15 @@ class DisplayStoryListDialog(SizePersistedDialog):
         #self.label.setWordWrap(True)
         options_layout.addWidget(self.label)
         
+        if offer_skip:
+            spacerItem1 = QtGui.QSpacerItem(2, 4, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+            options_layout.addItem(spacerItem1)
+            self.again = QCheckBox('Show this again?',self)
+            self.again.setChecked(True)
+            self.again.stateChanged.connect(self.toggle)
+            self.again.setToolTip('Uncheck to skip review and update stories immediately when no problems.')
+            options_layout.addWidget(self.again)
+        
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -454,9 +489,14 @@ class DisplayStoryListDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
         self.books_table.populate_table(books)
-        
+
     def get_books(self):
         return self.books_table.get_books()
+
+    def toggle(self, *args):
+        dynamic[confirm_config_name(self.name)] = self.again.isChecked()
+
+    
 
 class StoryListTableWidget(QTableWidget):
 

@@ -33,10 +33,10 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapter
 from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
 from calibre_plugins.fanfictiondownloader_plugin.dcsource import get_dcsource
 
-from calibre_plugins.fanfictiondownloader_plugin.config import (prefs)
+from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
-    AddNewDialog, UpdateExistingDialog, DisplayStoryListDialog,
-    MetadataProgressDialog, UserPassDialog, AboutDialog,
+    AddNewDialog, UpdateExistingDialog, display_story_list, DisplayStoryListDialog,
+    LoopProgressDialog, UserPassDialog, AboutDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload )
 
@@ -337,14 +337,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
         
-        MetadataProgressDialog(self.gui,
-                               books,
-                               options,
-                               partial(self.get_metadata_for_book, options = options),
-                               partial(self.start_download_list, options = options))
-        # MetadataProgressDialog calls get_metadata_for_book for each 'good' story,
+        LoopProgressDialog(self.gui,
+                           books,
+                           partial(self.get_metadata_for_book, options = options),
+                           partial(self.start_download_list, options = options))
+        # LoopProgressDialog calls get_metadata_for_book for each 'good' story,
         # get_metadata_for_book updates book for each,
-        # MetadataProgressDialog calls start_download_list at the end which goes
+        # LoopProgressDialog calls start_download_list at the end which goes
         # into the BG, or shows list if no 'good' books.
 
     def get_metadata_for_book(self,book,
@@ -353,7 +352,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                        'updatemeta':True}):
         '''
         Update passed in book dict with metadata from website and
-        necessary data.  To be called from MetadataProgressDialog
+        necessary data.  To be called from LoopProgressDialog
         'loop'.  Also pops dialogs for is adult, user/pass.
         '''
         
@@ -407,6 +406,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         story = adapter.getStoryMetadataOnly()
         writer = writers.getWriter(options['fileform'],adapter.config,adapter)
 
+        book['all_metadata'] = story.getAllMetadata(removeallentities=True)
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
@@ -542,7 +542,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                      'collision':ADDNEW,
                                      'updatemeta':True}):
         '''
-        Called by MetadataProgressDialog to start story downloads BG processing.
+        Called by LoopProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
         '''
         #print("start_download_list:book_list:%s"%book_list)
@@ -585,75 +585,125 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         self.gui.status_bar.show_message('Starting %d FanFictionDownLoads'%len(book_list),3000)
 
+    def _update_book(self,book,db=None,
+                     options={'fileform':'epub',
+                              'collision':ADDNEW,
+                              'updatemeta':True}):
+        print("add/update %s %s"%(book['title'],book['url']))
+        mi = self._make_mi_from_book(book)
+                
+        if options['collision'] != CALIBREONLY:
+            self._add_or_update_book(book,options,prefs,mi)
+
+        if options['collision'] == CALIBREONLY or \
+                (options['updatemeta'] and book['good']) :
+            self._update_metadata(db, book['calibre_id'], book, mi)
+        
+
+    def _update_books_completed(self, book_list, options={}):
+        
+        add_list = filter(lambda x : x['good'] and x['added'], book_list)
+        update_list = filter(lambda x : x['good'] and not x['added'], book_list)
+        update_ids = [ x['calibre_id'] for x in update_list ]
+        
+        if len(add_list):
+            ## even shows up added to searchs.  Nice.
+            self.gui.library_view.model().books_added(len(add_list))
+
+        if update_ids:
+            self.gui.library_view.model().refresh_ids(update_ids)
+
+        current = self.gui.library_view.currentIndex()
+        self.gui.library_view.model().current_changed(current, self.previous)
+        self.gui.tags_view.recount()
+        
+        self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
+            
+        if len(update_list) + len(add_list) != len(book_list):
+            d = DisplayStoryListDialog(self.gui,
+                                       'Updates completed, final status',
+                                       prefs,
+                                       self.qaction.icon(),
+                                       book_list,
+                                       label_text='Stories have be added or updated in Calibre, some had additional problems.'
+                                       )
+            d.exec_()
+    
+        print("all done, remove temp dir.")
+        remove_dir(options['tdir'])
+        
     def download_list_completed(self, job, options={}):
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
 
-        previous = self.gui.library_view.currentIndex()
+        self.previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
 
-        # XXX Switch this to a calibre standard confirm that has a
-        # 'don't show this anymore' checkbox.  (But only if all good?)
-        d = DisplayStoryListDialog(self.gui,
-                                   'Downloads finished, confirm to update Calibre',
-                                   prefs,
-                                   self.qaction.icon(),
-                                   job.result,
-                                   label_text='Stories will not be added or updated in Calibre without confirmation.'
-                                   )
-        d.exec_()
-        if d.result() == d.Accepted:
+        if display_story_list(self.gui,
+                              'Downloads finished, confirm to update Calibre',
+                              prefs,
+                              self.qaction.icon(),
+                              job.result,
+                              label_text='Stories will not be added or updated in Calibre without confirmation.',
+                              offer_skip=True):
             
-            ## in case the user removed any from the list.
-            book_list = d.get_books()
-
+            book_list = job.result
             good_list = filter(lambda x : x['good'], book_list)
-
             total_good = len(good_list)
 
-            self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good), 3000)
+            self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good))
             
-            for book in good_list:
-                print("add/update %s %s"%(book['title'],book['url']))
-                mi = self._make_mi_from_book(book)
+            LoopProgressDialog(self.gui,
+                               good_list,
+                               partial(self._update_book, options=options, db=self.gui.current_db),
+                               partial(self._update_books_completed, options=options),
+                               init_label="Updating calibre for stories...",
+                               win_title="Update calibre for stories",
+                               status_prefix="Updated")
+            
+            # for book in good_list:
+            #     print("add/update %s %s"%(book['title'],book['url']))
+            #     mi = self._make_mi_from_book(book)
                 
-                if options['collision'] != CALIBREONLY:
-                    self._add_or_update_book(book,options,prefs,mi)
+            #     if options['collision'] != CALIBREONLY:
+            #         self._add_or_update_book(book,options,prefs,mi)
 
-                if options['collision'] == CALIBREONLY or \
-                        (options['updatemeta'] and book['good']) :
-                    self._update_metadata(db, book['calibre_id'], book, mi)
-                    
-            add_list = filter(lambda x : x['good'] and x['added'], book_list)
-            update_list = filter(lambda x : x['good'] and not x['added'], book_list)
-            update_ids = [ x['calibre_id'] for x in update_list ]
-                    
-            if len(add_list):
-                ## even shows up added to searchs.  Nice.
-                self.gui.library_view.model().books_added(len(add_list))
+            #     if options['collision'] == CALIBREONLY or \
+            #             (options['updatemeta'] and book['good']) :
+            #         self._update_metadata(db, book['calibre_id'], book, mi)
 
-            if update_ids:
-                self.gui.library_view.model().refresh_ids(update_ids)
-
-            current = self.gui.library_view.currentIndex()
-            self.gui.library_view.model().current_changed(current, previous)
-            self.gui.tags_view.recount()
+            ##### split here.
             
-            self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
+        #     add_list = filter(lambda x : x['good'] and x['added'], book_list)
+        #     update_list = filter(lambda x : x['good'] and not x['added'], book_list)
+        #     update_ids = [ x['calibre_id'] for x in update_list ]
+                    
+        #     if len(add_list):
+        #         ## even shows up added to searchs.  Nice.
+        #         self.gui.library_view.model().books_added(len(add_list))
+
+        #     if update_ids:
+        #         self.gui.library_view.model().refresh_ids(update_ids)
+
+        #     current = self.gui.library_view.currentIndex()
+        #     self.gui.library_view.model().current_changed(current, previous)
+        #     self.gui.tags_view.recount()
             
-            if len(update_list) + len(add_list) != total_good:
-                d = DisplayStoryListDialog(self.gui,
-                                           'Updates completed, final status',
-                                           prefs,
-                                           self.qaction.icon(),
-                                           book_list,
-                                           label_text='Stories have be added or updated in Calibre, some had additional problems.'
-                                           )
-                d.exec_()
+        #     self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
+            
+        #     if len(update_list) + len(add_list) != total_good:
+        #         d = DisplayStoryListDialog(self.gui,
+        #                                    'Updates completed, final status',
+        #                                    prefs,
+        #                                    self.qaction.icon(),
+        #                                    book_list,
+        #                                    label_text='Stories have be added or updated in Calibre, some had additional problems.'
+        #                                    )
+        #         d.exec_()
     
-        print("all done, remove temp dir.")
-        remove_dir(options['tdir'])
+        # print("all done, remove temp dir.")
+        # remove_dir(options['tdir'])
 
     def _add_or_update_book(self,book,options,prefs,mi=None):
         db = self.gui.current_db
@@ -705,6 +755,38 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not oldmi.languages:
             mi.languages=['eng']
         db.set_metadata(book_id,mi)
+
+        # do configured column updates here.
+        #print("all_metadata: %s"%book['all_metadata'])
+        custom_columns = self.gui.library_view.model().custom_columns
+
+        #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
+        for col, meta in prefs['custom_cols'].iteritems():
+            #print("setting %s to %s"%(col,meta))
+            if col not in custom_columns:
+                print("%s not an existing column, skipping."%col)
+                continue
+            coldef = custom_columns[col]
+            if not meta.startswith('status-') and meta not in book['all_metadata']:
+                print("No value for %s, skipping."%meta)
+                continue
+            if meta not in permitted_values[coldef['datatype']]:
+                print("%s not a valid column type for %s, skipping."%(col,meta))
+                continue
+            label = coldef['label']
+            if coldef['datatype'] in ('enumeration','text','comments','datetime'):
+                db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
+            elif coldef['datatype'] in ('int','float'):
+                num = unicode(book['all_metadata'][meta]).replace(",","")
+                db.set_custom(book_id, num, label=label, commit=False)
+            elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
+                if meta == 'status-C':
+                    val = book['all_metadata']['status'] == 'Completed'
+                if meta == 'status-I':
+                    val = book['all_metadata']['status'] == 'In-Progress'
+                db.set_custom(book_id, val, label=label, commit=False)
+                
+        db.commit()
 
     def _get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :

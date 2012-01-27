@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, copy
 
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget)
+                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant)
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
@@ -47,6 +47,7 @@ all_prefs.defaults['read_lists'] = ''
 all_prefs.defaults['addtolists'] = False
 all_prefs.defaults['addtoreadlists'] = False
 all_prefs.defaults['addtolistsonread'] = False
+all_prefs.defaults['custom_cols'] = {}
 
 # The list of settings to copy from all_prefs or the previous library
 # when config is called for the first time on a library.
@@ -132,9 +133,13 @@ class ConfigWidget(QWidget):
         tab_widget.addTab(self.list_tab, 'Reading Lists')
         if 'Reading List' not in plugin_action.gui.iactions:
             self.list_tab.setEnabled(False)
-            
+
+        self.columns_tab = ColumnsTab(self, plugin_action)
+        tab_widget.addTab(self.columns_tab, 'Custom Columns')
+
         self.other_tab = OtherTab(self, plugin_action)
         tab_widget.addTab(self.other_tab, 'Other')
+
 
     def save_settings(self):
 
@@ -164,6 +169,15 @@ class ConfigWidget(QWidget):
         else:
             # if they've removed everything, reset to default.
             prefs['personal.ini'] = get_resources('plugin-example.ini')
+
+        # Custom Columns tab
+        colsmap = {}
+        for (col,combo) in self.columns_tab.custcol_dropdowns.iteritems():
+            val = unicode(combo.itemData(combo.currentIndex()).toString())
+            if val != 'none':
+                colsmap[col] = val
+                print("colsmap[%s]:%s"%(col,colsmap[col]))
+        prefs['custom_cols'] = colsmap
         
     def edit_shortcuts(self):
         self.save_settings()
@@ -401,3 +415,108 @@ class OtherTab(QWidget):
         info_dialog(self, _('Done'),
                 _('Confirmation dialogs have all been reset'), show=True)
 
+permitted_values = {
+    'int' : ['numWords','numChapters'],
+    'float' : ['numWords','numChapters'],
+    'bool' : ['status-C','status-I'],
+    'datetime' : ['datePublished', 'dateUpdated', 'dateCreated'],
+    'enumeration' : ['category',
+                     'genre',
+                     'characters',
+                     'status',
+                     'datePublished',
+                     'dateUpdated',
+                     'dateCreated',
+                     'rating',
+                     'warnings',
+                     'numChapters',
+                     'numWords',
+                     'site',
+                     'storyId',
+                     'authorId',
+                     'extratags',
+                     'title',
+                     'storyUrl',
+                     'description',
+                     'author',
+                     'authorUrl',
+                     'formatname',
+                     'formatext',
+                     'siteabbrev',
+                     'version']
+    }
+# no point copying the whole list.
+permitted_values['text'] = permitted_values['enumeration']
+permitted_values['comments'] = permitted_values['enumeration']
+
+titleLabels = {
+    'category':'Category',
+    'genre':'Genre',
+    'status':'Status',
+    'status-C':'Status:Completed',
+    'status-I':'Status:In-Progress',
+    'characters':'Characters',
+    'datePublished':'Published',
+    'dateUpdated':'Updated',
+    'dateCreated':'Packaged',
+    'rating':'Rating',
+    'warnings':'Warnings',
+    'numChapters':'Chapters',
+    'numWords':'Words',
+    'site':'Site',
+    'storyId':'Story ID',
+    'authorId':'Author ID',
+    'extratags':'Extra Tags',
+    'title':'Title',
+    'storyUrl':'Story URL',
+    'description':'Summary',
+    'author':'Author',
+    'authorUrl':'Author URL',
+    'formatname':'File Format',
+    'formatext':'File Extension',
+    'siteabbrev':'Site Abbrev',
+    'version':'FFD Version'
+    }
+
+class ColumnsTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        self.custcol_dropdowns = {}
+
+        custom_columns = self.plugin_action.gui.library_view.model().custom_columns
+
+        for key, column in custom_columns.iteritems():
+
+            if column['datatype'] in permitted_values:
+                # print("\n============== %s ===========\n"%key)
+                # for (k,v) in column.iteritems():
+                #     print("column['%s'] => %s"%(k,v))
+                horz = QHBoxLayout()
+                label = QLabel('%s(%s)'%(column['name'],key))
+                label.setToolTip("Update this %s column with..."%column['datatype'])
+                horz.addWidget(label)
+                dropdown = QComboBox(self)
+                dropdown.addItem('',QVariant('none'))
+                for md in permitted_values[column['datatype']]:
+                    dropdown.addItem(titleLabels[md],QVariant(md))
+                self.custcol_dropdowns[key] = dropdown
+                if key in prefs['custom_cols']:
+                    dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['custom_cols'][key])))
+                if column['datatype'] == 'enumeration':
+                    dropdown.setToolTip("Metadata values valid for this type of column.\nValues that aren't valid for this enumeration column will be ignored.")
+                else:
+                    dropdown.setToolTip("Metadata values valid for this type of column.")
+
+                horz.addWidget(dropdown)
+                self.l.addLayout(horz)
+        
+        self.l.insertStretch(-1)
+
+        #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
