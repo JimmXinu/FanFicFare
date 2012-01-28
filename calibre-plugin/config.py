@@ -435,8 +435,10 @@ permitted_values = {
     'float' : ['numWords','numChapters'],
     'bool' : ['status-C','status-I'],
     'datetime' : ['datePublished', 'dateUpdated', 'dateCreated'],
+    'series' : ['series'],
     'enumeration' : ['category',
                      'genre',
+                     'series',
                      'characters',
                      'status',
                      'datePublished',
@@ -471,6 +473,7 @@ titleLabels = {
     'status':'Status',
     'status-C':'Status:Completed',
     'status-I':'Status:In-Progress',
+    'series':'Series',
     'characters':'Characters',
     'datePublished':'Published',
     'dateUpdated':'Updated',
@@ -491,7 +494,7 @@ titleLabels = {
     'formatname':'File Format',
     'formatext':'File Extension',
     'siteabbrev':'Site Abbrev',
-    'version':'FFD Version'
+    'version':'FFDL Version'
     }
 
 class ColumnsTab(QWidget):
