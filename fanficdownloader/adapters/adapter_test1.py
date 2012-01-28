@@ -84,7 +84,15 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
         self.story.setMetadata('numWords','123456')
-        self.story.setMetadata('status','In-Completed')
+
+        idnum = int(self.story.getMetadata('storyId'))
+        if idnum % 2 == 1:
+            self.story.setMetadata('status','In-Progress')
+        else:
+            self.story.setMetadata('status','Completed')
+            
+        self.setSeries('The Great Test',idnum)
+        
         self.story.setMetadata('rating','Tweenie')
         
         self.story.setMetadata('authorId','98765')

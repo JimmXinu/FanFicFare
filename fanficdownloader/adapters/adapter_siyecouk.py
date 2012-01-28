@@ -81,7 +81,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         return "http://"+self.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?"+re.escape("siye.co.uk/siye/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
     # ## Login seems to be reasonably standard across eFiction sites.
     # def needToLoginCheck(self, data):
@@ -228,15 +228,13 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             if part.startswith("Summary:"):
                 part = part[part.find(':')+1:]
                 self.story.setMetadata('description',part)
-
-        
-
+                
         # want to get the next tr of the table.
         #print("%s"%titlea.parent.parent.findNextSibling('tr'))
             
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-        moremeta = stripHTML(titlea.parent.parent.findNextSibling('tr'))
+        moremeta = stripHTML(titlea.parent.parent.parent.find('div',{'class':'desc'}))
         for part in moremeta.replace(' - ','\n').split('\n'):
             #print("part:%s"%part)
             try:
@@ -259,7 +257,25 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             if name == 'Words':
                 self.story.setMetadata('numWords', value)
 
-        
+        try:
+            # Find Series name from series URL.
+            a = titlea.findPrevious('a', href=re.compile(r"series.php\?seriesid=\d+"))
+            series_name = a.string
+            series_url = 'http://'+self.host+'/'+a['href']
+
+            # use BeautifulSoup HTML parser to make everything easier to find.
+            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            i=1
+            for a in storyas:
+                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                    self.setSeries(series_name, i)
+                    break
+                i+=1
+            
+        except:
+            # I find it hard to care if the series parsing fails
+            pass        
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

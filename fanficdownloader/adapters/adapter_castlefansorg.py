@@ -272,6 +272,26 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
                 #value = value[0:-1]
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
+        try:
+            # Find Series name from series URL.
+            a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
+            series_name = a.string
+            series_url = 'http://'+self.host+'/fanfic/'+a['href']
+
+            # use BeautifulSoup HTML parser to make everything easier to find.
+            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            i=1
+            for a in storyas:
+                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                    self.setSeries(series_name, i)
+                    break
+                i+=1
+            
+        except:
+            # I find it hard to care if the series parsing fails
+            pass
+            
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 

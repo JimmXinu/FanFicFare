@@ -414,6 +414,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['publisher'] = story.getMetadata("site")
         book['tags'] = writer.getTags()
         book['comments'] = story.getMetadata("description") #, removeallentities=True) comments handles entities better.
+        book['series'] = story.getMetadata("series")
         
         # adapter.opener is the element with a threadlock.  But del
         # adapter.opener doesn't work--subproc fails when it tries
@@ -425,7 +426,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['password'] = adapter.password
 
         book['icon'] = 'plus.png'
-        book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
+        if story.getMetadataRaw('datePublished'):
+            # should only happen when an adapter is broken, but better to
+            # fail gracefully.
+            book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
         book['timestamp'] = None # filled below if not skipped.
         
         if collision in (CALIBREONLY):
@@ -598,9 +602,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self._add_or_update_book(book,options,prefs,mi)
 
         if options['collision'] == CALIBREONLY or \
-                (options['updatemeta'] and book['good']) :
-            self._update_metadata(db, book['calibre_id'], book, mi)
-        
+                (options['updatemeta'] and book['good']):
+            self._update_metadata(db, book['calibre_id'], book, mi)        
 
     def _update_books_completed(self, book_list, options={}):
         
@@ -663,49 +666,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                init_label="Updating calibre for stories...",
                                win_title="Update calibre for stories",
                                status_prefix="Updated")
-            
-            # for book in good_list:
-            #     print("add/update %s %s"%(book['title'],book['url']))
-            #     mi = self._make_mi_from_book(book)
-                
-            #     if options['collision'] != CALIBREONLY:
-            #         self._add_or_update_book(book,options,prefs,mi)
-
-            #     if options['collision'] == CALIBREONLY or \
-            #             (options['updatemeta'] and book['good']) :
-            #         self._update_metadata(db, book['calibre_id'], book, mi)
-
-            ##### split here.
-            
-        #     add_list = filter(lambda x : x['good'] and x['added'], book_list)
-        #     update_list = filter(lambda x : x['good'] and not x['added'], book_list)
-        #     update_ids = [ x['calibre_id'] for x in update_list ]
-                    
-        #     if len(add_list):
-        #         ## even shows up added to searchs.  Nice.
-        #         self.gui.library_view.model().books_added(len(add_list))
-
-        #     if update_ids:
-        #         self.gui.library_view.model().refresh_ids(update_ids)
-
-        #     current = self.gui.library_view.currentIndex()
-        #     self.gui.library_view.model().current_changed(current, previous)
-        #     self.gui.tags_view.recount()
-            
-        #     self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
-            
-        #     if len(update_list) + len(add_list) != total_good:
-        #         d = DisplayStoryListDialog(self.gui,
-        #                                    'Updates completed, final status',
-        #                                    prefs,
-        #                                    self.qaction.icon(),
-        #                                    book_list,
-        #                                    label_text='Stories have be added or updated in Calibre, some had additional problems.'
-        #                                    )
-        #         d.exec_()
-    
-        # print("all done, remove temp dir.")
-        # remove_dir(options['tdir'])
 
     def _add_or_update_book(self,book,options,prefs,mi=None):
         db = self.gui.current_db
@@ -776,7 +736,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 print("%s not a valid column type for %s, skipping."%(col,meta))
                 continue
             label = coldef['label']
-            if coldef['datatype'] in ('enumeration','text','comments','datetime'):
+            if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
                 db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
@@ -863,6 +823,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         mi.pubdate = book['pubdate']
         mi.timestamp = book['timestamp']
         mi.comments = book['comments']
+        mi.series = book['series']
         return mi
 
 
@@ -908,12 +869,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['title'] = mi.title
         book['author'] = authors_to_string(mi.authors)
         book['author_sort'] = mi.author_sort
-        # book['series'] = mi.series
-        # if mi.series:
-        #     book['series_index'] = mi.series_index
-        # else:
-        #     book['series_index'] = 0
-            
         book['comment'] = ''
         book['url'] = ""
         book['added'] = False

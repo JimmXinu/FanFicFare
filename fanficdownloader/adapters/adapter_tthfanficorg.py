@@ -214,6 +214,12 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 self.chapterUrls.append((stripHTML(o),url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
+
+        pseries = soup.find('p', {'style':'margin-top:0px'})
+        m = re.match('This story is No\. (?P<num>\d+) in the series &quot;(?P<series>.+)&quot;\.',
+                     pseries.text)
+        if m:
+            self.setSeries(m.group('series'),m.group('num'))
         
         return
 

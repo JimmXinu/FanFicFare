@@ -229,6 +229,11 @@ class BaseSiteAdapter(Configurable):
         "Needs to be overriden in each adapter class."
         pass
 
+    # Just for series, in case we choose to change how it's stored or represented later.
+    def setSeries(self,name,num):
+        if self.getConfig('collect_series'):
+            self.story.setMetadata('series','%s [%s]'%(name, num))
+
 fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
            "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
            "November":"11", "December":"12" }

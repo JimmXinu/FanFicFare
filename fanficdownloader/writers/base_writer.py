@@ -50,6 +50,7 @@ class BaseStoryWriter(Configurable):
             'category',
             'genre',
             'characters',
+            'series',
             'status',
             'datePublished',
             'dateUpdated',
@@ -77,6 +78,7 @@ class BaseStoryWriter(Configurable):
             'category':'Category',
             'genre':'Genre',
             'status':'Status',
+            'series':'Series',
             'characters':'Characters',
             'datePublished':'Published',
             'dateUpdated':'Updated',
@@ -97,7 +99,7 @@ class BaseStoryWriter(Configurable):
             'formatname':'File Format',
             'formatext':'File Extension',
             'siteabbrev':'Site Abbrev',
-            'version':'FFD Version'
+            'version':'FFDL Version'
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
