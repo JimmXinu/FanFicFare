@@ -1,5 +1,5 @@
 # ffd-retief-hrd fanfictiondownloader
-application: ffd-retief-hrd
+application: fanfictiondownloader
 version: 4-3-0
 runtime: python27
 api_version: 1
