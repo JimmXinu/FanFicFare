@@ -174,12 +174,12 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(value.strip(), "%m/%d/%Y"))
+                self.story.setMetadata('datePublished', makeDate(value.strip(), "%d %b %Y"))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', makeDate(value.strip(), "%m/%d/%Y"))
+                self.story.setMetadata('dateUpdated', makeDate(value.strip(), "%d %b %Y"))
 
 
     def getChapterText(self, url):
