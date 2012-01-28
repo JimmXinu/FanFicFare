@@ -152,7 +152,7 @@ class AddNewDialog(SizePersistedDialog):
         return {
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
-            'updatemeta': unicode(self.updatemeta.isChecked()),
+            'updatemeta': self.updatemeta.isChecked(),
             }
 
     def get_urlstext(self):
@@ -417,7 +417,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         return {
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
-            'updatemeta': unicode(self.updatemeta.isChecked()),
+            'updatemeta': self.updatemeta.isChecked(),
             }
 
 def display_story_list(gui, header, prefs, icon, books,
