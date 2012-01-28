@@ -2,7 +2,7 @@
 <html>
   <head>
     <link href="/css/index.css" rel="stylesheet" type="text/css">
-    <title>Fanfiction Downloader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+    <title>FanFictionDownLoader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
     <script type="text/javascript">
@@ -26,7 +26,7 @@
   <body>
     <div id='main'>
       <h1>
-	<a href="/" style="text-decoration: none; color: black;">FanFiction Downloader</a> <g:plusone size="medium"></g:plusone>
+	<a href="/" style="text-decoration: none; color: black;">FanFictionDownLoader</a> <g:plusone size="medium"></g:plusone>
       </h1>
 
       <div style="text-align: center">
@@ -50,7 +50,7 @@
       <form action="/fdown" method="post">
 	<div id='urlbox'>
 	  <div id='greeting'>
-	    <p>Hi, {{ nickname }}! This is a fan fiction downloader, which makes reading stories from various websites
+	    <p>Hi, {{ nickname }}! This is FanFictionDownLoader, which makes reading stories from various websites
 	      much easier. </p>
 	  </div>
 	  <!-- put announcements here, h3 is a good title size. -->
@@ -61,47 +61,29 @@
 	    considers Python 2.7 Experimental still, so there may be issues.
 	  </p>
 	  <p>
-	    <b>FanFictionDownLoader calibre Plugin</b>
+	    <b>Support for 'Series'</b>
 	    <br /><br />
-	    
-	    There's now a version of this downloader that runs
-	    entirely inside the
-	    popular <a href="http://calibre-ebook.com/">calibre</a>
-	    ebook management package as a plugin.
-	    
+	    We now collect 'Series' name and number for the sites:
+	      harrypotterfanfiction.com,
+	      potionsandsnitches.net,
+	      adastrafanfic.com,
+	      whofic.com,
+	      fanfiction.tenhawkpresents.com,
+	      castlefans.org,
+	      tthfanfic.org,
+	      www.siye.co.uk,
+	      twilighted.net*,
+	      twilighted.net* and 
+	      thewriterscoffeeshop.com*.
 	    <br /><br />
-	    
-	    Once you have calibre installed and running, inside
-	    calibre, you can go to 'Get plugins to enhance calibre' or
-	    'Get new plugins' and
-	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>.
-	    
-	  </p>
-	  <p>
-	    <b>Wider support for 'Characters'</b>
-	    <br /><br />
-	    We now collect 'Character' lists for most of the supported sites.  
-	    <br /><br />
-	    There's huge variation in how different sites choose to define characters--well beyond our ability to standardize.
-	    <br /><br />
-	    So if you don't like and don't want to see characters in your title pages or tags, you can turn them off in your configuration with:
-	    <pre>
-[defaults]
-# note that characters is removed.  This removes it from your title page.
-titlepage_entries: category,genre,status,datePublished,dateUpdated,dateCreated,rating,warnings,numChapters,numWords,site,description
-
-# note that characters is removed.  This removes it from your tags.
-include_subject_tags: extratags, genre, category, status
-	    </pre>
-	    If you like them for some sites, but not others, just copy the titlepage_entries and include_subject_tags to sections for different sites and edit to taste.
+	    * The last three use series as reading lists and stories collections as much as true story series,
+	    so they default to <i>not</i> collect series info.  You can turn it on in your User Configuration if you want.
 	  </p>
 	  <p>
 	    If you have any problems with this application, please
 	    report them in
-	    the <a href="http://groups.google.com/group/fanfic-downloader">Fanfiction
-	      Downloader Google Group</a>.  The
-	    <a href="http://4-2-0.fanfictiondownloader.appspot.com">Previous
-	      Version</a> is also available for you to use if necessary.
+	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
+	    <a href="http://4-2-1.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
 	    {{ error_message }}
@@ -137,14 +119,33 @@ include_subject_tags: extratags, genre, category, status
       <div id='urlbox'>
 	<div id='greeting'>
 	  <p>
-	    This is a fan fiction downloader, which makes reading stories from various websites much easier. Before you
-	    can start downloading fanfics, you need to login, so downloader can remember your fanfics and store them.
+	    This is a FanFictionDownLoader, which makes reading stories from various websites much easier. Before you
+	    can start downloading fanfics, you need to login, so FanFictionDownLoader can remember your fanfics and store them.
 	  </p>
 	  <p><a href="{{ login_url }}">Login using Google account</a></p>
 	</div>
       </div>
       {% endif %}
       
+      <div id='typebox'>
+	  <p>
+	    <b>FanFictionDownLoader calibre Plugin</b>
+	    <br /><br />
+	    
+	    There's now a version of this downloader that runs
+	    entirely inside the
+	    popular <a href="http://calibre-ebook.com/">calibre</a>
+	    ebook management package as a plugin.
+	    
+	    <br /><br />
+	    
+	    Once you have calibre installed and running, inside
+	    calibre, you can go to 'Get plugins to enhance calibre' or
+	    'Get new plugins' and
+	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>.
+	    
+	  </p>
+      </div>
       <div id='helpbox'>
 	<dl>
 	  <dt>fictionalley.org</dt>
@@ -281,8 +282,8 @@ include_subject_tags: extratags, genre, category, status
 	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
 	     alt="Powered by Google App Engine" />
 	<br/><br/>
-	FanfictionLoader is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">fanficdownloader</a><br/>
-	Copyright &copy; Fanficdownloader team
+	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFictionDownLoader</a><br/>
+	Copyright &copy; FanFictionDownLoader team
       </div>
 
       <div style="margin-top: 1em; text-align: center'">
