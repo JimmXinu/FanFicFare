@@ -43,6 +43,7 @@ import adapter_twilightednet
 import adapter_twiwritenet
 import adapter_whoficcom
 import adapter_siyecouk
+import adapter_archiveofourownorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
