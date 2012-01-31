@@ -226,7 +226,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if headnotes != None:
                 chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
                 chapter.append(headnotes)
-			
+        
         chapsumm = soup.find('div', {'id' : "summary"})
         if chapsumm != None:
             chapsumm = chapsumm.find('blockquote')
@@ -235,16 +235,23 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         chapnotes = soup.find('div', {'id' : "notes"})
         if chapnotes != None:
             chapnotes = chapnotes.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
-            chapter.append(chapnotes)
-			
+            if chapnotes != None:
+                chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+                chapter.append(chapnotes)
+        
         footnotes = soup.find('div', {'id' : "work_endnotes"})
+        chapfoot = soup.find('div', {'class' : "end notes module"})
 		
         soup = soup.find('div', {'class' : "userstuff module"})
         chtext = soup.find('h3', {'class' : "landmark heading"})
         if chtext:
             chtext.extract()
         chapter.append(soup)
+		
+        if chapfoot != None:
+            chapfoot = chapfoot.find('blockquote')
+            chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+            chapter.append(chapfoot)
 		
         if footnotes != None:
             footnotes = footnotes.find('blockquote')
