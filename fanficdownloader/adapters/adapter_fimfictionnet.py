@@ -20,6 +20,7 @@ import logging
 import re
 import urllib2
 import cookielib as cl
+import datetime
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
@@ -142,18 +143,27 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             pass
         self.story.setMetadata('description', description_soup.text)
         
-        # Unfortunately, nowhere on the page is the year mentioned. Because we would much rather update the story needlessly
-        # than miss an update, we hardcode the year of creation and update to be 2011.
+        # Unfortunately, nowhere on the page is the year mentioned.
+        # Best effort to deal with this:
+        # Use this year, if that's a date in the future, subtract one year.
+        # Their earliest story is Jun, so they'll probably change the date
+        # around then.
 
+        now = datetime.datetime.now()
+        
         # Get the date of creation from the first chapter
         datePublished_text = chapterDates[0]
         day, month = datePublished_text.split()
         day = re.sub(r"[^\d.]+", '', day)
-        datePublished = makeDate("2011"+month+day, "%Y%b%d")
+        datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
+        if datePublished > now :
+            datePublished = datePublished.replace(year=now.year-1)
         self.story.setMetadata("datePublished", datePublished)
         dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
         dateUpdated_soup.find('span').extract()
-        dateUpdated = makeDate("2011"+dateUpdated_soup.text, "%Y%b%d")
+        dateUpdated = makeDate("%s%s"%(now.year,dateUpdated_soup.text), "%Y%b%d")
+        if dateUpdated > now :
+            dateUpdated = datePublished.replace(year=now.year-1)
         self.story.setMetadata("dateUpdated", dateUpdated)
         
     def getChapterText(self, url):
