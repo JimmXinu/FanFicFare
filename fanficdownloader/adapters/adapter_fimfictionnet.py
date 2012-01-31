@@ -107,7 +107,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         for character in [character_icon['title'] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
             self.story.addToList("characters", character)
         for category in [category.text for category in soup.find("div", {"class":"categories"}).findAll("a")]:
-            self.story.addToList("category", category)
+            self.story.addToList("genre", category)
         self.story.addToList("category", "My Little Pony")
         
         

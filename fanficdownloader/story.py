@@ -25,7 +25,7 @@ class Story:
         try:
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
-            self.metadata = {'version':'4.2'}
+            self.metadata = {'version':'4.3'}
         self.chapters = [] # chapters will be tuples of (title,html)
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
