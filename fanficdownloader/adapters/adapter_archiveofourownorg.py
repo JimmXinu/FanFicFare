@@ -83,6 +83,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
             meta = self._fetchUrl(meta)
+
+            if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
+                raise exceptions.AdultCheckRequired(self.url)
+            
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.meta)
