@@ -119,6 +119,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def about_to_show_menu(self):
         self.rebuild_menus()
 
+    def library_changed(self, db):
+        # We need to reset our menus after switching libraries
+        self.rebuild_menus()
+        
     def rebuild_menus(self):
         with self.menus_lock:
             # Show the config dialog
