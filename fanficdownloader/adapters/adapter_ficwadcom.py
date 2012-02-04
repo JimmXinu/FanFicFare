@@ -201,9 +201,6 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
-        time.sleep(0.5) ## ffnet tends to fail more if hit too fast.
-                        ## This is in additional to what ever the
-                        ## slow_down_sleep_time setting is.
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
