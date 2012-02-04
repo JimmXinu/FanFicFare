@@ -242,21 +242,20 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if chapnotes != None:
                 chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
                 chapter.append(chapnotes)
-        
-        footnotes = soup.find('div', {'id' : "work_endnotes"})
-        chapfoot = soup.find('div', {'class' : "end notes module"})
 		
-        soup = soup.find('div', {'class' : "userstuff module"})
-        chtext = soup.find('h3', {'class' : "landmark heading"})
+        text = soup.find('div', {'class' : "userstuff module"})
+        chtext = text.find('h3', {'class' : "landmark heading"})
         if chtext:
             chtext.extract()
-        chapter.append(soup)
+        chapter.append(text)
 		
+        chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
         if chapfoot != None:
             chapfoot = chapfoot.find('blockquote')
             chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
             chapter.append(chapfoot)
 		
+        footnotes = soup.find('div', {'id' : "work_endnotes"})
         if footnotes != None:
             footnotes = footnotes.find('blockquote')
             chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
