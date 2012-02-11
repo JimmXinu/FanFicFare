@@ -25,6 +25,7 @@ from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
 import string
+import time
 
 from subprocess import call
 
@@ -46,7 +47,6 @@ def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     return output_filename
 
 def main():
-
    # read in args, anything starting with -- will be treated as --<varible>=<value>
    usage = "usage: %prog [options] storyurl"
    parser = OptionParser(usage)
@@ -215,4 +215,6 @@ def main():
        print us
    
 if __name__ == "__main__":
+    start = time.time()
     main()
+    print("Total time seconds:%f"%(time.time()-start))

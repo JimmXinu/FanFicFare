@@ -243,22 +243,35 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def get_list_urls(self):
         if len(self.gui.library_view.get_selected_ids()) > 0:
-            url_list = []
-            for book_id in self.gui.library_view.get_selected_ids():
-                url = self._get_story_url(self.gui.current_db, book_id)
-                if url != None:
-                    url_list.append(url)
+            book_list = map( partial(self._convert_id_to_book, good=False), self.gui.library_view.get_selected_ids() )
 
-            if url_list:
-                d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
-                d.setWindowIcon(get_icon('bookmarks.png'))
-                d.exec_()
-            else:
-                info_dialog(self.gui, _('List of URLs'),
-                            _('No URLs found in selected books.'),
-                            show=True,
-                            show_copy_button=False)
+            LoopProgressDialog(self.gui,
+                               book_list,
+                               partial(self._get_story_url_for_list, db=self.gui.current_db),
+                               self._finish_get_list_urls,
+                               init_label="Collecting URLs for stories...",
+                               win_title="Get URLs for stories",
+                               status_prefix="URL retrieved")
             
+    def _get_story_url_for_list(self,book,db=None):
+        book['url'] = self._get_story_url(db,book['calibre_id'])
+        if book['url'] == None:
+            book['good']=False
+        else:
+            book['good']=True
+            
+    def _finish_get_list_urls(self, book_list):
+        url_list = [ x['url'] for x in book_list if x['good'] ]
+        if url_list:
+            d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
+            d.setWindowIcon(get_icon('bookmarks.png'))
+            d.exec_()
+        else:
+            info_dialog(self.gui, _('List of URLs'),
+                        _('No URLs found in selected books.'),
+                        show=True,
+                        show_copy_button=False)
+                
     def add_dialog(self):
 
         #print("add_dialog()")
@@ -294,17 +307,31 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(self.gui.library_view.get_selected_ids()) == 0:
             return
         #print("update_existing()")
-        previous = self.gui.library_view.currentIndex()
+        
         db = self.gui.current_db
-        book_ids = self.gui.library_view.get_selected_ids()
-        books = self._convert_calibre_ids_to_books(db, book_ids)
+        book_list = map( partial(self._convert_id_to_book, good=False), self.gui.library_view.get_selected_ids() )
+        #book_ids = self.gui.library_view.get_selected_ids()
+
+        LoopProgressDialog(self.gui,
+                           book_list,
+                           partial(self._populate_book_from_calibre_id, db=self.gui.current_db),
+                           self._update_existing_2,
+                           init_label="Collecting stories for update...",
+                           win_title="Get stories for updates",
+                           status_prefix="URL retrieved")
+            
+        
+        #books = self._convert_calibre_ids_to_books(db, book_ids)
         #print("update books:%s"%books)
 
+        ## XXX split here.
+    def _update_existing_2(self,book_list):
+        
         d = UpdateExistingDialog(self.gui,
                                  'Update Existing List',
                                  prefs,
                                  self.qaction.icon(),
-                                 books,
+                                 book_list,
                                  )
         d.exec_()
         if d.result() != d.Accepted:
@@ -858,16 +885,30 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self._set_book_url_and_comment(book,url)
         return book
         
-    
-    def _convert_calibre_ids_to_books(self, db, ids):
-        books = []
-        for book_id in ids:
-            books.append(self._convert_calibre_id_to_book(db,book_id))
-        return books
-            
-    def _convert_calibre_id_to_book(self, db, book_id):
-        mi = db.get_metadata(book_id, index_is_id=True)
+    def _convert_id_to_book(self, idval, good=True):
         book = {}
+        book['good'] = good
+        book['calibre_id'] = idval
+        book['title'] = 'Unknown'
+        book['author'] = 'Unknown'
+        book['author_sort'] = 'Unknown'
+            
+        book['comment'] = ''
+        book['url'] = ''
+        book['added'] = False
+        
+        return book
+        
+    
+    # def _convert_calibre_ids_to_books(self, db, ids):
+    #     books = []
+    #     for book_id in ids:
+    #         books.append(self._convert_calibre_id_to_book(db,book_id))
+    #     return books
+            
+    def _populate_book_from_calibre_id(self, book, db=None):
+        mi = db.get_metadata(book['calibre_id'], index_is_id=True)
+        #book = {}
         book['good'] = True
         book['calibre_id'] = mi.id
         book['title'] = mi.title
@@ -877,10 +918,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['url'] = ""
         book['added'] = False
         
-        url = self._get_story_url(db,book_id)
+        url = self._get_story_url(db,book['calibre_id'])
         self._set_book_url_and_comment(book,url)
-
-        return book
+        #return book
 
     def _set_book_url_and_comment(self,book,url):
         if not url:

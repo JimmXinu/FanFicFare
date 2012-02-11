@@ -40,6 +40,7 @@ except:
     #logging.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
 
 from ..story import Story
+from ..gziphttp import GZipProcessor
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from ..exceptions import InvalidStoryURL
@@ -72,7 +73,7 @@ class BaseSiteAdapter(Configurable):
         self.password = ""
         self.is_adult=False
         
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor())
+        self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         self.storyDone = False
         self.metadataDone = False
         self.story = Story()

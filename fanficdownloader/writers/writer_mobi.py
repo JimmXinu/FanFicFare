@@ -41,7 +41,6 @@ class MobiWriter(BaseStoryWriter):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
-<link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
 <h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
@@ -64,7 +63,6 @@ class MobiWriter(BaseStoryWriter):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
-<link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
 <h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
@@ -91,7 +89,6 @@ class MobiWriter(BaseStoryWriter):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
-<link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
 <div>
@@ -113,7 +110,6 @@ class MobiWriter(BaseStoryWriter):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${chapter}</title>
-<link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
 <h3>${chapter}</h3>

@@ -194,6 +194,12 @@ class BaseStoryWriter(Configurable):
         if outfilename == None:
             outfilename=self.getOutputFileName()
 
+        # minor cheat, tucking css into metadata.
+        if self.getConfig("output_css"):
+            self.story.metadata["output_css"] = self.getConfig("output_css")
+        else:
+            self.story.metadata["output_css"] = ''
+            
         if not outstream:
             close=True
             logging.debug("Save directly to file: %s" % outfilename)

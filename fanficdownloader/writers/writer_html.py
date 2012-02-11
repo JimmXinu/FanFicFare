@@ -39,20 +39,7 @@ class HTMLWriter(BaseStoryWriter):
 <head>
 <title>${title} by ${author}</title>
 <style type="text/css">
-body { background-color: #${background_color}; }
-.CI {
-    text-align:center;
-    margin-top:0px;
-    margin-bottom:0px;
-    padding:0px;
-    }
-.center   {text-align: center;}
-.cover    {text-align: center;}
-.full     {width: 100%; }
-.quarter  {width: 25%; }
-.smcap    {font-variant: small-caps;}
-.u        {text-decoration: underline;}
-.bold     {font-weight: bold;}
+${output_css}
 </style>
 </head>
 <body>
@@ -95,9 +82,6 @@ body { background-color: #${background_color}; }
 
     def writeStoryImpl(self, out):
 
-        # minor cheat, tucking bg into metadata.
-        if self.getConfig("background_color"):
-            self.story.metadata["background_color"] = self.getConfig("background_color")
         self._write(out,self.HTML_FILE_START.substitute(self.story.metadata))
 
         self.writeTitlePage(out,
