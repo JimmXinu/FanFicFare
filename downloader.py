@@ -25,7 +25,6 @@ from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
 import string
-import time
 
 from subprocess import call
 
@@ -215,6 +214,7 @@ def main():
        print us
    
 if __name__ == "__main__":
-    start = time.time()
+    #import time
+    #start = time.time()
     main()
-    print("Total time seconds:%f"%(time.time()-start))
+    #print("Total time seconds:%f"%(time.time()-start))

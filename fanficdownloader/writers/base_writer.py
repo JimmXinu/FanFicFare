@@ -46,6 +46,9 @@ class BaseStoryWriter(Configurable):
         
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
+        
+        self.story.setReplace(self.getConfig('replace_metadata'))
+        
         self.validEntries = [
             'category',
             'genre',
