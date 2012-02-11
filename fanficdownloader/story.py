@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-import os
+import os, re
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
@@ -26,6 +26,7 @@ class Story:
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'4.3'}
+        self.replacements = []
         self.chapters = [] # chapters will be tuples of (title,html)
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
@@ -36,6 +37,12 @@ class Story:
     def getMetadataRaw(self,key):
         if self.metadata.has_key(key):
             return self.metadata[key]
+
+    def doReplacments(self,value):
+        for (p,v) in self.replacements:
+            if (isinstance(value,str) or isinstance(value,unicode)) and re.match(p,value):
+                value = re.sub(p,v,value)                
+        return value;
         
     def getMetadata(self, key, removeallentities=False):
         value = None
@@ -50,7 +57,8 @@ class Story:
                     value = value.strftime("%Y-%m-%d %H:%M:%S")
                 if key == "datePublished" or key == "dateUpdated":
                  value = value.strftime("%Y-%m-%d")
-                 
+
+        value=self.doReplacments(value)
         if removeallentities and value != None:
             return removeAllEntities(value)
         else:
@@ -81,10 +89,14 @@ class Story:
     def getList(self,listname):
         if not self.listables.has_key(listname):
             return []
-        return self.listables[listname]
+        return filter( lambda x : x!=None and x!='' ,
+                       map(self.doReplacments,self.listables[listname]) )
 
     def getLists(self):
-        return self.listables
+        lsts = {}
+        for ln in self.listables.keys():
+            lsts[ln] = self.getList(ln)
+        return lsts
     
     def addChapter(self, title, html):
         self.chapters.append( (title,html) )
@@ -96,6 +108,12 @@ class Story:
     def __str__(self):
         return "Metadata: " +str(self.metadata) + "\nListables: " +str(self.listables) #+ "\nChapters: "+str(self.chapters)
 
+    def setReplace(self,replace):
+        for line in replace.splitlines():
+            if "=>" in line:
+                print("line:%s"%line)
+                self.replacements.append(map( lambda x: x.strip(), line.split("=>") ))
+    
 def commaGroups(s):
     groups = []
     while s and s[-1].isdigit():

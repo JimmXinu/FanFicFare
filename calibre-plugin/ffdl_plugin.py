@@ -318,13 +318,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            self._update_existing_2,
                            init_label="Collecting stories for update...",
                            win_title="Get stories for updates",
-                           status_prefix="URL retrieved")
-            
+                           status_prefix="URL retrieved")            
         
         #books = self._convert_calibre_ids_to_books(db, book_ids)
         #print("update books:%s"%books)
 
-        ## XXX split here.
     def _update_existing_2(self,book_list):
         
         d = UpdateExistingDialog(self.gui,
@@ -370,10 +368,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
         
-        LoopProgressDialog(self.gui,
-                           books,
-                           partial(self.get_metadata_for_book, options = options),
-                           partial(self.start_download_list, options = options))
+        if 0 < len(filter(lambda x : x['good'], books)):
+            LoopProgressDialog(self.gui,
+                               books,
+                               partial(self.get_metadata_for_book, options = options),
+                               partial(self.start_download_list, options = options))
         # LoopProgressDialog calls get_metadata_for_book for each 'good' story,
         # get_metadata_for_book updates book for each,
         # LoopProgressDialog calls start_download_list at the end which goes
@@ -689,14 +688,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             total_good = len(good_list)
 
             self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good))
-            
-            LoopProgressDialog(self.gui,
-                               good_list,
-                               partial(self._update_book, options=options, db=self.gui.current_db),
-                               partial(self._update_books_completed, options=options),
-                               init_label="Updating calibre for stories...",
-                               win_title="Update calibre for stories",
-                               status_prefix="Updated")
+
+            if total_good > 0:
+                LoopProgressDialog(self.gui,
+                                   good_list,
+                                   partial(self._update_book, options=options, db=self.gui.current_db),
+                                   partial(self._update_books_completed, options=options),
+                                   init_label="Updating calibre for stories...",
+                                   win_title="Update calibre for stories",
+                                   status_prefix="Updated")
 
     def _add_or_update_book(self,book,options,prefs,mi=None):
         db = self.gui.current_db
