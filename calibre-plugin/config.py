@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, copy
 
-from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
+from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont,
                       QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant)
 
 from calibre.gui2 import dynamic, info_dialog
@@ -58,10 +58,7 @@ copylist = ['personal.ini',
             'updatedefault',
             'fileform',
             'collision',
-            'deleteotherforms',
-            'addtolists',
-            'addtoreadlists',
-            'addtolistsonread']
+            'deleteotherforms']
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
@@ -293,6 +290,11 @@ class PersonalIniTab(QWidget):
         self.l.addWidget(self.label)
 
         self.ini = QTextEdit(self)
+        try:
+            self.ini.setFont(QFont("Courier",
+                                   self.plugin_action.gui.font().pointSize()+1));
+        except Exception as e:
+            print("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(prefs['personal.ini'])
         self.l.addWidget(self.ini)
@@ -324,6 +326,11 @@ class ShowDefaultsIniDialog(QDialog):
         
         self.ini = QTextEdit(self)
         self.ini.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
+        try:
+            self.ini.setFont(QFont("Courier",
+                                   get_gui().font().pointSize()+1));
+        except Exception as e:
+            print("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(text)
         self.ini.setReadOnly(True)
