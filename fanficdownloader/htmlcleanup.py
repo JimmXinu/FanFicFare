@@ -27,7 +27,7 @@ def _unirepl(match):
     return unichr(value)
 
 def _replaceNumberEntities(data):
-    p = re.compile(r'&#(x?)(\d+);')
+    p = re.compile(r'&#(x?)([0-9a-fA-F]+);')
     return p.sub(_unirepl, data)
 
 def _replaceNotEntities(data):
