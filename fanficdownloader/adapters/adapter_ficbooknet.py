@@ -70,7 +70,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         return "http://"+self.getSiteDomain()+"/readfic/12345"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/readfic/")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/readfic/")+r"\d+"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
