@@ -168,7 +168,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
-        if i > 0:
+        if i > 1:
             self.story.addToList('genre', 'Кроссовер')
 		
         meta=table.findAll('a', href=re.compile(r'/ratings/'))
@@ -211,10 +211,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        soup = soup.find('div', {'class' : 'public_beta'})
-        
+        chapter = soup.find('div', {'class' : 'public_beta'})
+        if chapter == None:
+            chapter = soup.find('div', {'class' : 'public_beta_disabled'})
 
-        if None == soup:
+        if None == chapter:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(soup)
+        return utf8FromSoup(chapter)
