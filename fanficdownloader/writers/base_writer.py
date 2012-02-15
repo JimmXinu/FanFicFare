@@ -52,6 +52,7 @@ class BaseStoryWriter(Configurable):
         self.validEntries = [
             'category',
             'genre',
+            'language',
             'characters',
             'series',
             'status',
@@ -80,6 +81,7 @@ class BaseStoryWriter(Configurable):
         self.titleLabels = {
             'category':'Category',
             'genre':'Genre',
+            'language':'Language',
             'status':'Status',
             'series':'Series',
             'characters':'Characters',

@@ -445,6 +445,7 @@ permitted_values = {
     'series' : ['series'],
     'enumeration' : ['category',
                      'genre',
+                     'language',
                      'series',
                      'characters',
                      'status',
@@ -477,6 +478,7 @@ permitted_values['comments'] = permitted_values['enumeration']
 titleLabels = {
     'category':'Category',
     'genre':'Genre',
+    'language':'Language',
     'status':'Status',
     'status-C':'Status:Completed',
     'status-I':'Status:In-Progress',
