@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright 2011 Fanficdownloader team
 #
@@ -132,9 +132,18 @@ class FicBookNetAdapter(BaseSiteAdapter):
         pubdate=pubdate.split(',')[0]
         update=update.split(',')[0]
 		
-        fullmon = {"yanvarya":"01", "fievralya":"02", "marta":"03", "aprielya":"04", "maya":"05",
-           "iyunya":"06","iyulya":"07", "avghusta":"08", "sentyabrya":"09", "oktyabrya":"10",
-           "noyabrya":"11", "diekabrya":"12" }
+        fullmon = {"yanvarya":"01", "января":"01",
+           "fievralya":"02", "февраля":"02",
+           "marta":"03", "марта":"03",
+           "aprielya":"04", "апреля":"04",
+           "maya":"05", "мая":"05",
+           "iyunya":"06", "июня":"06",
+           "iyulya":"07", "июля":"07",
+           "avghusta":"08", "августа":"08",
+           "sentyabrya":"09", "сентября":"09",
+           "oktyabrya":"10", "октября":"10",
+           "noyabrya":"11", "ноября":"11",
+           "diekabrya":"12", "декабря":"12" }
         for (name,num) in fullmon.items():
             if name in pubdate:
                 pubdate = pubdate.replace(name,num)
@@ -143,6 +152,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
         self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
+        self.story.setMetadata('language','Russian')
 		
         pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
         pr='http://'+self.host+pr['href']
@@ -153,9 +163,13 @@ class FicBookNetAdapter(BaseSiteAdapter):
             i=i+len(stripHTML(part).split(' '))
         self.story.setMetadata('numWords', str(i))
 		
-
-        fandoms = table.find('a', href=re.compile(r'/fanfiction/\w+'))
-        self.story.addToList('category',fandoms.string)
+        i=0
+        fandoms = table.findAll('a', href=re.compile(r'/fanfiction/\w+'))
+        for fandom in fandoms:
+            self.story.addToList('category',fandom.string)
+            i=i+1
+        if i > 0:
+            self.story.addToList('genre', 'Кроссовер')
 		
         meta=table.findAll('a', href=re.compile(r'/ratings/'))
         i=0
@@ -180,7 +194,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         tags = table.findAll('b')
         for tag in tags:
             label = translit.translit(tag.text)
-            if 'Piersonazhi:' in label:
+            if 'Piersonazhi:' in label or 'Персонажи:' in label:
                 chars=tag.nextSibling.string.split(', ')
                 for char in chars:
                     self.story.addToList('characters',char)
