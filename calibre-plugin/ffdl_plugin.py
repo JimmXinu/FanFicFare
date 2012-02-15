@@ -52,9 +52,6 @@ formmapping = {
 
 PLUGIN_ICONS = ['images/icon.png']
 
-sendlists = ["Send to Nook", "Send to Kindle", "Send to Droid", "Add to Nook", "Add to Kindle", "Add to Droid"]
-readlists = ["000"]
-
 class FanFictionDownLoaderPlugin(InterfaceAction):
 
     name = 'FanFictionDownLoader'
@@ -742,11 +739,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
                 old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
             # mi.tags needs to be list, but set kills dups.
-            mi.tags = list(set(list(old_tags)+mi.tags)) 
-        # Set language english, but only if not already set.
-        oldmi = db.get_metadata(book_id,index_is_id=True)
-        if not oldmi.languages:
-            mi.languages=['eng']
+            mi.tags = list(set(list(old_tags)+mi.tags))
+
+        if 'langcode' in book['all_metadata']:
+            mi.languages=[book['all_metadata']['langcode']]
+        else:
+            # Set language english, but only if not already set.
+            oldmi = db.get_metadata(book_id,index_is_id=True)
+            if not oldmi.languages:
+                mi.languages=['eng']
+                
         db.set_metadata(book_id,mi)
 
         # do configured column updates here.
@@ -970,40 +972,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             return url
         except:
             return None;
-
-
-
-def get_job_details(job):
-    '''
-    Convert the job result into a set of parameters including a detail message
-    summarising the success of the extraction operation.
-    This is used by both the threaded and worker approaches to extraction
-    '''
-    extracted_ids, same_isbn_ids, failed_ids, no_format_ids = job.result
-    if not hasattr(job, 'html_details'):
-        job.html_details = job.details
-    det_msg = []
-    for i, title in failed_ids:
-        if i in no_format_ids:
-            msg = title + ' (No formats)'
-        else:
-            msg = title + ' (ISBN not found)'
-        det_msg.append(msg)
-    if same_isbn_ids:
-        if det_msg:
-            det_msg.append('----------------------------------')
-        for i, title in same_isbn_ids:
-            msg = title + ' (Same ISBN)'
-            det_msg.append(msg)
-    if len(extracted_ids) > 0:
-        if det_msg:
-            det_msg.append('----------------------------------')
-        for i, title, last_modified, isbn in extracted_ids:
-            msg = '%s (Extracted %s)'%(title, isbn)
-            det_msg.append(msg)
-
-    det_msg = '\n'.join(det_msg)
-    return extracted_ids, same_isbn_ids, failed_ids, det_msg
 
 def get_url_list(urls):
     def f(x):

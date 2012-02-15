@@ -19,6 +19,50 @@ import os, re
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
+# The list comes from ffnet, the only multi-language site we support
+# at the time of writing.  Values are taken largely from pycountry,
+# but with some corrections and guesses.
+langs = {
+    "English":"en",
+    "Spanish":"es",
+    "French":"fr",
+    "German":"de",
+    "Chinese":"zh",
+    "Japanese":"ja",
+    "Dutch":"nl",
+    "Portuguese":"pt",
+    "Russian":"ru",
+    "Italian":"it",
+    "Bulgarian":"bg",
+    "Polish":"pl",
+    "Hungarian":"hu",
+    "Hebrew":"he",
+    "Arabic":"ar",
+    "Swedish":"sv",
+    "Norwegian":"no",
+    "Danish":"da",
+    "Finnish":"fi",
+    "Filipino":"fil",
+    "Esperanto":"eo",
+    "Hindi":"hi",
+    "Punjabi":"pa",
+    "Farsi":"fa",
+    "Greek":"el",
+    "Romanian":"ro",
+    "Albanian":"sq",
+    "Serbian":"sr",
+    "Turkish":"tr",
+    "Czech":"cs",
+    "Indonesian":"id",
+    "Croatian":"hr",
+    "Catalan":"ca",
+    "Latin":"la",
+    "Korean":"ko",
+    "Vietnamese":"vi",
+    "Thai":"th",
+    "Devanagari":"hi",
+    }
+
 class Story:
     
     def __init__(self):
@@ -33,6 +77,11 @@ class Story:
     def setMetadata(self, key, value):
         ## still keeps &lt; &lt; and &amp;
         self.metadata[key]=conditionalRemoveEntities(value)
+        if key == "language":
+            try:
+                self.metadata['langcode'] = langs[self.metadata[key]]
+            except:
+                self.metadata['langcode'] = 'en'
 
     def getMetadataRaw(self,key):
         if self.metadata.has_key(key):
@@ -111,7 +160,6 @@ class Story:
     def setReplace(self,replace):
         for line in replace.splitlines():
             if "=>" in line:
-                print("line:%s"%line)
                 self.replacements.append(map( lambda x: x.strip(), line.split("=>") ))
     
 def commaGroups(s):

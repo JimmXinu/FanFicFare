@@ -90,6 +90,16 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.setMetadata('status','In-Progress')
         else:
             self.story.setMetadata('status','Completed')
+
+        langs = {
+            0:"English",
+            1:"Russian",
+            2:"French",
+            3:"German",
+            }
+        if idnum < 10:
+            self.story.setMetadata('language',langs[idnum%len(langs)])
+        # greater than 10, no language.
             
         self.setSeries('The Great Test',idnum)
         
@@ -117,7 +127,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 4',self.url+"&chapter=5"),
                             ('Chapter 5',self.url+"&chapter=6"),
                             ('Chapter 6',self.url+"&chapter=6"),
-                            # ('Chapter 7',self.url+"&chapter=6"),
+                            ('Chapter 7',self.url+"&chapter=6"),
                             # ('Chapter 8',self.url+"&chapter=6"),
                             # ('Chapter 9',self.url+"&chapter=6"),
                             # ('Chapter 0',self.url+"&chapter=6"),

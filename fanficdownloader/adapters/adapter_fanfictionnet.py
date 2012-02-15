@@ -201,7 +201,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         metatext = a.findNext(text=re.compile(r' - Reviews:'))
         if metatext == None: # indicates there's no Reviews, look for id: instead.
             metatext = a.findNext(text=re.compile(r' - id:'))
-        #print("========= metatext:\n%s"%metatext)
 
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
@@ -215,7 +214,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # <meta name="description" content="Chapter 1 of a Transformers/Beast Wars  - Adventure/Friendship fanfiction with characters Bumblebee. TFA: What would you do if you was being abused all you life? Follow NightRunner as she goes through her spark breaking adventure of getting away from her father..">
         # (fp)<meta name="description" content="Chapter 1 of a Sci-Fi  - Adventure/Humor fiction. Felix Max was just your regular hyperactive kid until he accidently caused his own fathers death. Now he has meta-humans trying to hunt him down with a corrupt goverment to back them up. Oh, and did I mention he has no Powers yet?.">
         # <meta name="description" content="Chapter 1 of a Bleach  - Adventure/Angst fanfiction with characters Ichigo K. & Neliel T. O./Nel. Time travel with a twist. Time can be a real bi***. Ichigo finds that fact out when he accidentally goes back in time. Is this his second chance or is fate just screwing with him. Not a crack fic.IchixNelXHime.">
-        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?:[ ]+with characters (?P<char1>.*?\.?)(?: & (?P<char2>.*?\.?))?\. )?",
+        # <meta name="description" content="Chapter 1 of a Harry Potter and Transformers  - Humor/Adventure crossover fanfiction  with characters: Harry P. & Ironhide. IT’s one thing to be tossed thru the Veil for something he didn’t do. It was quite another to wake in his animigus form in a world not his own. Harry just knew someone was laughing at him somewhere. Mech/Mech pairings inside..">
+        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?P<chars>[ ]+with characters)?",
                      soup.find('meta',{'name':'description'})['content'])
         if m != None:
             genres=m.group('genres')
@@ -225,7 +225,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 for g in genres.split('/'):
                     self.story.addToList('genre',g)
 
-            if m.group('char1') != None:
+            if m.group('chars') != None:
+
                 # At this point we've proven that there's character(s)
                 # We can't reliably parse characters out of meta name="description".
                 # There's no way to tell that "with characters Ichigo K. & Neliel T. O./Nel. " ends at "Nel.", not "T."
@@ -233,12 +234,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # reviewstext can take form of:
                 # - English -  Shinji H. - Updated: 01-13-12 - Published: 12-20-11 - id:7654123
                 # - English - Adventure/Angst -  Ichigo K. & Neliel T. O./Nel - Reviews:
+                # - English - Humor/Adventure -  Harry P. & Ironhide - Reviews:
                 mc = re.match(r" - (?P<lang>[^ ]+ - )(?P<genres>[^ ]+ - )? (?P<chars>.+?) - (Reviews|Updated|Published)",
                               metatext)
                 chars = mc.group("chars")
                 for c in chars.split(' & '):
                     self.story.addToList('characters',c)
-        
+        m = re.match(r" - (?P<lang>[^ ]+)",metatext)
+        if m.group('lang') != None:
+            self.story.setMetadata('language',m.group('lang'))
+                    
         return
 
     def getChapterText(self, url):

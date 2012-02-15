@@ -203,7 +203,10 @@ class EpubWriter(BaseStoryWriter):
 
         metadata.appendChild(newTag(contentdom,"dc:contributor",text="fanficdownloader [http://fanficdownloader.googlecode.com]",attrs={"opf:role":"bkp"}))
         metadata.appendChild(newTag(contentdom,"dc:rights",text=""))
-        metadata.appendChild(newTag(contentdom,"dc:language",text="en"))
+        if self.story.getMetadata('langcode') != None:
+            metadata.appendChild(newTag(contentdom,"dc:language",text=self.story.getMetadata('langcode')))
+        else:
+            metadata.appendChild(newTag(contentdom,"dc:language",text='en'))
 
         #  published, created, updated, calibre
         #  Leave calling self.story.getMetadataRaw directly in case date format changes.
@@ -399,4 +402,4 @@ def newTag(dom,name,attrs=None,text=None):
     if( text is not None ):
         tag.appendChild(dom.createTextNode(text))
     return tag
-    
+
