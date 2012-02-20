@@ -435,7 +435,9 @@ class OtherTab(QWidget):
                                                   and dynamic[key] is False:
                 dynamic[key] = True
         info_dialog(self, _('Done'),
-                _('Confirmation dialogs have all been reset'), show=True)
+                    _('Confirmation dialogs have all been reset'),
+                    show=True,
+                    show_copy_button=False)
 
 permitted_values = {
     'int' : ['numWords','numChapters'],
