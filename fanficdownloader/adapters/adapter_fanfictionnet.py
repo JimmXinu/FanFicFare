@@ -83,8 +83,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             
         if "Unable to locate story with id of " in data:
             raise exceptions.StoryDoesNotExist(url)
-            
-        if "Chapter not found. Please check to see you are not using an outdated url." in data:
+
+        # some times "Chapter not found...", sometimes "Chapter text not found..."
+        if "not found. Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
         try:
@@ -102,7 +103,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                            chapcount+1)
             print('=Trying newer chapter: %s' % tryurl)
             newdata = self._fetchUrl(tryurl)
-            if "Chapter not found. Please check to see you are not using an outdated url." \
+            if "not found. Please check to see you are not using an outdated url." \
                     not in newdata:
                 print('=======Found newer chapter: %s' % tryurl)
                 soup = bs.BeautifulSoup(newdata)
