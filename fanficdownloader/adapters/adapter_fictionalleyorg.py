@@ -203,6 +203,10 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 	# our div with poor html inside the story text.
 	data = data.replace('<!-- headerend -->','<crazytagstringnobodywouldstumbleonaccidently id="storytext">').replace('<!-- footerstart -->','</crazytagstringnobodywouldstumbleonaccidently>')
         
+        # problems with some stories confusing Soup.  This is a nasty
+        # hack, but it works.
+        data = data[data.index("<crazytagstringnobodywouldstumbleonaccidently"):]
+
         soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         body = soup.findAll('body') ## some stories use a nested body and body
