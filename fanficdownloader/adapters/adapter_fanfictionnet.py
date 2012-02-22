@@ -74,6 +74,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
+            #print("\n===================\n%s\n===================\n"%data)
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -141,7 +142,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 continue
             if 'var storyid' in script.string:
                 for line in script.string.split('\n'):
-                    m = re.match(r"^ +var ([^ ]+) = '?(.*?)'?;$",line)
+                    m = re.match(r"^ +var ([^ ]+) = '?(.*?)'?;\r?$",line)
                     if m == None : continue
                     var,value = m.groups()
                     # remove javascript escaping from values.
