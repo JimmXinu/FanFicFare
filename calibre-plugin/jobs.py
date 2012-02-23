@@ -110,7 +110,7 @@ def do_download_for_worker(book,options):
         ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(options['personal.ini']))
         
-        adapter = adapters.getAdapter(ffdlconfig,book['url'])
+        adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
         adapter.is_adult = book['is_adult'] 
         adapter.username = book['username'] 
         adapter.password = book['password']

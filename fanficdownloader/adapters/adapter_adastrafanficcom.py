@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
 
@@ -133,7 +133,8 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                 # sometimes poorly formated desc (<p> w/o </p>) leads
                 # to all labels being included.
                 svalue=svalue[:svalue.find('<span class="label">')]
-                self.story.setMetadata('description',stripHTML(svalue))
+                self.setDescription(url,svalue)
+                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -220,7 +221,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(span)
+        return self.utf8FromSoup(url,span)
 
 def getClass():
     return AdAstraFanficComSiteAdapter

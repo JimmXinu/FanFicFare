@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
@@ -174,7 +174,8 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Summary: ....
         m = re.match(r".*?Summary: (.*)$",metastr) 
         if m:
-            self.story.setMetadata('description', m.group(1))
+            self.setDescription(url, m.group(1))
+            #self.story.setMetadata('description', m.group(1))
 
         # completed
         m = re.match(r".*?Status: Completed.*?",metastr)
@@ -210,7 +211,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 del div['style']
                 del div['align']
             anchor.name='div'
-            return utf8FromSoup(anchor)
+            return self.utf8FromSoup(url,anchor)
         
         else:
             logging.debug('Using kludgey text find for older mediaminer story.')
@@ -226,7 +227,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                     soup.findAll('table',{'class':'tbbrdr'}):
                 tag.extract() # remove tag from soup.
                 
-            return utf8FromSoup(soup)
+            return self.utf8FromSoup(url,soup)
         
 
 def getClass():
