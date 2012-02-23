@@ -24,7 +24,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ArchiveOfOurOwnOrgAdapter
@@ -126,7 +126,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         a = metasoup.find('blockquote',{'class':'userstuff'})
         if a != None:
-            self.story.setMetadata('description',a.text)
+            self.setDescription(url,a.text)
+            #self.story.setMetadata('description',a.text)
 		
         a = metasoup.find('dd',{'class':"rating tags"})
         if a != None:
@@ -219,28 +220,29 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        print('Getting chapter text from: %s' % url)
 		
         chapter=bs.BeautifulSoup('<div class="story"></div>')
-        soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr'))
+        data = self._fetchUrl(url)
+        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr'))
 		
         headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
         if headnotes != None:
             headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
             if headnotes != None:
-                chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
+                chapter.append("<b>Author's Note:</b>")
                 chapter.append(headnotes)
         
         chapsumm = soup.find('div', {'id' : "summary"})
         if chapsumm != None:
             chapsumm = chapsumm.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Summary for the Chapter:</b>"))
+            chapter.append("<b>Summary for the Chapter:</b>")
             chapter.append(chapsumm)
         chapnotes = soup.find('div', {'id' : "notes"})
         if chapnotes != None:
             chapnotes = chapnotes.find('blockquote')
             if chapnotes != None:
-                chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+                chapter.append("<b>Notes for the Chapter:</b>")
                 chapter.append(chapnotes)
 		
         text = soup.find('div', {'class' : "userstuff module"})
@@ -252,16 +254,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
         if chapfoot != None:
             chapfoot = chapfoot.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+            chapter.append("<b>Notes for the Chapter:</b>")
             chapter.append(chapfoot)
 		
         footnotes = soup.find('div', {'id' : "work_endnotes"})
         if footnotes != None:
             footnotes = footnotes.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
+            chapter.append("<b>Author's Note:</b>")
             chapter.append(footnotes)
 			
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return utf8FromSoup(chapter)
+
+        return self.utf8FromSoup(url,chapter)

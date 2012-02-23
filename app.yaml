@@ -1,6 +1,6 @@
 # ffd-retief-hrd fanfictiondownloader
-application: fanfictiondownloader
-version: 4-3-2
+application: ffd-retief-hrd
+version: 4-3-3
 runtime: python27
 api_version: 1
 threadsafe: true

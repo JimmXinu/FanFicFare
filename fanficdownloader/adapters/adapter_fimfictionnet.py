@@ -26,7 +26,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FimFictionNetSiteAdapter
@@ -141,7 +141,15 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             description_soup.find('a', {"class":"more"}).extract()
         except:
             pass
-        self.story.setMetadata('description', description_soup.text)
+
+        story_img = soup.find('img',{'class':'story_image'})
+        if self.getConfig('keep_summary_html') and \
+                self.getConfig('include_images') and \
+                story_img:
+            self.setDescription(self.url,"%s<br/>%s"%(story_img,description_soup.text))
+        else:
+            self.setDescription(self.url,description_soup.text)
+        #self.story.setMetadata('description', description_soup.text)
         
         # Unfortunately, nowhere on the page is the year mentioned.
         # Best effort to deal with this:
@@ -171,5 +179,5 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'id' : 'chapter_container'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        return utf8FromSoup(soup)
+        return self.utf8FromSoup(url,soup)
         

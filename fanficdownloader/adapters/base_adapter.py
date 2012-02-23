@@ -23,6 +23,9 @@ import urllib
 import urllib2 as u2
 import urlparse as up
 
+from .. import BeautifulSoup as bs
+from ..htmlcleanup import stripHTML
+
 try:
     from google.appengine.api import apiproxy_stub_map
     def urlfetch_timeout_hook(service, call, request, response):
@@ -66,8 +69,9 @@ class BaseSiteAdapter(Configurable):
     def __init__(self, config, url):
         self.config = config
         Configurable.__init__(self, config)
-        self.addConfigSection(self.getSiteDomain())
-        self.addConfigSection("overrides")
+        self.setSectionOrder(self.getSiteDomain())
+        # self.addConfigSection(self.getSiteDomain())
+        # self.addConfigSection("overrides")
         
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -150,6 +154,12 @@ class BaseSiteAdapter(Configurable):
                          headers=headers)
         return self._decode(self.opener.open(req).read())
 
+    def _fetchUrlRaw(self, url, parameters=None):
+        if parameters != None:
+            return self.opener.open(url,urllib.urlencode(parameters)).read()
+        else:
+            return self.opener.open(url).read()
+    
     # parameters is a dict()
     def _fetchUrl(self, url, parameters=None):
         if self.getConfig('slow_down_sleep_time'):
@@ -159,10 +169,7 @@ class BaseSiteAdapter(Configurable):
         for sleeptime in [0, 0.5, 4, 9]:
             time.sleep(sleeptime)	
             try:
-                if parameters:
-                    return self._decode(self.opener.open(url,urllib.urlencode(parameters)).read())
-                else:
-                    return self._decode(self.opener.open(url).read())
+                return self._decode(self._fetchUrlRaw(url,parameters))
             except Exception, e:
                 excpt=e
                 logging.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
@@ -235,6 +242,49 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig('collect_series'):
             self.story.setMetadata('series','%s [%s]'%(name, num))
 
+    def setDescription(self,url,svalue):
+        #print("\n\nsvalue:\n%s\n"%svalue)
+        if self.getConfig('keep_summary_html'):
+            if isinstance(svalue,str) or isinstance(svalue,unicode):
+                svalue = bs.BeautifulSoup(svalue)
+            self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
+        else:
+            self.story.setMetadata('description',stripHTML(svalue))
+        #print("\n\ndescription:\n"+self.story.getMetadata('description')+"\n\n")
+
+    # this gives us a unicode object, not just a string containing bytes.
+    # (I gave soup a unicode string, you'd think it could give it back...)
+    def utf8FromSoup(self,url,soup):
+
+        acceptable_attributes = ['href','name']
+        #print("include_images:"+self.getConfig('include_images'))
+        if self.getConfig('include_images'):
+            acceptable_attributes.extend(('src','alt'))
+            for img in soup.findAll('img'):
+                img['src']=self.story.addImgUrl(url,img['src'],self._fetchUrlRaw)
+
+        for attr in soup._getAttrMap().keys():
+            if attr not in acceptable_attributes:
+                del soup[attr] ## strip all tag attributes except href and name
+                
+        for t in soup.findAll(recursive=True):
+            for attr in t._getAttrMap().keys():
+                if attr not in acceptable_attributes:
+                    del t[attr] ## strip all tag attributes except href and name
+                    
+            # these are not acceptable strict XHTML.  But we do already have 
+	    # CSS classes of the same names defined in constants.py
+            if t.name in ('u'):
+                t['class']=t.name
+                t.name='span'
+            if t.name in ('center'):
+                t['class']=t.name
+                t.name='div'
+	    # removes paired, but empty tags.
+            if t.string != None and len(t.string.strip()) == 0 :
+                t.extract()
+        return soup.__str__('utf8').decode('utf-8')
+
 fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
            "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
            "November":"11", "December":"12" }
@@ -245,7 +295,9 @@ def makeDate(string,format):
 
     # fudge english month names for people who's locale is set to
     # non-english.  All our current sites date in english, even if
-    # there's non-english content.
+    # there's non-english content. -- ficbook.net now makes that a
+    # lie.  It has to do something even more complicated to get
+    # Russian month names correct everywhere.
     do_abbrev = "%b" in format
         
     if "%B" in format or do_abbrev:
@@ -259,24 +311,3 @@ def makeDate(string,format):
             
     return datetime.datetime.strptime(string,format)
 
-acceptable_attributes = ['href','name']
-
-# this gives us a unicode object, not just a string containing bytes.
-# (I gave soup a unicode string, you'd think it could give it back...)
-def utf8FromSoup(soup):
-    for t in soup.findAll(recursive=True):
-        for attr in t._getAttrMap().keys():
-            if attr not in acceptable_attributes:
-                del t[attr] ## strip all tag attributes except href and name
-        # these are not acceptable strict XHTML.  But we do already have 
-	# CSS classes of the same names defined in constants.py
-	if t.name in ('u'):
-            t['class']=t.name
-            t.name='span'
-        if t.name in ('center'):
-            t['class']=t.name
-            t.name='div'
-	# removes paired, but empty tags.
-        if t.string != None and len(t.string.strip()) == 0 :
-            t.extract()
-    return soup.__str__('utf8').decode('utf-8')
