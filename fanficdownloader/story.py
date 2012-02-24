@@ -21,6 +21,22 @@ from base64 import b64encode
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
+# Create convert_image method depending on which graphics lib we can
+# load.  Preferred: calibre, PIL, none
+try:
+    from calibre.utils.magick.draw import minify_image
+
+    def convert_image(data,sizes,grayscale):
+        img = minify_image(data, minify_to=sizes)
+        if grayscale:
+            img.type = "GrayscaleType"
+        return img.export('JPG')
+except:
+    # Problem: writer_epub assumes image is jpg.
+    def convert_image(data,sizes,grayscale):
+        return data
+        
+
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
 # but with some corrections and guesses.
@@ -160,7 +176,7 @@ class Story:
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
-    def addImgUrl(self,parenturl,url,fetch):
+    def addImgUrl(self,configurable,parenturl,url,fetch):
         if url.startswith("http") :
             imgurl = url
         elif parenturl != None:
@@ -188,7 +204,11 @@ class Story:
             parsedUrl = urlparse.urlparse(imgurl)
             # newsrc = "images/%s.jpg"%(
             #     self.imgurls.index(imgurl))
-            data = fetch(imgurl)
+            sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
+            data = convert_image(fetch(imgurl),
+                                 sizes,
+                                 configurable.getConfig('grayscale_images'))
+            print("\nimgurl\nimage size:%d\n"%len(data))
             self.imgurldata.append((newsrc,data))
         # else:
         #     newsrc = "images/%s.jpg"%(
