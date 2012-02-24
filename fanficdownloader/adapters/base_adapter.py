@@ -261,7 +261,7 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt'))
             for img in soup.findAll('img'):
-                img['src']=self.story.addImgUrl(url,img['src'],self._fetchUrlRaw)
+                img['src']=self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw)
 
         for attr in soup._getAttrMap().keys():
             if attr not in acceptable_attributes:
