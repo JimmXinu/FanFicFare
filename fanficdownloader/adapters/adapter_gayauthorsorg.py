@@ -125,18 +125,15 @@ class GayAuthorsAdapter(BaseSiteAdapter):
 		
 
         # Find the chapters:
-		        # Find the chapters:
         spans=csoup.findAll('span', {'class' : 'desc chapter-info'})
         for span in spans:
             span.extract()
         for chapter in csoup.findAll('a'):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),chapter['href']))
-			
-        for chapter in csoup.findAll('a', href=re.compile(r'/story/'+ author + '/' + self.story.getMetadata('storyId') + '/\w+$')):
-            # just in case there's tags, like <i> in chapter titles.
-            logging.debug(chapter)
-            self.chapterUrls.append((stripHTML(chapter),chapter['href']))
+            a=chapter['href'].split(self.story.getMetadata('author'))
+            a=a[0]+self.story.getMetadata('authorId')+a[1]
+            self.chapterUrls.append((stripHTML(chapter),a))
+
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 		

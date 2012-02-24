@@ -134,15 +134,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 		
         a = metasoup.find('dd',{'class':"fandom tags"})
         fandoms = a.findAll('a',{'class':"tag"})
-        fandomstext = [fandom.string for fandom in fandoms]
-        for fandom in fandomstext:
+        for fandom in fandoms:
             self.story.addToList('category',fandom.string)
 		
         a = metasoup.find('dd',{'class':"warning tags"})
         if a != None:
             warnings = a.findAll('a',{'class':"tag"})
-            warningstext = [warning.string for warning in warnings]
-            for warning in warningstext:
+            for warning in warnings:
                 if warning.string == "Author Chose Not To Use Archive Warnings":
                     warning.string = "No Archive Warnings Apply"
                 if warning.string != "No Archive Warnings Apply":
@@ -151,28 +149,24 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         a = metasoup.find('dd',{'class':"freeform tags"})
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
-            genrestext = [genre.string for genre in genres]
-            for genre in genrestext:
+            for genre in genres:
                 self.story.addToList('genre',genre.string)
         a = metasoup.find('dd',{'class':"category tags"})
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
-            genrestext = [genre.string for genre in genres]
-            for genre in genrestext:
+            for genre in genres:
                 if genre != "Gen":
                     self.story.addToList('genre',genre.string)
 		
         a = metasoup.find('dd',{'class':"character tags"})
         if a != None:
             chars = a.findAll('a',{'class':"tag"})
-            charstext = [char.string for char in chars]
-            for char in charstext:
+            for char in chars:
                 self.story.addToList('characters',char.string)
         a = metasoup.find('dd',{'class':"relationship tags"})
         if a != None:
             chars = a.findAll('a',{'class':"tag"})
-            charstext = [char.string for char in chars]
-            for char in charstext:
+            for char in chars:
                 self.story.addToList('characters',char.string)
 		
 
@@ -228,19 +222,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if headnotes != None:
             headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
             if headnotes != None:
-                chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
+                chapter.append("<b>Author's Note:</b>")
                 chapter.append(headnotes)
         
         chapsumm = soup.find('div', {'id' : "summary"})
         if chapsumm != None:
             chapsumm = chapsumm.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Summary for the Chapter:</b>"))
+            chapter.append("<b>Summary for the Chapter:</b>")
             chapter.append(chapsumm)
         chapnotes = soup.find('div', {'id' : "notes"})
         if chapnotes != None:
             chapnotes = chapnotes.find('blockquote')
             if chapnotes != None:
-                chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+                chapter.append("<b>Notes for the Chapter:</b>")
                 chapter.append(chapnotes)
 		
         text = soup.find('div', {'class' : "userstuff module"})
@@ -252,13 +246,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
         if chapfoot != None:
             chapfoot = chapfoot.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Notes for the Chapter:</b>"))
+            chapter.append("<b>Notes for the Chapter:</b>")
             chapter.append(chapfoot)
 		
         footnotes = soup.find('div', {'id' : "work_endnotes"})
         if footnotes != None:
             footnotes = footnotes.find('blockquote')
-            chapter.append(bs.BeautifulSoup("<b>Author's Note:</b>"))
+            chapter.append("<b>Author's Note:</b>")
             chapter.append(footnotes)
 			
         if None == soup:
