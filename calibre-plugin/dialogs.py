@@ -60,9 +60,8 @@ class DroppableQTextEdit(QTextEdit):
             return QTextEdit.canInsertFromMimeData(self,source)
 
     def insertFromMimeData(self, source):
-        if source.hasUrls():
-            for u in source.urls():
-                self.append(u.toString())
+        if source.hasText():
+            self.append(source.text())
         else:
             return QTextEdit.insertFromMimeData(self, source)
                             
