@@ -19,6 +19,7 @@ import datetime
 import logging
 import re
 import urllib2
+from urllib import unquote
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
@@ -49,7 +50,13 @@ class GayAuthorsAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-        self.story.setMetadata('authorId',self.parsedUrl.path.split('/',)[2])
+
+        # unqoute, change '_' and ' ' to '-', downcase, and remove non-[a-z0-9-]
+        authid = unquote(self.parsedUrl.path.split('/',)[2])
+        authid = authid.lower().replace('_','-').replace(' ','-')
+        authid = re.sub(r"[^a-z0-9-]","",authid)
+        
+        self.story.setMetadata('authorId',authid)
         logging.debug("authorId: (%s)"%self.story.getMetadata('authorId'))
         
         # normalized story URL.
