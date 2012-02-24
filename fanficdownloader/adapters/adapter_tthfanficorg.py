@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
@@ -127,6 +127,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
             
+        descurl = url
+            
         if "<h2>Story Not Found</h2>" in data:
             raise exceptions.StoryDoesNotExist(url)
         
@@ -154,12 +156,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             # going to pull part of the meta data from author list page.
             logging.debug("**AUTHOR** URL: "+self.story.getMetadata('authorUrl'))
             authordata = self._fetchUrl(self.story.getMetadata('authorUrl'))
+            descurl=self.story.getMetadata('authorUrl')
             authorsoup = bs.BeautifulSoup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
                 nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
                 logging.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
+                descurl=nextpage
                 authorsoup = bs.BeautifulSoup(authordata)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -168,7 +172,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 raise e
 
         storydiv = authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")})
-        self.story.setMetadata('description',stripHTML(storydiv.find('div',{'class':'storydesc'})))
+        self.setDescription(descurl,storydiv.find('div',{'class':'storydesc'}))
+        #self.story.setMetadata('description',stripHTML(storydiv.find('div',{'class':'storydesc'})))
         self.story.setMetadata('title',stripHTML(storydiv.find('a',{'class':'storylink'})))
 
         verticaltable = soup.find('table', {'class':'verticaltable'})
@@ -238,7 +243,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             div.find('h3').extract()
         except:
             pass
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)
 
 def getClass():
     return TwistingTheHellmouthSiteAdapter

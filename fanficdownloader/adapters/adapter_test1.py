@@ -22,7 +22,7 @@ import logging
 from .. import BeautifulSoup as bs
 from .. import exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 
@@ -191,7 +191,7 @@ horizontal rules
 </div>
 '''
         soup = bs.BeautifulStoneSoup(text,selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        return utf8FromSoup(soup)
+        return self.utf8FromSoup(url,soup)
 
 def getClass():
     return TestSiteAdapter

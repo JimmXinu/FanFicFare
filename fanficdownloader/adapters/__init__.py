@@ -63,7 +63,7 @@ for x in imports():
         #print x
         __class_list.append(sys.modules[x].getClass())
             
-def getAdapter(config,url):
+def getAdapter(config,url,fileform=None):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htp]+[:/]+","http://",url.strip())
     if not fixedurl.startswith("http"):
@@ -88,6 +88,7 @@ def getAdapter(config,url):
         fixedurl = fixedurl.replace("http://","http://www.")
     if cls:
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
+        adapter.setSectionOrder(adapter.getSiteDomain(),fileform)
         return adapter
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )

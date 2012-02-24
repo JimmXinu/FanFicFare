@@ -24,7 +24,7 @@ import time
 from .. import BeautifulSoup as bs
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
@@ -153,7 +153,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     if 'title_t' in var:
                         self.story.setMetadata('title', value)
                     if 'summary' in var:
-                        self.story.setMetadata('description', value)
+                        self.setDescription(url,value)
+                        #self.story.setMetadata('description', value)
                     if 'datep' in var:
                         self.story.setMetadata('datePublished',makeDate(value, '%m-%d-%y'))
                     if 'dateu' in var:
@@ -270,7 +271,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             logging.debug('div id=storytext not found.  data:%s'%data)
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)
 
 def getClass():
     return FanFictionNetSiteAdapter
