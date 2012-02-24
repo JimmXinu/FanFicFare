@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <title>FanFictionDownLoader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12136939-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+  </head>
+  <body>
+    <div id='main'>
+      <h1>
+	<a href="/" style="text-decoration: none; color: black;">FanFictionDownLoader</a> <g:plusone size="medium"></g:plusone>
+      </h1>
+
+      <div style="text-align: center">
+        <script type="text/javascript"><!--
+                                           google_ad_client = "ca-pub-0320924304307555";
+                                           /* Standard */
+                                           google_ad_slot = "8974025478";
+                                           google_ad_width = 468;
+                                           google_ad_height = 60;
+                                           //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+      <!--			<div id='yourfile'> -->
+      {{yourfile}}
+      <!--			</div> -->
+
+      {% if authorized %}
+      <form action="/fdown" method="post">
+	<div id='urlbox'>
+	  <div id='greeting'>
+	    <p>Hi, {{ nickname }}! This is FanFictionDownLoader, which makes reading stories from various websites
+	      much easier. </p>
+	  </div>
+	  <!-- put announcements here, h3 is a good title size. -->
+	  <h3>fanfiction.net fixed</h3>
+	  <p>
+	    fanfiction.net changed their formatting slightly, which broken the downloader for a while.  It's fixed now.
+	  </p>
+	  <h3>New Russian Language Site ficbook.net</h3>
+	  <p>
+	    Thanks to Ida Leter's hard work, we now support <a href="http://ficbook.net">ficbook.net</a>, a Russian language fanfiction site.
+	  </p>
+	  <p>
+	    If you have any problems with this application, please
+	    report them in
+	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
+	    <a href="http://4-3-1.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
+	  </p>
+	  <div id='error'>
+	    {{ error_message }}
+	  </div>
+	</div>
+	
+	<div id='typebox'>
+	  <div>URL: <input type="text" name="url" size="50" value='{{ url }}'/></div>
+	  <br />
+	  <div id='typelabel'>Ebook format</div>
+	  <div id='typeoptions'>
+	    <input type='radio' name='format' value='epub' checked>EPub</input>
+	    <input type='radio' name='format' value='html'>HTML</input>
+	    <input type='radio' name='format' value='txt'>Plain Text</input>
+	    <input type='radio' name='format' value='mobi'>Mobi(Kindle)</input>
+	  </div>
+	  <div>
+	    <br />
+	    <input type="submit" value="Download">
+	    <p><i>For most readers, including Sony Reader, Nook and iPad, use EPub.</i></p>
+	  </div>
+	</div>
+	<div id='typebox'>
+	  <p>
+	    Customize your <a href="/editconfig">User Configuration</a>.
+	  </p>
+	  <p>
+	    Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.
+	  </p>
+	</div>	
+      </form>
+      {% else %}
+      <div id='urlbox'>
+	<div id='greeting'>
+	  <p>
+	    This is a FanFictionDownLoader, which makes reading stories from various websites much easier. Before you
+	    can start downloading fanfics, you need to login, so FanFictionDownLoader can remember your fanfics and store them.
+	  </p>
+	  <p><a href="{{ login_url }}">Login using Google account</a></p>
+	</div>
+      </div>
+      {% endif %}
+      
+      <div id='typebox'>
+	  <p>
+	    <b>FanFictionDownLoader calibre Plugin</b>
+	    <br /><br />
+	    
+	    There's now a version of this downloader that runs
+	    entirely inside the
+	    popular <a href="http://calibre-ebook.com/">calibre</a>
+	    ebook management package as a plugin.
+	    
+	    <br /><br />
+	    
+	    Once you have calibre installed and running, inside
+	    calibre, you can go to 'Get plugins to enhance calibre' or
+	    'Get new plugins' and
+	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>.
+	    
+	  </p>
+      </div>
+      <div id='helpbox'>
+	<dl>
+	  <dt>fictionalley.org</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.fictionalley.org/authors/drt/DA.html">http://www.fictionalley.org/authors/drt/DA.html</a>.
+	    <br />Or a chapter URL (or one-shot text), such as
+	    <br /><a href="http://www.fictionalley.org/authors/drt/JOTP01a.html">http://www.fictionalley.org/authors/drt/JOTP01a.html</a>.
+	    <br />Both will work for both chaptered and one-shot stories now.
+	  </dd>
+	  <dt>fanfiction.net</dt>
+	  <dd>
+	    Use the URL of any story chapter, with or without story title such as
+	    <br /><a href="http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo">http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo</a> or 
+	    <br /><a href="http://www.fanfiction.net/s/2345466/3/">http://www.fanfiction.net/s/2345466/3/</a>.
+	  </dd>
+	  <dt>fictionpress.com</dt>
+	  <dd>
+	    Use the URL of any story chapter, such as
+	    <br /><a href="http://www.fictionpress.com/s/2851771/1/Untouchable_Love">http://www.fictionpress.com/s/2851771/1/Untouchable_Love</a> or 
+	    <br /><a href="http://www.fictionpress.com/s/2847338/6/">http://www.fictionpress.com/s/2847338/6/</a>.
+	  </dd>
+	  <dt>twilighted.net</dt>
+	  <dd>
+	    Use the URL of the start of the story, such as
+	    <br /><a href="http://twilighted.net/viewstory.php?sid=8422">http://twilighted.net/viewstory.php?sid=8422</a>.
+	  </dd>
+	  <dt>twiwrite.net</dt>
+	  <dd>
+	    Use the URL of the start of the story, such as
+	    <br /><a href="http://twiwrite.net/viewstory.php?sid=427">http://twiwrite.net/viewstory.php?sid=427</a>.
+	  </dd>
+	  <dt>ficwad.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.ficwad.com/story/74884">http://www.ficwad.com/story/74884</a>.
+	    <br />Note that this is changed from the previous version.  The system will still accept chapter URLs, however.
+	  </dd>
+	  <dt>harrypotterfanfiction.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.harrypotterfanfiction.com/viewstory.php?psid=289208">http://www.harrypotterfanfiction.com/viewstory.php?psid=289208</a>.
+	  </dd>
+	  <dt>potionsandsnitches.net</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332">http://potionsandsnitches.net/fanfiction/viewstory.php?sid=2332</a>.
+	  </dd>
+	  <dt>mediaminer.org</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/156934">http://www.mediaminer.org/fanfic/view_st.php/166653</a>.
+	    <br />Or the story URL for one-shots, such as
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_st.php/167618">http://www.mediaminer.org/fanfic/view_st.php/167618</a> or 
+	    <br /><a href="http://www.mediaminer.org/fanfic/view_ch.php/1234123/123444#fic_c">http://www.mediaminer.org/fanfic/view_ch.php/1234123/123444#fic_c</a>
+	  </dd>
+	  <dt>adastrafanfic.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.adastrafanfic.com/viewstory.php?sid=854">http://www.adastrafanfic.com/viewstory.php?sid=854</a>.
+	  </dd>
+	  <dt>whofic.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.whofic.com/viewstory.php?sid=16334">http://www.whofic.com/viewstory.php?sid=16334</a>.
+	  </dd>
+	  <dt>thewriterscoffeeshop.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.thewriterscoffeeshop.com/library/viewstory.php?sid=2110">http://www.thewriterscoffeeshop.com/library/viewstory.php?sid=2110</a>.
+	  </dd>
+	  <dt>fanfiction.tenhawkpresents.com</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://fanfiction.tenhawkpresents.com/viewstory.php?sid=294">http://fanfiction.tenhawkpresents.com/viewstory.php?sid=294</a>.
+	  </dd>
+	  <dt>castlefans.org</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://castlefans.org/fanfic/viewstory.php?sid=123">http://castlefans.org/fanfic/viewstory.php?sid=123</a>.
+	  </dd>
+	  <dt>fimfiction.net</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.fimfiction.com/story/123/">http://www.fimfiction.com/story/123/</a>
+	    <br /> or the URL of any chapter, such as
+	    <br /><a href="http://www.fimfiction.com/story/123/1/">http://www.fimfiction.com/story/123/1/</a>.
+	  </dd>
+	  <dt>tthfanfic.org</dt>
+	  <dd>
+	    Use the URL of any story, with or without chapter, title and notice, such as
+	    <br /><a href="http://www.tthfanfic.org/Story-5583">http://www.tthfanfic.org/Story-5583</a>
+	    <br /><a href="http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm">http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm</a>.
+	    <br /><a href="http://www.tthfanfic.org/T-99999999/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm">http://www.tthfanfic.org/T-99999999/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm</a>.
+	  </dd>
+	  <dt>www.siye.co.uk</dt>
+	  <dd>
+	    Use the URL of the story's chapter list, such as
+	    <br /><a href="http://www.siye.co.uk/siye/viewstory.php?sid=123">http://www.siye.co.uk/siye/viewstory.php?sid=123</a>.
+	  </dd>
+	  <dt>archiveofourown.org</dt>
+	  <dd>
+	    Use the URL of the story, or one of it's chapters, such as
+	    <br /><a href="http://archiveofourown.org/works/76366">http://archiveofourown.org/works/76366</a>.
+	    <br /><a href="http://archiveofourown.org/works/76366/chapters/101584">http://archiveofourown.org/works/76366/chapters/101584</a>.
+	  </dd>
+	</dl>	
+	  <dt>ficbook.net(Russian)</dt>
+	  <dd>
+	    Use the URL of the story, or one of it's chapters, such as
+	    <br /><a href="http://ficbook.net/readfic/93626">http://ficbook.net/readfic/93626</a>.
+	    <br /><a href="http://ficbook.net/readfic/93626/246417#part_content">http://ficbook.net/readfic/93626/246417#part_content</a>.
+	  </dd>
+	</dl>
+	<p>
+	  A few additional things to know, which will make your life substantially easier:
+	</p>
+	<ol>
+	  <li>
+	    First thing to know: I do not use your Google login and password. In fact, all I know about it is your ID &ndash; password
+	    is being verified by Google and is absolutely, totally unknown to anyone but you.
+	  </li>
+	  <li>
+	    Small <a href="http://www.sigizmund.com/reading-fanfiction-off-line-in-stanza-and-oth">post written by me</a>
+	    &mdash; how to read fiction in Stanza or any other ebook reader.
+	  </li>
+	  <li>
+	    You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
+	  </li>
+	  <li>
+	    Downloaded stories are deleted after some time (which should give you enough of time to download it and will keep
+	    Google happy about the app not going over the storage limit).
+	  </li>
+	  <li>
+	    If you see some funny characters in downloaded Plain Text file, make sure you choose text file encoding UTF-8 and
+	    not something else.
+	  </li>
+	  <li>
+	    If you think that something that should work in fact doesn't, post a message to
+	    our <a href="http://groups.google.com/group/fanfic-downloader">Google Group</a>. I also encourage you to join it so
+	    you will find out about latest updates and fixes as soon as possible
+	  </li>
+	</ol>
+	Otherwise, just have fun, and if you want to say thank you &mdash; use the contacts above. 
+      </div>
+      <div style='text-align: center'>
+	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+	     alt="Powered by Google App Engine" />
+	<br/><br/>
+	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFictionDownLoader</a><br/>
+	Copyright &copy; FanFictionDownLoader team
+      </div>
+
+      <div style="margin-top: 1em; text-align: center'">
+        <script type="text/javascript"><!--
+                                           google_ad_client = "pub-2027714004231956";
+                                           /* FFD */
+                                           google_ad_slot = "7330682770";
+                                           google_ad_width = 468;
+                                           google_ad_height = 60;
+                                           //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+    </div>
+  </body>
+</html>
