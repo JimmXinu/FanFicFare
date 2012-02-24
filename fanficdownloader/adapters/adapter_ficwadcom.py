@@ -26,7 +26,7 @@ from .. import BeautifulSoup as bs
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class FicwadComSiteAdapter(BaseSiteAdapter):
 
@@ -124,7 +124,8 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         # description
         storydiv = soup.find("div",{"id":"story"})
-        self.story.setMetadata('description', storydiv.find("blockquote",{'class':'summary'}).p.string)
+        self.setDescription(url,storydiv.find("blockquote",{'class':'summary'}).p.string)
+        #self.story.setMetadata('description', storydiv.find("blockquote",{'class':'summary'}).p.string)
 
         # most of the meta data is here:
         metap = storydiv.find("p",{"class":"meta"})
@@ -209,7 +210,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        return utf8FromSoup(span)
+        return self.utf8FromSoup(url,span)
 
 def getClass():
     return FicwadComSiteAdapter

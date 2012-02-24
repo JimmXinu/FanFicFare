@@ -20,6 +20,7 @@ import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
+import urllib
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -59,6 +60,10 @@ class EpubWriter(BaseStoryWriter):
 <b>${label}:</b> ${value}<br />
 ''')
 
+        self.EPUB_NO_TITLE_ENTRY = string.Template('''
+${value}<br />
+''')
+
         self.EPUB_TITLE_PAGE_END = string.Template('''
 </div>
 
@@ -84,6 +89,10 @@ class EpubWriter(BaseStoryWriter):
 
         self.EPUB_TABLE_TITLE_WIDE_ENTRY = string.Template('''
 <tr><td colspan="2"><b>${label}:</b> ${value}</td></tr>
+''')
+
+        self.EPUB_TABLE_NO_TITLE_ENTRY = string.Template('''
+<tr><td colspan="2">${label}${value}</td></tr>
 ''')
 
         self.EPUB_TABLE_TITLE_PAGE_END = string.Template('''
@@ -268,6 +277,24 @@ class EpubWriter(BaseStoryWriter):
                               title))
                 itemrefs.append("file%04d"%i)
 
+        if self.getConfig('include_images'):
+            #from calibre.utils.magick.draw import minify_image
+
+            imgcount=0
+            sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+            for (newsrc,data) in self.story.getImgUrls():
+                imgfile = "OEBPS/"+newsrc
+                # saveimg = minify_image(data, minify_to=sizes)
+                # if self.getConfig('grayscale_images'):
+                #     saveimg.type = "GrayscaleType"
+                # outputepub.writestr(imgfile,saveimg.export('JPG'))
+                outputepub.writestr(imgfile,data)
+                items.append(("image%04d"%imgcount,
+                              imgfile,
+                              "image/jpeg",
+                              None))
+                imgcount+=1
+
         manifest = contentdom.createElement("manifest")
         package.appendChild(manifest)
         for item in items:
@@ -346,11 +373,13 @@ class EpubWriter(BaseStoryWriter):
             TITLE_PAGE_START  = self.EPUB_TABLE_TITLE_PAGE_START
             TITLE_ENTRY       = self.EPUB_TABLE_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.EPUB_TABLE_TITLE_WIDE_ENTRY
+            NO_TITLE_ENTRY    = self.EPUB_TABLE_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TABLE_TITLE_PAGE_END
         else:
             TITLE_PAGE_START  = self.EPUB_TITLE_PAGE_START
             TITLE_ENTRY       = self.EPUB_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.EPUB_TITLE_ENTRY # same, only wide in tables.
+            NO_TITLE_ENTRY    = self.EPUB_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
         
         titlepageIO = StringIO.StringIO()
@@ -358,7 +387,8 @@ class EpubWriter(BaseStoryWriter):
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
                             WIDE_ENTRY=WIDE_TITLE_ENTRY,
-                            END=TITLE_PAGE_END)
+                            END=TITLE_PAGE_END,
+                            NO_TITLE_ENTRY=NO_TITLE_ENTRY)
         if titlepageIO.getvalue(): # will be false if no title page.
             outputepub.writestr("OEBPS/title_page.xhtml",titlepageIO.getvalue())
         titlepageIO.close()
@@ -384,7 +414,7 @@ class EpubWriter(BaseStoryWriter):
                 fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
                 outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
                 del fullhtml
- 
+
 	# declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.
         for zf in outputepub.filelist:

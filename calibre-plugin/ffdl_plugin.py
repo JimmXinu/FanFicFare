@@ -15,6 +15,10 @@ from datetime import datetime
 
 from PyQt4.Qt import (QApplication, QMenu, QToolButton)
 
+from PyQt4.Qt import QPixmap, Qt
+from PyQt4.QtCore import QBuffer
+
+
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
@@ -30,6 +34,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
                                          create_menu_action_unique, get_library_uuid)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
 from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
 from calibre_plugins.fanfictiondownloader_plugin.dcsource import get_dcsource
 
@@ -93,6 +98,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # are not found in the zip file will result in null QIcons.
         icon = get_icon('images/icon.png')
 
+        #self.qaction.setText('FFDL')
+        
         # The qaction is automatically created from the action_spec defined
         # above
         self.qaction.setIcon(icon)
@@ -408,7 +415,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ffdlconfig = SafeConfigParser()
         ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(prefs['personal.ini']))
-        adapter = adapters.getAdapter(ffdlconfig,url)
+        adapter = adapters.getAdapter(ffdlconfig,url,fileform)
 
         options['personal.ini'] = prefs['personal.ini']
 
@@ -440,7 +447,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = writer.getTags()
-        book['comments'] = story.getMetadata("description") #, removeallentities=True) comments handles entities better.
+        book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
         book['series'] = story.getMetadata("series")
         
         # adapter.opener is the element with a threadlock.  But del
