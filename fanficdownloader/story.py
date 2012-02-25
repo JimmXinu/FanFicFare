@@ -25,16 +25,33 @@ from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 try:
     from calibre.utils.magick.draw import minify_image
 
-    def convert_image(data,sizes,grayscale):
+    def convert_image(url,data,sizes,grayscale):
         img = minify_image(data, minify_to=sizes)
         if grayscale:
             img.type = "GrayscaleType"
-        return img.export('JPG')
+        return (img.export('JPG'),'jpg','image/jpeg')
 except:
+    imagetypes = {
+        'jpg':'image/jpeg',
+        'jpeg':'image/jpeg',
+        'png':'image/png',
+        'gif':'image/gif',
+        'svg':'image/svg+xml',
+        }
+
     # Problem: writer_epub assumes image is jpg.
-    def convert_image(data,sizes,grayscale):
-        return data
-        
+    def convert_image(url,data,sizes,grayscale):
+        ext=url[url.rfind('.')+1:].lower()
+        return (data,ext,imagetypes[ext])
+
+try:
+    # doesn't really matter what, just checking for appengine.
+    from google.appengine.api import apiproxy_stub_map
+
+    is_appengine = True
+except:
+    is_appengine = False
+
 
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
@@ -90,7 +107,7 @@ class Story:
         self.replacements = []
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
-        self.imgurldata = []
+        self.imgtuples = []
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
     def setMetadata(self, key, value):
@@ -176,6 +193,12 @@ class Story:
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,configurable,parenturl,url,fetch):
+
+        # appengine (web version) isn't allowed to do images--just
+        # gets too big too fast and breaks things.
+        if is_appengine:
+            return
+        
         if url.startswith("http") :
             imgurl = url
         elif parenturl != None:
@@ -220,21 +243,21 @@ class Story:
         prefix=self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
         
         if imgurl not in self.imgurls:
-            self.imgurls.append(imgurl)
             parsedUrl = urlparse.urlparse(imgurl)
-            newsrc = "images/%s-%s.jpg"%(
-                prefix,
-                self.imgurls.index(imgurl))
             sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
-            data = convert_image(fetch(imgurl),
-                                 sizes,
-                                 configurable.getConfig('grayscale_images'))
-            print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
-            self.imgurldata.append((newsrc,data))
-        else:
-            newsrc = "images/%s-%s.jpg"%(
+            (data,ext,mime) = convert_image(imgurl,
+                                            fetch(imgurl),
+                                            sizes,
+                                            configurable.getConfig('grayscale_images'))
+            self.imgurls.append(imgurl)
+            newsrc = "images/%s-%s.%s"%(
                 prefix,
-                self.imgurls.index(imgurl))
+                self.imgurls.index(imgurl),
+                ext)
+            self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
+            print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+        else:
+            newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
             
         #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
         
@@ -243,8 +266,8 @@ class Story:
     def getImgUrls(self):
         retlist = []
         for i, url in enumerate(self.imgurls):
-            parsedUrl = urlparse.urlparse(url)
-            retlist.append(self.imgurldata[i])
+            #parsedUrl = urlparse.urlparse(url)
+            retlist.append(self.imgtuples[i])
         return retlist
     
     def __str__(self):

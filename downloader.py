@@ -128,7 +128,7 @@ def main():
        else:
            url = args[0]
 
-       adapter = adapters.getAdapter(config,url)
+       adapter = adapters.getAdapter(config,url,options.format)
 
        ## three tries, that's enough if both user/pass & is_adult needed,
        ## or a couple tries of one or the other

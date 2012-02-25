@@ -146,7 +146,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if self.getConfig('keep_summary_html') and \
                 self.getConfig('include_images') and \
                 story_img:
-            self.setDescription(self.url,"%s<br/>%s"%(story_img,description_soup.text))
+            self.setDescription(self.url,"<p><center>%s</center></p>%s"%(story_img,description_soup.text))
         else:
             self.setDescription(self.url,description_soup.text)
         #self.story.setMetadata('description', description_soup.text)
