@@ -31,18 +31,63 @@ try:
             img.type = "GrayscaleType"
         return (img.export('JPG'),'jpg','image/jpeg')
 except:
-    imagetypes = {
-        'jpg':'image/jpeg',
-        'jpeg':'image/jpeg',
-        'png':'image/png',
-        'gif':'image/gif',
-        'svg':'image/svg+xml',
-        }
 
-    # Problem: writer_epub assumes image is jpg.
-    def convert_image(url,data,sizes,grayscale):
-        ext=url[url.rfind('.')+1:].lower()
-        return (data,ext,imagetypes[ext])
+    # No calibre routines, try for PIL for CLI.
+    try:
+        import Image
+        from StringIO import StringIO
+        from math import floor
+        def convert_image(url,data,sizes,grayscale):
+            img = Image.open(StringIO(data))
+            outsio = StringIO()
+            
+            owidth, oheight = img.size
+            nwidth, nheight = sizes
+            scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+            if scaled:
+                img = img.resize((nwidth, nheight),Image.ANTIALIAS)
+                
+            if grayscale:
+                img = img.convert("L")
+                
+            img.save(outsio,'JPEG')
+            return (outsio.getvalue(),'jpg','image/jpeg')
+        
+        def fit_image(width, height, pwidth, pheight):
+            '''
+            Fit image in box of width pwidth and height pheight.
+            @param width: Width of image
+            @param height: Height of image
+            @param pwidth: Width of box
+            @param pheight: Height of box
+            @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
+            '''
+            scaled = height > pheight or width > pwidth
+            if height > pheight:
+                corrf = pheight/float(height)
+                width, height = floor(corrf*width), pheight
+            if width > pwidth:
+                corrf = pwidth/float(width)
+                width, height = pwidth, floor(corrf*height)
+            if height > pheight:
+                corrf = pheight/float(height)
+                width, height = floor(corrf*width), pheight
+        
+            return scaled, int(width), int(height)
+    except:
+
+        # No calibre or PIL, simple pass through with mimetype.
+        imagetypes = {
+            'jpg':'image/jpeg',
+            'jpeg':'image/jpeg',
+            'png':'image/png',
+            'gif':'image/gif',
+            'svg':'image/svg+xml',
+            }
+
+        def convert_image(url,data,sizes,grayscale):
+            ext=url[url.rfind('.')+1:].lower()
+            return (data,ext,imagetypes[ext])
 
 try:
     # doesn't really matter what, just checking for appengine.

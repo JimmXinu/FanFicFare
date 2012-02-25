@@ -130,6 +130,16 @@ def main():
 
        adapter = adapters.getAdapter(config,url,options.format)
 
+       ## Check for include_images and absence of PIL, give warning.
+       if adapter.getConfig('include_images'):
+           try:
+               import Image
+           except:
+               print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
+               if not sys.stdin.readline().strip().lower().startswith('y'):
+                   return
+               
+
        ## three tries, that's enough if both user/pass & is_adult needed,
        ## or a couple tries of one or the other
        for x in range(0,2):
