@@ -278,20 +278,13 @@ ${value}<br />
                 itemrefs.append("file%04d"%i)
 
         if self.getConfig('include_images'):
-            #from calibre.utils.magick.draw import minify_image
-
             imgcount=0
-            sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
-            for (newsrc,data) in self.story.getImgUrls():
-                imgfile = "OEBPS/"+newsrc
-                # saveimg = minify_image(data, minify_to=sizes)
-                # if self.getConfig('grayscale_images'):
-                #     saveimg.type = "GrayscaleType"
-                # outputepub.writestr(imgfile,saveimg.export('JPG'))
-                outputepub.writestr(imgfile,data)
+            for imgmap in self.story.getImgUrls():
+                imgfile = "OEBPS/"+imgmap['newsrc']
+                outputepub.writestr(imgfile,imgmap['data'])
                 items.append(("image%04d"%imgcount,
                               imgfile,
-                              "image/jpeg",
+                              imgmap['mime'],
                               None))
                 imgcount+=1
 
