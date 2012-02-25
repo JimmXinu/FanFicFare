@@ -16,8 +16,26 @@
 #
 
 import os, re
+import urlparse
+from base64 import b64encode
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
+
+# Create convert_image method depending on which graphics lib we can
+# load.  Preferred: calibre, PIL, none
+try:
+    from calibre.utils.magick.draw import minify_image
+
+    def convert_image(data,sizes,grayscale):
+        img = minify_image(data, minify_to=sizes)
+        if grayscale:
+            img.type = "GrayscaleType"
+        return img.export('JPG')
+except:
+    # Problem: writer_epub assumes image is jpg.
+    def convert_image(data,sizes,grayscale):
+        return data
+        
 
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
@@ -72,6 +90,8 @@ class Story:
             self.metadata = {'version':'4.3'}
         self.replacements = []
         self.chapters = [] # chapters will be tuples of (title,html)
+        self.imgurls = []
+        self.imgurldata = []
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
 
     def setMetadata(self, key, value):
@@ -153,6 +173,57 @@ class Story:
     def getChapters(self):
         "Chapters will be tuples of (title,html)"
         return self.chapters
+
+    # pass fetch in from adapter in case we need the cookies collected
+    # as well as it's a base_story class method.
+    def addImgUrl(self,configurable,parenturl,url,fetch):
+        if url.startswith("http") :
+            imgurl = url
+        elif parenturl != None:
+            parsedUrl = urlparse.urlparse(parenturl)
+            if url.startswith("/") :
+                imgurl = urlparse.urlunparse(
+                    (parsedUrl.scheme,
+                     parsedUrl.netloc,
+                     url,
+                     '','',''))
+            else:
+                imgurl = urlparse.urlunparse(
+                    (parsedUrl.scheme,
+                     parsedUrl.netloc,
+                     parsedUrl.path + url,
+                     '','',''))
+
+        # using b64 encode of the url means that the same image ends
+        # up with the same name both now, in different chapters, and
+        # later with new update chapters.  Numbering them didn't do
+        # that.
+        newsrc = "images/%s.jpg"%(b64encode(imgurl))
+        if imgurl not in self.imgurls:
+            self.imgurls.append(imgurl)
+            parsedUrl = urlparse.urlparse(imgurl)
+            # newsrc = "images/%s.jpg"%(
+            #     self.imgurls.index(imgurl))
+            sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
+            data = convert_image(fetch(imgurl),
+                                 sizes,
+                                 configurable.getConfig('grayscale_images'))
+            #print("\nimgurl\nimage size:%d\n"%len(data))
+            self.imgurldata.append((newsrc,data))
+        # else:
+        #     newsrc = "images/%s.jpg"%(
+        #         self.imgurls.index(imgurl))
+            
+        #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
+        
+        return newsrc
+
+    def getImgUrls(self):
+        retlist = []
+        for i, url in enumerate(self.imgurls):
+            parsedUrl = urlparse.urlparse(url)
+            retlist.append(self.imgurldata[i])
+        return retlist
     
     def __str__(self):
         return "Metadata: " +str(self.metadata) + "\nListables: " +str(self.listables) #+ "\nChapters: "+str(self.chapters)

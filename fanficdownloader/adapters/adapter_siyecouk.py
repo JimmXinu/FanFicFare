@@ -24,7 +24,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 # This function is called by the downloader in all adapter_*.py files
 # in this dir to register the adapter class.  So it needs to be
@@ -227,7 +227,8 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
             if part.startswith("Summary:"):
                 part = part[part.find(':')+1:]
-                self.story.setMetadata('description',part)
+                self.setDescription(url,part)
+                #self.story.setMetadata('description',part)
                 
         # want to get the next tr of the table.
         #print("%s"%titlea.parent.parent.findNextSibling('tr'))
@@ -295,4 +296,4 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         if None == story:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(story)
+        return self.utf8FromSoup(url,story)
