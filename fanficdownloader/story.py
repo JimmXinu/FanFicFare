@@ -208,7 +208,7 @@ class Story:
             data = convert_image(fetch(imgurl),
                                  sizes,
                                  configurable.getConfig('grayscale_images'))
-            print("\nimgurl\nimage size:%d\n"%len(data))
+            #print("\nimgurl\nimage size:%d\n"%len(data))
             self.imgurldata.append((newsrc,data))
         # else:
         #     newsrc = "images/%s.jpg"%(
