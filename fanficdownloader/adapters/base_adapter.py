@@ -259,8 +259,9 @@ class BaseSiteAdapter(Configurable):
         acceptable_attributes = ['href','name']
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
-            acceptable_attributes.extend(('src','alt'))
+            acceptable_attributes.extend(('src','alt','origsrc'))
             for img in soup.findAll('img'):
+                img['origsrc']=img['src']
                 img['src']=self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw)
 
         for attr in soup._getAttrMap().keys():

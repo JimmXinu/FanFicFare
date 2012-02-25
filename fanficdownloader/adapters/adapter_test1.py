@@ -78,7 +78,6 @@ class TestSiteAdapter(BaseSiteAdapter):
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
         self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
-        self.story.setMetadata('dateCreated',datetime.datetime.now())
         if self.story.getMetadata('storyId') == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
