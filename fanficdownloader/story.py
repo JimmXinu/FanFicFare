@@ -17,7 +17,6 @@
 
 import os, re
 import urlparse
-from base64 import b64encode
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
@@ -198,21 +197,44 @@ class Story:
         # up with the same name both now, in different chapters, and
         # later with new update chapters.  Numbering them didn't do
         # that.
-        newsrc = "images/%s.jpg"%(b64encode(imgurl))
+        # newsrc = "images/%s.jpg"%(b64encode(imgurl))
+        # step = 20
+        # if newsrc > step:
+        #     i = step
+        #     while i < len(newsrc):
+        #         newsrc = newsrc[:i]+"/"+newsrc[i:]
+        #         i += step
+                
+        # But, b64 names can get too big for zip (on windows, at
+        # least) to handle too quickly.
+
+        # This version, prefixing the images with the creation
+        # timestamp, still allows for dup images to be detected and
+        # not dup'ed in a single download.  And it prevents 0.jpg from
+        # earlier update being overwritten by the first image in newer
+        # chapter.  It does not, however, prevent dup copies of the
+        # same image being d/l'ed and saved in different updates.  A
+        # bit of corner case inefficiency I can live with rather than
+        # scanning all the pre-existing files on update.  oldsrc is
+        # being saved on img tags just in case, however.
+        prefix=self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
+        
         if imgurl not in self.imgurls:
             self.imgurls.append(imgurl)
             parsedUrl = urlparse.urlparse(imgurl)
-            # newsrc = "images/%s.jpg"%(
-            #     self.imgurls.index(imgurl))
+            newsrc = "images/%s-%s.jpg"%(
+                prefix,
+                self.imgurls.index(imgurl))
             sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
             data = convert_image(fetch(imgurl),
                                  sizes,
                                  configurable.getConfig('grayscale_images'))
-            #print("\nimgurl\nimage size:%d\n"%len(data))
+            print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
             self.imgurldata.append((newsrc,data))
-        # else:
-        #     newsrc = "images/%s.jpg"%(
-        #         self.imgurls.index(imgurl))
+        else:
+            newsrc = "images/%s-%s.jpg"%(
+                prefix,
+                self.imgurls.index(imgurl))
             
         #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
         

@@ -214,7 +214,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
-        print('Getting chapter text from: %s' % url)
+        logging.debug('Getting chapter text from: %s' % url)
 		
         chapter=bs.BeautifulSoup('<div class="story"></div>')
         data = self._fetchUrl(url)
