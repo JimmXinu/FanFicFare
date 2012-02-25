@@ -26,7 +26,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 
 def getClass():
@@ -201,7 +201,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 break
 				
         summary=soup.find('span', {'class' : 'urlize'})
-        self.story.setMetadata('description', summary.text)
+        self.setDescription(url,summary.text)
+        #self.story.setMetadata('description', summary.text)
             
     # grab the text for an individual chapter.
     def getChapterText(self, url):
@@ -218,4 +219,4 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if None == chapter:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(chapter)
+        return self.utf8FromSoup(url,chapter)

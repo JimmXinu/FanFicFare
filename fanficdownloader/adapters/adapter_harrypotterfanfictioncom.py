@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
@@ -125,7 +125,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         ## Finding the metadata is a bit of a pain.  Desc is the only thing this color.
         desctable= soup.find('table',{'bgcolor':'#f0e8e8'})
-        self.story.setMetadata('description',stripHTML(desctable))
+        self.setDescription(url,desctable)
+        #self.story.setMetadata('description',stripHTML(desctable))
 
         ## Finding the metadata is a bit of a pain.  Most of the meta
         ## data is in a center.table without a bgcolor.
@@ -193,7 +194,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)
 
 def getClass():
     return HarryPotterFanFictionComSiteAdapter
