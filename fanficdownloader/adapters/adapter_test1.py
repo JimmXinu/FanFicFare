@@ -127,8 +127,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 5',self.url+"&chapter=6"),
                             ('Chapter 6',self.url+"&chapter=6"),
                             ('Chapter 7',self.url+"&chapter=6"),
-                            # ('Chapter 8',self.url+"&chapter=6"),
-                            # ('Chapter 9',self.url+"&chapter=6"),
+                            ('Chapter 8',self.url+"&chapter=6"),
+                            ('Chapter 9',self.url+"&chapter=6"),
                             # ('Chapter 0',self.url+"&chapter=6"),
                             # ('Chapter a',self.url+"&chapter=6"),
                             # ('Chapter b',self.url+"&chapter=6"),
@@ -181,6 +181,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p><center>Centered text</center></p>
 <p>Lorem '''+self.crazystring+''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
+
+<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a><br/>
 br breaks<br><br>
 <hr>
 horizontal rules
