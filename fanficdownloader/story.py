@@ -154,6 +154,7 @@ class Story:
         self.imgurls = []
         self.imgtuples = []
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
+        self.cover=None
 
     def setMetadata(self, key, value):
         ## still keeps &lt; &lt; and &amp;
@@ -237,14 +238,14 @@ class Story:
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
-    def addImgUrl(self,configurable,parenturl,url,fetch):
+    def addImgUrl(self,configurable,parenturl,url,fetch,cover=False):
 
         # appengine (web version) isn't allowed to do images--just
         # gets too big too fast and breaks things.
         if is_appengine:
             return
         
-        if url.startswith("http") :
+        if url.startswith("http") or url.startswith("file") :
             imgurl = url
         elif parenturl != None:
             parsedUrl = urlparse.urlparse(parenturl)
@@ -261,21 +262,6 @@ class Story:
                      parsedUrl.path + url,
                      '','',''))
 
-        # using b64 encode of the url means that the same image ends
-        # up with the same name both now, in different chapters, and
-        # later with new update chapters.  Numbering them didn't do
-        # that.
-        # newsrc = "images/%s.jpg"%(b64encode(imgurl))
-        # step = 20
-        # if newsrc > step:
-        #     i = step
-        #     while i < len(newsrc):
-        #         newsrc = newsrc[:i]+"/"+newsrc[i:]
-        #         i += step
-                
-        # But, b64 names can get too big for zip (on windows, at
-        # least) to handle too quickly.
-
         # This version, prefixing the images with the creation
         # timestamp, still allows for dup images to be detected and
         # not dup'ed in a single download.  And it prevents 0.jpg from
@@ -286,7 +272,7 @@ class Story:
         # scanning all the pre-existing files on update.  oldsrc is
         # being saved on img tags just in case, however.
         prefix=self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
-        
+
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
             sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
@@ -294,12 +280,31 @@ class Story:
                                             fetch(imgurl),
                                             sizes,
                                             configurable.getConfig('grayscale_images'))
-            self.imgurls.append(imgurl)
-            newsrc = "images/%s-%s.%s"%(
-                prefix,
-                self.imgurls.index(imgurl),
-                ext)
-            self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
+            # explicit cover, make the first image.
+            if cover:
+                if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
+                    # remove existing cover, if there is one.
+                    del self.imgurls[0]
+                    del self.imgtuples[0]
+                self.imgurls.insert(0,imgurl)
+                newsrc = "images/cover.%s"%ext
+                self.cover=newsrc
+                self.imgtuples.insert(0,{'newsrc':newsrc,'mime':mime,'data':data})
+            else:
+                self.imgurls.append(imgurl)
+                # First image, copy not link because calibre will replace with it's cover.
+                if (len(self.imgurls)==1 and configurable.getConfig('make_firstimage_cover')):
+                    newsrc = "images/cover.%s"%ext
+                    self.cover=newsrc
+                    self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
+                    self.imgurls.append(imgurl)
+            
+                newsrc = "images/%s-%s.%s"%(
+                    prefix,
+                    self.imgurls.index(imgurl),
+                    ext)
+                self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
+                
             print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']

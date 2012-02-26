@@ -637,7 +637,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if options['collision'] == CALIBREONLY or \
                 (options['updatemeta'] and book['good']):
-            self._update_metadata(db, book['calibre_id'], book, mi)        
+            self._update_metadata(db, book['calibre_id'], book, mi, options)
 
     def _update_books_completed(self, book_list, options={}):
         
@@ -655,6 +655,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         current = self.gui.library_view.currentIndex()
         self.gui.library_view.model().current_changed(current, self.previous)
         self.gui.tags_view.recount()
+        
+        if self.gui.cover_flow:
+            self.gui.cover_flow.dataChanged()
         
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
@@ -736,7 +739,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
         return book_id
 
-    def _update_metadata(self, db, book_id, book, mi):
+    def _update_metadata(self, db, book_id, book, mi, options):
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
             # remove old Completed/In-Progress only if there's a new one.
@@ -755,6 +758,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             oldmi = db.get_metadata(book_id,index_is_id=True)
             if not oldmi.languages:
                 mi.languages=['eng']
+
+        if options['fileform'] == 'epub' and prefs['updatecover']:
+            existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
+            epubmi = get_metadata(existingepub,'EPUB')
+            if epubmi.cover_data[1] is not None:
+                db.set_cover(book_id, epubmi.cover_data[1])
+            #mi.cover = epubmi.cover_data[1]
                 
         db.set_metadata(book_id,mi)
 
@@ -787,7 +797,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
                 db.set_custom(book_id, val, label=label, commit=False)
-                
+        
         db.commit()
 
     def _get_clean_reading_lists(self,lists):

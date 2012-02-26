@@ -31,59 +31,7 @@ from time import time
 from exceptions import KeyError
 
 from xml.dom.minidom import parse, parseString, getDOMImplementation
-        
-def main(argv):
-    # read in args, anything starting with -- will be treated as --<varible>=<value>
-    usage = "usage: %prog [options] <input epub> [<input epub>...]"
-    parser = OptionParser(usage)
-    parser.add_option("-o", "--output", dest="outputopt", default="merge.epub",
-                      help="Set OUTPUT file, Default: merge.epub", metavar="OUTPUT")
-    parser.add_option("-t", "--title", dest="titleopt", default=None,
-                      help="Use TITLE as the metadata title.  Default: '<first epub title> Anthology'", metavar="TITLE")
-    parser.add_option("-d", "--description", dest="descopt", default=None,
-                      help="Use DESC as the metadata description.  Default: '<epub title> by <author>' for each epub.", metavar="DESC")
-    parser.add_option("-a", "--author",
-                      action="append", dest="authoropts", default=[],
-                      help="Use AUTHOR as a metadata author, multiple authors may be given, Default: <All authors from epubs>", metavar="AUTHOR")
-    parser.add_option("-f", "--first",
-                      action="store_true", dest="fromfirst", default=False,
-                      help="Take all metadata from first input epub",)
-    parser.add_option("-n", "--titles-in-toc",
-                      action="store_true", dest="titlenavpoints",
-                      help="Put an entry in the TOC for each epub, in addition to each epub's chapters.",)
-    parser.add_option("-s", "--strip-title-toc",
-                      action="store_true", dest="striptitletoc",
-                      help="Strip any title_page.xhtml and toc_page.xhtml files.",)
-    
-    (options, args) = parser.parse_args()
-
-    ## Add .epub if not already there.
-    if not options.outputopt.lower().endswith(".epub"):
-        options.outputopt=options.outputopt+".epub"
-
-    print "output file: "+options.outputopt
-    doMerge(options.outputopt,
-            args,
-            options.authoropts,
-            options.titleopt,
-            options.descopt,
-            options.fromfirst,
-            options.titlenavpoints,
-            options.striptitletoc)
-
-    # output = StringIO.StringIO()
-    # files = []
-    # for file in args:
-    #     f = open(file,"rb")
-    #     fio = StringIO.StringIO(f.read())
-    #     f.close()
-    #     files.append(fio)
-
-    # doMerge(output,files,authoropts,titleopt,descopt,fromfirst,titlenavpoints,striptitletoc)
-
-    # out = open(outputopt,"wb")
-    # out.write(output.getvalue())
-    
+            
 def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
             fromfirst=False,
             titlenavpoints=True,
@@ -210,7 +158,7 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
                 href=bookdir+relpath+item.getAttribute("href")
                 href=href.encode('utf8')
                 #print "href:"+href
-                if not striptitletoc or not re.match(r'.*/(title|toc)_page\.xhtml',
+                if not striptitletoc or not re.match(r'.*/((title|toc)_page|cover)\.xhtml',
                                                       item.getAttribute("href")):
                     if href not in filelist:
                         try:
@@ -225,7 +173,7 @@ def doMerge(outputio,files,authoropts=[],titleopt=None,descopt=None,
                 
         for itemref in metadom.getElementsByTagName("itemref"):
 
-            if not striptitletoc or not re.match(r'(title|toc)_page', itemref.getAttribute("idref")):
+            if not striptitletoc or not re.match(r'((title|toc)_page|cover)', itemref.getAttribute("idref")):
                 itemrefs.append(bookid+itemref.getAttribute("idref"))
 
         booknum=booknum+1;
@@ -386,4 +334,8 @@ def newTag(dom,name,attrs=None,text=None):
     return tag
     
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    print('''
+This version is only used by fanfictiondownloader now.  See:
+http://code.google.com/p/epubmerge/
+...for a CLI epubmerge.py program and calibre plugin.
+''')

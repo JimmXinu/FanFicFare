@@ -198,6 +198,16 @@ class BaseSiteAdapter(Configurable):
                     self.story.addChapter(removeEntities(title),
                                           removeEntities(self.getChapterText(url)))
             self.storyDone = True
+            
+            # include image, but no cover from story, add default_cover_image cover.
+            if self.getConfig('include_images') and \
+                    not self.story.cover and \
+                    self.getConfig('default_cover_image'):
+                self.story.addImgUrl(self,
+                                     None,
+                                     self.getConfig('default_cover_image'),
+                                     self._fetchUrlRaw,
+                                     cover=True)
         return self.story
 
     def getStoryMetadataOnly(self):

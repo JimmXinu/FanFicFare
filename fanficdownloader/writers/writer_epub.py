@@ -261,7 +261,52 @@ ${value}<br />
         itemrefs = [] # list of strings -- idrefs from .opfs' spines
         items.append(("ncx","toc.ncx","application/x-dtbncx+xml",None)) ## we'll generate the toc.ncx file,
                                                                    ## but it needs to be in the items manifest.
+
+        if self.getConfig('include_images'):
+            imgcount=0
+            for imgmap in self.story.getImgUrls():
+                imgfile = "OEBPS/"+imgmap['newsrc']
+                outputepub.writestr(imgfile,imgmap['data'])
+                items.append(("image%04d"%imgcount,
+                              imgfile,
+                              imgmap['mime'],
+                              None))
+                imgcount+=1
+
+        
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
+
+        guide = None
+        coverIO = None
+
+        if self.story.cover:
+            items.append(("cover","OEBPS/cover.xhtml","application/xhtml+xml",None))
+            itemrefs.append("cover")
+            # 
+            # <meta name="cover" content="cover.jpg"/>
+            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0000",
+                                                           "name":"cover"}))
+            # cover stuff for later:
+            # at end of <package>:
+            # <guide>
+            # <reference type="cover" title="Cover" href="Text/cover.xhtml"/>
+            # </guide>
+            guide = newTag(contentdom,"guide")
+            guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
+                                                       "title":"Cover",
+                                                       "href":"cover.xhtml"}))
+            
+            coverIO = StringIO.StringIO()
+            coverIO.write('''
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Cover</title><style type="text/css" title="override_css">
+@page {padding: 0pt; margin:0pt}
+body { text-align: center; padding:0pt; margin: 0pt; }
+div { margin: 0pt; padding: 0pt; }
+</style></head><body><div>
+<img src="%s" alt="cover"/>
+</div></body></html>
+'''%self.story.cover)
+            
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
@@ -276,17 +321,6 @@ ${value}<br />
                               "application/xhtml+xml",
                               title))
                 itemrefs.append("file%04d"%i)
-
-        if self.getConfig('include_images'):
-            imgcount=0
-            for imgmap in self.story.getImgUrls():
-                imgfile = "OEBPS/"+imgmap['newsrc']
-                outputepub.writestr(imgfile,imgmap['data'])
-                items.append(("image%04d"%imgcount,
-                              imgfile,
-                              imgmap['mime'],
-                              None))
-                imgcount+=1
 
         manifest = contentdom.createElement("manifest")
         package.appendChild(manifest)
@@ -303,8 +337,17 @@ ${value}<br />
             spine.appendChild(newTag(contentdom,"itemref",
                                      attrs={"idref":itemref,
                                             "linear":"yes"}))
+        # guide only exists if there's a cover.
+        if guide:
+            package.appendChild(guide)
+            
         # write content.opf to zip.
-        outputepub.writestr("content.opf",contentdom.toxml(encoding='utf-8'))
+        contentxml = contentdom.toxml(encoding='utf-8')
+        # tweak for brain damaged Nook STR.
+        contentxml = contentxml.replace('<meta content="image0000" name="cover"/>',
+                                        '<meta name="cover" content="image0000"/>')
+        outputepub.writestr("content.opf",contentxml)
+
         contentdom.unlink()
         del contentdom
 
@@ -340,7 +383,7 @@ ${value}<br />
         index=0
         for item in items:
             (id,href,type,title)=item
-            # only items to be skipped, toc.ncx, stylesheet.css, should have no title.
+            # only items to be skipped, cover.xhtml, images, toc.ncx, stylesheet.css, should have no title.
             if title :
                 navPoint = newTag(tocncxdom,"navPoint",
                                   attrs={'id':id,
@@ -353,7 +396,7 @@ ${value}<br />
                 navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
                 index=index+1
         
-        # write toc.ncs to zip file
+        # write toc.ncx to zip file
         outputepub.writestr("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
         tocncxdom.unlink()
         del tocncxdom
@@ -374,7 +417,11 @@ ${value}<br />
             WIDE_TITLE_ENTRY  = self.EPUB_TITLE_ENTRY # same, only wide in tables.
             NO_TITLE_ENTRY    = self.EPUB_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
-        
+
+        if coverIO:
+            outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
+            coverIO.close()
+            
         titlepageIO = StringIO.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,

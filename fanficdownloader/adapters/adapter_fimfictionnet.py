@@ -142,13 +142,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         except:
             pass
 
+        # fimfic is the first site with an explicit cover image.
         story_img = soup.find('img',{'class':'story_image'})
-        if self.getConfig('keep_summary_html') and \
-                self.getConfig('include_images') and \
-                story_img:
-            self.setDescription(self.url,"<p><center>%s</center></p>%s"%(story_img,description_soup.text))
-        else:
-            self.setDescription(self.url,description_soup.text)
+        if self.getConfig('include_images') and story_img:
+            self.story.addImgUrl(self,self.url,story_img['src'],self._fetchUrlRaw,cover=True)
+        self.setDescription(self.url,description_soup.text)
         #self.story.setMetadata('description', description_soup.text)
         
         # Unfortunately, nowhere on the page is the year mentioned.
