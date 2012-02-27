@@ -113,12 +113,6 @@ def main():
    try:
        ## Attempt to update an existing epub.
        if options.update:
-           # updateio = StringIO()
-           # (url,chaptercount) = doMerge(updateio,
-           #                              args,
-           #                              titlenavpoints=False,
-           #                              striptitletoc=True,
-           #                              forceunique=False)
            (url,chaptercount) = get_dcsource_chaptercount(args[0])
            print "Updating %s, URL: %s" % (args[0],url)
            output_filename = args[0]
@@ -163,46 +157,17 @@ def main():
                print "%s contains %d chapters, more than source: %d." % (args[0],chaptercount,urlchaptercount)
            else:
                print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
-               ## Get updated title page/metadata by itself in an epub.
-               ## Even if the title page isn't included, this carries the metadata.
-               # titleio = StringIO()
-               # writeStory(config,adapter,"epub",metaonly=True,outstream=titleio)
-
-               # newchaptersio = None
                if not options.metaonly:
+
+                   # update now handled by pre-populating the old
+                   # images and chapters in the adapter rather than
+                   # merging epubs.
                    (url,chaptercount,
                     adapter.oldchapters,
                     adapter.oldimgs) = get_update_data(args[0])
 
                    writeStory(config,adapter,"epub")
                    
-                   ## Go get the new chapters only in another epub.
-                   # newchaptersio = StringIO()
-                   # adapter.setChaptersRange(chaptercount+1,urlchaptercount)
-                   # config.set("overrides",'include_tocpage','false')
-                   # config.set("overrides",'include_titlepage','false')
-                   # writeStory(config,adapter,"epub",outstream=newchaptersio)
-               
-               # out = open("testing/titleio.epub","wb")
-               # out.write(titleio.getvalue())
-               # out.close()
-               
-               # out = open("testing/updateio.epub","wb")
-               # out.write(updateio.getvalue())
-               # out.close()
-               
-               # out = open("testing/newchaptersio.epub","wb")
-               # out.write(newchaptersio.getvalue())
-               # out.close()
-               
-               ## Merge the three epubs together.
-               # doMerge(args[0],
-               #         [titleio,updateio,newchaptersio],
-               #         fromfirst=True,
-               #         titlenavpoints=False,
-               #         striptitletoc=False,
-               #         forceunique=False)
-
        else:
            # regular download
            if options.metaonly:

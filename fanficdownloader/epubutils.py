@@ -42,7 +42,7 @@ def get_update_data(inputio,
             
     filecount = 0
     soups = [] # list of xhmtl blocks
-    images = {} # dict() origsrc->data
+    images = {} # dict() longdesc->data
     if getfilecount:
         # spin through the manifest--only place there are item tags.
         for item in contentdom.getElementsByTagName("item"):
@@ -61,12 +61,12 @@ def get_update_data(inputio,
                                 # remove all .. and the path part above it, if present.
                                 # Most for epubs edited by Sigil.
                                 newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
-                                origsrc=img['origsrc']
+                                longdesc=img['longdesc']
                                 data = epub.read(newsrc)
-                                images[origsrc] = data
-                                img['src'] = img['origsrc']
+                                images[longdesc] = data
+                                img['src'] = img['longdesc']
                             except Exception as e:
-                                print("Image %s not found!\n(originally:%s)"%(newsrc,origsrc))
+                                print("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
                                 print("Exception: %s"%(unicode(e)))
                                 traceback.print_exc()
                         soup = soup.find('body')
@@ -76,7 +76,7 @@ def get_update_data(inputio,
                     filecount+=1
 
     for k in images.keys():
-        print("\torigsrc:%s\n\tData len:%s\n"%(k,len(images[k])))
+        print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
     return (source,filecount,soups,images)
 
 def get_path_part(n):

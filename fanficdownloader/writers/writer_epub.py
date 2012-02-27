@@ -280,6 +280,8 @@ ${value}<br />
         coverIO = None
 
         if self.story.cover:
+            # Note that the id of the cover xhmtl *must* be 'cover'
+            # for it to work on Nook.
             items.append(("cover","OEBPS/cover.xhtml","application/xhtml+xml",None))
             itemrefs.append("cover")
             # 
@@ -343,7 +345,8 @@ div { margin: 0pt; padding: 0pt; }
             
         # write content.opf to zip.
         contentxml = contentdom.toxml(encoding='utf-8')
-        # tweak for brain damaged Nook STR.
+        
+        # tweak for brain damaged Nook STR.  Nook insists on name before content.
         contentxml = contentxml.replace('<meta content="image0000" name="cover"/>',
                                         '<meta name="cover" content="image0000"/>')
         outputepub.writestr("content.opf",contentxml)

@@ -281,9 +281,9 @@ class BaseSiteAdapter(Configurable):
         acceptable_attributes = ['href','name']
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
-            acceptable_attributes.extend(('src','alt','origsrc'))
+            acceptable_attributes.extend(('src','alt','longdesc'))
             for img in soup.findAll('img'):
-                img['origsrc']=img['src']
+                img['longdesc']=img['src']
                 img['src']=self.story.addImgUrl(self,url,img['src'],fetch)
 
         for attr in soup._getAttrMap().keys():
@@ -306,7 +306,9 @@ class BaseSiteAdapter(Configurable):
 	    # removes paired, but empty tags.
             if t.string != None and len(t.string.strip()) == 0 :
                 t.extract()
+                
         # Don't want body tags in chapter html--writers add them.
+        # This is primarily for epub updates.
         return re.sub(r"</?body>\r?\n?","",soup.__str__('utf8').decode('utf-8'))
 
 fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
