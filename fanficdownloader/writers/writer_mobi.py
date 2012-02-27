@@ -51,6 +51,10 @@ class MobiWriter(BaseStoryWriter):
 <b>${label}:</b> ${value}<br />
 ''')
 
+        self.MOBI_NO_TITLE_ENTRY = string.Template('''
+${value}<br />
+''')
+
         self.MOBI_TITLE_PAGE_END = string.Template('''
 </div>
 
@@ -75,6 +79,10 @@ class MobiWriter(BaseStoryWriter):
 
         self.MOBI_TABLE_TITLE_WIDE_ENTRY = string.Template('''
 <tr><td colspan="2"><b>${label}:</b> ${value}</td></tr>
+''')
+
+        self.MOBI_TABLE_NO_TITLE_WIDE_ENTRY = string.Template('''
+<tr><td colspan="2">${value}</td></tr>
 ''')
 
         self.MOBI_TABLE_TITLE_PAGE_END = string.Template('''
@@ -129,11 +137,13 @@ class MobiWriter(BaseStoryWriter):
             TITLE_PAGE_START  = self.MOBI_TABLE_TITLE_PAGE_START
             TITLE_ENTRY       = self.MOBI_TABLE_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.MOBI_TABLE_TITLE_WIDE_ENTRY
+            NO_TITLE_ENTRY    = self.MOBI_TABLE_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.MOBI_TABLE_TITLE_PAGE_END
         else:
             TITLE_PAGE_START  = self.MOBI_TITLE_PAGE_START
             TITLE_ENTRY       = self.MOBI_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.MOBI_TITLE_ENTRY # same, only wide in tables.
+            NO_TITLE_ENTRY    = self.MOBI_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.MOBI_TITLE_PAGE_END
         
         titlepageIO = StringIO.StringIO()
@@ -141,7 +151,8 @@ class MobiWriter(BaseStoryWriter):
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
                             WIDE_ENTRY=WIDE_TITLE_ENTRY,
-                            END=TITLE_PAGE_END)
+                            END=TITLE_PAGE_END,
+                            NO_TITLE_ENTRY=NO_TITLE_ENTRY)
         if titlepageIO.getvalue(): # will be false if no title page.
             files.append(titlepageIO.getvalue())
         titlepageIO.close()

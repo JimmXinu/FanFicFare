@@ -23,7 +23,8 @@ from calibre.utils.logging import Log
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
+#from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
 
 # ------------------------------------------------------------------------------
 #
@@ -110,7 +111,7 @@ def do_download_for_worker(book,options):
         ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(options['personal.ini']))
         
-        adapter = adapters.getAdapter(ffdlconfig,book['url'])
+        adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
         adapter.is_adult = book['is_adult'] 
         adapter.username = book['username'] 
         adapter.password = book['password']
@@ -136,38 +137,44 @@ def do_download_for_worker(book,options):
         elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
             
             urlchaptercount = int(story.getMetadata('numChapters'))
-            ## First, get existing epub with titlepage and tocpage stripped.
-            updateio = StringIO()
-            (epuburl,chaptercount) = doMerge(updateio,
-                                             [book['epub_for_update']],
-                                             titlenavpoints=False,
-                                             striptitletoc=True,
-                                             forceunique=False)
+            (url,chaptercount,
+             adapter.oldchapters,
+             adapter.oldimgs) = get_update_data(book['epub_for_update'])
+
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
             print("write to %s"%outfile)
 
-            ## Get updated title page/metadata by itself in an epub.
-            ## Even if the title page isn't included, this carries the metadata.
-            titleio = StringIO()
-            writer.writeStory(outstream=titleio,metaonly=True)
+            writer.writeStory(outfilename=outfile, forceOverwrite=True)
+            
+            ## First, get existing epub with titlepage and tocpage stripped.
+            # updateio = StringIO()
+            # (epuburl,chaptercount) = doMerge(updateio,
+            #                                  [book['epub_for_update']],
+            #                                  titlenavpoints=False,
+            #                                  striptitletoc=True,
+            #                                  forceunique=False)
+            # ## Get updated title page/metadata by itself in an epub.
+            # ## Even if the title page isn't included, this carries the metadata.
+            # titleio = StringIO()
+            # writer.writeStory(outstream=titleio,metaonly=True)
 
-            newchaptersio = None
-            if urlchaptercount > chaptercount :
-                ## Go get the new chapters
-                newchaptersio = StringIO()
-                adapter.setChaptersRange(chaptercount+1,urlchaptercount)
+            # newchaptersio = None
+            # if urlchaptercount > chaptercount :
+            #     ## Go get the new chapters
+            #     newchaptersio = StringIO()
+            #     adapter.setChaptersRange(chaptercount+1,urlchaptercount)
 
-                adapter.config.set("overrides",'include_tocpage','false')
-                adapter.config.set("overrides",'include_titlepage','false')
-                writer.writeStory(outstream=newchaptersio)
+            #     adapter.config.set("overrides",'include_tocpage','false')
+            #     adapter.config.set("overrides",'include_titlepage','false')
+            #     writer.writeStory(outstream=newchaptersio)
 
-            ## Merge the three epubs together.
-            doMerge(outfile,
-                    [titleio,updateio,newchaptersio],
-                    fromfirst=True,
-                    titlenavpoints=False,
-                    striptitletoc=False,
-                    forceunique=False)
+            # ## Merge the three epubs together.
+            # doMerge(outfile,
+            #         [titleio,updateio,newchaptersio],
+            #         fromfirst=True,
+            #         titlenavpoints=False,
+            #         striptitletoc=False,
+            #         forceunique=False)
             
             book['comment'] = 'Update %s completed, added %s chapters for %s total.'%\
                 (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)

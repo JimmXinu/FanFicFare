@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
@@ -187,7 +187,8 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             
         for small in storydd.findAll('small'):
             small.extract() ## removes the <small> tags, leaving only the summary.
-        self.story.setMetadata('description',stripHTML(storydd))
+        self.setDescription(url,storydd)
+        #self.story.setMetadata('description',stripHTML(storydd))
         
         return
 
@@ -223,7 +224,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         if not data or not text:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(text)
+        return self.utf8FromSoup(url,text)
 
 def getClass():
     return FictionAlleyOrgSiteAdapter

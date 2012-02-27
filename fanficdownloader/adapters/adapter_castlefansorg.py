@@ -24,7 +24,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 # By virtue of being recent and requiring both is_adult and user/pass,
 # adapter_fanficcastletvnet.py is the best choice for learning to
@@ -218,7 +218,8 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
                 while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
-                self.story.setMetadata('description',stripHTML(svalue))
+                self.setDescription(url,svalue)
+                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -305,4 +306,4 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)

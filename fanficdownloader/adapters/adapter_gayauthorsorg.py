@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return GayAuthorsAdapter
@@ -162,7 +162,8 @@ class GayAuthorsAdapter(BaseSiteAdapter):
         self.story.setMetadata('rating',rating.text)
 		
         summary = msoup.find('span', {'itemprop' : 'description'})
-        self.story.setMetadata('description',summary.text)
+        self.setDescription(self.url,summary.text)
+        #self.story.setMetadata('description',summary.text)
 	
 
         stats = msoup.find('dl',{'class':'info'})
@@ -200,4 +201,4 @@ class GayAuthorsAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)
