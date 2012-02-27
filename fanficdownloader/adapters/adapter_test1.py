@@ -126,9 +126,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 4',self.url+"&chapter=5"),
                             ('Chapter 5',self.url+"&chapter=6"),
                             ('Chapter 6',self.url+"&chapter=6"),
-                            ('Chapter 7',self.url+"&chapter=6"),
-                            ('Chapter 8',self.url+"&chapter=6"),
-                            ('Chapter 9',self.url+"&chapter=6"),
+                            # ('Chapter 7',self.url+"&chapter=6"),
+                            # ('Chapter 8',self.url+"&chapter=6"),
+                            # ('Chapter 9',self.url+"&chapter=6"),
                             # ('Chapter 0',self.url+"&chapter=6"),
                             # ('Chapter a',self.url+"&chapter=6"),
                             # ('Chapter b',self.url+"&chapter=6"),
@@ -177,7 +177,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             text=u'''
 <div>
-<h3>Chapter</h3>
+<h3>Chapter title from site</h3>
 <p><center>Centered text</center></p>
 <p>Lorem '''+self.crazystring+''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>

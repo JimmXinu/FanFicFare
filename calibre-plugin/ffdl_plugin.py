@@ -35,8 +35,8 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
-from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
-from calibre_plugins.fanfictiondownloader_plugin.dcsource import get_dcsource
+#from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount
 
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
@@ -524,13 +524,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 # 'book' can exist without epub.  If there's no existing epub,
                 # let it go and it will download it.
                 if db.has_format(book_id,fileform,index_is_id=True):
-                    toupdateio = StringIO()
-                    (epuburl,chaptercount) = doMerge(toupdateio,
-                                                     [StringIO(db.format(book_id,'EPUB',
-                                                                              index_is_id=True))],
-                                                     titlenavpoints=False,
-                                                     striptitletoc=True,
-                                                     forceunique=False)
+                    #toupdateio = StringIO()
+                    (epuburl,chaptercount) = get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
+                                                                              index_is_id=True)))
+                    # (epuburl,chaptercount) = doMerge(toupdateio,
+                    #                                  [StringIO(db.format(book_id,'EPUB',
+                    #                                                           index_is_id=True))],
+                    #                                  titlenavpoints=False,
+                    #                                  striptitletoc=True,
+                    #                                  forceunique=False)
                     urlchaptercount = int(story.getMetadata('numChapters'))
                     if chaptercount == urlchaptercount:
                         if collision == UPDATE:
