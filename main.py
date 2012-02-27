@@ -339,7 +339,7 @@ class FanfictionDownloader(UserConfigServer):
                 self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+str(e)))
                 return
 
-            adapter = adapters.getAdapter(config,url)
+            adapter = adapters.getAdapter(config,url,format)
             logging.info('Created an adaper: %s' % adapter)
 
             if len(login) > 1:
@@ -442,7 +442,7 @@ class FanfictionDownloaderTask(UserConfigServer):
 
         try:
             config = self.getUserConfig(user)
-            adapter = adapters.getAdapter(config,url)
+            adapter = adapters.getAdapter(config,url,format)
 
             logging.info('Created an adapter: %s' % adapter)
 

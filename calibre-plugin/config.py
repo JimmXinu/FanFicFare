@@ -36,6 +36,7 @@ all_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 # take from here.
 all_prefs.defaults['personal.ini'] = get_resources('plugin-example.ini')
 all_prefs.defaults['updatemeta'] = True
+all_prefs.defaults['updatecover'] = False
 all_prefs.defaults['keeptags'] = False
 all_prefs.defaults['urlsfromclip'] = True
 all_prefs.defaults['updatedefault'] = True
@@ -53,6 +54,7 @@ all_prefs.defaults['custom_cols'] = {}
 # when config is called for the first time on a library.
 copylist = ['personal.ini',
             'updatemeta',
+            'updatecover',
             'keeptags',
             'urlsfromclip',
             'updatedefault',
@@ -144,6 +146,7 @@ class ConfigWidget(QWidget):
         prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
         prefs['collision'] = unicode(self.basic_tab.collision.currentText())
         prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
+        prefs['updatecover'] = self.basic_tab.updatecover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
@@ -233,6 +236,11 @@ class BasicTab(QWidget):
         self.updatemeta.setToolTip('Update title, author, URL, tags, custom columns, etc for story in Calibre from web site.')
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
+
+        self.updatecover = QCheckBox('Update Cover when Updating Metadata?',self)
+        self.updatecover.setToolTip('Update cover image when metadata is updated.  EPUB only.')
+        self.updatecover.setChecked(prefs['updatecover'])
+        self.l.addWidget(self.updatecover)
 
         self.keeptags = QCheckBox('Keep Existing Tags when Updating Metadata?',self)
         self.keeptags.setToolTip('Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.')

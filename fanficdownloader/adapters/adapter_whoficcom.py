@@ -23,7 +23,7 @@ import urllib2
 from .. import BeautifulSoup as bs
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class WhoficComSiteAdapter(BaseSiteAdapter):
 
@@ -120,9 +120,10 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # link instead to find the appropriate metadata.
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
-        metadatachunks = utf8FromSoup(metadata).split('<br />')
+        metadatachunks = self.utf8FromSoup(None,metadata).split('<br />')
         # process metadata for this story.
-        self.story.setMetadata('description', metadatachunks[1])
+        self.setDescription(url,metadatachunks[1])
+        #self.story.setMetadata('description', metadatachunks[1])
 
         # First line of the stuff with ' - ' separators
         moremeta = metadatachunks[2]
@@ -224,7 +225,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(span)
+        return self.utf8FromSoup(url,span)
 
 def getClass():
     return WhoficComSiteAdapter

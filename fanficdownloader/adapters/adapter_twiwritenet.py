@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
@@ -169,7 +169,8 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
                 while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
-                self.story.setMetadata('description',stripHTML(svalue))
+                self.setDescription(url,svalue)
+                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -255,7 +256,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(span)
+        return self.utf8FromSoup(url,span)
 
 def getClass():
     return TwiwriteNetSiteAdapter
