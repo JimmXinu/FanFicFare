@@ -301,17 +301,7 @@ class Story:
                      parsedUrl.path + url,
                      '','',''))
 
-        # This version, prefixing the images with the creation
-        # timestamp, still allows for dup images to be detected and
-        # not dup'ed in a single download.  And it prevents 0.jpg from
-        # earlier update being overwritten by the first image in newer
-        # chapter.  It does not, however, prevent dup copies of the
-        # same image being d/l'ed and saved in different updates.  A
-        # bit of corner case inefficiency I can live with rather than
-        # scanning all the pre-existing files on update.  oldsrc is
-        # being saved on img tags just in case, however.
-        prefix='ffdl' #self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
-
+        prefix='ffdl'
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
             sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]

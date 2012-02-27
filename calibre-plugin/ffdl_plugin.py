@@ -35,7 +35,6 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
-#from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount
 
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
@@ -201,9 +200,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                            shortcut_name='About FanFictionDownLoader',
                                                            triggered=self.about)
             
-            # self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-            # self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
                 if menu_id not in self.actions_unique_map:
@@ -243,7 +239,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(self.gui.library_view.get_selected_ids()) > 0 and \
                 (prefs['addtolists'] or prefs['addtoreadlists']) :
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
-        #self.gui.library_view.model().refresh_ids(self.gui.library_view.get_selected_ids())
 
     def get_list_urls(self):
         if len(self.gui.library_view.get_selected_ids()) > 0:
@@ -524,15 +519,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 # 'book' can exist without epub.  If there's no existing epub,
                 # let it go and it will download it.
                 if db.has_format(book_id,fileform,index_is_id=True):
-                    #toupdateio = StringIO()
-                    (epuburl,chaptercount) = get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
-                                                                              index_is_id=True)))
-                    # (epuburl,chaptercount) = doMerge(toupdateio,
-                    #                                  [StringIO(db.format(book_id,'EPUB',
-                    #                                                           index_is_id=True))],
-                    #                                  titlenavpoints=False,
-                    #                                  striptitletoc=True,
-                    #                                  forceunique=False)
+                    (epuburl,chaptercount) = \
+                        get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
+                                                                     index_is_id=True)))
                     urlchaptercount = int(story.getMetadata('numChapters'))
                     if chaptercount == urlchaptercount:
                         if collision == UPDATE:
@@ -919,13 +908,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['added'] = False
         
         return book
-        
-    
-    # def _convert_calibre_ids_to_books(self, db, ids):
-    #     books = []
-    #     for book_id in ids:
-    #         books.append(self._convert_calibre_id_to_book(db,book_id))
-    #     return books
             
     def _populate_book_from_calibre_id(self, book, db=None):
         mi = db.get_metadata(book['calibre_id'], index_is_id=True)
