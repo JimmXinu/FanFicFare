@@ -17,63 +17,73 @@
 
 import os, re
 import urlparse
+from math import floor
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
 try:
-    from calibre.utils.magick.draw import minify_image
+    from calibre.utils.magick import Image
 
     def convert_image(url,data,sizes,grayscale):
-        img = minify_image(data, minify_to=sizes)
-        if grayscale:
+        export = False
+        img = Image()
+        img.load(data)
+        
+        owidth, oheight = img.size
+        nwidth, nheight = sizes
+        scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+        if scaled:
+            img.size = (nwidth, nheight)
+            export = True
+            
+        if grayscale and img.type != "GrayscaleType":
             img.type = "GrayscaleType"
-        return (img.export('JPG'),'jpg','image/jpeg')
+            export = True
+
+        if normalize_format_name(img.format) != "jpg":
+            export = True
+
+        if export:
+            return (img.export('JPG'),'jpg','image/jpeg')
+        else:
+            print("image used unchanged")
+            return (data,'jpg','image/jpeg')
+        
 except:
 
     # No calibre routines, try for PIL for CLI.
     try:
         import Image
         from StringIO import StringIO
-        from math import floor
         def convert_image(url,data,sizes,grayscale):
+            
+            export = False
             img = Image.open(StringIO(data))
-            outsio = StringIO()
             
             owidth, oheight = img.size
             nwidth, nheight = sizes
             scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
             if scaled:
                 img = img.resize((nwidth, nheight),Image.ANTIALIAS)
+                export = True
                 
-            if grayscale:
+            if grayscale and img.mode != "L":
                 img = img.convert("L")
-                
-            img.save(outsio,'JPEG')
-            return (outsio.getvalue(),'jpg','image/jpeg')
+                export = True
+
+            if normalize_format_name(img.format) != "jpg":
+                export = True
+
+            if export:
+                outsio = StringIO()
+                img.save(outsio,'JPEG')
+                return (outsio.getvalue(),'jpg','image/jpeg')
+            else:
+                print("image used unchanged")
+                return (data,'jpg','image/jpeg')
         
-        def fit_image(width, height, pwidth, pheight):
-            '''
-            Fit image in box of width pwidth and height pheight.
-            @param width: Width of image
-            @param height: Height of image
-            @param pwidth: Width of box
-            @param pheight: Height of box
-            @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
-            '''
-            scaled = height > pheight or width > pwidth
-            if height > pheight:
-                corrf = pheight/float(height)
-                width, height = floor(corrf*width), pheight
-            if width > pwidth:
-                corrf = pwidth/float(width)
-                width, height = pwidth, floor(corrf*height)
-            if height > pheight:
-                corrf = pheight/float(height)
-                width, height = floor(corrf*width), pheight
-        
-            return scaled, int(width), int(height)
     except:
 
         # No calibre or PIL, simple pass through with mimetype.
@@ -88,6 +98,35 @@ except:
         def convert_image(url,data,sizes,grayscale):
             ext=url[url.rfind('.')+1:].lower()
             return (data,ext,imagetypes[ext])
+        
+def normalize_format_name(fmt):
+    if fmt:
+        fmt = fmt.lower()
+        if fmt == 'jpeg':
+            fmt = 'jpg'
+    return fmt
+
+def fit_image(width, height, pwidth, pheight):
+    '''
+    Fit image in box of width pwidth and height pheight.
+    @param width: Width of image
+    @param height: Height of image
+    @param pwidth: Width of box
+    @param pheight: Height of box
+    @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
+    '''
+    scaled = height > pheight or width > pwidth
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight
+    if width > pwidth:
+        corrf = pwidth/float(width)
+        width, height = pwidth, floor(corrf*height)
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight
+
+    return scaled, int(width), int(height)
 
 try:
     # doesn't really matter what, just checking for appengine.
@@ -245,9 +284,9 @@ class Story:
         if is_appengine:
             return
         
-        if url.startswith("http") or url.startswith("file") :
+        if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
-        elif parenturl != None:
+        else:
             parsedUrl = urlparse.urlparse(parenturl)
             if url.startswith("/") :
                 imgurl = urlparse.urlunparse(
@@ -271,7 +310,7 @@ class Story:
         # bit of corner case inefficiency I can live with rather than
         # scanning all the pre-existing files on update.  oldsrc is
         # being saved on img tags just in case, however.
-        prefix=self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
+        prefix='ffdl' #self.getMetadataRaw('dateCreated').strftime("%Y%m%d%H%M%S")
 
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)

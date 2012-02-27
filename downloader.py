@@ -25,18 +25,15 @@ from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
 import string
-
+import ConfigParser
 from subprocess import call
 
-from epubmerge import doMerge
+from fanficdownloader import adapters,writers,exceptions
+from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
     sys.exit(1)
-
-from fanficdownloader import adapters,writers,exceptions
-
-import ConfigParser
 
 def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     writer = writers.getWriter(writeformat,config,adapter)
@@ -116,12 +113,13 @@ def main():
    try:
        ## Attempt to update an existing epub.
        if options.update:
-           updateio = StringIO()
-           (url,chaptercount) = doMerge(updateio,
-                                        args,
-                                        titlenavpoints=False,
-                                        striptitletoc=True,
-                                        forceunique=False)
+           # updateio = StringIO()
+           # (url,chaptercount) = doMerge(updateio,
+           #                              args,
+           #                              titlenavpoints=False,
+           #                              striptitletoc=True,
+           #                              forceunique=False)
+           (url,chaptercount) = get_dcsource_chaptercount(args[0])
            print "Updating %s, URL: %s" % (args[0],url)
            output_filename = args[0]
            config.set("overrides","output_filename",args[0])
@@ -167,17 +165,23 @@ def main():
                print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
                ## Get updated title page/metadata by itself in an epub.
                ## Even if the title page isn't included, this carries the metadata.
-               titleio = StringIO()
-               writeStory(config,adapter,"epub",metaonly=True,outstream=titleio)
+               # titleio = StringIO()
+               # writeStory(config,adapter,"epub",metaonly=True,outstream=titleio)
 
-               newchaptersio = None
+               # newchaptersio = None
                if not options.metaonly:
+                   (url,chaptercount,
+                    adapter.oldchapters,
+                    adapter.oldimgs) = get_update_data(args[0])
+
+                   writeStory(config,adapter,"epub")
+                   
                    ## Go get the new chapters only in another epub.
-                   newchaptersio = StringIO()
-                   adapter.setChaptersRange(chaptercount+1,urlchaptercount)
-                   config.set("overrides",'include_tocpage','false')
-                   config.set("overrides",'include_titlepage','false')
-                   writeStory(config,adapter,"epub",outstream=newchaptersio)
+                   # newchaptersio = StringIO()
+                   # adapter.setChaptersRange(chaptercount+1,urlchaptercount)
+                   # config.set("overrides",'include_tocpage','false')
+                   # config.set("overrides",'include_titlepage','false')
+                   # writeStory(config,adapter,"epub",outstream=newchaptersio)
                
                # out = open("testing/titleio.epub","wb")
                # out.write(titleio.getvalue())
@@ -192,12 +196,12 @@ def main():
                # out.close()
                
                ## Merge the three epubs together.
-               doMerge(args[0],
-                       [titleio,updateio,newchaptersio],
-                       fromfirst=True,
-                       titlenavpoints=False,
-                       striptitletoc=False,
-                       forceunique=False)
+               # doMerge(args[0],
+               #         [titleio,updateio,newchaptersio],
+               #         fromfirst=True,
+               #         titlenavpoints=False,
+               #         striptitletoc=False,
+               #         forceunique=False)
 
        else:
            # regular download

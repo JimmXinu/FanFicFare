@@ -294,7 +294,7 @@ ${value}<br />
             guide = newTag(contentdom,"guide")
             guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
                                                        "title":"Cover",
-                                                       "href":"cover.xhtml"}))
+                                                       "href":"OEBPS/cover.xhtml"}))
             
             coverIO = StringIO.StringIO()
             coverIO.write('''

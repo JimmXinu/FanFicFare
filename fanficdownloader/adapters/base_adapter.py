@@ -22,6 +22,7 @@ import logging
 import urllib
 import urllib2 as u2
 import urlparse as up
+from functools import partial
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
@@ -86,6 +87,8 @@ class BaseSiteAdapter(Configurable):
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
+        self.oldchapters = None
+        self.oldimgs = None
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -189,14 +192,21 @@ class BaseSiteAdapter(Configurable):
     def getStory(self):
         if not self.storyDone:
             self.getStoryMetadataOnly()
+
             for index, (title,url) in enumerate(self.chapterUrls):
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(removeEntities(title),
                                           None)
                 else:
+                    if self.oldchapters and index < len(self.oldchapters):
+                        data = self.utf8FromSoup(None,
+                                                 self.oldchapters[index],
+                                                 partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                    else:
+                        data = self.getChapterText(url)
                     self.story.addChapter(removeEntities(title),
-                                          removeEntities(self.getChapterText(url)))
+                                          removeEntities(data))
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.
@@ -264,7 +274,9 @@ class BaseSiteAdapter(Configurable):
 
     # this gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
-    def utf8FromSoup(self,url,soup):
+    def utf8FromSoup(self,url,soup,fetch=None):
+        if not fetch:
+            fetch=self._fetchUrlRaw
 
         acceptable_attributes = ['href','name']
         #print("include_images:"+self.getConfig('include_images'))
@@ -272,7 +284,7 @@ class BaseSiteAdapter(Configurable):
             acceptable_attributes.extend(('src','alt','origsrc'))
             for img in soup.findAll('img'):
                 img['origsrc']=img['src']
-                img['src']=self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw)
+                img['src']=self.story.addImgUrl(self,url,img['src'],fetch)
 
         for attr in soup._getAttrMap().keys():
             if attr not in acceptable_attributes:
@@ -294,11 +306,20 @@ class BaseSiteAdapter(Configurable):
 	    # removes paired, but empty tags.
             if t.string != None and len(t.string.strip()) == 0 :
                 t.extract()
-        return soup.__str__('utf8').decode('utf-8')
+        # Don't want body tags in chapter html--writers add them.
+        return re.sub(r"</?body>\r?\n?","",soup.__str__('utf8').decode('utf-8'))
 
 fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
            "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
            "November":"11", "December":"12" }
+
+def cachedfetch(realfetch,cache,url):
+    if url in cache:
+        print("cache hit")
+        return cache[url]
+    else:
+        return realfetch(url)
+    
 
 def makeDate(string,format):
     # Surprise!  Abstracting this turned out to be more useful than
