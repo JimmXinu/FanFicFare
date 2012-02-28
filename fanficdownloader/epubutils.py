@@ -70,7 +70,15 @@ def get_update_data(inputio,
                                 print("Exception: %s"%(unicode(e)))
                                 traceback.print_exc()
                         soup = soup.find('body')
-                        soup.find('h3').extract()
+                        # ffdl epubs have chapter title h3
+                        h3 = soup.find('h3')
+                        if h3:
+                            h3.extract()
+                        # TtH epubs have chapter title h2
+                        h2 = soup.find('h2')
+                        if h2:
+                            h2.extract()
+                            
                         soups.append(soup)
                         
                     filecount+=1

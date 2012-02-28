@@ -43,6 +43,7 @@ all_prefs.defaults['updatedefault'] = True
 all_prefs.defaults['fileform'] = 'epub'
 all_prefs.defaults['collision'] = OVERWRITE
 all_prefs.defaults['deleteotherforms'] = False
+all_prefs.defaults['adddialogstatsontop'] = False
 all_prefs.defaults['send_lists'] = ''
 all_prefs.defaults['read_lists'] = ''
 all_prefs.defaults['addtolists'] = False
@@ -60,7 +61,8 @@ copylist = ['personal.ini',
             'updatedefault',
             'fileform',
             'collision',
-            'deleteotherforms']
+            'deleteotherforms',
+            'adddialogstatsontop']
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
@@ -151,6 +153,7 @@ class ConfigWidget(QWidget):
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
+        prefs['adddialogstatsontop'] = self.basic_tab.adddialogstatsontop.isChecked()
 
         if self.list_tab:
             # lists
@@ -262,6 +265,11 @@ class BasicTab(QWidget):
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
+        
+        self.adddialogstatsontop = QCheckBox("Keep 'Add New from URL(s)' dialog on top?",self)
+        self.adddialogstatsontop.setToolTip("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it.")
+        self.adddialogstatsontop.setChecked(prefs['adddialogstatsontop'])
+        self.l.addWidget(self.adddialogstatsontop)
         
         self.l.insertStretch(-1)
         
