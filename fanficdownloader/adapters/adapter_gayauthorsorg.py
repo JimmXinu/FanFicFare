@@ -193,8 +193,9 @@ class GayAuthorsAdapter(BaseSiteAdapter):
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        data = self._fetchUrl(url)
+        data = data[data.index("<div id='chapter-content'>"):]
+        soup = bs.BeautifulSoup(data) # this one's happier with Soup, not StoneSoup for some reason.
         
         div = soup.find('div', {'id' : 'chapter-content'})
 
