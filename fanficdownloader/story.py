@@ -305,10 +305,15 @@ class Story:
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
             sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
-            (data,ext,mime) = convert_image(imgurl,
-                                            fetch(imgurl),
-                                            sizes,
-                                            configurable.getConfig('grayscale_images'))
+            try:
+                (data,ext,mime) = convert_image(imgurl,
+                                                fetch(imgurl),
+                                                sizes,
+                                                configurable.getConfig('grayscale_images'))
+            except Exception, e:
+                print("Failed to load image, skipping:\n%s\nException: %s"%(imgurl,e))
+                return "failedtoload"
+            
             # explicit cover, make the first image.
             if cover:
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
