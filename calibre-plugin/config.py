@@ -241,7 +241,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.updatemeta)
 
         self.updatecover = QCheckBox('Update Cover when Updating Metadata?',self)
-        self.updatecover.setToolTip('Update cover image when metadata is updated.  EPUB only.')
+        self.updatecover.setToolTip("Update cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
         self.updatecover.setChecked(prefs['updatecover'])
         self.l.addWidget(self.updatecover)
 
