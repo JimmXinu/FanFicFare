@@ -13,7 +13,7 @@ from PyQt4 import QtGui
 from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
                       QPushButton, QProgressDialog, QString, QLabel, QCheckBox, QIcon, QTextCursor,
                       QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, QVariant,
-                      QProgressDialog, QTimer, QDialogButtonBox, QPixmap, Qt,QAbstractItemView )
+                      QProgressDialog, QTimer, QDialogButtonBox, QPixmap, Qt, QAbstractItemView )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -71,6 +71,9 @@ class AddNewDialog(SizePersistedDialog):
         SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:add new dialog')
         self.gui = gui
 
+        if prefs['adddialogstatsontop']:
+            QDialog.setWindowFlags ( self, Qt.Dialog|Qt.WindowStaysOnTopHint )
+        
         self.setMinimumWidth(300)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
