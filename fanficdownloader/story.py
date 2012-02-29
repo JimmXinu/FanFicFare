@@ -315,7 +315,7 @@ class Story:
                 return "failedtoload"
             
             # explicit cover, make the first image.
-            if cover:
+            if cover and not configurable.getConfig('never_make_cover'):
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
                     del self.imgurls[0]
@@ -327,7 +327,9 @@ class Story:
             else:
                 self.imgurls.append(imgurl)
                 # First image, copy not link because calibre will replace with it's cover.
-                if (len(self.imgurls)==1 and configurable.getConfig('make_firstimage_cover')):
+                if len(self.imgurls)==1 and \
+                        configurable.getConfig('make_firstimage_cover') and \
+                        not configurable.getConfig('never_make_cover'):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})

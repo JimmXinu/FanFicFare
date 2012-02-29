@@ -272,8 +272,9 @@ class BaseSiteAdapter(Configurable):
             self.story.setMetadata('description',stripHTML(svalue))
         #print("\n\ndescription:\n"+self.story.getMetadata('description')+"\n\n")
 
-    # this gives us a unicode object, not just a string containing bytes.
+    # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
+    # Now also does a bunch of other common processing for us.
     def utf8FromSoup(self,url,soup,fetch=None):
         if not fetch:
             fetch=self._fetchUrlRaw
@@ -294,9 +295,9 @@ class BaseSiteAdapter(Configurable):
             for attr in t._getAttrMap().keys():
                 if attr not in acceptable_attributes:
                     del t[attr] ## strip all tag attributes except href and name
-                    
+
             # these are not acceptable strict XHTML.  But we do already have 
-	    # CSS classes of the same names defined in constants.py
+	    # CSS classes of the same names defined
             if t.name in ('u'):
                 t['class']=t.name
                 t.name='span'
@@ -307,9 +308,16 @@ class BaseSiteAdapter(Configurable):
             if t.string != None and len(t.string.strip()) == 0 :
                 t.extract()
                 
+        retval = soup.__str__('utf8').decode('utf-8')
+
+        if self.getConfig('replace_hr'):
+            # replacing a self-closing tag with a container tag in the
+            # soup is more difficult than it first appears.  So cheat.
+            retval = retval.replace("<hr />","<div class='center'>*   *   *</div>")
+
         # Don't want body tags in chapter html--writers add them.
         # This is primarily for epub updates.
-        return re.sub(r"</?body>\r?\n?","",soup.__str__('utf8').decode('utf-8'))
+        return re.sub(r"</?body>\r?\n?","",retval)
 
 fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
            "June":"06","July":"07", "August":"08", "September":"09", "October":"10",

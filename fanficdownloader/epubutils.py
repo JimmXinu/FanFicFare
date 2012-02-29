@@ -51,7 +51,7 @@ def get_update_data(inputio,
             # Hellmouth, which uses chapter0.html.
             if( item.getAttribute("media-type") == "application/xhtml+xml" ):
                 href=relpath+item.getAttribute("href")
-                print("---- item href:%s path part: %s"%(href,get_path_part(href)))
+                #print("---- item href:%s path part: %s"%(href,get_path_part(href)))
                 if re.match(r'.*/(file|chapter)\d+\.x?html',href):
                     if getsoups:
                         soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"))

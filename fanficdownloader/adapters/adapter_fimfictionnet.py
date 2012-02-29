@@ -102,7 +102,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         for chapter in soup.findAll("a", {"class":"chapter_link"}):
             chapterDates.append(chapter.span.extract().text.strip("()"))
             self.chapterUrls.append((chapter.text.strip(), "http://"+self.getSiteDomain() + chapter['href']))
-        
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
         for character in [character_icon['title'] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
@@ -157,14 +157,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         now = datetime.datetime.now()
         
-        # Get the date of creation from the first chapter
-        datePublished_text = chapterDates[0]
-        day, month = datePublished_text.split()
-        day = re.sub(r"[^\d.]+", '', day)
-        datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
-        if datePublished > now :
-            datePublished = datePublished.replace(year=now.year-1)
-        self.story.setMetadata("datePublished", datePublished)
         dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
         dateUpdated_soup.find('span').extract()
         dateUpdated = makeDate("%s%s"%(now.year,dateUpdated_soup.text), "%Y%b%d")
@@ -172,6 +164,18 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             dateUpdated = datePublished.replace(year=now.year-1)
         self.story.setMetadata("dateUpdated", dateUpdated)
         
+        # Get the date of creation from the first chapter
+        if len(chapterDates) > 0:
+            datePublished_text = chapterDates[0]
+            day, month = datePublished_text.split()
+            day = re.sub(r"[^\d.]+", '', day)
+            datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
+            if datePublished > now :
+                datePublished = datePublished.replace(year=now.year-1)
+            self.story.setMetadata("datePublished", datePublished)
+        else:
+            self.story.setMetadata("datePublished", dateUpdated)
+            
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
         soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'id' : 'chapter_container'})
