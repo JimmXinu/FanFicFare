@@ -83,9 +83,20 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
+
+        if "/images/missing_story.png" in data:
+            raise exceptions.StoryDoesNotExist(self.url)
         
         if "This story has been marked as having adult content." in data:
             raise exceptions.AdultCheckRequired(self.url)
+
+        if self.password:
+            params = {}
+            params['password'] = self.password
+            data = self._postUrl(self.url,params)
+
+        if "Enter the password the author set for this story to view it." in data:
+            raise exceptions.FailedToLogin(self.url,"Story requires individual password")
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
 
@@ -161,7 +172,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         dateUpdated_soup.find('span').extract()
         dateUpdated = makeDate("%s%s"%(now.year,dateUpdated_soup.text), "%Y%b%d")
         if dateUpdated > now :
-            dateUpdated = datePublished.replace(year=now.year-1)
+            dateUpdated = dateUpdated.replace(year=now.year-1)
         self.story.setMetadata("dateUpdated", dateUpdated)
         
         # Get the date of creation from the first chapter
