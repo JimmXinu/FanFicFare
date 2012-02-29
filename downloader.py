@@ -63,7 +63,7 @@ def main():
                      help="Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.",)
    parser.add_option("-u", "--update-epub",
                      action="store_true", dest="update",
-                     help="Update an existing epub with new chapter, give epub filename instead of storyurl.  Not compatible with inserted TOC.",)
+                     help="Update an existing epub with new chapter, give epub filename instead of storyurl.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
                      help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
