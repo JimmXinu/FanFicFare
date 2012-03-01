@@ -71,7 +71,7 @@ class AddNewDialog(SizePersistedDialog):
         SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:add new dialog')
         self.gui = gui
 
-        if prefs['adddialogstatsontop']:
+        if prefs['adddialogstaysontop']:
             QDialog.setWindowFlags ( self, Qt.Dialog|Qt.WindowStaysOnTopHint )
         
         self.setMinimumWidth(300)
