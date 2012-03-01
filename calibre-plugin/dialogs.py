@@ -159,25 +159,40 @@ class AddNewDialog(SizePersistedDialog):
 
     def get_urlstext(self):
         return unicode(self.url.toPlainText())
-        
+
+
+class FakeLineEdit():
+    def __init__(self):
+        pass
+    
+    def text(self):
+        pass
+    
 class UserPassDialog(QDialog):
     '''
     Need to collect User/Pass for some sites.
     '''
-    def __init__(self, gui, site):
+    def __init__(self, gui, site, exception=None):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.status=False
-        self.setWindowTitle('User/Password')
 
         self.l = QGridLayout()
         self.setLayout(self.l)
 
-        self.l.addWidget(QLabel("%s requires you to login to download this story."%site),0,0,1,2)
+        if exception.passwdonly:
+            self.setWindowTitle('Password')
+            self.l.addWidget(QLabel("Author requires a password for this story(%s)."%exception.url),0,0,1,2)
+            # user isn't used, but it's easier to still have it for
+            # post processing.
+            self.user = FakeLineEdit()
+        else:
+            self.setWindowTitle('User/Password')
+            self.l.addWidget(QLabel("%s requires you to login to download this story."%site),0,0,1,2)
         
-        self.l.addWidget(QLabel("User:"),1,0)
-        self.user = QLineEdit(self)
-        self.l.addWidget(self.user,1,1)
+            self.l.addWidget(QLabel("User:"),1,0)
+            self.user = QLineEdit(self)
+            self.l.addWidget(self.user,1,1)
    
         self.l.addWidget(QLabel("Password:"),2,0)
         self.passwd = QLineEdit(self)

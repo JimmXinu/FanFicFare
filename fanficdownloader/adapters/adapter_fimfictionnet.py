@@ -96,7 +96,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             data = self._postUrl(self.url,params)
 
         if "Enter the password the author set for this story to view it." in data:
-            raise exceptions.FailedToLogin(self.url,"Story requires individual password")
+            if self.getConfig('fail_on_password'):
+                raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
+            else:
+                raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
 

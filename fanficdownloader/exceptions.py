@@ -34,12 +34,16 @@ class InvalidStoryURL(Exception):
         return "Bad Story URL: (%s) for site: (%s) Example: (%s)" % (self.url, self.domain, self.example)
 
 class FailedToLogin(Exception):
-    def __init__(self,url,username):
+    def __init__(self,url, username, passwdonly=False):
         self.url=url
         self.username=username
+        self.passwdonly=passwdonly
         
     def __str__(self):
-        return "Failed to Login for URL: (%s) with username: (%s)" % (self.url, self.username)
+        if self.passwdonly:
+            return "URL Failed, password required: (%s) " % (self.url)
+        else:
+            return "Failed to Login for URL: (%s) with username: (%s)" % (self.url, self.username)
 
 class AdultCheckRequired(Exception):
     def __init__(self,url):
