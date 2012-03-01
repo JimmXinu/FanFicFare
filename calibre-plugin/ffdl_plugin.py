@@ -220,7 +220,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         text = get_resources('about.txt')
         AboutDialog(self.gui,self.qaction.icon(),self.version + text).exec_()
-        
+
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
@@ -413,6 +413,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         adapter = adapters.getAdapter(ffdlconfig,url,fileform)
 
         options['personal.ini'] = prefs['personal.ini']
+        if prefs['includeimages']:
+            # this is a cheat to make it easier for users.
+            options['personal.ini'] = '''[defaults]
+include_images:true
+keep_summary_html:true
+make_firstimage_cover:true
+''' + options['personal.ini']
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
@@ -441,7 +448,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
-        book['tags'] = writer.getTags()
+        book['tags'] = writer.getTags() # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
         book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
         book['series'] = story.getMetadata("series")
         
