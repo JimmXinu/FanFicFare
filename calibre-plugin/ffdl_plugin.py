@@ -419,9 +419,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         for x in range(0,2):
             try:
                 adapter.getStoryMetadataOnly()
-            except exceptions.FailedToLogin:
+            except exceptions.FailedToLogin, f:
                 print("Login Failed, Need Username/Password.")
-                userpass = UserPassDialog(self.gui,url)
+                userpass = UserPassDialog(self.gui,url,f)
                 userpass.exec_() # exec_ will make it act modal
                 if userpass.status:
                     adapter.username = userpass.user.text()

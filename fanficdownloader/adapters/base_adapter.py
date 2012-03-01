@@ -313,7 +313,7 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the
             # soup is more difficult than it first appears.  So cheat.
-            retval = retval.replace("<hr />","<div class='center'>*   *   *</div>")
+            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
 
         # Don't want body tags in chapter html--writers add them.
         # This is primarily for epub updates.

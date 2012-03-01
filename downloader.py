@@ -137,10 +137,13 @@ def main():
        for x in range(0,2):
            try:
                adapter.getStoryMetadataOnly()
-           except exceptions.FailedToLogin:
-               print "Login Failed, Need Username/Password."
-               sys.stdout.write("Username: ")
-               adapter.username = sys.stdin.readline().strip()
+           except exceptions.FailedToLogin, f:
+               if f.passwdonly:
+                   print "Story requires a password."
+               else:
+                   print "Login Failed, Need Username/Password."
+                   sys.stdout.write("Username: ")
+                   adapter.username = sys.stdin.readline().strip()
                adapter.password = getpass.getpass(prompt='Password: ')
                #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
            except exceptions.AdultCheckRequired:
