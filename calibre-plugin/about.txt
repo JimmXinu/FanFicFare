@@ -16,5 +16,5 @@ The official distro channel for this plugin is there: <a href="http://www.mobile
 group</a> for the downloader.  That covers the web application and CLI, too.
 </p>
 
-The source for this plugin is available
-<a href="http://code.google.com/p/fanficdownloader/source/checkout">here</a>.
+The source for this plugin is available at it's 
+<a href="http://code.google.com/p/fanficdownloader">project home</a>.
