@@ -26,7 +26,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FimFictionNetSiteAdapter
@@ -83,9 +83,23 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
+
+        if "/images/missing_story.png" in data:
+            raise exceptions.StoryDoesNotExist(self.url)
         
         if "This story has been marked as having adult content." in data:
             raise exceptions.AdultCheckRequired(self.url)
+
+        if self.password:
+            params = {}
+            params['password'] = self.password
+            data = self._postUrl(self.url,params)
+
+        if "Enter the password the author set for this story to view it." in data:
+            if self.getConfig('fail_on_password'):
+                raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
+            else:
+                raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
 
@@ -102,7 +116,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         for chapter in soup.findAll("a", {"class":"chapter_link"}):
             chapterDates.append(chapter.span.extract().text.strip("()"))
             self.chapterUrls.append((chapter.text.strip(), "http://"+self.getSiteDomain() + chapter['href']))
-        
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
         for character in [character_icon['title'] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
@@ -141,7 +155,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             description_soup.find('a', {"class":"more"}).extract()
         except:
             pass
-        self.story.setMetadata('description', description_soup.text)
+
+        # fimfic is the first site with an explicit cover image.
+        story_img = soup.find('img',{'class':'story_image'})
+        if self.getConfig('include_images') and story_img:
+            self.story.addImgUrl(self,self.url,story_img['src'],self._fetchUrlRaw,cover=True)
+        self.setDescription(self.url,description_soup.text)
+        #self.story.setMetadata('description', description_soup.text)
         
         # Unfortunately, nowhere on the page is the year mentioned.
         # Best effort to deal with this:
@@ -151,25 +171,29 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         now = datetime.datetime.now()
         
-        # Get the date of creation from the first chapter
-        datePublished_text = chapterDates[0]
-        day, month = datePublished_text.split()
-        day = re.sub(r"[^\d.]+", '', day)
-        datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
-        if datePublished > now :
-            datePublished = datePublished.replace(year=now.year-1)
-        self.story.setMetadata("datePublished", datePublished)
         dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
         dateUpdated_soup.find('span').extract()
         dateUpdated = makeDate("%s%s"%(now.year,dateUpdated_soup.text), "%Y%b%d")
         if dateUpdated > now :
-            dateUpdated = datePublished.replace(year=now.year-1)
+            dateUpdated = dateUpdated.replace(year=now.year-1)
         self.story.setMetadata("dateUpdated", dateUpdated)
         
+        # Get the date of creation from the first chapter
+        if len(chapterDates) > 0:
+            datePublished_text = chapterDates[0]
+            day, month = datePublished_text.split()
+            day = re.sub(r"[^\d.]+", '', day)
+            datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
+            if datePublished > now :
+                datePublished = datePublished.replace(year=now.year-1)
+            self.story.setMetadata("datePublished", datePublished)
+        else:
+            self.story.setMetadata("datePublished", dateUpdated)
+            
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
         soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'id' : 'chapter_container'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        return utf8FromSoup(soup)
+        return self.utf8FromSoup(url,soup)
         

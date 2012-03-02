@@ -24,7 +24,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ArchiveOfOurOwnOrgAdapter
@@ -126,7 +126,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         a = metasoup.find('blockquote',{'class':'userstuff'})
         if a != None:
-            self.story.setMetadata('description',a.text)
+            self.setDescription(url,a.text)
+            #self.story.setMetadata('description',a.text)
 		
         a = metasoup.find('dd',{'class':"rating tags"})
         if a != None:
@@ -216,7 +217,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         logging.debug('Getting chapter text from: %s' % url)
 		
         chapter=bs.BeautifulSoup('<div class="story"></div>')
-        soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr'))
+        data = self._fetchUrl(url)
+        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr'))
 		
         headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
         if headnotes != None:
@@ -257,5 +259,5 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 			
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return utf8FromSoup(chapter)
+
+        return self.utf8FromSoup(url,chapter)

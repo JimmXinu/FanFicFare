@@ -20,6 +20,7 @@ import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
+import urllib
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -59,6 +60,10 @@ class EpubWriter(BaseStoryWriter):
 <b>${label}:</b> ${value}<br />
 ''')
 
+        self.EPUB_NO_TITLE_ENTRY = string.Template('''
+${value}<br />
+''')
+
         self.EPUB_TITLE_PAGE_END = string.Template('''
 </div>
 
@@ -84,6 +89,10 @@ class EpubWriter(BaseStoryWriter):
 
         self.EPUB_TABLE_TITLE_WIDE_ENTRY = string.Template('''
 <tr><td colspan="2"><b>${label}:</b> ${value}</td></tr>
+''')
+
+        self.EPUB_TABLE_NO_TITLE_ENTRY = string.Template('''
+<tr><td colspan="2">${label}${value}</td></tr>
 ''')
 
         self.EPUB_TABLE_TITLE_PAGE_END = string.Template('''
@@ -252,7 +261,54 @@ class EpubWriter(BaseStoryWriter):
         itemrefs = [] # list of strings -- idrefs from .opfs' spines
         items.append(("ncx","toc.ncx","application/x-dtbncx+xml",None)) ## we'll generate the toc.ncx file,
                                                                    ## but it needs to be in the items manifest.
+
+        if self.getConfig('include_images'):
+            imgcount=0
+            for imgmap in self.story.getImgUrls():
+                imgfile = "OEBPS/"+imgmap['newsrc']
+                outputepub.writestr(imgfile,imgmap['data'])
+                items.append(("image%04d"%imgcount,
+                              imgfile,
+                              imgmap['mime'],
+                              None))
+                imgcount+=1
+
+        
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
+
+        guide = None
+        coverIO = None
+
+        if self.story.cover:
+            # Note that the id of the cover xhmtl *must* be 'cover'
+            # for it to work on Nook.
+            items.append(("cover","OEBPS/cover.xhtml","application/xhtml+xml",None))
+            itemrefs.append("cover")
+            # 
+            # <meta name="cover" content="cover.jpg"/>
+            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0000",
+                                                           "name":"cover"}))
+            # cover stuff for later:
+            # at end of <package>:
+            # <guide>
+            # <reference type="cover" title="Cover" href="Text/cover.xhtml"/>
+            # </guide>
+            guide = newTag(contentdom,"guide")
+            guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
+                                                       "title":"Cover",
+                                                       "href":"OEBPS/cover.xhtml"}))
+            
+            coverIO = StringIO.StringIO()
+            coverIO.write('''
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Cover</title><style type="text/css" title="override_css">
+@page {padding: 0pt; margin:0pt}
+body { text-align: center; padding:0pt; margin: 0pt; }
+div { margin: 0pt; padding: 0pt; }
+</style></head><body><div>
+<img src="%s" alt="cover"/>
+</div></body></html>
+'''%self.story.cover)
+            
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
@@ -283,8 +339,18 @@ class EpubWriter(BaseStoryWriter):
             spine.appendChild(newTag(contentdom,"itemref",
                                      attrs={"idref":itemref,
                                             "linear":"yes"}))
+        # guide only exists if there's a cover.
+        if guide:
+            package.appendChild(guide)
+            
         # write content.opf to zip.
-        outputepub.writestr("content.opf",contentdom.toxml(encoding='utf-8'))
+        contentxml = contentdom.toxml(encoding='utf-8')
+        
+        # tweak for brain damaged Nook STR.  Nook insists on name before content.
+        contentxml = contentxml.replace('<meta content="image0000" name="cover"/>',
+                                        '<meta name="cover" content="image0000"/>')
+        outputepub.writestr("content.opf",contentxml)
+
         contentdom.unlink()
         del contentdom
 
@@ -320,7 +386,7 @@ class EpubWriter(BaseStoryWriter):
         index=0
         for item in items:
             (id,href,type,title)=item
-            # only items to be skipped, toc.ncx, stylesheet.css, should have no title.
+            # only items to be skipped, cover.xhtml, images, toc.ncx, stylesheet.css, should have no title.
             if title :
                 navPoint = newTag(tocncxdom,"navPoint",
                                   attrs={'id':id,
@@ -333,7 +399,7 @@ class EpubWriter(BaseStoryWriter):
                 navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
                 index=index+1
         
-        # write toc.ncs to zip file
+        # write toc.ncx to zip file
         outputepub.writestr("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
         tocncxdom.unlink()
         del tocncxdom
@@ -346,19 +412,26 @@ class EpubWriter(BaseStoryWriter):
             TITLE_PAGE_START  = self.EPUB_TABLE_TITLE_PAGE_START
             TITLE_ENTRY       = self.EPUB_TABLE_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.EPUB_TABLE_TITLE_WIDE_ENTRY
+            NO_TITLE_ENTRY    = self.EPUB_TABLE_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TABLE_TITLE_PAGE_END
         else:
             TITLE_PAGE_START  = self.EPUB_TITLE_PAGE_START
             TITLE_ENTRY       = self.EPUB_TITLE_ENTRY
             WIDE_TITLE_ENTRY  = self.EPUB_TITLE_ENTRY # same, only wide in tables.
+            NO_TITLE_ENTRY    = self.EPUB_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
-        
+
+        if coverIO:
+            outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
+            coverIO.close()
+            
         titlepageIO = StringIO.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
                             WIDE_ENTRY=WIDE_TITLE_ENTRY,
-                            END=TITLE_PAGE_END)
+                            END=TITLE_PAGE_END,
+                            NO_TITLE_ENTRY=NO_TITLE_ENTRY)
         if titlepageIO.getvalue(): # will be false if no title page.
             outputepub.writestr("OEBPS/title_page.xhtml",titlepageIO.getvalue())
         titlepageIO.close()
@@ -384,7 +457,7 @@ class EpubWriter(BaseStoryWriter):
                 fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
                 outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
                 del fullhtml
- 
+
 	# declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.
         for zf in outputepub.filelist:

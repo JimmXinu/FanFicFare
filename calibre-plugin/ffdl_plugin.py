@@ -15,6 +15,10 @@ from datetime import datetime
 
 from PyQt4.Qt import (QApplication, QMenu, QToolButton)
 
+from PyQt4.Qt import QPixmap, Qt
+from PyQt4.QtCore import QBuffer
+
+
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
@@ -30,8 +34,8 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
                                          create_menu_action_unique, get_library_uuid)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.epubmerge import doMerge
-from calibre_plugins.fanfictiondownloader_plugin.dcsource import get_dcsource
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount
 
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
@@ -93,6 +97,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # are not found in the zip file will result in null QIcons.
         icon = get_icon('images/icon.png')
 
+        #self.qaction.setText('FFDL')
+        
         # The qaction is automatically created from the action_spec defined
         # above
         self.qaction.setIcon(icon)
@@ -194,9 +200,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                            shortcut_name='About FanFictionDownLoader',
                                                            triggered=self.about)
             
-            # self.update_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-            # self.get_list_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
                 if menu_id not in self.actions_unique_map:
@@ -217,7 +220,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         text = get_resources('about.txt')
         AboutDialog(self.gui,self.qaction.icon(),self.version + text).exec_()
-        
+
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
@@ -236,7 +239,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(self.gui.library_view.get_selected_ids()) > 0 and \
                 (prefs['addtolists'] or prefs['addtoreadlists']) :
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
-        #self.gui.library_view.model().refresh_ids(self.gui.library_view.get_selected_ids())
 
     def get_list_urls(self):
         if len(self.gui.library_view.get_selected_ids()) > 0:
@@ -408,18 +410,25 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ffdlconfig = SafeConfigParser()
         ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(prefs['personal.ini']))
-        adapter = adapters.getAdapter(ffdlconfig,url)
+        adapter = adapters.getAdapter(ffdlconfig,url,fileform)
 
         options['personal.ini'] = prefs['personal.ini']
+        if prefs['includeimages']:
+            # this is a cheat to make it easier for users.
+            options['personal.ini'] = '''[defaults]
+include_images:true
+keep_summary_html:true
+make_firstimage_cover:true
+''' + options['personal.ini']
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
         for x in range(0,2):
             try:
                 adapter.getStoryMetadataOnly()
-            except exceptions.FailedToLogin:
+            except exceptions.FailedToLogin, f:
                 print("Login Failed, Need Username/Password.")
-                userpass = UserPassDialog(self.gui,url)
+                userpass = UserPassDialog(self.gui,url,f)
                 userpass.exec_() # exec_ will make it act modal
                 if userpass.status:
                     adapter.username = userpass.user.text()
@@ -439,8 +448,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
-        book['tags'] = writer.getTags()
-        book['comments'] = story.getMetadata("description") #, removeallentities=True) comments handles entities better.
+        book['tags'] = writer.getTags() # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
+        book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
         book['series'] = story.getMetadata("series")
         
         # adapter.opener is the element with a threadlock.  But del
@@ -517,13 +526,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 # 'book' can exist without epub.  If there's no existing epub,
                 # let it go and it will download it.
                 if db.has_format(book_id,fileform,index_is_id=True):
-                    toupdateio = StringIO()
-                    (epuburl,chaptercount) = doMerge(toupdateio,
-                                                     [StringIO(db.format(book_id,'EPUB',
-                                                                              index_is_id=True))],
-                                                     titlenavpoints=False,
-                                                     striptitletoc=True,
-                                                     forceunique=False)
+                    (epuburl,chaptercount) = \
+                        get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
+                                                                     index_is_id=True)))
                     urlchaptercount = int(story.getMetadata('numChapters'))
                     if chaptercount == urlchaptercount:
                         if collision == UPDATE:
@@ -630,7 +635,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if options['collision'] == CALIBREONLY or \
                 (options['updatemeta'] and book['good']):
-            self._update_metadata(db, book['calibre_id'], book, mi)        
+            self._update_metadata(db, book['calibre_id'], book, mi, options)
 
     def _update_books_completed(self, book_list, options={}):
         
@@ -648,6 +653,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         current = self.gui.library_view.currentIndex()
         self.gui.library_view.model().current_changed(current, self.previous)
         self.gui.tags_view.recount()
+        
+        if self.gui.cover_flow:
+            self.gui.cover_flow.dataChanged()
         
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
@@ -729,7 +737,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
         return book_id
 
-    def _update_metadata(self, db, book_id, book, mi):
+    def _update_metadata(self, db, book_id, book, mi, options):
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
             # remove old Completed/In-Progress only if there's a new one.
@@ -748,6 +756,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             oldmi = db.get_metadata(book_id,index_is_id=True)
             if not oldmi.languages:
                 mi.languages=['eng']
+
+        if options['fileform'] == 'epub' and prefs['updatecover']:
+            existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
+            epubmi = get_metadata(existingepub,'EPUB')
+            if epubmi.cover_data[1] is not None:
+                db.set_cover(book_id, epubmi.cover_data[1])
+            #mi.cover = epubmi.cover_data[1]
                 
         db.set_metadata(book_id,mi)
 
@@ -780,7 +795,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
                 db.set_custom(book_id, val, label=label, commit=False)
-                
+        
         db.commit()
 
     def _get_clean_reading_lists(self,lists):
@@ -900,13 +915,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['added'] = False
         
         return book
-        
-    
-    # def _convert_calibre_ids_to_books(self, db, ids):
-    #     books = []
-    #     for book_id in ids:
-    #         books.append(self._convert_calibre_id_to_book(db,book_id))
-    #     return books
             
     def _populate_book_from_calibre_id(self, book, db=None):
         mi = db.get_metadata(book['calibre_id'], index_is_id=True)

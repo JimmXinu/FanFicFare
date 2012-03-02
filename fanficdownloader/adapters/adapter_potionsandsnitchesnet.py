@@ -25,7 +25,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
 
@@ -131,7 +131,8 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                 while not defaultGetattr(value,'class') == 'listbox':
                     svalue += str(value)
                     value = value.nextSibling
-                self.story.setMetadata('description',stripHTML(svalue))
+                self.setDescription(url,svalue)
+                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -209,7 +210,7 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return utf8FromSoup(div)
+        return self.utf8FromSoup(url,div)
 
 def getClass():
     return PotionsAndSnitchesNetSiteAdapter

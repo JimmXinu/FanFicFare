@@ -21,22 +21,35 @@ import ConfigParser
 # inherit from Configurable.  The config file(s) uses ini format:
 # [sections] with key:value settings.
 #
-# There's a [defaults] section which is overriden by the writer's
-# section [epub], which is overriden by the adapter's section for each
-# site.
+# writer does [defaults], [www.whofic.com], [epub], [www.whofic.com:epub], [overrides]
+#
+# Until a write is created, the adapter only has [defaults], [www.whofic.com], [overrides]
 #
 # [defaults]
 # titlepage_entries: category,genre, status
-# [epub]
-# titlepage_entries: category,genre, status,datePublished,dateUpdated,dateCreated
 # [www.whofic.com]
 # titlepage_entries: category,genre, status,dateUpdated,rating
+# [epub]
+# titlepage_entries: category,genre, status,datePublished,dateUpdated,dateCreated
+# [www.whofic.com:epub]
+# titlepage_entries: category,genre, status,datePublished
+# [overrides]
+# titlepage_entries: category
+
 
 class Configurable(object):
 
     def __init__(self, config):
         self.config = config
         self.sectionslist = ['defaults']
+
+    def setSectionOrder(self,site,fileform=None):
+        self.sectionslist = ['defaults']
+        self.addConfigSection(site)
+        if fileform:
+            self.addConfigSection(fileform)
+            self.addConfigSection(site+":"+fileform)
+        self.addConfigSection("overrides")
 
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
