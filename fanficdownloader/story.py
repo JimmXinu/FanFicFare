@@ -187,7 +187,7 @@ class Story:
         try:
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
-            self.metadata = {'version':'4.3'}
+            self.metadata = {'version':'4.4'}
         self.replacements = []
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
