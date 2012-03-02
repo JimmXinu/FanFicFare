@@ -315,6 +315,13 @@ class BaseSiteAdapter(Configurable):
             # soup is more difficult than it first appears.  So cheat.
             retval = retval.replace("<hr />","<div class='center'>* * *</div>")
 
+        if self.getConfig('nook_img_fix'):
+            # if the <img> tag doesn't have a div or a p around it,
+            # nook gets confused and displays it on every page after
+            # that under the text for the rest of the chapter.
+            retval = re.sub(r"(?!<(div|p)>)\s*(?P<imgtag><img[^>]+>)\s*(?!</(div|p)>)",
+                            "<div>\g<imgtag></div>",retval)
+            
         # Don't want body tags in chapter html--writers add them.
         # This is primarily for epub updates.
         return re.sub(r"</?body>\r?\n?","",retval)
