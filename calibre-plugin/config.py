@@ -35,30 +35,39 @@ all_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 # Set defaults used by all.  Library specific settings continue to
 # take from here.
 all_prefs.defaults['personal.ini'] = get_resources('plugin-example.ini')
+
 all_prefs.defaults['updatemeta'] = True
+all_prefs.defaults['updatecover'] = False
 all_prefs.defaults['keeptags'] = False
 all_prefs.defaults['urlsfromclip'] = True
 all_prefs.defaults['updatedefault'] = True
 all_prefs.defaults['fileform'] = 'epub'
 all_prefs.defaults['collision'] = OVERWRITE
 all_prefs.defaults['deleteotherforms'] = False
+all_prefs.defaults['adddialogstaysontop'] = False
+all_prefs.defaults['includeimages'] = False
+
 all_prefs.defaults['send_lists'] = ''
 all_prefs.defaults['read_lists'] = ''
 all_prefs.defaults['addtolists'] = False
 all_prefs.defaults['addtoreadlists'] = False
 all_prefs.defaults['addtolistsonread'] = False
+
 all_prefs.defaults['custom_cols'] = {}
 
 # The list of settings to copy from all_prefs or the previous library
 # when config is called for the first time on a library.
 copylist = ['personal.ini',
             'updatemeta',
+            'updatecover',
             'keeptags',
             'urlsfromclip',
             'updatedefault',
             'fileform',
             'collision',
-            'deleteotherforms']
+            'deleteotherforms',
+            'adddialogstaysontop',
+            'includeimages']
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
@@ -144,10 +153,13 @@ class ConfigWidget(QWidget):
         prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
         prefs['collision'] = unicode(self.basic_tab.collision.currentText())
         prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
+        prefs['updatecover'] = self.basic_tab.updatecover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
+        prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
+        prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
 
         if self.list_tab:
             # lists
@@ -234,6 +246,11 @@ class BasicTab(QWidget):
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
+        self.updatecover = QCheckBox('Update Cover when Updating Metadata?',self)
+        self.updatecover.setToolTip("Update cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
+        self.updatecover.setChecked(prefs['updatecover'])
+        self.l.addWidget(self.updatecover)
+
         self.keeptags = QCheckBox('Keep Existing Tags when Updating Metadata?',self)
         self.keeptags.setToolTip('Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.')
         self.keeptags.setChecked(prefs['keeptags'])
@@ -254,6 +271,17 @@ class BasicTab(QWidget):
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
+        
+        self.adddialogstaysontop = QCheckBox("Keep 'Add New from URL(s)' dialog on top?",self)
+        self.adddialogstaysontop.setToolTip("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it.")
+        self.adddialogstaysontop.setChecked(prefs['adddialogstaysontop'])
+        self.l.addWidget(self.adddialogstaysontop)
+
+        # this is a cheat to make it easier for users to realize there's a new include_images features.
+        self.includeimages = QCheckBox("Include images in EPUBs?",self)
+        self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[defaults]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
+        self.includeimages.setChecked(prefs['includeimages'])
+        self.l.addWidget(self.includeimages)
         
         self.l.insertStretch(-1)
         

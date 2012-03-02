@@ -39,10 +39,11 @@ class BaseStoryWriter(Configurable):
 
     def __init__(self, config, adapter):
         Configurable.__init__(self, config)
-        self.addConfigSection(adapter.getSiteDomain())
-        self.addConfigSection(self.getFormatName())
-        self.addConfigSection(adapter.getSiteDomain()+":"+self.getFormatName())
-        self.addConfigSection("overrides")
+        self.setSectionOrder(adapter.getSiteDomain(),self.getFormatName())
+        # self.addConfigSection(adapter.getSiteDomain())
+        # self.addConfigSection(self.getFormatName())
+        # self.addConfigSection(adapter.getSiteDomain()+":"+self.getFormatName())
+        # self.addConfigSection("overrides")
         
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
@@ -144,7 +145,7 @@ class BaseStoryWriter(Configurable):
     def _write(self, out, text):
         out.write(text.encode('utf8'))
 
-    def writeTitlePage(self, out, START, ENTRY, END, WIDE_ENTRY=None):
+    def writeTitlePage(self, out, START, ENTRY, END, WIDE_ENTRY=None, NO_TITLE_ENTRY=None):
         """
         Write the title page, but only include entries that there's
         metadata for.  START, ENTRY and END are expected to already by
@@ -171,6 +172,12 @@ class BaseStoryWriter(Configurable):
                             label=self.getConfig(entry+"_label")
                         else:
                             label=self.titleLabels[entry]
+
+                        # If the label for the title entry is empty, use the
+                        # 'no title' option if there is one.  
+                        if label == "" and NO_TITLE_ENTRY:
+                           TEMPLATE= NO_TITLE_ENTRY
+                           
                         self._write(out,TEMPLATE.substitute({'label':label,
                                                              'value':self.story.getMetadata(entry)}))
 

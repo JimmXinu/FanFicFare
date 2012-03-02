@@ -25,18 +25,15 @@ from StringIO import StringIO
 from optparse import OptionParser      
 import getpass
 import string
-
+import ConfigParser
 from subprocess import call
 
-from epubmerge import doMerge
+from fanficdownloader import adapters,writers,exceptions
+from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
     sys.exit(1)
-
-from fanficdownloader import adapters,writers,exceptions
-
-import ConfigParser
 
 def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     writer = writers.getWriter(writeformat,config,adapter)
@@ -66,7 +63,7 @@ def main():
                      help="Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.",)
    parser.add_option("-u", "--update-epub",
                      action="store_true", dest="update",
-                     help="Update an existing epub with new chapter, give epub filename instead of storyurl.  Not compatible with inserted TOC.",)
+                     help="Update an existing epub with new chapter, give epub filename instead of storyurl.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
                      help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
@@ -116,29 +113,37 @@ def main():
    try:
        ## Attempt to update an existing epub.
        if options.update:
-           updateio = StringIO()
-           (url,chaptercount) = doMerge(updateio,
-                                        args,
-                                        titlenavpoints=False,
-                                        striptitletoc=True,
-                                        forceunique=False)
+           (url,chaptercount) = get_dcsource_chaptercount(args[0])
            print "Updating %s, URL: %s" % (args[0],url)
            output_filename = args[0]
            config.set("overrides","output_filename",args[0])
        else:
            url = args[0]
 
-       adapter = adapters.getAdapter(config,url)
+       adapter = adapters.getAdapter(config,url,options.format)
+
+       ## Check for include_images and absence of PIL, give warning.
+       if adapter.getConfig('include_images'):
+           try:
+               import Image
+           except:
+               print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
+               if not sys.stdin.readline().strip().lower().startswith('y'):
+                   return
+               
 
        ## three tries, that's enough if both user/pass & is_adult needed,
        ## or a couple tries of one or the other
        for x in range(0,2):
            try:
                adapter.getStoryMetadataOnly()
-           except exceptions.FailedToLogin:
-               print "Login Failed, Need Username/Password."
-               sys.stdout.write("Username: ")
-               adapter.username = sys.stdin.readline().strip()
+           except exceptions.FailedToLogin, f:
+               if f.passwdonly:
+                   print "Story requires a password."
+               else:
+                   print "Login Failed, Need Username/Password."
+                   sys.stdout.write("Username: ")
+                   adapter.username = sys.stdin.readline().strip()
                adapter.password = getpass.getpass(prompt='Password: ')
                #print("Login: `%s`, Password: `%s`" % (adapter.username, adapter.password))
            except exceptions.AdultCheckRequired:
@@ -155,40 +160,17 @@ def main():
                print "%s contains %d chapters, more than source: %d." % (args[0],chaptercount,urlchaptercount)
            else:
                print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
-               ## Get updated title page/metadata by itself in an epub.
-               ## Even if the title page isn't included, this carries the metadata.
-               titleio = StringIO()
-               writeStory(config,adapter,"epub",metaonly=True,outstream=titleio)
-
-               newchaptersio = None
                if not options.metaonly:
-                   ## Go get the new chapters only in another epub.
-                   newchaptersio = StringIO()
-                   adapter.setChaptersRange(chaptercount+1,urlchaptercount)
-                   config.set("overrides",'include_tocpage','false')
-                   config.set("overrides",'include_titlepage','false')
-                   writeStory(config,adapter,"epub",outstream=newchaptersio)
-               
-               # out = open("testing/titleio.epub","wb")
-               # out.write(titleio.getvalue())
-               # out.close()
-               
-               # out = open("testing/updateio.epub","wb")
-               # out.write(updateio.getvalue())
-               # out.close()
-               
-               # out = open("testing/newchaptersio.epub","wb")
-               # out.write(newchaptersio.getvalue())
-               # out.close()
-               
-               ## Merge the three epubs together.
-               doMerge(args[0],
-                       [titleio,updateio,newchaptersio],
-                       fromfirst=True,
-                       titlenavpoints=False,
-                       striptitletoc=False,
-                       forceunique=False)
 
+                   # update now handled by pre-populating the old
+                   # images and chapters in the adapter rather than
+                   # merging epubs.
+                   (url,chaptercount,
+                    adapter.oldchapters,
+                    adapter.oldimgs) = get_update_data(args[0])
+
+                   writeStory(config,adapter,"epub")
+                   
        else:
            # regular download
            if options.metaonly:

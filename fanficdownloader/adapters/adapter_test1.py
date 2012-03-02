@@ -22,7 +22,7 @@ import logging
 from .. import BeautifulSoup as bs
 from .. import exceptions
 
-from base_adapter import BaseSiteAdapter, utf8FromSoup, makeDate
+from base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 
@@ -78,7 +78,6 @@ class TestSiteAdapter(BaseSiteAdapter):
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
         self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
-        self.story.setMetadata('dateCreated',datetime.datetime.now())
         if self.story.getMetadata('storyId') == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
@@ -127,7 +126,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 4',self.url+"&chapter=5"),
                             ('Chapter 5',self.url+"&chapter=6"),
                             ('Chapter 6',self.url+"&chapter=6"),
-                            ('Chapter 7',self.url+"&chapter=6"),
+                            # ('Chapter 7',self.url+"&chapter=6"),
                             # ('Chapter 8',self.url+"&chapter=6"),
                             # ('Chapter 9',self.url+"&chapter=6"),
                             # ('Chapter 0',self.url+"&chapter=6"),
@@ -178,20 +177,22 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             text=u'''
 <div>
-<h3>Chapter</h3>
+<h3>Chapter title from site</h3>
 <p><center>Centered text</center></p>
 <p>Lorem '''+self.crazystring+''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
+
+<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a><br/>
 br breaks<br><br>
 <hr>
 horizontal rules
-<hr>
+<hr size=1 noshade>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 </div>
 '''
         soup = bs.BeautifulStoneSoup(text,selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        return utf8FromSoup(soup)
+        return self.utf8FromSoup(url,soup)
 
 def getClass():
     return TestSiteAdapter
