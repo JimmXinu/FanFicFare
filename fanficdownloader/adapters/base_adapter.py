@@ -285,7 +285,7 @@ class BaseSiteAdapter(Configurable):
             acceptable_attributes.extend(('src','alt','longdesc'))
             for img in soup.findAll('img'):
                 # some pre-existing epubs have img tags that had src stripped off.
-                if 'src' in img:
+                if img.has_key('src'):
                     img['longdesc']=img['src']
                     img['src']=self.story.addImgUrl(self,url,img['src'],fetch)
 
