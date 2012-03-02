@@ -56,6 +56,8 @@ def get_update_data(inputio,
                     if getsoups:
                         soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"))
                         for img in soup.findAll('img'):
+                            newsrc=''
+                            longdesc=''
                             try:
                                 newsrc=get_path_part(href)+img['src']
                                 # remove all .. and the path part above it, if present.
