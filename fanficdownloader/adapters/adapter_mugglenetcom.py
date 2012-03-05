@@ -26,36 +26,16 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
 
-# By virtue of being recent and requiring both is_adult and user/pass,
-# adapter_fanficcastletvnet.py is the best choice for learning to
-# write adapters--especially for sites that use the eFiction system.
-# Most sites that have ".../viewstory.php?sid=123" in the story URL
-# are eFiction.
-
-# For non-eFiction sites, it can be considerably more complex, but
-# this is still a good starting point.
-
-# In general an 'adapter' needs to do these five things:
-
-# - 'Register' correctly with the downloader
-# - Site Login (if needed)
-# - 'Are you adult?' check (if needed--some do one, some the other, some both)
-# - Grab the chapter list
-# - Grab the story meta-data (some (non-eFiction) adapters have to get it from the author page)
-# - Grab the chapter texts
-
-# Search for XXX comments--that's where things are most likely to need changing.
-
 # This function is called by the downloader in all adapter_*.py files
 # in this dir to register the adapter class.  So it needs to be
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return CastleFansOrgAdapter # XXX
+    return MuggleNetComAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
+class MuggleNetComAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -74,66 +54,65 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/fanfic/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','cslf') # XXX
+        self.story.setMetadata('siteabbrev','mgln') # XXX
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
         # do.
-        self.story.addToList("category","Castle") # XXX
+        self.story.addToList("category","Harry Potter") # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%b %d, %Y" # XXX
+        self.dateformat = "%m/%d/%y" # XXX
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'castlefans.org' # XXX
+        return 'fanfiction.mugglenet.com' # XXX
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    ## Login seems to be reasonably standard across eFiction sites.
-    def needToLoginCheck(self, data):
-        if 'Registered Users Only' in data \
-                or 'There is no such account on our website' in data \
-                or "That password doesn't match the one in our database" in data:
-            return True
-        else:
-            return False
+    # ## Login seems to be reasonably standard across eFiction sites.
+    # def needToLoginCheck(self, data):
+    #     if 'Registered Users Only' in data \
+    #             or 'There is no such account on our website' in data \
+    #             or "That password doesn't match the one in our database" in data:
+    #         return True
+    #     else:
+    #         return False
         
-    def performLogin(self, url):
-        params = {}
+    # def performLogin(self, url):
+    #     params = {}
 
-        if self.password:
-            params['penname'] = self.username
-            params['password'] = self.password
-        else:
-            params['penname'] = self.getConfig("username")
-            params['password'] = self.getConfig("password")
-        params['cookiecheck'] = '1'
-        params['submit'] = 'Submit'
+    #     if self.password:
+    #         params['penname'] = self.username
+    #         params['password'] = self.password
+    #     else:
+    #         params['penname'] = self.getConfig("username")
+    #         params['password'] = self.getConfig("password")
+    #     params['cookiecheck'] = '1'
+    #     params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/fanfic/user.php?action=login'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['penname']))
+    #     loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+    #     logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+    #                                                           params['penname']))
     
-        d = self._fetchUrl(loginUrl, params)
+    #     d = self._fetchUrl(loginUrl, params)
     
-        if "Member Account" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['penname']))
-            raise exceptions.FailedToLogin(url,params['penname'])
-            return False
-        else:
-            return True
+    #     if "Member Account" not in d : #Member Account
+    #         logging.info("Failed to login to URL %s as %s" % (loginUrl,
+    #                                                           params['penname']))
+    #         raise exceptions.FailedToLogin(url,params['penname'])
+    #         return False
+    #     else:
+    #         return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -143,7 +122,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=4" # XXX
+            addurl = "&warning=5" # XXX
         else:
             addurl=""
 
@@ -160,17 +139,18 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
+        # if self.needToLoginCheck(data):
+        #     # need to log in for this one.
+        #     self.performLogin(url)
+        #     data = self._fetchUrl(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "Age Consent Required" in data: # XXX 
+        if "This story may contain some sexuality, violence and or profanity not suitable for younger readers." in data: # XXX 
             raise exceptions.AdultCheckRequired(self.url)
-            
+
+        # Dunno if this site uses this or not.
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
@@ -193,7 +173,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfic/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -278,7 +258,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/fanfic/'+a['href']
+            series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
