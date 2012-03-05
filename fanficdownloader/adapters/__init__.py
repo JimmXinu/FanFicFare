@@ -46,6 +46,7 @@ import adapter_siyecouk
 import adapter_archiveofourownorg
 import adapter_ficbooknet
 import adapter_gayauthorsorg
+import adapter_portkeyorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
