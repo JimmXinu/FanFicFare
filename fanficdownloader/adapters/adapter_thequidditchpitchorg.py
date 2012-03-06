@@ -74,11 +74,15 @@ class TheQuidditchPitchOrgAdapter(BaseSiteAdapter): # XXX
         # The site domain.  Does have www here, if it uses it.
         return 'thequidditchpitch.org' # XXX
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.thequidditchpitch.org','thequidditchpitch.org']
+
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
