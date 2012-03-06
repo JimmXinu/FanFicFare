@@ -278,6 +278,9 @@ class Story:
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,configurable,parenturl,url,fetch,cover=False):
+        
+        url = url.strip() # ran across an image with a space in the
+                          # src. Browser handled it, so we'd better, too.
 
         # appengine (web version) isn't allowed to do images--just
         # gets too big too fast and breaks things.
@@ -311,7 +314,7 @@ class Story:
                                                 sizes,
                                                 configurable.getConfig('grayscale_images'))
             except Exception, e:
-                print("Failed to load image, skipping:\n%s\nException: %s"%(imgurl,e))
+                print("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
             
             # explicit cover, make the first image.
