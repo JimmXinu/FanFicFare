@@ -31,11 +31,11 @@ from base_adapter import BaseSiteAdapter,  makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return MuggleNetComAdapter # XXX
+    return TheQuidditchPitchOrgAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class MuggleNetComAdapter(BaseSiteAdapter): # XXX
+class TheQuidditchPitchOrgAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -54,10 +54,11 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
+        # XXX Most sites don't have the  part.  Replace all to remove it usually.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','mgln') # XXX
+        self.story.setMetadata('siteabbrev','tqdpch') # XXX
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
@@ -66,18 +67,53 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%m/%d/%y" # XXX
+        self.dateformat = "%m/%d/%Y" # XXX
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'fanfiction.mugglenet.com' # XXX
+        return 'thequidditchpitch.org' # XXX
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+
+    ## Login seems to be reasonably standard across eFiction sites.
+    def needToLoginCheck(self, data):
+        if 'Registered Users Only - Not suitable for readers under the age of legal consent in their country.' in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database" in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+    
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Member Account" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -87,7 +123,7 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&warning=5" # XXX
+            addurl = "&ageconsent=ok&warning=4" # XXX
         else:
             addurl=""
 
@@ -104,24 +140,30 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "This story may contain some sexuality, violence and or profanity not suitable for younger readers." in data: # XXX 
+        if ("Not suitable for readers under the age of legal consent in their country." in data \
+                or "Not suitable for readers under 16 yrs. \r\nStories may contain violence, slight nudity, and/or sexual situations." in data ) \
+                and not (self.is_adult or self.getConfig("is_adult")): # XXX 
             raise exceptions.AdultCheckRequired(self.url)
-
-        # Dunno if this site uses this or not.
+            
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
-        # print data
+        #print data
 
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')))
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
@@ -180,19 +222,13 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
                 for char in charstext:
                     self.story.addToList('characters',char.string)
 
-            ## Not all sites use Genre, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
                 genrestext = [genre.string for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
                     self.story.addToList('genre',genre.string)
 
-            ## Not all sites use Warnings, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
             if 'Warnings' in label:
                 warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
                 warningstext = [warning.string for warning in warnings]
@@ -239,10 +275,13 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
 
         logging.debug('Getting chapter text from: %s' % url)
 
+        
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-        div = soup.find('div', {'id' : 'story'})
+
+        # span?  Really?  span?  Yeah... I don't think so.
+        div = soup.find('span', {'style' : 'font-size: 100%;'})
+        div.name='div'
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

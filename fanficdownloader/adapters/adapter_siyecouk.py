@@ -45,9 +45,6 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        # self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
-        # self.password = ""
-        # self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
@@ -83,52 +80,8 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
-    # ## Login seems to be reasonably standard across eFiction sites.
-    # def needToLoginCheck(self, data):
-    #     if 'Registered Users Only' in data \
-    #             or 'There is no such account on our website' in data \
-    #             or "That password doesn't match the one in our database" in data:
-    #         return True
-    #     else:
-    #         return False
-        
-    # def performLogin(self, url):
-    #     params = {}
-
-    #     if self.password:
-    #         params['penname'] = self.username
-    #         params['password'] = self.password
-    #     else:
-    #         params['penname'] = self.getConfig("username")
-    #         params['password'] = self.getConfig("password")
-    #     params['cookiecheck'] = '1'
-    #     params['submit'] = 'Submit'
-    
-    #     loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
-    #     logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-    #                                                           params['penname']))
-    
-    #     d = self._fetchUrl(loginUrl, params)
-    
-    #     if "Member Account" not in d : #Member Account
-    #         logging.info("Failed to login to URL %s as %s" % (loginUrl,
-    #                                                           params['penname']))
-    #         raise exceptions.FailedToLogin(url,params['penname'])
-    #         return False
-    #     else:
-    #         return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
-
-        # if self.is_adult or self.getConfig("is_adult"):
-        #     # Weirdly, different sites use different warning numbers.
-        #     # If the title search below fails, there's a good chance
-        #     # you need a different number.  print data at that point
-        #     # and see what the 'click here to continue' url says.
-        #     addurl = "&ageconsent=ok&warning=4" # XXX
-        # else:
-        #     addurl=""
 
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
@@ -144,20 +97,6 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
-        # if self.needToLoginCheck(data):
-        #     # need to log in for this one.
-        #     self.performLogin(url)
-        #     data = self._fetchUrl(url)
-
-        # # The actual text that is used to announce you need to be an
-        # # adult varies from site to site.  Again, print data before
-        # # the title search to troubleshoot.
-        # if "Age Consent Required" in data: # XXX 
-        #     raise exceptions.AdultCheckRequired(self.url)
-            
-        # if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-        #     raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
         # print data

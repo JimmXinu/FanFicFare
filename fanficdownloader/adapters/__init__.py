@@ -27,7 +27,6 @@ from .. import exceptions as exceptions
 import adapter_test1
 import adapter_fanfictionnet
 import adapter_castlefansorg
-import adapter_fanfictionnet
 import adapter_fictionalleyorg
 import adapter_fictionpresscom
 import adapter_ficwadcom
@@ -49,6 +48,7 @@ import adapter_gayauthorsorg
 import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
+import adapter_thequidditchpitchorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
