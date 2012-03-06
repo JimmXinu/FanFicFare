@@ -61,14 +61,6 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?"+re.escape("potionsandsnitches.net/fanfiction/viewstory.php?sid=")+r"\d+$"
 
-    def needToLoginCheck(self, data):
-        if 'Registered Users Only' in data \
-                or 'There is no such account on our website' in data \
-                or "That password doesn't match the one in our database" in data:
-          return True
-        else:
-          return False
-
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url+'&index=1'
