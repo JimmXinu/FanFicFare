@@ -179,14 +179,15 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         verticaltable = soup.find('table', {'class':'verticaltable'})
 
         BtVS = True
+        BtVSNonX = False
         for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
             if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
                 self.story.addToList('category',cat.string)
             else:
                 if 'Non-BtVS' in cat.string:
                     BtVS = False
-        if BtVS:
-            self.story.addToList('category','Buffy: The Vampire Slayer')
+                if 'BtVS/AtS Non-Crossover' == cat.string:
+                    BtVSNonX = True
 
         verticaltabletds = verticaltable.findAll('td')
         self.story.setMetadata('rating', verticaltabletds[2].string)
@@ -204,6 +205,13 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         for icon in storydiv.find('span',{'class':'storyicons'}).findAll('img'):
             if( icon['title'] not in ['Non-Crossover'] ) :
                 self.story.addToList('genre',icon['title'])
+            else:
+                if not BtVSNonX:
+                    BtVS = False # Don't add BtVS if Non-Crossover, unless it's a BtVS/AtS Non-Crossover
+
+        print("BtVS: %s BtVSNonX: %s"%(BtVS,BtVSNonX))
+        if BtVS:
+            self.story.addToList('category','Buffy: The Vampire Slayer')
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapnav' } )
