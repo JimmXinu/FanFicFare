@@ -640,12 +640,14 @@ make_firstimage_cover:true
     def _update_books_completed(self, book_list, options={}):
         
         add_list = filter(lambda x : x['good'] and x['added'], book_list)
+        add_ids = [ x['calibre_id'] for x in add_list ]
         update_list = filter(lambda x : x['good'] and not x['added'], book_list)
         update_ids = [ x['calibre_id'] for x in update_list ]
         
         if len(add_list):
             ## even shows up added to searchs.  Nice.
             self.gui.library_view.model().books_added(len(add_list))
+            self.gui.library_view.model().refresh_ids(add_ids)
 
         if update_ids:
             self.gui.library_view.model().refresh_ids(update_ids)
