@@ -258,9 +258,10 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
         #print("soup:%s"%soup)
-        td = soup.find('td', {'class' : 'story'})
+        tag = soup.find('td', {'class' : 'story'})
+        tag.name='div' # force to be a div to avoid problems with nook.
 
-        centers = td.findAll('center')
+        centers = tag.findAll('center')
         # first two and last two center tags are some script, 'report
         # story', 'report story' and an ad.
         centers[0].extract()
@@ -268,7 +269,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         centers[-1].extract()
         centers[-2].extract()
 
-        if None == td:
+        if None == tag:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return self.utf8FromSoup(url,td)
+        return self.utf8FromSoup(url,tag)
