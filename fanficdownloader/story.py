@@ -74,6 +74,9 @@ except:
                 export = True
 
             if normalize_format_name(img.format) != "jpg":
+                if img.mode == "P":
+                    # convert pallete gifs to RGB so jpg save doesn't fail.
+                    img = img.convert("RGB")
                 export = True
 
             if export:
@@ -298,11 +301,17 @@ class Story:
                      url,
                      '','',''))
             else:
+                toppath=""
+                if parsedUrl.path.endswith("/"):
+                    toppath = parsedUrl.path
+                else:
+                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
                 imgurl = urlparse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
-                     parsedUrl.path + url,
+                     toppath + '/' + url,
                      '','',''))
+                #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         prefix='ffdl'
         if imgurl not in self.imgurls:
