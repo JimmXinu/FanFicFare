@@ -38,6 +38,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
         self.story.addToList("category","Twilight")
+        self.is_adult = False
         self.username = "NoneGiven" # if left empty, twiwrite.net doesn't return any message at all.
         self.password = ""
         
@@ -99,7 +100,16 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
 
-        url = self.url+'&index=1'
+        if self.is_adult or self.getConfig("is_adult"):
+            # Weirdly, different sites use different warning numbers.
+            # If the title search below fails, there's a good chance
+            # you need a different number.  print data at that point
+            # and see what the 'click here to continue' url says.
+            addurl = "&ageconsent=ok&warning=1" # XXX
+        else:
+            addurl=""
+            
+        url = self.url+'&index=1'+addurl
         logging.debug("URL: "+url)
 
         try:
@@ -118,6 +128,9 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
+        if "Contains Explicit Content for mature adults only! May contain graphic violence, mature sexual situations, and explicit language. Read with caution." in data:
+            raise exceptions.AdultCheckRequired(self.url)
+        
         # problems with some stories, but only in calibre.  I suspect
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
@@ -139,7 +152,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
