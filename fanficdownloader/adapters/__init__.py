@@ -44,7 +44,6 @@ import adapter_whoficcom
 import adapter_siyecouk
 import adapter_archiveofourownorg
 import adapter_ficbooknet
-import adapter_gayauthorsorg
 import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
