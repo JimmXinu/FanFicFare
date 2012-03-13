@@ -253,12 +253,15 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
     def getChapterText(self, url):
 
         logging.debug('Getting chapter text from: %s' % url)
-
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        data = self._fetchUrl(url)
+        soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 
         #print("soup:%s"%soup)
         tag = soup.find('td', {'class' : 'story'})
+        if tag == None and "<center><b>Chapter does not exist!</b></center>" in data:
+            print("Chapter is missing at: %s"%url)
+            return  self.utf8FromSoup(url,bs.BeautifulStoneSoup("<div><p><center><b>Chapter does not exist!</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
         tag.name='div' # force to be a div to avoid problems with nook.
 
         centers = tag.findAll('center')
