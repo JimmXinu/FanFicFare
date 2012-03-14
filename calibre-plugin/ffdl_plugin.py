@@ -506,8 +506,11 @@ make_firstimage_cover:true
             if len(identicalbooks) > 1:
                 raise NotGoingToDownload("More than one identical book--can't tell which to update/overwrite.","minusminus.png")
 
+            ## changed: add new book when CALIBREONLY if none found.
             if collision == CALIBREONLY and not identicalbooks:
-                raise NotGoingToDownload("Not updating Calibre Metadata, no existing book to update.","search_delete_saved.png")
+                collision = ADDNEW
+                options['collision'] = ADDNEW
+            #     raise NotGoingToDownload("Not updating Calibre Metadata, no existing book to update.","search_delete_saved.png")
 
             if len(identicalbooks)>0:
                 book_id = identicalbooks.pop()
@@ -515,7 +518,7 @@ make_firstimage_cover:true
                 book['icon'] = 'edit-redo.png'
 
         if book_id != None and collision != ADDNEW:
-            if options['collision'] in (CALIBREONLY):
+            if collision in (CALIBREONLY):
                 book['comment'] = 'Metadata collected.'
                 # don't need temp file created below.
                 return
