@@ -48,6 +48,8 @@ import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
 import adapter_thequidditchpitchorg
+import adapter_nfacommunitycom
+import adapter_midnightwhispersca
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
