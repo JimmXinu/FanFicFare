@@ -126,6 +126,10 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        label = QLabel('<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites">List of Supported Sites</a> -- <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>')
+        label.setOpenExternalLinks(True)
+        self.l.addWidget(label)
+
         tab_widget = QTabWidget(self)
         self.l.addWidget(tab_widget)
 

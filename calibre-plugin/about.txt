@@ -18,3 +18,11 @@ group</a> for the downloader.  That covers the web application and CLI, too.
 
 The source for this plugin is available at it's 
 <a href="http://code.google.com/p/fanficdownloader">project home</a>.
+<hr />
+
+<p>
+See the <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites">list of supported sites</a>.
+</p>
+<p>
+Read the <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>.
+</p>
