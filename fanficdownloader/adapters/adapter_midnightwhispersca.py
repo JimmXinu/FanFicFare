@@ -274,12 +274,16 @@ class MidnightwhispersCaAdapter(BaseSiteAdapter): # XXX
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        data = self._fetchUrl(url)
+        soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            if "A fatal MySQL error was encountered" in data:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Database error on the site reported!" % url)
+            else:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
         return self.utf8FromSoup(url,div)

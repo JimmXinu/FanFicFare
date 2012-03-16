@@ -10,5 +10,10 @@ python downloader.py http://www.fanfiction.net/s/5192986/1/A_Fox_in_Tokyo
 
 Do 'python downloader.py -h' for more options.
 
-This tool uses Python 2.5.2, but should work with newer versions of Python.
+This tool uses Python 2.7, but should work with newer versions of Python.
 
+For more information, see:
+
+http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites
+
+http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs
