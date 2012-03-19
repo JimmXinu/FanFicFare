@@ -215,7 +215,9 @@ class BaseSiteAdapter(Configurable):
                     self.getConfig('default_cover_image'):
                 self.story.addImgUrl(self,
                                      None,
-                                     self.getConfig('default_cover_image'),
+                                     #self.getConfig('default_cover_image'),
+                                     self.story.formatFileName(self.getConfig('default_cover_image'),
+                                                               self.getConfig('allow_unsafe_filename')),
                                      self._fetchUrlRaw,
                                      cover=True)
         return self.story
@@ -287,7 +289,8 @@ class BaseSiteAdapter(Configurable):
                 # some pre-existing epubs have img tags that had src stripped off.
                 if img.has_key('src'):
                     img['longdesc']=img['src']
-                    img['src']=self.story.addImgUrl(self,url,img['src'],fetch)
+                    img['src']=self.story.addImgUrl(self,url,img['src'],fetch,
+                                                    coverexclusion=self.getConfig('cover_exclusion_regexp'))
 
         for attr in soup._getAttrMap().keys():
             if attr not in acceptable_attributes:

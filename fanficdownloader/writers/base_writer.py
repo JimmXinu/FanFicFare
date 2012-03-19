@@ -18,7 +18,6 @@
 import re
 import os.path
 import datetime
-import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -123,24 +122,10 @@ class BaseStoryWriter(Configurable):
             return self.getBaseFileName()
 
     def getBaseFileName(self):
-        return self.formatFileName(self.getConfig('output_filename'))
+        return self.story.formatFileName(self.getConfig('output_filename'),self.getConfig('allow_unsafe_filename'))
     
     def getZipFileName(self):
-        return self.formatFileName(self.getConfig('zip_filename'))
-
-    def formatFileName(self,template):
-        values = origvalues = self.story.getAllMetadata()
-        # fall back default:
-        if not template:
-            template="${title}-${siteabbrev}_${storyId}${formatext}"
-
-        if not self.getConfig('allow_unsafe_filename'):
-            values={}
-            pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
-            for k in origvalues.keys():
-                values[k]=re.sub(pattern,'_', removeAllEntities(self.story.getMetadata(k)))
-
-        return string.Template(template).substitute(values).encode('utf8')
+        return self.story.formatFileName(self.getConfig('zip_filename'),self.getConfig('allow_unsafe_filename'))
 
     def _write(self, out, text):
         out.write(text.encode('utf8'))
