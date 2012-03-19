@@ -17,6 +17,7 @@
 
 import os, re
 import urlparse
+import string
 from math import floor
 
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
@@ -278,9 +279,23 @@ class Story:
         "Chapters will be tuples of (title,html)"
         return self.chapters
 
+    def formatFileName(self,template,allowunsafefilename=True):
+        values = origvalues = self.getAllMetadata()
+        # fall back default:
+        if not template:
+            template="${title}-${siteabbrev}_${storyId}${formatext}"
+
+        if not allowunsafefilename:
+            values={}
+            pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
+            for k in origvalues.keys():
+                values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
+
+        return string.Template(template).substitute(values).encode('utf8')
+
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
-    def addImgUrl(self,configurable,parenturl,url,fetch,cover=False):
+    def addImgUrl(self,configurable,parenturl,url,fetch,cover=False,coverexclusion=None):
         
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
@@ -339,9 +354,14 @@ class Story:
             else:
                 self.imgurls.append(imgurl)
                 # First image, copy not link because calibre will replace with it's cover.
-                if len(self.imgurls)==1 and \
+                # Only if: No cover already AND
+                #          make_firstimage_cover AND
+                #          NOT never_make_cover AND
+                #          either no coverexclusion OR coverexclusion doesn't match
+                if self.cover == None and \
                         configurable.getConfig('make_firstimage_cover') and \
-                        not configurable.getConfig('never_make_cover'):
+                        not configurable.getConfig('never_make_cover') and \
+                        (not coverexclusion or not re.search(coverexclusion,imgurl)):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
