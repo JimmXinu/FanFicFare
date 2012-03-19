@@ -79,6 +79,41 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
+    ## Login seems to be reasonably standard across eFiction sites.
+    def needToLoginCheck(self, data):
+        if "class='errortext'>Registered Users Only" in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database" in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login&sid='+self.story.getMetadata('storyId')
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+    
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Member Account" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -87,7 +122,8 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&warning=5" # XXX
+            # http://fanfiction.mugglenet.com/viewstory.php?sid=91079&ageconsent=ok&warning=3
+            addurl = "&ageconsent=ok&warning=3" # XXX  &warning=5
         else:
             addurl=""
 
@@ -104,13 +140,47 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+            #print("\nurl:%s\ndata:\n%s\n"%(url,data))
+
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "This story may contain some sexuality, violence and or profanity not suitable for younger readers." in data: # XXX 
-            raise exceptions.AdultCheckRequired(self.url)
+            
+        # Since the warning text can change by warning level, let's
+        # look for the warning pass url.  nfacommunity uses
+        # &amp;warning= -- actually, so do other sites.  Must be an
+        # eFiction book.
+            
+        # viewstory.php?sid=1882&amp;warning=4
+        # viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
+        #print data
+        #m = re.search(r"'viewstory.php\?sid=1882(&amp;warning=4)'",data)
+        m = re.search(r"'viewstory.php\?sid=%s((?:&amp;ageconsent=ok)?&amp;warning=\d+)'"%self.story.getMetadata('storyId'),data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logging.debug("URL 2nd try: "+url)
 
-        # Dunno if this site uses this or not.
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
+            
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
@@ -137,6 +207,16 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
+
+        # Not good enough-- content can contain a ('), which ends the content prematurely.
+        # metadesc = soup.find('meta',{'name':'description'})
+        # print("removeAllEntities(metadesc['content']):\n%s\n"%removeAllEntities(metadesc['content']))
+        start='<span class="label">Summary: </span>'
+        end='<span class="label">Rated:</span>'
+        summarydata = data[data.index(start)+len(start):data.index(end)]
+        #print("summarydata:\n%s\n"%summarydata)
+        self.setDescription(url,bs.BeautifulSoup(summarydata))
+        
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
 
@@ -153,13 +233,14 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             value = labelspan.nextSibling
             label = labelspan.string
 
-            if 'Summary' in label:
-                ## Everything until the next span class='label'
-                svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
-                    value = value.nextSibling
-                self.setDescription(url,svalue)
+            # not good enough--poorly formated summary html will break it.
+            # if 'Summary' in label:
+            #     ## Everything until the next span class='label'
+            #     svalue = ""
+            #     while not defaultGetattr(value,'class') == 'label':
+            #         svalue += str(value)
+            #         value = value.nextSibling
+            #     self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
