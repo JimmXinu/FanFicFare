@@ -23,11 +23,16 @@ def _unirepl(match):
         radix=16
     else:
         radix=10
-    value = int(match.group(2), radix )
-    return unichr(value)
+    value = int(match.group(2), radix)
+    return "%s%s"%(unichr(value),match.group(3))
 
 def _replaceNumberEntities(data):
-    p = re.compile(r'&#(x?)([0-9a-fA-F]+);')
+    # The same brokenish entity parsing in SGMLParser that inserts ';'
+    # after non-entities will also insert ';' incorrectly after number
+    # entities, including part of the next word if it's a-z.
+    # "Don't&#8212ever&#8212do&#8212that&#8212again," becomes
+    # "Don't&#8212e;ver&#8212d;o&#8212;that&#8212a;gain,"
+    p = re.compile(r'&#(x?)([0-9a-fA-F]{,4})([0-9a-fA-F]*);')
     return p.sub(_unirepl, data)
 
 def _replaceNotEntities(data):
@@ -50,9 +55,6 @@ def removeAllEntities(text):
     return removeEntities(text).replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
 
 def removeEntities(text):
-
-    # replace numeric versions of [&<>] with named versions,
-    # then replace named versions with actual characters,
     
     if text is None:
         return ""
@@ -67,6 +69,8 @@ def removeEntities(text):
         except UnicodeEncodeError, e:
             t = text
     text = t 
+    # replace numeric versions of [&<>] with named versions,
+    # then replace named versions with actual characters,
     text = re.sub(r'&#0*38;','&amp;',text)
     text = re.sub(r'&#0*60;','&lt;',text)
     text = re.sub(r'&#0*62;','&gt;',text)

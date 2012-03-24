@@ -216,7 +216,7 @@ class Story:
         for (p,v) in self.replacements:
             if (isinstance(value,str) or isinstance(value,unicode)) and re.match(p,value):
                 value = re.sub(p,v,value)                
-        return value;
+        return value
         
     def getMetadata(self, key, removeallentities=False):
         value = None
