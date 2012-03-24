@@ -331,10 +331,6 @@ class BaseSiteAdapter(Configurable):
         # This is primarily for epub updates.
         return re.sub(r"</?body>\r?\n?","",retval)
 
-fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
-           "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
-           "November":"11", "December":"12" }
-
 def cachedfetch(realfetch,cache,url):
     if url in cache:
         print("cache hit")
@@ -342,6 +338,9 @@ def cachedfetch(realfetch,cache,url):
     else:
         return realfetch(url)
     
+fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
+           "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
+           "November":"11", "December":"12" }
 
 def makeDate(string,format):
     # Surprise!  Abstracting this turned out to be more useful than
