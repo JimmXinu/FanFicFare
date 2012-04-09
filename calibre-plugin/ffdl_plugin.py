@@ -768,7 +768,13 @@ make_firstimage_cover:true
             if epubmi.cover_data[1] is not None:
                 db.set_cover(book_id, epubmi.cover_data[1])
             #mi.cover = epubmi.cover_data[1]
-                
+
+        # set author link if found.  All current adapters have authorUrl.
+        if 'authorUrl' in book['all_metadata']:
+            autid=db.get_author_id(book['author'])
+            db.set_link_field_for_author(autid, unicode(book['all_metadata']['authorUrl']),
+                                         commit=False, notify=False)
+            
         db.set_metadata(book_id,mi)
 
         # do configured column updates here.
