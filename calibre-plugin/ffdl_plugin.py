@@ -109,6 +109,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Assign our menu to this action
         self.menu = QMenu(self.gui)
         self.old_actions_unique_map = {}
+        # menu_actions is just to keep a live reference to the menu
+        # items to prevent GC removing it.
+        self.menu_actions = []
         self.qaction.setMenu(self.menu)
         self.menu.aboutToShow.connect(self.about_to_show_menu)
 
@@ -135,6 +138,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             do_user_config = self.interface_action_base_plugin.do_user_config
             self.menu.clear()
             self.actions_unique_map = {}
+            self.menu_actions = []
             self.add_action = self.create_menu_item_ex(self.menu, '&Add New from URL(s)', image='plus.png',
                                                        unique_name='Add New FanFiction Book(s) from URL(s)',
                                                        shortcut_name='Add New FanFiction Book(s) from URL(s)',
@@ -227,6 +231,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
                                        shortcut, triggered, is_checked, shortcut_name, unique_name)
         self.actions_unique_map[ac.calibre_shortcut_unique_name] = ac.calibre_shortcut_unique_name
+        self.menu_actions.append(ac)
         return ac
 
     def plugin_button(self):
