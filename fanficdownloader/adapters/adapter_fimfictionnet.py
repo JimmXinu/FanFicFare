@@ -155,11 +155,14 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             description_soup.find('a', {"class":"more"}).extract()
         except:
             pass
-
+        
         # fimfic is the first site with an explicit cover image.
         story_img = soup.find('img',{'class':'story_image'})
         if self.getConfig('include_images') and story_img:
-            self.story.addImgUrl(self,self.url,story_img['src'],self._fetchUrlRaw,cover=True)
+            coverurl = story_img['src']
+            if coverurl.startswith('//static.fimfiction.net'): # fix for img urls missing 'http:'
+                coverurl = "http:"+coverurl
+            self.story.addImgUrl(self,self.url,coverurl,self._fetchUrlRaw,cover=True)
         self.setDescription(self.url,description_soup.text)
         #self.story.setMetadata('description', description_soup.text)
         

@@ -420,7 +420,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         options['personal.ini'] = prefs['personal.ini']
         if prefs['includeimages']:
             # this is a cheat to make it easier for users.
-            options['personal.ini'] = '''[defaults]
+            options['personal.ini'] = '''[epub]
 include_images:true
 keep_summary_html:true
 make_firstimage_cover:true
