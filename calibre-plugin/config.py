@@ -283,7 +283,7 @@ class BasicTab(QWidget):
 
         # this is a cheat to make it easier for users to realize there's a new include_images features.
         self.includeimages = QCheckBox("Include images in EPUBs?",self)
-        self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[defaults]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
+        self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
         self.includeimages.setChecked(prefs['includeimages'])
         self.l.addWidget(self.includeimages)
         
