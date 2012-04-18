@@ -32,7 +32,8 @@ def _replaceNumberEntities(data):
     # entities, including part of the next word if it's a-z.
     # "Don't&#8212ever&#8212do&#8212that&#8212again," becomes
     # "Don't&#8212e;ver&#8212d;o&#8212;that&#8212a;gain,"
-    p = re.compile(r'&#(x?)([0-9a-fA-F]{,4})([0-9a-fA-F]*);')
+    # Also need to allow for 5 digit decimal entities &#27861;
+    p = re.compile(r'&#(x?)([0-9]{,5}|[0-9a-fA-F]{,4})([0-9a-fA-F]*?);')
     return p.sub(_unirepl, data)
 
 def _replaceNotEntities(data):
