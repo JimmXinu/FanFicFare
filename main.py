@@ -303,6 +303,39 @@ class RecentFilesServer(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'recent.html')
         self.response.out.write(template.render(path, template_values))
 
+class AllRecentFilesServer(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+
+        q = SavedMeta.all()
+        if self.request.get('bydate'):
+            q.order('-date')
+        else:
+            q.order('-count')
+            
+        fics = q.fetch(200)
+        logging.info("Recent fetched %d downloads for user %s."%(len(fics),user.nickname()))
+
+        sendslugs = []
+
+        for fic in fics:
+            ficslug = FicSlug(fic)
+            sendslugs.append(ficslug)
+                
+        template_values = dict(fics = sendslugs, nickname = user.nickname())
+        path = os.path.join(os.path.dirname(__file__), 'allrecent.html')
+        self.response.out.write(template.render(path, template_values))
+
+class FicSlug():
+    def __init__(self,savedmeta):
+        self.url = savedmeta.url
+        self.count = savedmeta.count
+        for k, v in savedmeta.meta.iteritems():
+            setattr(self,k,v)
+        
 class FanfictionDownloader(UserConfigServer):
     def get(self):
         self.post()
@@ -464,6 +497,8 @@ class FanfictionDownloaderTask(UserConfigServer):
             download.url = adapter.getStory().getMetadata('storyUrl')
             download.put()
 
+            allmeta = adapter.getStory().getAllMetadata(removeallentities=True,doreplacements=False)
+
             outbuffer = StringIO()
             writer.writeStory(outbuffer)
             data = outbuffer.getvalue()
@@ -495,6 +530,21 @@ class FanfictionDownloaderTask(UserConfigServer):
             download.completed=True
             download.put()
 
+            smetal = SavedMeta.all().filter('url =', allmeta['storyUrl'] ).fetch(1)
+            if smetal and smetal[0]:
+                smeta = smetal[0]
+                smeta.count += 1
+            else:
+                smeta=SavedMeta()
+                smeta.count = 1
+
+            smeta.url = allmeta['storyUrl']
+            smeta.title = allmeta['title']
+            smeta.author = allmeta['author']
+            smeta.meta = allmeta
+            smeta.date = datetime.datetime.now()
+            smeta.put()
+            
             logging.info("Download finished OK")
             del data
 
@@ -563,6 +613,7 @@ app = webapp2.WSGIApplication([('/', MainHandler),
                                ('/fdown', FanfictionDownloader),
                                (r'/file.*', FileServer),
                                ('/status', FileStatusServer),
+                               ('/allrecent', AllRecentFilesServer),
                                ('/recent', RecentFilesServer),
                                ('/editconfig', EditConfigServer),
                                ('/clearrecent', ClearRecentServer),

@@ -1,6 +1,6 @@
 # ffd-retief-hrd fanfictiondownloader
 application: fanfictiondownloader
-version: 4-4-5
+version: 4-4-7
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -35,8 +35,8 @@ handlers:
 - url: /.*
   script: main.app
 
-builtins:
-- datastore_admin: on
+#builtins:
+#- datastore_admin: on
 
 libraries:
 - name: django
