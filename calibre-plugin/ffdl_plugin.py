@@ -793,7 +793,8 @@ make_firstimage_cover:true
                 print("%s not an existing column, skipping."%col)
                 continue
             coldef = custom_columns[col]
-            if not meta.startswith('status-') and meta not in book['all_metadata']:
+            if not meta.startswith('status-') and meta not in book['all_metadata'] or \
+                    meta.startswith('status-') and 'status' not in book['all_metadata']:
                 print("No value for %s, skipping."%meta)
                 continue
             if meta not in permitted_values[coldef['datatype']]:
