@@ -218,7 +218,7 @@ class Story:
                 value = re.sub(p,v,value)                
         return value
         
-    def getMetadata(self, key, removeallentities=False):
+    def getMetadata(self, key, removeallentities=False, doreplacements=True):
         value = None
         if self.getLists().has_key(key):
             value = ', '.join(self.getList(key))
@@ -232,21 +232,22 @@ class Story:
                 if key == "datePublished" or key == "dateUpdated":
                  value = value.strftime("%Y-%m-%d")
 
-        value=self.doReplacments(value)
+        if doreplacements:
+            value=self.doReplacments(value)
         if removeallentities and value != None:
             return removeAllEntities(value)
         else:
             return value
 
-    def getAllMetadata(self, removeallentities=False):
+    def getAllMetadata(self, removeallentities=False, doreplacements=True):
         '''
         All single value *and* list value metadata as strings.
         '''
         allmetadata = {}
         for k in self.metadata.keys():
-            allmetadata[k] = self.getMetadata(k, removeallentities)
+            allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
         for l in self.listables.keys():
-            allmetadata[l] = self.getMetadata(l, removeallentities)
+            allmetadata[l] = self.getMetadata(l, removeallentities, doreplacements)
 
         return allmetadata
         

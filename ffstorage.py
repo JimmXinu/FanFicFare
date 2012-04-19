@@ -13,7 +13,22 @@
 # limitations under the License.
 #
 
+import pickle, copy
 from google.appengine.ext import db
+
+class ObjectProperty(db.Property):
+	data_type = db.Blob
+
+	def get_value_for_datastore(self, model_instance):
+		value = self.__get__(model_instance, model_instance.__class__)
+		pickled_val = pickle.dumps(value,protocol=pickle.HIGHEST_PROTOCOL)
+		if value is not None: return db.Blob(pickled_val)
+
+	def make_value_from_datastore(self, value):
+		if value is not None: return pickle.loads(value)
+
+	def default_value(self):
+		return copy.copy(self.default)
 
 class DownloadMeta(db.Model):
 	user = db.UserProperty()
@@ -37,3 +52,12 @@ class DownloadData(db.Model):
 class UserConfig(db.Model):
 	user = db.UserProperty()
 	config = db.BlobProperty()
+
+class SavedMeta(db.Model):
+	url = db.StringProperty()
+	title = db.StringProperty()
+	author = db.StringProperty()
+	date = db.DateTimeProperty(auto_now_add=True)
+	count = db.IntegerProperty()
+	meta = ObjectProperty()
+	
