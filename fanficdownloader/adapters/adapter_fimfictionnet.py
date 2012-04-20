@@ -20,7 +20,8 @@ import logging
 import re
 import urllib2
 import cookielib as cl
-import datetime
+from datetime import datetime
+import json
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
@@ -36,7 +37,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fimficnet')
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
+        self.story.setMetadata('storyId', self.parsedUrl.path.split('/',)[2])
         self._setURL("http://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
         self.is_adult = False
         
@@ -74,6 +75,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.opener = urllib2.build_opener(cookieproc)
         
         try:
+            apiResponse = urllib2.urlopen("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId"))).read()
+            apiData = json.loads(apiResponse)
+            
+            # Unfortunately, we still need to load the story index page to parse the characters
             data = self._fetchUrl(self.url)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -87,9 +92,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if "/images/missing_story.png" in data:
             raise exceptions.StoryDoesNotExist(self.url)
         
+        if "Invalid story id" in apiData.values():
+            raise exceptions.StoryDoesNotExist(self.url)
+        
         if "This story has been marked as having adult content." in data:
             raise exceptions.AdultCheckRequired(self.url)
-
+        
         if self.password:
             params = {}
             params['password'] = self.password
@@ -100,98 +108,56 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
             else:
                 raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
+         
+        storyMetadata = apiData["story"]    
+            
+        self.story.setMetadata("title", storyMetadata["title"])
+        self.story.setMetadata("author", storyMetadata["author"]["name"])
+        self.story.setMetadata("authorId", storyMetadata["author"]["id"])
+        self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), storyMetadata["author"]["name"]))
         
-        soup = bs.BeautifulSoup(data).find("div", {"class":"content_box post_content_box"})
-
-        titleheader = soup.find("h2")
-        title = titleheader.find("a", href=re.compile(r'^/story/')).text
-        author = titleheader.find("a", href=re.compile(r'^/user/')).text
-        self.story.setMetadata("title", title)
-        self.story.setMetadata("author", author)
-        self.story.setMetadata("authorId", author) # The author's name will be unique
-        self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(),author))
+        chapters = [{"chapterTitle": chapter["title"], "chapterURL": chapter["link"]} for chapter in storyMetadata["chapters"]]
+        for chapter in chapters:
+            self.chapterUrls.append((chapter["chapterTitle"], chapter["chapterURL"]))
+        self.story.setMetadata("numChapters", len(self.chapterUrls))
         
-        chapterDates = []
-
-        for chapter in soup.findAll("a", {"class":"chapter_link"}):
-            chapterDates.append(chapter.span.extract().text.strip("()"))
-            self.chapterUrls.append((chapter.text.strip(), "http://"+self.getSiteDomain() + chapter['href']))
-
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
-        for character in [character_icon['title'] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
-            self.story.addToList("characters", character)
-        for category in [category.text for category in soup.find("div", {"class":"categories"}).findAll("a")]:
-            self.story.addToList("genre", category)
-        self.story.addToList("category", "My Little Pony")
-        
-        
-        # The very last list element in the list of chapters contains the status, rating and word count e.g.:
-        #
-        #    <li>
-        #       Incomplete | Rating:
-        #       <span style="color:#c78238;">Teen</span>
-        #       <div class="word_count"><b>5,203</b>words total</div>
-        #    </li>
-        #
-
-        status_bar = soup.findAll('li')[-1]
         # In the case of fimfiction.net, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
         # For the sake of bringing it in line with the other adapters, 'Incomplete' and 'On Hiatus' become 'In-Progress'
         # and 'Complete' beomes 'Completed'. 'Cancelled' seems an important enough (not to mention more strictly true) 
         # status to leave unchanged.
-        status = status_bar.text.split("|")[0].strip().replace("Incomplete", "In-Progress").replace("On Hiatus", "In-Progress").replace("Complete", "Completed")
-        self.story.setMetadata('status', status)
-        self.story.setMetadata('rating', status_bar.span.text)
-        # This way is less elegant, perhaps, but more robust in face of format changes.
-        numWords = status_bar.find("div",{"class":"word_count"}).b.text
-        self.story.setMetadata('numWords', numWords)
+        status = storyMetadata["status"].replace("Incomplete", "In-Progress").replace("On Hiatus", "In-Progress").replace("Complete", "Completed")
+        self.story.setMetadata("status", status)
+        self.story.setMetadata("rating", storyMetadata["content_rating_text"])
+            
+        for category in storyMetadata["categories"]:
+            if storyMetadata["categories"][category]:
+                self.story.addToList("genre", category) 
+
+        self.story.addToList("category", "My Little Pony")
         
-        description_soup = soup.find("div", {"class":"description"})
-        # Sometimes the description has an expanding element
-        # This removes the ellipsis and the expand button
-        try:
-            description_soup.find('span', {"id":re.compile(r"description_more_elipses_\d+")}).extract() # Web designer can't spell 'ellipsis'
-            description_soup.find('a', {"class":"more"}).extract()
-        except:
-            pass
+        self.story.setMetadata("numWords", str(storyMetadata["words"]))
+        
         
         # fimfic is the first site with an explicit cover image.
-        story_img = soup.find('img',{'class':'story_image'})
-        if self.getConfig('include_images') and story_img:
-            coverurl = story_img['src']
+        if self.getConfig('include_images') and "image" in storyMetadata.keys():
+            coverurl = storyMetadata["image"]
             if coverurl.startswith('//static.fimfiction.net'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
             self.story.addImgUrl(self,self.url,coverurl,self._fetchUrlRaw,cover=True)
-        self.setDescription(self.url,description_soup.text)
-        #self.story.setMetadata('description', description_soup.text)
+            
+        self.setDescription(self.url, storyMetadata["description"])
         
-        # Unfortunately, nowhere on the page is the year mentioned.
-        # Best effort to deal with this:
-        # Use this year, if that's a date in the future, subtract one year.
-        # Their earliest story is Jun, so they'll probably change the date
-        # around then.
-
-        now = datetime.datetime.now()
+        # Dates are in Unix time
+        # Take the publish date from the first chapter posted
+        rawDatePublished = storyMetadata["chapters"][0]["date_modified"]
+        self.story.setMetadata("datePublished", datetime.fromtimestamp(rawDatePublished))
+        rawDateUpdated = storyMetadata["date_modified"]
+        self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
         
-        dateUpdated_soup = bs.BeautifulSoup(data).find("div", {"class":"calendar"})
-        dateUpdated_soup.find('span').extract()
-        dateUpdated = makeDate("%s%s"%(now.year,dateUpdated_soup.text), "%Y%b%d")
-        if dateUpdated > now :
-            dateUpdated = dateUpdated.replace(year=now.year-1)
-        self.story.setMetadata("dateUpdated", dateUpdated)
-        
-        # Get the date of creation from the first chapter
-        if len(chapterDates) > 0:
-            datePublished_text = chapterDates[0]
-            day, month = datePublished_text.split()
-            day = re.sub(r"[^\d.]+", '', day)
-            datePublished = makeDate("%s%s%s"%(now.year,month,day), "%Y%b%d")
-            if datePublished > now :
-                datePublished = datePublished.replace(year=now.year-1)
-            self.story.setMetadata("datePublished", datePublished)
-        else:
-            self.story.setMetadata("datePublished", dateUpdated)
+        soup = bs.BeautifulSoup(data).find("div", {"class":"story"})
+        for character in [character_icon["title"] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
+            self.story.addToList("characters", character)
+            
             
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
