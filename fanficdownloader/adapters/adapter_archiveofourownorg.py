@@ -101,7 +101,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
-        a = soup.find('a', href=re.compile(r"^/works/\w+"))
+        a = soup.find('a', href=re.compile(r"^/works/\d+$"))
         self.story.setMetadata('title',a.string)
 		
         # Find authorid and URL from... author url.
