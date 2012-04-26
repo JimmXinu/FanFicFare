@@ -19,12 +19,21 @@ import re
 
 def _unirepl(match):
     "Return the unicode string for a decimal number"
-    if match.group(1)=='x':
+    if match.group(1).startswith('x'):
         radix=16
+        s = match.group(1)[1:]
     else:
         radix=10
-    value = int(match.group(2), radix)
-    return "%s%s"%(unichr(value),match.group(3))
+        s = match.group(1)
+    try:
+        value = int(s, radix)
+        retval = "%s%s"%(unichr(value),match.group(2))
+    except:
+        # This way, at least if there's more of entities out there
+        # that fail, it doesn't blow the entire download.
+        print "Numeric entity translation failed, skipping: &#x%s%s"%(match.group(1),match.group(2))
+        retval = ""
+    return retval
 
 def _replaceNumberEntities(data):
     # The same brokenish entity parsing in SGMLParser that inserts ';'
@@ -33,7 +42,8 @@ def _replaceNumberEntities(data):
     # "Don't&#8212ever&#8212do&#8212that&#8212again," becomes
     # "Don't&#8212e;ver&#8212d;o&#8212;that&#8212a;gain,"
     # Also need to allow for 5 digit decimal entities &#27861;
-    p = re.compile(r'&#(x?)([0-9]{,5}|[0-9a-fA-F]{,4})([0-9a-fA-F]*?);')
+    # Last expression didn't allow for 2 digit hex correctly: &#xE9;
+    p = re.compile(r'&#(x[0-9a-fA-F]{,4}|[0-9]{,5})([0-9a-fA-F]*?);')
     return p.sub(_unirepl, data)
 
 def _replaceNotEntities(data):
