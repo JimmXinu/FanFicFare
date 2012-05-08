@@ -100,6 +100,9 @@ def getAdapter(config,url,fileform=None):
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
+def getSiteDomains():
+    return [cls.getSiteDomain() for cls in __class_list]
+
 def getClassFor(domain):
     for cls in __class_list:
         if cls.matchesSite(domain):
