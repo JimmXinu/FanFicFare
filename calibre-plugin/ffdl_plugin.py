@@ -7,11 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import time, os, copy, threading
+import time, os, copy, threading, re
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from functools import partial
 from datetime import datetime
+from string import Template
 
 from PyQt4.Qt import (QApplication, QMenu, QToolButton)
 
@@ -772,7 +773,6 @@ make_firstimage_cover:true
             epubmi = get_metadata(existingepub,'EPUB')
             if epubmi.cover_data[1] is not None:
                 db.set_cover(book_id, epubmi.cover_data[1])
-            #mi.cover = epubmi.cover_data[1]
 
         # set author link if found.  All current adapters have authorUrl.
         if 'authorUrl' in book['all_metadata']:
@@ -812,8 +812,48 @@ make_firstimage_cover:true
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
                 db.set_custom(book_id, val, label=label, commit=False)
-        
+
         db.commit()
+        
+        if 'Generate Cover' in self.gui.iactions:
+
+            gc_plugin = self.gui.iactions['Generate Cover']
+            setting_name = None
+            if prefs['allow_gc_from_ini']:
+                ffdlconfig = SafeConfigParser()
+                ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
+                ffdlconfig.readfp(StringIO(prefs['personal.ini']))
+                adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
+
+                # template => regexp to match => GC Setting to use.
+                # generate_cover_settings:
+                # ${category} => Buffy:? the Vampire Slayer => Buffy
+                for line in adapter.getConfig('generate_cover_settings').splitlines():
+                    if "=>" in line:
+                        (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                        value = Template(template).substitute(book['all_metadata']).encode('utf8')
+                        print("%s(%s) => %s => %s"%(template,value,regexp,setting))
+                        if re.search(regexp,value):
+                            setting_name = setting
+                            break
+
+                if setting_name:
+                    print("Generate Cover Setting from generate_cover_settings(%s)"%line)
+                    if setting_name not in gc_plugin.get_saved_setting_names():
+                        print("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
+                        setting_name = None
+                
+            if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
+                setting_name =  prefs['gc_site_settings'][book['all_metadata']['site']]
+
+            if not setting_name and 'Default' in prefs['gc_site_settings']:
+                setting_name =  prefs['gc_site_settings']['Default']
+                
+            if setting_name:
+                print("Running Generate Cover with settings %s."%setting_name)
+                realmi = db.get_metadata(book_id, index_is_id=True)
+                gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
+        
 
     def _get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :

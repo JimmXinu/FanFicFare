@@ -9,16 +9,17 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, copy
 
-from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont,
-                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant)
+from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont, QWidget,
+                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea)
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
-    import (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
-             CALIBREONLY,collision_order)
+    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order)
+
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getSiteDomains
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( get_library_uuid, KeyboardConfigDialog )
@@ -53,6 +54,9 @@ all_prefs.defaults['addtolists'] = False
 all_prefs.defaults['addtoreadlists'] = False
 all_prefs.defaults['addtolistsonread'] = False
 
+all_prefs.defaults['gc_site_settings'] = {}
+all_prefs.defaults['allow_gc_from_ini'] = True
+
 all_prefs.defaults['custom_cols'] = {}
 
 # The list of settings to copy from all_prefs or the previous library
@@ -67,7 +71,9 @@ copylist = ['personal.ini',
             'collision',
             'deleteotherforms',
             'adddialogstaysontop',
-            'includeimages']
+            'includeimages',
+            'gc_site_settings',
+            'allow_gc_from_ini']
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
@@ -87,7 +93,8 @@ class PrefsFacade():
                 self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs))
             else:
                 self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs[self.lastlibid]))
-            self.lastlibid = libraryid
+                
+        self.lastlibid = libraryid
             
         return self.all_prefs[libraryid]
 
@@ -139,10 +146,15 @@ class ConfigWidget(QWidget):
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
         
-        self.list_tab = ListTab(self, plugin_action)
-        tab_widget.addTab(self.list_tab, 'Reading Lists')
+        self.readinglist_tab = ReadingListTab(self, plugin_action)
+        tab_widget.addTab(self.readinglist_tab, 'Reading Lists')
         if 'Reading List' not in plugin_action.gui.iactions:
-            self.list_tab.setEnabled(False)
+            self.readinglist_tab.setEnabled(False)
+
+        self.generatecover_tab = GenerateCoverTab(self, plugin_action)
+        tab_widget.addTab(self.generatecover_tab, 'Generate Cover')
+        if 'Generate Cover' not in plugin_action.gui.iactions:
+            self.generatecover_tab.setEnabled(False)
 
         self.columns_tab = ColumnsTab(self, plugin_action)
         tab_widget.addTab(self.columns_tab, 'Custom Columns')
@@ -165,15 +177,15 @@ class ConfigWidget(QWidget):
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
 
-        if self.list_tab:
+        if self.readinglist_tab:
             # lists
-            prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.list_tab.send_lists_box.text()).split(','))))
-            prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.list_tab.read_lists_box.text()).split(','))))
+            prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.send_lists_box.text()).split(','))))
+            prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.read_lists_box.text()).split(','))))
             # print("send_lists: %s"%prefs['send_lists'])
             # print("read_lists: %s"%prefs['read_lists'])
-            prefs['addtolists'] = self.list_tab.addtolists.isChecked()
-            prefs['addtoreadlists'] = self.list_tab.addtoreadlists.isChecked()
-            prefs['addtolistsonread'] = self.list_tab.addtolistsonread.isChecked()
+            prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
+            prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
+            prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
 
         # personal.ini
         ini = unicode(self.personalini_tab.ini.toPlainText())
@@ -183,6 +195,16 @@ class ConfigWidget(QWidget):
             # if they've removed everything, reset to default.
             prefs['personal.ini'] = get_resources('plugin-example.ini')
 
+        # Generate Covers tab
+        gc_site_settings = {}
+        for (site,combo) in self.generatecover_tab.gc_dropdowns.iteritems():
+            val = unicode(combo.itemData(combo.currentIndex()).toString())
+            if val != 'none':
+                gc_site_settings[site] = val
+                #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
+        prefs['gc_site_settings'] = gc_site_settings
+        prefs['allow_gc_from_ini'] = self.generatecover_tab.allow_gc_from_ini.isChecked()
+
         # Custom Columns tab
         colsmap = {}
         for (col,combo) in self.columns_tab.custcol_dropdowns.iteritems():
@@ -191,7 +213,7 @@ class ConfigWidget(QWidget):
                 colsmap[col] = val
                 #print("colsmap[%s]:%s"%(col,colsmap[col]))
         prefs['custom_cols'] = colsmap
-        
+
     def edit_shortcuts(self):
         self.save_settings()
         # Force the menus to be rebuilt immediately, so we have all our actions registered
@@ -286,7 +308,7 @@ class BasicTab(QWidget):
         self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
         self.includeimages.setChecked(prefs['includeimages'])
         self.l.addWidget(self.includeimages)
-        
+
         self.l.insertStretch(-1)
         
     def set_collisions(self):
@@ -372,7 +394,7 @@ class ShowDefaultsIniDialog(QDialog):
         self.ok_button.clicked.connect(self.hide)
         self.l.addWidget(self.ok_button)
         
-class ListTab(QWidget):
+class ReadingListTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
@@ -429,6 +451,70 @@ class ListTab(QWidget):
         self.addtolistsonread.setToolTip('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)')
         self.addtolistsonread.setChecked(prefs['addtolistsonread'])
         self.l.addWidget(self.addtolistsonread)
+            
+        self.l.insertStretch(-1)
+        
+class GenerateCoverTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        try:
+            gc_plugin = plugin_action.gui.iactions['Generate Cover']
+            gc_settings = gc_plugin.get_saved_setting_names()
+        except KeyError:
+            gc_settings= []
+            
+        label = QLabel('The Generate Cover plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FFDL can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+
+        scrollable = QScrollArea()
+        scrollcontent = QWidget()
+        scrollable.setWidget(scrollcontent)
+        scrollable.setWidgetResizable(True)
+        self.l.addWidget(scrollable)
+
+        self.sl = QVBoxLayout()
+        scrollcontent.setLayout(self.sl)
+        
+        self.gc_dropdowns = {}
+
+        sitelist = getSiteDomains()
+        sitelist.sort()
+        sitelist.insert(0,u"Default")
+        for site in sitelist:
+            horz = QHBoxLayout()
+            label = QLabel(site)
+            if site == u"Default":
+                s = "On Metadata update, run Generate Cover with this setting, if not selected for specific site."
+            else:
+                s = "On Metadata update, run Generate Cover with this setting for site (%s)."%site
+
+            label.setToolTip(s)
+            horz.addWidget(label)
+            dropdown = QComboBox(self)
+            dropdown.setToolTip(s)
+            dropdown.addItem('',QVariant('none'))
+            for setting in gc_settings:
+                dropdown.addItem(setting,QVariant(setting))
+            self.gc_dropdowns[site] = dropdown
+            if site in prefs['gc_site_settings']:
+                dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['gc_site_settings'][site])))
+
+            horz.addWidget(dropdown)
+            self.sl.addLayout(horz)
+        
+        self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override.',self)
+        self.allow_gc_from_ini.setToolTip("The INI parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site,\nbut it's much more complex.  generate_cover_settings is ignored when this is off.")
+        self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
+        self.l.addWidget(self.allow_gc_from_ini)
             
         self.l.insertStretch(-1)
         
