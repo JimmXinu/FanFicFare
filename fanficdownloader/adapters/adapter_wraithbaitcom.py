@@ -124,7 +124,8 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
-        self.story.setMetadata('rating', a.nextSibling)
+        rating=pt.text.split('[')[1].split(']')[0]
+        self.story.setMetadata('rating', rating)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
@@ -162,7 +163,11 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-
+			
+        date=soup.find('div',{'class' : 'bottom'})
+        pd=date.find(text=re.compile("Published:")).string.split(': ')
+        self.story.setMetadata('datePublished', makeDate(stripHTML(pd[1].split(' U')[0]), self.dateformat))
+        self.story.setMetadata('dateUpdated', makeDate(stripHTML(pd[2]), self.dateformat))
 		
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
@@ -180,13 +185,6 @@ class WraithBaitComAdapter(BaseSiteAdapter):
                 warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
                 for warning in warnings:
                     self.story.addToList('warnings',warning.string)
-
-            if 'Published' in label and pub ==0:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-                pub=1
-            
-            if 'Updated' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
         try:
             # Find Series name from series URL.
