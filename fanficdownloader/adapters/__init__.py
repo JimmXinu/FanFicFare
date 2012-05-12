@@ -53,6 +53,8 @@ import adapter_midnightwhispersca
 import adapter_ksarchivecom
 import adapter_archiveskyehawkecom
 import adapter_squidgeorgpeja
+import adapter_libraryofmoriacom
+import adapter_wraithbaitcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
