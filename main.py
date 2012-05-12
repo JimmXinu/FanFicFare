@@ -418,7 +418,7 @@ class FanfictionDownloader(UserConfigServer):
             template_values = dict(nickname = user.nickname(),
                                    url = url,
                                    format = format,
-                                   site = adapter.getSiteDomain(),
+                                   site = adapter.getConfigSection(),
                                    fic = download,
                                    is_login=is_login,
                                    )

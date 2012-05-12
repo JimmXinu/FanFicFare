@@ -70,9 +70,7 @@ class BaseSiteAdapter(Configurable):
     def __init__(self, config, url):
         self.config = config
         Configurable.__init__(self, config)
-        self.setSectionOrder(self.getSiteDomain())
-        # self.addConfigSection(self.getSiteDomain())
-        # self.addConfigSection("overrides")
+        self.setSectionOrder(self.getConfigSection())
         
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -82,7 +80,7 @@ class BaseSiteAdapter(Configurable):
         self.storyDone = False
         self.metadataDone = False
         self.story = Story()
-        self.story.setMetadata('site',self.getSiteDomain())
+        self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
         self.chapterFirst = None
@@ -234,6 +232,11 @@ class BaseSiteAdapter(Configurable):
     def getSiteDomain():
         "Needs to be overriden in each adapter class."
         return 'no such domain'
+    
+    @classmethod
+    def getConfigSection(cls):
+        "Only needs to be overriden if != site domain."
+        return cls.getSiteDomain()
     
     ## URL pattern validation is done *after* picking an adaptor based
     ## on domain instead of *as* the adaptor selector so we can offer

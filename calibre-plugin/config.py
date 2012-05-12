@@ -19,7 +19,7 @@ from calibre.gui2.ui import get_gui
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order)
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getSiteDomains
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getConfigSections
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( get_library_uuid, KeyboardConfigDialog )
@@ -486,7 +486,7 @@ class GenerateCoverTab(QWidget):
         
         self.gc_dropdowns = {}
 
-        sitelist = getSiteDomains()
+        sitelist = getConfigSections()
         sitelist.sort()
         sitelist.insert(0,u"Default")
         for site in sitelist:

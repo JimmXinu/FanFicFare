@@ -38,11 +38,7 @@ class BaseStoryWriter(Configurable):
 
     def __init__(self, config, adapter):
         Configurable.__init__(self, config)
-        self.setSectionOrder(adapter.getSiteDomain(),self.getFormatName())
-        # self.addConfigSection(adapter.getSiteDomain())
-        # self.addConfigSection(self.getFormatName())
-        # self.addConfigSection(adapter.getSiteDomain()+":"+self.getFormatName())
-        # self.addConfigSection("overrides")
+        self.setSectionOrder(adapter.getConfigSection(),self.getFormatName())
         
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.

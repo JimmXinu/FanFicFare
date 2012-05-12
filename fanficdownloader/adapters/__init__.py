@@ -52,6 +52,7 @@ import adapter_nfacommunitycom
 import adapter_midnightwhispersca
 import adapter_ksarchivecom
 import adapter_archiveskyehawkecom
+import adapter_squidgeorgpeja
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -95,13 +96,13 @@ def getAdapter(config,url,fileform=None):
         fixedurl = fixedurl.replace("http://","http://www.")
     if cls:
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
-        adapter.setSectionOrder(adapter.getSiteDomain(),fileform)
+        adapter.setSectionOrder(adapter.getConfigSection(),fileform)
         return adapter
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
-def getSiteDomains():
-    return [cls.getSiteDomain() for cls in __class_list]
+def getConfigSections():
+    return [cls.getConfigSection() for cls in __class_list]
 
 def getClassFor(domain):
     for cls in __class_list:
