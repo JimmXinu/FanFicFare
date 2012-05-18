@@ -36,7 +36,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
@@ -815,8 +815,8 @@ make_firstimage_cover:true
 
         db.commit()
         
-        if 'Generate Cover' in self.gui.iactions:
-
+        print("book['added']:%s"%book['added'])
+        if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
             gc_plugin = self.gui.iactions['Generate Cover']
             setting_name = None
             if prefs['allow_gc_from_ini']:
@@ -1018,8 +1018,12 @@ make_firstimage_cover:true
                 if 'url' in identifiers:
                     #print("url from epub:"+identifiers['url'].replace('|',':'))
                     return identifiers['url'].replace('|',':')
-                # look for dc:source
-                return get_dcsource(existingepub)
+                # look for dc:source first, then scan HTML if 
+                link = get_dcsource(existingepub)
+                if link:
+                    return link
+                elif prefs['lookforurlinhtml']:
+                    return get_story_url_from_html(existingepub,self._is_good_downloader_url)
         return None
 
     def _is_good_downloader_url(self,url):
