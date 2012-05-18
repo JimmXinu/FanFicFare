@@ -179,6 +179,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
         summary = soup.find('fieldset')
         summary.find('legend').extract()
+        summary.name='div'
         self.setDescription(url,summary)
 
 		
