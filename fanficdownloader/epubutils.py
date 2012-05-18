@@ -94,3 +94,40 @@ def get_path_part(n):
     if( len(relpath) > 0 ):
         relpath=relpath+"/"
     return relpath
+
+def get_story_url_from_html(inputio,_is_good_url=None):
+
+    #print("get_story_url_from_html called")
+    epub = ZipFile(inputio, 'r')
+
+    ## Find the .opf file.
+    container = epub.read("META-INF/container.xml")
+    containerdom = parseString(container)
+    rootfilenodelist = containerdom.getElementsByTagName("rootfile")
+    rootfilename = rootfilenodelist[0].getAttribute("full-path")
+
+    contentdom = parseString(epub.read(rootfilename))
+    #firstmetadom = contentdom.getElementsByTagName("metadata")[0]
+
+    ## Save the path to the .opf file--hrefs inside it are relative to it.
+    relpath = get_path_part(rootfilename)
+            
+    # spin through the manifest--only place there are item tags.
+    for item in contentdom.getElementsByTagName("item"):
+        # First, count the 'chapter' files.  FFDL uses file0000.xhtml,
+        # but can also update epubs downloaded from Twisting the
+        # Hellmouth, which uses chapter0.html.
+        #print("---- item:%s"%item)
+        if( item.getAttribute("media-type") == "application/xhtml+xml" ):
+            filehref=relpath+item.getAttribute("href")
+            soup = bs.BeautifulSoup(epub.read(filehref).decode("utf-8"))
+            for link in soup.findAll('a',href=re.compile(r'^http.*')):
+                ahref=link['href']
+                #print("href:(%s)"%ahref)
+                # hack for bad ficsaver ffnet URLs.
+                m = re.match(r"^http://www.fanfiction.net/s(?P<id>\d+)//$",ahref)
+                if m != None:
+                    ahref="http://www.fanfiction.net/s/%s/1/"%m.group('id')
+                if _is_good_url == None or _is_good_url(ahref):
+                    return ahref
+    return None

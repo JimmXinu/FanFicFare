@@ -47,6 +47,7 @@ all_prefs.defaults['collision'] = OVERWRITE
 all_prefs.defaults['deleteotherforms'] = False
 all_prefs.defaults['adddialogstaysontop'] = False
 all_prefs.defaults['includeimages'] = False
+all_prefs.defaults['lookforurlinhtml'] = False
 
 all_prefs.defaults['send_lists'] = ''
 all_prefs.defaults['read_lists'] = ''
@@ -54,6 +55,7 @@ all_prefs.defaults['addtolists'] = False
 all_prefs.defaults['addtoreadlists'] = False
 all_prefs.defaults['addtolistsonread'] = False
 
+all_prefs.defaults['gcnewonly'] = False
 all_prefs.defaults['gc_site_settings'] = {}
 all_prefs.defaults['allow_gc_from_ini'] = True
 
@@ -72,6 +74,8 @@ copylist = ['personal.ini',
             'deleteotherforms',
             'adddialogstaysontop',
             'includeimages',
+            'lookforurlinhtml',
+            'gcnewonly',
             'gc_site_settings',
             'allow_gc_from_ini']
 
@@ -176,6 +180,7 @@ class ConfigWidget(QWidget):
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
+        prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
 
         if self.readinglist_tab:
             # lists
@@ -196,6 +201,7 @@ class ConfigWidget(QWidget):
             prefs['personal.ini'] = get_resources('plugin-example.ini')
 
         # Generate Covers tab
+        prefs['gcnewonly'] = self.generatecover_tab.gcnewonly.isChecked()
         gc_site_settings = {}
         for (site,combo) in self.generatecover_tab.gc_dropdowns.iteritems():
             val = unicode(combo.itemData(combo.currentIndex()).toString())
@@ -308,6 +314,11 @@ class BasicTab(QWidget):
         self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
         self.includeimages.setChecked(prefs['includeimages'])
         self.l.addWidget(self.includeimages)
+
+        self.lookforurlinhtml = QCheckBox("Search EPUB text for Story URL?",self)
+        self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
+        self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
+        self.l.addWidget(self.lookforurlinhtml)
 
         self.l.insertStretch(-1)
         
@@ -511,6 +522,11 @@ class GenerateCoverTab(QWidget):
             horz.addWidget(dropdown)
             self.sl.addLayout(horz)
         
+        self.gcnewonly = QCheckBox("Run Generate Cover Only on New Books",self)
+        self.gcnewonly.setToolTip("Default is to run GC any time the calibre metadata is updated.")
+        self.gcnewonly.setChecked(prefs['gcnewonly'])
+        self.l.addWidget(self.gcnewonly)
+
         self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override.',self)
         self.allow_gc_from_ini.setToolTip("The INI parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site,\nbut it's much more complex.  generate_cover_settings is ignored when this is off.")
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
