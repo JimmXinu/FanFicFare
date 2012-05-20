@@ -160,7 +160,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         for info in asoup.findAll('table', {'bordercolor' : '#1A1919'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
-                self.story.setMetadata('title',a.string)
+                self.story.setMetadata('title',a.text)
                 break
 		
 
