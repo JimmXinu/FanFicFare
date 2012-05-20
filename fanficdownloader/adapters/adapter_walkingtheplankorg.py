@@ -26,12 +26,10 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
 
-
 def getClass():
-    return CheckmatedComAdapter
+    return WalkingThePlankOrgAdapter
 
-
-class CheckmatedComAdapter(BaseSiteAdapter):
+class WalkingThePlankOrgAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -41,7 +39,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.username = "" # if left empty, site doesn't return any message at all.
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
         
@@ -49,10 +47,11 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
-        self._setURL('http://' + self.getSiteDomain() + '/story.php?story='+self.story.getMetadata('storyId'))
+        # normalized story URL.
+        self._setURL('http://' + self.getSiteDomain() + '/archive//viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','chm')
+        self.story.setMetadata('siteabbrev','wtp')
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
@@ -66,57 +65,30 @@ class CheckmatedComAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.checkmated.com'
+        return 'www.walkingtheplank.org'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/story.php?story=1234"
+        return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/story.php?story=")+r"\d+$"
-
-    ## Login seems to be reasonably standard across eFiction sites. This story is in The Bedchamber
-    def needToLoginCheck(self, data):
-        if 'This story is in The Bedchamber' in data \
-                or 'That username is not in our database' in data \
-                or "That password is not correct, please try again" in data:
-            return True
-        else:
-            return False
-        
-    def performLogin(self, url):
-        params = {}
-
-        if self.password:
-            params['name'] = self.username
-            params['pass'] = self.password
-        else:
-            params['name'] = self.getConfig("username")
-            params['pass'] = self.getConfig("password")
-        params['login'] = 'yes'
-        params['submit'] = 'login'	
-	
-        loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
-        d = self._fetchUrl(loginUrl,params)
-        e = self._fetchUrl(url)
-
-        if "Welcome back," not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['name']))
-            raise exceptions.FailedToLogin(url,params['name'])
-            return False
-        elif "This story is in The Bedchamber" in e:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Your account does not have sufficient priviliges to read this story.")
-            return False
-        else:
-            return True
+        return re.escape("http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
+        if self.is_adult or self.getConfig("is_adult"):
+            # Weirdly, different sites use different warning numbers.
+            # If the title search below fails, there's a good chance
+            # you need a different number.  print data at that point
+            # and see what the 'click here to continue' url says.
+            addurl = "&warning=4"
+        else:
+            addurl=""
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
-        url = self.url
+        url = self.url+'&index=1'+addurl
         logging.debug("URL: "+url)
 
         try:
@@ -127,14 +99,13 @@ class CheckmatedComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
+    
+        if "By clicking this link, you acknowledge" in data:
+            raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -146,22 +117,20 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
-        a = soup.findAll('span', {'class' : 'storytitle'})
-        self.story.setMetadata('title',a[0].string)
+        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = a[1].find('a', href=re.compile(r"authors.php\?name\=\w+"))
+        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
-			
-        a = soup.find('select', {'name' : 'chapter'})
-        if a == None:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
-        else:
-            for chapter in a.findAll('option'):
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/story.php?story='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
-			
+
+        # Find the chapters:
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+            # just in case there's tags, like <i> in chapter titles.
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/archive/'+chapter['href']+addurl))
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
@@ -173,65 +142,90 @@ class CheckmatedComAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-
 				
-        # website does not keep track of word count, and there is no convenient way to calculate it
+        labels = soup.findAll('span',{'class':'label'})
+        for labelspan in labels:
+            value = labelspan.nextSibling
+            label = labelspan.string
 
-        summary = soup.find('fieldset')
-        summary.find('legend').extract()
-        summary.name='div'
-        self.setDescription(url,summary)
+            if 'Summary' in label:
+                ## Everything until the next span class='label'
+                svalue = ""
+                while not defaultGetattr(value,'class') == 'label':
+                    svalue += str(value)
+                    value = value.nextSibling
+                self.setDescription(url,svalue)
+                #self.story.setMetadata('description',stripHTML(svalue))
 
-		
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        table = soup.findAll('div', {'class' : 'text'})[1]
-        for labels in table.findAll('tr'):
-            value = labels.findAll('td')[1]
-            label = labels.findAll('td')[0]
+            if 'Rated' in label:
+                self.story.setMetadata('rating', value)
 
-			
-            if 'Rating' in stripHTML(label):
-                self.story.setMetadata('rating', stripHTML(value))
+            if 'Word count' in label:
+                self.story.setMetadata('numWords', value)
 
-            if 'Ship' in stripHTML(label):
-                for char in value.string.split('/'):
-                    if char != 'none':
-                        self.story.addToList('characters',char)		
+            if 'Categories' in label:
+                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+                catstext = [cat.string for cat in cats]
+                for cat in catstext:
+                    self.story.addToList('category',cat.string)
 
-            if 'Status' in stripHTML(label):
-                if value.find('img', {'src' : 'img/incomplete.gif'}) == None:
+            if 'Characters' in label:
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                charstext = [char.string for char in chars]
+                for char in charstext:
+                    self.story.addToList('characters',char.string)
+
+            if 'Genre' in label:
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
+                for genre in genres:
+                    self.story.addToList('genre',genre.string)
+
+            if 'Warnings' in label:
+                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
+                for warning in warnings:
+                    self.story.addToList('warnings',warning.string)
+
+            if 'Completed' in label:
+                if 'Yes' in value:
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
 
-            if 'Published' in stripHTML(label):
+            if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
             
-            if 'Updated' in stripHTML(label):
+            if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-			
-        a = self._fetchUrl(self.story.getMetadata('authorUrl')+'&cat=stories')	
-        for story in bs.BeautifulSoup(a).findAll('table', {'class' : 'storyinfo'}):
-            a = story.find('a', href=re.compile(r"review.php\?s\="+self.story.getMetadata('storyId')+'&act=view'))
-            if a != None:
-                for labels in story.findAll('tr'):
-                    value = labels.findAll('td')[1]
-                    label = labels.findAll('td')[0]
-                    if 'genre' in stripHTML(label):
-                        for genre in value.findAll('img'):
-                            self.story.addToList('genre',genre['title'])
-        
+
+        try:
+            # Find Series name from series URL.
+            a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
+            series_name = a.string
+            series_url = 'http://'+self.host+'/archive/'+a['href']
+
+            # use BeautifulSoup HTML parser to make everything easier to find.
+            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            i=1
+            for a in storyas:
+                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                    self.setSeries(series_name, i)
+                    break
+                i+=1
+            
+        except:
+            # I find it hard to care if the series parsing fails
+            pass
             
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logging.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
+        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        div = soup.find('div', {'id' : 'resizeableText'})
-        div.find('div', {'class' : 'storyTools'}).extract()
+        div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

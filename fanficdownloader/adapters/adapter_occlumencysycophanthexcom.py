@@ -26,12 +26,12 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
 
-
 def getClass():
-    return CheckmatedComAdapter
+    return OcclumencySycophantHexComAdapter
 
-
-class CheckmatedComAdapter(BaseSiteAdapter):
+# Class name has to be unique.  Our convention is camel case the
+# sitename with Adapter at the end.  www is skipped.
+class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -41,18 +41,20 @@ class CheckmatedComAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.username = "" # if left empty, site doesn't return any message at all.
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+		
         
-        self._setURL('http://' + self.getSiteDomain() + '/story.php?story='+self.story.getMetadata('storyId'))
+        # normalized story URL.
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','chm')
+        self.story.setMetadata('siteabbrev','osph')
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
@@ -61,24 +63,23 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%b %d, %Y"
+        self.dateformat = "%m/%d/%Y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.checkmated.com'
+        return 'occlumency.sycophanthex.com'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/story.php?story=1234"
+        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/story.php?story=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    ## Login seems to be reasonably standard across eFiction sites. This story is in The Bedchamber
+    ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
-        if 'This story is in The Bedchamber' in data \
-                or 'That username is not in our database' in data \
-                or "That password is not correct, please try again" in data:
+        if 'This story contains adult content and/or themes.' in data \
+                or "That password doesn't match the one in our database" in data:
             return True
         else:
             return False
@@ -87,33 +88,32 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         params = {}
 
         if self.password:
-            params['name'] = self.username
-            params['pass'] = self.password
+            params['penname'] = self.username
+            params['password'] = self.password
         else:
-            params['name'] = self.getConfig("username")
-            params['pass'] = self.getConfig("password")
-        params['login'] = 'yes'
-        params['submit'] = 'login'	
-	
-        loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
-        d = self._fetchUrl(loginUrl,params)
-        e = self._fetchUrl(url)
-
-        if "Welcome back," not in d : #Member Account
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['rememberme'] = '1'
+        params['sid'] = ''
+        params['intent'] = ''
+        params['submit'] = 'Submit'
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+    
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Logout" not in d : #Member Account
             logging.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['name']))
-            raise exceptions.FailedToLogin(url,params['name'])
-            return False
-        elif "This story is in The Bedchamber" in e:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Your account does not have sufficient priviliges to read this story.")
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
             return False
         else:
             return True
 
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
-
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
@@ -131,10 +131,6 @@ class CheckmatedComAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url)
-
-        # The actual text that is used to announce you need to be an
-        # adult varies from site to site.  Again, print data before
-        # the title search to troubleshoot.
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -145,95 +141,125 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
         # Now go hunting for all the meta data and the chapter list.
         
-        ## Title
-        a = soup.findAll('span', {'class' : 'storytitle'})
-        self.story.setMetadata('title',a[0].string)
         
         # Find authorid and URL from... author url.
-        a = a[1].find('a', href=re.compile(r"authors.php\?name\=\w+"))
+        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
-			
-        a = soup.find('select', {'name' : 'chapter'})
-        if a == None:
+        asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+		
+        try:
+            # in case link points somewhere other than the first chapter
+            a = soup.findAll('option')[1]['value']
+            self.story.setMetadata('storyId',a.split('=',)[1])
+            url = 'http://'+self.host+'/'+a
+            soup = bs.BeautifulSoup(self._fetchUrl(url))
+        except:
+            pass
+		
+        for info in asoup.findAll('table', {'class' : 'border'}):
+            a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+            if a != None:
+                self.story.setMetadata('title',a.string)
+                break
+		
+
+        # Find the chapters:
+        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
+        if len(chapters) == 0:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
-            for chapter in a.findAll('option'):
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/story.php?story='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
-			
+            for chapter in chapters:
+                # just in case there's tags, like <i> in chapter titles.
+                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
 
         # utility method
-        def defaultGetattr(d,k):
+        def defaultGetattr(d):
             try:
-                return d[k]
+                return d.name
             except:
                 return ""
-
 				
-        # website does not keep track of word count, and there is no convenient way to calculate it
-
-        summary = soup.find('fieldset')
-        summary.find('legend').extract()
-        summary.name='div'
-        self.setDescription(url,summary)
-
-		
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        table = soup.findAll('div', {'class' : 'text'})[1]
-        for labels in table.findAll('tr'):
-            value = labels.findAll('td')[1]
-            label = labels.findAll('td')[0]
-
+        cats = info.findAll('a',href=re.compile('categories.php'))
+        for cat in cats:
+            self.story.addToList('category',cat.string)
+					
 			
-            if 'Rating' in stripHTML(label):
-                self.story.setMetadata('rating', stripHTML(value))
+        a = info.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
+        val = a.nextSibling
+        svalue = ""
+        while not defaultGetattr(val) == 'br':
+            val = val.nextSibling
+        val = val.nextSibling
+        while not defaultGetattr(val) == 'table':
+            svalue += str(val)
+            val = val.nextSibling
+        self.setDescription(url,svalue)
 
-            if 'Ship' in stripHTML(label):
-                for char in value.string.split('/'):
+        # <span class="label">Rated:</span> NC-17<br /> etc
+        labels = info.findAll('b')
+        for labelspan in labels:
+            value = labelspan.nextSibling
+            label = stripHTML(labelspan)
+
+            if 'Rating' in label:
+                self.story.setMetadata('rating', value)
+
+            if 'Word Count' in label:
+                self.story.setMetadata('numWords', value)
+
+            if 'Genres' in label:
+                genres = value.string.split(', ')
+                for genre in genres:
+                    if genre != 'none':
+                        self.story.addToList('genre',genre)
+						
+            if 'Characters' in label:
+                chars = value.string.split(', ')
+                for char in chars:
                     if char != 'none':
-                        self.story.addToList('characters',char)		
+                        self.story.addToList('characters',char)
 
-            if 'Status' in stripHTML(label):
-                if value.find('img', {'src' : 'img/incomplete.gif'}) == None:
+            if 'Warnings' in label:
+                warnings = value.string.split(', ')
+                for warning in warnings:
+                    if warning != ' none':
+                        self.story.addToList('warnings',warning)
+
+            if 'Completed' in label:
+                if 'Yes' in value:
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
 
-            if 'Published' in stripHTML(label):
+            if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
             
-            if 'Updated' in stripHTML(label):
+            if 'Updated' in label:
+                # there's a stray [ at the end.
+                #value = value[0:-1]
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-			
-        a = self._fetchUrl(self.story.getMetadata('authorUrl')+'&cat=stories')	
-        for story in bs.BeautifulSoup(a).findAll('table', {'class' : 'storyinfo'}):
-            a = story.find('a', href=re.compile(r"review.php\?s\="+self.story.getMetadata('storyId')+'&act=view'))
-            if a != None:
-                for labels in story.findAll('tr'):
-                    value = labels.findAll('td')[1]
-                    label = labels.findAll('td')[0]
-                    if 'genre' in stripHTML(label):
-                        for genre in value.findAll('img'):
-                            self.story.addToList('genre',genre['title'])
-        
+
             
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logging.debug('Getting chapter text from: %s' % url)
+		
+        data = self._fetchUrl(url)
+        data = data.replace('<div align="left"', '<div align="left">')
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(data, selfClosingTags=('br','hr'))
         
-        div = soup.find('div', {'id' : 'resizeableText'})
-        div.find('div', {'class' : 'storyTools'}).extract()
+        story = soup.find('div', {"align" : "left"})
 
-        if None == div:
+        if None == story:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return self.utf8FromSoup(url,div)
+        return self.utf8FromSoup(url,story)
