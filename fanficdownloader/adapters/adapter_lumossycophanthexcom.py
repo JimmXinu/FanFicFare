@@ -27,11 +27,11 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return ChaosSycophantHexComAdapter
+    return LumosSycophantHexComAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class ChaosSycophantHexComAdapter(BaseSiteAdapter):
+class LumosSycophantHexComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
