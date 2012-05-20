@@ -63,6 +63,7 @@ class UnknownSite(Exception):
     def __init__(self,url,supported_sites_list):
         self.url=url
         self.supported_sites_list=supported_sites_list
+        self.supported_sites_list.sort()
 
     def __str__(self):
         return "Unknown Site(%s).  Supported sites: (%s)" % (self.url, ", ".join(self.supported_sites_list))

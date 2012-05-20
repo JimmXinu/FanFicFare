@@ -48,7 +48,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/archive//viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/archive/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','wtp')

@@ -56,6 +56,14 @@ import adapter_squidgeorgpeja
 import adapter_libraryofmoriacom
 import adapter_wraithbaitcom
 import adapter_checkmatedcom
+import adapter_chaossycophanthexcom
+import adapter_dramioneorg
+import adapter_erosnsapphosycophanthexcom
+import adapter_lumossycophanthexcom
+import adapter_occlumencysycophanthexcom
+import adapter_phoenixsongnet
+import adapter_walkingtheplankorg
+import adapter_ashwindersycophanthexcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
