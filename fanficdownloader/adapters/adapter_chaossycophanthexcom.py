@@ -119,7 +119,7 @@ class ChaosSycophantHexComAdapter(BaseSiteAdapter):
         ## Title
         pt = soup.find('div', {'id' : 'pagetitle'})
         a = pt.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',a.text)
         
         # Find authorid and URL from... author url.
         a = pt.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
