@@ -572,7 +572,13 @@ make_firstimage_cover:true
             # this behavior matches how epubs come out when imported
             # dateCreated == packaged--epub/etc created.
             book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
-        
+
+        if book_id != None and prefs['injectseries']:
+            mi = db.get_metadata(book_id,index_is_id=True)
+            if not book['series'] and mi.series != None:
+                book['calibre_series'] = (mi.series,mi.series_index)
+                print("calibre_series:%s [%s]"%book['calibre_series'])
+            
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
             tmp = PersistentTemporaryFile(prefix='new-%s-'%book['calibre_id'],
@@ -795,7 +801,7 @@ make_firstimage_cover:true
             coldef = custom_columns[col]
             if not meta.startswith('status-') and meta not in book['all_metadata'] or \
                     meta.startswith('status-') and 'status' not in book['all_metadata']:
-                print("No value for %s, skipping."%meta)
+                print("No value for %s, skipping custom column(%s) update."%(meta,coldef['name']))
                 continue
             if meta not in permitted_values[coldef['datatype']]:
                 print("%s not a valid column type for %s, skipping."%(col,meta))
@@ -815,7 +821,6 @@ make_firstimage_cover:true
 
         db.commit()
         
-        print("book['added']:%s"%book['added'])
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
             gc_plugin = self.gui.iactions['Generate Cover']
             setting_name = None
