@@ -113,6 +113,11 @@ def do_download_for_worker(book,options):
         adapter.password = book['password']
         
         story = adapter.getStoryMetadataOnly()
+        if 'calibre_series' in book:
+            print("calibre_series:%s [%d]"%book['calibre_series'])
+            adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
+        else:
+            print("no calibre_series")
         writer = writers.getWriter(options['fileform'],adapter.config,adapter)
 
         outfile = book['outfile']

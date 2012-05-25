@@ -90,17 +90,16 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             self.story.setMetadata('status','Completed')
 
-        langs = {
-            0:"English",
-            1:"Russian",
-            2:"French",
-            3:"German",
-            }
+        # greater than 10, no language or series.
         if idnum < 10:
+            langs = {
+                0:"English",
+                1:"Russian",
+                2:"French",
+                3:"German",
+                }
             self.story.setMetadata('language',langs[idnum%len(langs)])
-        # greater than 10, no language.
-            
-        self.setSeries('The Great Test',idnum)
+            self.setSeries('The Great Test',idnum)
         
         self.story.setMetadata('rating','Tweenie')
         
@@ -161,7 +160,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             text=u'''
 <div>
 <h3>Prologue</h3>
-<p>This is a fake adapter for testing purposes.  Different storyId's will give different errors:</p>
+<p>This is a fake adapter for testing purposes.  Different sid's will give different errors:</p>
 <p>http://test1.com?sid=664 - Crazy string title</p>
 <p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
@@ -171,18 +170,17 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
-<p>And other storyId will succeed with the same output.</p>
+<p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
 '''
         else:
             text=u'''
 <div>
 <h3>Chapter title from site</h3>
-<p><center>Centered text</center></p>
 <p>Lorem '''+self.crazystring+u''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
 Puella Magi Madoka Magica/魔法少女まどか★マギカ
-<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a><br/>
+<!-- a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a --><br/>
 br breaks<br><br>
 Don't&#8212e;ver&#8212d;o&#8212;that&#8212a;gain, &#27861; &#xE9;
 <hr>

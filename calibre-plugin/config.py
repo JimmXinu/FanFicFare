@@ -48,6 +48,7 @@ all_prefs.defaults['deleteotherforms'] = False
 all_prefs.defaults['adddialogstaysontop'] = False
 all_prefs.defaults['includeimages'] = False
 all_prefs.defaults['lookforurlinhtml'] = False
+all_prefs.defaults['injectseries'] = False
 
 all_prefs.defaults['send_lists'] = ''
 all_prefs.defaults['read_lists'] = ''
@@ -75,6 +76,7 @@ copylist = ['personal.ini',
             'adddialogstaysontop',
             'includeimages',
             'lookforurlinhtml',
+            'injectseries',
             'gcnewonly',
             'gc_site_settings',
             'allow_gc_from_ini']
@@ -181,6 +183,7 @@ class ConfigWidget(QWidget):
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
+        prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
 
         if self.readinglist_tab:
             # lists
@@ -319,6 +322,11 @@ class BasicTab(QWidget):
         self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
+
+        self.injectseries = QCheckBox("Inject calibre Series when none found?",self)
+        self.injectseries.setToolTip("If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover).")
+        self.injectseries.setChecked(prefs['injectseries'])
+        self.l.addWidget(self.injectseries)
 
         self.l.insertStretch(-1)
         
