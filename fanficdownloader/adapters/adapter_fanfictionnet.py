@@ -205,12 +205,17 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if metatext == None: # indicates there's no Reviews, look for id: instead.
             metatext = a.findNext(text=re.compile(r' - id:'))
 
+        m = re.match(r" - (?P<lang>[^ ]+)",metatext)
+        if m.group('lang') != None:
+            self.story.setMetadata('language',m.group('lang'))
+                    
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
-        if 'Complete' in a.findNext(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
+        if 'Complete' in soup.find(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
+
 
         # Parse genre(s) from <meta name="description" content="..."
         # <meta name="description" content="A Transformers/Beast Wars  - Humor fanfiction with characters Prowl & Sideswipe. Story summary: Sideswipe is bored. Prowl appears to be so, too  or at least, Sideswipe thinks he looks bored . So Sideswipe entertains them. After all, what's more fun than a race? Song-fic.">
@@ -218,8 +223,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # (fp)<meta name="description" content="Chapter 1 of a Sci-Fi  - Adventure/Humor fiction. Felix Max was just your regular hyperactive kid until he accidently caused his own fathers death. Now he has meta-humans trying to hunt him down with a corrupt goverment to back them up. Oh, and did I mention he has no Powers yet?.">
         # <meta name="description" content="Chapter 1 of a Bleach  - Adventure/Angst fanfiction with characters Ichigo K. & Neliel T. O./Nel. Time travel with a twist. Time can be a real bi***. Ichigo finds that fact out when he accidentally goes back in time. Is this his second chance or is fate just screwing with him. Not a crack fic.IchixNelXHime.">
         # <meta name="description" content="Chapter 1 of a Harry Potter and Transformers  - Humor/Adventure crossover fanfiction  with characters: Harry P. & Ironhide. IT’s one thing to be tossed thru the Veil for something he didn’t do. It was quite another to wake in his animigus form in a world not his own. Harry just knew someone was laughing at him somewhere. Mech/Mech pairings inside..">
-        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  (?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?P<chars>[ ]+with characters)?",
+        # <meta name="description" content="Chapter 1 of a SpongeBob SquarePants - Romance/Humor fanfiction with characters SpongeBob. Bob Esponja tiene un admirador secreto ¿quien será?.">
+        # Chapter 1 of a SpongeBob SquarePants - Romance/Humor fanfiction with characters SpongeBob. Bob Esponja tiene un admirador secreto Â¿quien serÃ¡?.  update existing id:1684
+        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  ?(?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?P<chars>[ ]+with characters)?",
                      soup.find('meta',{'name':'description'})['content'])
+        #print("meta desc:%s"%soup.find('meta',{'name':'description'})['content'])
         if m != None:
             genres=m.group('genres')
             if genres != None:
@@ -238,15 +246,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # - English -  Shinji H. - Updated: 01-13-12 - Published: 12-20-11 - id:7654123
                 # - English - Adventure/Angst -  Ichigo K. & Neliel T. O./Nel - Reviews:
                 # - English - Humor/Adventure -  Harry P. & Ironhide - Reviews:
-                mc = re.match(r" - (?P<lang>[^ ]+ - )(?P<genres>[^ ]+ - )? (?P<chars>.+?) - (Reviews|Updated|Published)",
+                # - Spanish - Romance/Humor - SpongeBob - Reviews:
+                #print("metatext:%s"%metatext)
+                mc = re.match(r" - (?P<lang>[^ ]+ - )(?P<genres>[^ ]+ - )? ?(?P<chars>.+?) - (Reviews|Updated|Published)",
                               metatext)
                 chars = mc.group("chars")
-                for c in chars.split(' & '):
-                    self.story.addToList('characters',c)
-        m = re.match(r" - (?P<lang>[^ ]+)",metatext)
-        if m.group('lang') != None:
-            self.story.setMetadata('language',m.group('lang'))
-                    
+                for c in chars.split('&'):
+                    self.story.addToList('characters',c.strip())
         return
 
     def getChapterText(self, url):
