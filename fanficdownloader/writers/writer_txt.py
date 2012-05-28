@@ -21,7 +21,7 @@ from textwrap import wrap
 
 from base_writer import *
 
-from ..html2text import html2text, BODY_WIDTH
+from ..html2text import html2text
 
 ## In BaseStoryWriter, we define _write to encode <unicode> objects
 ## back into <string> for true output.  But txt needs to write the
@@ -106,6 +106,12 @@ End file.
 
     def writeStoryImpl(self, out):
 
+        self.wrap_width = self.getConfig('wrap_width')
+        if self.wrap_width == '' or self.wrap_width == '0':
+            self.wrap_width = None
+        else:
+            self.wrap_width = int(self.wrap_width)
+        
         wrapout = KludgeStringIO()
         
         wrapout.write(self.TEXT_FILE_START.substitute(self.story.metadata))
@@ -131,15 +137,19 @@ End file.
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
-                self._write(out,self.lineends(html2text(html)))
+                self._write(out,self.lineends(html2text(html,wrap_width=self.wrap_width)))
 
         self._write(out,self.lineends(self.wraplines(self.TEXT_FILE_END.substitute(self.story.metadata))))
 
     def wraplines(self, text):
+        
+        if not self.wrap_width:
+            return text
+        
         result=''
         for para in text.split("\n"):
             first=True
-            for line in wrap(para, BODY_WIDTH):
+            for line in wrap(para, self.wrap_width):
                 if first:
                     first=False
                 else:

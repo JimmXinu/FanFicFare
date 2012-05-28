@@ -103,9 +103,10 @@ def onlywhite(line):
             return c is ' '
     return line
 
-def optwrap(text):
+def optwrap(text,wrap_width=BODY_WIDTH):
     """Wrap all paragraphs in the provided text."""
-    if not BODY_WIDTH:
+    
+    if not wrap_width:
         return text
     
     assert wrap, "Requires Python 2.3."
@@ -114,7 +115,7 @@ def optwrap(text):
     for para in text.split("\n"):
         if len(para) > 0:
             if para[0] is not ' ' and para[0] is not '-' and para[0] is not '*':
-                for line in wrap(para, BODY_WIDTH):
+                for line in wrap(para, wrap_width):
                     result += line + "\n"
                 result += "\n"
                 newlines = 2
@@ -423,8 +424,8 @@ def html2text_file(html, out=wrapwrite, baseurl=''):
     h.feed("")
     return h.close()
 
-def html2text(html, baseurl=''):
-    return optwrap(html2text_file(html, None, baseurl))
+def html2text(html, baseurl='', wrap_width=BODY_WIDTH):
+    return optwrap(html2text_file(html, None, baseurl),wrap_width)
 
 if __name__ == "__main__":
     baseurl = ''
