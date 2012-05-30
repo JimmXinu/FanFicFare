@@ -902,10 +902,18 @@ make_firstimage_cover:true
             if len(lists) < 1 :
                 message="<p>You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?</p>"
                 confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
+
+            # Quick demo of how an 'allow send' list might work.
+            # Issues: allow list per send list?  Naming convention?  "send(allow)"
+            # allow_list = rl_plugin.get_book_list("Allow Send to Device")
+            # # intersection of book_ids & allow_list
+            # add_book_ids = list(set(book_ids) & set(allow_list))
+
             for l in lists:
                 if l in rl_plugin.get_list_names():
                     #print("good send l:(%s)"%l)
                     rl_plugin.add_books_to_list(l,
+                                                #add_book_ids,
                                                 book_ids,
                                                 display_warnings=False)
                 else:
