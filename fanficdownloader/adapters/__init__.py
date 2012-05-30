@@ -65,6 +65,7 @@ import adapter_phoenixsongnet
 import adapter_walkingtheplankorg
 import adapter_ashwindersycophanthexcom
 import adapter_thehexfilesnet
+import adapter_dokugacom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
