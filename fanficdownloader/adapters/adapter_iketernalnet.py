@@ -41,8 +41,8 @@ class IkEternalNetAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.username = "iatheia"#NoneGiven" # if left empty, site doesn't return any message at all.
-        self.password = "tibietastris"
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
+        self.password = ""
         self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
