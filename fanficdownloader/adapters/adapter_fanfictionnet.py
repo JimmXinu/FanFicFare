@@ -268,8 +268,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
         if sharediv:
             sharediv.extract()
-        else:
-            logging.debug('share button div not found')
         
         div = soup.find('div', {'id' : 'storytext'})
         
