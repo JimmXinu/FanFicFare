@@ -83,7 +83,7 @@ class AddNewDialog(SizePersistedDialog):
 
         self.l.addWidget(QLabel('Story URL(s), one per line:'))
         self.url = DroppableQTextEdit(self)
-        self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.')
+        self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.')
         self.url.setLineWrapMode(QTextEdit.NoWrap)
         self.url.setText(url_list_text)
         self.l.addWidget(self.url)
