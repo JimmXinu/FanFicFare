@@ -197,7 +197,9 @@ class Story:
         self.imgurls = []
         self.imgtuples = []
         self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
-        self.cover=None
+        self.cover=None # *href* of new cover image--need to create html.
+        self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
+        self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
 
     def setMetadata(self, key, value):
         ## still keeps &lt; &lt; and &amp;

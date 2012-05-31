@@ -87,6 +87,8 @@ class BaseSiteAdapter(Configurable):
         self.chapterLast = None
         self.oldchapters = None
         self.oldimgs = None
+        self.oldcover = None # (data of existing cover html, data of existing cover image)
+        self.calibrebookmark = None
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -218,6 +220,15 @@ class BaseSiteAdapter(Configurable):
                                                                self.getConfig('allow_unsafe_filename')),
                                      self._fetchUrlRaw,
                                      cover=True)
+
+            # no new cover, set old cover, if there is one.
+            if not self.story.cover and self.oldcover:
+                self.story.oldcover = self.oldcover
+                
+            # cheesy way to carry calibre bookmark file forward across update.
+            if self.calibrebookmark:
+                self.story.calibrebookmark = self.calibrebookmark
+                
         return self.story
 
     def getStoryMetadataOnly(self):

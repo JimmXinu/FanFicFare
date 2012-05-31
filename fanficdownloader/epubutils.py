@@ -40,6 +40,50 @@ def get_update_data(inputio,
     ## Save the path to the .opf file--hrefs inside it are relative to it.
     relpath = get_path_part(rootfilename)
             
+    oldcover = None
+    calibrebookmark = None
+    # Looking for pre-existing cover.
+    for item in contentdom.getElementsByTagName("reference"):
+        if item.getAttribute("type") == "cover":
+            # there is a cover (x)html file, save the soup for it.
+            href=relpath+item.getAttribute("href")
+            oldcoverhtmlhref = href
+            oldcoverhtmldata = epub.read(href)
+            oldcoverhtmltype = "application/xhtml+xml"
+            for item in contentdom.getElementsByTagName("item"):
+                if( relpath+item.getAttribute("href") == oldcoverhtmlhref ):
+                    oldcoverhtmltype = item.getAttribute("media-type")
+                    break
+            soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"))
+            src = None
+            # first img or image tag.
+            imgs = soup.findAll('img')
+            if imgs:
+                src = get_path_part(href)+imgs[0]['src']
+            else:
+                imgs = soup.findAll('image')
+                if imgs:
+                    src=get_path_part(href)+imgs[0]['xlink:href']
+
+            if not src:
+                continue
+            try:
+                # remove all .. and the path part above it, if present.
+                # Mostly for epubs edited by Sigil.
+                src = re.sub(r"([^/]+/\.\./)","",src)
+                print("epubutils: found pre-existing cover image:%s"%src)
+                oldcoverimghref = src
+                oldcoverimgdata = epub.read(src)
+                for item in contentdom.getElementsByTagName("item"):
+                    if( relpath+item.getAttribute("href") == oldcoverimghref ):
+                        oldcoverimgtype = item.getAttribute("media-type")
+                        break
+                oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
+            except Exception as e:
+                print("Cover Image %s not found"%src)
+                print("Exception: %s"%(unicode(e)))
+                traceback.print_exc()
+
     filecount = 0
     soups = [] # list of xhmtl blocks
     images = {} # dict() longdesc->data
@@ -61,7 +105,7 @@ def get_update_data(inputio,
                             try:
                                 newsrc=get_path_part(href)+img['src']
                                 # remove all .. and the path part above it, if present.
-                                # Most for epubs edited by Sigil.
+                                # Mostly for epubs edited by Sigil.
                                 newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
                                 longdesc=img['longdesc']
                                 data = epub.read(newsrc)
@@ -85,9 +129,14 @@ def get_update_data(inputio,
                         
                     filecount+=1
 
+    try:
+        calibrebookmark = epub.read("META-INF/calibre_bookmarks.txt")
+    except:
+        pass
+                    
     for k in images.keys():
         print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    return (source,filecount,soups,images)
+    return (source,filecount,soups,images,oldcover,calibrebookmark)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)

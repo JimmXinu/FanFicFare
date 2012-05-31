@@ -64,6 +64,9 @@ def main():
    parser.add_option("-u", "--update-epub",
                      action="store_true", dest="update",
                      help="Update an existing epub with new chapter, give epub filename instead of storyurl.",)
+   parser.add_option("--update-cover",
+                     action="store_true", dest="updatecover",
+                     help="Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
                      help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
@@ -104,6 +107,9 @@ def main():
 
    if options.force:
        config.set("overrides","always_overwrite","true")
+
+   if options.update and not options.updatecover:
+       config.set("overrides","never_make_cover","true")
        
    if options.options:
        for opt in options.options:
@@ -167,7 +173,9 @@ def main():
                    # merging epubs.
                    (url,chaptercount,
                     adapter.oldchapters,
-                    adapter.oldimgs) = get_update_data(args[0])
+                    adapter.oldimgs,
+                    adapter.oldcover,
+                    adapter.calibrebookmark) = get_update_data(args[0])
 
                    writeStory(config,adapter,"epub")
                    

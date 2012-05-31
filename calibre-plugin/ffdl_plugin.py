@@ -386,7 +386,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def get_metadata_for_book(self,book,
                               options={'fileform':'epub',
                                        'collision':ADDNEW,
-                                       'updatemeta':True}):
+                                       'updatemeta':True,
+                                       'updateepubcover':True}):
         '''
         Update passed in book dict with metadata from website and
         necessary data.  To be called from LoopProgressDialog
@@ -402,6 +403,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         fileform  = options['fileform']
         collision = options['collision']
         updatemeta= options['updatemeta']
+        updateepubcover= options['updateepubcover']
 
         if not book['good']:
             # book has already been flagged bad for whatever reason.
@@ -593,7 +595,8 @@ make_firstimage_cover:true
     def start_download_list(self,book_list,
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
-                                     'updatemeta':True}):
+                                     'updatemeta':True,
+                                     'updateepubcover':True}):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
@@ -641,7 +644,8 @@ make_firstimage_cover:true
     def _update_book(self,book,db=None,
                      options={'fileform':'epub',
                               'collision':ADDNEW,
-                              'updatemeta':True}):
+                              'updatemeta':True,
+                              'updateepubcover':True}):
         print("add/update %s %s"%(book['title'],book['url']))
         mi = self._make_mi_from_book(book)
                 
