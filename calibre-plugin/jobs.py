@@ -133,6 +133,9 @@ def do_download_for_worker(book,options):
         ## checks were done earlier, it's new or not dup or newer--just write it.
         elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
                 ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
+
+            adapter.setChaptersRange(book['begin'],book['end'])
+            
             print("write to %s"%outfile)
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))

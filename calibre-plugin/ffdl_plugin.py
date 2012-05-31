@@ -953,7 +953,13 @@ make_firstimage_cover:true
         books = []
         uniqueurls = set()
         for url in urls:
+            # look here for [\d,\d] at end of url, and remove?
+            mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?:,(?P<end>\d+))?\])?$",url)
+            print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
+            url = mc.group('url')
             book = self._convert_url_to_book(url)
+            book['begin'] = mc.group('begin')
+            book['end'] = mc.group('end')
             if book['url'] in uniqueurls:
                 book['good'] = False
                 book['comment'] = "Same story already included."
