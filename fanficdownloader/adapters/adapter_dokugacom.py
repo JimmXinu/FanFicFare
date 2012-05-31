@@ -31,7 +31,7 @@ def getClass():
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class DokugaComAdapter(BaseSiteAdapter): # XXX
+class DokugaComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -144,26 +144,36 @@ class DokugaComAdapter(BaseSiteAdapter): # XXX
             self.setDescription(url,div)
         
             div=div.nextSibling
-            self.story.setMetadata('rating', div.text.split('Rating: ')[1].split('&')[0])
-        
-            iscomp=div.text.split('Status: ')[1].split('&')[0]
-            if 'Complete' in iscomp:
-                self.story.setMetadata('status', 'Completed')
-            else:
-                self.story.setMetadata('status', 'In-Progress')
             
-            self.story.addToList('category', div.text.split('Category: ')[1].split('&')[0])
+            a=div.text.split('Rating: ')
+            if len(a) == 2: self.story.setMetadata('rating', a[1].split('&')[0])
+        
+            a=div.text.split('Status: ')
+            if len(a)==2:
+                iscomp=a[1].split('&')[0]
+                if 'Complete' in iscomp:
+                    self.story.setMetadata('status', 'Completed')
+                else:
+                    self.story.setMetadata('status', 'In-Progress')
+            
+            a=div.text.split('Category: ')
+            if len(a) == 2: self.story.addToList('category', a[1].split('&')[0])
             self.story.addToList('category', 'Fanfiction')
         
-            self.story.setMetadata('datePublished', makeDate(stripHTML(div.text.split('Created: ')[1].split('&')[0]), self.dateformat))
+            a=div.text.split('Created: ')
+            if len(a) == 2: self.story.setMetadata('datePublished', makeDate(stripHTML(a[1].split('&')[0]), self.dateformat))
         
-            self.story.setMetadata('dateUpdated', makeDate(stripHTML(div.text.split('Updated: ')[1]), self.dateformat))
+            a=div.text.split('Updated: ')
+            if len(a) == 2: self.story.setMetadata('dateUpdated', makeDate(stripHTML(a[1]), self.dateformat))
             
             div=div.nextSibling.nextSibling
-            self.story.setMetadata('numWords', div.text.split('Words: ')[1].split('&')[0])
+            a=div.text.split('Words: ')
+            if len(a) == 2: self.story.setMetadata('numWords', a[1].split('&')[0])
         
-            for genre in div.text.split('Genre: ')[1].split('&')[0].split(', '):
-                self.story.addToList('genre',genre)
+            a=div.text.split('Genre: ')
+            if len(a) == 2:
+                for genre in a[1].split('&')[0].split(', '):
+                    self.story.addToList('genre',genre)
         
         else:
             asoup=asoup.find('div', {'id' : 'maincol'}).find('div', {'class' : 'padding'})
@@ -177,26 +187,34 @@ class DokugaComAdapter(BaseSiteAdapter): # XXX
             self.story.addToList('category', 'Spark')
             
             div=div.nextSibling.nextSibling
-            self.story.setMetadata('rating', div.text.split('Rating: ')[1].split(' - ')[0])
+            a=div.text.split('Rating: ')
+            if len(a) == 2: self.story.setMetadata('rating', a[1].split(' - ')[0])
             
-            iscomp=div.text.split('Status: ')[1].split(' - ')[0]
-            if 'Complete' in iscomp:
-                self.story.setMetadata('status', 'Completed')
-            else:
-                self.story.setMetadata('status', 'In-Progress')
+            a=div.text.split('Status: ')
+            if len(a)==2:
+                iscomp=a[1].split(' - ')[0]
+                if 'Complete' in iscomp:
+                    self.story.setMetadata('status', 'Completed')
+                else:
+                    self.story.setMetadata('status', 'In-Progress')
             
-            for genre in div.text.split('Genre: ')[1].split(' - ')[0].split('/'):
-                self.story.addToList('genre',genre)
+            a=div.text.split('Genre: ')
+            if len(a)==2:
+                for genre in a[1].split(' - ')[0].split('/'):
+                    self.story.addToList('genre',genre)
                 
             div=div.nextSibling.nextSibling
             
-            date=div.text.split('Updated: ')[1].split('      -')[0]
-            self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
+            a=div.text.split('Updated: ')
+            if len(a)==2:
+                date=a[1].split('      -')[0]
+                self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
         
-            # does not have published date anywhere
-            self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
+                # does not have published date anywhere
+                self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             
-            self.story.setMetadata('numWords', div.text.split('Words ')[1])
+            a=div.text.split('Words ')
+            if len(a)==2: self.story.setMetadata('numWords', a[1])
             
         
 
