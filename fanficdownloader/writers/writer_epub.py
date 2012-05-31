@@ -262,6 +262,37 @@ ${value}<br />
         items.append(("ncx","toc.ncx","application/x-dtbncx+xml",None)) ## we'll generate the toc.ncx file,
                                                                    ## but it needs to be in the items manifest.
 
+        guide = None
+        coverIO = None
+                
+        imgid = "image0000"
+        if not self.story.cover and self.story.oldcover:
+            print("writer_epub: no new cover, has old cover, write image.")
+            (oldcoverhtmlhref,
+             oldcoverhtmltype,
+             oldcoverhtmldata,
+             oldcoverimghref,
+             oldcoverimgtype,
+             oldcoverimgdata) = self.story.oldcover
+            outputepub.writestr(oldcoverhtmlhref,oldcoverhtmldata)
+            outputepub.writestr(oldcoverimghref,oldcoverimgdata)
+            
+            imgid = "image0"
+            items.append((imgid,
+                          oldcoverimghref,
+                          oldcoverimgtype,
+                          None))
+            items.append(("cover",oldcoverhtmlhref,oldcoverhtmltype,None))
+            itemrefs.append("cover")
+            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0",
+                                                           "name":"cover"}))
+            guide = newTag(contentdom,"guide")
+            guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
+                                                                   "title":"Cover",
+                                                                   "href":oldcoverhtmlhref}))
+            
+            
+
         if self.getConfig('include_images'):
             imgcount=0
             for imgmap in self.story.getImgUrls():
@@ -275,9 +306,6 @@ ${value}<br />
 
         
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
-
-        guide = None
-        coverIO = None
 
         if self.story.cover:
             # Note that the id of the cover xhmtl *must* be 'cover'
@@ -347,8 +375,8 @@ div { margin: 0pt; padding: 0pt; }
         contentxml = contentdom.toxml(encoding='utf-8')
         
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace('<meta content="image0000" name="cover"/>',
-                                        '<meta name="cover" content="image0000"/>')
+        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%imgid,
+                                        '<meta name="cover" content="%s"/>'%imgid)
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()
@@ -457,6 +485,9 @@ div { margin: 0pt; padding: 0pt; }
                 fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
                 outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
                 del fullhtml
+
+        if self.story.calibrebookmark:
+            outputepub.writestr("META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
 
 	# declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.

@@ -123,10 +123,18 @@ class AddNewDialog(SizePersistedDialog):
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
 
+        horz = QHBoxLayout()
         self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
         self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
         self.updatemeta.setChecked(prefs['updatemeta'])
-        self.l.addWidget(self.updatemeta)
+        horz.addWidget(self.updatemeta)
+
+        self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
+        self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
+        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        horz.addWidget(self.updateepubcover)
+        
+        self.l.addLayout(horz)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
@@ -155,6 +163,7 @@ class AddNewDialog(SizePersistedDialog):
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
+            'updateepubcover': self.updateepubcover.isChecked(),
             }
 
     def get_urlstext(self):
@@ -402,6 +411,11 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.updatemeta.setChecked(prefs['updatemeta'])
         options_layout.addWidget(self.updatemeta)
                 
+        self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
+        self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
+        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        options_layout.addWidget(self.updateepubcover)
+        
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -435,6 +449,7 @@ class UpdateExistingDialog(SizePersistedDialog):
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
+            'updateepubcover': self.updateepubcover.isChecked(),
             }
 
 def display_story_list(gui, header, prefs, icon, books,

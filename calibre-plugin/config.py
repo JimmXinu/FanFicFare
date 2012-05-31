@@ -39,6 +39,7 @@ all_prefs.defaults['personal.ini'] = get_resources('plugin-example.ini')
 
 all_prefs.defaults['updatemeta'] = True
 all_prefs.defaults['updatecover'] = False
+all_prefs.defaults['updateepubcover'] = False
 all_prefs.defaults['keeptags'] = False
 all_prefs.defaults['urlsfromclip'] = True
 all_prefs.defaults['updatedefault'] = True
@@ -67,6 +68,7 @@ all_prefs.defaults['custom_cols'] = {}
 copylist = ['personal.ini',
             'updatemeta',
             'updatecover',
+            'updateepubcover',
             'keeptags',
             'urlsfromclip',
             'updatedefault',
@@ -176,6 +178,7 @@ class ConfigWidget(QWidget):
         prefs['collision'] = unicode(self.basic_tab.collision.currentText())
         prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
         prefs['updatecover'] = self.basic_tab.updatecover.isChecked()
+        prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
@@ -245,9 +248,11 @@ class BasicTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
+        tooltip = "On each download, FFDL offers an option to select the output format. <br />This sets what that option will default to."
         horz = QHBoxLayout()
         label = QLabel('Default Output &Format:')
+        label.setToolTip(tooltip)
         horz.addWidget(label)
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
@@ -255,15 +260,16 @@ class BasicTab(QWidget):
         self.fileform.addItem('html')
         self.fileform.addItem('txt')
         self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
-        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.setToolTip(tooltip)
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
         horz.addWidget(self.fileform)
         self.l.addLayout(horz)
 
+        tooltip = "On each download, FFDL offers an option of what happens if that story already exists. <br />This sets what that option will default to."
         horz = QHBoxLayout()
         label = QLabel('Default If Story Already Exists?')
-        label.setToolTip("What to do if there's already an existing story with the same title and author.")
+        label.setToolTip(tooltip)
         horz.addWidget(label)
         self.collision = QComboBox(self)
         # add collision options
@@ -271,18 +277,23 @@ class BasicTab(QWidget):
         i = self.collision.findText(prefs['collision'])
         if i > -1:
             self.collision.setCurrentIndex(i)
-        # self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
+        self.collision.setToolTip(tooltip)
         label.setBuddy(self.collision)
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
 
         self.updatemeta = QCheckBox('Default Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip('Update title, author, URL, tags, custom columns, etc for story in Calibre from web site.')
+        self.updatemeta.setToolTip("On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off.")
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
-        self.updatecover = QCheckBox('Update Cover when Updating Metadata?',self)
-        self.updatecover.setToolTip("Update cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
+        self.updateepubcover = QCheckBox('Default Update EPUB Cover when Updating EPUB?',self)
+        self.updateepubcover.setToolTip("On each download, FFDL offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off.")
+        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        self.l.addWidget(self.updateepubcover)
+
+        self.updatecover = QCheckBox('Update Calibre Cover when Updating Metadata?',self)
+        self.updatecover.setToolTip("Update calibre book cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
         self.updatecover.setChecked(prefs['updatecover'])
         self.l.addWidget(self.updatecover)
 
@@ -514,7 +525,7 @@ class GenerateCoverTab(QWidget):
             if site == u"Default":
                 s = "On Metadata update, run Generate Cover with this setting, if not selected for specific site."
             else:
-                s = "On Metadata update, run Generate Cover with this setting for site (%s)."%site
+                s = "On Metadata update, run Generate Cover with this setting for %s stories."%site
 
             label.setToolTip(s)
             horz.addWidget(label)
@@ -536,7 +547,7 @@ class GenerateCoverTab(QWidget):
         self.l.addWidget(self.gcnewonly)
 
         self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override.',self)
-        self.allow_gc_from_ini.setToolTip("The INI parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site,\nbut it's much more complex.  generate_cover_settings is ignored when this is off.")
+        self.allow_gc_from_ini.setToolTip("The personal.ini parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \>generate_cover_settings is ignored when this is off.")
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
             

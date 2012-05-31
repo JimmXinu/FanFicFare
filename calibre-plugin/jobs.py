@@ -107,6 +107,9 @@ def do_download_for_worker(book,options):
         ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
         ffdlconfig.readfp(StringIO(options['personal.ini']))
         
+        if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
+            ffdlconfig.set("overrides","never_make_cover","true")
+        
         adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
         adapter.is_adult = book['is_adult'] 
         adapter.username = book['username'] 
@@ -136,13 +139,15 @@ def do_download_for_worker(book,options):
             
         ## checks were done earlier, just update it.
         elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
-            
+
             # update now handled by pre-populating the old images and
             # chapters in the adapter rather than merging epubs.
             urlchaptercount = int(story.getMetadata('numChapters'))
             (url,chaptercount,
              adapter.oldchapters,
-             adapter.oldimgs) = get_update_data(book['epub_for_update'])
+             adapter.oldimgs,
+             adapter.oldcover,
+             adapter.calibrebookmark) = get_update_data(book['epub_for_update'])
 
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
             print("write to %s"%outfile)
