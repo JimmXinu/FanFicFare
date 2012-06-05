@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <title>Login Needed FanFictionDownLoader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12136939-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
+  <body>
+    <div id='main'>
+      <h1>
+	<a href="/" style="text-decoration: none; color: black;">FanFictionDownLoader</a>
+      </h1>
+
+      <div style="text-align: center">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "ca-pub-0320924304307555";
+                                          /* Standard */
+                                          google_ad_slot = "8974025478";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+
+      {% if fic.failure %}
+      <div id='error'>
+	{{ fic.failure }}
+      </div>
+      {% endif %}
+      <form action="/fdown" method="post">
+	<input type="hidden" name="url" value='{{ url }}'>	
+	<input type="hidden" name="format" value='{{ format }}'>	
+	<div id='logpasswordtable'>
+	  
+	  {% if is_login %}
+	  
+	  <h3>Login and Password</h3>
+	  <div id='logpassword'>
+	    {{ site }} requires a Login/Password for this story.
+	    You need to provide your Login/Password for {{ site }}
+	    to download it.
+	  </div>
+	  <div class='fieldandlabel'>
+	    <div class='label'>Login</div>
+	    <div class='field'><input type='text' name='login' size='50'></div>
+	  </div>
+	  
+	  <div class='fieldandlabel'>
+	    <div class='label'>Password</div>
+	    <div class='field'><input type='password' name='password' size='50'></div>
+	  </div>
+	  
+	  {% else %}
+
+	  <input type="hidden" name="login" value='{{ login }}'>
+	  <input type="hidden" name="password" value='{{ password }}'>
+	  <div class='fieldandlabel'>
+	    <div class='label'>Are you an Adult?  <input type='checkbox' name='is_adult'></div>
+	  </div>
+
+	  {% endif %}
+
+	</div>
+	
+	<div id='submitbtn'>
+	  <input type="submit" value="Download">
+	</div>
+      </form>
+      
+      <div style='text-align: center'>
+	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+	     alt="Powered by Google App Engine" />
+	<br/><br/>
+	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFictionDownLoader</a><br/>
+	Copyright &copy; FanFictionDownLoader team
+      </div>
+
+      <div style="margin-top: 1em; text-align: center'">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "pub-2027714004231956";
+                                          /* FFD */
+                                          google_ad_slot = "7330682770";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+    </div>
+  </body>
+</html>
