@@ -23,8 +23,13 @@ import time
 
 from .. import BeautifulSoup as bs
 from .. import exceptions as exceptions
+from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter,  makeDate
+
+ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
+             "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
+             "Spiritual", "Supernatural", "Suspense", "Tragedy", "Western"]
 
 class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
@@ -198,61 +203,45 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## Pull some additional data from html.  Find Rating and look around it.
 
         a = soup.find('a', href='http://www.fictionratings.com/')
-        self.story.setMetadata('rating',a.string)
+        rating = a.string
+        if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
+            rating = rating[8:]
+            
+        self.story.setMetadata('rating',rating)
 
-        # used below to get correct characters.
-        metatext = a.findNext(text=re.compile(r' - Reviews:'))
-        if metatext == None: # indicates there's no Reviews, look for id: instead.
-            metatext = a.findNext(text=re.compile(r' - id:'))
-
-        m = re.match(r" - (?P<lang>[^ ]+)",metatext)
-        if m.group('lang') != None:
-            self.story.setMetadata('language',m.group('lang'))
-                    
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
-        if 'Complete' in soup.find(text=re.compile(r'id:'+self.story.getMetadata('storyId'))):
+        gui_table1i = soup.find(id="gui_table1i")
+        metatext = stripHTML(gui_table1i.find('div', {'style':'color:gray;'})).replace('Hurt/Comfort','Hurt-Comfort')
+        metalist = metatext.split(" - ")
+        #print("metatext:(%s)"%metalist)
+
+        # rating is obtained above more robustly.
+        if metalist[0].startswith('Rated:'):
+            metalist=metalist[1:]
+
+        # next is assumed to be language.
+        self.story.setMetadata('language',metalist[0])
+        metalist=metalist[1:]
+
+        # next might be genre.
+        genrelist = metalist[0].split('/') # Hurt/Comfort already changed above.
+        goodgenres=True
+        for g in genrelist:
+            if g not in ffnetgenres:
+                goodgenres=False
+        if goodgenres:
+            self.story.extendList('genre',genrelist)
+            metalist=metalist[1:]
+
+        # next might be characters, otherwise Reviews, Updated or Published
+        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') ):
+            self.story.extendList('characters',metalist[0].split(' & '))        
+        
+        if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-
-
-        # Parse genre(s) from <meta name="description" content="..."
-        # <meta name="description" content="A Transformers/Beast Wars  - Humor fanfiction with characters Prowl & Sideswipe. Story summary: Sideswipe is bored. Prowl appears to be so, too  or at least, Sideswipe thinks he looks bored . So Sideswipe entertains them. After all, what's more fun than a race? Song-fic.">
-        # <meta name="description" content="Chapter 1 of a Transformers/Beast Wars  - Adventure/Friendship fanfiction with characters Bumblebee. TFA: What would you do if you was being abused all you life? Follow NightRunner as she goes through her spark breaking adventure of getting away from her father..">
-        # (fp)<meta name="description" content="Chapter 1 of a Sci-Fi  - Adventure/Humor fiction. Felix Max was just your regular hyperactive kid until he accidently caused his own fathers death. Now he has meta-humans trying to hunt him down with a corrupt goverment to back them up. Oh, and did I mention he has no Powers yet?.">
-        # <meta name="description" content="Chapter 1 of a Bleach  - Adventure/Angst fanfiction with characters Ichigo K. & Neliel T. O./Nel. Time travel with a twist. Time can be a real bi***. Ichigo finds that fact out when he accidentally goes back in time. Is this his second chance or is fate just screwing with him. Not a crack fic.IchixNelXHime.">
-        # <meta name="description" content="Chapter 1 of a Harry Potter and Transformers  - Humor/Adventure crossover fanfiction  with characters: Harry P. & Ironhide. IT’s one thing to be tossed thru the Veil for something he didn’t do. It was quite another to wake in his animigus form in a world not his own. Harry just knew someone was laughing at him somewhere. Mech/Mech pairings inside..">
-        # <meta name="description" content="Chapter 1 of a SpongeBob SquarePants - Romance/Humor fanfiction with characters SpongeBob. Bob Esponja tiene un admirador secreto ¿quien será?.">
-        # Chapter 1 of a SpongeBob SquarePants - Romance/Humor fanfiction with characters SpongeBob. Bob Esponja tiene un admirador secreto Â¿quien serÃ¡?.  update existing id:1684
-        m = re.match(r"^(?:Chapter \d+ of a|A) (?:.*?)  ?(?:- (?P<genres>.*?) )?(?:crossover )?(?:fan)?fiction(?P<chars>[ ]+with characters)?",
-                     soup.find('meta',{'name':'description'})['content'])
-        #print("meta desc:%s"%soup.find('meta',{'name':'description'})['content'])
-        if m != None:
-            genres=m.group('genres')
-            if genres != None:
-                # Hurt/Comfort is one genre.
-                genres=re.sub('Hurt/Comfort','Hurt-Comfort',genres)
-                for g in genres.split('/'):
-                    self.story.addToList('genre',g)
-
-            if m.group('chars') != None:
-
-                # At this point we've proven that there's character(s)
-                # We can't reliably parse characters out of meta name="description".
-                # There's no way to tell that "with characters Ichigo K. & Neliel T. O./Nel. " ends at "Nel.", not "T."
-                # But we can pull them from the reviewstext line, now that we know about existance of chars.
-                # reviewstext can take form of:
-                # - English -  Shinji H. - Updated: 01-13-12 - Published: 12-20-11 - id:7654123
-                # - English - Adventure/Angst -  Ichigo K. & Neliel T. O./Nel - Reviews:
-                # - English - Humor/Adventure -  Harry P. & Ironhide - Reviews:
-                # - Spanish - Romance/Humor - SpongeBob - Reviews:
-                #print("metatext:%s"%metatext)
-                mc = re.match(r" - (?P<lang>[^ ]+ - )(?P<genres>[^ ]+ - )? ?(?P<chars>.+?) - (Reviews|Updated|Published)",
-                              metatext)
-                chars = mc.group("chars")
-                for c in chars.split('&'):
-                    self.story.addToList('characters',c.strip())
         return
 
     def getChapterText(self, url):
@@ -269,10 +258,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if sharediv:
             sharediv.extract()
         
-        div = soup.find('div', {'id' : 'storytext'})
+        div = soup.find('div', {'id' : 'storytextp'})
         
         if None == div:
-            logging.debug('div id=storytext not found.  data:%s'%data)
+            logging.debug('div id=storytextp not found.  data:%s'%data)
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)

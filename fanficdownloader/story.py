@@ -252,7 +252,12 @@ class Story:
             allmetadata[l] = self.getMetadata(l, removeallentities, doreplacements)
 
         return allmetadata
-        
+
+    # just for less clutter in adapters.
+    def extendList(self,listname,l):
+        for v in l:
+            self.addToList(listname,v)
+    
     def addToList(self,listname,value):
         if value==None:
             return
