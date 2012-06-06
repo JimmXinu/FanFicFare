@@ -976,6 +976,8 @@ make_firstimage_cover:true
         book['title'] = 'Unknown'
         book['author'] = 'Unknown'
         book['author_sort'] = 'Unknown'
+        book['begin'] = None
+        book['end'] = None
             
         book['comment'] = ''
         book['url'] = ''
@@ -991,6 +993,8 @@ make_firstimage_cover:true
         book['title'] = 'Unknown'
         book['author'] = 'Unknown'
         book['author_sort'] = 'Unknown'
+        book['begin'] = None
+        book['end'] = None
             
         book['comment'] = ''
         book['url'] = ''
