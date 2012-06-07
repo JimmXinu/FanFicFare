@@ -69,11 +69,15 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'onedirectionfanfiction.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.onedirectionfanfiction.com','onedirectionfanfiction.com']
+
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
