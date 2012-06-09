@@ -140,10 +140,6 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
             else:
                 raise e
             
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
-        # print data
-        
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
@@ -158,6 +154,9 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        soup = bs.BeautifulSoup(data)
+        
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
