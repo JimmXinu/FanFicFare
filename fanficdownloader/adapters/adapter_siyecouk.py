@@ -174,7 +174,16 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-        moremeta = stripHTML(titlea.parent.parent.parent.find('div',{'class':'desc'}))
+                
+        # SIYE formats stories in the author list differently when their part of a series.
+        # Look for non-series...
+        divdesc = titlea.parent.parent.find('div',{'class':'desc'})
+        if not divdesc:
+            # ... now look for series.
+            divdesc = titlea.parent.parent.findNextSibling('tr').find('div',{'class':'desc'})
+
+        moremeta = stripHTML(divdesc)
+        #print("moremeta:%s"%moremeta)
         for part in moremeta.replace(' - ','\n').split('\n'):
             #print("part:%s"%part)
             try:

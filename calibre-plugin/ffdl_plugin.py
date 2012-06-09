@@ -720,8 +720,8 @@ make_firstimage_cover:true
                                    good_list,
                                    partial(self._update_book, options=options, db=self.gui.current_db),
                                    partial(self._update_books_completed, options=options),
-                                   init_label="Updating calibre for stories...",
-                                   win_title="Update calibre for stories",
+                                   init_label="Updating calibre for FanFiction stories...",
+                                   win_title="Update calibre for FanFiction stories",
                                    status_prefix="Updated")
 
     def _add_or_update_book(self,book,options,prefs,mi=None):
