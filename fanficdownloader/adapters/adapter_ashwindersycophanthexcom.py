@@ -104,7 +104,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
     
         d = self._fetchUrl(loginUrl, params)
     
-        if "User Account Page" not in d : #Member Account
+        if "Logout" not in d : #Member Account
             logging.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
@@ -160,7 +160,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         for info in asoup.findAll('table', {'bordercolor' : '#1A1919'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
-                self.story.setMetadata('title',a.text)
+                self.story.setMetadata('title',a.string)
                 break
 		
 
