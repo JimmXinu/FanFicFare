@@ -84,7 +84,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         return "http://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        
+        return re.escape("http://"+self.getSiteDomain()+"/")+"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
