@@ -87,7 +87,15 @@ def do_download_worker(book_list, options,
         print(job.details)
 
         if count >= total:
-            # All done!
+            # All done!  Output some lists for convenience of some users.
+            print("Successfully downloaded:")
+            for book in book_list:
+                if book['good']:
+                    print(book['title'])
+            print("\nUnsuccessful:")
+            for book in book_list:
+                if not book['good']:
+                    print(book['title'])
             break
 
     server.close()
@@ -117,10 +125,10 @@ def do_download_for_worker(book,options):
         
         story = adapter.getStoryMetadataOnly()
         if 'calibre_series' in book:
-            print("calibre_series:%s [%d]"%book['calibre_series'])
+            # print("calibre_series:%s [%d]"%book['calibre_series'])
             adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
-        else:
-            print("no calibre_series")
+        # else:
+        #     print("no calibre_series")
         writer = writers.getWriter(options['fileform'],adapter.config,adapter)
 
         outfile = book['outfile']
