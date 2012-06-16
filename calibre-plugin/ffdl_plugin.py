@@ -37,11 +37,12 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog, display_story_list, DisplayStoryListDialog,
-    LoopProgressDialog, UserPassDialog, AboutDialog,
+    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, 
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload )
 
@@ -192,6 +193,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                             shortcut_name='Get URLs from Selected Books',
                                                             triggered=self.get_list_urls)
 
+            self.get_list_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
+                                                            unique_name='Get Story URLs from Web Page',
+                                                            shortcut_name='Get Story URLs from Web Page',
+                                                            triggered=self.get_urls_from_page)
+
             self.menu.addSeparator()
             self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
                                                            image= 'config.png',
@@ -246,6 +252,26 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 (prefs['addtolists'] or prefs['addtoreadlists']) :
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
 
+    def get_urls_from_page(self):
+        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page")
+        d.exec_()
+        if not d.status:
+            return
+        print("URL:%s"%d.url.text())
+
+        url_list = get_urls_from_page("%s"%d.url.text())
+
+        if url_list:
+            d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
+            d.setWindowIcon(get_icon('bookmarks.png'))
+            d.exec_()
+        else:
+            info_dialog(self.gui, _('List of URLs'),
+                        _('No Valid URLs found on given page.'),
+                        show=True,
+                        show_copy_button=False)
+        
+            
     def get_list_urls(self):
         if len(self.gui.library_view.get_selected_ids()) > 0:
             book_list = map( partial(self._convert_id_to_book, good=False), self.gui.library_view.get_selected_ids() )
@@ -498,7 +524,7 @@ make_firstimage_cover:true
 
             # find dups
             mi = MetaInformation(story.getMetadata("title", removeallentities=True),
-                                 (story.getMetadata("author", removeallentities=True),)) # author is a list.
+                                 [story.getMetadata("author", removeallentities=True)]) # author is a list.
             identicalbooks = db.find_identical_books(mi)
             ## removed for being overkill.
             # for ib in identicalbooks:
@@ -784,7 +810,7 @@ make_firstimage_cover:true
             if epubmi.cover_data[1] is not None:
                 db.set_cover(book_id, epubmi.cover_data[1])
 
-        # set author link if found.  All current adapters have authorUrl.
+        # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         if 'authorUrl' in book['all_metadata']:
             autid=db.get_author_id(book['author'])
             db.set_link_field_for_author(autid, unicode(book['all_metadata']['authorUrl']),
@@ -926,7 +952,7 @@ make_firstimage_cover:true
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
     def _find_existing_book_id(self,db,book,matchurl=True):
-        mi = MetaInformation(book["title"],(book["author"],)) # author is a list.
+        mi = MetaInformation(book["title"],[book["author"]]) # author is a list.
         identicalbooks = db.find_identical_books(mi)
         if matchurl: # only *really* identical if URL matches, too.
             for ib in identicalbooks:
@@ -937,7 +963,7 @@ make_firstimage_cover:true
         return None
     
     def _make_mi_from_book(self,book):
-        mi = MetaInformation(book['title'],(book['author'],)) # author is a list.
+        mi = MetaInformation(book['title'],[book['author']]) # author is a list.
         mi.set_identifiers({'url':book['url']})
         mi.publisher = book['publisher']
         mi.tags = book['tags']

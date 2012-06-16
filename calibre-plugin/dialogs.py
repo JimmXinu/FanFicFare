@@ -177,6 +177,43 @@ class FakeLineEdit():
     def text(self):
         pass
     
+class CollectURLDialog(QDialog):
+    '''
+    Collect single url for get urls.
+    '''
+    def __init__(self, gui, title):
+        QDialog.__init__(self, gui)
+        self.gui = gui
+        self.status=False
+
+        self.l = QGridLayout()
+        self.setLayout(self.l)
+
+        self.setWindowTitle(title)
+        self.l.addWidget(QLabel(title),0,0,1,2)
+        
+        self.l.addWidget(QLabel("URL:"),1,0)
+        self.url = QLineEdit(self)
+        self.l.addWidget(self.url,1,1)
+   
+        self.ok_button = QPushButton('OK', self)
+        self.ok_button.clicked.connect(self.ok)
+        self.l.addWidget(self.ok_button,2,0)
+
+        self.cancel_button = QPushButton('Cancel', self)
+        self.cancel_button.clicked.connect(self.cancel)
+        self.l.addWidget(self.cancel_button,2,1)
+
+        self.resize(self.sizeHint())
+
+    def ok(self):
+        self.status=True
+        self.hide()
+
+    def cancel(self):
+        self.status=False
+        self.hide()
+
 class UserPassDialog(QDialog):
     '''
     Need to collect User/Pass for some sites.
