@@ -17,7 +17,7 @@
 
 import logging
 ## XXX cli option for logging level.
-logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 import sys, os
 from os.path import normpath, expanduser, isfile, join
@@ -30,6 +30,7 @@ from subprocess import call
 
 from fanficdownloader import adapters,writers,exceptions
 from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
+from fanficdownloader.geturls import get_urls_from_page
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
@@ -70,6 +71,9 @@ def main():
    parser.add_option("--force",
                      action="store_true", dest="force",
                      help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
+   parser.add_option("-l", "--list",
+                     action="store_true", dest="list",
+                     help="Get list of valid story URLs from page given.",)
    
    (options, args) = parser.parse_args()
 
@@ -115,6 +119,12 @@ def main():
        for opt in options.options:
            (var,val) = opt.split('=')
            config.set("overrides",var,val)
+
+   if options.list:
+       retlist = get_urls_from_page(args[0])
+       print "\n".join(retlist)
+               
+       return
 
    try:
        ## Attempt to update an existing epub.
@@ -202,7 +212,7 @@ def main():
        print dne
    except exceptions.UnknownSite, us:
        print us
-   
+
 if __name__ == "__main__":
     #import time
     #start = time.time()

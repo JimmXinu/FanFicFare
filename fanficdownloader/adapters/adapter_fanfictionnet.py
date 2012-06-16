@@ -242,6 +242,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
+
+        img = soup.find('img',{'class':'cimage'})
+        if img:
+            self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw,cover=True)
+            
         return
 
     def getChapterText(self, url):
