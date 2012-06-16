@@ -216,6 +216,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         metalist = metatext.split(" - ")
         #print("metatext:(%s)"%metalist)
 
+        # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
+
         # rating is obtained above more robustly.
         if metalist[0].startswith('Rated:'):
             metalist=metalist[1:]
@@ -234,9 +236,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.extendList('genre',genrelist)
             metalist=metalist[1:]
 
-        # next might be characters, otherwise Reviews, Updated or Published
-        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') ):
-            self.story.extendList('characters',metalist[0].split(' & '))        
+        # next might be characters, otherwise Reviews, Updated, Published, Words
+        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') ):
+            self.story.extendList('characters',metalist[0].split('&'))
         
         if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
