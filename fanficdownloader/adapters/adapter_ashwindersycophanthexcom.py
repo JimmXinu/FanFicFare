@@ -157,7 +157,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         except:
             pass
 		
-        for info in asoup.findAll('table', {'bordercolor' : '#1A1919','width' : '100%'}):
+        for info in asoup.findAll('table', {'width' : '100%', 'bordercolor' : re.compile(r'#')}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
                 self.story.setMetadata('title',a.string)
@@ -189,7 +189,6 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         for cat in cats:
             self.story.addToList('category',cat.string)
 					
-        logging.debug(info)	
         a = info.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         val = a.nextSibling
         svalue = ""
