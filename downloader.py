@@ -17,7 +17,7 @@
 
 import logging
 ## XXX cli option for logging level.
-logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 import sys, os
 from os.path import normpath, expanduser, isfile, join

@@ -69,11 +69,15 @@ class SamDeanArchiveNuAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'samdean.archive.nu'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.samdean.archive.nu','samdean.archive.nu']
+
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
