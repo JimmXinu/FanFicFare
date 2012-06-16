@@ -96,11 +96,27 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        # The actual text that is used to announce you need to be an
-        # adult varies from site to site.  Again, print data before
-        # the title search to troubleshoot.
-        if "This rating has graphic sexual scenes" in data:
-            raise exceptions.AdultCheckRequired(self.url)
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logging.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")

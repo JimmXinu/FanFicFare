@@ -70,6 +70,12 @@ import adapter_iketernalnet
 import adapter_onedirectionfanfictioncom
 import adapter_prisonbreakficnet
 import adapter_storiesofardacom
+import adapter_yourfanfictioncom
+import adapter_samdeanarchivenu
+import adapter_destinysgatewaycom
+import adapter_ncisfictioncom
+import adapter_stargateatlantisorg
+import adapter_thealphagatecom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
