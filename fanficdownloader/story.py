@@ -20,6 +20,7 @@ import urlparse
 import string
 from math import floor
 
+import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 
 # Create convert_image method depending on which graphics lib we can
@@ -339,7 +340,10 @@ class Story:
         prefix='ffdl'
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
-            sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
+            try:
+                sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
+            except Exception, e:
+                raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(configurable.getConfigList('image_max_size'),e))
             try:
                 (data,ext,mime) = convert_image(imgurl,
                                                 fetch(imgurl),
