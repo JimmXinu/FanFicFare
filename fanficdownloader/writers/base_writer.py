@@ -195,7 +195,7 @@ class BaseStoryWriter(Configurable):
             
         if not outstream:
             close=True
-            logging.debug("Save directly to file: %s" % outfilename)
+            logging.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
                 dirs = os.path.dirname(outfilename).split('/')
