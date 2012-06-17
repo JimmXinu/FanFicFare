@@ -237,7 +237,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             metalist=metalist[1:]
 
         # next might be characters, otherwise Reviews, Updated, Published, Words
-        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') ):
+        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') or metalist[0].startswith('Chapters') ):
             self.story.extendList('characters',metalist[0].split('&'))
         
         if 'Status: Complete' in metatext:
