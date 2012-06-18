@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-
+import re
 import urlparse
 import urllib2 as u2
 import ConfigParser
@@ -37,7 +37,13 @@ def get_urls_from_page(url):
     for a in soup.findAll('a'):
         if a.has_key('href'):
             href = form_url(url,a['href'])
+            # lots of eFiction sites use similar 'are you old enough' javascript links.
+            if 'javascript' in a['href'] and 'viewstory.php' in a['href']:
+                m = re.search(r"'(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
+                if m != None:
+                    href = form_url(url,m.group('sid'))
             try:
+                href = href.replace('&index=1','')
                 adapter = adapters.getAdapter(config,href,"EPUB")
                 if adapter.story.getMetadata('storyUrl') not in normalized:
                     normalized.add(adapter.story.getMetadata('storyUrl'))
