@@ -245,9 +245,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        img = soup.find('img',{'class':'cimage'})
-        if img:
-            self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw,cover=True)
+        if self.getConfig('include_images'):
+            img = soup.find('img',{'class':'cimage'})
+            if img:
+                self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw,cover=True)
             
         return
 
