@@ -260,10 +260,12 @@ class MidnightwhispersCaAdapter(BaseSiteAdapter): # XXX
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    break
-                i+=1
+                # skip 'report this' and 'TOC' links
+                if 'contact.php' not in a['href'] and 'index' not in a['href']:
+                    if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                        self.setSeries(series_name, i)
+                        break
+                    i+=1
             
         except:
             # I find it hard to care if the series parsing fails
