@@ -24,7 +24,7 @@ from makezip import createZipFile
 
 if __name__=="__main__":
     filename="FanFictionDownLoader.zip"
-    exclude=['*.pyc','*~','*.xcf']
+    exclude=['*.pyc','*~','*.xcf','*[0-9].png']
     # from top dir. 'w' for overwrite
     createZipFile(filename,"w",
                   ['plugin-defaults.ini','plugin-example.ini','epubmerge.py','fanficdownloader'],
