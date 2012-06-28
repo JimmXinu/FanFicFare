@@ -94,7 +94,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('h1')
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         logging.debug("Title: (%s)"%self.story.getMetadata('title'))
         
         # Find authorid and URL from... author url.
