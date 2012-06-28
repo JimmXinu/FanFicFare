@@ -134,9 +134,10 @@ class BaseSiteAdapter(Configurable):
                         code=detected['encoding']
                     else:
                         continue
+                logging.debug("try code:"+code)
                 return data.decode(code)
             except:
-                logging.debug("code failed:"+code)
+                logging.info("code failed:"+code)
                 pass
         logging.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])

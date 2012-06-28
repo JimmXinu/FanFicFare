@@ -165,7 +165,13 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
                 svalue = ""
                 while not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
-                    value = value.nextSibling
+                    # poor HTML(unclosed <p> for one) can cause run on
+                    # over the next label.
+                    if '<span class="label">' in svalue:
+                        svalue = svalue[0:svalue.find('<span class="label">')]
+                        break
+                    else:
+                        value = value.nextSibling
                 self.setDescription(url,svalue)
 
             if 'Rated' in label:
