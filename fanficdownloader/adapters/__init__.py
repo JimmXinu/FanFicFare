@@ -76,6 +76,9 @@ import adapter_destinysgatewaycom
 import adapter_ncisfictioncom
 import adapter_stargateatlantisorg
 import adapter_thealphagatecom
+import adapter_fanfiktionde
+import adapter_ponyfictionarchivenet
+import adapter_sg1heliopoliscom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
