@@ -19,6 +19,7 @@ import time
 import logging
 import re
 import urllib2
+from urllib import unquote_plus
 import time
 
 from .. import BeautifulSoup as bs
@@ -122,86 +123,23 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
+        ## Pull some additional data from html.
+
+        ## ffnet shows category two ways
+        ## 1) class(Book, TV, Game,etc) >> category(Harry Potter, Sailor Moon, etc)
+        ## 2) cat1_cat2_Crossover
+        ## For 1, use the second link.
+        ## For 2, fetch the crossover page and pull the two categories from there.
+
+        categories = soup.findAll('a',{'class':'xcontrast_txt'})
+        if len(categories) > 1:
+            self.story.addToList('category',stripHTML(categories[-1]))
+        elif 'Crossover' in categories[0]['href']:
+            caturl = "http://%s%s"%(self.getSiteDomain(),categories[0]['href'])
+            catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
+            for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/")):
+                self.story.addToList('category',stripHTML(a))
             
-        # start by finding a script towards the bottom that has a
-        # bunch of useful stuff in it.
-            
-        # var storyid = 6577076;
-        # var chapter = 1;
-        # var chapters = 17;
-        # var words = 42787;
-        # var userid = 2645830;
-        # var title = 'The+Invitation';
-        # var title_t = 'The Invitation';
-        # var summary = 'Dudley Dursley would be the first to say he lived a very normal life. But what happens when he gets invited to his cousin Harry Potter\'s wedding? Will Dudley get the courage to apologize for the torture he caused all those years ago? Harry/Ginny story.';
-        # var categoryid = 224;
-        # var cat_title = 'Harry Potter';
-        # var datep = '12-21-10';
-        # var dateu = '04-06-11';
-        # var author = 'U n F a b u l o u s M e';
-
-        for script in soup.findAll('script', src=None):
-            if not script:
-                continue
-            if not script.string:
-                continue
-            if 'var storyid' in script.string:
-                for line in script.string.split('\n'):
-                    m = re.match(r"^ +var ([^ ]+) = '?(.*?)'?;\r?$",line)
-                    if m == None : continue
-                    var,value = m.groups()
-                    # remove javascript escaping from values.
-                    value = re.sub(r'\\(.)',r'\1',value)
-                    #print var,value
-                    if 'words' in var:
-                        self.story.setMetadata('numWords', value)
-                    if 'title_t' in var:
-                        self.story.setMetadata('title', value)
-                    if 'summary' in var:
-                        self.setDescription(url,value)
-                        #self.story.setMetadata('description', value)
-                    if 'datep' in var:
-                        self.story.setMetadata('datePublished',makeDate(value, '%m-%d-%y'))
-                    if 'dateu' in var:
-                        self.story.setMetadata('dateUpdated',makeDate(value, '%m-%d-%y'))
-                    if 'cat_title' in var:
-                        if "Crossover" in value:
-                            value = re.sub(r' Crossover$','',value)
-                            for c in value.split(' and '):
-                                self.story.addToList('category',c)
-                                # Screws up when the category itself
-                                # contains ' and '.  But that's rare
-                                # and the only alternative is to find
-                                # the 'Crossover' category URL and
-                                # parse that page to search for <a>
-                                # with href /crossovers/(name)/(num)/
-				# <a href="/crossovers/Harry_Potter/224/">Harry Potter</a>
-				# <a href="/crossovers/Naruto/1402/">Naruto</a>
-                        else:
-                            self.story.addToList('category',value)
-                break # for script in soup.findAll('script', src=None):
-            
-        # Find the chapter selector 
-        select = soup.find('select', { 'name' : 'chapter' } )
-    	 
-        if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
-        else:
-            allOptions = select.findAll('option')
-            for o in allOptions:
-                url = u'http://%s/s/%s/%s/' % ( self.getSiteDomain(),
-                                            self.story.getMetadata('storyId'),
-                                            o['value'])
-                # just in case there's tags, like <i> in chapter titles.
-                title = u"%s" % o
-                title = re.sub(r'<[^>]+>','',title)
-                self.chapterUrls.append((title,url))
-
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
-
-        ## Pull some additional data from html.  Find Rating and look around it.
-
         a = soup.find('a', href='http://www.fictionratings.com/')
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
@@ -212,6 +150,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
         gui_table1i = soup.find(id="gui_table1i")
+
+        self.story.setMetadata('title', stripHTML(gui_table1i.find('b'))) # title appears to be only(or at least first) bold tag in gui_table1i
+
+        summarydiv = gui_table1i.find('div',{'style':'margin-top:2px'})
+        if summarydiv:
+            self.setDescription(url,stripHTML(summarydiv))
+            
+        
         metatext = stripHTML(gui_table1i.find('div', {'style':'color:gray;'})).replace('Hurt/Comfort','Hurt-Comfort')
         metalist = metatext.split(" - ")
         #print("metatext:(%s)"%metalist)
@@ -236,9 +182,23 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.extendList('genre',genrelist)
             metalist=metalist[1:]
 
+        while len(metalist) > 0:
+            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters'):
+                pass
+            elif  metalist[0].startswith('Updated'):
+                self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
+            elif  metalist[0].startswith('Published'):
+                self.story.setMetadata('datePublished',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
+            elif  metalist[0].startswith('Words'):
+                self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
+                pass
+            else:
+                self.story.extendList('characters',metalist[0].split('&'))
+            metalist=metalist[1:]
+
         # next might be characters, otherwise Reviews, Updated, Published, Words
-        if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') or metalist[0].startswith('Chapters') ):
-            self.story.extendList('characters',metalist[0].split('&'))
+        # if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') or metalist[0].startswith('Chapters') ):
+        #     self.story.extendList('characters',metalist[0].split('&'))
         
         if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
@@ -250,6 +210,25 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             if img:
                 self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw,cover=True)
             
+        # Find the chapter selector 
+        select = soup.find('select', { 'name' : 'chapter' } )
+    	 
+        if select is None:
+    	   # no selector found, so it's a one-chapter story.
+    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+        else:
+            allOptions = select.findAll('option')
+            for o in allOptions:
+                url = u'http://%s/s/%s/%s/' % ( self.getSiteDomain(),
+                                            self.story.getMetadata('storyId'),
+                                            o['value'])
+                # just in case there's tags, like <i> in chapter titles.
+                title = u"%s" % o
+                title = re.sub(r'<[^>]+>','',title)
+                self.chapterUrls.append((title,url))
+
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+
         return
 
     def getChapterText(self, url):

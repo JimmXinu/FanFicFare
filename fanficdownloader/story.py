@@ -305,6 +305,11 @@ class Story:
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,configurable,parenturl,url,fetch,cover=False,coverexclusion=None):
+
+        # otherwise it saves the image in the epub even though it
+        # isn't used anywhere.
+        if cover and configurable.getConfig('never_make_cover'):
+            return
         
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
