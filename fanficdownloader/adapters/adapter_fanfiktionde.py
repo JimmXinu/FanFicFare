@@ -140,6 +140,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
 
         logging.debug('Getting chapter text from: %s' % url)
+        time.sleep(0.5) ## ffde has "floodlock" protection
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
