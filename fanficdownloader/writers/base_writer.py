@@ -149,18 +149,22 @@ class BaseStoryWriter(Configurable):
                             TEMPLATE=WIDE_ENTRY
                         else:
                             TEMPLATE=ENTRY
-                        if self.getConfigList(entry):
+                            
+                        if self.hasConfig(entry+"_label"):
                             label=self.getConfig(entry+"_label")
                         else:
+                            print("Using fallback label for %s_label"%entry)
                             label=self.titleLabels[entry]
 
                         # If the label for the title entry is empty, use the
-                        # 'no title' option if there is one.  
+                        # 'no title' option if there is one.
                         if label == "" and NO_TITLE_ENTRY:
                            TEMPLATE= NO_TITLE_ENTRY
                            
                         self._write(out,TEMPLATE.substitute({'label':label,
                                                              'value':self.story.getMetadata(entry)}))
+                else:
+                    self._write(out, entry)
 
             self._write(out,END.substitute(self.story.metadata))
 

@@ -54,6 +54,17 @@ class Configurable(object):
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
 
+    def hasConfig(self, key):
+        for section in self.sectionslist:
+            try:
+                self.config.get(section,key)
+                print("found %s in section [%s]"%(key,section))
+                return True
+            except:
+                pass
+
+        return False
+        
     def getConfig(self, key):
         val = ""
         for section in self.sectionslist:
