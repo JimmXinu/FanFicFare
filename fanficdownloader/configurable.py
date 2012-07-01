@@ -58,7 +58,7 @@ class Configurable(object):
         for section in self.sectionslist:
             try:
                 self.config.get(section,key)
-                print("found %s in section [%s]"%(key,section))
+                #print("found %s in section [%s]"%(key,section))
                 return True
             except:
                 pass

@@ -653,6 +653,23 @@ make_firstimage_cover:true
                                        label_text='None of the URLs/stories given can be/need to be downloaded.'
                                        )
             d.exec_()
+
+            
+            custom_columns = self.gui.library_view.model().custom_columns
+            if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+                label = custom_columns[prefs['errorcol']]['label']
+                print("errorcol label:%s"%label)
+                ## if error column and all bad.
+                self.previous = self.gui.library_view.currentIndex()
+                LoopProgressDialog(self.gui,
+                                   book_list,
+                                   partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
+                                   partial(self._update_books_completed, options=options, showlist=False),
+                                   init_label="Updating calibre for BAD FanFiction stories...",
+                                   win_title="Update calibre for BAD FanFiction stories",
+                                   status_prefix="Updated")
+            
+            
             return
             
         func = 'arbitrary_n'
@@ -682,7 +699,16 @@ make_firstimage_cover:true
                 (options['updatemeta'] and book['good']):
             self._update_metadata(db, book['calibre_id'], book, mi, options)
 
-    def _update_books_completed(self, book_list, options={}):
+    def _update_bad_book(self,book,db=None,label='errorcol',
+                         options={'fileform':'epub',
+                                  'collision':ADDNEW,
+                                  'updatemeta':True,
+                                  'updateepubcover':True},):
+        
+        print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+        db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+
+    def _update_books_completed(self, book_list, options={}, showlist=True):
         
         add_list = filter(lambda x : x['good'] and x['added'], book_list)
         add_ids = [ x['calibre_id'] for x in add_list ]
@@ -706,7 +732,7 @@ make_firstimage_cover:true
         
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
-        if len(update_list) + len(add_list) != len(book_list):
+        if showlist and (len(update_list) + len(add_list) != len(book_list)):
             d = DisplayStoryListDialog(self.gui,
                                        'Updates completed, final status',
                                        prefs,
@@ -750,6 +776,26 @@ make_firstimage_cover:true
                                    win_title="Update calibre for FanFiction stories",
                                    status_prefix="Updated")
 
+            bad_list = filter(lambda x : x['calibre_id'] and not x['good'], book_list)
+            total_bad = len(bad_list)
+
+            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
+
+            if total_bad > 0:
+                custom_columns = self.gui.library_view.model().custom_columns
+                if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+                    label = custom_columns[prefs['errorcol']]['label']
+                    print("errorcol label:%s"%label)
+                    ## if error column and all bad.
+                    LoopProgressDialog(self.gui,
+                                       bad_list,
+                                       partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
+                                       partial(self._update_books_completed, options=options, showlist=False),
+                                       init_label="Updating calibre for BAD FanFiction stories...",
+                                       win_title="Update calibre for BAD FanFiction stories",
+                                       status_prefix="Updated")
+
+                
     def _add_or_update_book(self,book,options,prefs,mi=None):
         db = self.gui.current_db
         
@@ -888,7 +934,12 @@ make_firstimage_cover:true
                 print("Running Generate Cover with settings %s."%setting_name)
                 realmi = db.get_metadata(book_id, index_is_id=True)
                 gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
-        
+
+        ## if error column set.
+        if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+            label = custom_columns[prefs['errorcol']]['label']
+            print("_update_book label:%s"%label)
+            db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
 
     def _get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :
