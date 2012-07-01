@@ -61,6 +61,7 @@ all_prefs.defaults['gcnewonly'] = False
 all_prefs.defaults['gc_site_settings'] = {}
 all_prefs.defaults['allow_gc_from_ini'] = True
 
+all_prefs.defaults['errorcol'] = ''
 all_prefs.defaults['custom_cols'] = {}
 
 # The list of settings to copy from all_prefs or the previous library
@@ -164,7 +165,7 @@ class ConfigWidget(QWidget):
         if 'Generate Cover' not in plugin_action.gui.iactions:
             self.generatecover_tab.setEnabled(False)
 
-        self.columns_tab = ColumnsTab(self, plugin_action)
+        self.columns_tab = CustomColumnsTab(self, plugin_action)
         tab_widget.addTab(self.columns_tab, 'Custom Columns')
 
         self.other_tab = OtherTab(self, plugin_action)
@@ -218,6 +219,11 @@ class ConfigWidget(QWidget):
         prefs['allow_gc_from_ini'] = self.generatecover_tab.allow_gc_from_ini.isChecked()
 
         # Custom Columns tab
+
+        # error column
+        prefs['errorcol'] = unicode(self.columns_tab.errorcol.itemData(self.columns_tab.errorcol.currentIndex()).toString())
+
+        # cust cols
         colsmap = {}
         for (col,combo) in self.columns_tab.custcol_dropdowns.iteritems():
             val = unicode(combo.itemData(combo.currentIndex()).toString())
@@ -661,13 +667,15 @@ titleLabels = {
     'version':'FFDL Version'
     }
 
-class ColumnsTab(QWidget):
+class CustomColumnsTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
         
+        custom_columns = self.plugin_action.gui.library_view.model().custom_columns
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -677,8 +685,6 @@ class ColumnsTab(QWidget):
         self.l.addSpacing(5)
         
         self.custcol_dropdowns = {}
-
-        custom_columns = self.plugin_action.gui.library_view.model().custom_columns
 
         for key, column in custom_columns.iteritems():
 
@@ -707,4 +713,26 @@ class ColumnsTab(QWidget):
         
         self.l.insertStretch(-1)
 
+        self.l.addSpacing(5)
+        label = QLabel("Special column:")
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
+        horz = QHBoxLayout()
+        label = QLabel("Update/Overwrite Error Column:")
+        tooltip="When an update or overwrite of an existing story fails, record the reason in this column.\n(Text and Long Text columns only.)"
+        label.setToolTip(tooltip)
+        horz.addWidget(label)
+        self.errorcol = QComboBox(self)
+        self.errorcol.setToolTip(tooltip)
+        self.errorcol.addItem('',QVariant('none'))
+        for key, column in custom_columns.iteritems():
+            if column['datatype'] in ('text','comments'):
+                self.errorcol.addItem(column['name'],QVariant(key))
+        self.errorcol.setCurrentIndex(self.errorcol.findData(QVariant(prefs['errorcol'])))
+        horz.addWidget(self.errorcol)
+        self.l.addLayout(horz)
+        
+        
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
