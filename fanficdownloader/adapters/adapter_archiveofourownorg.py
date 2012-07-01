@@ -42,6 +42,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                                # utf8) are really windows-1252.
 							   
 							   
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
+        self.password = ""
+        self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
@@ -60,13 +63,54 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.archiveofourown.org'
+        return 'archiveofourown.org'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.archiveofourown.org','archiveofourown.org']
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/works/123456"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/works/")+r"\d+(/chapters/\d+)?/?$"
+        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/works/")+r"\d+(/chapters/\d+)?/?$"
+        
+    ## Login
+    def needToLoginCheck(self, data):
+        if 'This work is only available to registered users of the Archive.' in data \
+                or "The password or user name you entered doesn't match our records" in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self, url, data):
+
+        params = {}
+        if self.password:
+            params['user_session[login]'] = self.username
+            params['user_session[password]'] = self.password
+        else:
+            params['user_session[login]'] = self.getConfig("username")
+            params['user_session[password]'] = self.getConfig("password")
+        params['user_session[remember_me]'] = '1'
+        params['commit'] = 'Log in'
+        #params['utf8'] = u'✓'#u'\x2713' # gets along with out it, and it confuses the encoder.
+        params['authenticity_token'] = data.split('input name="authenticity_token" type="hidden" value="')[1].split('" /></div>')[0]
+
+        loginUrl = 'http://' + self.getSiteDomain() + '/user_sessions'
+        logging.info("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['user_session[login]']))
+    
+        d = self._postUrl(loginUrl, params)
+        #logging.info(d)
+    
+        if "Successfully logged in" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['user_session[login]']))
+            raise exceptions.FailedToLogin(url,params['user_session[login]'])
+            return False
+        else:
+            return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -76,13 +120,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             addurl=""
 
-        meta = self.url+addurl
+        metaurl = self.url+addurl
         url = self.url+'/navigate'+addurl
-        logging.debug("URL: "+meta)
+        logging.info("url: "+url)
+        logging.info("metaurl: "+metaurl)
 
         try:
             data = self._fetchUrl(url)
-            meta = self._fetchUrl(meta)
+            meta = self._fetchUrl(metaurl)
 
             if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
                 raise exceptions.AdultCheckRequired(self.url)
@@ -92,11 +137,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.meta)
             else:
                 raise e
+                
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url,data)
+            data = self._fetchUrl(url)
+            meta = self._fetchUrl(metaurl)
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
         metasoup = bs.BeautifulSoup(meta)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
         
