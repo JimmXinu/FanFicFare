@@ -18,6 +18,7 @@
 import time
 import logging
 import re
+import urllib
 import urllib2
 
 from .. import BeautifulSoup as bs
@@ -69,6 +70,41 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?$"
+        
+        ## Login seems to be reasonably standard across eFiction sites.
+    def needToLoginCheck(self, data):
+        if 'Diese Geschichte wurde als entwicklungsbeeintr' in data \
+                or 'There is no such account on our website' in data \
+                or "Noch kein registrierter Benutzer?" in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self,url):
+        params = {}
+
+        if self.password:
+            params['nickname'] = self.username
+            params['passwd'] = self.password
+        else:
+            params['nickname'] = self.getConfig("username")
+            params['passwd'] = self.getConfig("password")
+        params['savelogindata'] = '1'
+        params['a'] = 'l'
+        params['submit'] = 'Login...'
+
+        loginUrl = 'https://ssl.fanfiktion.de/'
+        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['nickname']))
+        d = self._postUrl(loginUrl,params)
+    
+        if "Login erfolgreich" not in d : #Member Account
+            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['nickname']))
+            raise exceptions.FailedToLogin(url,params['nickname'])
+            return False
+        else:
+            return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -83,6 +119,14 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+                
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+            
+        if "Uhr ist diese Geschichte nur nach einer" in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
