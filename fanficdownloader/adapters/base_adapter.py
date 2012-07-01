@@ -235,6 +235,10 @@ class BaseSiteAdapter(Configurable):
     def getStoryMetadataOnly(self):
         if not self.metadataDone:
             self.extractChapterUrlsAndMetadata()
+            
+            if not self.story.getMetadataRaw('dateUpdated'):
+                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+
             self.metadataDone = True
         return self.story
 
