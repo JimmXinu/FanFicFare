@@ -779,11 +779,10 @@ make_firstimage_cover:true
             bad_list = filter(lambda x : x['calibre_id'] and not x['good'], book_list)
             total_bad = len(bad_list)
 
-            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
-
             if total_bad > 0:
                 custom_columns = self.gui.library_view.model().custom_columns
                 if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+                    self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
                     label = custom_columns[prefs['errorcol']]['label']
                     print("errorcol label:%s"%label)
                     ## if error column and all bad.

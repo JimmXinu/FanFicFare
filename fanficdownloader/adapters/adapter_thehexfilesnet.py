@@ -190,12 +190,19 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
         logging.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-        for a in soup.findAll('table'):
-            a.extract()
+                                     selfClosingTags=('br','hr','img')) # otherwise soup eats the br/hr tags.
 
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
+        # Ugh.  chapter html doesn't haven't anything useful around it to demarcate.
+        for a in soup.findAll('table'):
+            a.extract()        
+
+        for a in soup.findAll('head'):
+            a.extract()
+
+        html = soup.find('html')
+        html.name='div'
+            
         return self.utf8FromSoup(url,soup)
