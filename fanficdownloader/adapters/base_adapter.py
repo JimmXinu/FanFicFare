@@ -160,9 +160,9 @@ class BaseSiteAdapter(Configurable):
 
     def _fetchUrlRaw(self, url, parameters=None):
         if parameters != None:
-            return self.opener.open(url,urllib.urlencode(parameters)).read()
+            return self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters)).read()
         else:
-            return self.opener.open(url).read()
+            return self.opener.open(url.replace(' ','%20')).read()
     
     # parameters is a dict()
     def _fetchUrl(self, url, parameters=None):
