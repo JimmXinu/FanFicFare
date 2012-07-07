@@ -182,8 +182,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.extendList('genre',genrelist)
             metalist=metalist[1:]
 
+        donechars = False
         while len(metalist) > 0:
-            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters') or metalist[0].startswith('Status'):
+            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:'):
                 pass
             elif  metalist[0].startswith('Updated'):
                 self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
@@ -191,9 +192,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('datePublished',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
             elif  metalist[0].startswith('Words'):
                 self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
-                pass
-            else:
+            elif not donechars:
                 self.story.extendList('characters',metalist[0].split('&'))
+                donechars = True
             metalist=metalist[1:]
 
         # next might be characters, otherwise Reviews, Updated, Published, Words
