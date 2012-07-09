@@ -211,7 +211,9 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]
                 for cat in catstext:
-                    if cat.string.strip() in ('Poetry','Essays'):
+                    # ran across one story with an empty <a href="browse.php?type=categories&amp;catid=1"></a>
+                    # tag in the desc once.
+                    if cat and cat.strip() in ('Poetry','Essays'):
                         self.story.addToList('category',cat.string)
 
             if 'Characters' in label:

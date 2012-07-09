@@ -193,10 +193,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                             shortcut_name='Get URLs from Selected Books',
                                                             triggered=self.get_list_urls)
 
-            self.get_list_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
-                                                            unique_name='Get Story URLs from Web Page',
-                                                            shortcut_name='Get Story URLs from Web Page',
-                                                            triggered=self.get_urls_from_page)
+            self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
+                                                                unique_name='Get Story URLs from Web Page',
+                                                                shortcut_name='Get Story URLs from Web Page',
+                                                                triggered=self.get_urls_from_page)
 
             self.menu.addSeparator()
             self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
@@ -205,11 +205,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                            shortcut_name='Configure FanFictionDownLoader',
                                                            triggered=partial(do_user_config,parent=self.gui))
             
-            self.config_action = create_menu_action_unique(self, self.menu, '&About Plugin', shortcut=False,
-                                                           image= 'images/icon.png',
-                                                           unique_name='About FanFictionDownLoader',
-                                                           shortcut_name='About FanFictionDownLoader',
-                                                           triggered=self.about)
+            self.about_action = create_menu_action_unique(self, self.menu, '&About Plugin', shortcut=False,
+                                                          image= 'images/icon.png',
+                                                          unique_name='About FanFictionDownLoader',
+                                                          shortcut_name='About FanFictionDownLoader',
+                                                          triggered=self.about)
             
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
