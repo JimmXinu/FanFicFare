@@ -37,11 +37,15 @@ def get_urls_from_page(url):
     for a in soup.findAll('a'):
         if a.has_key('href'):
             href = form_url(url,a['href'])
-            # lots of eFiction sites use similar 'are you old enough' javascript links.
-            if 'javascript' in a['href'] and 'viewstory.php' in a['href']:
-                m = re.search(r"'(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
+            # this (should) catch normal story links, some javascript
+            # 'are you old enough' links, and 'Report This' links.
+            # The 'normalized' set prevents duplicates.
+            if 'story.php' in a['href']:
+                #print("trying:%s"%a['href'])
+                m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
                 if m != None:
                     href = form_url(url,m.group('sid'))
+                    
             try:
                 href = href.replace('&index=1','')
                 adapter = adapters.getAdapter(config,href,"EPUB")
