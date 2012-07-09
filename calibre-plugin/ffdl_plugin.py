@@ -658,7 +658,6 @@ make_firstimage_cover:true
             custom_columns = self.gui.library_view.model().custom_columns
             if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
                 label = custom_columns[prefs['errorcol']]['label']
-                print("errorcol label:%s"%label)
                 ## if error column and all bad.
                 self.previous = self.gui.library_view.currentIndex()
                 LoopProgressDialog(self.gui,
@@ -784,7 +783,6 @@ make_firstimage_cover:true
                 if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
                     self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
                     label = custom_columns[prefs['errorcol']]['label']
-                    print("errorcol label:%s"%label)
                     ## if error column and all bad.
                     LoopProgressDialog(self.gui,
                                        bad_list,
@@ -895,8 +893,13 @@ make_firstimage_cover:true
                 db.set_custom(book_id, val, label=label, commit=False)
 
         db.commit()
-        
+
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
+            
+            # force a refresh if generating cover so complex composite
+            # custom columns are current and correct
+            db.refresh_ids([book_id])
+                
             gc_plugin = self.gui.iactions['Generate Cover']
             setting_name = None
             if prefs['allow_gc_from_ini']:
@@ -911,7 +914,7 @@ make_firstimage_cover:true
                 for line in adapter.getConfig('generate_cover_settings').splitlines():
                     if "=>" in line:
                         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
-                        value = Template(template).substitute(book['all_metadata']).encode('utf8')
+                        value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
                         print("%s(%s) => %s => %s"%(template,value,regexp,setting))
                         if re.search(regexp,value):
                             setting_name = setting
@@ -937,7 +940,6 @@ make_firstimage_cover:true
         ## if error column set.
         if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             label = custom_columns[prefs['errorcol']]['label']
-            print("_update_book label:%s"%label)
             db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
 
     def _get_clean_reading_lists(self,lists):
