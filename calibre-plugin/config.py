@@ -552,7 +552,7 @@ class GenerateCoverTab(QWidget):
         self.gcnewonly.setChecked(prefs['gcnewonly'])
         self.l.addWidget(self.gcnewonly)
 
-        self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override.',self)
+        self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override',self)
         self.allow_gc_from_ini.setToolTip("The personal.ini parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \>generate_cover_settings is ignored when this is off.")
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)

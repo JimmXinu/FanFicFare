@@ -114,9 +114,14 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('category','Crossover')
         self.story.addToList('category',u'Puella Magi Madoka Magica/魔法少女まどか★マギカ')
         self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
+
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','SF')
         self.story.addToList('genre','Noir')
+        
+        self.story.addToList('characters','Bob Smith')
+        self.story.addToList('characters','George Johnson')
+        self.story.addToList('characters','Fred Smythe')
         
         self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
                             ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
