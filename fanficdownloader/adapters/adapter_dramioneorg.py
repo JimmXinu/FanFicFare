@@ -62,7 +62,7 @@ class DramioneOrgAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%dth %B %Y"
+        self.dateformat = "%d %B %Y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -228,11 +228,11 @@ class DramioneOrgAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                value=value.replace('st','th').replace('nd','th').replace('rd','th')
+                value=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",value)
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
             
             if 'Updated' in label:
-                value=value.replace('st','th').replace('nd','th').replace('rd','th')
+                value=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",value)
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
         try:
