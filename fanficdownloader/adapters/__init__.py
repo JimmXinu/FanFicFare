@@ -121,6 +121,11 @@ def getAdapter(config,url,fileform=None):
 
     logging.debug("site:"+domain)
     cls = getClassFor(domain)
+    if not cls and domain.startswith("www."):
+        domain = domain.replace("www.","")
+        logging.debug("trying site:without www: "+domain)
+        cls = getClassFor(domain)
+        fixedurl = fixedurl.replace("http://www.","http://")
     if not cls:
         logging.debug("trying site:www."+domain)
         cls = getClassFor("www."+domain)
