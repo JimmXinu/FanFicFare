@@ -71,15 +71,11 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'themasque.net'
         
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['www.themasque.net','themasque.net']  #
-
     def getSiteExampleURLs(self):
         return "http://themasque.net/wiktt/efiction/viewstory.php?sid=1234 http://themasque.net/efiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain())+"(/wiktt)?/efiction"+re.escape("/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain())+"(/wiktt)?/efiction"+re.escape("/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
