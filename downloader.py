@@ -148,11 +148,16 @@ def main():
        ## Check for include_images and absence of PIL, give warning.
        if adapter.getConfig('include_images'):
            try:
-               import Image
+               from calibre.utils.magick import Image
+               logging.debug("Using calibre.utils.magick")
            except:
-               print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
-               if not sys.stdin.readline().strip().lower().startswith('y'):
-                   return
+               try:
+                   import Image
+                   logging.debug("Using PIL")
+               except:
+                   print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
+                   if not sys.stdin.readline().strip().lower().startswith('y'):
+                       return
                
 
        ## three tries, that's enough if both user/pass & is_adult needed,
