@@ -184,7 +184,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         donechars = False
         while len(metalist) > 0:
-            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:'):
+            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:') or metalist[0].startswith('Favs:') or metalist[0].startswith('Follows:'):
                 pass
             elif  metalist[0].startswith('Updated'):
                 self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
