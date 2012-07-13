@@ -16,8 +16,6 @@
 #
 
 import logging
-## XXX cli option for logging level.
-logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
 
 import sys, os
 from os.path import normpath, expanduser, isfile, join
@@ -74,9 +72,18 @@ def main():
    parser.add_option("-l", "--list",
                      action="store_true", dest="list",
                      help="Get list of valid story URLs from page given.",)
+   parser.add_option("-d", "--debug",
+                     action="store_true", dest="debug",
+                     help="Show debug output while downloading.",)
    
    (options, args) = parser.parse_args()
 
+   if options.debug:
+       logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+   else:
+       logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+
+   
    if len(args) != 1:
        parser.error("incorrect number of arguments")
 
