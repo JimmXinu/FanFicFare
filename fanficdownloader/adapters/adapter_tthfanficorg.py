@@ -151,12 +151,33 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',a['href'].split('/')[1].split('-')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',stripHTML(a))
+        authorurl = 'http://'+self.host+a['href']
 
+        ainfo = soup.find('a', href='/StoryInfo-%s-1'%self.story.getMetadata('storyId'))
+        if ainfo != None: # indicates multiple authors/contributors.
+            try:
+                # going to pull part of the meta data from author list page.
+                infourl = 'http://'+self.host+ainfo['href']
+                logging.debug("**StoryInfo** URL: "+infourl)
+                infodata = self._fetchUrl(infourl)
+                infosoup = bs.BeautifulSoup(infodata)
+
+                for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
+                    self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
+                    self.story.addToList('authorUrl','http://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
+                    self.story.addToList('author',stripHTML(a))                
+                                            
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    raise exceptions.StoryDoesNotExist(url)
+                else:
+                    raise e
+    
         try:
-            # going to pull part of the meta data from author list page.
-            logging.debug("**AUTHOR** URL: "+self.story.getMetadata('authorUrl'))
-            authordata = self._fetchUrl(self.story.getMetadata('authorUrl'))
-            descurl=self.story.getMetadata('authorUrl')
+            # going to pull part of the meta data from *primary* author list page.
+            logging.debug("**AUTHOR** URL: "+authorurl)
+            authordata = self._fetchUrl(authorurl)
+            descurl=authorurl
             authorsoup = bs.BeautifulSoup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
@@ -209,7 +230,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 if not BtVSNonX:
                     BtVS = False # Don't add BtVS if Non-Crossover, unless it's a BtVS/AtS Non-Crossover
 
-        print("BtVS: %s BtVSNonX: %s"%(BtVS,BtVSNonX))
+        #print("BtVS: %s BtVSNonX: %s"%(BtVS,BtVSNonX))
         if BtVS:
             self.story.addToList('category','Buffy: The Vampire Slayer')
             

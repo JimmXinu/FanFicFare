@@ -480,7 +480,7 @@ make_firstimage_cover:true
 
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
         book['title'] = story.getMetadata("title", removeallentities=True)
-        book['author_sort'] = book['author'] = story.getMetadata("author", removeallentities=True)
+        book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = writer.getTags() # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
         book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
@@ -520,20 +520,24 @@ make_firstimage_cover:true
         # only care about collisions when not ADDNEW
         elif collision != ADDNEW:
             # 'new' book from URL.  collision handling applies.
-            print("from URL")
+            print("from URL(%s)"%url)
 
-            # find dups
-            mi = MetaInformation(story.getMetadata("title", removeallentities=True),
-                                 [story.getMetadata("author", removeallentities=True)]) # author is a list.
-            identicalbooks = db.find_identical_books(mi)
-            ## removed for being overkill.
-            # for ib in identicalbooks:
-            #     # only *really* identical if URL matches, too.
-            #     # XXX make an option?
-            #     if self._get_story_url(db,ib) == url:
-            #         identicalbooks.append(ib)
-            #print("identicalbooks:%s"%identicalbooks)
-
+            # try to find by identifier url first.
+            searchstr = 'identifiers:"=url:%s"'%url.replace(":","|")
+            identicalbooks = db.search_getting_ids(searchstr, None)
+            if len(identicalbooks) < 1:
+                # find dups
+                authlist = story.getList("author", removeallentities=True)
+                if len(authlist) > 100:
+                    raise NotGoingToDownload("Story has too many authors--search for existing book will fail.  Update by selecting book directly or use Add New.","search_delete_saved.png")
+                mi = MetaInformation(story.getMetadata("title", removeallentities=True),
+                                     authlist)
+                identicalbooks = db.find_identical_books(mi)
+                if len(identicalbooks) > 0:
+                    print("existing found by title/author(s)")
+            else:
+                print("existing found by identifier URL")
+                
             if collision == SKIP and identicalbooks:
                 raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
 
@@ -544,7 +548,6 @@ make_firstimage_cover:true
             if collision == CALIBREONLY and not identicalbooks:
                 collision = ADDNEW
                 options['collision'] = ADDNEW
-            #     raise NotGoingToDownload("Not updating Calibre Metadata, no existing book to update.","search_delete_saved.png")
 
             if len(identicalbooks)>0:
                 book_id = identicalbooks.pop()
@@ -703,9 +706,9 @@ make_firstimage_cover:true
                                   'collision':ADDNEW,
                                   'updatemeta':True,
                                   'updateepubcover':True},):
-        
-        print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-        db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+        if book['calibre_id']:
+            print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
 
     def _update_books_completed(self, book_list, options={}, showlist=True):
         
@@ -855,9 +858,11 @@ make_firstimage_cover:true
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         if 'authorUrl' in book['all_metadata']:
-            autid=db.get_author_id(book['author'])
-            db.set_link_field_for_author(autid, unicode(book['all_metadata']['authorUrl']),
-                                         commit=False, notify=False)
+            authurls = book['all_metadata']['authorUrl'].split(", ")
+            for i, auth in enumerate(book['author']):
+                autid=db.get_author_id(auth)
+                db.set_link_field_for_author(autid, unicode(authurls[i]),
+                                             commit=False, notify=False)
             
         db.set_metadata(book_id,mi)
 
@@ -1003,19 +1008,19 @@ make_firstimage_cover:true
                         message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
-    def _find_existing_book_id(self,db,book,matchurl=True):
-        mi = MetaInformation(book["title"],[book["author"]]) # author is a list.
-        identicalbooks = db.find_identical_books(mi)
-        if matchurl: # only *really* identical if URL matches, too.
-            for ib in identicalbooks:
-                if self._get_story_url(db,ib) == book['url']:
-                    return ib
-        if identicalbooks:
-            return identicalbooks.pop()
-        return None
+    # def _find_existing_book_id(self,db,book,matchurl=True):
+    #     mi = MetaInformation(book["title"],book["author"]) # author is a list.
+    #     identicalbooks = db.find_identical_books(mi)
+    #     if matchurl: # only *really* identical if URL matches, too.
+    #         for ib in identicalbooks:
+    #             if self._get_story_url(db,ib) == book['url']:
+    #                 return ib
+    #     if identicalbooks:
+    #         return identicalbooks.pop()
+    #     return None
     
     def _make_mi_from_book(self,book):
-        mi = MetaInformation(book['title'],[book['author']]) # author is a list.
+        mi = MetaInformation(book['title'],book['author']) # author is a list.
         mi.set_identifiers({'url':book['url']})
         mi.publisher = book['publisher']
         mi.tags = book['tags']
@@ -1052,8 +1057,7 @@ make_firstimage_cover:true
         book['good'] = True
         book['calibre_id'] = None
         book['title'] = 'Unknown'
-        book['author'] = 'Unknown'
-        book['author_sort'] = 'Unknown'
+        book['author_sort'] = book['author'] = ['Unknown'] # list
         book['begin'] = None
         book['end'] = None
             
@@ -1069,8 +1073,7 @@ make_firstimage_cover:true
         book['good'] = good
         book['calibre_id'] = idval
         book['title'] = 'Unknown'
-        book['author'] = 'Unknown'
-        book['author_sort'] = 'Unknown'
+        book['author_sort'] = book['author'] = ['Unknown'] # list
         book['begin'] = None
         book['end'] = None
             
@@ -1086,7 +1089,7 @@ make_firstimage_cover:true
         book['good'] = True
         book['calibre_id'] = mi.id
         book['title'] = mi.title
-        book['author'] = authors_to_string(mi.authors)
+        book['author'] = mi.authors
         book['author_sort'] = mi.author_sort
         book['comment'] = ''
         book['url'] = ""

@@ -43,7 +43,7 @@ class MobiWriter(BaseStoryWriter):
 <title>${title} by ${author}</title>
 </head>
 <body>
-<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
+<h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <div>
 ''')
 
@@ -69,7 +69,7 @@ ${value}<br />
 <title>${title} by ${author}</title>
 </head>
 <body>
-<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
+<h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <table class="full">
 ''')
 

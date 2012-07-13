@@ -52,7 +52,7 @@ class EpubWriter(BaseStoryWriter):
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
-<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
+<h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <div>
 ''')
 
@@ -79,7 +79,7 @@ ${value}<br />
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
 <body>
-<h3><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h3>
+<h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <table class="full">
 ''')
 
@@ -206,9 +206,15 @@ ${value}<br />
             metadata.appendChild(newTag(contentdom,"dc:title",text=self.getMetadata('title')))
 
         if self.getMetadata('author'):
-            metadata.appendChild(newTag(contentdom,"dc:creator",
-                                        attrs={"opf:role":"aut"},
-                                        text=self.getMetadata('author')))
+            if self.story.isList('author'):
+                for auth in self.story.getList('author'):
+                    metadata.appendChild(newTag(contentdom,"dc:creator",
+                                                attrs={"opf:role":"aut"},
+                                                text=auth))
+            else:
+                metadata.appendChild(newTag(contentdom,"dc:creator",
+                                            attrs={"opf:role":"aut"},
+                                            text=self.getMetadata('author')))
 
         metadata.appendChild(newTag(contentdom,"dc:contributor",text="fanficdownloader [http://fanficdownloader.googlecode.com]",attrs={"opf:role":"bkp"}))
         metadata.appendChild(newTag(contentdom,"dc:rights",text=""))
@@ -433,7 +439,7 @@ div { margin: 0pt; padding: 0pt; }
         del tocncxdom
 
         # write stylesheet.css file.
-        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.metadata)) 
+        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata())) 
 
         # write title page.
         if self.getConfig("titlepage_use_table"):

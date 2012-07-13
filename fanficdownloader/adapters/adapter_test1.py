@@ -103,8 +103,19 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         
         self.story.setMetadata('rating','Tweenie')
         
-        self.story.setMetadata('authorId','98765')
-        self.story.setMetadata('authorUrl','http://author/url')
+
+        if self.story.getMetadata('storyId') == '673':
+            self.story.addToList('author','Author From List')
+            self.story.addToList('author','Author From List 2')
+        
+            self.story.addToList('authorId','98765')
+            self.story.addToList('authorId','98765-2')
+        
+            self.story.addToList('authorUrl','http://author/url')
+            self.story.addToList('authorUrl','http://author/url-2')
+        else:
+            self.story.setMetadata('authorId','98765')
+            self.story.setMetadata('authorUrl','http://author/url')
 
         self.story.addToList('warnings','Swearing')
         self.story.addToList('warnings','Violence')
@@ -175,6 +186,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
+<p>http://test1.com?sid=673 - Succeeds, multiple authors</p>
 <p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
 '''
