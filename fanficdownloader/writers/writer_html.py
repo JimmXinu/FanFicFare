@@ -43,7 +43,7 @@ ${output_css}
 </style>
 </head>
 <body>
-<h1><a href="${storyUrl}">${title}</a> by <a href="${authorUrl}">${author}</a></h1>
+<h1><a href="${storyUrl}">${title}</a> by ${authorHTML}</h1>
 ''')
 
         self.HTML_TITLE_PAGE_START = string.Template('''
@@ -82,7 +82,7 @@ ${output_css}
 
     def writeStoryImpl(self, out):
 
-        self._write(out,self.HTML_FILE_START.substitute(self.story.metadata))
+        self._write(out,self.HTML_FILE_START.substitute(self.story.getAllMetadata()))
 
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
@@ -100,4 +100,4 @@ ${output_css}
                 self._write(out,self.HTML_CHAPTER_START.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
                 self._write(out,html)
 
-        self._write(out,self.HTML_FILE_END.substitute(self.story.metadata))
+        self._write(out,self.HTML_FILE_END.substitute(self.story.getAllMetadata()))

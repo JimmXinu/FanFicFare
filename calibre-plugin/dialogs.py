@@ -371,7 +371,7 @@ class AuthorTableWidgetItem(ReadOnlyTableWidgetItem):
 
     #Qt uses a simple < check for sorting items, override this to use the sortKey
     def __lt__(self, other):
-        return self.sort_key < other.sort_key
+        return self.sort_key.lower() < other.sort_key.lower()
 
 class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
@@ -623,7 +623,7 @@ class StoryListTableWidget(QTableWidget):
         title_cell.setData(Qt.UserRole, QVariant(row))
         self.setItem(row, 1, title_cell)
         
-        self.setItem(row, 2, AuthorTableWidgetItem(book['author'], book['author_sort']))
+        self.setItem(row, 2, AuthorTableWidgetItem(", ".join(book['author']), ", ".join(book['author_sort'])))
         
         url_cell = ReadOnlyTableWidgetItem(book['url'])
         #url_cell.setData(Qt.UserRole, QVariant(book['url']))

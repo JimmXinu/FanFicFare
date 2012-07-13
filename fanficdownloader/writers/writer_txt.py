@@ -114,7 +114,7 @@ End file.
         
         wrapout = KludgeStringIO()
         
-        wrapout.write(self.TEXT_FILE_START.substitute(self.story.metadata))
+        wrapout.write(self.TEXT_FILE_START.substitute(self.story.getAllMetadata()))
 
         self.writeTitlePage(wrapout,
                             self.TEXT_TITLE_PAGE_START,
@@ -139,7 +139,7 @@ End file.
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
                 self._write(out,self.lineends(html2text(html,wrap_width=self.wrap_width)))
 
-        self._write(out,self.lineends(self.wraplines(self.TEXT_FILE_END.substitute(self.story.metadata))))
+        self._write(out,self.lineends(self.wraplines(self.TEXT_FILE_END.substitute(self.story.getAllMetadata()))))
 
     def wraplines(self, text):
         

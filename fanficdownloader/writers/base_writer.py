@@ -134,7 +134,7 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use label and value.
         """
         if self.getConfig("include_titlepage"):
-            self._write(out,START.substitute(self.story.metadata))
+            self._write(out,START.substitute(self.story.getAllMetadata()))
 
             if WIDE_ENTRY==None:
                 WIDE_ENTRY=ENTRY
@@ -166,7 +166,7 @@ class BaseStoryWriter(Configurable):
                 else:
                     self._write(out, entry)
 
-            self._write(out,END.substitute(self.story.metadata))
+            self._write(out,END.substitute(self.story.getAllMetadata()))
 
     def writeTOCPage(self, out, START, ENTRY, END):
         """
@@ -176,13 +176,13 @@ class BaseStoryWriter(Configurable):
         """
         # Only do TOC if there's more than one chapter and it's configured.
         if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
-            self._write(out,START.substitute(self.story.metadata))
+            self._write(out,START.substitute(self.story.getAllMetadata()))
 
             for index, (title,html) in enumerate(self.story.getChapters()):
                 if html:
                     self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
 
-            self._write(out,END.substitute(self.story.metadata))
+            self._write(out,END.substitute(self.story.getAllMetadata()))
 
     # if no outstream is given, write to file.
     def writeStory(self,outstream=None, metaonly=False, outfilename=None, forceOverwrite=False):

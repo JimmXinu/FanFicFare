@@ -119,10 +119,11 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = pt.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
-        self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
+        alist = pt.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        for a in alist:
+            self.story.addToList('authorId',a['href'].split('=')[1])
+            self.story.addToList('authorUrl','http://'+self.host+'/'+a['href'])
+            self.story.addToList('author',a.string)
 
         rating=pt.text.split('[')[1].split(']')[0]
         self.story.setMetadata('rating', rating)

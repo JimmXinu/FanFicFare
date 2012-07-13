@@ -223,9 +223,9 @@ class Story:
         
     def getMetadata(self, key, removeallentities=False, doreplacements=True):
         value = None
-        if self.getLists().has_key(key):
+        if self.isList(key):
             value = ', '.join(self.getList(key))
-        if self.metadata.has_key(key):
+        elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
                 if key == "numWords":
@@ -247,11 +247,33 @@ class Story:
         All single value *and* list value metadata as strings.
         '''
         allmetadata = {}
+        
+        # special handling for authors/authorUrls
+        authlinkhtml="<a class='authorlink' href='%s'>%s</a>"
+        if 'author' in self.listables.keys(): # more than one author, assume multiple authorUrl too.
+            htmllist=[]
+            for i, v in enumerate(self.listables['author']):
+                aurl = self.listables['authorUrl'][i]                    
+                auth = v
+                # make sure doreplacements & removeallentities are honored.
+                if doreplacements:
+                    aurl=self.doReplacments(aurl)
+                    auth=self.doReplacments(auth)
+                if removeallentities:
+                    aurl=removeAllEntities(aurl)
+                    auth=removeAllEntities(auth)
+                
+                htmllist.append(authlinkhtml%(aurl,auth))
+            self.setMetadata('authorHTML',', '.join(htmllist))
+        else:
+           self.setMetadata('authorHTML',authlinkhtml%(self.getMetadata('authorUrl', removeallentities, doreplacements),
+                                                       self.getMetadata('author', removeallentities, doreplacements)))
+            
         for k in self.metadata.keys():
             allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
         for l in self.listables.keys():
             allmetadata[l] = self.getMetadata(l, removeallentities, doreplacements)
-
+                
         return allmetadata
 
     # just for less clutter in adapters.
@@ -263,23 +285,36 @@ class Story:
         if value==None:
             return
         value = conditionalRemoveEntities(value)
-        if not self.listables.has_key(listname):
+        if not self.isList(listname):
             self.listables[listname]=[]
         # prevent duplicates.
         if not value in self.listables[listname]:
             self.listables[listname].append(value)
 
-    def getList(self,listname):
-        if not self.listables.has_key(listname):
-            return []
-        return filter( lambda x : x!=None and x!='' ,
-                       map(self.doReplacments,self.listables[listname]) )
+    def getList(self,listname, removeallentities=False, doreplacements=True):
+        retlist = []
+        if not self.isList(listname):
+            retlist = [self.getMetadata(listname,removeallentities=removeallentities)]
+        else:
+            retlist = self.listables[listname]
+
+        if doreplacements:
+            retlist = filter( lambda x : x!=None and x!='' ,
+                              map(self.doReplacments,retlist) )
+        if removeallentities:
+            retlist = filter( lambda x : x!=None and x!='' ,
+                              map(removeAllEntities,retlist) )
+
+        return retlist
 
     def getLists(self):
         lsts = {}
         for ln in self.listables.keys():
             lsts[ln] = self.getList(ln)
         return lsts
+
+    def isList(self,listname):
+        return self.listables.has_key(listname)
     
     def addChapter(self, title, html):
         self.chapters.append( (title,html) )

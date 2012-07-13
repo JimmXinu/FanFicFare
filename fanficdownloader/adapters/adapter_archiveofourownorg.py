@@ -155,14 +155,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',a.string)
 		
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))
-        if a == None: # ao3 allows for author 'Anonymous' with no author link.
+        alist = soup.findAll('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))
+        if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
             self.story.setMetadata('authorUrl',self.url)
         else:
-            self.story.setMetadata('authorId',a['href'].split('/')[2])
-            self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
-            self.story.setMetadata('author',a.text)
+            for a in alist:
+                self.story.addToList('authorId',a['href'].split('/')[2])
+                self.story.addToList('authorUrl','http://'+self.host+a['href'])
+                self.story.addToList('author',a.text)
 
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+"/chapters/\d+$"))
