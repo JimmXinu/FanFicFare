@@ -185,7 +185,7 @@ ${value}<br />
 
         uniqueid= 'fanficdownloader-uid:%s-u%s-s%s' % (
             self.getMetadata('site'),
-            self.getMetadata('authorId'),
+            self.story.getList('authorId')[0],
             self.getMetadata('storyId'))
         
         contentdom = getDOMImplementation().createDocument(None, "package", None)
