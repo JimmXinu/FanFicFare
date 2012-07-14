@@ -61,6 +61,8 @@ all_prefs.defaults['gcnewonly'] = False
 all_prefs.defaults['gc_site_settings'] = {}
 all_prefs.defaults['allow_gc_from_ini'] = True
 
+all_prefs.defaults['countpagesstats'] = []
+
 all_prefs.defaults['errorcol'] = ''
 all_prefs.defaults['custom_cols'] = {}
 
@@ -165,6 +167,11 @@ class ConfigWidget(QWidget):
         if 'Generate Cover' not in plugin_action.gui.iactions:
             self.generatecover_tab.setEnabled(False)
 
+        self.countpages_tab = CountPagesTab(self, plugin_action)
+        tab_widget.addTab(self.countpages_tab, 'Count Pages')
+        if 'Count Pages' not in plugin_action.gui.iactions:
+            self.countpages_tab.setEnabled(False)
+
         self.columns_tab = CustomColumnsTab(self, plugin_action)
         tab_widget.addTab(self.columns_tab, 'Custom Columns')
 
@@ -218,8 +225,23 @@ class ConfigWidget(QWidget):
         prefs['gc_site_settings'] = gc_site_settings
         prefs['allow_gc_from_ini'] = self.generatecover_tab.allow_gc_from_ini.isChecked()
 
+        # Count Pages tab
+        countpagesstats = []
+        
+        if self.countpages_tab.pagecount.isChecked():
+            countpagesstats.append('PageCount')
+        if self.countpages_tab.wordcount.isChecked():
+            countpagesstats.append('WordCount')
+        if self.countpages_tab.fleschreading.isChecked():
+            countpagesstats.append('FleschReading')
+        if self.countpages_tab.fleschgrade.isChecked():
+            countpagesstats.append('FleschGrade')
+        if self.countpages_tab.gunningfog.isChecked():
+            countpagesstats.append('GunningFog')
+            
+        prefs['countpagesstats'] = countpagesstats
+        
         # Custom Columns tab
-
         # error column
         prefs['errorcol'] = unicode(self.columns_tab.errorcol.itemData(self.columns_tab.errorcol.currentIndex()).toString())
 
@@ -557,6 +579,54 @@ class GenerateCoverTab(QWidget):
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
             
+        self.l.insertStretch(-1)
+        
+class CountPagesTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        label = QLabel('These settings provide integration with the Count Pages Plugin.  Count Pages can automatically update custom columns with page, word and reading level statistics.  You have to create and configure the columns in Count Pages first.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+
+        label = QLabel('If any of the settings below are checked, when stories are added or updated, the Count Pages Plugin will be called to update the checked statistics.')
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
+        # 'PageCount', 'WordCount', 'FleschReading', 'FleschGrade', 'GunningFog'
+        self.pagecount = QCheckBox('PageCount',self)
+        self.pagecount.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.pagecount.setChecked('PageCount' in prefs['countpagesstats'])
+        self.l.addWidget(self.pagecount)
+            
+        self.wordcount = QCheckBox('WordCount',self)
+        self.wordcount.setToolTip('Which column and algorithm to use are configured in Count Words.\nWill overwrite word count from FFDL metadata if set to update the same custom column.')
+        self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
+        self.l.addWidget(self.wordcount)
+
+        self.fleschreading = QCheckBox('FleschReading',self)
+        self.fleschreading.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.fleschreading.setChecked('FleschReading' in prefs['countpagesstats'])
+        self.l.addWidget(self.fleschreading)
+        
+        self.fleschgrade = QCheckBox('Fleschgrade',self)
+        self.fleschgrade.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.fleschgrade.setChecked('Fleschgrade' in prefs['countpagesstats'])
+        self.l.addWidget(self.fleschgrade)
+        
+        self.gunningfog = QCheckBox('GunningFog',self)
+        self.gunningfog.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.gunningfog.setChecked('GunningFog' in prefs['countpagesstats'])
+        self.l.addWidget(self.gunningfog)
+        
         self.l.insertStretch(-1)
         
 class OtherTab(QWidget):
