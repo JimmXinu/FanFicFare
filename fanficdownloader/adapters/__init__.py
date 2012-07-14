@@ -84,6 +84,11 @@ import adapter_nationallibrarynet
 import adapter_themasquenet
 import adapter_pretendercentrecom
 import adapter_darksolaceorg
+import adapter_finestoriescom
+import adapter_hpfanficarchivecom
+import adapter_svufictioncom
+import adapter_twilightarchivescom
+import adapter_wizardtalesnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
