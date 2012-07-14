@@ -19,6 +19,7 @@ from PyQt4.Qt import (QApplication, QMenu, QToolButton)
 from PyQt4.Qt import QPixmap, Qt
 from PyQt4.QtCore import QBuffer
 
+from calibre.constants import numeric_version as calibre_version
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
@@ -528,13 +529,19 @@ make_firstimage_cover:true
             if len(identicalbooks) < 1:
                 # find dups
                 authlist = story.getList("author", removeallentities=True)
-                if len(authlist) > 100:
-                    raise NotGoingToDownload("Story has too many authors--search for existing book will fail.  Update by selecting book directly or use Add New.","search_delete_saved.png")
+                if len(authlist) > 100 and calibre_version < (0, 8, 61):
+                    ## should be fixed from 0.8.61 on.  In the
+                    ## meantime, if it matches the title *and* first
+                    ## 100 authors, I'm prepared to assume it's a
+                    ## match.
+                    print("reduce author list to 100 only when calibre < 0.8.61")
+                    authlist = authlist[:100]
                 mi = MetaInformation(story.getMetadata("title", removeallentities=True),
                                      authlist)
                 identicalbooks = db.find_identical_books(mi)
                 if len(identicalbooks) > 0:
                     print("existing found by title/author(s)")
+
             else:
                 print("existing found by identifier URL")
                 
@@ -722,7 +729,7 @@ make_firstimage_cover:true
             self.gui.library_view.model().books_added(len(add_list))
             self.gui.library_view.model().refresh_ids(add_ids)
 
-        if update_ids:
+        if len(update_list):
             self.gui.library_view.model().refresh_ids(update_ids)
 
         current = self.gui.library_view.currentIndex()
@@ -746,7 +753,13 @@ make_firstimage_cover:true
     
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
-        
+
+        all_ids = add_ids
+        all_ids.extend(update_ids)
+        if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
+            cp_plugin = self.gui.iactions['Count Pages']
+            cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
+
     def download_list_completed(self, job, options={}):
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
