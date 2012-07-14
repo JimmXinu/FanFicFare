@@ -47,6 +47,8 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         
         # get storyId from url
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
+        if 'storyInfo' in self.story.getMetadata('storyId'):
+            self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
@@ -65,10 +67,10 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         return 'finestories.com'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/s/10537 http://"+self.getSiteDomain()+"/s/10537:4010"
+        return "http://"+self.getSiteDomain()+"/s/10537 http://"+self.getSiteDomain()+"/s/10537:4010 http://"+self.getSiteDomain()+"/s/toryInfo.php?id=10537"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\d+(:\d+)?(;\d+)?$"
+        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"(storyInfo.php\?id=)?\d+(:\d+)?(;\d+)?$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
