@@ -67,10 +67,10 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         return 'finestories.com'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/s/10537 http://"+self.getSiteDomain()+"/s/10537:4010 http://"+self.getSiteDomain()+"/s/toryInfo.php?id=10537"
+        return "http://"+self.getSiteDomain()+"/s/10537 http://"+self.getSiteDomain()+"/s/10537:4010 http://"+self.getSiteDomain()+"/library/storyInfo.php?id=10537"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"(storyInfo.php\?id=)?\d+(:\d+)?(;\d+)?$"
+        return re.escape("http://"+self.getSiteDomain())+r"/(s|library)?/(storyInfo.php\?id=)?\d+(:\d+)?(;\d+)?$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -166,7 +166,8 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
                 break
         
-        self.story.addToList('category',lc2.find('div', {'class' : 'typediv'}).text)
+        for cat in lc2.findAll('div', {'class' : 'typediv'}):
+            self.story.addToList('category',cat.text)
         
         self.story.setMetadata('numWords', lc2.findNext('td', {'class' : 'num'}).text)
         
