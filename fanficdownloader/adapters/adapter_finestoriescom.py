@@ -160,11 +160,19 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # surprisingly, the detailed page does not give enough details, so go to author's page
-        asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
         
-        for lc2 in asoup.findAll('td', {'class' : 'lc2'}):
-            if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
-                break
+        skip=0
+        i=0
+        while i == 0:
+            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+str(skip)))
+        
+            a = asoup.findAll('td', {'class' : 'lc2'})
+            for lc2 in a:
+                if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
+                    i=1
+                    break
+                if a[len(a)-1] == lc2:
+                    skip=skip+10
         
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('category',cat.text)
@@ -203,14 +211,14 @@ class FineStoriesComAdapter(BaseSiteAdapter):
                     self.story.addToList('genre',genre)
                     
             if 'Posted' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('datePublished', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
                 
             if 'Concluded' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
                 
             if 'Updated' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
                 
         status = lc4.find('span', {'class' : 'ab'})
         if  status != None:
