@@ -79,7 +79,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         return ['grangerenchanted.com','malfoymanor.grangerenchanted.com']
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/"+self.story.getMetadata('section')+"viewstory.php?sid=1234"
+        return "http://grangerenchanted.com/enchant/viewstory.php?sid=1234 http://malfoymanor.grangerenchanted.com/themanor/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"http://(malfoymanor.)?grangerenchanted.com/(enchant|themanor)?/viewstory.php\?sid=\d+$"
