@@ -36,6 +36,13 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
+        # yourfanfiction.com blocks the default user-agent.  However,
+        # when asked, they said it was just general anti-spam, not
+        # targeted as us and offered to 'whitelist our IP'.  Clearly,
+        # that wouldn't work, but it does let me do this in good
+        # conscience:
+        self.opener.addheaders = [('User-agent', 'FFDL/1.5')]
+
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
