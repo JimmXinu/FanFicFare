@@ -497,6 +497,7 @@ make_firstimage_cover:true
         book['password'] = adapter.password
 
         book['icon'] = 'plus.png'
+        book['status'] = 'Add'
         if story.getMetadataRaw('datePublished'):
             # should only happen when an adapter is broken, but better to
             # fail gracefully.
@@ -505,6 +506,7 @@ make_firstimage_cover:true
         
         if collision in (CALIBREONLY):
             book['icon'] = 'metadata.png'
+            book['status'] = 'Meta'
         
         # Dialogs should prevent this case now.
         if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
@@ -560,6 +562,7 @@ make_firstimage_cover:true
                 book_id = identicalbooks.pop()
                 book['calibre_id'] = book_id
                 book['icon'] = 'edit-redo.png'
+                book['status'] = 'Update'
 
         if book_id != None and collision != ADDNEW:
             if collision in (CALIBREONLY):
@@ -767,46 +770,88 @@ make_firstimage_cover:true
 
         self.previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
+        # if display_story_list(self.gui,
+        #                       'Downloads finished, confirm to update Calibre',
+        #                       prefs,
+        #                       self.qaction.icon(),
+        #                       job.result,
+        #                       label_text='Stories will not be added or updated in Calibre without confirmation.',
+        #                       offer_skip=True):
 
-        if display_story_list(self.gui,
-                              'Downloads finished, confirm to update Calibre',
-                              prefs,
-                              self.qaction.icon(),
-                              job.result,
-                              label_text='Stories will not be added or updated in Calibre without confirmation.',
-                              offer_skip=True):
-            
-            book_list = job.result
-            good_list = filter(lambda x : x['good'], book_list)
-            total_good = len(good_list)
+        # payload = (job.statistics_cols_map, book_statistics_map)
+        # all_ids = set(book_statistics_map.keys())
+        # msg = '<p>Count Pages plugin found <b>%d statistics(s)</b>. ' % len(all_ids) + \
+        #       'Proceed with updating columns in your library?'
+        # self.gui.proceed_question(self._update_database_columns,
+        #         payload, job.details,
+        #         'Count log', 'Count complete', msg,
+        #         show_copy_button=False)
 
-            self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good))
+        book_list = job.result
+        good_list = filter(lambda x : x['good'], book_list)
+        bad_list = filter(lambda x : x['calibre_id'] and not x['good'], book_list)
+        payload = (good_list, bad_list, options)
+        
+        msg = '''
+<p>FFDL found <b>%s</b> good and <b>%s</b> bad updates.</p>
+<p>See log for details.</p>
+<p>Proceed with updating your library?</p>
+'''%(len(good_list),len(bad_list))
 
-            if total_good > 0:
+        htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>URL</th><th>Comment</th></tr>'
+        for book in good_list:
+            if 'status' in book:
+                status = book['status']
+            else:
+                status = 'Good'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['url'],book['comment']]) + '</td></tr>'
+        
+        for book in bad_list:
+            if 'status' in book:
+                status = book['status']
+            else:
+                status = 'Bad'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['url'],book['comment']]) + '</td></tr>'
+        
+        htmllog = htmllog + '</table></body></html>'
+        
+        self.gui.proceed_question(self._do_download_list_update,
+                payload, htmllog,
+                'FFDL log', 'FFDL download complete', msg,
+                show_copy_button=True)
+        
+        
+    def _do_download_list_update(self, payload):
+        
+        (good_list,bad_list,options) = payload
+        total_good = len(good_list)
+
+        self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good))
+
+        if total_good > 0:
+            LoopProgressDialog(self.gui,
+                               good_list,
+                               partial(self._update_book, options=options, db=self.gui.current_db),
+                               partial(self._update_books_completed, options=options),
+                               init_label="Updating calibre for FanFiction stories...",
+                               win_title="Update calibre for FanFiction stories",
+                               status_prefix="Updated")
+
+        total_bad = len(bad_list)
+
+        if total_bad > 0:
+            custom_columns = self.gui.library_view.model().custom_columns
+            if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+                self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
+                label = custom_columns[prefs['errorcol']]['label']
+                ## if error column and all bad.
                 LoopProgressDialog(self.gui,
-                                   good_list,
-                                   partial(self._update_book, options=options, db=self.gui.current_db),
-                                   partial(self._update_books_completed, options=options),
-                                   init_label="Updating calibre for FanFiction stories...",
-                                   win_title="Update calibre for FanFiction stories",
+                                   bad_list,
+                                   partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
+                                   partial(self._update_books_completed, options=options, showlist=False),
+                                   init_label="Updating calibre for BAD FanFiction stories...",
+                                   win_title="Update calibre for BAD FanFiction stories",
                                    status_prefix="Updated")
-
-            bad_list = filter(lambda x : x['calibre_id'] and not x['good'], book_list)
-            total_bad = len(bad_list)
-
-            if total_bad > 0:
-                custom_columns = self.gui.library_view.model().custom_columns
-                if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
-                    self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
-                    label = custom_columns[prefs['errorcol']]['label']
-                    ## if error column and all bad.
-                    LoopProgressDialog(self.gui,
-                                       bad_list,
-                                       partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
-                                       partial(self._update_books_completed, options=options, showlist=False),
-                                       init_label="Updating calibre for BAD FanFiction stories...",
-                                       win_title="Update calibre for BAD FanFiction stories",
-                                       status_prefix="Updated")
 
                 
     def _add_or_update_book(self,book,options,prefs,mi=None):
@@ -830,6 +875,7 @@ make_firstimage_cover:true
             book['comment'] = "Adding format to book failed for some reason..."
             book['good']=False
             book['icon']='dialog_error.png'
+            book['status'] = 'Error'
 
         if prefs['deleteotherforms']:
             fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
@@ -1117,6 +1163,7 @@ make_firstimage_cover:true
             book['comment'] = "No story URL found."
             book['good'] = False
             book['icon'] = 'search_delete_saved.png'
+            book['status'] = 'Not Found'
         else:
             # get normalized url or None.
             book['url'] = self._is_good_downloader_url(url)
@@ -1125,6 +1172,7 @@ make_firstimage_cover:true
                 book['comment'] = "URL is not a valid story URL."
                 book['good'] = False
                 book['icon']='dialog_error.png'
+                book['status'] = 'Bad URL'
     
     def _get_story_url(self, db, book_id):
         identifiers = db.get_identifiers(book_id,index_is_id=True)

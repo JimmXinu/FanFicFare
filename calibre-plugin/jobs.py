@@ -177,6 +177,7 @@ def do_download_for_worker(book,options):
         book['good']=False
         book['comment']=unicode(e)
         book['icon']='dialog_error.png'
+        book['status'] = 'Error'
         print("Exception: %s:%s"%(book,unicode(e)))
         traceback.print_exc()
 
