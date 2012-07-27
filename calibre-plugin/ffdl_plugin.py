@@ -818,7 +818,7 @@ make_firstimage_cover:true
         self.gui.proceed_question(self._do_download_list_update,
                 payload, htmllog,
                 'FFDL log', 'FFDL download complete', msg,
-                show_copy_button=True)
+                show_copy_button=False)
         
         
     def _do_download_list_update(self, payload):

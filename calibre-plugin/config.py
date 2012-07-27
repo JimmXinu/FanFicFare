@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Jim Miller'
+__copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback, copy
@@ -22,118 +22,118 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs \
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getConfigSections
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
-    import ( get_library_uuid, KeyboardConfigDialog )
+    import ( get_library_uuid, KeyboardConfigDialog, PrefsViewerDialog )
 
 from calibre.gui2.complete import MultiCompleteLineEdit
 
-# This is where all preferences for this plugin will be stored
+PREFS_NAMESPACE = 'FanFictionDownLoaderPlugin'
+PREFS_KEY_SETTINGS = 'settings'
+
+# Set defaults used by all.  Library specific settings continue to
+# take from here.
+default_prefs = {}
+default_prefs['personal.ini'] = get_resources('plugin-example.ini')
+
+default_prefs['updatemeta'] = True
+default_prefs['updatecover'] = False
+default_prefs['updateepubcover'] = False
+default_prefs['keeptags'] = False
+default_prefs['urlsfromclip'] = True
+default_prefs['updatedefault'] = True
+default_prefs['fileform'] = 'epub'
+default_prefs['collision'] = OVERWRITE
+default_prefs['deleteotherforms'] = False
+default_prefs['adddialogstaysontop'] = False
+default_prefs['includeimages'] = False
+default_prefs['lookforurlinhtml'] = False
+default_prefs['injectseries'] = False
+
+default_prefs['send_lists'] = ''
+default_prefs['read_lists'] = ''
+default_prefs['addtolists'] = False
+default_prefs['addtoreadlists'] = False
+default_prefs['addtolistsonread'] = False
+
+default_prefs['gcnewonly'] = False
+default_prefs['gc_site_settings'] = {}
+default_prefs['allow_gc_from_ini'] = True
+
+default_prefs['countpagesstats'] = []
+
+default_prefs['errorcol'] = ''
+default_prefs['custom_cols'] = {}
+
+def set_library_config(library_config):
+    get_gui().current_db.prefs.set_namespaced(PREFS_NAMESPACE,
+                                              PREFS_KEY_SETTINGS,
+                                              library_config)
+    
+def get_library_config():
+    db = get_gui().current_db
+    library_id = get_library_uuid(db)
+    library_config = None
+    # Check whether this is a configuration needing to be migrated
+    # from json into database.  If so: get it, set it, rename it in json.
+    if library_id in old_prefs:
+        print("get prefs from old_prefs")
+        library_config = old_prefs[library_id]
+        set_library_config(library_config)
+        old_prefs["migrated to library db %s"%library_id] = old_prefs[library_id]
+        del old_prefs[library_id]
+
+    if library_config is None:
+        print("get prefs from db")
+        library_config = db.prefs.get_namespaced(PREFS_NAMESPACE, PREFS_KEY_SETTINGS,
+                                                 copy.deepcopy(default_prefs))
+    return library_config
+
+# This is where all preferences for this plugin *were* stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
 # in a global namespace, so make it as unique as possible.
 # You should always prefix your config file name with plugins/,
 # so as to ensure you dont accidentally clobber a calibre config file
-all_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
-
-# Set defaults used by all.  Library specific settings continue to
-# take from here.
-all_prefs.defaults['personal.ini'] = get_resources('plugin-example.ini')
-
-all_prefs.defaults['updatemeta'] = True
-all_prefs.defaults['updatecover'] = False
-all_prefs.defaults['updateepubcover'] = False
-all_prefs.defaults['keeptags'] = False
-all_prefs.defaults['urlsfromclip'] = True
-all_prefs.defaults['updatedefault'] = True
-all_prefs.defaults['fileform'] = 'epub'
-all_prefs.defaults['collision'] = OVERWRITE
-all_prefs.defaults['deleteotherforms'] = False
-all_prefs.defaults['adddialogstaysontop'] = False
-all_prefs.defaults['includeimages'] = False
-all_prefs.defaults['lookforurlinhtml'] = False
-all_prefs.defaults['injectseries'] = False
-
-all_prefs.defaults['send_lists'] = ''
-all_prefs.defaults['read_lists'] = ''
-all_prefs.defaults['addtolists'] = False
-all_prefs.defaults['addtoreadlists'] = False
-all_prefs.defaults['addtolistsonread'] = False
-
-all_prefs.defaults['gcnewonly'] = False
-all_prefs.defaults['gc_site_settings'] = {}
-all_prefs.defaults['allow_gc_from_ini'] = True
-
-all_prefs.defaults['countpagesstats'] = []
-
-all_prefs.defaults['errorcol'] = ''
-all_prefs.defaults['custom_cols'] = {}
-
-# The list of settings to copy from all_prefs or the previous library
-# when config is called for the first time on a library.
-copylist = ['personal.ini',
-            'updatemeta',
-            'updatecover',
-            'updateepubcover',
-            'keeptags',
-            'urlsfromclip',
-            'updatedefault',
-            'fileform',
-            'collision',
-            'deleteotherforms',
-            'adddialogstaysontop',
-            'includeimages',
-            'lookforurlinhtml',
-            'injectseries',
-            'gcnewonly',
-            'gc_site_settings',
-            'allow_gc_from_ini']
+old_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
 # tidy.
 class PrefsFacade():
-    def __init__(self,all_prefs):
-        self.all_prefs = all_prefs
-        self.lastlibid = None
-
-    def _get_copylist_prefs(self,frompref):
-        return filter( lambda x : x[0] in copylist, frompref.items() )
+    def __init__(self,default_prefs):
+        self.default_prefs = default_prefs
+        self.libraryid = None
+        self.current_prefs = None
         
     def _get_prefs(self):
         libraryid = get_library_uuid(get_gui().current_db)
-        if libraryid not in self.all_prefs:
-            if self.lastlibid == None:
-                self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs))
-            else:
-                self.all_prefs[libraryid] = dict(self._get_copylist_prefs(self.all_prefs[self.lastlibid]))
-                
-        self.lastlibid = libraryid
-            
-        return self.all_prefs[libraryid]
-
-    def _save_prefs(self,prefs):
-        libraryid = get_library_uuid(get_gui().current_db)
-        self.all_prefs[libraryid] = prefs
+        if self.current_prefs == None or self.libraryid != libraryid:
+            print("self.current_prefs == None(%s) or self.libraryid != libraryid(%s)"%(self.current_prefs == None,self.libraryid != libraryid))
+            self.libraryid = libraryid
+            self.current_prefs = get_library_config()
+        return self.current_prefs
         
     def __getitem__(self,k):            
         prefs = self._get_prefs()
         if k not in prefs:
-            # pulls from all_prefs.defaults automatically if not set
-            # in all_prefs
-            return self.all_prefs[k]
+            # pulls from default_prefs.defaults automatically if not set
+            # in default_prefs
+            return self.default_prefs[k]
         return prefs[k]
 
     def __setitem__(self,k,v):
         prefs = self._get_prefs()
         prefs[k]=v
-        self._save_prefs(prefs)
+        # self._save_prefs(prefs)
 
-    # to be avoided--can cause unexpected results as possibly ancient
-    # all_pref settings may be pulled.
     def __delitem__(self,k):
         prefs = self._get_prefs()
-        del prefs[k]
-        self._save_prefs(prefs)
+        if k in prefs:
+            del prefs[k]
 
-prefs = PrefsFacade(all_prefs)
+    def save_to_db(self):
+        set_library_config(self._get_prefs())
+        
+
+prefs = PrefsFacade(default_prefs)
     
 class ConfigWidget(QWidget):
 
@@ -253,6 +253,8 @@ class ConfigWidget(QWidget):
                 colsmap[col] = val
                 #print("colsmap[%s]:%s"%(col,colsmap[col]))
         prefs['custom_cols'] = colsmap
+
+        prefs.save_to_db()
 
     def edit_shortcuts(self):
         self.save_settings()
@@ -656,6 +658,12 @@ class OtherTab(QWidget):
         reset_confirmation_button.clicked.connect(self.reset_dialogs)
         self.l.addWidget(reset_confirmation_button)
         
+        view_prefs_button = QPushButton('&View library preferences...', self)
+        view_prefs_button.setToolTip(_(
+                    'View data stored in the library database for this plugin'))
+        view_prefs_button.clicked.connect(self.view_prefs)
+        self.l.addWidget(view_prefs_button)
+        
         self.l.insertStretch(-1)
         
     def reset_dialogs(self):
@@ -667,6 +675,10 @@ class OtherTab(QWidget):
                     _('Confirmation dialogs have all been reset'),
                     show=True,
                     show_copy_button=False)
+        
+    def view_prefs(self):
+        d = PrefsViewerDialog(self.plugin_action.gui, PREFS_NAMESPACE)
+        d.exec_()
 
 permitted_values = {
     'int' : ['numWords','numChapters'],
