@@ -239,6 +239,15 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         ## additional to what ever the
                         ## slow_down_sleep_time setting is.
         data = self._fetchUrl(url)
+
+        # some ancient stories have body tags inside them that cause
+        # soup parsing to discard the content.  For story text we
+        # don't care about anything before "<div class='storytextp"
+        # (there's a space after storytextp, so no close quote(')) and
+        # this kills any body tags.
+        data = data[data.index("<div class='storytextp"):]
+        data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
+        
         soup = bs.BeautifulSoup(data)
 
         ## Remove the 'share' button.
