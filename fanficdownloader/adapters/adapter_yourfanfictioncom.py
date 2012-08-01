@@ -41,7 +41,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         # targeted as us and offered to 'whitelist our IP'.  Clearly,
         # that wouldn't work, but it does let me do this in good
         # conscience:
-        self.opener.addheaders = [('User-agent', 'FFDL/1.5')]
+        self.opener.addheaders = [('User-agent', 'FFDL/1.6')]
 
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
@@ -115,7 +115,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         # viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
         #print data
         #m = re.search(r"'viewstory.php\?sid=1882(&amp;warning=4)'",data)
-        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        m = re.search(r"'viewstory.php\?sid=\d+((&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
             if self.is_adult or self.getConfig("is_adult"):
                 # We tried the default and still got a warning, so
@@ -123,7 +123,8 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
                 # link and reload data.
                 addurl = m.group(1)
                 # correct stupid &amp; error in url.
-                addurl = addurl.replace("&amp;","&")
+                # explicitly put ageconsent because google appengine regexp doesn't include it for some reason.
+                addurl = addurl.replace("&amp;","&")+'&ageconsent=ok'
                 url = self.url+'&index=1'+addurl
                 logging.debug("URL 2nd try: "+url)
 
@@ -141,8 +142,16 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
+        # because for some reason, this works while simple 'print data' errors on ascii conversion.
+        # loopdata = data
+        # chklen=5000
+        # while len(loopdata) > 0:
+        #     if len(loopdata) < 5000:
+        #         chklen = len(loopdata)
+        #     logging.info("loopdata: %s" % loopdata[:chklen])
+        #     loopdata = loopdata[chklen:]
+            
         soup = bs.BeautifulSoup(data)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
         
@@ -245,7 +254,6 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
-                print("series a['href']:%s"%a['href'])
                 # skip 'report this' and 'TOC' links
                 if 'contact.php' not in a['href'] and 'index' not in a['href']:
                     if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
