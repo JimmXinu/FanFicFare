@@ -116,9 +116,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # items to prevent GC removing it.
         self.menu_actions = []
         self.qaction.setMenu(self.menu)
-        self.menu.aboutToShow.connect(self.about_to_show_menu)
-
         self.menus_lock = threading.RLock()
+        self.menu.aboutToShow.connect(self.about_to_show_menu)
 
     def initialization_complete(self):
         # otherwise configured hot keys won't work until the menu's
@@ -134,10 +133,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def rebuild_menus(self):
         with self.menus_lock:
-            # Show the config dialog
-            # The config dialog can also be shown from within
-            # Preferences->Plugins, which is why the do_user_config
-            # method is defined on the base plugin class
             do_user_config = self.interface_action_base_plugin.do_user_config
             self.menu.clear()
             self.actions_unique_map = {}
@@ -179,15 +174,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                                       shortcut_name=rmmenutxt,
                                                                       triggered=partial(self.update_lists,add=False))
                 
-                # try:
-                #     self.add_send_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-                # except:
-                #     pass
-                # try:
-                #     self.add_remove_action.setEnabled( len(self.gui.library_view.get_selected_ids()) > 0 )
-                # except:
-                #     pass
-
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
                                                             unique_name='Get URLs from Selected Books',
@@ -203,13 +189,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
                                                            image= 'config.png',
                                                            unique_name='Configure FanFictionDownLoader',
-                                                           shortcut_name='Configure FanFictionDownLoader',
                                                            triggered=partial(do_user_config,parent=self.gui))
             
-            self.about_action = create_menu_action_unique(self, self.menu, '&About Plugin', shortcut=False,
+            self.about_action = create_menu_action_unique(self, self.menu, 'About Plugin', shortcut=False,
                                                           image= 'images/icon.png',
                                                           unique_name='About FanFictionDownLoader',
-                                                          shortcut_name='About FanFictionDownLoader',
                                                           triggered=self.about)
             
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
@@ -551,7 +535,7 @@ make_firstimage_cover:true
                 raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
 
             if len(identicalbooks) > 1:
-                raise NotGoingToDownload("More than one identical book--can't tell which to update/overwrite.","minusminus.png")
+                raise NotGoingToDownload("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite.","minusminus.png")
 
             ## changed: add new book when CALIBREONLY if none found.
             if collision == CALIBREONLY and not identicalbooks:
@@ -708,7 +692,7 @@ make_firstimage_cover:true
             self._add_or_update_book(book,options,prefs,mi)
 
         if options['collision'] == CALIBREONLY or \
-                (options['updatemeta'] and book['good']):
+                ( (options['updatemeta'] or book['added']) and book['good'] ):
             self._update_metadata(db, book['calibre_id'], book, mi, options)
 
     def _update_bad_book(self,book,db=None,label='errorcol',
@@ -770,22 +754,6 @@ make_firstimage_cover:true
 
         self.previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
-        # if display_story_list(self.gui,
-        #                       'Downloads finished, confirm to update Calibre',
-        #                       prefs,
-        #                       self.qaction.icon(),
-        #                       job.result,
-        #                       label_text='Stories will not be added or updated in Calibre without confirmation.',
-        #                       offer_skip=True):
-
-        # payload = (job.statistics_cols_map, book_statistics_map)
-        # all_ids = set(book_statistics_map.keys())
-        # msg = '<p>Count Pages plugin found <b>%d statistics(s)</b>. ' % len(all_ids) + \
-        #       'Proceed with updating columns in your library?'
-        # self.gui.proceed_question(self._update_database_columns,
-        #         payload, job.details,
-        #         'Count log', 'Count complete', msg,
-        #         show_copy_button=False)
 
         book_list = job.result
         good_list = filter(lambda x : x['good'], book_list)
@@ -890,6 +858,7 @@ make_firstimage_cover:true
         return book_id
 
     def _update_metadata(self, db, book_id, book, mi, options):
+        oldmi = db.get_metadata(book_id,index_is_id=True)
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
             # remove old Completed/In-Progress only if there's a new one.
@@ -905,7 +874,6 @@ make_firstimage_cover:true
             mi.languages=[book['all_metadata']['langcode']]
         else:
             # Set language english, but only if not already set.
-            oldmi = db.get_metadata(book_id,index_is_id=True)
             if not oldmi.languages:
                 mi.languages=['eng']
 
@@ -922,6 +890,32 @@ make_firstimage_cover:true
                 autid=db.get_author_id(auth)
                 db.set_link_field_for_author(autid, unicode(authurls[i]),
                                              commit=False, notify=False)
+
+        # mi.title = oldmi.title
+        # mi.authors = oldmi.authors
+        # mi.publisher = oldmi.publisher
+        # mi.tags = oldmi.tags
+        # mi.languages = oldmi.languages
+        # mi.pubdate = oldmi.pubdate
+        # mi.timestamp = oldmi.timestamp
+        # mi.comments = oldmi.comments
+        # mi.series = oldmi.series
+                
+        # mi.set_identifiers(oldmi.get_identifiers())
+
+        # implement 'newonly' flags here by setting to the current
+        # value again.
+        if not book['added']:
+            for (col,newonly) in prefs['std_cols_newonly'].iteritems():
+                if newonly:
+                    if col == "identifiers":
+                        mi.set_identifiers(oldmi.get_identifiers())
+                    else:
+                        try:
+                            mi.__setattr__(col,oldmi.__getattribute__(col))
+                        except AttributeError:
+                            print("AttributeError? %s"%col)
+                            pass
             
         db.set_metadata(book_id,mi)
 
@@ -936,6 +930,9 @@ make_firstimage_cover:true
                 print("%s not an existing column, skipping."%col)
                 continue
             coldef = custom_columns[col]
+            if col in prefs['custom_cols_newonly'] and prefs['custom_cols_newonly'][col] and not book['added']:
+                print("Skipping custom column(%s) update, set to New Books Only"%coldef['name'])
+                continue
             if not meta.startswith('status-') and meta not in book['all_metadata'] or \
                     meta.startswith('status-') and 'status' not in book['all_metadata']:
                 print("No value for %s, skipping custom column(%s) update."%(meta,coldef['name']))
