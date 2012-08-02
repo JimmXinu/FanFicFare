@@ -106,26 +106,21 @@ class AddNewDialog(SizePersistedDialog):
 
         horz = QHBoxLayout()
         label = QLabel('If Story Already Exists?')
-        label.setToolTip("What to do if there's already an existing story with the same title and author.")
         horz.addWidget(label)
         self.collision = QComboBox(self)
+        self.collision.setToolTip("What to do if there's already an existing story with the same URL or title and author.")
         # add collision options
         self.set_collisions()
         i = self.collision.findText(prefs['collision'])
         if i > -1:
             self.collision.setCurrentIndex(i)
-        # self.collision.setToolTip(OVERWRITE+' will replace the existing story.\n'+
-        #                           UPDATE+' will download new chapters only and add to existing EPUB.\n'+
-        #                           ADDNEW+' will create a new story with the same title and author.\n'+
-        #                           SKIP+' will not download existing stories.\n'+
-        #                           CALIBREONLY+' will not download stories, but will update Calibre metadata.')
         label.setBuddy(self.collision)
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
 
         horz = QHBoxLayout()
         self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?')
+        self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
         self.updatemeta.setChecked(prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
 
@@ -431,9 +426,9 @@ class UpdateExistingDialog(SizePersistedDialog):
         options_layout.addWidget(self.fileform)
         
         label = QLabel('Update Mode:')
-        label.setToolTip("What sort of update to perform.  May set default from plugin configuration.")
         options_layout.addWidget(label)
         self.collision = QComboBox(self)
+        self.collision.setToolTip("What sort of update to perform.  May set default from plugin configuration.")
         # add collision options
         self.set_collisions()
         i = self.collision.findText(prefs['collision'])
@@ -444,7 +439,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         options_layout.addWidget(self.collision)
 
         self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip('Update metadata for story in Calibre from web site?  May set default from plugin configuration.')
+        self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
         self.updatemeta.setChecked(prefs['updatemeta'])
         options_layout.addWidget(self.updatemeta)
                 

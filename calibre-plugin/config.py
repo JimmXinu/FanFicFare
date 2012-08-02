@@ -8,6 +8,7 @@ __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback, copy
+from collections import OrderedDict
 
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont, QWidget,
                       QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea)
@@ -62,6 +63,9 @@ default_prefs['countpagesstats'] = []
 
 default_prefs['errorcol'] = ''
 default_prefs['custom_cols'] = {}
+default_prefs['custom_cols_newonly'] = {}
+
+default_prefs['std_cols_newonly'] = {}
 
 def set_library_config(library_config):
     get_gui().current_db.prefs.set_namespaced(PREFS_NAMESPACE,
@@ -75,14 +79,14 @@ def get_library_config():
     # Check whether this is a configuration needing to be migrated
     # from json into database.  If so: get it, set it, rename it in json.
     if library_id in old_prefs:
-        print("get prefs from old_prefs")
+        #print("get prefs from old_prefs")
         library_config = old_prefs[library_id]
         set_library_config(library_config)
         old_prefs["migrated to library db %s"%library_id] = old_prefs[library_id]
         del old_prefs[library_id]
 
     if library_config is None:
-        print("get prefs from db")
+        #print("get prefs from db")
         library_config = db.prefs.get_namespaced(PREFS_NAMESPACE, PREFS_KEY_SETTINGS,
                                                  copy.deepcopy(default_prefs))
     return library_config
@@ -106,7 +110,7 @@ class PrefsFacade():
     def _get_prefs(self):
         libraryid = get_library_uuid(get_gui().current_db)
         if self.current_prefs == None or self.libraryid != libraryid:
-            print("self.current_prefs == None(%s) or self.libraryid != libraryid(%s)"%(self.current_prefs == None,self.libraryid != libraryid))
+            #print("self.current_prefs == None(%s) or self.libraryid != libraryid(%s)"%(self.current_prefs == None,self.libraryid != libraryid))
             self.libraryid = libraryid
             self.current_prefs = get_library_config()
         return self.current_prefs
@@ -172,8 +176,11 @@ class ConfigWidget(QWidget):
         if 'Count Pages' not in plugin_action.gui.iactions:
             self.countpages_tab.setEnabled(False)
 
-        self.columns_tab = CustomColumnsTab(self, plugin_action)
-        tab_widget.addTab(self.columns_tab, 'Custom Columns')
+        self.std_columns_tab = StandardColumnsTab(self, plugin_action)
+        tab_widget.addTab(self.std_columns_tab, 'Standard Columns')
+
+        self.cust_columns_tab = CustomColumnsTab(self, plugin_action)
+        tab_widget.addTab(self.cust_columns_tab, 'Custom Columns')
 
         self.other_tab = OtherTab(self, plugin_action)
         tab_widget.addTab(self.other_tab, 'Other')
@@ -241,19 +248,30 @@ class ConfigWidget(QWidget):
             
         prefs['countpagesstats'] = countpagesstats
         
+        # Standard Columns tab
+        colsnewonly = {}
+        for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
+            colsnewonly[col] = checkbox.isChecked()
+        prefs['std_cols_newonly'] = colsnewonly
+
         # Custom Columns tab
         # error column
-        prefs['errorcol'] = unicode(self.columns_tab.errorcol.itemData(self.columns_tab.errorcol.currentIndex()).toString())
+        prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()).toString())
 
         # cust cols
         colsmap = {}
-        for (col,combo) in self.columns_tab.custcol_dropdowns.iteritems():
+        for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
             val = unicode(combo.itemData(combo.currentIndex()).toString())
             if val != 'none':
                 colsmap[col] = val
                 #print("colsmap[%s]:%s"%(col,colsmap[col]))
         prefs['custom_cols'] = colsmap
 
+        colsnewonly = {}
+        for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
+            colsnewonly[col] = checkbox.isChecked()
+        prefs['custom_cols_newonly'] = colsnewonly
+        
         prefs.save_to_db()
 
     def edit_shortcuts(self):
@@ -313,7 +331,7 @@ class BasicTab(QWidget):
         self.l.addLayout(horz)
 
         self.updatemeta = QCheckBox('Default Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip("On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off.")
+        self.updatemeta.setToolTip("On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books.")
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
@@ -322,15 +340,24 @@ class BasicTab(QWidget):
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
+        self.l.addSpacing(10)        
+
+        self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
+        self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
+        self.deleteotherforms.setChecked(prefs['deleteotherforms'])
+        self.l.addWidget(self.deleteotherforms)
+        
         self.updatecover = QCheckBox('Update Calibre Cover when Updating Metadata?',self)
         self.updatecover.setToolTip("Update calibre book cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
         self.updatecover.setChecked(prefs['updatecover'])
         self.l.addWidget(self.updatecover)
 
         self.keeptags = QCheckBox('Keep Existing Tags when Updating Metadata?',self)
-        self.keeptags.setToolTip('Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.')
+        self.keeptags.setToolTip("Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
+
+        self.l.addSpacing(10)        
 
         self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
         self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New.')
@@ -343,15 +370,12 @@ class BasicTab(QWidget):
         self.updatedefault.setChecked(prefs['updatedefault'])
         self.l.addWidget(self.updatedefault)
 
-        self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
-        self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
-        self.deleteotherforms.setChecked(prefs['deleteotherforms'])
-        self.l.addWidget(self.deleteotherforms)
-        
         self.adddialogstaysontop = QCheckBox("Keep 'Add New from URL(s)' dialog on top?",self)
         self.adddialogstaysontop.setToolTip("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it.")
         self.adddialogstaysontop.setChecked(prefs['adddialogstaysontop'])
         self.l.addWidget(self.adddialogstaysontop)
+
+        self.l.addSpacing(10)        
 
         # this is a cheat to make it easier for users to realize there's a new include_images features.
         self.includeimages = QCheckBox("Include images in EPUBs?",self)
@@ -767,6 +791,7 @@ class CustomColumnsTab(QWidget):
         self.l.addSpacing(5)
         
         self.custcol_dropdowns = {}
+        self.custcol_newonlycheck = {}
 
         for key, column in custom_columns.iteritems():
 
@@ -775,8 +800,8 @@ class CustomColumnsTab(QWidget):
                 # for (k,v) in column.iteritems():
                 #     print("column['%s'] => %s"%(k,v))
                 horz = QHBoxLayout()
-                label = QLabel('%s(%s)'%(column['name'],key))
-                label.setToolTip("Update this %s column with..."%column['datatype'])
+                label = QLabel(column['name'])
+                label.setToolTip("Update this %s column(%s) with..."%(key,column['datatype']))
                 horz.addWidget(label)
                 dropdown = QComboBox(self)
                 dropdown.addItem('',QVariant('none'))
@@ -789,8 +814,15 @@ class CustomColumnsTab(QWidget):
                     dropdown.setToolTip("Metadata values valid for this type of column.\nValues that aren't valid for this enumeration column will be ignored.")
                 else:
                     dropdown.setToolTip("Metadata values valid for this type of column.")
-
                 horz.addWidget(dropdown)
+
+                newonlycheck = QCheckBox("New Only",self)
+                newonlycheck.setToolTip("Write to %s(%s) only for new\nbooks, not updates to existing books."%(column['name'],key))
+                self.custcol_newonlycheck[key] = newonlycheck
+                if key in prefs['custom_cols_newonly']:
+                    newonlycheck.setChecked(prefs['custom_cols_newonly'][key])
+                horz.addWidget(newonlycheck)
+                
                 self.l.addLayout(horz)
         
         self.l.insertStretch(-1)
@@ -818,3 +850,51 @@ class CustomColumnsTab(QWidget):
         
         
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
+
+
+class StandardColumnsTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+
+        columns=OrderedDict()
+        
+        columns["title"]="Title"
+        columns["authors"]="Author(s)"
+        columns["publisher"]="Publisher"
+        columns["tags"]="Tags"
+        columns["languages"]="Languages"
+        columns["pubdate"]="Published Date"
+        columns["timestamp"]="Date"
+        columns["comments"]="Comments"
+        columns["series"]="Series"
+        columns["identifiers"]="Ids(url id only)"
+
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        label = QLabel("The standard calibre metadata columns are listed below.  You may choose whether FFDL will fill each column automatically on updates or only for new books.")
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+        
+        self.stdcol_newonlycheck = {}
+
+        for key, column in columns.iteritems():
+            horz = QHBoxLayout()
+            label = QLabel(column)
+            #label.setToolTip("Update this %s column(%s) with..."%(key,column['datatype']))
+            horz.addWidget(label)
+
+            newonlycheck = QCheckBox("New Only",self)
+            newonlycheck.setToolTip("Write to %s only for new\nbooks, not updates to existing books."%column)
+            self.stdcol_newonlycheck[key] = newonlycheck
+            if key in prefs['std_cols_newonly']:
+                newonlycheck.setChecked(prefs['std_cols_newonly'][key])
+            horz.addWidget(newonlycheck)
+            
+            self.l.addLayout(horz)
+        
+        self.l.insertStretch(-1)
