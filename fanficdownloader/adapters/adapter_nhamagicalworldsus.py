@@ -122,7 +122,7 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
 		
 
         # Find the chapters:
-        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+'&chapter=\d$'))
+        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+'&chapter=\d+$'))
         if len(chapters) == 0:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
