@@ -176,7 +176,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         genrelist = metalist[0].split('/') # Hurt/Comfort already changed above.
         goodgenres=True
         for g in genrelist:
-            if g not in ffnetgenres:
+            print("g:(%s)"%g)
+            if g.strip() not in ffnetgenres:
+                print("g not in ffnetgenres")
                 goodgenres=False
         if goodgenres:
             self.story.extendList('genre',genrelist)
