@@ -172,15 +172,17 @@ class FakeLineEdit():
     def text(self):
         pass
     
-class CollectURLDialog(QDialog):
+class CollectURLDialog(SizePersistedDialog):
     '''
     Collect single url for get urls.
     '''
-    def __init__(self, gui, title):
-        QDialog.__init__(self, gui)
+    def __init__(self, gui, title, url_text): 
+        SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:get story urls')
         self.gui = gui
         self.status=False
 
+        self.setMinimumWidth(300)
+        
         self.l = QGridLayout()
         self.setLayout(self.l)
 
@@ -189,6 +191,7 @@ class CollectURLDialog(QDialog):
         
         self.l.addWidget(QLabel("URL:"),1,0)
         self.url = QLineEdit(self)
+        self.url.setText(url_text)
         self.l.addWidget(self.url,1,1)
    
         self.ok_button = QPushButton('OK', self)
@@ -199,15 +202,16 @@ class CollectURLDialog(QDialog):
         self.cancel_button.clicked.connect(self.cancel)
         self.l.addWidget(self.cancel_button,2,1)
 
-        self.resize(self.sizeHint())
+        # restore saved size.
+        self.resize_dialog()
 
     def ok(self):
         self.status=True
-        self.hide()
+        self.accept()
 
     def cancel(self):
         self.status=False
-        self.hide()
+        self.reject()
 
 class UserPassDialog(QDialog):
     '''
