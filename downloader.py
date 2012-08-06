@@ -128,7 +128,7 @@ def main():
            config.set("overrides",var,val)
 
    if options.list:
-       retlist = get_urls_from_page(args[0])
+       retlist = get_urls_from_page(args[0], config)
        print "\n".join(retlist)
                
        return
@@ -193,7 +193,8 @@ def main():
                    # update now handled by pre-populating the old
                    # images and chapters in the adapter rather than
                    # merging epubs.
-                   (url,chaptercount,
+                   (url,
+                    chaptercount,
                     adapter.oldchapters,
                     adapter.oldimgs,
                     adapter.oldcover,

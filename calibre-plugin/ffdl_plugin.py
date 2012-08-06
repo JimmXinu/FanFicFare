@@ -238,13 +238,23 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
 
     def get_urls_from_page(self):
-        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page")
+
+        if prefs['urlsfromclip']:
+            try:
+                urltxt = self.get_urls_clip(storyurls=False)[0]
+            except:
+                urltxt = ""
+        
+        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page",urltxt)
         d.exec_()
         if not d.status:
             return
-        print("URL:%s"%d.url.text())
+        print("get_urls_from_page URL:%s"%d.url.text())
 
-        url_list = get_urls_from_page("%s"%d.url.text())
+        ffdlconfig = SafeConfigParser()
+        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
+        ffdlconfig.readfp(StringIO(prefs['personal.ini']))
+        url_list = get_urls_from_page("%s"%d.url.text(),ffdlconfig)
 
         if url_list:
             d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
@@ -361,13 +371,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             options['version'] = self.version
             print(self.version)
             self.start_downloads( options, update_books )
-        
-    def get_urls_clip(self):
+            
+    def get_urls_clip(self,storyurls=True):
         url_list = []
         if prefs['urlsfromclip']:
             for url in unicode(QApplication.instance().clipboard().text()).split():
-                if( self._is_good_downloader_url(url) ):
+                if not storyurls or self._is_good_downloader_url(url):
                     url_list.append(url)
+                    
         return url_list
 
     def apply_settings(self):

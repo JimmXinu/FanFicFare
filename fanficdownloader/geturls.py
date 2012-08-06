@@ -25,14 +25,38 @@ from gziphttp import GZipProcessor
 
 import adapters
 
-def get_urls_from_page(url):
-    
-    opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
-    soup = BeautifulSoup(opener.open(url).read())
-    
+def get_urls_from_page(url,config=None):
+
     normalized = set() # normalized url
     retlist = [] # orig urls.
-    config = ConfigParser.SafeConfigParser()
+    if not config:
+        config = ConfigParser.SafeConfigParser()
+
+    data = None
+    
+    # special stuff to log into archiveofourown.org, if possible.
+    # Unlike most that show the links to 'adult' stories, but protect
+    # them, AO3 doesn't even show them if not logged in.  Only works
+    # with saved user/pass--not going to prompt for list.
+    if 'archiveofourown.org' in url:
+        ao3adapter = adapters.getAdapter(config,"http://www.archiveofourown.org/works/0","EPUB")
+        if ao3adapter.getConfig("username"):
+            if ao3adapter.getConfig("is_adult"):
+                addurl = "?view_adult=true"
+            else:
+                addurl=""
+            # just to get an authenticity_token.
+            data = ao3adapter._fetchUrl(url+addurl)
+            # login the session.
+            ao3adapter.performLogin(url,data)
+            # get the list page with logged in session.
+            data = ao3adapter._fetchUrl(url)
+
+    if not data:
+        opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        data = opener.open(url).read()
+    
+    soup = BeautifulSoup(data)
     
     for a in soup.findAll('a'):
         if a.has_key('href'):
