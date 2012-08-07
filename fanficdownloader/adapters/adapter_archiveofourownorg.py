@@ -50,8 +50,17 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
-        # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+        # get storyId from url--url validation guarantees query correct
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            self.story.setMetadata('storyId',m.group('id'))
+            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            # normalized story URL.
+            self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+        else:
+            raise exceptions.InvalidStoryURL(url,
+                                             self.getSiteDomain(),
+                                             self.getSiteExampleURLs())
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ao3')
@@ -70,10 +79,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         return ['www.archiveofourown.org','archiveofourown.org']
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/works/123456"
+        return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/works/")+r"\d+(/chapters/\d+)?/?$"
+        # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
+        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)(/chapters/\d+)?/?$"
         
     ## Login
     def needToLoginCheck(self, data):
