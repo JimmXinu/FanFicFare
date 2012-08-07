@@ -198,7 +198,8 @@ def main():
                     adapter.oldchapters,
                     adapter.oldimgs,
                     adapter.oldcover,
-                    adapter.calibrebookmark) = get_update_data(args[0])
+                    adapter.calibrebookmark,
+                    adapter.logfile) = get_update_data(args[0])
 
                    writeStory(config,adapter,"epub")
                    

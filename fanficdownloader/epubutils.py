@@ -42,6 +42,7 @@ def get_update_data(inputio,
             
     oldcover = None
     calibrebookmark = None
+    logfile = None
     # Looking for pre-existing cover.
     for item in contentdom.getElementsByTagName("reference"):
         if item.getAttribute("type") == "cover":
@@ -96,6 +97,11 @@ def get_update_data(inputio,
             if( item.getAttribute("media-type") == "application/xhtml+xml" ):
                 href=relpath+item.getAttribute("href")
                 #print("---- item href:%s path part: %s"%(href,get_path_part(href)))
+                if re.match(r'.*/log_page\.x?html',href):
+                    try:
+                        logfile = epub.read(href).decode("utf-8")
+                    except:
+                        pass # corner case I bumped into while testing.
                 if re.match(r'.*/(file|chapter)\d+\.x?html',href):
                     if getsoups:
                         soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"))
@@ -136,7 +142,7 @@ def get_update_data(inputio,
                     
     for k in images.keys():
         print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    return (source,filecount,soups,images,oldcover,calibrebookmark)
+    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)

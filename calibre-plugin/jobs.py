@@ -154,11 +154,13 @@ def do_download_for_worker(book,options):
             # update now handled by pre-populating the old images and
             # chapters in the adapter rather than merging epubs.
             urlchaptercount = int(story.getMetadata('numChapters'))
-            (url,chaptercount,
+            (url,
+             chaptercount,
              adapter.oldchapters,
              adapter.oldimgs,
              adapter.oldcover,
-             adapter.calibrebookmark) = get_update_data(book['epub_for_update'])
+             adapter.calibrebookmark,
+             adapter.logfile) = get_update_data(book['epub_for_update'])
 
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
             print("write to %s"%outfile)

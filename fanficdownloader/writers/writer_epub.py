@@ -140,6 +140,101 @@ ${value}<br />
 </html>
 ''')
 
+        self.EPUB_LOG_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Update Log</title>
+<link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
+</head>
+<body>
+<h3>Update Log</h3>
+''')
+
+        self.EPUB_LOG_ENTRY = string.Template('''
+<b>${label}:</b> <span id="${id}">${value}</span>
+''')
+                          
+        self.EPUB_LOG_PAGE_END = string.Template('''
+</body>
+</html>
+''')
+
+    def writeLogPage(self, out):
+        """
+       XXX 
+
+        
+        Write the log page, but only include entries that there's
+        metadata for.  START, ENTRY and END are expected to already by
+        string.Template().  START and END are expected to use the same
+        names as Story.metadata, but ENTRY should use id, label and value.
+        """
+        if self.getConfig("include_logpage"):
+
+            # if there's a self.story.logfile, there's an existing log
+            # to add to.
+            if self.story.logfile:
+                print("existing logfile found, appending")
+                print("existing data:%s"%self._getLastLogData(self.story.logfile))
+                replace_string = "</body>" # "</h3>"
+                self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
+            else:
+                # otherwise, write a new one.
+                self._write(out,self.EPUB_LOG_PAGE_START.substitute(self.story.getAllMetadata()))
+                self._write(out,self._makeLogEntry())
+                self._write(out,self.EPUB_LOG_PAGE_END.substitute(self.story.getAllMetadata()))
+
+    # self parsing instead of Soup because it should be simple and not
+    # worth the overhead.
+    def _getLastLogData(self,logfile):
+        """
+        Make a dict() of the most recent(last) log entry for each piece of metadata.
+        Switch rindex to index to search from top instead of bottom.
+        """
+        values = {}
+        for entry in self.getConfigList("logpage_entries"):
+            if entry in self.validEntries:
+                try:
+                    # <span id="dateUpdated">1975-04-15</span>
+                    span = '<span id="%s">'%entry
+                    idx = logfile.rindex(span)+len(span)
+                    values[entry] = logfile[idx:logfile.index('</span>',idx)]
+                except Exception, e:
+                    #print("e:%s"%e)
+                    pass
+
+        return values
+        
+    def _makeLogEntry(self, oldvalues={}):
+        retval = "<p class='log_entry'>"
+
+        for entry in self.getConfigList("logpage_entries"):
+            if entry in self.validEntries:
+                val = self.story.getMetadata(entry)
+                if val and ( entry not in oldvalues or val != oldvalues[entry] ):
+                    if self.hasConfig(entry+"_label"):
+                        label=self.getConfig(entry+"_label")
+                    else:
+                        print("Using fallback label for %s_label"%entry)
+                        label=self.titleLabels[entry]
+
+                    retval = retval + self.EPUB_LOG_ENTRY.substitute({'id':entry,
+                                                                      'label':label,
+                                                                      'value':val})
+            else:
+                # could be useful for introducing extra text, but
+                # mostly it makes it easy to tell when you get the
+                # keyword wrong.
+                retval = retval + entry
+                
+        retval = retval + "</p><hr />"
+        
+        if self.getConfig('replace_hr'):
+            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
+            
+        return retval
+                
     def writeStoryImpl(self, out):
 
         ## Python 2.5 ZipFile is rather more primative than later
@@ -349,6 +444,11 @@ div { margin: 0pt; padding: 0pt; }
         if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
+
+        if self.getConfig("include_logpage"):
+            items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
+            itemrefs.append("log_page")
+            
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 i=index+1
@@ -480,6 +580,13 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
 
+        # write log page.
+        logpageIO = StringIO.StringIO()
+        self.writeLogPage(logpageIO)
+        if logpageIO.getvalue(): # will be false if no log page.
+            outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
+        logpageIO.close()
+        
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
