@@ -89,6 +89,7 @@ class BaseSiteAdapter(Configurable):
         self.oldimgs = None
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
+        self.logfile = None
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -229,6 +230,8 @@ class BaseSiteAdapter(Configurable):
             # cheesy way to carry calibre bookmark file forward across update.
             if self.calibrebookmark:
                 self.story.calibrebookmark = self.calibrebookmark
+            if self.logfile:
+                self.story.logfile = self.logfile
                 
         return self.story
 

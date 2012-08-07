@@ -201,6 +201,7 @@ class Story:
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
         self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
+        self.logfile=None # cheesy way to carry log file forward across update.
 
     def setMetadata(self, key, value):
         ## still keeps &lt; &lt; and &amp;
@@ -230,6 +231,8 @@ class Story:
             if value:
                 if key == "numWords":
                     value = commaGroups(value)
+                if key == "numChapters":
+                    value = commaGroups("%d"%value)
                 if key == "dateCreated":
                     value = value.strftime("%Y-%m-%d %H:%M:%S")
                 if key == "datePublished" or key == "dateUpdated":
@@ -279,7 +282,7 @@ class Story:
     # just for less clutter in adapters.
     def extendList(self,listname,l):
         for v in l:
-            self.addToList(listname,v)
+            self.addToList(listname,v.strip())
     
     def addToList(self,listname,value):
         if value==None:

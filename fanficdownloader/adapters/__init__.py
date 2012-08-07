@@ -127,7 +127,7 @@ def getAdapter(config,url,fileform=None):
     if( domain != parsedUrl.netloc ):
         fixedurl = fixedurl.replace(parsedUrl.netloc,domain)
 
-    logging.debug("site:"+domain)
+    logging.debug("trying url:"+url)
     cls = getClassFor(domain)
     if not cls and domain.startswith("www."):
         domain = domain.replace("www.","")
