@@ -628,27 +628,27 @@ class CountPagesTab(QWidget):
         self.l.addSpacing(5)
         
         # 'PageCount', 'WordCount', 'FleschReading', 'FleschGrade', 'GunningFog'
-        self.pagecount = QCheckBox('PageCount',self)
+        self.pagecount = QCheckBox('Page Count',self)
         self.pagecount.setToolTip('Which column and algorithm to use are configured in Count Pages.')
         self.pagecount.setChecked('PageCount' in prefs['countpagesstats'])
         self.l.addWidget(self.pagecount)
             
-        self.wordcount = QCheckBox('WordCount',self)
+        self.wordcount = QCheckBox('Word Count',self)
         self.wordcount.setToolTip('Which column and algorithm to use are configured in Count Words.\nWill overwrite word count from FFDL metadata if set to update the same custom column.')
         self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
         self.l.addWidget(self.wordcount)
 
-        self.fleschreading = QCheckBox('FleschReading',self)
+        self.fleschreading = QCheckBox('Flesch Reading Ease',self)
         self.fleschreading.setToolTip('Which column and algorithm to use are configured in Count Pages.')
         self.fleschreading.setChecked('FleschReading' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschreading)
         
-        self.fleschgrade = QCheckBox('Fleschgrade',self)
+        self.fleschgrade = QCheckBox('Flesch-Kincaid Grade Level',self)
         self.fleschgrade.setToolTip('Which column and algorithm to use are configured in Count Pages.')
-        self.fleschgrade.setChecked('Fleschgrade' in prefs['countpagesstats'])
+        self.fleschgrade.setChecked('FleschGrade' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschgrade)
         
-        self.gunningfog = QCheckBox('GunningFog',self)
+        self.gunningfog = QCheckBox('Gunning Fog Index',self)
         self.gunningfog.setToolTip('Which column and algorithm to use are configured in Count Pages.')
         self.gunningfog.setChecked('GunningFog' in prefs['countpagesstats'])
         self.l.addWidget(self.gunningfog)
