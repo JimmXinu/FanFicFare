@@ -777,20 +777,20 @@ make_firstimage_cover:true
 <p>Proceed with updating your library?</p>
 '''%(len(good_list),len(bad_list))
 
-        htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>URL</th><th>Comment</th></tr>'
+        htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
         for book in good_list:
             if 'status' in book:
                 status = book['status']
             else:
                 status = 'Good'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['url'],book['comment']]) + '</td></tr>'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['comment'],book['url']]) + '</td></tr>'
         
         for book in bad_list:
             if 'status' in book:
                 status = book['status']
             else:
                 status = 'Bad'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['url'],book['comment']]) + '</td></tr>'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['comment'],book['url']]) + '</td></tr>'
         
         htmllog = htmllog + '</table></body></html>'
         

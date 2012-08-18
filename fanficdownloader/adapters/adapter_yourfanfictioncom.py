@@ -141,7 +141,6 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
-        # use BeautifulSoup HTML parser to make everything easier to find.
         # because for some reason, this works while simple 'print data' errors on ascii conversion.
         # loopdata = data
         # chklen=5000
@@ -151,6 +150,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         #     logging.info("loopdata: %s" % loopdata[:chklen])
         #     loopdata = loopdata[chklen:]
             
+        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
 
         # Now go hunting for all the meta data and the chapter list.
@@ -191,9 +191,11 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while value and not defaultGetattr(value,'class') == 'label':
                     svalue += str(value)
                     value = value.nextSibling
+                # sometimes poorly formated desc (<p> w/o </p>) leads
+                # to all labels being included.
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
 
