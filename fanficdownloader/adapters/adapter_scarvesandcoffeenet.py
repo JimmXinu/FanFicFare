@@ -59,6 +59,8 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
         # the site itself isn't likely to label them as such, so we
         # do.
         self.story.addToList("category","Glee")
+        self.story.addToList("characters","Kurt Hummel")
+        self.story.addToList("characters","Blaine Anderson")
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior

@@ -220,10 +220,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
+        #print("create_menu_item_ex before %s"%unique_name)
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
                                        shortcut, triggered, is_checked, shortcut_name, unique_name)
         self.actions_unique_map[ac.calibre_shortcut_unique_name] = ac.calibre_shortcut_unique_name
         self.menu_actions.append(ac)
+        #print("create_menu_item_ex after %s"%unique_name)
         return ac
 
     def plugin_button(self):

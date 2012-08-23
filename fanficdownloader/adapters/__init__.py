@@ -92,6 +92,10 @@ import adapter_wizardtalesnet
 import adapter_nhamagicalworldsus
 import adapter_hlfictionnet
 import adapter_grangerenchantedcom
+import adapter_dracoandginnycom
+import adapter_scarvesandcoffeenet
+import adapter_thepetulantpoetesscom
+import adapter_wolverineandroguecom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
