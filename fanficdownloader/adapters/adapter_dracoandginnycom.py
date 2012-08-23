@@ -59,6 +59,8 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         # the site itself isn't likely to label them as such, so we
         # do.
         self.story.addToList("category","Harry Potter")
+        self.story.addToList("characters","Ginny Weasley")
+        self.story.addToList("characters","Draco Malfoy")
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
