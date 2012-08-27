@@ -167,7 +167,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
+        self.story.setMetadata('author',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
@@ -190,7 +190,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
-            label = labelspan.string
+            label = stripHTML(labelspan)
 
             if 'Summary' in label:
                 ## Everything until the next span class='label'
@@ -215,50 +215,50 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
-                catstext = [cat.string for cat in cats]
+                catstext = [stripHTML(cat) for cat in cats]
                 for cat in catstext:
                     # ran across one story with an empty <a href="browse.php?type=categories&amp;catid=1"></a>
                     # tag in the desc once.
                     if cat and cat.strip() in ('Poetry','Essays'):
-                        self.story.addToList('category',cat.string)
+                        self.story.addToList('category',stripHTML(cat))
 
             if 'Characters' in label:
                 self.story.addToList('characters','Kirk')
                 self.story.addToList('characters','Spock')
                 chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
-                charstext = [char.string for char in chars]
+                charstext = [stripHTML(char) for char in chars]
                 for char in charstext:
-                    self.story.addToList('characters',char.string)
+                    self.story.addToList('characters',stripHTML(char))
 
             ## Not all sites use Genre, but there's no harm to
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Genre' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
-                genrestext = [genre.string for genre in genres]
+                genrestext = [stripHTML(genre) for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
+                    self.story.addToList('genre',stripHTML(genre))
 
             ## In addition to Genre (which is very site specific) KSA
             ## has 'Story Type', which is much more what most sites
             ## call genre.
             if 'Story Type' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=5')) # XXX
-                genrestext = [genre.string for genre in genres]
+                genrestext = [stripHTML(genre) for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
+                    self.story.addToList('genre',stripHTML(genre))
 
             ## Not all sites use Warnings, but there's no harm to
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Warnings' in label:
                 warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
-                warningstext = [warning.string for warning in warnings]
+                warningstext = [stripHTML(warning) for warning in warnings]
                 self.warning = ', '.join(warningstext)
                 for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
+                    self.story.addToList('warnings',stripHTML(warning))
 
             if 'Completed' in label:
                 if 'Yes' in value:
@@ -277,7 +277,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-            series_name = a.string
+            series_name = stripHTML(a)
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.

@@ -117,7 +117,7 @@ for x in imports():
             
 def getAdapter(config,url,fileform=None):
     ## fix up leading protocol.
-    fixedurl = re.sub(r"(?i)^[htp]+[:/]+","http://",url.strip())
+    fixedurl = re.sub(r"(?i)^[htps]+[:/]+","http://",url.strip())
     if not fixedurl.startswith("http"):
         fixedurl = "http://%s"%url
     ## remove any trailing '#' locations.

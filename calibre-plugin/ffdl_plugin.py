@@ -143,8 +143,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                        triggered=self.add_dialog )
 
             self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
-                                                          unique_name='Update Existing FanFiction Book(s)',
-                                                          shortcut_name='Update Existing FanFiction Book(s)',
                                                           triggered=self.update_existing)
 
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
@@ -164,37 +162,31 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                 if addmenutxt:
                     self.add_send_action = self.create_menu_item_ex(self.menu, addmenutxt, image='plusplus.png',
-                                                                    unique_name=addmenutxt,
-                                                                    shortcut_name=addmenutxt,
                                                                     triggered=partial(self.update_lists,add=True))
 
                 if rmmenutxt:
                     self.add_remove_action = self.create_menu_item_ex(self.menu, rmmenutxt, image='minusminus.png',
-                                                                      unique_name=rmmenutxt,
-                                                                      shortcut_name=rmmenutxt,
                                                                       triggered=partial(self.update_lists,add=False))
                 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
-                                                            unique_name='Get URLs from Selected Books',
-                                                            shortcut_name='Get URLs from Selected Books',
                                                             triggered=self.get_list_urls)
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
-                                                                unique_name='Get Story URLs from Web Page',
-                                                                shortcut_name='Get Story URLs from Web Page',
                                                                 triggered=self.get_urls_from_page)
 
             self.menu.addSeparator()
-            self.config_action = create_menu_action_unique(self, self.menu, '&Configure Plugin', shortcut=False,
-                                                           image= 'config.png',
-                                                           unique_name='Configure FanFictionDownLoader',
-                                                           triggered=partial(do_user_config,parent=self.gui))
+            self.config_action = self.create_menu_item_ex(self.menu, '&Configure Plugin', #shortcut=False, # causes crashes on some Macs.  
+                                                          image= 'config.png',
+                                                          unique_name='Configure FanFictionDownLoader',
+                                                          shortcut_name='Configure FanFictionDownLoader',
+                                                          triggered=partial(do_user_config,parent=self.gui))
             
-            self.about_action = create_menu_action_unique(self, self.menu, 'About Plugin', shortcut=False,
-                                                          image= 'images/icon.png',
-                                                          unique_name='About FanFictionDownLoader',
-                                                          triggered=self.about)
+            self.about_action = self.create_menu_item_ex(self.menu, 'About Plugin', #shortcut=False, # causes crashes on some Macs.  
+                                                         image= 'images/icon.png',
+                                                         unique_name='About FanFictionDownLoader', 
+                                                         shortcut_name='About FanFictionDownLoader', 
+                                                         triggered=self.about)
             
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
@@ -220,12 +212,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
-        #print("create_menu_item_ex before %s"%unique_name)
+        #print("create_menu_item_ex before %s"%menu_text)
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
                                        shortcut, triggered, is_checked, shortcut_name, unique_name)
         self.actions_unique_map[ac.calibre_shortcut_unique_name] = ac.calibre_shortcut_unique_name
         self.menu_actions.append(ac)
-        #print("create_menu_item_ex after %s"%unique_name)
+        #print("create_menu_item_ex after %s"%menu_text)
         return ac
 
     def plugin_button(self):
