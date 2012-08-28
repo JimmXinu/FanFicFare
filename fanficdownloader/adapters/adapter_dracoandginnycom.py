@@ -295,6 +295,9 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'class' : 'listbox'})
+        
+        if None == div:
+            div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
