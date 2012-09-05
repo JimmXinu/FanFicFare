@@ -55,11 +55,6 @@ class PrisonBreakFicNetAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','pbf')
 
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","Prison Break")
-
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%B %d, %Y"
@@ -156,6 +151,11 @@ class PrisonBreakFicNetAdapter(BaseSiteAdapter):
                 chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
                 for char in chars:
                     self.story.addToList('characters',char.string)
+
+            if 'Pairing' in label:
+                ships = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3')) # XXX
+                for ship in ships:
+                    self.story.addToList('ships',ship.string.replace(" and ","/"))
 
             if 'Genre' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX

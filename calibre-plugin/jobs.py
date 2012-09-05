@@ -109,6 +109,9 @@ def do_download_for_worker(book,options):
     when run as a worker job
     '''
     try:
+        # import logging
+        # logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
+        
         book['comment'] = 'Download started...'
 
         ffdlconfig = SafeConfigParser()

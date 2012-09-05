@@ -44,25 +44,20 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         self.username = "" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-        
+
         self._setURL('http://' + self.getSiteDomain() + '/story.php?story='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','chm')
-
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","Harry Potter")
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -82,7 +77,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -93,8 +88,8 @@ class CheckmatedComAdapter(BaseSiteAdapter):
             params['name'] = self.getConfig("username")
             params['pass'] = self.getConfig("password")
         params['login'] = 'yes'
-        params['submit'] = 'login'	
-	
+        params['submit'] = 'login'
+
         loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
         d = self._fetchUrl(loginUrl,params)
         e = self._fetchUrl(url)
@@ -135,33 +130,33 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.findAll('span', {'class' : 'storytitle'})
         self.story.setMetadata('title',a[0].string)
-        
+
         # Find authorid and URL from... author url.
         a = a[1].find('a', href=re.compile(r"authors.php\?name\=\w+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
-			
+
         a = soup.find('select', {'name' : 'chapter'})
         if a == None:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
             for chapter in a.findAll('option'):
                 self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/story.php?story='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
-			
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
@@ -174,7 +169,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
             except:
                 return ""
 
-				
+
         # website does not keep track of word count, and there is no convenient way to calculate it
 
         summary = soup.find('fieldset')
@@ -182,21 +177,23 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         summary.name='div'
         self.setDescription(url,summary)
 
-		
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         table = soup.findAll('div', {'class' : 'text'})[1]
         for labels in table.findAll('tr'):
             value = labels.findAll('td')[1]
             label = labels.findAll('td')[0]
 
-			
+
             if 'Rating' in stripHTML(label):
                 self.story.setMetadata('rating', stripHTML(value))
 
             if 'Ship' in stripHTML(label):
+                if value.string != "none/none":
+                    self.story.addToList('ships',value.string)
                 for char in value.string.split('/'):
                     if char != 'none':
-                        self.story.addToList('characters',char)		
+                        self.story.addToList('characters',char)
 
             if 'Status' in stripHTML(label):
                 if value.find('img', {'src' : 'img/incomplete.gif'}) == None:
@@ -206,11 +203,11 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
             if 'Published' in stripHTML(label):
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in stripHTML(label):
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-			
-        a = self._fetchUrl(self.story.getMetadata('authorUrl')+'&cat=stories')	
+
+        a = self._fetchUrl(self.story.getMetadata('authorUrl')+'&cat=stories')
         for story in bs.BeautifulSoup(a).findAll('table', {'class' : 'storyinfo'}):
             a = story.find('a', href=re.compile(r"review.php\?s\="+self.story.getMetadata('storyId')+'&act=view'))
             if a != None:
@@ -220,8 +217,8 @@ class CheckmatedComAdapter(BaseSiteAdapter):
                     if 'genre' in stripHTML(label):
                         for genre in value.findAll('img'):
                             self.story.addToList('genre',genre['title'])
-        
-            
+
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -229,11 +226,11 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+
         div = soup.find('div', {'id' : 'resizeableText'})
         div.find('div', {'class' : 'storyTools'}).extract()
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

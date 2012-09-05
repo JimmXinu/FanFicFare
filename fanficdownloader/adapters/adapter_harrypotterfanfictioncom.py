@@ -37,7 +37,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.story.addToList("category","Harry Potter")
         self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only psid=1234

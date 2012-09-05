@@ -133,10 +133,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if storyMetadata["categories"][category]:
                 self.story.addToList("genre", category) 
 
-        self.story.addToList("category", "My Little Pony")
-        
         self.story.setMetadata("numWords", str(storyMetadata["words"]))
-        
         
         # fimfic is the first site with an explicit cover image.
         if self.getConfig('include_images') and "image" in storyMetadata.keys():
