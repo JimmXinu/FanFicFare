@@ -37,7 +37,6 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.story.addToList("category","Harry Potter")
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
@@ -142,7 +141,7 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                 chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
                 charstext = [char.string for char in chars]
                 for char in charstext:
-                    if char == "!Snape and Harry (required)":
+                    if "Snape and Harry (required)" in char:
                         self.story.addToList('characters',"Snape")
                         self.story.addToList('characters',"Harry")
                     else:

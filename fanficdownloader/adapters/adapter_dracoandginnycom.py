@@ -55,13 +55,6 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','dcagn')
 
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","Harry Potter")
-        self.story.addToList("characters","Ginny Weasley")
-        self.story.addToList("characters","Draco Malfoy")
-
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y"

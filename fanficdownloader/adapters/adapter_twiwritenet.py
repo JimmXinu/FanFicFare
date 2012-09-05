@@ -37,7 +37,6 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.story.addToList("category","Twilight")
         self.is_adult = False
         self.username = "NoneGiven" # if left empty, twiwrite.net doesn't return any message at all.
         self.password = ""

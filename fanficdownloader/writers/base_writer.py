@@ -50,6 +50,7 @@ class BaseStoryWriter(Configurable):
             'genre',
             'language',
             'characters',
+            'ships',
             'series',
             'status',
             'datePublished',
@@ -81,6 +82,7 @@ class BaseStoryWriter(Configurable):
             'status':'Status',
             'series':'Series',
             'characters':'Characters',
+            'ships':'Relationships',
             'datePublished':'Published',
             'dateUpdated':'Updated',
             'dateCreated':'Packaged',
@@ -104,12 +106,19 @@ class BaseStoryWriter(Configurable):
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
-        
-        for tag in self.getConfigList("extratags"):
-            self.story.addToList("extratags",tag)
 
-    def getMetadata(self,key):
-        return stripHTML(self.story.getMetadata(key))
+        ## Look for config parameter, split and add each to metadata field.
+        for (config,metadata) in [("extratags","extratags"),
+                                  ("extracategories","category"),
+                                  ("extragenres","genre"),
+                                  ("extracharacters","characters"),
+                                  ("extraships","ships"),
+                                  ("extrawarnings","warnings")]:
+            for val in self.getConfigList(config):
+                self.story.addToList(metadata,val)
+
+    def getMetadata(self,key, removeallentities=False):
+        return stripHTML(self.story.getMetadata(key, removeallentities))
 
     def getOutputFileName(self):
         if self.getConfig('zip_output'):
@@ -252,7 +261,7 @@ class BaseStoryWriter(Configurable):
         if close:
             outstream.close()
 
-    def getTags(self):
+    def getTags(self, removeallentities=False):
         # set to avoid duplicates subject tags.
         subjectset = set()
         
@@ -265,10 +274,10 @@ class BaseStoryWriter(Configurable):
             if entry in self.getConfigList("include_subject_tags") and \
                     entry not in self.story.getLists() and \
                     self.story.getMetadata(entry):
-                subjectset.add(self.getMetadata(entry))
+                subjectset.add(self.getMetadata(entry, removeallentities))
                 
         # listables all go into dc:subject tags, but only if they are configured.
-        for (name,lst) in self.story.getLists().iteritems():
+        for (name,lst) in self.story.getLists(removeallentities).iteritems():
             if name in self.getConfigList("include_subject_tags"):
                 for tag in lst:
                     subjectset.add(tag)

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import time, os, copy, threading, re
+import time, os, copy, threading, re, platform
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from functools import partial
@@ -175,18 +175,21 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
                                                                 triggered=self.get_urls_from_page)
 
-            self.menu.addSeparator()
-            self.config_action = self.create_menu_item_ex(self.menu, '&Configure Plugin', #shortcut=False, # causes crashes on some Macs.  
-                                                          image= 'config.png',
-                                                          unique_name='Configure FanFictionDownLoader',
-                                                          shortcut_name='Configure FanFictionDownLoader',
-                                                          triggered=partial(do_user_config,parent=self.gui))
+            # print("platform.system():%s"%platform.system())
+            # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
+            if not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
+                self.menu.addSeparator()
+                self.config_action = self.create_menu_item_ex(self.menu, '&Configure Plugin',
+                                                              image= 'config.png',
+                                                              unique_name='Configure FanFictionDownLoader',
+                                                              shortcut_name='Configure FanFictionDownLoader',
+                                                              triggered=partial(do_user_config,parent=self.gui))
             
-            self.about_action = self.create_menu_item_ex(self.menu, 'About Plugin', #shortcut=False, # causes crashes on some Macs.  
-                                                         image= 'images/icon.png',
-                                                         unique_name='About FanFictionDownLoader', 
-                                                         shortcut_name='About FanFictionDownLoader', 
-                                                         triggered=self.about)
+                self.about_action = self.create_menu_item_ex(self.menu, 'About Plugin',
+                                                             image= 'images/icon.png',
+                                                             unique_name='About FanFictionDownLoader', 
+                                                             shortcut_name='About FanFictionDownLoader', 
+                                                             triggered=self.about)
             
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
             for menu_id, unique_name in self.old_actions_unique_map.iteritems():
@@ -472,9 +475,9 @@ make_firstimage_cover:true
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
-        book['tags'] = writer.getTags() # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
+        book['tags'] = writer.getTags(removeallentities=True) # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
         book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
-        book['series'] = story.getMetadata("series")
+        book['series'] = story.getMetadata("series", removeallentities=True)
         
         # adapter.opener is the element with a threadlock.  But del
         # adapter.opener doesn't work--subproc fails when it tries
@@ -895,18 +898,6 @@ make_firstimage_cover:true
                 autid=db.get_author_id(auth)
                 db.set_link_field_for_author(autid, unicode(authurls[i]),
                                              commit=False, notify=False)
-
-        # mi.title = oldmi.title
-        # mi.authors = oldmi.authors
-        # mi.publisher = oldmi.publisher
-        # mi.tags = oldmi.tags
-        # mi.languages = oldmi.languages
-        # mi.pubdate = oldmi.pubdate
-        # mi.timestamp = oldmi.timestamp
-        # mi.comments = oldmi.comments
-        # mi.series = oldmi.series
-                
-        # mi.set_identifiers(oldmi.get_identifiers())
 
         # implement 'newonly' flags here by setting to the current
         # value again.

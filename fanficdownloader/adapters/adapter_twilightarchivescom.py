@@ -55,11 +55,6 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','twa')
 
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","Twilight")
-
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %b %y"

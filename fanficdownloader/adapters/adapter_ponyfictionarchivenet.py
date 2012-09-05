@@ -60,11 +60,6 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','pffa')
 
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","My Little Pony")
-            
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.

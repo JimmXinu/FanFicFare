@@ -225,7 +225,7 @@ class Story:
     def getMetadata(self, key, removeallentities=False, doreplacements=True):
         value = None
         if self.isList(key):
-            value = ', '.join(self.getList(key))
+            value = ', '.join(self.getList(key, removeallentities))
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -310,10 +310,10 @@ class Story:
 
         return retlist
 
-    def getLists(self):
+    def getLists(self, removeallentities=False):
         lsts = {}
         for ln in self.listables.keys():
-            lsts[ln] = self.getList(ln)
+            lsts[ln] = self.getList(ln, removeallentities)
         return lsts
 
     def isList(self,listname):

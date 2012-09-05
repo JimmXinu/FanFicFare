@@ -56,11 +56,6 @@ class NCISFictionComAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ncisfn')
 
-        # If all stories from the site fall into the same category,
-        # the site itself isn't likely to label them as such, so we
-        # do.
-        self.story.addToList("category","NCIS")
-
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%Y"
@@ -156,6 +151,11 @@ class NCISFictionComAdapter(BaseSiteAdapter):
                 chars = value.findAll('a')
                 for char in chars:
                     self.story.addToList('characters',char.string)
+
+            if 'Pairing' in label:
+                ships = value.findAll('a')
+                for ship in ships:
+                    self.story.addToList('ships',ship.string)
 
             if 'Genre' in label:
                 genres = value.findAll('a')

@@ -58,7 +58,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
 
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
-        # do.
+        # do.  Can't use extracategories, could be Atlantis or SG-1
         if 'atlantis' in self.story.getMetadata('section'):
             self.story.addToList("category","Stargate: Atlantis")
         else:
