@@ -795,6 +795,15 @@ class CustomColumnsTab(QWidget):
         self.custcol_dropdowns = {}
         self.custcol_newonlycheck = {}
 
+        scrollable = QScrollArea()
+        scrollcontent = QWidget()
+        scrollable.setWidget(scrollcontent)
+        scrollable.setWidgetResizable(True)
+        self.l.addWidget(scrollable)
+
+        self.sl = QVBoxLayout()
+        scrollcontent.setLayout(self.sl)
+        
         for key, column in custom_columns.iteritems():
 
             if column['datatype'] in permitted_values:
@@ -825,9 +834,9 @@ class CustomColumnsTab(QWidget):
                     newonlycheck.setChecked(prefs['custom_cols_newonly'][key])
                 horz.addWidget(newonlycheck)
                 
-                self.l.addLayout(horz)
+                self.sl.addLayout(horz)
         
-        self.l.insertStretch(-1)
+        self.sl.insertStretch(-1)
 
         self.l.addSpacing(5)
         label = QLabel("Special column:")
@@ -849,8 +858,7 @@ class CustomColumnsTab(QWidget):
         self.errorcol.setCurrentIndex(self.errorcol.findData(QVariant(prefs['errorcol'])))
         horz.addWidget(self.errorcol)
         self.l.addLayout(horz)
-        
-        
+
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
 
 
