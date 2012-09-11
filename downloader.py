@@ -121,6 +121,11 @@ def main():
 
    if options.update and not options.updatecover:
        config.set("overrides","never_make_cover","true")
+
+   # images only for epub, even if the user mistakenly turned it
+   # on else where.
+   if options.format != "epub":
+       config.set("overrides","include_images","false")
        
    if options.options:
        for opt in options.options:
