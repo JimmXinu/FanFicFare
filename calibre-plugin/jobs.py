@@ -120,6 +120,11 @@ def do_download_for_worker(book,options):
         
         if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
             ffdlconfig.set("overrides","never_make_cover","true")
+
+        # images only for epub, even if the user mistakenly turned it
+        # on else where.
+        if options['fileform'] != "epub":
+            ffdlconfig.set("overrides","include_images","false")
         
         adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
         adapter.is_adult = book['is_adult'] 
