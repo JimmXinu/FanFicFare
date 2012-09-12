@@ -191,7 +191,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         a = metasoup.find('blockquote',{'class':'userstuff'})
         if a != None:
-            self.setDescription(url,a.text)
+            self.setDescription(url,a)
             #self.story.setMetadata('description',a.text)
 		
         a = metasoup.find('dd',{'class':"rating tags"})

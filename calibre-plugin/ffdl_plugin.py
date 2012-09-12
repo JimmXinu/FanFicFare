@@ -28,6 +28,7 @@ from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dia
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.date import local_tz
+from calibre.library.comments import sanitize_comments_html
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
@@ -36,7 +37,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
                                          create_menu_action_unique, get_library_uuid)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
+#from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
@@ -432,13 +433,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("url:%s"%url)
         skip_date_update = False
         
-        ## was self.ffdlconfig, but we need to be able to change it
-        ## when doing epub update.
-        ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        ffdlconfig.readfp(StringIO(prefs['personal.ini']))
-        adapter = adapters.getAdapter(ffdlconfig,url,fileform)
-
         options['personal.ini'] = prefs['personal.ini']
         if prefs['includeimages']:
             # this is a cheat to make it easier for users.
@@ -447,6 +441,13 @@ include_images:true
 keep_summary_html:true
 make_firstimage_cover:true
 ''' + options['personal.ini']
+
+        ## was self.ffdlconfig, but we need to be able to change it
+        ## when doing epub update.
+        ffdlconfig = SafeConfigParser()
+        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
+        ffdlconfig.readfp(StringIO(options['personal.ini']))
+        adapter = adapters.getAdapter(ffdlconfig,url,fileform)
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
@@ -476,7 +477,7 @@ make_firstimage_cover:true
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = writer.getTags(removeallentities=True) # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
-        book['comments'] = stripHTML(story.getMetadata("description")) #, removeallentities=True) comments handles entities better.
+        book['comments'] = sanitize_comments_html(story.getMetadata("description"))        
         book['series'] = story.getMetadata("series", removeallentities=True)
         
         # adapter.opener is the element with a threadlock.  But del

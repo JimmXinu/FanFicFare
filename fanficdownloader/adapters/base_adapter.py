@@ -199,7 +199,8 @@ class BaseSiteAdapter(Configurable):
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(removeEntities(title),
-                                          None)
+                                          None,
+                                          self)
                 else:
                     if self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
@@ -208,7 +209,8 @@ class BaseSiteAdapter(Configurable):
                     else:
                         data = self.getChapterText(url)
                     self.story.addChapter(removeEntities(title),
-                                          removeEntities(data))
+                                          removeEntities(data),
+                                          self)
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.
@@ -289,7 +291,7 @@ class BaseSiteAdapter(Configurable):
     def setDescription(self,url,svalue):
         #print("\n\nsvalue:\n%s\n"%svalue)
         if self.getConfig('keep_summary_html'):
-            if isinstance(svalue,str) or isinstance(svalue,unicode):
+            if isinstance(svalue,basestring):
                 svalue = bs.BeautifulSoup(svalue)
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:

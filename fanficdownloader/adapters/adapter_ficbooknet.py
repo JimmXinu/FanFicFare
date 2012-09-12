@@ -201,7 +201,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 break
 				
         summary=soup.find('span', {'class' : 'urlize'})
-        self.setDescription(url,summary.text)
+        self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)
             
     # grab the text for an individual chapter.

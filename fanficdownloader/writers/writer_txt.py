@@ -133,7 +133,7 @@ End file.
         
         self._write(out,self.lineends(self.wraplines(towrap)))
 
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(self)):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
