@@ -169,7 +169,7 @@ ${value}<br />
         #     files.append(tocpageIO.getvalue())
         # tocpageIO.close()
 
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(self)):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 fullhtml = self.MOBI_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.MOBI_CHAPTER_END.substitute({'chapter':title, 'index':index+1})

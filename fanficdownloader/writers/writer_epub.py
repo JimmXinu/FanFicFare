@@ -441,7 +441,7 @@ div { margin: 0pt; padding: 0pt; }
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
-        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if len(self.story.getChapters(self)) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
 
@@ -449,7 +449,7 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(self)):
             if html:
                 i=index+1
                 items.append(("file%04d"%i,
@@ -587,7 +587,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
         logpageIO.close()
         
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(self)):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 fullhtml = self.EPUB_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.EPUB_CHAPTER_END.substitute({'chapter':title, 'index':index+1})

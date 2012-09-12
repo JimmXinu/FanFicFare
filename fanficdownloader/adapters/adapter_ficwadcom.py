@@ -124,7 +124,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         # description
         storydiv = soup.find("div",{"id":"story"})
-        self.setDescription(url,storydiv.find("blockquote",{'class':'summary'}).p.string)
+        self.setDescription(url,storydiv.find("blockquote",{'class':'summary'}).p)
         #self.story.setMetadata('description', storydiv.find("blockquote",{'class':'summary'}).p.string)
 
         # most of the meta data is here:

@@ -184,10 +184,10 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use index and chapter.
         """
         # Only do TOC if there's more than one chapter and it's configured.
-        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if len(self.story.getChapters(self)) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
-            for index, (title,html) in enumerate(self.story.getChapters()):
+            for index, (title,html) in enumerate(self.story.getChapters(self)):
                 if html:
                     self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
 

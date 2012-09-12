@@ -319,12 +319,25 @@ class Story:
     def isList(self,listname):
         return self.listables.has_key(listname)
     
-    def addChapter(self, title, html):
+    def addChapter(self, title, html, configurable=None):
+        if configurable and \
+                configurable.getConfig('strip_chapter_numbers') and \
+                configurable.getConfig('chapter_title_strip_pattern'):
+            title = re.sub(configurable.getConfig('chapter_title_strip_pattern'),"",title)
         self.chapters.append( (title,html) )
 
-    def getChapters(self):
+    def getChapters(self, configurable=None):
         "Chapters will be tuples of (title,html)"
-        return self.chapters
+        retval = []
+        if configurable and \
+                configurable.getConfig('add_chapter_numbers') and \
+                configurable.getConfig('chapter_title_add_pattern'):
+            for index, (title,html) in enumerate(self.chapters):
+                retval.append( (string.Template(configurable.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
+        else:
+            retval = self.chapters
+            
+        return retval
 
     def formatFileName(self,template,allowunsafefilename=True):
         values = origvalues = self.getAllMetadata()

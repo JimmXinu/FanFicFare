@@ -27,6 +27,8 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
+from ..bbcodeutils.bbcodeparser import bbcodeparser
+
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
@@ -137,12 +139,19 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         # fimfic is the first site with an explicit cover image.
         if self.getConfig('include_images') and "image" in storyMetadata.keys():
-            coverurl = storyMetadata["image"]
+            if "full_image" in storyMetadata:
+                coverurl = storyMetadata["full_image"]
+            else:
+                coverurl = storyMetadata["image"]
             if coverurl.startswith('//static.fimfiction.net'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
             self.story.addImgUrl(self,self.url,coverurl,self._fetchUrlRaw,cover=True)
-            
-        self.setDescription(self.url, storyMetadata["description"])
+
+
+        # the fimfic API gives bbcode for desc, not html.
+        # btw, bbcode honors newlines, html doesn't.  change newlines to br tags.
+        self.setDescription(self.url,
+                            bbcodeparser().parse(storyMetadata["description"]).html(doDeepCopy=False).replace('\r','').replace('\n','<br />'))
         
         # Dates are in Unix time
         # Take the publish date from the first chapter posted
@@ -152,8 +161,18 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
         
         soup = bs.BeautifulSoup(data).find("div", {"class":"story"})
-        for character in [character_icon["title"] for character_icon in soup.findAll("a", {"class":"character_icon"})]:
-            self.story.addToList("characters", character)
+        # fimfic stopped putting the char name on or around the char
+        # icon now for some reason.  Pull it from the image name with
+        # some heuristics.
+        for character in [character_icon["src"] for character_icon in soup.findAll("img", {"class":"character_icon"})]:
+            # //static.fimfiction.net/images/characters/twilight_sparkle.png
+            # 5th split /, remove last four, replace _, capitolize every word(title())
+            char = character.split('/')[5][:-4].replace('_',' ').title()
+            if char == 'Oc':
+                char = "OC"
+            if char == 'Cmc':
+                char = "Cutie Mark Crusaders"
+            self.story.addToList("characters", char)
             
             
     def getChapterText(self, url):
