@@ -51,11 +51,11 @@ from base_adapter import BaseSiteAdapter,  makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return TheHookupZoneNetAdapter # XXX
+    return BloodTiesFansComAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
+class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -65,8 +65,6 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
-        self.password = ""
         self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -75,10 +73,10 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
         
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/CriminalMinds/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/fiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','thupz') # XXX
+        self.story.setMetadata('siteabbrev','btf') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
@@ -87,13 +85,13 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'thehookupzone.net' # XXX
+        return 'bloodties-fans.com' # XXX
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/CriminalMinds/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/fiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/CriminalMinds/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/fiction/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -116,7 +114,7 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/CriminalMinds/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/fiction/user.php?action=login'
         logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -138,6 +136,11 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
+
+            # Furthermore, there's a couple sites now with more than
+            # one warning level for different ratings.  And they're
+            # fussy about it.  midnightwhispers has three: 4, 2 & 1.
+            # we'll try 1 first.
             addurl = "&ageconsent=ok&warning=4" # XXX
         else:
             addurl=""
@@ -154,17 +157,42 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
-
+            
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "Age Consent Required" in data: # XXX 
-            raise exceptions.AdultCheckRequired(self.url)
+            
+        # Since the warning text can change by warning level, let's
+        # look for the warning pass url.  nfacommunity uses
+        # &amp;warning= -- actually, so do other sites.  Must be an
+        # eFiction book.
+            
+        # viewstory.php?sid=561&amp;warning=4
+        # viewstory.php?sid=561&amp;warning=1
+        # viewstory.php?sid=561&amp;warning=2
+        #print data
+        #m = re.search(r"'viewstory.php\?sid=1882(&amp;warning=4)'",data)
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logging.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -188,7 +216,7 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/CriminalMinds/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fiction/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -273,7 +301,7 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/CriminalMinds/'+a['href']
+            series_url = 'http://'+self.host+'/fiction/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
