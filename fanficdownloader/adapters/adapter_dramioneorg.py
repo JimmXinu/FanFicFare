@@ -160,6 +160,22 @@ class DramioneOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
+        # Use banner as cover if found
+        if self.getConfig('include_images'):
+            coverurl = ''
+            img = soup.find('img',{'class':'banner'})
+            if img:
+                coverurl = img['src']
+                #print "Cover: "+coverurl
+            a = soup.find(text="This story has a banner; click to view.")
+            if a:
+                #print "A: "+ ', '.join("(%s, %s)" %tup for tup in a.parent.attrs)
+                coverurl = a.parent['href']
+                #print "Cover: "+coverurl
+            if coverurl:
+                self.story.addImgUrl(self,url,coverurl,self._fetchUrlRaw,cover=True)
+
+
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
