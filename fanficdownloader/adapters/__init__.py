@@ -97,6 +97,7 @@ import adapter_scarvesandcoffeenet
 import adapter_thepetulantpoetesscom
 import adapter_wolverineandroguecom
 import adapter_sinfuldesireorg
+import adapter_merlinficdtwinscouk
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
