@@ -156,6 +156,8 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
+                if value.endswith("["):
+                    value = value[:-1]
                 self.story.setMetadata('rating', value)
 
             if 'Characters' in label:
