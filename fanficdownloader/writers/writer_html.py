@@ -94,7 +94,7 @@ ${output_css}
                           self.HTML_TOC_ENTRY,
                           self.HTML_TOC_PAGE_END)
 
-        for index, (title,html) in enumerate(self.story.getChapters(self)):
+        for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 self._write(out,self.HTML_CHAPTER_START.substitute({'chapter':title, 'index':"%04d"%(index+1)}))

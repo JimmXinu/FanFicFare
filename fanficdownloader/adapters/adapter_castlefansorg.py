@@ -174,13 +174,14 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
+        pagetitle = soup.find('div',{'id':'pagetitle'})
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = pagetitle.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        a = pagetitle.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)

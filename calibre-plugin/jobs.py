@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 import time, os, traceback
 
-from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 
 from calibre.utils.ipc.server import Server
@@ -20,6 +19,7 @@ from calibre.utils.logging import Log
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
 
 # ------------------------------------------------------------------------------
@@ -114,19 +114,19 @@ def do_download_for_worker(book,options):
         
         book['comment'] = 'Download started...'
 
-        ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        ffdlconfig.readfp(StringIO(options['personal.ini']))
+        configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
+        configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
+        configuration.readfp(StringIO(options['personal.ini']))
         
         if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
-            ffdlconfig.set("overrides","never_make_cover","true")
+            configuration.set("overrides","never_make_cover","true")
 
         # images only for epub, even if the user mistakenly turned it
         # on else where.
         if options['fileform'] != "epub":
-            ffdlconfig.set("overrides","include_images","false")
+            configuration.set("overrides","include_images","false")
         
-        adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
+        adapter = adapters.getAdapter(configuration,book['url'])
         adapter.is_adult = book['is_adult'] 
         adapter.username = book['username'] 
         adapter.password = book['password']
@@ -137,7 +137,7 @@ def do_download_for_worker(book,options):
             adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
         # else:
         #     print("no calibre_series")
-        writer = writers.getWriter(options['fileform'],adapter.config,adapter)
+        writer = writers.getWriter(options['fileform'],configuration,adapter)
 
         outfile = book['outfile']
 

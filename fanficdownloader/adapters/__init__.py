@@ -117,8 +117,8 @@ for x in imports():
     if "fanficdownloader.adapters.adapter_" in x:
         #print x
         __class_list.append(sys.modules[x].getClass())
-            
-def getAdapter(config,url,fileform=None):
+
+def getDomainURL(url):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htps]+[:/]+","http://",url.strip())
     if not fixedurl.startswith("http"):
@@ -135,20 +135,17 @@ def getAdapter(config,url,fileform=None):
     if( domain != parsedUrl.netloc ):
         fixedurl = fixedurl.replace(parsedUrl.netloc,domain)
 
+    return (domain,fixedurl)
+    
+        
+def getAdapter(config,url):
+
     logging.debug("trying url:"+url)
-    cls = getClassFor(domain)
-    if not cls and domain.startswith("www."):
-        domain = domain.replace("www.","")
-        logging.debug("trying site:without www: "+domain)
-        cls = getClassFor(domain)
-        fixedurl = fixedurl.replace("http://www.","http://")
-    if not cls:
-        logging.debug("trying site:www."+domain)
-        cls = getClassFor("www."+domain)
-        fixedurl = fixedurl.replace("http://","http://www.")
+    (domain,fixedurl) = getDomainURL(url)
+    cls = getClassFromList(domain)
+    logging.debug("fixedurl:"+fixedurl)
     if cls:
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
-        adapter.setSectionOrder(adapter.getConfigSection(),fileform)
         return adapter
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
@@ -156,7 +153,28 @@ def getAdapter(config,url,fileform=None):
 def getConfigSections():
     return [cls.getConfigSection() for cls in __class_list]
 
+def getConfigSectionFor(url):
+    (domain,fixedurl) = getDomainURL(url)
+    cls = getClassFromList(domain)
+    if cls:
+        return cls.getConfigSection()
+    
+    # No adapter found.
+    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
+
 def getClassFor(domain):
+    cls = getClassFromList(domain)
+    if not cls and domain.startswith("www."):
+        domain = domain.replace("www.","")
+        logging.debug("trying site:without www: "+domain)
+        cls = getClassFromList(domain)
+        fixedurl = fixedurl.replace("http://www.","http://")
+    if not cls:
+        logging.debug("trying site:www."+domain)
+        cls = getClassFromList("www."+domain)
+        fixedurl = fixedurl.replace("http://","http://www.")
+    
+def getClassFromList(domain):
     for cls in __class_list:
         if cls.matchesSite(domain):
             return cls
