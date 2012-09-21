@@ -18,19 +18,19 @@
 import re
 import urlparse
 import urllib2 as u2
-import ConfigParser
 
 from BeautifulSoup import BeautifulSoup 
 from gziphttp import GZipProcessor
 
 import adapters
+from configurable import Configuration
 
-def get_urls_from_page(url,config=None):
+def get_urls_from_page(url,configuration=None):
 
     normalized = set() # normalized url
     retlist = [] # orig urls.
-    if not config:
-        config = ConfigParser.SafeConfigParser()
+    if not configuration:
+        configuration = Configuration("test1.com","EPUB")
 
     data = None
     
@@ -39,7 +39,7 @@ def get_urls_from_page(url,config=None):
     # them, AO3 doesn't even show them if not logged in.  Only works
     # with saved user/pass--not going to prompt for list.
     if 'archiveofourown.org' in url:
-        ao3adapter = adapters.getAdapter(config,"http://www.archiveofourown.org/works/0","EPUB")
+        ao3adapter = adapters.getAdapter(configuration,"http://www.archiveofourown.org/works/0","EPUB")
         if ao3adapter.getConfig("username"):
             if ao3adapter.getConfig("is_adult"):
                 addurl = "?view_adult=true"
@@ -72,7 +72,7 @@ def get_urls_from_page(url,config=None):
                     
             try:
                 href = href.replace('&index=1','')
-                adapter = adapters.getAdapter(config,href,"EPUB")
+                adapter = adapters.getAdapter(configuration,href,"EPUB")
                 if adapter.story.getMetadata('storyUrl') not in normalized:
                     normalized.add(adapter.story.getMetadata('storyUrl'))
                     retlist.append(href)

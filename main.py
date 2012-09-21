@@ -29,7 +29,6 @@ import datetime
 
 import traceback
 from StringIO import StringIO
-import ConfigParser
 
 ## Just to shut up the appengine warning about "You are using the
 ## default Django version (0.96). The default Django version will
@@ -57,22 +56,25 @@ from google.appengine.runtime import DeadlineExceededError
 from ffstorage import *
 
 from fanficdownloader import adapters, writers, exceptions
+from fanficdownloader.configurable import Configuration
 
 class UserConfigServer(webapp2.RequestHandler):
-    def getUserConfig(self,user):
-        config = ConfigParser.SafeConfigParser()
+    
+    def getUserConfig(self,user,url,fileformat):
 
+        configuration = Configuration(adapters.getConfigSectionFor(url),fileformat)
+        
         logging.debug('reading defaults.ini config file')
-        config.read('defaults.ini')
+        configuration.read('defaults.ini')
 
         ## Pull user's config record.
         l = UserConfig.all().filter('user =', user).fetch(1)
         if l and l[0].config:
             uconfig=l[0]
             #logging.debug('reading config from UserConfig(%s)'%uconfig.config)
-            config.readfp(StringIO(uconfig.config))
+            configuration.readfp(StringIO(uconfig.config))
 
-        return config
+        return configuration
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -137,7 +139,8 @@ class EditConfigServer(UserConfigServer):
             uconfig.config = self.request.get('config').encode('utf8')[:10000] ## just in case.
             uconfig.put()
             try:
-                config = self.getUserConfig(user)
+                # just getting config for testing purposes.
+                configuration = self.getUserConfig(user,"test1.com","epub")
                 self.redirect("/?error=configsaved")
             except Exception, e:
                 logging.info("Saved Config Failed:%s"%e)
@@ -367,12 +370,12 @@ class FanfictionDownloader(UserConfigServer):
         adapter = None
         try:
             try:
-                config = self.getUserConfig(user)
+                configuration = self.getUserConfig(user,url,format)
             except Exception, e:
                 self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+str(e)))
                 return
 
-            adapter = adapters.getAdapter(config,url,format)
+            adapter = adapters.getAdapter(configuration,url)
             logging.info('Created an adaper: %s' % adapter)
 
             if len(login) > 1:
@@ -474,8 +477,8 @@ class FanfictionDownloaderTask(UserConfigServer):
         logging.info('Creating adapter...')
 
         try:
-            config = self.getUserConfig(user)
-            adapter = adapters.getAdapter(config,url,format)
+            configuration = self.getUserConfig(user,url,format)
+            adapter = adapters.getAdapter(configuration,url)
 
             logging.info('Created an adapter: %s' % adapter)
 
@@ -488,7 +491,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             # adapter.getStoryMetadataOnly() only fetches enough to
             # get metadata.  writer.writeStory() will call
             # adapter.getStory(), too.
-            writer = writers.getWriter(format,config,adapter)
+            writer = writers.getWriter(format,configuration,adapter)
             download.name = writer.getOutputFileName()
             #logging.debug('output_filename:'+writer.getConfig('output_filename'))
             logging.debug('getOutputFileName:'+writer.getOutputFileName())

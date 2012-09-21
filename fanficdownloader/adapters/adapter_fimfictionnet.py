@@ -138,14 +138,14 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("numWords", str(storyMetadata["words"]))
         
         # fimfic is the first site with an explicit cover image.
-        if self.getConfig('include_images') and "image" in storyMetadata.keys():
+        if "image" in storyMetadata.keys():
             if "full_image" in storyMetadata:
                 coverurl = storyMetadata["full_image"]
             else:
                 coverurl = storyMetadata["image"]
             if coverurl.startswith('//static.fimfiction.net'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
-            self.story.addImgUrl(self,self.url,coverurl,self._fetchUrlRaw,cover=True)
+            self.setCoverImage(self.url,coverurl)
 
 
         # the fimfic API gives bbcode for desc, not html.

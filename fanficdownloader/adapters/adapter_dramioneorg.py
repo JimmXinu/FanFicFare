@@ -161,20 +161,18 @@ class DramioneOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string)
 
         # Use banner as cover if found
-        if self.getConfig('include_images'):
-            coverurl = ''
-            img = soup.find('img',{'class':'banner'})
-            if img:
-                coverurl = img['src']
-                #print "Cover: "+coverurl
-            a = soup.find(text="This story has a banner; click to view.")
-            if a:
-                #print "A: "+ ', '.join("(%s, %s)" %tup for tup in a.parent.attrs)
-                coverurl = a.parent['href']
-                #print "Cover: "+coverurl
-            if coverurl:
-                self.story.addImgUrl(self,url,coverurl,self._fetchUrlRaw,cover=True)
-
+        coverurl = ''
+        img = soup.find('img',{'class':'banner'})
+        if img:
+            coverurl = img['src']
+            #print "Cover: "+coverurl
+        a = soup.find(text="This story has a banner; click to view.")
+        if a:
+            #print "A: "+ ', '.join("(%s, %s)" %tup for tup in a.parent.attrs)
+            coverurl = a.parent['href']
+            #print "Cover: "+coverurl
+        if coverurl:
+            self.setCoverImage(url,coverurl)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
@@ -193,6 +191,22 @@ class DramioneOrgAdapter(BaseSiteAdapter):
         warnings=soup.findAll('a', {'class' : "tag-2"})
         for warning in warnings:
             self.story.addToList('warnings',warning.string)
+
+        themes=soup.findAll('a', {'class' : "tag-3"})
+        for theme in themes:
+            self.story.addToList('themes',theme.string)
+
+        hermiones=soup.findAll('a', {'class' : "tag-4"})
+        for hermione in hermiones:
+            self.story.addToList('hermiones',hermione.string)
+
+        dracos=soup.findAll('a', {'class' : "tag-5"})
+        for draco in dracos:
+            self.story.addToList('dracos',draco.string)
+
+        timelines=soup.findAll('a', {'class' : "tag-6"})
+        for timeline in timelines:
+            self.story.addToList('timeline',timeline.string)
 
         # utility method
         def defaultGetattr(d,k):

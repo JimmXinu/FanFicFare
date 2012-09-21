@@ -22,6 +22,7 @@ from math import floor
 
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
+from configurable import Configurable
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
@@ -186,9 +187,10 @@ langs = {
     "Devanagari":"hi",
     }
 
-class Story:
+class Story(Configurable):
     
-    def __init__(self):
+    def __init__(self, configuration):
+        Configurable.__init__(self, configuration)
         try:
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
@@ -197,35 +199,50 @@ class Story:
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
         self.imgtuples = []
-        self.listables = {} # some items (extratags, category, warnings & genres) are also kept as lists.
+        
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
         self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
         self.logfile=None # cheesy way to carry log file forward across update.
 
-    def setMetadata(self, key, value):
+        self.setReplace(self.getConfig('replace_metadata'))
+        
+    def setMetadata(self, key, value, condremoveentities=True):
         ## still keeps &lt; &lt; and &amp;
-        self.metadata[key]=conditionalRemoveEntities(value)
+        if condremoveentities:
+            self.metadata[key]=conditionalRemoveEntities(value)
+        else:
+            self.metadata[key]=value
         if key == "language":
             try:
                 self.metadata['langcode'] = langs[self.metadata[key]]
             except:
                 self.metadata['langcode'] = 'en'
+        if key == 'dateUpdated':
+            # Last Update tags for Bill.
+            self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
+            self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
+
 
     def getMetadataRaw(self,key):
-        if self.metadata.has_key(key):
+        if self.isValidMetaEntry(key) and self.metadata.has_key(key):
             return self.metadata[key]
 
     def doReplacments(self,value):
         for (p,v) in self.replacements:
-            if (isinstance(value,str) or isinstance(value,unicode)) and re.match(p,value):
+            if (isinstance(value,basestring)) and re.match(p,value):
                 value = re.sub(p,v,value)                
         return value
         
-    def getMetadata(self, key, removeallentities=False, doreplacements=True):
+    def getMetadata(self, key,
+                    removeallentities=False,
+                    doreplacements=True):
         value = None
+        if not self.isValidMetaEntry(key):
+            return value
+
         if self.isList(key):
-            value = ', '.join(self.getList(key, removeallentities))
+            value = u', '.join(self.getList(key, removeallentities, doreplacements=True))
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -233,10 +250,8 @@ class Story:
                     value = commaGroups(value)
                 if key == "numChapters":
                     value = commaGroups("%d"%value)
-                if key == "dateCreated":
-                    value = value.strftime("%Y-%m-%d %H:%M:%S")
-                if key == "datePublished" or key == "dateUpdated":
-                 value = value.strftime("%Y-%m-%d")
+                if key in ("dateCreated","datePublished","dateUpdated"):
+                    value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
 
         if doreplacements:
             value=self.doReplacments(value)
@@ -244,19 +259,22 @@ class Story:
             return removeAllEntities(value)
         else:
             return value
-
-    def getAllMetadata(self, removeallentities=False, doreplacements=True):
+        
+    def getAllMetadata(self,
+                       removeallentities=False,
+                       doreplacements=True,
+                       keeplists=False):
         '''
-        All single value *and* list value metadata as strings.
+        All single value *and* list value metadata as strings (unless keeplists=True, then keep lists).
         '''
         allmetadata = {}
         
         # special handling for authors/authorUrls
         authlinkhtml="<a class='authorlink' href='%s'>%s</a>"
-        if 'author' in self.listables.keys(): # more than one author, assume multiple authorUrl too.
+        if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
-            for i, v in enumerate(self.listables['author']):
-                aurl = self.listables['authorUrl'][i]                    
+            for i, v in enumerate(self.getList('author')):
+                aurl = self.getList('authorUrl')[i]                    
                 auth = v
                 # make sure doreplacements & removeallentities are honored.
                 if doreplacements:
@@ -271,11 +289,12 @@ class Story:
         else:
            self.setMetadata('authorHTML',authlinkhtml%(self.getMetadata('authorUrl', removeallentities, doreplacements),
                                                        self.getMetadata('author', removeallentities, doreplacements)))
-            
-        for k in self.metadata.keys():
-            allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
-        for l in self.listables.keys():
-            allmetadata[l] = self.getMetadata(l, removeallentities, doreplacements)
+
+        for k in self.getValidMetaList():
+            if self.isList(k) and keeplists:
+                allmetadata[k] = self.getList(k, removeallentities, doreplacements)
+            else:
+                allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
                 
         return allmetadata
 
@@ -288,52 +307,80 @@ class Story:
         if value==None:
             return
         value = conditionalRemoveEntities(value)
-        if not self.isList(listname):
-            self.listables[listname]=[]
+        if not self.isList(listname) or not listname in self.metadata:
+            # Calling addToList to a non-list meta will overwrite it.
+            self.metadata[listname]=[]
         # prevent duplicates.
-        if not value in self.listables[listname]:
-            self.listables[listname].append(value)
+        if not value in self.metadata[listname]:
+            self.metadata[listname].append(value)
 
-    def getList(self,listname, removeallentities=False, doreplacements=True):
+    def isList(self,listname):
+        'Everything set with an include_in_* is considered a list.'
+        return self.hasConfig("include_in_"+listname) or \
+            ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
+                  and isinstance(self.metadata[listname],list) )
+    
+    def getList(self,listname,
+                removeallentities=False,
+                doreplacements=True,
+                doincludein=True):
         retlist = []
-        if not self.isList(listname):
-            retlist = [self.getMetadata(listname,removeallentities=removeallentities)]
+        if not self.isValidMetaEntry(listname):
+            return retlist
+        
+        # doincludein prevents recursion of include_in_'s
+        if doincludein and self.hasConfig("include_in_"+listname):
+            for k in self.getConfigList("include_in_"+listname):
+                retlist.extend(self.getList(k,removeallentities,doreplacements,doincludein=False))
         else:
-            retlist = self.listables[listname]
+        
+            if not self.isList(listname):
+                retlist = [self.getMetadata(listname,removeallentities, doreplacements)]
+            else:
+                retlist = self.getMetadataRaw(listname)
 
-        if doreplacements:
-            retlist = filter( lambda x : x!=None and x!='' ,
-                              map(self.doReplacments,retlist) )
-        if removeallentities:
-            retlist = filter( lambda x : x!=None and x!='' ,
-                              map(removeAllEntities,retlist) )
+            if doreplacements:
+                retlist = filter( lambda x : x!=None and x!='' ,
+                                  map(self.doReplacments,retlist) )
+            if removeallentities:
+                retlist = filter( lambda x : x!=None and x!='' ,
+                                  map(removeAllEntities,retlist) )
 
         return retlist
 
-    def getLists(self, removeallentities=False):
-        lsts = {}
-        for ln in self.listables.keys():
-            lsts[ln] = self.getList(ln, removeallentities)
-        return lsts
+    def getSubjectTags(self, removeallentities=False):
+        # set to avoid duplicates subject tags.
+        subjectset = set()
+        
+        tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
+            
+        # metadata all go into dc:subject tags, but only if they are configured.
+        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
+            if name in tags_list:
+                if isinstance(value,list):
+                    for tag in value:
+                        subjectset.add(tag)
+                else:
+                    subjectset.add(value)
 
-    def isList(self,listname):
-        return self.listables.has_key(listname)
-    
-    def addChapter(self, title, html, configurable=None):
-        if configurable and \
-                configurable.getConfig('strip_chapter_numbers') and \
-                configurable.getConfig('chapter_title_strip_pattern'):
-            title = re.sub(configurable.getConfig('chapter_title_strip_pattern'),"",title)
+        if None in subjectset:
+            subjectset.remove(None)
+            
+        return list(subjectset)
+            
+    def addChapter(self, title, html):
+        if self.getConfig('strip_chapter_numbers') and \
+                self.getConfig('chapter_title_strip_pattern'):
+            title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
         self.chapters.append( (title,html) )
 
-    def getChapters(self, configurable=None):
+    def getChapters(self):
         "Chapters will be tuples of (title,html)"
         retval = []
-        if configurable and \
-                configurable.getConfig('add_chapter_numbers') and \
-                configurable.getConfig('chapter_title_add_pattern'):
+        if self.getConfig('add_chapter_numbers') and \
+                self.getConfig('chapter_title_add_pattern'):
             for index, (title,html) in enumerate(self.chapters):
-                retval.append( (string.Template(configurable.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
+                retval.append( (string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
         else:
             retval = self.chapters
             
@@ -355,11 +402,11 @@ class Story:
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
-    def addImgUrl(self,configurable,parenturl,url,fetch,cover=False,coverexclusion=None):
+    def addImgUrl(self,parenturl,url,fetch,cover=False,coverexclusion=None):
 
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
-        if cover and configurable.getConfig('never_make_cover'):
+        if cover and self.getConfig('never_make_cover'):
             return
         
         url = url.strip() # ran across an image with a space in the
@@ -397,20 +444,20 @@ class Story:
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
             try:
-                sizes = [ int(x) for x in configurable.getConfigList('image_max_size') ]
+                sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
             except Exception, e:
-                raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(configurable.getConfigList('image_max_size'),e))
+                raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
             try:
                 (data,ext,mime) = convert_image(imgurl,
                                                 fetch(imgurl),
                                                 sizes,
-                                                configurable.getConfig('grayscale_images'))
+                                                self.getConfig('grayscale_images'))
             except Exception, e:
                 print("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
             
             # explicit cover, make the first image.
-            if cover and not configurable.getConfig('never_make_cover'):
+            if cover and not self.getConfig('never_make_cover'):
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
                     del self.imgurls[0]
@@ -427,8 +474,8 @@ class Story:
                 #          NOT never_make_cover AND
                 #          either no coverexclusion OR coverexclusion doesn't match
                 if self.cover == None and \
-                        configurable.getConfig('make_firstimage_cover') and \
-                        not configurable.getConfig('never_make_cover') and \
+                        self.getConfig('make_firstimage_cover') and \
+                        not self.getConfig('never_make_cover') and \
                         (not coverexclusion or not re.search(coverexclusion,imgurl)):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
@@ -457,7 +504,7 @@ class Story:
         return retlist
     
     def __str__(self):
-        return "Metadata: " +str(self.metadata) + "\nListables: " +str(self.listables) #+ "\nChapters: "+str(self.chapters)
+        return "Metadata: " +str(self.metadata) 
 
     def setReplace(self,replace):
         for line in replace.splitlines():

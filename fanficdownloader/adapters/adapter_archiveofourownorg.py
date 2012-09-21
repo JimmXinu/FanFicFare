@@ -83,7 +83,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
-        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)(/chapters/\d+)?/?$"
+        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)"
         
     ## Login
     def needToLoginCheck(self, data):

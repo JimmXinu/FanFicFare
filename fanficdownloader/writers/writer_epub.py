@@ -193,31 +193,33 @@ ${value}<br />
         Switch rindex to index to search from top instead of bottom.
         """
         values = {}
-        for entry in self.getConfigList("logpage_entries"):
-            if entry in self.validEntries:
-                try:
-                    # <span id="dateUpdated">1975-04-15</span>
-                    span = '<span id="%s">'%entry
-                    idx = logfile.rindex(span)+len(span)
-                    values[entry] = logfile[idx:logfile.index('</span>',idx)]
-                except Exception, e:
-                    #print("e:%s"%e)
-                    pass
+        for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
+            try:
+                # <span id="dateUpdated">1975-04-15</span>
+                span = '<span id="%s">'%entry
+                idx = logfile.rindex(span)+len(span)
+                values[entry] = logfile[idx:logfile.index('</span>',idx)]
+            except Exception, e:
+                #print("e:%s"%e)
+                pass
 
         return values
         
     def _makeLogEntry(self, oldvalues={}):
         retval = "<p class='log_entry'>"
 
-        for entry in self.getConfigList("logpage_entries"):
-            if entry in self.validEntries:
+        for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
+            if self.isValidMetaEntry(entry):
                 val = self.story.getMetadata(entry)
                 if val and ( entry not in oldvalues or val != oldvalues[entry] ):
                     if self.hasConfig(entry+"_label"):
                         label=self.getConfig(entry+"_label")
-                    else:
-                        print("Using fallback label for %s_label"%entry)
+                    elif entry in self.titleLabels:
+                        logging.debug("Using fallback label for %s_label"%entry)
                         label=self.titleLabels[entry]
+                    else:
+                        label="%s"%entry.title()
+                        logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                     retval = retval + self.EPUB_LOG_ENTRY.substitute({'id':entry,
                                                                       'label':label,
@@ -342,7 +344,7 @@ ${value}<br />
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
 
-        for subject in self.getTags():
+        for subject in self.story.getSubjectTags():
             metadata.appendChild(newTag(contentdom,"dc:subject",text=subject))
 
                     
@@ -441,7 +443,7 @@ div { margin: 0pt; padding: 0pt; }
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
-        if len(self.story.getChapters(self)) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
 
@@ -449,7 +451,7 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (title,html) in enumerate(self.story.getChapters(self)):
+        for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 i=index+1
                 items.append(("file%04d"%i,
@@ -587,7 +589,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
         logpageIO.close()
         
-        for index, (title,html) in enumerate(self.story.getChapters(self)):
+        for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
                 fullhtml = self.EPUB_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.EPUB_CHAPTER_END.substitute({'chapter':title, 'index':index+1})

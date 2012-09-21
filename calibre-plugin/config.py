@@ -64,6 +64,7 @@ default_prefs['countpagesstats'] = []
 default_prefs['errorcol'] = ''
 default_prefs['custom_cols'] = {}
 default_prefs['custom_cols_newonly'] = {}
+default_prefs['allow_custcol_from_ini'] = True
 
 default_prefs['std_cols_newonly'] = {}
 
@@ -258,7 +259,7 @@ class ConfigWidget(QWidget):
         # error column
         prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()).toString())
 
-        # cust cols
+        # cust cols tab
         colsmap = {}
         for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
             val = unicode(combo.itemData(combo.currentIndex()).toString())
@@ -271,6 +272,8 @@ class ConfigWidget(QWidget):
         for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
             colsnewonly[col] = checkbox.isChecked()
         prefs['custom_cols_newonly'] = colsnewonly
+        
+        prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
         
         prefs.save_to_db()
 
@@ -437,7 +440,7 @@ class PersonalIniTab(QWidget):
         self.ini.setText(prefs['personal.ini'])
         self.l.addWidget(self.ini)
 
-        self.defaults = QPushButton('View Defaults', self)
+        self.defaults = QPushButton('View Defaults (plugin-defaults.ini)', self)
         self.defaults.setToolTip("View all of the plugin's configurable settings\nand their default settings.")
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
@@ -456,7 +459,7 @@ class ShowDefaultsIniDialog(QDialog):
         self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
-        self.label = QLabel("Plugin Defaults (Read-Only)")
+        self.label = QLabel("Plugin Defaults (plugin-defaults.ini) (Read-Only)")
         self.label.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
         self.setWindowTitle(_('Plugin Defaults'))
         self.setWindowIcon(icon)
@@ -595,6 +598,8 @@ class GenerateCoverTab(QWidget):
             horz.addWidget(dropdown)
             self.sl.addLayout(horz)
         
+        self.sl.insertStretch(-1)
+        
         self.gcnewonly = QCheckBox("Run Generate Cover Only on New Books",self)
         self.gcnewonly.setToolTip("Default is to run GC any time the calibre metadata is updated.")
         self.gcnewonly.setChecked(prefs['gcnewonly'])
@@ -605,8 +610,6 @@ class GenerateCoverTab(QWidget):
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
             
-        self.l.insertStretch(-1)
-        
 class CountPagesTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
@@ -839,10 +842,15 @@ class CustomColumnsTab(QWidget):
         self.sl.insertStretch(-1)
 
         self.l.addSpacing(5)
+        self.allow_custcol_from_ini = QCheckBox('Allow custom_columns_settings from personal.ini to override',self)
+        self.allow_custcol_from_ini.setToolTip("The personal.ini parameter custom_columns_settings allows you to set custom columns to site specific values that aren't common to all sites.<br \>custom_columns_settings is ignored when this is off.")
+        self.allow_custcol_from_ini.setChecked(prefs['allow_custcol_from_ini'])
+        self.l.addWidget(self.allow_custcol_from_ini)
+        
+        self.l.addSpacing(5)
         label = QLabel("Special column:")
         label.setWordWrap(True)
         self.l.addWidget(label)
-        self.l.addSpacing(5)
         
         horz = QHBoxLayout()
         label = QLabel("Update/Overwrite Error Column:")

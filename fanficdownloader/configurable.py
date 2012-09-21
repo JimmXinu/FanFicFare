@@ -21,10 +21,6 @@ import ConfigParser
 # inherit from Configurable.  The config file(s) uses ini format:
 # [sections] with key:value settings.
 #
-# writer does [defaults], [www.whofic.com], [epub], [www.whofic.com:epub], [overrides]
-#
-# Until a write is created, the adapter only has [defaults], [www.whofic.com], [overrides]
-#
 # [defaults]
 # titlepage_entries: category,genre, status
 # [www.whofic.com]
@@ -36,28 +32,67 @@ import ConfigParser
 # [overrides]
 # titlepage_entries: category
 
+class Configuration(ConfigParser.SafeConfigParser):
 
-class Configurable(object):
-
-    def __init__(self, config):
-        self.config = config
-        self.sectionslist = ['defaults']
-
-    def setSectionOrder(self,site,fileform=None):
+    def __init__(self, site, fileform):
+        ConfigParser.SafeConfigParser.__init__(self)
         self.sectionslist = ['defaults']
         self.addConfigSection(site)
         if fileform:
             self.addConfigSection(fileform)
             self.addConfigSection(site+":"+fileform)
         self.addConfigSection("overrides")
-
+        
+        self.validEntries = [
+            'category',
+            'genre',
+            'language',
+            'characters',
+            'ships',
+            'series',
+            'status',
+            'datePublished',
+            'dateUpdated',
+            'dateCreated',
+            'rating',
+            'warnings',
+            'numChapters',
+            'numWords',
+            'site',
+            'storyId',
+            'authorId',
+            'extratags',
+            'title',
+            'storyUrl',
+            'description',
+            'author',
+            'authorUrl',
+            'formatname',
+            'formatext',
+            'siteabbrev',
+            'version',
+            # internal stuff.
+            'langcode',
+            'output_css',
+            'authorHTML'
+            ]
+        
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
+
+    def isValidMetaEntry(self, key):
+        return key in self.getValidMetaList()
+
+    def getValidMetaList(self):
+        vl = []
+        vl.extend(self.validEntries)
+        vl.extend(self.getConfigList("extra_valid_entries"))
+        return vl
 
     def hasConfig(self, key):
         for section in self.sectionslist:
             try:
-                self.config.get(section,key)
+                self.get(section,key)
                 #print("found %s in section [%s]"%(key,section))
                 return True
             except:
@@ -65,11 +100,11 @@ class Configurable(object):
 
         return False
         
-    def getConfig(self, key):
-        val = ""
+    def getConfig(self, key, default=""):
+        val = default
         for section in self.sectionslist:
             try:
-                val = self.config.get(section,key)
+                val = self.get(section,key)
                 if val and val.lower() == "false":
                     val = False
                 #print "getConfig(%s)=[%s]%s" % (key,section,val)
@@ -84,5 +119,26 @@ class Configurable(object):
         vlist = self.getConfig(key).split(',')
         vlist = [ v.strip() for v in vlist ]
         #print "vlist("+key+"):"+str(vlist)
-        return vlist
+        return vlist        
+
+# extended by adapter, writer and story for ease of calling configuration.
+class Configurable(object):
+
+    def __init__(self, configuration):
+        self.configuration = configuration
+
+    def isValidMetaEntry(self, key):
+        return self.configuration.isValidMetaEntry(key)
+
+    def getValidMetaList(self):
+        return self.configuration.getValidMetaList()
+    
+    def hasConfig(self, key):
+        return self.configuration.hasConfig(key)
+        
+    def getConfig(self, key, default=""):
+        return self.configuration.getConfig(key)
+
+    def getConfigList(self, key):
+        return self.configuration.getConfigList(key)
         

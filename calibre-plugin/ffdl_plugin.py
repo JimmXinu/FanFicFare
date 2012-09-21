@@ -8,7 +8,6 @@ __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import time, os, copy, threading, re, platform
-from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from functools import partial
 from datetime import datetime
@@ -37,7 +36,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
                                          create_menu_action_unique, get_library_uuid)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-#from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.htmlcleanup import stripHTML
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
@@ -249,10 +248,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             return
         print("get_urls_from_page URL:%s"%d.url.text())
 
-        ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        ffdlconfig.readfp(StringIO(prefs['personal.ini']))
-        url_list = get_urls_from_page("%s"%d.url.text(),ffdlconfig)
+        if 'archiveofourown.org' in url:
+            configuration = Configuration(adapters.getConfigSectionFor(url),"EPUB")
+            configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
+            configuration.readfp(StringIO(options['personal.ini']))
+        else:
+            configuration = None
+        url_list = get_urls_from_page("%s"%d.url.text(),configuration)
 
         if url_list:
             d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
@@ -442,12 +444,10 @@ keep_summary_html:true
 make_firstimage_cover:true
 ''' + options['personal.ini']
 
-        ## was self.ffdlconfig, but we need to be able to change it
-        ## when doing epub update.
-        ffdlconfig = SafeConfigParser()
-        ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        ffdlconfig.readfp(StringIO(options['personal.ini']))
-        adapter = adapters.getAdapter(ffdlconfig,url,fileform)
+        configuration = Configuration(adapters.getConfigSectionFor(url),fileform)
+        configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
+        configuration.readfp(StringIO(options['personal.ini']))
+        adapter = adapters.getAdapter(configuration,url)
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
@@ -470,13 +470,13 @@ make_firstimage_cover:true
 
         # let other exceptions percolate up.
         story = adapter.getStoryMetadataOnly()
-        writer = writers.getWriter(options['fileform'],adapter.config,adapter)
+        writer = writers.getWriter(options['fileform'],configuration,adapter)
 
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
-        book['tags'] = writer.getTags(removeallentities=True) # getTags could be moved up into adapter now.  Adapter didn't used to know the fileform
+        book['tags'] = story.getSubjectTags(removeallentities=True)
         book['comments'] = sanitize_comments_html(story.getMetadata("description"))        
         book['series'] = story.getMetadata("series", removeallentities=True)
         
@@ -913,7 +913,7 @@ make_firstimage_cover:true
                         except AttributeError:
                             print("AttributeError? %s"%col)
                             pass
-            
+
         db.set_metadata(book_id,mi)
 
         # do configured column updates here.
@@ -950,6 +950,52 @@ make_firstimage_cover:true
                     val = book['all_metadata']['status'] == 'In-Progress'
                 db.set_custom(book_id, val, label=label, commit=False)
 
+        adapter = None
+        if prefs['allow_custcol_from_ini']:
+            configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
+            configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
+            configuration.readfp(StringIO(options['personal.ini']))
+            adapter = adapters.getAdapter(configuration,book['url'])
+
+            # meta => custcol[,a|n|r]
+            # cliches=>\#acolumn,r
+            for line in adapter.getConfig('custom_columns_settings').splitlines():
+                if "=>" in line:
+                    (meta,custcol) = map( lambda x: x.strip(), line.split("=>") )
+                    flag='r'
+                    if "," in custcol:
+                        (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
+
+                    #print("meta:(%s) => custcol:(%s), flag(%s) "%(meta,custcol,flag))
+                    
+                    if meta not in book['all_metadata']:
+                        print("No value for %s, skipping custom column(%s) update."%(meta,custcol))
+                        continue
+                    
+                    if custcol not in custom_columns:
+                        print("No custom column(%s), skipping."%(custcol))
+                        continue
+                    else:
+                        coldef = custom_columns[custcol]
+                        label = coldef['label']
+                    
+                    if flag == 'r' or book['added']:
+                        db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
+
+                    if flag == 'a':
+                        try:
+                            existing=db.get_custom(book_id,label=label,index_is_id=True)
+                            if isinstance(existing,list):
+                                vallist = existing
+                            else :
+                                vallist = [existing]
+                            vallist.append(book['all_metadata'][meta])
+                        except:
+                            vallist = [book['all_metadata'][meta]]
+                            
+                        db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
+            
+                
         db.commit()
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
@@ -961,10 +1007,11 @@ make_firstimage_cover:true
             gc_plugin = self.gui.iactions['Generate Cover']
             setting_name = None
             if prefs['allow_gc_from_ini']:
-                ffdlconfig = SafeConfigParser()
-                ffdlconfig.readfp(StringIO(get_resources("plugin-defaults.ini")))
-                ffdlconfig.readfp(StringIO(prefs['personal.ini']))
-                adapter = adapters.getAdapter(ffdlconfig,book['url'],options['fileform'])
+                if not adapter: # might already have it from allow_custcol_from_ini
+                    configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
+                    configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
+                    configuration.readfp(StringIO(options['personal.ini']))
+                    adapter = adapters.getAdapter(configuration,book['url'])
 
                 # template => regexp to match => GC Setting to use.
                 # generate_cover_settings:
@@ -973,7 +1020,7 @@ make_firstimage_cover:true
                     if "=>" in line:
                         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                         value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
-                        print("%s(%s) => %s => %s"%(template,value,regexp,setting))
+                        # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
                         if re.search(regexp,value):
                             setting_name = setting
                             break
@@ -1192,11 +1239,11 @@ make_firstimage_cover:true
         return None
 
     def _is_good_downloader_url(self,url):
-        # this is the accepted way to 'check for existance'?  really?
+        # this is the accepted way to 'check for existance of a class variable'?  really?
         try:
             self.dummyconfig
         except AttributeError:
-            self.dummyconfig = SafeConfigParser()
+            self.dummyconfig = Configuration("test1.com","EPUB")
         # pulling up an adapter is pretty low over-head.  If
         # it fails, it's a bad url.
         try:

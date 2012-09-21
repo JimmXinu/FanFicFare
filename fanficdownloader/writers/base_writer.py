@@ -36,44 +36,12 @@ class BaseStoryWriter(Configurable):
     def getFormatExt():
         return '.bse'
 
-    def __init__(self, config, adapter):
-        Configurable.__init__(self, config)
-        self.setSectionOrder(adapter.getConfigSection(),self.getFormatName())
+    def __init__(self, configuration, adapter):
+        Configurable.__init__(self, configuration)
         
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
         
-        self.story.setReplace(self.getConfig('replace_metadata'))
-        
-        self.validEntries = [
-            'category',
-            'genre',
-            'language',
-            'characters',
-            'ships',
-            'series',
-            'status',
-            'datePublished',
-            'dateUpdated',
-            'dateCreated',
-            'rating',
-            'warnings',
-            'numChapters',
-            'numWords',
-            'site',
-            'storyId',
-            'authorId',
-            'extratags',
-            'title',
-            'storyUrl',
-            'description',
-            'author',
-            'authorUrl',
-            'formatname',
-            'formatext',
-            'siteabbrev',
-            'version']
-
         # fall back labels.
         self.titleLabels = {
             'category':'Category',
@@ -148,11 +116,11 @@ class BaseStoryWriter(Configurable):
             if WIDE_ENTRY==None:
                 WIDE_ENTRY=ENTRY
 
-            titleEntriesList = self.getConfigList("titlepage_entries")
+            titleEntriesList = self.getConfigList("titlepage_entries") + self.getConfigList("extra_titlepage_entries")
             wideTitleEntriesList = self.getConfigList("wide_titlepage_entries")
 
             for entry in titleEntriesList:
-                if entry in self.validEntries:
+                if self.isValidMetaEntry(entry):
                     if self.story.getMetadata(entry):
                         if entry in wideTitleEntriesList:
                             TEMPLATE=WIDE_ENTRY
@@ -161,9 +129,12 @@ class BaseStoryWriter(Configurable):
                             
                         if self.hasConfig(entry+"_label"):
                             label=self.getConfig(entry+"_label")
-                        else:
-                            print("Using fallback label for %s_label"%entry)
+                        elif entry in self.titleLabels:
+                            logging.debug("Using fallback label for %s_label"%entry)
                             label=self.titleLabels[entry]
+                        else:
+                            label="%s"%entry.title()
+                            logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                         # If the label for the title entry is empty, use the
                         # 'no title' option if there is one.
@@ -184,10 +155,10 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use index and chapter.
         """
         # Only do TOC if there's more than one chapter and it's configured.
-        if len(self.story.getChapters(self)) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
-            for index, (title,html) in enumerate(self.story.getChapters(self)):
+            for index, (title,html) in enumerate(self.story.getChapters()):
                 if html:
                     self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
 
@@ -202,9 +173,11 @@ class BaseStoryWriter(Configurable):
 
         # minor cheat, tucking css into metadata.
         if self.getConfig("output_css"):
-            self.story.metadata["output_css"] = self.getConfig("output_css")
+            self.story.setMetadata("output_css",
+                                   self.getConfig("output_css"),
+                                   condremoveentities=False)
         else:
-            self.story.metadata["output_css"] = ''
+            self.story.setMetadata("output_css",'')
             
         if not outstream:
             close=True
@@ -261,29 +234,6 @@ class BaseStoryWriter(Configurable):
         if close:
             outstream.close()
 
-    def getTags(self, removeallentities=False):
-        # set to avoid duplicates subject tags.
-        subjectset = set()
-        
-        if self.story.getMetadataRaw('dateUpdated'):
-            # Last Update tags for Bill.
-            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update Year/Month: %Y/%m"))
-            self.story.addToList('lastupdate',self.story.getMetadataRaw('dateUpdated').strftime("Last Update: %Y/%m/%d"))
-        
-        for entry in self.validEntries:
-            if entry in self.getConfigList("include_subject_tags") and \
-                    entry not in self.story.getLists() and \
-                    self.story.getMetadata(entry):
-                subjectset.add(self.getMetadata(entry, removeallentities))
-                
-        # listables all go into dc:subject tags, but only if they are configured.
-        for (name,lst) in self.story.getLists(removeallentities).iteritems():
-            if name in self.getConfigList("include_subject_tags"):
-                for tag in lst:
-                    subjectset.add(tag)
-
-        return list(subjectset)
-            
     def writeStoryImpl(self, out):
         "Must be overriden by sub classes."
         pass

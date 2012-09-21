@@ -27,6 +27,7 @@ import ConfigParser
 from subprocess import call
 
 from fanficdownloader import adapters,writers,exceptions
+from fanficdownloader.configurable import Configuration
 from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
 from fanficdownloader.geturls import get_urls_from_page
 
@@ -90,7 +91,15 @@ def main():
    if options.update and options.format != 'epub':
        parser.error("-u/--update-epub only works with epub")
 
-   config = ConfigParser.SafeConfigParser()
+   ## Attempt to update an existing epub.
+   if options.update:
+       (url,chaptercount) = get_dcsource_chaptercount(args[0])
+       print "Updating %s, URL: %s" % (args[0],url)
+       output_filename = args[0]
+   else:
+       url = args[0]
+           
+   configuration = Configuration(adapters.getConfigSectionFor(url),options.format)
 
    conflist = []
    homepath = join(expanduser("~"),".fanficdownloader")
@@ -109,46 +118,43 @@ def main():
        conflist.extend(options.configfile)
       
    logging.debug('reading %s config file(s), if present'%conflist)
-   config.read(conflist)
+   configuration.read(conflist)
+
+   print("has include_in_tags?%s"%configuration.hasConfig("include_in_tags"))
 
    try:
-       config.add_section("overrides")
+       configuration.add_section("overrides")
    except ConfigParser.DuplicateSectionError:
        pass
 
    if options.force:
-       config.set("overrides","always_overwrite","true")
+       configuration.set("overrides","always_overwrite","true")
 
+   if options.update:
+       configuration.set("overrides","output_filename",args[0])
+       
    if options.update and not options.updatecover:
-       config.set("overrides","never_make_cover","true")
+       configuration.set("overrides","never_make_cover","true")
 
    # images only for epub, even if the user mistakenly turned it
    # on else where.
    if options.format != "epub":
-       config.set("overrides","include_images","false")
+       configuration.set("overrides","include_images","false")
        
    if options.options:
        for opt in options.options:
            (var,val) = opt.split('=')
-           config.set("overrides",var,val)
+           configuration.set("overrides",var,val)
 
    if options.list:
-       retlist = get_urls_from_page(args[0], config)
+       retlist = get_urls_from_page(args[0], configuration)
        print "\n".join(retlist)
                
        return
 
    try:
-       ## Attempt to update an existing epub.
-       if options.update:
-           (url,chaptercount) = get_dcsource_chaptercount(args[0])
-           print "Updating %s, URL: %s" % (args[0],url)
-           output_filename = args[0]
-           config.set("overrides","output_filename",args[0])
-       else:
-           url = args[0]
 
-       adapter = adapters.getAdapter(config,url,options.format)
+       adapter = adapters.getAdapter(configuration,url)
 
        ## Check for include_images and absence of PIL, give warning.
        if adapter.getConfig('include_images'):
@@ -206,7 +212,7 @@ def main():
                     adapter.calibrebookmark,
                     adapter.logfile) = get_update_data(args[0])
 
-                   writeStory(config,adapter,"epub")
+                   writeStory(configuration,adapter,"epub")
                    
        else:
            # regular download
@@ -215,7 +221,7 @@ def main():
            
            adapter.setChaptersRange(options.begin,options.end)
            
-           output_filename=writeStory(config,adapter,options.format,options.metaonly)
+           output_filename=writeStory(configuration,adapter,options.format,options.metaonly)
        
        if not options.metaonly and adapter.getConfig("post_process_cmd"):
            metadata = adapter.story.metadata

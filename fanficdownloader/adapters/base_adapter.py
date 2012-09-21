@@ -67,10 +67,8 @@ class BaseSiteAdapter(Configurable):
     def validateURL(self):
         return re.match(self.getSiteURLPattern(), self.url)
 
-    def __init__(self, config, url):
-        self.config = config
-        Configurable.__init__(self, config)
-        self.setSectionOrder(self.getConfigSection())
+    def __init__(self, configuration, url):
+        Configurable.__init__(self, configuration)
         
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -79,7 +77,7 @@ class BaseSiteAdapter(Configurable):
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         self.storyDone = False
         self.metadataDone = False
-        self.story = Story()
+        self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.datetime.now())
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
@@ -138,7 +136,7 @@ class BaseSiteAdapter(Configurable):
                 logging.debug("try code:"+code)
                 return data.decode(code)
             except:
-                logging.info("code failed:"+code)
+                logging.debug("code failed:"+code)
                 pass
         logging.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])
@@ -199,8 +197,7 @@ class BaseSiteAdapter(Configurable):
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(removeEntities(title),
-                                          None,
-                                          self)
+                                          None)
                 else:
                     if self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
@@ -209,16 +206,14 @@ class BaseSiteAdapter(Configurable):
                     else:
                         data = self.getChapterText(url)
                     self.story.addChapter(removeEntities(title),
-                                          removeEntities(data),
-                                          self)
+                                          removeEntities(data))
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.
             if self.getConfig('include_images') and \
                     not self.story.cover and \
                     self.getConfig('default_cover_image'):
-                self.story.addImgUrl(self,
-                                     None,
+                self.story.addImgUrl(None,
                                      #self.getConfig('default_cover_image'),
                                      self.story.formatFileName(self.getConfig('default_cover_image'),
                                                                self.getConfig('allow_unsafe_filename')),
@@ -298,6 +293,10 @@ class BaseSiteAdapter(Configurable):
             self.story.setMetadata('description',stripHTML(svalue))
         #print("\n\ndescription:\n"+self.story.getMetadata('description')+"\n\n")
 
+    def setCoverImage(self,storyurl,imgurl):
+        if self.getConfig('include_images'):
+            self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True)
+
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
@@ -313,7 +312,7 @@ class BaseSiteAdapter(Configurable):
                 # some pre-existing epubs have img tags that had src stripped off.
                 if img.has_key('src'):
                     img['longdesc']=img['src']
-                    img['src']=self.story.addImgUrl(self,url,img['src'],fetch,
+                    img['src']=self.story.addImgUrl(url,img['src'],fetch,
                                                     coverexclusion=self.getConfig('cover_exclusion_regexp'))
 
         for attr in soup._getAttrMap().keys():

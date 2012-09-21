@@ -186,8 +186,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         donechars = False
         while len(metalist) > 0:
-            if  metalist[0].startswith('Reviews') or metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:') or metalist[0].startswith('Favs:') or metalist[0].startswith('Follows:'):
+            if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:'):
                 pass
+            elif  metalist[0].startswith('Reviews'):
+                self.story.setMetadata('reviews',metalist[0].split(':')[1].strip())
+            elif  metalist[0].startswith('Favs:'):
+                self.story.setMetadata('favs',metalist[0].split(':')[1].strip())
+            elif  metalist[0].startswith('Follows:'):
+                self.story.setMetadata('follows',metalist[0].split(':')[1].strip())
             elif  metalist[0].startswith('Updated'):
                 self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
             elif  metalist[0].startswith('Published'):
@@ -208,10 +214,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        if self.getConfig('include_images'):
-            img = soup.find('img',{'class':'cimage'})
-            if img:
-                self.story.addImgUrl(self,url,img['src'],self._fetchUrlRaw,cover=True)
+        img = soup.find('img',{'class':'cimage'})
+        if img:
+            self.setCoverImage(url,img['src'])
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
