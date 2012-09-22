@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Author:        Pau Sanchez (contact@pausanchez.com)
 # Version:       v1.0
@@ -215,27 +215,31 @@ class bbcodeparser:
       
       if token[0] == '[':
         match   = re_tagName.match (token)
-        tagName = match.group(1)
-        tagArgs = match.group(2)
-        
-        tagToken = { 'tag' : tagName.lower() }
+        if match:
+          tagName = match.group(1)
+          tagArgs = match.group(2)
+          
+          tagToken = { 'tag' : tagName.lower() }
+  
+          # parse arguments (if any)
+          if len(tagArgs) > 0:
+            allArgs = re_tagArgs.findall(tagArgs)
+  
+            tagArgs = {}
+            for arg in allArgs:
+              # if the argument has no name, use the tagName itself
+              argName  = (arg[0] if arg[0] != '' else tagName)
+              argValue = (arg[3] if (arg[1][0] == '"') else arg[4])
+  
+              tagArgs[argName.lower()] = argValue.replace ('\"', '"')
+  
+            tagToken['args'] = tagArgs
+  
+          outTokenList.append (tagToken)
 
-        # parse arguments (if any)
-        if len(tagArgs) > 0:
-          allArgs = re_tagArgs.findall(tagArgs)
-
-          tagArgs = {}
-          for arg in allArgs:
-            # if the argument has no name, use the tagName itself
-            argName  = (arg[0] if arg[0] != '' else tagName)
-            argValue = (arg[3] if (arg[1][0] == '"') else arg[4])
-
-            tagArgs[argName.lower()] = argValue.replace ('\"', '"')
-
-          tagToken['args'] = tagArgs
-
-        outTokenList.append (tagToken)
-
+        # no match, append the text as it is
+        else:
+          outTokenList.append (token)
       # append the text as it is
       else:
         outTokenList.append (token)

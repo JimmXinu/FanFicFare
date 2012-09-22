@@ -147,7 +147,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 coverurl = "http:"+coverurl
             self.setCoverImage(self.url,coverurl)
 
-
         # the fimfic API gives bbcode for desc, not html.
         # btw, bbcode honors newlines, html doesn't.  change newlines to br tags.
         self.setDescription(self.url,
