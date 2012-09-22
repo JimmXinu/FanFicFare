@@ -246,15 +246,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         d.exec_()
         if not d.status:
             return
-        print("get_urls_from_page URL:%s"%d.url.text())
+        url = u"%s"%d.url.text()
+        print("get_urls_from_page URL:%s"%url)
 
         if 'archiveofourown.org' in url:
             configuration = Configuration(adapters.getConfigSectionFor(url),"EPUB")
             configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-            configuration.readfp(StringIO(options['personal.ini']))
+            configuration.readfp(StringIO(prefs['personal.ini']))
         else:
             configuration = None
-        url_list = get_urls_from_page("%s"%d.url.text(),configuration)
+        url_list = get_urls_from_page(url,configuration)
 
         if url_list:
             d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
@@ -966,7 +967,7 @@ make_firstimage_cover:true
                     if "," in custcol:
                         (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
 
-                    #print("meta:(%s) => custcol:(%s), flag(%s) "%(meta,custcol,flag))
+                    print("meta:(%s) => custcol:(%s), flag(%s) "%(meta,custcol,flag))
                     
                     if meta not in book['all_metadata']:
                         print("No value for %s, skipping custom column(%s) update."%(meta,custcol))
@@ -979,18 +980,21 @@ make_firstimage_cover:true
                         coldef = custom_columns[custcol]
                         label = coldef['label']
                     
-                    if flag == 'r' or book['added']:
+                    if flag == 'r' or book['added']: # flag 'n' isn't actually needed--*always* set if configured and new book.
                         db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
 
                     if flag == 'a':
+                        vallist = []
                         try:
                             existing=db.get_custom(book_id,label=label,index_is_id=True)
                             if isinstance(existing,list):
                                 vallist = existing
-                            else :
+                            elif existing:
                                 vallist = [existing]
-                            vallist.append(book['all_metadata'][meta])
                         except:
+                            pass
+
+                        if book['all_metadata'][meta]:
                             vallist = [book['all_metadata'][meta]]
                             
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)

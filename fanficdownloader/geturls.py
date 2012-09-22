@@ -39,7 +39,7 @@ def get_urls_from_page(url,configuration=None):
     # them, AO3 doesn't even show them if not logged in.  Only works
     # with saved user/pass--not going to prompt for list.
     if 'archiveofourown.org' in url:
-        ao3adapter = adapters.getAdapter(configuration,"http://www.archiveofourown.org/works/0","EPUB")
+        ao3adapter = adapters.getAdapter(configuration,"http://www.archiveofourown.org/works/0")
         if ao3adapter.getConfig("username"):
             if ao3adapter.getConfig("is_adult"):
                 addurl = "?view_adult=true"
@@ -55,7 +55,7 @@ def get_urls_from_page(url,configuration=None):
     if not data:
         opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
-    
+
     soup = BeautifulSoup(data)
     
     for a in soup.findAll('a'):
@@ -72,7 +72,7 @@ def get_urls_from_page(url,configuration=None):
                     
             try:
                 href = href.replace('&index=1','')
-                adapter = adapters.getAdapter(configuration,href,"EPUB")
+                adapter = adapters.getAdapter(configuration,href)
                 if adapter.story.getMetadata('storyUrl') not in normalized:
                     normalized.add(adapter.story.getMetadata('storyUrl'))
                     retlist.append(href)
