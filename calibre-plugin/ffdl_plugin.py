@@ -28,6 +28,7 @@ from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.date import local_tz
 from calibre.library.comments import sanitize_comments_html
+from calibre.constants import config_dir as calibre_config_dir
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
@@ -124,6 +125,20 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # been displayed once.
         self.rebuild_menus()
 
+    ## Kludgey, yes, but with the real configuration inside the
+    ## library now, how else would a user be able to change this
+    ## setting if it's crashing calibre?
+    def check_macmenuhack(self):
+        try:
+            return self.macmenuhack
+        except:
+            file_path = os.path.join(calibre_config_dir,
+                                     *("plugins/fanfictiondownloader_macmenuhack.txt".split('/')))
+            file_path = os.path.abspath(file_path)
+            print("macmenuhack file_path:%s"%file_path)
+            self.macmenuhack = os.access(file_path, os.F_OK)
+            return self.macmenuhack
+
     def about_to_show_menu(self):
         self.rebuild_menus()
 
@@ -177,7 +192,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             # print("platform.system():%s"%platform.system())
             # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
-            if not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
+            if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
                 self.menu.addSeparator()
                 self.config_action = self.create_menu_item_ex(self.menu, '&Configure Plugin',
                                                               image= 'config.png',
