@@ -36,7 +36,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin_icon_resources, get_icon,
                                          create_menu_action_unique, get_library_uuid)
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
@@ -486,7 +486,10 @@ make_firstimage_cover:true
 
         # let other exceptions percolate up.
         story = adapter.getStoryMetadataOnly()
-        writer = writers.getWriter(options['fileform'],configuration,adapter)
+
+        # set PI version instead of default.
+        if 'version' in options:
+            story.setMetadata('version',options['version'])
 
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
         book['title'] = story.getMetadata("title", removeallentities=True)

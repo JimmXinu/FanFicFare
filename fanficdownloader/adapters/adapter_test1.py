@@ -134,6 +134,25 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('characters','George Johnson')
         self.story.addToList('characters','Fred Smythe')
         
+        self.story.addToList('listX','xVal1')
+        self.story.addToList('listX','xVal2')
+        self.story.addToList('listX','xVal3')
+        self.story.addToList('listX','xVal4')
+        
+        self.story.addToList('listY','yVal1')
+        self.story.addToList('listY','yVal2')
+        self.story.addToList('listY','yVal3')
+        self.story.addToList('listY','yVal4')
+        
+        self.story.addToList('listZ','zVal1')
+        self.story.addToList('listZ','zVal2')
+        self.story.addToList('listZ','zVal3')
+        self.story.addToList('listZ','zVal4')
+        
+        self.story.setMetadata('metaA','98765')
+        self.story.setMetadata('metaB','01245')
+        self.story.setMetadata('metaC','The mighty metaC!')
+
         self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
                             ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
                             ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),

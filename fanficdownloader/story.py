@@ -323,15 +323,17 @@ class Story(Configurable):
     def getList(self,listname,
                 removeallentities=False,
                 doreplacements=True,
-                doincludein=True):
+                includelist=[]):
+        #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
+        
         if not self.isValidMetaEntry(listname):
             return retlist
         
-        # doincludein prevents recursion of include_in_'s
-        if doincludein and self.hasConfig("include_in_"+listname):
+        # includelist prevents infinite recursion of include_in_'s
+        if self.hasConfig("include_in_"+listname) and listname not in includelist:
             for k in self.getConfigList("include_in_"+listname):
-                retlist.extend(self.getList(k,removeallentities,doreplacements,doincludein=False))
+                retlist.extend(self.getList(k,removeallentities,doreplacements,includelist=includelist+[listname]))
         else:
         
             if not self.isList(listname):
@@ -339,14 +341,18 @@ class Story(Configurable):
             else:
                 retlist = self.getMetadataRaw(listname)
 
-            if doreplacements:
+            if doreplacements and retlist:
                 retlist = filter( lambda x : x!=None and x!='' ,
                                   map(self.doReplacments,retlist) )
-            if removeallentities:
+            if removeallentities and retlist:
                 retlist = filter( lambda x : x!=None and x!='' ,
                                   map(removeAllEntities,retlist) )
 
-        return retlist
+        if retlist:
+            # remove dups and sort.
+            return sorted(list(set(retlist)))
+        else:
+            return []
 
     def getSubjectTags(self, removeallentities=False):
         # set to avoid duplicates subject tags.

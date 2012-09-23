@@ -133,10 +133,12 @@ def do_download_for_worker(book,options):
         
         story = adapter.getStoryMetadataOnly()
         if 'calibre_series' in book:
-            # print("calibre_series:%s [%d]"%book['calibre_series'])
             adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
-        # else:
-        #     print("no calibre_series")
+            
+        # set PI version instead of default.
+        if 'version' in options:
+            story.setMetadata('version',options['version'])
+            
         writer = writers.getWriter(options['fileform'],configuration,adapter)
 
         outfile = book['outfile']

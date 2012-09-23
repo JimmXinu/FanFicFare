@@ -736,10 +736,10 @@ permitted_values = {
                      'description',
                      'author',
                      'authorUrl',
-                     'formatname'
+                     'formatname',
+                     'version'
                      #,'formatext'   # not useful information.
                      #,'siteabbrev'
-                     #,'version'
                      ]
     }
 # no point copying the whole list.
