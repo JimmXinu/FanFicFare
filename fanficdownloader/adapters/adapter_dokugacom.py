@@ -48,7 +48,13 @@ class DokugaComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-        self.story.setMetadata('section',self.parsedUrl.path.split('/',)[1])
+
+        # www.dokuga.com has two 'sections', shown in URL as
+        # 'fanfiction' and 'spark' that change how things should be
+        # handled.
+        # http://www.dokuga.com/fanfiction/story/7528/1
+        # http://www.dokuga.com/spark/story/7299/1
+        self.section=self.parsedUrl.path.split('/',)[1]
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/'+self.parsedUrl.path.split('/',)[1]+'/story/'+self.story.getMetadata('storyId'))
@@ -58,7 +64,7 @@ class DokugaComAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        if 'fanfiction' in self.story.getMetadata('section'):
+        if 'fanfiction' in self.section:
             self.dateformat = "%d %b %Y"
         else:
             self.dateformat = "%m-%d-%y"
@@ -117,17 +123,17 @@ class DokugaComAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters = soup.find('select').findAll('option')
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/'+self.story.getMetadata('section')+'/story/'+self.story.getMetadata('storyId')+'/1'))
+            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/1'))
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles. /fanfiction/story/7406/1
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.story.getMetadata('section')+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
+                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
         asoup = bs.BeautifulSoup(self._fetchUrl(alink))
         
-        if 'fanfiction' in self.story.getMetadata('section'):
+        if 'fanfiction' in self.section:
             asoup=asoup.find('div', {'id' : 'cb_tabid_52'}).find('div')
         
             #grab the rest of the metadata from the author's page
