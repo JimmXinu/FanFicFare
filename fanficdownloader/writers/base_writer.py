@@ -75,16 +75,6 @@ class BaseStoryWriter(Configurable):
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
 
-        ## Look for config parameter, split and add each to metadata field.
-        for (config,metadata) in [("extratags","extratags"),
-                                  ("extracategories","category"),
-                                  ("extragenres","genre"),
-                                  ("extracharacters","characters"),
-                                  ("extraships","ships"),
-                                  ("extrawarnings","warnings")]:
-            for val in self.getConfigList(config):
-                self.story.addToList(metadata,val)
-
     def getMetadata(self,key, removeallentities=False):
         return stripHTML(self.story.getMetadata(key, removeallentities))
 
