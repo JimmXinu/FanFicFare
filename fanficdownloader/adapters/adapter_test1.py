@@ -127,6 +127,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
 
         self.story.addToList('genre','Fantasy')
+        self.story.addToList('genre','Comedy')
         self.story.addToList('genre','SF')
         self.story.addToList('genre','Noir')
         

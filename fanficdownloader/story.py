@@ -19,6 +19,7 @@ import os, re
 import urlparse
 import string
 from math import floor
+from functools import partial
 
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
@@ -192,6 +193,7 @@ class Story(Configurable):
     def __init__(self, configuration):
         Configurable.__init__(self, configuration)
         try:
+            ## calibre plugin will set externally to match PI version.
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'4.4'}
@@ -204,6 +206,16 @@ class Story(Configurable):
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
         self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
         self.logfile=None # cheesy way to carry log file forward across update.
+
+        ## Look for config parameter, split and add each to metadata field.
+        for (config,metadata) in [("extratags","extratags"),
+                                  ("extracategories","category"),
+                                  ("extragenres","genre"),
+                                  ("extracharacters","characters"),
+                                  ("extraships","ships"),
+                                  ("extrawarnings","warnings")]:
+            for val in self.getConfigList(config):
+                self.addToList(metadata,val)
 
         self.setReplace(self.getConfig('replace_metadata'))
         
@@ -224,16 +236,34 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
 
+    ## Two or three part lines.  Two part effect everything.
+    ## Three part effect only those key(s) lists.
+    ## pattern=>replacement
+    ## metakey,metakey=>pattern=>replacement
+    def setReplace(self,replace):
+        for line in replace.splitlines():
+            if "=>" in line:
+                parts = map( lambda x: x.strip(), line.split("=>") )
+                if len(parts) > 2:
+                    parts[0] = map( lambda x: x.strip(), parts[0].split(",") )
+                    self.replacements.append(parts)
+                else:
+                    self.replacements.append([None]+parts)
+    
+    def doReplacments(self,value,key):
+        for (keys,p,v) in self.replacements:
+            if (keys == None or key in keys) \
+                    and isinstance(value,basestring) \
+                    and re.search(p,value):
+                #pv=value
+                value = re.sub(p,v,value)
+                #print("change:%s => %s === %s => %s "%(p,v,pv,value))
+        return value
+        
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
             return self.metadata[key]
 
-    def doReplacments(self,value):
-        for (p,v) in self.replacements:
-            if (isinstance(value,basestring)) and re.match(p,value):
-                value = re.sub(p,v,value)                
-        return value
-        
     def getMetadata(self, key,
                     removeallentities=False,
                     doreplacements=True):
@@ -242,7 +272,7 @@ class Story(Configurable):
             return value
 
         if self.isList(key):
-            value = u', '.join(self.getList(key, removeallentities, doreplacements=True))
+            return u', '.join(self.getList(key, removeallentities, doreplacements=True))
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -253,12 +283,12 @@ class Story(Configurable):
                 if key in ("dateCreated","datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
 
-        if doreplacements:
-            value=self.doReplacments(value)
-        if removeallentities and value != None:
-            return removeAllEntities(value)
-        else:
-            return value
+            if doreplacements:
+                value=self.doReplacments(value,key)
+            if removeallentities and value != None:
+                return removeAllEntities(value)
+            else:
+                return value
         
     def getAllMetadata(self,
                        removeallentities=False,
@@ -278,8 +308,8 @@ class Story(Configurable):
                 auth = v
                 # make sure doreplacements & removeallentities are honored.
                 if doreplacements:
-                    aurl=self.doReplacments(aurl)
-                    auth=self.doReplacments(auth)
+                    aurl=self.doReplacments(aurl,'authorUrl')
+                    auth=self.doReplacments(auth,'author')
                 if removeallentities:
                     aurl=removeAllEntities(aurl)
                     auth=removeAllEntities(auth)
@@ -341,10 +371,11 @@ class Story(Configurable):
             else:
                 retlist = self.getMetadataRaw(listname)
 
-            if doreplacements and retlist:
+        if retlist:
+            if doreplacements:
                 retlist = filter( lambda x : x!=None and x!='' ,
-                                  map(self.doReplacments,retlist) )
-            if removeallentities and retlist:
+                                  map(partial(self.doReplacments,key=listname),retlist) )
+            if removeallentities:
                 retlist = filter( lambda x : x!=None and x!='' ,
                                   map(removeAllEntities,retlist) )
 
@@ -512,11 +543,6 @@ class Story(Configurable):
     def __str__(self):
         return "Metadata: " +str(self.metadata) 
 
-    def setReplace(self,replace):
-        for line in replace.splitlines():
-            if "=>" in line:
-                self.replacements.append(map( lambda x: x.strip(), line.split("=>") ))
-    
 def commaGroups(s):
     groups = []
     while s and s[-1].isdigit():

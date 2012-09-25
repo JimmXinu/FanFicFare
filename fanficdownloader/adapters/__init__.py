@@ -118,7 +118,29 @@ for x in imports():
         #print x
         __class_list.append(sys.modules[x].getClass())
 
-def getDomainURL(url):
+def getAdapter(config,url):
+
+    logging.debug("trying url:"+url)
+    (cls,fixedurl) = getClassFor(url)
+    logging.debug("fixedurl:"+fixedurl)
+    if cls:
+        adapter = cls(config,fixedurl) # raises InvalidStoryURL
+        return adapter
+    # No adapter found.
+    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
+
+def getConfigSections():
+    return [cls.getConfigSection() for cls in __class_list]
+
+def getConfigSectionFor(url):
+    (cls,fixedurl) = getClassFor(url)
+    if cls:
+        return cls.getConfigSection()
+    
+    # No adapter found.
+    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
+
+def getClassFor(url):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htps]+[:/]+","http://",url.strip())
     if not fixedurl.startswith("http"):
@@ -135,34 +157,6 @@ def getDomainURL(url):
     if( domain != parsedUrl.netloc ):
         fixedurl = fixedurl.replace(parsedUrl.netloc,domain)
 
-    return (domain,fixedurl)
-    
-        
-def getAdapter(config,url):
-
-    logging.debug("trying url:"+url)
-    (domain,fixedurl) = getDomainURL(url)
-    cls = getClassFromList(domain)
-    logging.debug("fixedurl:"+fixedurl)
-    if cls:
-        adapter = cls(config,fixedurl) # raises InvalidStoryURL
-        return adapter
-    # No adapter found.
-    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
-
-def getConfigSections():
-    return [cls.getConfigSection() for cls in __class_list]
-
-def getConfigSectionFor(url):
-    (domain,fixedurl) = getDomainURL(url)
-    cls = getClassFromList(domain)
-    if cls:
-        return cls.getConfigSection()
-    
-    # No adapter found.
-    raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
-
-def getClassFor(domain):
     cls = getClassFromList(domain)
     if not cls and domain.startswith("www."):
         domain = domain.replace("www.","")
@@ -173,6 +167,8 @@ def getClassFor(domain):
         logging.debug("trying site:www."+domain)
         cls = getClassFromList("www."+domain)
         fixedurl = fixedurl.replace("http://","http://www.")
+        
+    return (cls,fixedurl)
     
 def getClassFromList(domain):
     for cls in __class_list:

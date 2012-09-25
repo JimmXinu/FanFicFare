@@ -74,16 +74,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'archiveofourown.org'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['www.archiveofourown.org','archiveofourown.org']
-
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456"
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
-        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)"
+        return re.escape("http://")+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)"
         
     ## Login
     def needToLoginCheck(self, data):
@@ -201,6 +197,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         a = metasoup.find('dd',{'class':"fandom tags"})
         fandoms = a.findAll('a',{'class':"tag"})
         for fandom in fandoms:
+            self.story.addToList('fandoms',fandom.string)
             self.story.addToList('category',fandom.string)
 		
         a = metasoup.find('dd',{'class':"warning tags"})
@@ -216,12 +213,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
             for genre in genres:
+                self.story.addToList('freefromtags',genre.string)
                 self.story.addToList('genre',genre.string)
+                
         a = metasoup.find('dd',{'class':"category tags"})
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
             for genre in genres:
                 if genre != "Gen":
+                    self.story.addToList('ao3categories',genre.string)
                     self.story.addToList('genre',genre.string)
 		
         a = metasoup.find('dd',{'class':"character tags"})
@@ -245,6 +245,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
             if 'Words:' in label:
                 self.story.setMetadata('numWords', value)
+				
+            if 'Comments:' in label:
+                self.story.setMetadata('comments', value)
+				
+            if 'Kudos:' in label:
+                self.story.setMetadata('kudos', value)
+				
+            if 'Hits:' in label:
+                self.story.setMetadata('hits', value)
+				
+            if 'Bookmarks:' in label:
+                self.story.setMetadata('bookmarks', value)
 				
             if 'Chapters:' in label:
                 if value.split('/')[0] == value.split('/')[1]:
