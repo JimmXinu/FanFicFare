@@ -76,7 +76,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             'output_css',
             'authorHTML'
             ]
-        
+
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
 
@@ -84,10 +84,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         return key in self.getValidMetaList()
 
     def getValidMetaList(self):
-        vl = []
-        vl.extend(self.validEntries)
-        vl.extend(self.getConfigList("extra_valid_entries"))
-        return vl
+        return self.validEntries + self.getConfigList("extra_valid_entries")
 
     def hasConfig(self, key):
         for section in self.sectionslist:

@@ -402,8 +402,8 @@ class Story(Configurable):
 
         if None in subjectset:
             subjectset.remove(None)
-            
-        return list(subjectset)
+
+        return list(subjectset | set(self.getConfigList("extratags")))
             
     def addChapter(self, title, html):
         if self.getConfig('strip_chapter_numbers') and \
