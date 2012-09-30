@@ -148,7 +148,7 @@ class BaseStoryWriter(Configurable):
         if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
-            for index, (title,html) in enumerate(self.story.getChapters()):
+            for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
                 if html:
                     self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
 

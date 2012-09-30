@@ -451,7 +451,7 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
             if html:
                 i=index+1
                 items.append(("file%04d"%i,
