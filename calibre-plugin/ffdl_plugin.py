@@ -496,7 +496,10 @@ make_firstimage_cover:true
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = story.getSubjectTags(removeallentities=True)
-        book['comments'] = sanitize_comments_html(story.getMetadata("description"))        
+        if story.getMetadata("description"):
+            book['comments'] = sanitize_comments_html(story.getMetadata("description"))
+        else:
+            book['comments']=''
         book['series'] = story.getMetadata("series", removeallentities=True)
         
         # adapter.opener is the element with a threadlock.  But del
