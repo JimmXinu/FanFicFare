@@ -48,10 +48,10 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-        self.story.setMetadata('section',self.parsedUrl.path.split('/',)[1])
+        self.section=self.parsedUrl.path.split('/',)[1]
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/'+self.story.getMetadata('section')+'/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/'+self.section+'/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','sghp')
@@ -59,7 +59,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
         # If all stories from the site fall into the same category,
         # the site itself isn't likely to label them as such, so we
         # do.  Can't use extracategories, could be Atlantis or SG-1
-        if 'atlantis' in self.story.getMetadata('section'):
+        if 'atlantis' in self.section:
             self.story.addToList("category","Stargate: Atlantis")
         else:
             self.story.addToList("category","Stargate: SG-1")
@@ -149,7 +149,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.story.getMetadata('section')+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -220,7 +220,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+self.story.getMetadata('section')+'/'+a['href']
+            series_url = 'http://'+self.host+'/'+self.section+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))

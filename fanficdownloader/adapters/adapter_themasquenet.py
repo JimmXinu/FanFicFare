@@ -51,16 +51,16 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         
         if self.parsedUrl.path.split('/',)[1] == 'wiktt':
             self.story.addToList("category","Harry Potter")
-            self.story.setMetadata('section','/wiktt/efiction/')
+            self.section='/wiktt/efiction/'
             self.dateformat = "%m/%d/%Y"
         else:
             self.story.addToList("category","Originals")
-            self.story.setMetadata('section','/efiction/')
+            self.section='/efiction/'
             self.dateformat = "%b %d, %Y"
             
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + self.story.getMetadata('section') + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + self.section + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','msq')
@@ -98,7 +98,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain()  + self.story.getMetadata('section') + 'user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain()  + self.section + 'user.php?action=login'
         logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -186,7 +186,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host + self.story.getMetadata('section') + chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host + self.section + chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
