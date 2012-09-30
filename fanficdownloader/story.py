@@ -411,11 +411,12 @@ class Story(Configurable):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
         self.chapters.append( (title,html) )
 
-    def getChapters(self):
+    def getChapters(self,fortoc=False):
         "Chapters will be tuples of (title,html)"
         retval = []
-        if self.getConfig('add_chapter_numbers') and \
-                self.getConfig('chapter_title_add_pattern'):
+        if (self.getConfig('add_chapter_numbers') == "true" \
+                or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
+                and self.getConfig('chapter_title_add_pattern'):
             for index, (title,html) in enumerate(self.chapters):
                 retval.append( (string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
         else:
