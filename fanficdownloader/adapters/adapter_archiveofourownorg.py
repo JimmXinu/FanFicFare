@@ -164,7 +164,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         alist = soup.findAll('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl',self.url)
+            self.story.setMetadata('authorUrl','http://archiveofourown.org/')
+            self.story.setMetadata('authorId','0')
         else:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[2])
