@@ -18,6 +18,7 @@
 import re
 import os.path
 import datetime
+import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -101,6 +102,22 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use label and value.
         """
         if self.getConfig("include_titlepage"):
+
+            if self.hasConfig("titlepage_start"):
+                START = string.Template(self.getConfig("titlepage_start"))
+
+            if self.hasConfig("titlepage_entry"):
+                ENTRY = string.Template(self.getConfig("titlepage_entry"))
+
+            if self.hasConfig("titlepage_end"):
+                END = string.Template(self.getConfig("titlepage_end"))
+
+            if self.hasConfig("titlepage_wide_entry"):
+                WIDE_ENTRY = string.Template(self.getConfig("titlepage_wide_entry"))
+
+            if self.hasConfig("titlepage_no_title_entry"):
+                NO_TITLE_ENTRY = string.Template(self.getConfig("titlepage_no_title_entry"))
+            
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
             if WIDE_ENTRY==None:
@@ -132,6 +149,7 @@ class BaseStoryWriter(Configurable):
                            TEMPLATE= NO_TITLE_ENTRY
                            
                         self._write(out,TEMPLATE.substitute({'label':label,
+                                                             'id':entry,
                                                              'value':self.story.getMetadata(entry)}))
                 else:
                     self._write(out, entry)
@@ -146,11 +164,22 @@ class BaseStoryWriter(Configurable):
         """
         # Only do TOC if there's more than one chapter and it's configured.
         if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+            if self.hasConfig("tocpage_start"):
+                START = string.Template(self.getConfig("tocpage_start"))
+
+            if self.hasConfig("tocpage_entry"):
+                ENTRY = string.Template(self.getConfig("tocpage_entry"))
+
+            if self.hasConfig("tocpage_end"):
+                END = string.Template(self.getConfig("tocpage_end"))
+            
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
             for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
                 if html:
-                    self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
+                    self._write(out,ENTRY.substitute({'chapter':title,
+                                                      'number':index+1,
+                                                      'index':"%04d"%(index+1)}))
 
             self._write(out,END.substitute(self.story.getAllMetadata()))
 

@@ -98,6 +98,7 @@ ${chapter}
 \t${chapter}
 
 ''')
+        self.TEXT_CHAPTER_END = string.Template(u'')
 
         self.TEXT_FILE_END = string.Template(u'''
 
@@ -114,7 +115,17 @@ End file.
         
         wrapout = KludgeStringIO()
         
-        wrapout.write(self.TEXT_FILE_START.substitute(self.story.getAllMetadata()))
+        if self.hasConfig("file_start"):
+            FILE_START = string.Template(self.getConfig("file_start"))
+        else:
+            FILE_START = self.TEXT_FILE_START
+            
+        if self.hasConfig("file_end"):
+            FILE_END = string.Template(self.getConfig("file_end"))
+        else:
+            FILE_END = self.TEXT_FILE_END
+            
+        wrapout.write(FILE_START.substitute(self.story.getAllMetadata()))
 
         self.writeTitlePage(wrapout,
                             self.TEXT_TITLE_PAGE_START,
@@ -133,13 +144,25 @@ End file.
         
         self._write(out,self.lineends(self.wraplines(towrap)))
 
+        if self.hasConfig('chapter_start'):
+            CHAPTER_START = string.Template(self.getConfig("chapter_start"))
+        else:
+            CHAPTER_START = self.TEXT_CHAPTER_START
+        
+        if self.hasConfig('chapter_end'):
+            CHAPTER_END = string.Template(self.getConfig("chapter_end"))
+        else:
+            CHAPTER_END = self.TEXT_CHAPTER_END
+        
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
-                self._write(out,self.lineends(self.wraplines(removeAllEntities(self.TEXT_CHAPTER_START.substitute({'chapter':title, 'index':index+1})))))
+                vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_START.substitute(vals)))))
                 self._write(out,self.lineends(html2text(html,wrap_width=self.wrap_width)))
+                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_END.substitute(vals)))))
 
-        self._write(out,self.lineends(self.wraplines(self.TEXT_FILE_END.substitute(self.story.getAllMetadata()))))
+        self._write(out,self.lineends(self.wraplines(FILE_END.substitute(self.story.getAllMetadata()))))
 
     def wraplines(self, text):
         

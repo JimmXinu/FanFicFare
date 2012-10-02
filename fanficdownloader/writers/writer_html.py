@@ -75,6 +75,8 @@ ${output_css}
 <a name="section${index}"><h2>${chapter}</h2></a>
 ''')
 
+        self.HTML_CHAPTER_END = string.Template('')
+
         self.HTML_FILE_END = string.Template('''
 </body>
 </html>''')
@@ -82,7 +84,17 @@ ${output_css}
 
     def writeStoryImpl(self, out):
 
-        self._write(out,self.HTML_FILE_START.substitute(self.story.getAllMetadata()))
+        if self.hasConfig('file_start'):
+            FILE_START = string.Template(self.getConfig("file_start"))
+        else:
+            FILE_START = self.HTML_FILE_START
+        
+        if self.hasConfig('file_end'):
+            FILE_END = string.Template(self.getConfig("file_end"))
+        else:
+            FILE_END = self.HTML_FILE_END
+        
+        self._write(out,FILE_START.substitute(self.story.getAllMetadata()))
 
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
@@ -94,10 +106,22 @@ ${output_css}
                           self.HTML_TOC_ENTRY,
                           self.HTML_TOC_PAGE_END)
 
+        if self.hasConfig('chapter_start'):
+            CHAPTER_START = string.Template(self.getConfig("chapter_start"))
+        else:
+            CHAPTER_START = self.HTML_CHAPTER_START
+        
+        if self.hasConfig('chapter_end'):
+            CHAPTER_END = string.Template(self.getConfig("chapter_end"))
+        else:
+            CHAPTER_END = self.HTML_CHAPTER_END
+        
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
-                self._write(out,self.HTML_CHAPTER_START.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
+                vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+                self._write(out,CHAPTER_START.substitute(vals))
                 self._write(out,html)
+                self._write(out,CHAPTER_END.substitute(vals))
 
-        self._write(out,self.HTML_FILE_END.substitute(self.story.getAllMetadata()))
+        self._write(out,FILE_END.substitute(self.story.getAllMetadata()))
