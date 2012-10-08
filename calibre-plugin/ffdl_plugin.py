@@ -541,7 +541,7 @@ make_firstimage_cover:true
             print("from URL(%s)"%url)
 
             # try to find by identifier url first.
-            searchstr = 'identifiers:"=url:%s"'%url.replace(":","|")
+            searchstr = 'identifiers:"=url:=%s"'%url.replace(":","|")
             identicalbooks = db.search_getting_ids(searchstr, None)
             if len(identicalbooks) < 1:
                 # find dups
