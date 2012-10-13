@@ -414,9 +414,11 @@ class Story(Configurable):
     def getChapters(self,fortoc=False):
         "Chapters will be tuples of (title,html)"
         retval = []
-        if (self.getConfig('add_chapter_numbers') == "true" \
-                or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
-                and self.getConfig('chapter_title_add_pattern'):
+        ## only add numbers if more than one chapter.
+        if len(self.chapters) > 1 and \
+                (self.getConfig('add_chapter_numbers') == "true" \
+                     or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
+                     and self.getConfig('chapter_title_add_pattern'):
             for index, (title,html) in enumerate(self.chapters):
                 retval.append( (string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
         else:
