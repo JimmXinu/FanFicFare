@@ -413,7 +413,7 @@ div { margin: 0pt; padding: 0pt; }
         guide = None
         coverIO = None
                 
-        imgid = "image0000"
+        coverimgid = "image0000"
         if not self.story.cover and self.story.oldcover:
             print("writer_epub: no new cover, has old cover, write image.")
             (oldcoverhtmlhref,
@@ -425,8 +425,8 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr(oldcoverhtmlhref,oldcoverhtmldata)
             outputepub.writestr(oldcoverimghref,oldcoverimgdata)
             
-            imgid = "image0"
-            items.append((imgid,
+            coverimgid = "image0"
+            items.append((coverimgid,
                           oldcoverimghref,
                           oldcoverimgtype,
                           None))
@@ -451,6 +451,10 @@ div { margin: 0pt; padding: 0pt; }
                               imgmap['mime'],
                               None))
                 imgcount+=1
+                if 'cover' in imgfile:
+                    # make sure coverimgid is set to the cover, not
+                    # just the first image.
+                    coverimgid = items[-1][0]
 
         
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
@@ -462,7 +466,7 @@ div { margin: 0pt; padding: 0pt; }
             itemrefs.append("cover")
             # 
             # <meta name="cover" content="cover.jpg"/>
-            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0000",
+            metadata.appendChild(newTag(contentdom,"meta",{"content":coverimgid,
                                                            "name":"cover"}))
             # cover stuff for later:
             # at end of <package>:
@@ -524,8 +528,8 @@ div { margin: 0pt; padding: 0pt; }
         contentxml = contentdom.toxml(encoding='utf-8')
         
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%imgid,
-                                        '<meta name="cover" content="%s"/>'%imgid)
+        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
+                                        '<meta name="cover" content="%s"/>'%coverimgid)
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()

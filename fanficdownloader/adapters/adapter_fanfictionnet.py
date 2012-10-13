@@ -80,7 +80,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
-            #print("\n===================\n%s\n===================\n"%data)
+            #logging.debug("\n===================\n%s\n===================\n"%data)
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -108,11 +108,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             tryurl = "http://%s/s/%s/%d/"%(self.getSiteDomain(),
                                            self.story.getMetadata('storyId'),
                                            chapcount+1)
-            print('=Trying newer chapter: %s' % tryurl)
+            logging.debug('=Trying newer chapter: %s' % tryurl)
             newdata = self._fetchUrl(tryurl)
             if "not found. Please check to see you are not using an outdated url." \
                     not in newdata:
-                print('=======Found newer chapter: %s' % tryurl)
+                logging.debug('=======Found newer chapter: %s' % tryurl)
                 soup = bs.BeautifulSoup(newdata)
         except:
             pass
@@ -160,7 +160,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         
         metatext = stripHTML(gui_table1i.find('div', {'style':'color:gray;'})).replace('Hurt/Comfort','Hurt-Comfort')
         metalist = metatext.split(" - ")
-        #print("metatext:(%s)"%metalist)
+        #logging.debug("metatext:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
 
@@ -176,9 +176,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         genrelist = metalist[0].split('/') # Hurt/Comfort already changed above.
         goodgenres=True
         for g in genrelist:
-            print("g:(%s)"%g)
+            #logging.debug("g:(%s)"%g)
             if g.strip() not in ffnetgenres:
-                print("g not in ffnetgenres")
+                logging.info("g not in ffnetgenres")
                 goodgenres=False
         if goodgenres:
             self.story.extendList('genre',genrelist)
