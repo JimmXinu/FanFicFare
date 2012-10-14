@@ -18,6 +18,7 @@
 import time
 import datetime
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 from .. import translit
@@ -32,6 +33,8 @@ from base_adapter import BaseSiteAdapter,  makeDate
 def getClass():
     return FicBookNetAdapter
 
+
+logger = logging.getLogger(__name__)
 
 class FicBookNetAdapter(BaseSiteAdapter):
 
@@ -49,7 +52,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/readfic/'+self.story.getMetadata('storyId'))
@@ -75,7 +78,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
         url=self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
         try:
             data = self._fetchUrl(url)
         except urllib2.HTTPError, e:
@@ -95,14 +98,14 @@ class FicBookNetAdapter(BaseSiteAdapter):
         ## Title
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
-        logging.debug("Title: (%s)"%self.story.getMetadata('title'))
+        logger.debug("Title: (%s)"%self.story.getMetadata('title'))
         
         # Find authorid and URL from... author url.
         a = table.find('a')
         self.story.setMetadata('authorId',a.text) # Author's name is unique
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.text)
-        logging.debug("Author: (%s)"%self.story.getMetadata('author'))
+        logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
         # Find the chapters:
         chapters = soup.find('div', {'class' : 'part_list'})
@@ -123,7 +126,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             pubdate=translit.translit(stripHTML(soup.find('div', {'class' : 'part_added'}).find('span')))
             update=pubdate
 
-        logging.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
+        logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
 
         if not ',' in pubdate:
             pubdate=datetime.date.today().strftime(self.dateformat)
@@ -207,7 +210,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

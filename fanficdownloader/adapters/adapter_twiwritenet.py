@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib
 import urllib2
@@ -43,7 +44,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -84,13 +85,13 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         params['submit'] = 'Submit'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
-        logging.info("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
         d = self._fetchUrl(loginUrl, params)
     
         if "Member Account" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -109,7 +110,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
             addurl=""
             
         url = self.url+'&index=1'+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -252,7 +253,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
         # problems with some stories, but only in calibre.  I suspect

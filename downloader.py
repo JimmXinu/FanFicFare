@@ -16,6 +16,11 @@
 #
 
 import logging
+# suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
+logger = logging.getLogger()
+loghandler=logging.NullHandler()
+loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
+logger.addHandler(loghandler)
 
 import sys, os
 from os.path import normpath, expanduser, isfile, join
@@ -79,11 +84,9 @@ def main():
    
    (options, args) = parser.parse_args()
 
-   if options.debug:
-       logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
-   else:
-       logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
-
+   if not options.debug:
+       logger = logging.getLogger("fanficdownloader")
+       logger.setLevel(logging.INFO)
    
    if len(args) != 1:
        parser.error("incorrect number of arguments")
@@ -119,8 +122,6 @@ def main():
       
    logging.debug('reading %s config file(s), if present'%conflist)
    configuration.read(conflist)
-
-   print("has include_in_tags?%s"%configuration.hasConfig("include_in_tags"))
 
    try:
        configuration.add_section("overrides")

@@ -27,6 +27,8 @@ import logging
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 
+logger = logging.getLogger(__name__)
+
 class BaseStoryWriter(Configurable):
 
     @staticmethod
@@ -137,11 +139,11 @@ class BaseStoryWriter(Configurable):
                         if self.hasConfig(entry+"_label"):
                             label=self.getConfig(entry+"_label")
                         elif entry in self.titleLabels:
-                            logging.debug("Using fallback label for %s_label"%entry)
+                            logger.debug("Using fallback label for %s_label"%entry)
                             label=self.titleLabels[entry]
                         else:
                             label="%s"%entry.title()
-                            logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
+                            logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                         # If the label for the title entry is empty, use the
                         # 'no title' option if there is one.
@@ -202,7 +204,7 @@ class BaseStoryWriter(Configurable):
             
         if not outstream:
             close=True
-            logging.info("Save directly to file: %s" % outfilename)
+            logger.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
                 outputdirs = os.path.dirname(outfilename).split('/')
@@ -229,7 +231,7 @@ class BaseStoryWriter(Configurable):
             outstream = open(outfilename,"wb")
         else:
             close=False
-            logging.debug("Save to stream")
+            logger.debug("Save to stream")
 
         if not metaonly:
             self.story = self.adapter.getStory() # get full story now,
@@ -256,7 +258,7 @@ class BaseStoryWriter(Configurable):
             outstream.close()
 
     def writeFile(self, filename, data):
-        logging.debug("writeFile:%s"%filename)
+        logger.debug("writeFile:%s"%filename)
         
         if self.getConfig('zip_output'):
             outputdirs = os.path.dirname(self.getBaseFileName())

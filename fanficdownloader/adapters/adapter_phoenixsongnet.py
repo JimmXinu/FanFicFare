@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2, urllib, cookielib
 
@@ -47,7 +48,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/fanfiction/story/' +self.story.getMetadata('storyId')+'/')
@@ -90,12 +91,12 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         params['login'] = 'Login'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/users/processlogin.php'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['txtusername']))
         d = self._fetchUrl(loginUrl, params)
     
         if 'Please login to continue.' in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['txtusername']))
             raise exceptions.FailedToLogin(url,params['txtusername'])
             return False
@@ -108,7 +109,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -208,7 +209,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 	# grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib
 import urllib2
@@ -44,7 +45,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         if m:
             self.story.setMetadata('authorId',m.group('auth'))
             self.story.setMetadata('storyId',m.group('id'))
-            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
             # normalized story URL.
             self._setURL(url)
         else:
@@ -68,7 +69,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         if self.is_adult or self.getConfig("is_adult"):
             params={'iamold':'Yes',
                     'action':'ageanswer'}
-            logging.info("Attempting to get cookie for %s" % url)
+            logger.info("Attempting to get cookie for %s" % url)
             ## posting on list doesn't work, but doesn't hurt, either.
             data = self._postUrl(url,params)
         else:
@@ -79,7 +80,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
         ## could be either chapter list page or one-shot text page.
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._postFetchWithIAmOld(url)
@@ -107,7 +108,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             storya = soup.find('div',{'class':'breadcrumbs'}).findAll('a')[1]
             self._setURL(storya['href'])
             url=self.url
-            logging.debug("Normalizing to URL: "+url)
+            logger.debug("Normalizing to URL: "+url)
             ## title's right there...
             self.story.setMetadata('title',storya.string)
             data = self._fetchUrl(url)
@@ -193,7 +194,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
 	# find <!-- headerend --> & <!-- footerstart --> and

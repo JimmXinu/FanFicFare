@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 from urllib import unquote_plus
@@ -75,12 +76,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # metadata and chapter list
 
         url = self.origurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
-            #logging.debug("\n===================\n%s\n===================\n"%data)
+            #logger.debug("\n===================\n%s\n===================\n"%data)
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -108,11 +109,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             tryurl = "http://%s/s/%s/%d/"%(self.getSiteDomain(),
                                            self.story.getMetadata('storyId'),
                                            chapcount+1)
-            logging.debug('=Trying newer chapter: %s' % tryurl)
+            logger.debug('=Trying newer chapter: %s' % tryurl)
             newdata = self._fetchUrl(tryurl)
             if "not found. Please check to see you are not using an outdated url." \
                     not in newdata:
-                logging.debug('=======Found newer chapter: %s' % tryurl)
+                logger.debug('=======Found newer chapter: %s' % tryurl)
                 soup = bs.BeautifulSoup(newdata)
         except:
             pass
@@ -160,7 +161,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         
         metatext = stripHTML(gui_table1i.find('div', {'style':'color:gray;'})).replace('Hurt/Comfort','Hurt-Comfort')
         metalist = metatext.split(" - ")
-        #logging.debug("metatext:(%s)"%metalist)
+        #logger.debug("metatext:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
 
@@ -176,9 +177,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         genrelist = metalist[0].split('/') # Hurt/Comfort already changed above.
         goodgenres=True
         for g in genrelist:
-            #logging.debug("g:(%s)"%g)
+            #logger.debug("g:(%s)"%g)
             if g.strip() not in ffnetgenres:
-                logging.info("g not in ffnetgenres")
+                logger.info("g not in ffnetgenres")
                 goodgenres=False
         if goodgenres:
             self.story.extendList('genre',genrelist)
@@ -240,7 +241,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
         time.sleep(0.5) ## ffnet(and, I assume, fpcom) tends to fail
                         ## more if hit too fast.  This is in
                         ## additional to what ever the
@@ -265,7 +266,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         div = soup.find('div', {'id' : 'storytextp'})
         
         if None == div:
-            logging.debug('div id=storytextp not found.  data:%s'%data)
+            logger.debug('div id=storytextp not found.  data:%s'%data)
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)

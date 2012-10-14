@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib
 import urllib2
@@ -48,7 +49,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId') + '/1')
@@ -94,12 +95,12 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         params['submit'] = 'Login...'
 
         loginUrl = 'https://ssl.fanfiktion.de/'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['nickname']))
         d = self._postUrl(loginUrl,params)
     
         if "Login erfolgreich" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['nickname']))
             raise exceptions.FailedToLogin(url,params['nickname'])
             return False
@@ -110,7 +111,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -183,7 +184,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
         time.sleep(0.5) ## ffde has "floodlock" protection
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),

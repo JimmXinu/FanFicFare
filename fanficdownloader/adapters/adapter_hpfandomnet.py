@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -51,7 +52,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         # XXX Most sites don't have the /eff part.  Replace all to remove it usually.
@@ -79,7 +80,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -208,7 +209,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
         # There's no good wrapper around the chapter text. :-/
