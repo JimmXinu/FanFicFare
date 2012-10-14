@@ -14,7 +14,6 @@ from StringIO import StringIO
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.utils.logging import Log
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
@@ -109,9 +108,6 @@ def do_download_for_worker(book,options):
     when run as a worker job
     '''
     try:
-        # import logging
-        # logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
-        
         book['comment'] = 'Download started...'
 
         configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])

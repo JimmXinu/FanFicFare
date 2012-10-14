@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 import time
@@ -61,12 +62,12 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
 
         loginUrl = 'http://' + self.getSiteDomain() + '/account/login'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
         d = self._postUrl(loginUrl,params)
 
         if "Login attempt failed..." in d:
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['username']))
             raise exceptions.FailedToLogin(url,params['username'])
             return False
@@ -79,7 +80,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         # metadata and chapter list
 
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
@@ -96,7 +97,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             # normalize story URL on chapter list.
             self.story.setMetadata('storyId',storya['href'].split('/',)[2])
             url = "http://"+self.getSiteDomain()+storya['href']
-            logging.debug("Normalizing to URL: "+url)
+            logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
             try:
                 soup = bs.BeautifulSoup(self._fetchUrl(url))
@@ -201,7 +202,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
 

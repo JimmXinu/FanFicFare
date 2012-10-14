@@ -29,6 +29,8 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 from base_writer import *
 from ..htmlcleanup import stripHTML
 
+logger = logging.getLogger(__name__)
+
 class EpubWriter(BaseStoryWriter):
 
     @staticmethod
@@ -205,8 +207,8 @@ div { margin: 0pt; padding: 0pt; }
             # if there's a self.story.logfile, there's an existing log
             # to add to.
             if self.story.logfile:
-                logging.debug("existing logfile found, appending")
-                logging.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
+                logger.debug("existing logfile found, appending")
+                logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
                 replace_string = "</body>" # "</h3>"
                 self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
             else:
@@ -260,11 +262,11 @@ div { margin: 0pt; padding: 0pt; }
                     if self.hasConfig(entry+"_label"):
                         label=self.getConfig(entry+"_label")
                     elif entry in self.titleLabels:
-                        logging.debug("Using fallback label for %s_label"%entry)
+                        logger.debug("Using fallback label for %s_label"%entry)
                         label=self.titleLabels[entry]
                     else:
                         label="%s"%entry.title()
-                        logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
+                        logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                     retval = retval + ENTRY.substitute({'id':entry,
                                                         'label':label,
@@ -415,7 +417,7 @@ div { margin: 0pt; padding: 0pt; }
                 
         coverimgid = "image0000"
         if not self.story.cover and self.story.oldcover:
-            print("writer_epub: no new cover, has old cover, write image.")
+            logger.debug("writer_epub: no new cover, has old cover, write image.")
             (oldcoverhtmlhref,
              oldcoverhtmltype,
              oldcoverhtmldata,
@@ -646,7 +648,7 @@ div { margin: 0pt; padding: 0pt; }
         
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
-                logging.debug('Writing chapter text for: %s' % title)
+                logger.debug('Writing chapter text for: %s' % title)
                 vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
                 fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text

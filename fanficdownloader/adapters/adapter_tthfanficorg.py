@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 import time
@@ -40,7 +41,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
             # normalized story URL.
             self._setURL("http://"+self.getSiteDomain()\
                          +"/Story-"+self.story.getMetadata('storyId'))
@@ -81,7 +82,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             return
         
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['urealname']))
 
         ## need to pull empty login page first to get ctkn and
@@ -98,7 +99,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         d = self._fetchUrl(loginUrl, params)
     
         if "Stories Published" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -110,7 +111,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         # metadata and chapter list
 
         url=self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         # tth won't send you future updates if you aren't 'caught up'
         # on the story.  Login isn't required for F21, but logging in will
@@ -137,7 +138,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 form = soup.find('form', {'id':'sitemaxratingform'})
                 params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
                         'sitemaxrating':'5'}
-                logging.info("Attempting to get rating cookie for %s" % url)
+                logger.info("Attempting to get rating cookie for %s" % url)
                 data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
                 # refetch story page.
                 data = self._fetchUrl(url)
@@ -158,7 +159,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             try:
                 # going to pull part of the meta data from author list page.
                 infourl = 'http://'+self.host+ainfo['href']
-                logging.debug("**StoryInfo** URL: "+infourl)
+                logger.debug("**StoryInfo** URL: "+infourl)
                 infodata = self._fetchUrl(infourl)
                 infosoup = bs.BeautifulSoup(infodata)
 
@@ -175,14 +176,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     
         try:
             # going to pull part of the meta data from *primary* author list page.
-            logging.debug("**AUTHOR** URL: "+authorurl)
+            logger.debug("**AUTHOR** URL: "+authorurl)
             authordata = self._fetchUrl(authorurl)
             descurl=authorurl
             authorsoup = bs.BeautifulSoup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
                 nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
-                logging.debug("**AUTHOR** nextpage URL: "+nextpage)
+                logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 descurl=nextpage
                 authorsoup = bs.BeautifulSoup(authordata)
@@ -259,7 +260,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
         soup = bs.BeautifulSoup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'storyinnerbody'})

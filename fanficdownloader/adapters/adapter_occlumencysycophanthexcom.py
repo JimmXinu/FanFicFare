@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -47,7 +48,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
 		
         
         # normalized story URL.
@@ -94,13 +95,13 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         params['submit'] = 'Submit'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
         d = self._fetchUrl(loginUrl, params)
     
         if "Logout" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -112,7 +113,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -245,7 +246,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 		
         data = self._fetchUrl(url)
         data = data.replace('<div align="left"', '<div align="left">')

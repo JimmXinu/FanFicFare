@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -54,7 +55,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -92,7 +93,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url+'&index=1'+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -126,7 +127,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
                 # explicitly put ageconsent because google appengine regexp doesn't include it for some reason.
                 addurl = addurl.replace("&amp;","&")+'&ageconsent=ok'
                 url = self.url+'&index=1'+addurl
-                logging.debug("URL 2nd try: "+url)
+                logger.debug("URL 2nd try: "+url)
 
                 try:
                     data = self._fetchUrl(url)
@@ -147,7 +148,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
         # while len(loopdata) > 0:
         #     if len(loopdata) < 5000:
         #         chklen = len(loopdata)
-        #     logging.info("loopdata: %s" % loopdata[:chklen])
+        #     logger.info("loopdata: %s" % loopdata[:chklen])
         #     loopdata = loopdata[chklen:]
             
         # use BeautifulSoup HTML parser to make everything easier to find.
@@ -270,7 +271,7 @@ class YourFanfictionComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
