@@ -46,6 +46,10 @@ ${output_css}
 <h1><a href="${storyUrl}">${title}</a> by ${authorHTML}</h1>
 ''')
 
+        self.HTML_COVER = string.Template('''
+<img src="${coverimg}" alt="cover" />
+''')
+        
         self.HTML_TITLE_PAGE_START = string.Template('''
 <table class="full">
 ''')
@@ -84,11 +88,16 @@ ${output_css}
 
     def writeStoryImpl(self, out):
 
+        if self.hasConfig("cover_content"):
+            COVER = string.Template(self.getConfig("cover_content"))
+        else:
+            COVER = self.HTML_COVER
+
         if self.hasConfig('file_start'):
             FILE_START = string.Template(self.getConfig("file_start"))
         else:
             FILE_START = self.HTML_FILE_START
-        
+
         if self.hasConfig('file_end'):
             FILE_END = string.Template(self.getConfig("file_end"))
         else:
@@ -96,6 +105,9 @@ ${output_css}
         
         self._write(out,FILE_START.substitute(self.story.getAllMetadata()))
 
+        if self.getConfig('include_images') and self.story.cover:
+            self._write(out,COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
+            
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
                             self.HTML_TITLE_ENTRY,
@@ -125,3 +137,8 @@ ${output_css}
                 self._write(out,CHAPTER_END.substitute(vals))
 
         self._write(out,FILE_END.substitute(self.story.getAllMetadata()))
+
+        if self.getConfig('include_images'):
+            for imgmap in self.story.getImgUrls():
+                self.writeFile(imgmap['newsrc'],imgmap['data'])
+        

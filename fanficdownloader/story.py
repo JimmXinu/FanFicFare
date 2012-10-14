@@ -20,6 +20,8 @@ import urlparse
 import string
 from math import floor
 from functools import partial
+import logging
+import urlparse as up
 
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
@@ -52,7 +54,7 @@ try:
         if export:
             return (img.export('JPG'),'jpg','image/jpeg')
         else:
-            print("image used unchanged")
+            logging.debug("image used unchanged")
             return (data,'jpg','image/jpeg')
         
 except:
@@ -88,23 +90,34 @@ except:
                 img.save(outsio,'JPEG')
                 return (outsio.getvalue(),'jpg','image/jpeg')
             else:
-                print("image used unchanged")
+                logging.debug("image used unchanged")
                 return (data,'jpg','image/jpeg')
         
     except:
-
         # No calibre or PIL, simple pass through with mimetype.
-        imagetypes = {
-            'jpg':'image/jpeg',
-            'jpeg':'image/jpeg',
-            'png':'image/png',
-            'gif':'image/gif',
-            'svg':'image/svg+xml',
-            }
-
         def convert_image(url,data,sizes,grayscale):
-            ext=url[url.rfind('.')+1:].lower()
-            return (data,ext,imagetypes[ext])
+            return no_convert_image(url,data)
+        
+imagetypes = {
+    'jpg':'image/jpeg',
+    'jpeg':'image/jpeg',
+    'png':'image/png',
+    'gif':'image/gif',
+    'svg':'image/svg+xml',
+    }
+
+## also used for explicit no image processing.
+def no_convert_image(url,data):
+    parsedUrl = up.urlparse(url)
+    
+    ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
+    
+    if ext not in imagetypes:
+        logging.debug("no_convert_image url:%s - no known extension"%url)
+        # doesn't have extension? use jpg.
+        ext='jpg'
+        
+    return (data,ext,imagetypes[ext])
         
 def normalize_format_name(fmt):
     if fmt:
@@ -483,17 +496,22 @@ class Story(Configurable):
         prefix='ffdl'
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
+
             try:
-                sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+                if self.getConfig('no_image_processing'):
+                    (data,ext,mime) = no_convert_image(imgurl,
+                                                   fetch(imgurl))
+                else:
+                    try:
+                        sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+                    except Exception, e:
+                        raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
+                    (data,ext,mime) = convert_image(imgurl,
+                                                    fetch(imgurl),
+                                                    sizes,
+                                                    self.getConfig('grayscale_images'))
             except Exception, e:
-                raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
-            try:
-                (data,ext,mime) = convert_image(imgurl,
-                                                fetch(imgurl),
-                                                sizes,
-                                                self.getConfig('grayscale_images'))
-            except Exception, e:
-                print("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
+                logging.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
             
             # explicit cover, make the first image.
@@ -528,7 +546,7 @@ class Story(Configurable):
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                 
-            print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+            logging.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
             

@@ -190,6 +190,8 @@ class BaseStoryWriter(Configurable):
         if outfilename == None:
             outfilename=self.getOutputFileName()
 
+        self.outfilename = outfilename
+
         # minor cheat, tucking css into metadata.
         if self.getConfig("output_css"):
             self.story.setMetadata("output_css",
@@ -203,8 +205,8 @@ class BaseStoryWriter(Configurable):
             logging.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
-                dirs = os.path.dirname(outfilename).split('/')
-                for dir in dirs:
+                outputdirs = os.path.dirname(outfilename).split('/')
+                for dir in outputdirs:
                     path+=dir+"/"
                     if not os.path.exists(path):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
@@ -238,19 +240,40 @@ class BaseStoryWriter(Configurable):
                                                  # fetch once.
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
+            self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
-            zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
-            zipout.writestr(self.getBaseFileName(),out.getvalue())
+            self.zipout.writestr(self.getBaseFileName(),out.getvalue())
             # declares all the files created by Windows.  otherwise, when
             # it runs in appengine, windows unzips the files as 000 perms.
-            for zf in zipout.filelist:
+            for zf in self.zipout.filelist:
                 zf.create_system = 0
-            zipout.close()
+            self.zipout.close()
             out.close()
         else:
             self.writeStoryImpl(outstream)
 
         if close:
+            outstream.close()
+
+    def writeFile(self, filename, data):
+        logging.debug("writeFile:%s"%filename)
+        
+        if self.getConfig('zip_output'):
+            outputdirs = os.path.dirname(self.getBaseFileName())
+            if outputdirs:
+                filename=outputdirs+'/'+filename
+            self.zipout.writestr(filename,data)
+        else:
+            outputdirs = os.path.dirname(self.outfilename)
+            if outputdirs:
+                filename=outputdirs+'/'+filename
+
+            dir = os.path.dirname(filename)
+            if not os.path.exists(dir):
+                os.mkdir(dir) ## os.makedirs() doesn't work in 2.5.2?
+                    
+            outstream = open(filename,"wb")
+            outstream.write(data)
             outstream.close()
 
     def writeStoryImpl(self, out):

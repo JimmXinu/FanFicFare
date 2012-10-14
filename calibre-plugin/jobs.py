@@ -123,7 +123,7 @@ def do_download_for_worker(book,options):
 
         # images only for epub, even if the user mistakenly turned it
         # on else where.
-        if options['fileform'] != "epub":
+        if options['fileform'] not in ("epub","html"):
             configuration.set("overrides","include_images","false")
         
         adapter = adapters.getAdapter(configuration,book['url'])
