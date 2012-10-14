@@ -138,7 +138,7 @@ def main():
 
    # images only for epub, even if the user mistakenly turned it
    # on else where.
-   if options.format != "epub":
+   if options.format not in ("epub","html"):
        configuration.set("overrides","include_images","false")
        
    if options.options:
