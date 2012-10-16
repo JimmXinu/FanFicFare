@@ -637,9 +637,12 @@ make_firstimage_cover:true
             
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
-            tmp = PersistentTemporaryFile(prefix='new-%s-'%book['calibre_id'],
-                                               suffix='.'+options['fileform'],
-                                               dir=options['tdir'])
+            # For HTML format users, make the filename inside the zip something reasonable.
+            # For crazy long titles/authors, limit it to 200chars.
+            # For weird/OS-unsafe characters, use file safe only.
+            tmp = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
+                                          suffix='.'+options['fileform'],
+                                          dir=options['tdir'])
             print("title:"+book['title'])
             print("outfile:"+tmp.name)
             book['outfile'] = tmp.name            
