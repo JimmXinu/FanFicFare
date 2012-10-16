@@ -15,13 +15,6 @@
 # limitations under the License.
 #
 
-import logging
-# suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
-logger = logging.getLogger()
-loghandler=logging.NullHandler()
-loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
-logger.addHandler(loghandler)
-
 import sys, os
 from os.path import normpath, expanduser, isfile, join
 from StringIO import StringIO
@@ -30,6 +23,14 @@ import getpass
 import string
 import ConfigParser
 from subprocess import call
+
+import logging
+if sys.version_info >= (2, 7):
+    # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
+    rootlogger = logging.getLogger()
+    loghandler=logging.NullHandler()
+    loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
+    rootlogger.addHandler(loghandler)
 
 from fanficdownloader import adapters,writers,exceptions
 from fanficdownloader.configurable import Configuration

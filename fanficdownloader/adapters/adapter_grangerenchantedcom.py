@@ -287,8 +287,8 @@ class GrangerEnchantedCom(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url),
+                                selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'id' : 'story1'})
 
