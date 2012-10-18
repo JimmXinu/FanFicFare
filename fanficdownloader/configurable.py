@@ -134,7 +134,7 @@ class Configurable(object):
         return self.configuration.hasConfig(key)
         
     def getConfig(self, key, default=""):
-        return self.configuration.getConfig(key)
+        return self.configuration.getConfig(key,default)
 
     def getConfigList(self, key):
         return self.configuration.getConfigList(key)

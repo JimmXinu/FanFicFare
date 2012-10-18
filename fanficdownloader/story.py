@@ -293,7 +293,9 @@ class Story(Configurable):
                     value = commaGroups(value)
                 if key == "numChapters":
                     value = commaGroups("%d"%value)
-                if key in ("dateCreated","datePublished","dateUpdated"):
+                if key in ("dateCreated"):
+                    value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
+                if key in ("datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
 
             if doreplacements:
