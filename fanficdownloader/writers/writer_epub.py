@@ -192,30 +192,28 @@ div { margin: 0pt; padding: 0pt; }
         string.Template().  START and END are expected to use the same
         names as Story.metadata, but ENTRY should use id, label and value.
         """
-        if self.getConfig("include_logpage"):
+        if self.hasConfig("logpage_start"):
+            START = string.Template(self.getConfig("logpage_start"))
+        else:
+            START = self.EPUB_LOG_PAGE_START
 
-            if self.hasConfig("logpage_start"):
-                START = string.Template(self.getConfig("logpage_start"))
-            else:
-                START = self.EPUB_LOG_PAGE_START
-
-            if self.hasConfig("logpage_end"):
-                END = string.Template(self.getConfig("logpage_end"))
-            else:
-                END = self.EPUB_LOG_PAGE_END
-            
-            # if there's a self.story.logfile, there's an existing log
-            # to add to.
-            if self.story.logfile:
-                logger.debug("existing logfile found, appending")
-                logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
-                replace_string = "</body>" # "</h3>"
-                self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
-            else:
-                # otherwise, write a new one.
-                self._write(out,START.substitute(self.story.getAllMetadata()))
-                self._write(out,self._makeLogEntry())
-                self._write(out,END.substitute(self.story.getAllMetadata()))
+        if self.hasConfig("logpage_end"):
+            END = string.Template(self.getConfig("logpage_end"))
+        else:
+            END = self.EPUB_LOG_PAGE_END
+        
+        # if there's a self.story.logfile, there's an existing log
+        # to add to.
+        if self.story.logfile:
+            logger.debug("existing logfile found, appending")
+            logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
+            replace_string = "</body>" # "</h3>"
+            self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
+        else:
+            # otherwise, write a new one.
+            self._write(out,START.substitute(self.story.getAllMetadata()))
+            self._write(out,self._makeLogEntry())
+            self._write(out,END.substitute(self.story.getAllMetadata()))
 
     # self parsing instead of Soup because it should be simple and not
     # worth the overhead.
@@ -494,7 +492,11 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
 
-        if self.getConfig("include_logpage"):
+        dologpage = ( self.getConfig("include_logpage") == "smart" and \
+                          (self.story.logfile or self.story.getMetadataRaw("status") == "In-Progress") )  \
+                     or self.getConfig("include_logpage") == "true"
+
+        if dologpage:
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
@@ -629,12 +631,12 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
 
-        # write log page.
-        logpageIO = StringIO.StringIO()
-        self.writeLogPage(logpageIO)
-        if logpageIO.getvalue(): # will be false if no log page.
+        if dologpage:
+            # write log page.
+            logpageIO = StringIO.StringIO()
+            self.writeLogPage(logpageIO)
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
-        logpageIO.close()
+            logpageIO.close()
 
         if self.hasConfig('chapter_start'):
             CHAPTER_START = string.Template(self.getConfig("chapter_start"))
