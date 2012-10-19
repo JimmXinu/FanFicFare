@@ -181,21 +181,22 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
             value = td.nextSibling.string
             #print("\nlabel:%s\nvalue:%s\n"%(label,value))
 
-            if 'Category' in label:
+            if 'Category' in label and value:
                 cats = td.parent.findAll('a',href=re.compile(r'categories.php'))
                 catstext = [cat.string for cat in cats]
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
-            if 'Characters' in label:
+            if 'Characters' in label and value: # this site can have Character label with no
+                                                # values, apparently.  Others as a precaution.
                 for char in value.split(','):
                     self.story.addToList('characters',char.strip())
 
-            if 'Genre' in label:
+            if 'Genre' in label and value:
                 for genre in value.split(','):
                     self.story.addToList('genre',genre.strip())
 
-            if 'Warnings' in label:
+            if 'Warnings' in label and value:
                 for warning in value.split(','):
                     if warning.strip() != 'none':
                         self.story.addToList('warnings',warning.strip())
