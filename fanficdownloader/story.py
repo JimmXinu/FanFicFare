@@ -253,24 +253,35 @@ class Story(Configurable):
     ## Three part effect only those key(s) lists.
     ## pattern=>replacement
     ## metakey,metakey=>pattern=>replacement
+    ## *Five* part lines.  Effect only when trailing conditional key=>regexp matches
+    ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
     def setReplace(self,replace):
         for line in replace.splitlines():
+            if "&&" in line:
+                (line,conditional) = map( lambda x: x.strip(), line.split("&&") )
+                condparts = map( lambda x: x.strip(), conditional.split("=>") )
+            else:
+                condparts=[None,None]
             if "=>" in line:
                 parts = map( lambda x: x.strip(), line.split("=>") )
                 if len(parts) > 2:
                     parts[0] = map( lambda x: x.strip(), parts[0].split(",") )
-                    self.replacements.append(parts)
+                    self.replacements.append(parts+condparts)
                 else:
-                    self.replacements.append([None]+parts)
+                    self.replacements.append([None]+parts+condparts)
     
     def doReplacments(self,value,key):
-        for (keys,p,v) in self.replacements:
+        for (keys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (keys == None or key in keys) \
                     and isinstance(value,basestring) \
-                    and re.search(p,value):
-                #pv=value
-                value = re.sub(p,v,value)
-                #print("change:%s => %s === %s => %s "%(p,v,pv,value))
+                    and re.search(regexp,value):
+                doreplace=True
+                if condkey:
+                    condval = self.getMetadata(condkey)
+                    doreplace = condval != None and re.search(condregexp,condval)
+                    
+                if doreplace:
+                    value = re.sub(regexp,replacement,value)
         return value
         
     def getMetadataRaw(self,key):
