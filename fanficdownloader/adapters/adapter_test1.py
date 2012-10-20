@@ -129,7 +129,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','Comedy')
-        self.story.addToList('genre','SF')
+        self.story.addToList('genre','Sci-Fi')
         self.story.addToList('genre','Noir')
         
         self.story.addToList('characters','Bob Smith')
