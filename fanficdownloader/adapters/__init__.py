@@ -20,6 +20,8 @@ from os.path import dirname, basename, normpath
 import logging
 import urlparse as up
 
+logger = logging.getLogger(__name__)
+
 from .. import exceptions as exceptions
 
 ## must import each adapter here.
@@ -103,6 +105,7 @@ import adapter_bloodtiesfancom
 import adapter_indeathnet
 import adapter_dwiggiecom
 import adapter_jlaunlimitedcom
+import adapter_qafficcom
 
 
 ## This bit of complexity allows adapters to be added by just adding
@@ -124,9 +127,9 @@ for x in imports():
 
 def getAdapter(config,url):
 
-    logging.debug("trying url:"+url)
+    logger.debug("trying url:"+url)
     (cls,fixedurl) = getClassFor(url)
-    logging.debug("fixedurl:"+fixedurl)
+    logger.debug("fixedurl:"+fixedurl)
     if cls:
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
         return adapter
@@ -164,11 +167,11 @@ def getClassFor(url):
     cls = getClassFromList(domain)
     if not cls and domain.startswith("www."):
         domain = domain.replace("www.","")
-        logging.debug("trying site:without www: "+domain)
+        logger.debug("trying site:without www: "+domain)
         cls = getClassFromList(domain)
         fixedurl = fixedurl.replace("http://www.","http://")
     if not cls:
-        logging.debug("trying site:www."+domain)
+        logger.debug("trying site:www."+domain)
         cls = getClassFromList("www."+domain)
         fixedurl = fixedurl.replace("http://","http://www.")
         

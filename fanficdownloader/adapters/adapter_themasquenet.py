@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -47,20 +48,20 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         if self.parsedUrl.path.split('/',)[1] == 'wiktt':
             self.story.addToList("category","Harry Potter")
-            self.story.setMetadata('section','/wiktt/efiction/')
+            self.section='/wiktt/efiction/'
             self.dateformat = "%m/%d/%Y"
         else:
             self.story.addToList("category","Originals")
-            self.story.setMetadata('section','/efiction/')
+            self.section='/efiction/'
             self.dateformat = "%b %d, %Y"
             
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + self.story.getMetadata('section') + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + self.section + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','msq')
@@ -98,14 +99,14 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain()  + self.story.getMetadata('section') + 'user.php?action=login'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        loginUrl = 'http://' + self.getSiteDomain()  + self.section + 'user.php?action=login'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
         d = self._fetchUrl(loginUrl, params)
     
         if "Member Account" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -127,7 +128,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -152,7 +153,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
                 # correct stupid &amp; error in url.
                 addurl = addurl.replace("&amp;","&")
                 url = self.url+'&index=1'+addurl
-                logging.debug("URL 2nd try: "+url)
+                logger.debug("URL 2nd try: "+url)
 
                 try:
                     data = self._fetchUrl(url)
@@ -186,7 +187,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host + self.story.getMetadata('section') + chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host + self.section + chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -258,7 +259,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

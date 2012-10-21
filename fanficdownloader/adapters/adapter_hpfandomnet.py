@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -51,7 +52,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         # XXX Most sites don't have the /eff part.  Replace all to remove it usually.
@@ -79,7 +80,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -180,21 +181,22 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
             value = td.nextSibling.string
             #print("\nlabel:%s\nvalue:%s\n"%(label,value))
 
-            if 'Category' in label:
+            if 'Category' in label and value:
                 cats = td.parent.findAll('a',href=re.compile(r'categories.php'))
                 catstext = [cat.string for cat in cats]
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
-            if 'Characters' in label:
+            if 'Characters' in label and value: # this site can have Character label with no
+                                                # values, apparently.  Others as a precaution.
                 for char in value.split(','):
                     self.story.addToList('characters',char.strip())
 
-            if 'Genre' in label:
+            if 'Genre' in label and value:
                 for genre in value.split(','):
                     self.story.addToList('genre',genre.strip())
 
-            if 'Warnings' in label:
+            if 'Warnings' in label and value:
                 for warning in value.split(','):
                     if warning.strip() != 'none':
                         self.story.addToList('warnings',warning.strip())
@@ -208,7 +210,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
         # There's no good wrapper around the chapter text. :-/

@@ -29,6 +29,8 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 from base_writer import *
 from ..htmlcleanup import stripHTML
 
+logger = logging.getLogger(__name__)
+
 class EpubWriter(BaseStoryWriter):
 
     @staticmethod
@@ -151,8 +153,16 @@ ${value}<br />
 <h3>Update Log</h3>
 ''')
 
+        self.EPUB_LOG_UPDATE_START = string.Template('''
+<p class='log_entry'>
+''')
+                          
         self.EPUB_LOG_ENTRY = string.Template('''
 <b>${label}:</b> <span id="${id}">${value}</span>
+''')
+                          
+        self.EPUB_LOG_UPDATE_END = string.Template('''
+</p><hr />
 ''')
                           
         self.EPUB_LOG_PAGE_END = string.Template('''
@@ -160,30 +170,50 @@ ${value}<br />
 </html>
 ''')
 
+        self.EPUB_LOG_PAGE_END = string.Template('''
+</body>
+</html>
+''')
+
+        self.EPUB_COVER = string.Template('''
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Cover</title><style type="text/css" title="override_css">
+@page {padding: 0pt; margin:0pt}
+body { text-align: center; padding:0pt; margin: 0pt; }
+div { margin: 0pt; padding: 0pt; }
+</style></head><body><div>
+<img src="${coverimg}" alt="cover"/>
+</div></body></html>
+''')
+        
     def writeLogPage(self, out):
         """
-       XXX 
-
-        
         Write the log page, but only include entries that there's
-        metadata for.  START, ENTRY and END are expected to already by
+        metadata for.  START, ENTRY and END are expected to already be
         string.Template().  START and END are expected to use the same
         names as Story.metadata, but ENTRY should use id, label and value.
         """
-        if self.getConfig("include_logpage"):
+        if self.hasConfig("logpage_start"):
+            START = string.Template(self.getConfig("logpage_start"))
+        else:
+            START = self.EPUB_LOG_PAGE_START
 
-            # if there's a self.story.logfile, there's an existing log
-            # to add to.
-            if self.story.logfile:
-                print("existing logfile found, appending")
-                print("existing data:%s"%self._getLastLogData(self.story.logfile))
-                replace_string = "</body>" # "</h3>"
-                self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
-            else:
-                # otherwise, write a new one.
-                self._write(out,self.EPUB_LOG_PAGE_START.substitute(self.story.getAllMetadata()))
-                self._write(out,self._makeLogEntry())
-                self._write(out,self.EPUB_LOG_PAGE_END.substitute(self.story.getAllMetadata()))
+        if self.hasConfig("logpage_end"):
+            END = string.Template(self.getConfig("logpage_end"))
+        else:
+            END = self.EPUB_LOG_PAGE_END
+        
+        # if there's a self.story.logfile, there's an existing log
+        # to add to.
+        if self.story.logfile:
+            logger.debug("existing logfile found, appending")
+            logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
+            replace_string = "</body>" # "</h3>"
+            self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
+        else:
+            # otherwise, write a new one.
+            self._write(out,START.substitute(self.story.getAllMetadata()))
+            self._write(out,self._makeLogEntry())
+            self._write(out,END.substitute(self.story.getAllMetadata()))
 
     # self parsing instead of Soup because it should be simple and not
     # worth the overhead.
@@ -206,7 +236,22 @@ ${value}<br />
         return values
         
     def _makeLogEntry(self, oldvalues={}):
-        retval = "<p class='log_entry'>"
+        if self.hasConfig("logpage_update_start"):
+            START = string.Template(self.getConfig("logpage_update_start"))
+        else:
+            START = self.EPUB_LOG_UPDATE_START
+
+        if self.hasConfig("logpage_entry"):
+            ENTRY = string.Template(self.getConfig("logpage_entry"))
+        else:
+            ENTRY = self.EPUB_LOG_ENTRY
+
+        if self.hasConfig("logpage_update_end"):
+            END = string.Template(self.getConfig("logpage_update_end"))
+        else:
+            END = self.EPUB_LOG_UPDATE_END
+
+        retval = START.substitute(self.story.getAllMetadata())
 
         for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
             if self.isValidMetaEntry(entry):
@@ -215,22 +260,22 @@ ${value}<br />
                     if self.hasConfig(entry+"_label"):
                         label=self.getConfig(entry+"_label")
                     elif entry in self.titleLabels:
-                        logging.debug("Using fallback label for %s_label"%entry)
+                        logger.debug("Using fallback label for %s_label"%entry)
                         label=self.titleLabels[entry]
                     else:
                         label="%s"%entry.title()
-                        logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
+                        logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
-                    retval = retval + self.EPUB_LOG_ENTRY.substitute({'id':entry,
-                                                                      'label':label,
-                                                                      'value':val})
+                    retval = retval + ENTRY.substitute({'id':entry,
+                                                        'label':label,
+                                                        'value':val})
             else:
                 # could be useful for introducing extra text, but
                 # mostly it makes it easy to tell when you get the
                 # keyword wrong.
                 retval = retval + entry
                 
-        retval = retval + "</p><hr />"
+        retval = retval + END.substitute(self.story.getAllMetadata())
         
         if self.getConfig('replace_hr'):
             retval = retval.replace("<hr />","<div class='center'>* * *</div>")
@@ -368,9 +413,9 @@ ${value}<br />
         guide = None
         coverIO = None
                 
-        imgid = "image0000"
+        coverimgid = "image0000"
         if not self.story.cover and self.story.oldcover:
-            print("writer_epub: no new cover, has old cover, write image.")
+            logger.debug("writer_epub: no new cover, has old cover, write image.")
             (oldcoverhtmlhref,
              oldcoverhtmltype,
              oldcoverhtmldata,
@@ -380,8 +425,8 @@ ${value}<br />
             outputepub.writestr(oldcoverhtmlhref,oldcoverhtmldata)
             outputepub.writestr(oldcoverimghref,oldcoverimgdata)
             
-            imgid = "image0"
-            items.append((imgid,
+            coverimgid = "image0"
+            items.append((coverimgid,
                           oldcoverimghref,
                           oldcoverimgtype,
                           None))
@@ -406,6 +451,10 @@ ${value}<br />
                               imgmap['mime'],
                               None))
                 imgcount+=1
+                if 'cover' in imgfile:
+                    # make sure coverimgid is set to the cover, not
+                    # just the first image.
+                    coverimgid = items[-1][0]
 
         
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
@@ -417,7 +466,7 @@ ${value}<br />
             itemrefs.append("cover")
             # 
             # <meta name="cover" content="cover.jpg"/>
-            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0000",
+            metadata.appendChild(newTag(contentdom,"meta",{"content":coverimgid,
                                                            "name":"cover"}))
             # cover stuff for later:
             # at end of <package>:
@@ -429,16 +478,12 @@ ${value}<br />
                                                        "title":"Cover",
                                                        "href":"OEBPS/cover.xhtml"}))
             
+            if self.hasConfig("cover_content"):
+                COVER = string.Template(self.getConfig("cover_content"))
+            else:
+                COVER = self.EPUB_COVER
             coverIO = StringIO.StringIO()
-            coverIO.write('''
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Cover</title><style type="text/css" title="override_css">
-@page {padding: 0pt; margin:0pt}
-body { text-align: center; padding:0pt; margin: 0pt; }
-div { margin: 0pt; padding: 0pt; }
-</style></head><body><div>
-<img src="%s" alt="cover"/>
-</div></body></html>
-'''%self.story.cover)
+            coverIO.write(COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
             
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
@@ -447,11 +492,15 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
 
-        if self.getConfig("include_logpage"):
+        dologpage = ( self.getConfig("include_logpage") == "smart" and \
+                          (self.story.logfile or self.story.getMetadataRaw("status") == "In-Progress") )  \
+                     or self.getConfig("include_logpage") == "true"
+
+        if dologpage:
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
             if html:
                 i=index+1
                 items.append(("file%04d"%i,
@@ -483,8 +532,8 @@ div { margin: 0pt; padding: 0pt; }
         contentxml = contentdom.toxml(encoding='utf-8')
         
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%imgid,
-                                        '<meta name="cover" content="%s"/>'%imgid)
+        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
+                                        '<meta name="cover" content="%s"/>'%coverimgid)
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()
@@ -582,17 +631,28 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
 
-        # write log page.
-        logpageIO = StringIO.StringIO()
-        self.writeLogPage(logpageIO)
-        if logpageIO.getvalue(): # will be false if no log page.
+        if dologpage:
+            # write log page.
+            logpageIO = StringIO.StringIO()
+            self.writeLogPage(logpageIO)
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
-        logpageIO.close()
+            logpageIO.close()
+
+        if self.hasConfig('chapter_start'):
+            CHAPTER_START = string.Template(self.getConfig("chapter_start"))
+        else:
+            CHAPTER_START = self.EPUB_CHAPTER_START
+        
+        if self.hasConfig('chapter_end'):
+            CHAPTER_END = string.Template(self.getConfig("chapter_end"))
+        else:
+            CHAPTER_END = self.EPUB_CHAPTER_END
         
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
-                logging.debug('Writing chapter text for: %s' % title)
-                fullhtml = self.EPUB_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.EPUB_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
+                logger.debug('Writing chapter text for: %s' % title)
+                vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+                fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big

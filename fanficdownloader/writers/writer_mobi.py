@@ -92,27 +92,6 @@ ${value}<br />
 </html>
 ''')
 
-        self.MOBI_TOC_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>${title} by ${author}</title>
-</head>
-<body>
-<div>
-<h3>Table of Contents</h3>
-''')
-
-        self.MOBI_TOC_ENTRY = string.Template('''
-<a href="file${index}.xhtml">${chapter}</a><br />
-''')
-                          
-        self.MOBI_TOC_PAGE_END = string.Template('''
-</div>
-</body>
-</html>
-''')
-
         self.MOBI_CHAPTER_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -169,10 +148,21 @@ ${value}<br />
         #     files.append(tocpageIO.getvalue())
         # tocpageIO.close()
 
+        if self.hasConfig('chapter_start'):
+            CHAPTER_START = string.Template(self.getConfig("chapter_start"))
+        else:
+            CHAPTER_START = self.MOBI_CHAPTER_START
+        
+        if self.hasConfig('chapter_end'):
+            CHAPTER_END = string.Template(self.getConfig("chapter_end"))
+        else:
+            CHAPTER_END = self.MOBI_CHAPTER_END
+        
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
                 logging.debug('Writing chapter text for: %s' % title)
-                fullhtml = self.MOBI_CHAPTER_START.substitute({'chapter':title, 'index':index+1}) + html + self.MOBI_CHAPTER_END.substitute({'chapter':title, 'index':index+1})
+                vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+                fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big

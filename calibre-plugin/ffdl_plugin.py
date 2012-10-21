@@ -496,7 +496,10 @@ make_firstimage_cover:true
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
         book['tags'] = story.getSubjectTags(removeallentities=True)
-        book['comments'] = sanitize_comments_html(story.getMetadata("description"))        
+        if story.getMetadata("description"):
+            book['comments'] = sanitize_comments_html(story.getMetadata("description"))
+        else:
+            book['comments']=''
         book['series'] = story.getMetadata("series", removeallentities=True)
         
         # adapter.opener is the element with a threadlock.  But del
@@ -538,7 +541,7 @@ make_firstimage_cover:true
             print("from URL(%s)"%url)
 
             # try to find by identifier url first.
-            searchstr = 'identifiers:"=url:%s"'%url.replace(":","|")
+            searchstr = 'identifiers:"=url:=%s"'%url.replace(":","|")
             identicalbooks = db.search_getting_ids(searchstr, None)
             if len(identicalbooks) < 1:
                 # find dups
@@ -634,9 +637,12 @@ make_firstimage_cover:true
             
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
-            tmp = PersistentTemporaryFile(prefix='new-%s-'%book['calibre_id'],
-                                               suffix='.'+options['fileform'],
-                                               dir=options['tdir'])
+            # For HTML format users, make the filename inside the zip something reasonable.
+            # For crazy long titles/authors, limit it to 200chars.
+            # For weird/OS-unsafe characters, use file safe only.
+            tmp = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
+                                          suffix='.'+options['fileform'],
+                                          dir=options['tdir'])
             print("title:"+book['title'])
             print("outfile:"+tmp.name)
             book['outfile'] = tmp.name            

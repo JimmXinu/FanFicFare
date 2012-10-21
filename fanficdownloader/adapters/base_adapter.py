@@ -27,6 +27,8 @@ from functools import partial
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 
+logger = logging.getLogger(__name__)
+
 try:
     from google.appengine.api import apiproxy_stub_map
     def urlfetch_timeout_hook(service, call, request, response):
@@ -38,10 +40,10 @@ try:
 
     apiproxy_stub_map.apiproxy.GetPreCallHooks().Append(
         'urlfetch_timeout_hook', urlfetch_timeout_hook, 'urlfetch')
-    logging.info("Hook to make default deadline 10.0 installed.")
+    logger.info("Hook to make default deadline 10.0 installed.")
 except:
     pass
-    #logging.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
+    #logger.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
 
 from ..story import Story
 from ..gziphttp import GZipProcessor
@@ -125,7 +127,7 @@ class BaseSiteAdapter(Configurable):
                 #print code
                 if code == "auto":
                     if not chardet:
-                        logging.info("chardet not available, skipping 'auto' encoding")
+                        logger.info("chardet not available, skipping 'auto' encoding")
                         continue
                     detected = chardet.detect(data)
                     #print detected
@@ -133,12 +135,11 @@ class BaseSiteAdapter(Configurable):
                         code=detected['encoding']
                     else:
                         continue
-                logging.debug("try code:"+code)
                 return data.decode(code)
             except:
-                logging.debug("code failed:"+code)
+                logger.debug("code failed:"+code)
                 pass
-        logging.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
+        logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
@@ -175,10 +176,10 @@ class BaseSiteAdapter(Configurable):
                 return self._decode(self._fetchUrlRaw(url,parameters))
             except Exception, e:
                 excpt=e
-                logging.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
+                logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
                 
-        logging.error("Giving up on %s" %url)
-        logging.exception(excpt)
+        logger.error("Giving up on %s" %url)
+        logger.exception(excpt)
         raise(excpt)
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
@@ -304,7 +305,7 @@ class BaseSiteAdapter(Configurable):
         if not fetch:
             fetch=self._fetchUrlRaw
 
-        acceptable_attributes = ['href','name']
+        acceptable_attributes = ['href','name','class','id']
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
@@ -356,7 +357,6 @@ class BaseSiteAdapter(Configurable):
 
 def cachedfetch(realfetch,cache,url):
     if url in cache:
-        print("cache hit")
         return cache[url]
     else:
         return realfetch(url)

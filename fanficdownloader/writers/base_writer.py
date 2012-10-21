@@ -18,6 +18,7 @@
 import re
 import os.path
 import datetime
+import string
 import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -25,6 +26,8 @@ import logging
 
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
+
+logger = logging.getLogger(__name__)
 
 class BaseStoryWriter(Configurable):
 
@@ -101,6 +104,22 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use label and value.
         """
         if self.getConfig("include_titlepage"):
+
+            if self.hasConfig("titlepage_start"):
+                START = string.Template(self.getConfig("titlepage_start"))
+
+            if self.hasConfig("titlepage_entry"):
+                ENTRY = string.Template(self.getConfig("titlepage_entry"))
+
+            if self.hasConfig("titlepage_end"):
+                END = string.Template(self.getConfig("titlepage_end"))
+
+            if self.hasConfig("titlepage_wide_entry"):
+                WIDE_ENTRY = string.Template(self.getConfig("titlepage_wide_entry"))
+
+            if self.hasConfig("titlepage_no_title_entry"):
+                NO_TITLE_ENTRY = string.Template(self.getConfig("titlepage_no_title_entry"))
+            
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
             if WIDE_ENTRY==None:
@@ -120,11 +139,11 @@ class BaseStoryWriter(Configurable):
                         if self.hasConfig(entry+"_label"):
                             label=self.getConfig(entry+"_label")
                         elif entry in self.titleLabels:
-                            logging.debug("Using fallback label for %s_label"%entry)
+                            logger.debug("Using fallback label for %s_label"%entry)
                             label=self.titleLabels[entry]
                         else:
                             label="%s"%entry.title()
-                            logging.debug("No known label for %s, fallback to '%s'"%(entry,label))
+                            logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                         # If the label for the title entry is empty, use the
                         # 'no title' option if there is one.
@@ -132,6 +151,7 @@ class BaseStoryWriter(Configurable):
                            TEMPLATE= NO_TITLE_ENTRY
                            
                         self._write(out,TEMPLATE.substitute({'label':label,
+                                                             'id':entry,
                                                              'value':self.story.getMetadata(entry)}))
                 else:
                     self._write(out, entry)
@@ -146,11 +166,22 @@ class BaseStoryWriter(Configurable):
         """
         # Only do TOC if there's more than one chapter and it's configured.
         if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+            if self.hasConfig("tocpage_start"):
+                START = string.Template(self.getConfig("tocpage_start"))
+
+            if self.hasConfig("tocpage_entry"):
+                ENTRY = string.Template(self.getConfig("tocpage_entry"))
+
+            if self.hasConfig("tocpage_end"):
+                END = string.Template(self.getConfig("tocpage_end"))
+            
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
-            for index, (title,html) in enumerate(self.story.getChapters()):
+            for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
                 if html:
-                    self._write(out,ENTRY.substitute({'chapter':title, 'index':"%04d"%(index+1)}))
+                    self._write(out,ENTRY.substitute({'chapter':title,
+                                                      'number':index+1,
+                                                      'index':"%04d"%(index+1)}))
 
             self._write(out,END.substitute(self.story.getAllMetadata()))
 
@@ -160,6 +191,8 @@ class BaseStoryWriter(Configurable):
         self.metaonly = metaonly
         if outfilename == None:
             outfilename=self.getOutputFileName()
+
+        self.outfilename = outfilename
 
         # minor cheat, tucking css into metadata.
         if self.getConfig("output_css"):
@@ -171,11 +204,11 @@ class BaseStoryWriter(Configurable):
             
         if not outstream:
             close=True
-            logging.info("Save directly to file: %s" % outfilename)
+            logger.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
-                dirs = os.path.dirname(outfilename).split('/')
-                for dir in dirs:
+                outputdirs = os.path.dirname(outfilename).split('/')
+                for dir in outputdirs:
                     path+=dir+"/"
                     if not os.path.exists(path):
                         os.mkdir(path) ## os.makedirs() doesn't work in 2.5.2?
@@ -198,7 +231,7 @@ class BaseStoryWriter(Configurable):
             outstream = open(outfilename,"wb")
         else:
             close=False
-            logging.debug("Save to stream")
+            logger.debug("Save to stream")
 
         if not metaonly:
             self.story = self.adapter.getStory() # get full story now,
@@ -209,19 +242,40 @@ class BaseStoryWriter(Configurable):
                                                  # fetch once.
         if self.getConfig('zip_output'):
             out = StringIO.StringIO()
+            self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
-            zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
-            zipout.writestr(self.getBaseFileName(),out.getvalue())
+            self.zipout.writestr(self.getBaseFileName(),out.getvalue())
             # declares all the files created by Windows.  otherwise, when
             # it runs in appengine, windows unzips the files as 000 perms.
-            for zf in zipout.filelist:
+            for zf in self.zipout.filelist:
                 zf.create_system = 0
-            zipout.close()
+            self.zipout.close()
             out.close()
         else:
             self.writeStoryImpl(outstream)
 
         if close:
+            outstream.close()
+
+    def writeFile(self, filename, data):
+        logger.debug("writeFile:%s"%filename)
+        
+        if self.getConfig('zip_output'):
+            outputdirs = os.path.dirname(self.getBaseFileName())
+            if outputdirs:
+                filename=outputdirs+'/'+filename
+            self.zipout.writestr(filename,data)
+        else:
+            outputdirs = os.path.dirname(self.outfilename)
+            if outputdirs:
+                filename=outputdirs+'/'+filename
+
+            dir = os.path.dirname(filename)
+            if not os.path.exists(dir):
+                os.mkdir(dir) ## os.makedirs() doesn't work in 2.5.2?
+                    
+            outstream = open(filename,"wb")
+            outstream.write(data)
             outstream.close()
 
     def writeStoryImpl(self, out):
