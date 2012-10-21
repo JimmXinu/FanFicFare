@@ -104,6 +104,7 @@ import adapter_indeathnet
 import adapter_dwiggiecom
 import adapter_jlaunlimitedcom
 
+
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
 ## to pick out the adapter.

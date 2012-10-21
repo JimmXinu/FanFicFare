@@ -69,41 +69,41 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/eFiction1.1/viewstory.php?sid=")+r"\d+$"
 
-    ## Login seems to be reasonably standard across eFiction sites. This story is in The Bedchamber
-    def needToLoginCheck(self, data):
-        if 'This story is in The Bedchamber' in data \
-                or 'That username is not in our database' in data \
-                or "That password is not correct, please try again" in data:
-            return True
-        else:
-            return False
-
-    def performLogin(self, url):
-        params = {}
-
-        if self.password:
-            params['name'] = self.username
-            params['pass'] = self.password
-        else:
-            params['name'] = self.getConfig("username")
-            params['pass'] = self.getConfig("password")
-        params['login'] = 'yes'
-        params['submit'] = 'login'
-
-        loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
-        d = self._fetchUrl(loginUrl,params)
-        e = self._fetchUrl(url)
-
-        if "Welcome back," not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['name']))
-            raise exceptions.FailedToLogin(url,params['name'])
-            return False
-        elif "This story is in The Bedchamber" in e:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Your account does not have sufficient priviliges to read this story.")
-            return False
-        else:
-            return True
+#    ## Login seems to be reasonably standard across eFiction sites. This story is in The Bedchamber
+#    def needToLoginCheck(self, data):
+#        if 'This story is in The Bedchamber' in data \
+#                or 'That username is not in our database' in data \
+#                or "That password is not correct, please try again" in data:
+#            return True
+#        else:
+#            return False
+#
+#    def performLogin(self, url):
+#        params = {}
+#
+#        if self.password:
+#            params['name'] = self.username
+#            params['pass'] = self.password
+#        else:
+#            params['name'] = self.getConfig("username")
+#            params['pass'] = self.getConfig("password")
+#        params['login'] = 'yes'
+#        params['submit'] = 'login'
+#
+#        loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
+#        d = self._fetchUrl(loginUrl,params)
+#        e = self._fetchUrl(url)
+#
+#        if "Welcome back," not in d : #Member Account
+#            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+#                                                              params['name']))
+#            raise exceptions.FailedToLogin(url,params['name'])
+#            return False
+#        elif "This story is in The Bedchamber" in e:
+#            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Your account does not have sufficient priviliges to read this story.")
+#            return False
+#        else:
+#            return True
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -131,19 +131,19 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
+#        if self.needToLoginCheck(data):
+#            # need to log in for this one.
+#            self.performLogin(url)
+#            data = self._fetchUrl(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "Age Consent Required" in data: # XXX 
+        if "I am 18 or older" in data: # XXX 
             raise exceptions.AdultCheckRequired(self.url)
             
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Not suitable for readers under 17 years of age" in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Not suitable for readers under 17 years of age")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -216,7 +216,7 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
                 genrestext = [genre.string for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:

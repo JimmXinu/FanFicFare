@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team
+# Copyright 2012 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,10 +45,6 @@ class InDeathNetAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
         
-#        # get storyId from url--url validation guarantees query is only sid=1234
-#        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-#        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-		
 		
 		  # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
@@ -74,24 +70,14 @@ class InDeathNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'indeath.net'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['www.indeath.net','indeath.net']
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/blog/archive/123-story-in-death/"
 
     def getSiteURLPattern(self):
         # http://www.indeath.net/blog/archive/169-ransom-in-death/
-        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"/blog/(archive/)?(?P<id>\d+)\-(?P<name>[a-z0-9\-]*)/?$"     
+        return re.escape("http://")+re.escape(self.getSiteDomain())+r"/blog/(archive/)?(?P<id>\d+)\-(?P<name>[a-z0-9\-]*)/?$"     
         
-    ## Login
-    def needToLoginCheck(self, data):
-        if 'This work is only available to registered users of the Archive.' in data \
-                or "The password or user name you entered doesn't match our records" in data:
-            return True
-        else:
-            return False
             
     def getDateFromComponents(self, postmonth, postday):
         ym = re.search(re.compile(r"Entries\ in\ (?P<mon>January|February|March|April|May|June|July|August|September|October|November|December)\ (?P<year>\d{4})"),postmonth)
@@ -105,10 +91,6 @@ class InDeathNetAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-#            meta = self._fetchUrl(metaurl)
-
-#            if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
-#                raise exceptions.AdultCheckRequired(self.url)
             
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -116,11 +98,6 @@ class InDeathNetAdapter(BaseSiteAdapter):
             else:
                 raise e
                 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url,data)
-            data = self._fetchUrl(url)
-            meta = self._fetchUrl(metaurl)
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -135,7 +112,6 @@ class InDeathNetAdapter(BaseSiteAdapter):
         s = t.find('div')        
         if s != None:
             self.setDescription(url,s)
-            #self.story.setMetadata('description',s.text)
 		
         # Find authorid and URL from first link in Recent Entries (don't yet reference 'recent entries' - let's see if that is required)
         a = soup.find('a', href=re.compile(r"http://www.indeath.net/user/\d+\-[a-z0-9]+/$"))		#http://www.indeath.net/user/9083-cyrex/
@@ -193,11 +169,9 @@ class InDeathNetAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr','span','center'))
 
-        if None == soup:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            
-		#print data
-        #chapter = soup.find('div', {'class' : "entry_content"})
         chapter = soup.find("div", "entry_content")
+        
+        if None == chapter:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,chapter)

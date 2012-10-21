@@ -44,6 +44,10 @@ class DwiggieComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
+        self.sectionUrl = ""
+        self.section = []
+        self.chapters = []
+
         
 #        # get storyId from url--url validation guarantees query is only sid=1234
 #        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
@@ -83,7 +87,7 @@ class DwiggieComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # http://www.dwiggie.com/derby/mari17b.htm
-        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"/derby/(?P<id>[a-z]+\d+)(?P<part>[a-z]*)\.htm$"     
+        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"/derby/(?P<id>(old_2005\/)?[a-z]+\d+)(?P<part>[a-z]*)\.htm$"     
         
     def tryArchivePage(self, url):
     	
@@ -145,17 +149,31 @@ class DwiggieComAdapter(BaseSiteAdapter):
     def getChaptersFromPage(self, url):
         data = self._fetchUrl(url)
         
+        s = self.story.getMetadata('storyId').split('/')
+        s.reverse()
+        storyId_trimmed = s[0]
+                
         m = re.match('.*?<body[^>]*>(\s*<ul>)?(?P<content>.*?)</body>', data, re.DOTALL)
         newdata = m.group('content')
-        regex=re.compile(r'<a\ href="'+self.story.getMetadata('storyId')+'[a-z]?.htm\">Continued\ In\ Next\ Section</a>')
+        regex=re.compile(r'<a\ href\=\"'+storyId_trimmed+'[a-z]?.htm\">(Continued\ [Ii]n\ )?(the\ )?[Nn]ext\ [Ss]ection</a>')
         newdata = re.sub(regex, '', newdata)
+
         
-        pagesections = filter(lambda x:x!=None, re.split('(?m)<hr( \/)?>|<p>\s*<hr( \/)?>\s*<\/p>', newdata, re.MULTILINE))
-        pagesections = filter(lambda x:x.strip()!='/', pagesections)        
+        
+        #pagesections = filter(lambda x:x!=None, re.split('(?m)<hr( \/)?>|<p>\s*<hr( \/)?>\s*<\/p>', newdata, re.MULTILINE))
+        #pagesections = filter(lambda x:x!=None, re.split('(?m)(<p>\s*)*<hr( \/)?>(\s*<\/p>)?', newdata, re.MULTILINE))
+        pagesections = filter(lambda x:x!=None, re.split('<hr( \/)?>', newdata))                        
+        pagesections = filter(lambda x:x.strip()!='/', pagesections)  
+        #regex = re.compile(r'(href\="'+storyId_trimmed+'[a-z]?.htm$"')
+        #pagesections = filter(lambda x:re.search(re.compile(storyId_trimmed+"[a-z]?.htm$"),x)==None, pagesections)      
         pagesections.pop(0)     # always remove header
         
-        regex = re.compile(r'(href\="'+self.story.getMetadata('storyId')+'[a-z]?.htm\"|Copyright\ held\ by\ the\ author)')
+        
+        regex = re.compile(r'(?m)(href\="'+storyId_trimmed+'[a-z]?.htm\"|Copyright\ held\ by\ the\ author|<p>\s*(Section\ I|Beginning),\s*</?p>)', re.MULTILINE)
+        s = filter(lambda x:regex.search(x), pagesections)
+        #print s
         pagesections = filter(lambda x: not regex.search(x), pagesections)
+        #print pagesections[0]
         return pagesections  
 		
 
@@ -164,7 +182,7 @@ class DwiggieComAdapter(BaseSiteAdapter):
 
     	url = self.url
     	meta = self.getItemFromArchivePage()
-    	print meta
+    	#print meta
        
         # Title
         t = meta.a
@@ -180,6 +198,8 @@ class DwiggieComAdapter(BaseSiteAdapter):
         else:
             author=meta.i
             self.story.setMetadata('author',author.string.replace('Written by','').strip())
+            self.story.setMetadata('authorId','unknown')
+            self.story.setMetadata('authorUrl','unknown')
            
 
         # DateUpdated
@@ -210,14 +230,15 @@ class DwiggieComAdapter(BaseSiteAdapter):
         soup=bs.BeautifulSoup("<p></p>")
         d=soup.p
         for x in s:
-            d.append(x)       
+            d.append(x)
+        #print d       
 
         # extract category from summary text
         desc=stripHTML(d)
         books = re.compile(r'(?P<book>\~P&P;?\~|\~Em;?\~|\~MP;?\~|\~S\&S;?\~|\~Per;?\~|\~NA;?\~|\~Juv;?\~|\~Misc;?\~)')
         m=re.search(books,desc)
-        book=m.group('book')
-        self.story.addToList('category',book.replace(';',''))
+        book=m.group('book').replace(';','')
+        self.story.addToList('category',book)
         
         # assign summary info
         if desc != None:
@@ -235,6 +256,9 @@ class DwiggieComAdapter(BaseSiteAdapter):
         # get the section letter from the last page
         m = re.match("/derby/"+self.story.getMetadata('storyId')+"(?P<section>[a-z]?).htm$",t['href'])
         inc = m.group('section')
+        if inc == '':
+            inc = 'a'
+
                 
         # get the presumed list of section urls with 'lower' section letters
         sections = []
@@ -260,8 +284,16 @@ class DwiggieComAdapter(BaseSiteAdapter):
             i=0
             for chapter in self.getChaptersFromPage(section):
                 c+=1 
+                chaptersoup = bs.BeautifulSoup(chapter)
                 #self.chapterUrls.append(('Chapter '+str(c),section+'#'+str(i)))
-                self.chapterUrls.append(('Chapter '+str(c),section+'#'+str(i)))
+                cUrl = section+'#'+str(i)
+                t = chaptersoup.find('font',size="+1",color="#336666")
+                ctitle = ''
+                if t!=None:
+                    ctitle=stripHTML(t)
+                #self.chapterUrls.append(('Chapter '+str(c),cUrl))
+                self.chapterUrls.append((ctitle,cUrl))
+                self.chapters.append((cUrl,chaptersoup))
                 if postdate==None:
                     regex=re.compile(r'Posted\ on\ (?P<date>\d{4}\-\d{2}\-\d{2})')
                     m=re.search(regex,chapter)
@@ -279,9 +311,21 @@ class DwiggieComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
         
+   
+        for c in self.chapters:
+            if c[0] == url:
+                chapter = c[1]
+                #chapter = bs.BeautifulSoup(c[1])       
         
-        page_url = url.split('#')[0]
-        x = url.split('#')[1]
-        chapter = bs.BeautifulSoup(self.getChaptersFromPage(page_url)[int(x)])
+        #chapter = find(lambda c: c[0] == url, self.chapters)[1]
+#        page_url = url.split('#')[0]
+#        x = url.split('#')[1]        
+#        if self.sectionUrl != page_url:
+#            self.sectionUrl = page_url
+#            self.section = self.getChaptersFromPage(page_url)
+#        
+#        chapter = bs.BeautifulSoup(self.section[int(x)])
+
+        #chapter = bs.BeautifulSoup(self.getChaptersFromPage(page_url)[int(x)])
 
         return self.utf8FromSoup(url,chapter)
