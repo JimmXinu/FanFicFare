@@ -1,0 +1,200 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2011 Fanficdownloader team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+import time
+import logging
+import re
+import urllib
+import urllib2
+
+from .. import BeautifulSoup as bs
+from ..htmlcleanup import stripHTML
+from .. import exceptions as exceptions
+
+from base_adapter import BaseSiteAdapter,  makeDate
+
+class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
+
+    def __init__(self, config, url):
+        BaseSiteAdapter.__init__(self, config, url)
+        self.story.setMetadata('siteabbrev','hp')
+        self.decode = ["Windows-1252",
+                       "utf8"] # 1252 is a superset of iso-8859-1.
+                               # Most sites that claim to be
+                               # iso-8859-1 (and some that claim to be
+                               # utf8) are really windows-1252.
+        self.is_adult=False
+        
+        # get storyId from url--url validation guarantees query is only psid=1234
+        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
+        # normalized story URL.
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
+
+            
+    @staticmethod
+    def getSiteDomain():
+        return 'www.harrypotterfanfiction.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.harrypotterfanfiction.com','harrypotterfanfiction.com']
+
+    def getSiteExampleURLs(self):
+        return "http://www.harrypotterfanfiction.com/viewstory.php?psid=1234 http://harrypotterfanfiction.com/viewstory.php?psid=5678"
+
+    def getSiteURLPattern(self):
+        return re.escape("http://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"
+
+    def needToLoginCheck(self, data):
+        if 'Registered Users Only' in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database" in data:
+          return True
+        else:
+          return False
+
+    def extractChapterUrlsAndMetadata(self):
+
+        url = self.url+'&index=1'
+        logging.debug("URL: "+url)
+
+        try:
+            data = self._fetchUrl(url)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                raise exceptions.StoryDoesNotExist(self.url)
+            else:
+                raise e
+
+        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+            
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        soup = bs.BeautifulSoup(data)
+
+        ## Title
+        a = soup.find('a', href=re.compile(r'\?psid='+self.story.getMetadata('storyId')))
+        self.story.setMetadata('title',a.string)
+        ## javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?psid=290995'
+        if "This story may contain adult themes." in a['href'] and not (self.is_adult or self.getConfig("is_adult")):
+            raise exceptions.AdultCheckRequired(self.url)
+            
+        
+        # Find authorid and URL from... author url.
+        a = soup.find('a', href=re.compile(r"viewuser.php\?showuid=\d+"))
+        self.story.setMetadata('authorId',a['href'].split('=')[1])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('author',a.string)
+
+        ## hpcom doesn't give us total words--but it does give
+        ## us words/chapter.  I'd rather add than fetch and
+        ## parse another page.
+        words=0
+        for tr in soup.find('table',{'class':'text'}).findAll('tr'):
+            tdstr = tr.findAll('td')[2].string
+            if tdstr and tdstr.isdigit():
+                words+=int(tdstr)
+        self.story.setMetadata('numWords',str(words))
+        
+        # Find the chapters:
+        tablelist = soup.find('table',{'class':'text'})
+        for chapter in tablelist.findAll('a', href=re.compile(r'\?chapterid=\d+')):
+            #javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?chapterid=433441&i=1'
+            # just in case there's tags, like <i> in chapter titles.
+            chpt=re.sub(r'^.*?(\?chapterid=\d+).*?',r'\1',chapter['href'])
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/viewstory.php'+chpt))
+
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+
+        ## Finding the metadata is a bit of a pain.  Desc is the only thing this color.
+        desctable= soup.find('table',{'bgcolor':'#f0e8e8'})
+        self.setDescription(url,desctable)
+        #self.story.setMetadata('description',stripHTML(desctable))
+
+        ## Finding the metadata is a bit of a pain.  Most of the meta
+        ## data is in a center.table without a bgcolor.
+        for center in soup.findAll('center'):
+            table = center.find('table',{'bgcolor':None})
+            if table:
+                metastr = stripHTML(str(table)).replace('\n',' ').replace('\t',' ')
+                # Rating: 12+ Story Reviews: 3
+                # Chapters: 3
+                # Characters: Andromeda, Ted, Bellatrix, R. Lestrange, Lucius, Narcissa, OC
+                # Genre(s): Fluff, Romance, Young Adult Era: OtherPairings: Other Pairing, Lucius/Narcissa
+                # Status: Completed
+                # First Published: 2010.09.02
+                # Last Published Chapter: 2010.09.28
+                # Last Updated: 2010.09.28
+                # Favorite Story Of: 1 users
+                # Warnings: Scenes of a Mild Sexual Nature
+
+                m = re.match(r".*?Status: Completed.*?",metastr)
+                if m:
+                    self.story.setMetadata('status','Completed')
+                else:
+                    self.story.setMetadata('status','In-Progress')
+
+                m = re.match(r".*?Rating: (.+?) Story Reviews.*?",metastr)
+                if m:
+                    self.story.setMetadata('rating', m.group(1))
+
+                m = re.match(r".*?Genre\(s\): (.+?) Era.*?",metastr)
+                if m:
+                    for g in m.group(1).split(','):
+                        self.story.addToList('genre',g)
+        
+                m = re.match(r".*?Characters: (.+?) Genre.*?",metastr)
+                if m:
+                    for g in m.group(1).split(','):
+                        self.story.addToList('characters',g)
+        
+                m = re.match(r".*?Warnings: (.+).*?",metastr)
+                if m:
+                    for w in m.group(1).split(','):
+                        if w != 'Now Warnings':
+                            self.story.addToList('warnings',w)
+        
+                m = re.match(r".*?First Published: ([0-9\.]+).*?",metastr)
+                if m:
+                    self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y.%m.%d"))
+
+                # Updated can have more than one space after it. <shrug>
+                m = re.match(r".*?Last Updated: ([0-9\.]+).*?",metastr)
+                if m:
+                    self.story.setMetadata('dateUpdated',makeDate(m.group(1), "%Y.%m.%d"))
+
+    def getChapterText(self, url):
+
+        logging.debug('Getting chapter text from: %s' % url)
+
+        ## most adapters use BeautifulStoneSoup here, but non-Stone
+        ## allows nested div tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url),
+                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        
+        div = soup.find('div', {'id' : 'fluidtext'})
+
+        if None == div:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+        return self.utf8FromSoup(url,div)
+
+def getClass():
+    return HarryPotterFanFictionComSiteAdapter
+
