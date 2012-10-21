@@ -102,6 +102,9 @@ import adapter_sinfuldesireorg
 import adapter_merlinficdtwinscouk
 import adapter_thehookupzonenet
 import adapter_bloodtiesfancom
+import adapter_indeathnet
+import adapter_dwiggiecom
+import adapter_jlaunlimitedcom
 import adapter_qafficcom
 
 ## This bit of complexity allows adapters to be added by just adding
