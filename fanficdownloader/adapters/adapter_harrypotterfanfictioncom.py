@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib
 import urllib2
@@ -41,7 +42,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only psid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
@@ -72,7 +73,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url+'&index=1'
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -181,7 +182,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         ## most adapters use BeautifulStoneSoup here, but non-Stone
         ## allows nested div tags.

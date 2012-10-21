@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -48,7 +49,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/siye/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -82,7 +83,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # sites skip that for one-chapter stories.
         # Except it doesn't this time. :-/
         url = self.url #+'&index=1'+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -224,7 +225,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         # soup = bs.BeautifulSoup(self._fetchUrl(url))
         # BeautifulSoup objects to <p> inside <span>, which

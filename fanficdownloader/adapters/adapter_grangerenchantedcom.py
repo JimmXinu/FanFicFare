@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -47,8 +48,8 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-        self.story.setMetadata('section',self.parsedUrl.path.split('/',)[1])
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        self.section=self.parsedUrl.path.split('/',)[1]
              
         # normalized story URL.
         if "malfoymanor" in self.parsedUrl.netloc:
@@ -100,17 +101,17 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        if "enchant" in self.story.getMetadata('section'):
+        if "enchant" in self.section:
             loginUrl = 'http://grangerenchanted.com/enchant/user.php?action=login'
         else:
             loginUrl = 'http://malfoymanor.grangerenchanted.com/themanor/user.php?action=login'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
         d = self._fetchUrl(loginUrl, params)
     
         if "Member Account" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -132,7 +133,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -157,7 +158,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
                 # correct stupid &amp; error in url.
                 addurl = addurl.replace("&amp;","&")
                 url = self.url+'&index=1'+addurl
-                logging.debug("URL 2nd try: "+url)
+                logger.debug("URL 2nd try: "+url)
 
                 try:
                     data = self._fetchUrl(url)
@@ -191,7 +192,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.story.getMetadata('section')+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -262,7 +263,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+self.story.getMetadata('section')+'/'+a['href']
+            series_url = 'http://'+self.host+'/'+self.section+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
@@ -284,10 +285,10 @@ class GrangerEnchantedCom(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url),
+                                selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'id' : 'story1'})
 

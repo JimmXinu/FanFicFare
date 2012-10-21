@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -47,7 +48,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -86,7 +87,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url+'&index=1'+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -106,7 +107,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
                 # correct stupid &amp; error in url.
                 addurl = addurl.replace("&amp;","&")
                 url = self.url+'&index=1'+addurl
-                logging.debug("URL 2nd try: "+url)
+                logger.debug("URL 2nd try: "+url)
 
                 try:
                     data = self._fetchUrl(url)
@@ -227,7 +228,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

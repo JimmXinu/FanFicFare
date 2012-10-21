@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-import logging
-
 import sys, os
 from os.path import normpath, expanduser, isfile, join
 from StringIO import StringIO
@@ -25,6 +23,14 @@ import getpass
 import string
 import ConfigParser
 from subprocess import call
+
+import logging
+if sys.version_info >= (2, 7):
+    # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
+    rootlogger = logging.getLogger()
+    loghandler=logging.NullHandler()
+    loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
+    rootlogger.addHandler(loghandler)
 
 from fanficdownloader import adapters,writers,exceptions
 from fanficdownloader.configurable import Configuration
@@ -79,11 +85,9 @@ def main():
    
    (options, args) = parser.parse_args()
 
-   if options.debug:
-       logging.basicConfig(level=logging.DEBUG,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
-   else:
-       logging.basicConfig(level=logging.INFO,format="%(levelname)s:%(filename)s(%(lineno)d):%(message)s")
-
+   if not options.debug:
+       logger = logging.getLogger("fanficdownloader")
+       logger.setLevel(logging.INFO)
    
    if len(args) != 1:
        parser.error("incorrect number of arguments")
@@ -120,8 +124,6 @@ def main():
    logging.debug('reading %s config file(s), if present'%conflist)
    configuration.read(conflist)
 
-   print("has include_in_tags?%s"%configuration.hasConfig("include_in_tags"))
-
    try:
        configuration.add_section("overrides")
    except ConfigParser.DuplicateSectionError:
@@ -138,7 +140,7 @@ def main():
 
    # images only for epub, even if the user mistakenly turned it
    # on else where.
-   if options.format != "epub":
+   if options.format not in ("epub","html"):
        configuration.set("overrides","include_images","false")
        
    if options.options:

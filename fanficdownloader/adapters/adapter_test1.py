@@ -18,6 +18,7 @@
 import datetime
 import time
 import logging
+logger = logging.getLogger(__name__)
 
 from .. import BeautifulSoup as bs
 from .. import exceptions
@@ -48,7 +49,7 @@ class TestSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         if self.story.getMetadata('storyId') == '665' and not (self.is_adult or self.getConfig("is_adult")):
-            logging.warn("self.is_adult:%s"%self.is_adult)
+            logger.warn("self.is_adult:%s"%self.is_adult)
             raise exceptions.AdultCheckRequired(self.url)
 
         if self.story.getMetadata('storyId') == '666':
@@ -128,7 +129,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','Comedy')
-        self.story.addToList('genre','SF')
+        self.story.addToList('genre','Sci-Fi')
         self.story.addToList('genre','Noir')
         
         self.story.addToList('characters','Bob Smith')
@@ -184,7 +185,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             
 
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
         if self.story.getMetadata('storyId') == '667':
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
 

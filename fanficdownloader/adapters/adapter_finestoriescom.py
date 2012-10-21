@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -49,7 +50,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
         if 'storyInfo' in self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/storyInfo.php?id='+self.story.getMetadata('storyId'))
@@ -95,13 +96,13 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         params['submit'] = 'Login'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
-        logging.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
     
         d = self._fetchUrl(loginUrl, params)
     
         if "My Account" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
             raise exceptions.FailedToLogin(url,params['theusername'])
             return False
@@ -114,7 +115,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -232,7 +233,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

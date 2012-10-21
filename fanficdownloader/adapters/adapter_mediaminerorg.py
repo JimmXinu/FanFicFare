@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib
 import urllib2
@@ -42,7 +43,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/fanfic/view_st.php/'+self.story.getMetadata('storyId'))
         else:
@@ -66,7 +67,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -188,7 +189,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         data=self._fetchUrl(url)
         soup = bs.BeautifulStoneSoup(data,
@@ -214,7 +215,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             return self.utf8FromSoup(url,anchor)
         
         else:
-            logging.debug('Using kludgey text find for older mediaminer story.')
+            logger.debug('Using kludgey text find for older mediaminer story.')
             ## Some older mediaminer stories are unparsable with BeautifulSoup.
             ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
             ## Story stuff falls between:

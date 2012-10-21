@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -29,6 +30,8 @@ from base_adapter import BaseSiteAdapter,  makeDate
 def getClass():
     return ArchiveOfOurOwnOrgAdapter
 
+
+logger = logging.getLogger(__name__)
 
 class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
@@ -48,13 +51,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
         else:
@@ -104,14 +107,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         params['authenticity_token'] = data.split('input name="authenticity_token" type="hidden" value="')[1].split('" /></div>')[0]
 
         loginUrl = 'http://' + self.getSiteDomain() + '/user_sessions'
-        logging.info("Will now login to URL (%s) as (%s)" % (loginUrl,
+        logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['user_session[login]']))
     
         d = self._postUrl(loginUrl, params)
-        #logging.info(d)
+        #logger.info(d)
     
         if "Successfully logged in" not in d : #Member Account
-            logging.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['user_session[login]']))
             raise exceptions.FailedToLogin(url,params['user_session[login]'])
             return False
@@ -128,8 +131,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         metaurl = self.url+addurl
         url = self.url+'/navigate'+addurl
-        logging.info("url: "+url)
-        logging.info("metaurl: "+metaurl)
+        logger.info("url: "+url)
+        logger.info("metaurl: "+metaurl)
 
         try:
             data = self._fetchUrl(url)
@@ -164,7 +167,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         alist = soup.findAll('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl',self.url)
+            self.story.setMetadata('authorUrl','http://archiveofourown.org/')
+            self.story.setMetadata('authorId','0')
         else:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[2])
@@ -174,7 +178,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+"/chapters/\d+$"))
         self.story.setMetadata('numChapters',len(chapters))
-        logging.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
+        logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         for x in range(0,len(chapters)):
             # just in case there's tags, like <i> in chapter titles.
             chapter=chapters[x]
@@ -291,7 +295,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 		
         chapter=bs.BeautifulSoup('<div class="story"></div>')
         data = self._fetchUrl(url)

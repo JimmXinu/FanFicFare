@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -56,7 +57,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # - get chapter list, if not one-shot.
 
         url = self.url+'&chapter=1'
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
         
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
@@ -69,7 +70,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         # pull title(title) and author from the HTML title.
         title = soup.find('title').string
-        logging.debug('Title: %s' % title)
+        logger.debug('Title: %s' % title)
         title = title.split('::')[1].strip()
         self.story.setMetadata('title',title.split(' by ')[0].strip())
         self.story.setMetadata('author',title.split(' by ')[1].strip())
@@ -109,7 +110,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # <i>Published:</i> 2010.08.15 - <i>Updated:</i> 2010.08.16 - <i>Chapters:</i> 4 - <i>Completed:</i> Yes - <i>Word Count:</i> 4890 </font>
         # </td></tr></table>
              
-        logging.debug("Author URL: "+self.story.getMetadata('authorUrl'))
+        logger.debug("Author URL: "+self.story.getMetadata('authorUrl'))
         soup = bs.BeautifulStoneSoup(self._fetchUrl(self.story.getMetadata('authorUrl')),
                                      selfClosingTags=('br')) # normalize <br> tags to <br />
         # find this story in the list, parse it's metadata based on
@@ -212,7 +213,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.

@@ -20,6 +20,8 @@ import urlparse
 import string
 from math import floor
 from functools import partial
+import logging
+import urlparse as up
 
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
@@ -52,7 +54,7 @@ try:
         if export:
             return (img.export('JPG'),'jpg','image/jpeg')
         else:
-            print("image used unchanged")
+            logging.debug("image used unchanged")
             return (data,'jpg','image/jpeg')
         
 except:
@@ -88,23 +90,34 @@ except:
                 img.save(outsio,'JPEG')
                 return (outsio.getvalue(),'jpg','image/jpeg')
             else:
-                print("image used unchanged")
+                logging.debug("image used unchanged")
                 return (data,'jpg','image/jpeg')
         
     except:
-
         # No calibre or PIL, simple pass through with mimetype.
-        imagetypes = {
-            'jpg':'image/jpeg',
-            'jpeg':'image/jpeg',
-            'png':'image/png',
-            'gif':'image/gif',
-            'svg':'image/svg+xml',
-            }
-
         def convert_image(url,data,sizes,grayscale):
-            ext=url[url.rfind('.')+1:].lower()
-            return (data,ext,imagetypes[ext])
+            return no_convert_image(url,data)
+        
+imagetypes = {
+    'jpg':'image/jpeg',
+    'jpeg':'image/jpeg',
+    'png':'image/png',
+    'gif':'image/gif',
+    'svg':'image/svg+xml',
+    }
+
+## also used for explicit no image processing.
+def no_convert_image(url,data):
+    parsedUrl = up.urlparse(url)
+    
+    ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
+    
+    if ext not in imagetypes:
+        logging.debug("no_convert_image url:%s - no known extension"%url)
+        # doesn't have extension? use jpg.
+        ext='jpg'
+        
+    return (data,ext,imagetypes[ext])
         
 def normalize_format_name(fmt):
     if fmt:
@@ -240,24 +253,35 @@ class Story(Configurable):
     ## Three part effect only those key(s) lists.
     ## pattern=>replacement
     ## metakey,metakey=>pattern=>replacement
+    ## *Five* part lines.  Effect only when trailing conditional key=>regexp matches
+    ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
     def setReplace(self,replace):
         for line in replace.splitlines():
+            if "&&" in line:
+                (line,conditional) = map( lambda x: x.strip(), line.split("&&") )
+                condparts = map( lambda x: x.strip(), conditional.split("=>") )
+            else:
+                condparts=[None,None]
             if "=>" in line:
                 parts = map( lambda x: x.strip(), line.split("=>") )
                 if len(parts) > 2:
                     parts[0] = map( lambda x: x.strip(), parts[0].split(",") )
-                    self.replacements.append(parts)
+                    self.replacements.append(parts+condparts)
                 else:
-                    self.replacements.append([None]+parts)
+                    self.replacements.append([None]+parts+condparts)
     
     def doReplacments(self,value,key):
-        for (keys,p,v) in self.replacements:
+        for (keys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (keys == None or key in keys) \
                     and isinstance(value,basestring) \
-                    and re.search(p,value):
-                #pv=value
-                value = re.sub(p,v,value)
-                #print("change:%s => %s === %s => %s "%(p,v,pv,value))
+                    and re.search(regexp,value):
+                doreplace=True
+                if condkey:
+                    condval = self.getMetadata(condkey)
+                    doreplace = condval != None and re.search(condregexp,condval)
+                    
+                if doreplace:
+                    value = re.sub(regexp,replacement,value)
         return value
         
     def getMetadataRaw(self,key):
@@ -280,7 +304,9 @@ class Story(Configurable):
                     value = commaGroups(value)
                 if key == "numChapters":
                     value = commaGroups("%d"%value)
-                if key in ("dateCreated","datePublished","dateUpdated"):
+                if key in ("dateCreated"):
+                    value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
+                if key in ("datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
 
             if doreplacements:
@@ -411,11 +437,14 @@ class Story(Configurable):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
         self.chapters.append( (title,html) )
 
-    def getChapters(self):
+    def getChapters(self,fortoc=False):
         "Chapters will be tuples of (title,html)"
         retval = []
-        if self.getConfig('add_chapter_numbers') and \
-                self.getConfig('chapter_title_add_pattern'):
+        ## only add numbers if more than one chapter.
+        if len(self.chapters) > 1 and \
+                (self.getConfig('add_chapter_numbers') == "true" \
+                     or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
+                     and self.getConfig('chapter_title_add_pattern'):
             for index, (title,html) in enumerate(self.chapters):
                 retval.append( (string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
         else:
@@ -480,17 +509,22 @@ class Story(Configurable):
         prefix='ffdl'
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
+
             try:
-                sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+                if self.getConfig('no_image_processing'):
+                    (data,ext,mime) = no_convert_image(imgurl,
+                                                   fetch(imgurl))
+                else:
+                    try:
+                        sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+                    except Exception, e:
+                        raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
+                    (data,ext,mime) = convert_image(imgurl,
+                                                    fetch(imgurl),
+                                                    sizes,
+                                                    self.getConfig('grayscale_images'))
             except Exception, e:
-                raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
-            try:
-                (data,ext,mime) = convert_image(imgurl,
-                                                fetch(imgurl),
-                                                sizes,
-                                                self.getConfig('grayscale_images'))
-            except Exception, e:
-                print("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
+                logging.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
             
             # explicit cover, make the first image.
@@ -525,7 +559,7 @@ class Story(Configurable):
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                 
-            print("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+            logging.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
             
