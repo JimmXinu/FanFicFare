@@ -201,8 +201,11 @@ class bbcodeparser:
     #re_tagArgs = re.compile (r'\s*([^=]*)=(("([^"]+)")|([^\s]+))',  re.DOTALL | re.UNICODE)
     re_tagArgs = re.compile (r'\s*([\w]*)=(("([^"]+)")|([^\s]+))',  re.DOTALL | re.UNICODE)
 
-    # get a unique name and replace escaped braces 
-    unique = hashlib.md5(code).hexdigest()
+    # get a unique name and replace escaped braces encode utf8 to
+    # prevent CLI/Web from barfing on unicode chars.  Not sure why
+    # this even needs to be 'unique' like this, but that's the way
+    # they wrote it.
+    unique = hashlib.md5(code.encode('utf8')).hexdigest()
     code   = code.replace ('\[', unique+'_OPEN_BRACE')
     code   = code.replace ('\]', unique+'_CLOSE_BRACE')
 
