@@ -276,7 +276,7 @@ class Story(Configurable):
                     and isinstance(value,basestring) \
                     and re.search(regexp,value):
                 doreplace=True
-                if condkey:
+                if condkey and condkey != key: # prevent infinite recursion.
                     condval = self.getMetadata(condkey)
                     doreplace = condval != None and re.search(condregexp,condval)
                     
@@ -463,7 +463,7 @@ class Story(Configurable):
             pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
             for k in origvalues.keys():
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
-
+    
         return string.Template(template).substitute(values).encode('utf8')
 
     # pass fetch in from adapter in case we need the cookies collected

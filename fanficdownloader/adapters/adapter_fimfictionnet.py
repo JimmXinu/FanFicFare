@@ -159,7 +159,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("datePublished", datetime.fromtimestamp(rawDatePublished))
         rawDateUpdated = storyMetadata["date_modified"]
         self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
-        
+
         soup = bs.BeautifulSoup(data).find("div", {"class":"story"})
         # fimfic stopped putting the char name on or around the char
         # icon now for some reason.  Pull it from the image name with
@@ -174,6 +174,15 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 char = "Cutie Mark Crusaders"
             self.story.addToList("characters", char)
             
+        # extra site specific metadata
+        extralist = ["likes","dislikes","views","total_views","short_description"]
+        for metakey in extralist:
+            if metakey in storyMetadata:
+                value = storyMetadata[metakey]
+                if not isinstance(value,basestring):
+                    value = unicode(value)
+                self.story.setMetadata(metakey, value)
+        
             
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
