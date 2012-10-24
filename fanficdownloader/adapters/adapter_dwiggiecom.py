@@ -46,7 +46,7 @@ class DwiggieComAdapter(BaseSiteAdapter):
         self.is_adult=False
         self.sectionUrl = ""
         self.section = []
-        self.chapters = []
+        self.chapters = dict()
 
         
 #        # get storyId from url--url validation guarantees query is only sid=1234
@@ -87,7 +87,7 @@ class DwiggieComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # http://www.dwiggie.com/derby/mari17b.htm
-        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"/derby/(?P<id>(old_2005\/)?[a-z]+\d+)(?P<part>[a-z]*)\.htm$"     
+        return re.escape("http://")+"(www.)?"+re.escape(self.getSiteDomain())+r"/derby/(?P<id>(old_\d{4}\/)?[a-z]+\d+)(?P<part>[a-z]*)\.htm$"     
         
     def tryArchivePage(self, url):
     	
@@ -236,13 +236,19 @@ class DwiggieComAdapter(BaseSiteAdapter):
         # extract category from summary text
         desc=stripHTML(d)
         books = re.compile(r'(?P<book>\~P&P;?\~|\~Em;?\~|\~MP;?\~|\~S\&S;?\~|\~Per;?\~|\~NA;?\~|\~Juv;?\~|\~Misc;?\~)')
+        booklist=dict({'~P&P~':'Pride and Prejudice','~Em~':'Emma','~MP~':'Mansfield Park','~S&S~':'Sense and Sensibility','~Per~':'Persuasion','~NA~':'Northanger Abbey','~Juv~':'Juvenilia','~Misc~':'Miscellaneous'})
         m=re.search(books,desc)
-        book=m.group('book').replace(';','')
+        print m.group('book')
+        book=booklist.get(m.group('book').replace(';',''))
+        print book
         self.story.addToList('category',book)
+
         
         # assign summary info
+        desc=stripHTML(desc).replace(book,'').strip()
+        desc=re.sub('^.\s*','',desc)        
         if desc != None:
-            self.setDescription(url,stripHTML(desc).replace(book,'').strip())
+            self.setDescription(url,desc)
 
             
             
@@ -279,6 +285,7 @@ class DwiggieComAdapter(BaseSiteAdapter):
 		# create 'dummy' urls for individual chapters in the form 'pageurl#pageindex' where page index is an index starting with 0 per page             
         c = 0
         postdate=None
+        chapters = []
         for x in range(0,len(sections)):
             section=sections[x]
             i=0
@@ -293,15 +300,32 @@ class DwiggieComAdapter(BaseSiteAdapter):
                     ctitle=stripHTML(t)
                 #self.chapterUrls.append(('Chapter '+str(c),cUrl))
                 self.chapterUrls.append((ctitle,cUrl))
-                self.chapters.append((cUrl,chaptersoup))
+                chapters.append((cUrl,chaptersoup))
                 if postdate==None:
-                    regex=re.compile(r'Posted\ on\ (?P<date>\d{4}\-\d{2}\-\d{2})')
+                    regex=re.compile(r'Posted\ on\:?\ (?P<date>\d{4}\-\d{2}\-\d{2}|\w+,\ \d+\ \w+\ \d{4})')
+                    #Sunday, 21 March 2004, at 6:00 a.m.
                     m=re.search(regex,chapter)
                     if m!=None:
                         postdate=m.group('date')
-                        self.story.setMetadata('datePublished', makeDate(postdate, "%Y-%m-%d"))
                 i+=1
-                
+        self.chapters=dict(chapters)
+        #print postdate
+        pubdate=None
+        if postdate!=None:
+            format1=re.match(re.compile(r'\d{4}\-\d{2}\-\d{2}'),postdate)
+            format2=re.match(re.compile(r'\w+,\ \d+\ \w+\ \d{4}'),postdate)
+            if format1!=None:
+                pubdate = makeDate(postdate, "%Y-%m-%d")
+            if format2!=None:
+                pubdate = makeDate(postdate, "%A, %d %B %Y")
+            
+                    
+        if pubdate==None:
+            pubdate=makeDate(self.story.getMetadata('dateUpdated'), "%Y-%m-%d")
+        #print pubdate
+        self.story.setMetadata('datePublished', pubdate)   
+        #print self.story.getMetadata('dateUpdated')
+        #print self.story.getMetadata('datePublished')      
         self.story.setMetadata('numChapters',c)
         logging.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         
@@ -311,10 +335,10 @@ class DwiggieComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logging.debug('Getting chapter text from: %s' % url)
         
-   
-        for c in self.chapters:
-            if c[0] == url:
-                chapter = c[1]
+        chapter = self.chapters.get(url)
+#        for c in self.chapters:
+#            if c[0] == url:
+#                chapter = c[1]
                 #chapter = bs.BeautifulSoup(c[1])       
         
         #chapter = find(lambda c: c[0] == url, self.chapters)[1]
