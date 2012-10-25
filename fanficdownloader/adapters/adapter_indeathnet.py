@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -50,7 +51,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
             # normalized story URL.
             self._setURL('http://www.' + self.getSiteDomain() + '/blog/archive/'+self.story.getMetadata('storyId')+'-'+m.group('name')+'/')
         else:
@@ -80,8 +81,8 @@ class InDeathNetAdapter(BaseSiteAdapter):
         
             
     def getDateFromComponents(self, postmonth, postday):
-        ym = re.search(re.compile(r"Entries\ in\ (?P<mon>January|February|March|April|May|June|July|August|September|October|November|December)\ (?P<year>\d{4})"),postmonth)
-        d = re.search(re.compile(r"(?P<day>\d{2})\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"),postday)
+        ym = re.search("Entries\ in\ (?P<mon>January|February|March|April|May|June|July|August|September|October|November|December)\ (?P<year>\d{4})",postmonth)
+        d = re.search("(?P<day>\d{2})\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)",postday)
         postdate = makeDate(d.group('day')+' '+ym.group('mon')+' '+ym.group('year'),self.dateformat)
         return postdate
 
@@ -115,7 +116,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
 		
         # Find authorid and URL from first link in Recent Entries (don't yet reference 'recent entries' - let's see if that is required)
         a = soup.find('a', href=re.compile(r"http://www.indeath.net/user/\d+\-[a-z0-9]+/$"))		#http://www.indeath.net/user/9083-cyrex/
-        m = re.search(re.compile(r'http://www.indeath.net/user/(?P<id>\d+)\-(?P<name>[a-z0-9]*)/$'),a['href'])
+        m = re.search('http://www.indeath.net/user/(?P<id>\d+)\-(?P<name>[a-z0-9]*)/$',a['href'])
         self.story.setMetadata('authorId',m.group('id'))
         self.story.setMetadata('authorUrl',a['href'])
         self.story.setMetadata('author',m.group('name'))
@@ -143,7 +144,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
         
         # Process List of Chapters              
         self.story.setMetadata('numChapters',len(chapters))
-        logging.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
+        logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         for x in range(0,len(chapters)):
             # just in case there's tags, like <i> in chapter titles.
             chapter=chapters[x]
@@ -151,7 +152,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
                 self.chapterUrls.append((self.story.getMetadata('title'),chapter['href']))
             else:
             	ct = stripHTML(chapter)
-            	tnew = re.match(re.compile(r"(?i)"+self.story.getMetadata('title')+r" - (?P<newtitle>.*)$"),ct)
+            	tnew = re.match("(?i)"+self.story.getMetadata('title')+r" - (?P<newtitle>.*)$",ct)
             	if tnew:
             		chaptertitle = tnew.group('newtitle')
             	else:
@@ -163,7 +164,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
         
     # grab the text for an individual chapter.
     def getChapterText(self, url):
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 		
         #chapter=bs.BeautifulSoup('<div class="story"></div>')
         data = self._fetchUrl(url)
