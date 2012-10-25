@@ -17,6 +17,7 @@
 
 import time
 import logging
+logger = logging.getLogger(__name__)
 import re
 import urllib2
 
@@ -47,7 +48,7 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
 
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logging.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
 
         self._setURL('http://' + self.getSiteDomain() + '/eFiction1.1/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
@@ -69,41 +70,7 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/eFiction1.1/viewstory.php?sid=")+r"\d+$"
 
-#    ## Login seems to be reasonably standard across eFiction sites. This story is in The Bedchamber
-#    def needToLoginCheck(self, data):
-#        if 'This story is in The Bedchamber' in data \
-#                or 'That username is not in our database' in data \
-#                or "That password is not correct, please try again" in data:
-#            return True
-#        else:
-#            return False
-#
-#    def performLogin(self, url):
-#        params = {}
-#
-#        if self.password:
-#            params['name'] = self.username
-#            params['pass'] = self.password
-#        else:
-#            params['name'] = self.getConfig("username")
-#            params['pass'] = self.getConfig("password")
-#        params['login'] = 'yes'
-#        params['submit'] = 'login'
-#
-#        loginUrl = 'http://' + self.getSiteDomain()+'/login.php'
-#        d = self._fetchUrl(loginUrl,params)
-#        e = self._fetchUrl(url)
-#
-#        if "Welcome back," not in d : #Member Account
-#            logging.info("Failed to login to URL %s as %s" % (loginUrl,
-#                                                              params['name']))
-#            raise exceptions.FailedToLogin(url,params['name'])
-#            return False
-#        elif "This story is in The Bedchamber" in e:
-#            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Your account does not have sufficient priviliges to read this story.")
-#            return False
-#        else:
-#            return True
+
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -114,14 +81,15 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=4" # XXX
+            addurl = "&ageconsent=ok&warning=5" # XXX
         else:
             addurl=""
+        print addurl
 
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url+'&index=1'+addurl
-        logging.debug("URL: "+url)
+        logger.debug("URL: "+url)
 
         try:
             data = self._fetchUrl(url)
@@ -131,19 +99,12 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-#        if self.needToLoginCheck(data):
-#            # need to log in for this one.
-#            self.performLogin(url)
-#            data = self._fetchUrl(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "I am 18 or older" in data: # XXX 
+        if "I am 18 or older" in data or "Not suitable for readers under 17 years of age" in data: 
             raise exceptions.AdultCheckRequired(self.url)
-            
-        if "Not suitable for readers under 17 years of age" in data:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Not suitable for readers under 17 years of age")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -270,7 +231,7 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logging.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % url)
 
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
