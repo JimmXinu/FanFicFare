@@ -81,10 +81,9 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=5" # XXX
+            addurl = "&ageconsent=ok&warning=4" # XXX
         else:
             addurl=""
-        print addurl
 
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
@@ -99,13 +98,29 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        # Assume that if there is a url with 'warning=#' in the page then it is a 'check' page
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logger.debug("URL 2nd try: "+url)
 
-        # The actual text that is used to announce you need to be an
-        # adult varies from site to site.  Again, print data before
-        # the title search to troubleshoot.
-        if "I am 18 or older" in data or "Not suitable for readers under 17 years of age" in data: 
-            raise exceptions.AdultCheckRequired(self.url)
-            
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
+                
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
         # print data
@@ -128,7 +143,6 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/eFiction1.1/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        print len(self.chapterUrls)
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
