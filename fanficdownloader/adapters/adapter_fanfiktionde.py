@@ -26,6 +26,7 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
+
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
@@ -140,7 +141,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        head = soup.find('div', {'style' : 'width:85%;float:left;'})
+        head = soup.find('div', {'class' : 'story-metadata-left-top'})
         a = head.find('a')
         self.story.setMetadata('authorId',a['href'].split('/')[2])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
@@ -176,7 +177,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.setDescription(url,a['onmouseover'].split("', '")[1])
         
         td = tr[i].findAll('td')
-        self.story.addToList('category',td[1].string)
+        self.story.addToList('category',stripHTML(td[1]))
         self.story.setMetadata('rating', td[4].string)
         self.story.setMetadata('numWords', td[5].string)
  
