@@ -256,3 +256,4 @@ class JLAUnlimitedComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
+
