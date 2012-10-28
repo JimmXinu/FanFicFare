@@ -28,15 +28,20 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return NCISFictionComAdapter
+    return NCISFictionNetAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class NCISFictionComAdapter(BaseSiteAdapter):
+class NCISFictionNetAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
+        # ncisfiction.net blocks IPs the default user-agent.  However,
+        # when asked, they said it was just general anti-spam, not
+        # targeted at us.  That lets me do this in good conscience:
+        self.opener.addheaders = [('User-agent', 'FFDL/1.6')]
+        
         self.decode = ["iso-8859-1",
                        "Windows-1252"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
@@ -64,13 +69,21 @@ class NCISFictionComAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.ncisfiction.com'
+        return 'www.ncisfiction.net'
+
+    ## Changed from www.ncisfiction.com to www.ncisfiction.net Oct
+    ## 2012 due to the ncisfiction.com domain expiring.  Still accept
+    ## .com domains for existing updates, etc.
+    
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.ncisfiction.net','www.ncisfiction.com']
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/story.php?stid=01234 http://"+self.getSiteDomain()+"/chapters.php?stid=1234"
 
     def getSiteURLPattern(self):
-        return "http://"+self.getSiteDomain()+r'/(chapters|story)?.php\?stid=\d+'
+        return r'http://www\.ncisfiction\.(net|com)/(chapters|story)?.php\?stid=\d+'
        
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
