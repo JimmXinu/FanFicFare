@@ -139,12 +139,14 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
 
+        pagetitlediv = soup.find('div',id='pagetitle')
+        
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = pagetitlediv.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',a.string)
         
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        a = pagetitlediv.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
