@@ -158,6 +158,8 @@ def main():
 
        adapter = adapters.getAdapter(configuration,url)
 
+       adapter.setChaptersRange(options.begin,options.end)
+           
        ## Check for include_images and absence of PIL, give warning.
        if adapter.getConfig('include_images'):
            try:
@@ -220,8 +222,6 @@ def main():
            # regular download
            if options.metaonly:
                print adapter.getStoryMetadataOnly()
-           
-           adapter.setChaptersRange(options.begin,options.end)
            
            output_filename=writeStory(configuration,adapter,options.format,options.metaonly)
        
