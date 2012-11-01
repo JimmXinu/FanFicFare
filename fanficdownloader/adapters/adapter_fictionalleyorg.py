@@ -223,7 +223,16 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             
         if not data or not text:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
+        # not sure how, but we can get html, etc tags still in some
+        # stories.  That breaks later updates because it confuses
+        # epubutils.py
+        for tag in text.findAll('head'):
+            tag.extract()
+        
+        for tag in text.findAll('body') + text.findAll('html'):
+            tag.name = 'div'
+            
         return self.utf8FromSoup(url,text)
 
 def getClass():
