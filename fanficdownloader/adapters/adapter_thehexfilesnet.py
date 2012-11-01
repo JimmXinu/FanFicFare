@@ -147,6 +147,7 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 						
         summary = info.find('td', {'class' : 'summary'})
+        summary.name='div' # change td to div so it doesn't mess up the display when using table titlepage.
         self.setDescription(url,summary)
 		
         rating=stripHTML(info.find('td', {'align' : 'left'})).split('(')[1].split(')')[0]
