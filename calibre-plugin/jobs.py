@@ -126,6 +126,7 @@ def do_download_for_worker(book,options):
         adapter.is_adult = book['is_adult'] 
         adapter.username = book['username'] 
         adapter.password = book['password']
+        adapter.setChaptersRange(book['begin'],book['end'])
         
         story = adapter.getStoryMetadataOnly()
         if 'calibre_series' in book:
@@ -148,8 +149,6 @@ def do_download_for_worker(book,options):
         elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
                 ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
 
-            adapter.setChaptersRange(book['begin'],book['end'])
-            
             print("write to %s"%outfile)
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
