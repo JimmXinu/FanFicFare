@@ -162,12 +162,12 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), "%b %d %Y"))
+                self.story.setMetadata('datePublished', makeDate(stripHTML(value), "%d %b %Y"))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), "%b %d %Y"))
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), "%d %b %Y"))
 
         try:
             # Find Series name from series URL.
