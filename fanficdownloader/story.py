@@ -257,31 +257,36 @@ class Story(Configurable):
     ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
     def setReplace(self,replace):
         for line in replace.splitlines():
+            (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
             if "&&" in line:
                 (line,conditional) = map( lambda x: x.strip(), line.split("&&") )
-                condparts = map( lambda x: x.strip(), conditional.split("=>") )
-            else:
-                condparts=[None,None]
+                (condkey,condregexp) = map( lambda x: x.strip(), conditional.split("=>") )
             if "=>" in line:
                 parts = map( lambda x: x.strip(), line.split("=>") )
                 if len(parts) > 2:
-                    parts[0] = map( lambda x: x.strip(), parts[0].split(",") )
-                    self.replacements.append(parts+condparts)
+                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    (regexp,replacement)=parts[1:]
                 else:
-                    self.replacements.append([None]+parts+condparts)
+                    (regexp,replacement)=parts
+
+            if regexp:
+                regexp = re.compile(regexp)
+                if condregexp:
+                    condregexp = re.compile(condregexp)
+                self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
     
     def doReplacments(self,value,key):
-        for (keys,regexp,replacement,condkey,condregexp) in self.replacements:
-            if (keys == None or key in keys) \
+        for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
+            if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
-                    and re.search(regexp,value):
+                    and regexp.search(value):
                 doreplace=True
                 if condkey and condkey != key: # prevent infinite recursion.
                     condval = self.getMetadata(condkey)
-                    doreplace = condval != None and re.search(condregexp,condval)
+                    doreplace = condval != None and condregexp.search(condval)
                     
                 if doreplace:
-                    value = re.sub(regexp,replacement,value)
+                    value = regexp.sub(replacement,value)
         return value
         
     def getMetadataRaw(self,key):
