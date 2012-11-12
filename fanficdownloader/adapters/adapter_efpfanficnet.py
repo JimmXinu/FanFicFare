@@ -171,10 +171,11 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         storya = None
         authsoup = None
+        storyblock = None
         authurl = self.story.getMetadata('authorUrl')
         
         ## author can have more than one page of stories.
-        while storya == None:
+        while storyblock == None:
 
             # no storya, but do have authsoup--we're looping on author pages.
             if authsoup != None:
@@ -186,10 +187,14 @@ class EFPFanFicNet(BaseSiteAdapter):
             logger.debug("fetching author page: (%s)"%authurl)
             authsoup = bs.BeautifulSoup(self._fetchUrl(authurl))
             #print("authsoup:%s"%authsoup)
-        
-            storya = authsoup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
-        
-        storyblock = storya.parent.parent.parent
+
+            storyas = authsoup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
+            for storya in storyas:
+                #print("======storya:%s"%storya)
+                storyblock = storya.findParent('div',{'class':'storybloc'})
+                #print("======storyblock:%s"%storyblock)
+                if storyblock != None:
+                    continue
 
         self.setDescription(url,storyblock.find('div', {'class':'introbloc'}))
 
@@ -293,4 +298,14 @@ class EFPFanFicNet(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
-        return self.utf8FromSoup(url,div)
+        # remove any header and 'o:p' tags.
+        for tag in div.findAll("head") + div.findAll("o:p"):
+            tag.extract()
+
+        # change any html and body tags to div.
+        for tag in div.findAll("html") + div.findAll("body"):
+            tag.name='div'
+
+        # remove extra bogus doctype.
+        #<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+        return re.sub(r"<!DOCTYPE[^>]+>","",self.utf8FromSoup(url,div))
