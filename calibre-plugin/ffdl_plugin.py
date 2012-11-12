@@ -540,8 +540,8 @@ make_firstimage_cover:true
             # 'new' book from URL.  collision handling applies.
             print("from URL(%s)"%url)
 
-            # try to find by identifier url first.
-            searchstr = 'identifiers:"=url:=%s"'%url.replace(":","|")
+            # try to find by identifier url or uri first.
+            searchstr = 'identifiers:"~ur(i|l):=%s"'%url.replace(":","|")
             identicalbooks = db.search_getting_ids(searchstr, None)
             if len(identicalbooks) < 1:
                 # find dups
@@ -1249,6 +1249,10 @@ make_firstimage_cover:true
             # identifiers have :->| in url.
             #print("url from book:"+identifiers['url'].replace('|',':'))
             return identifiers['url'].replace('|',':')
+        elif 'uri' in identifiers:
+            # identifiers have :->| in uri.
+            #print("uri from book:"+identifiers['uri'].replace('|',':'))
+            return identifiers['uri'].replace('|',':')
         else:
             ## only epub has URL in it--at least where I can easily find it.
             if db.has_format(book_id,'EPUB',index_is_id=True):
@@ -1258,7 +1262,7 @@ make_firstimage_cover:true
                 if 'url' in identifiers:
                     #print("url from epub:"+identifiers['url'].replace('|',':'))
                     return identifiers['url'].replace('|',':')
-                # look for dc:source first, then scan HTML if 
+                # look for dc:source first, then scan HTML if lookforurlinhtml
                 link = get_dcsource(existingepub)
                 if link:
                     return link
