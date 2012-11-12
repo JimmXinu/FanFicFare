@@ -125,10 +125,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("numChapters", len(self.chapterUrls))
         
         # In the case of fimfiction.net, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
-        # For the sake of bringing it in line with the other adapters, 'Incomplete' and 'On Hiatus' become 'In-Progress'
+        # For the sake of bringing it in line with the other adapters, 'Incomplete' becomes 'In-Progress'
         # and 'Complete' beomes 'Completed'. 'Cancelled' seems an important enough (not to mention more strictly true) 
         # status to leave unchanged.
-        status = storyMetadata["status"].replace("Incomplete", "In-Progress").replace("On Hiatus", "In-Progress").replace("Complete", "Completed")
+        # Nov2012 - 'On Hiatus' is now passed, too.  It's easy now for users to change/remove if they want
+        # with replace_metadata
+        status = storyMetadata["status"].replace("Incomplete", "In-Progress").replace("Complete", "Completed")
         self.story.setMetadata("status", status)
         self.story.setMetadata("rating", storyMetadata["content_rating_text"])
             
