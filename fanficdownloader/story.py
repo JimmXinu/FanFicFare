@@ -240,7 +240,8 @@ class Story(Configurable):
             self.metadata[key]=value
         if key == "language":
             try:
-                self.metadata['langcode'] = langs[self.metadata[key]]
+                # getMetadata not just self.metadata[] to do replace_metadata.
+                self.metadata['langcode'] = langs[self.getMetadata(key)]
             except:
                 self.metadata['langcode'] = 'en'
         if key == 'dateUpdated':

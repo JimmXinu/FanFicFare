@@ -904,13 +904,13 @@ make_firstimage_cover:true
             # mi.tags needs to be list, but set kills dups.
             mi.tags = list(set(list(old_tags)+mi.tags))
 
-        if 'langcode' in book['all_metadata']:
+        if book['all_metadata']['langcode']:
             mi.languages=[book['all_metadata']['langcode']]
         else:
             # Set language english, but only if not already set.
             if not oldmi.languages:
-                mi.languages=['eng']
-
+                mi.languages=['en']
+                
         if options['fileform'] == 'epub' and prefs['updatecover']:
             existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
             epubmi = get_metadata(existingepub,'EPUB')

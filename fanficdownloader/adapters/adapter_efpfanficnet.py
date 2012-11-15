@@ -158,6 +158,7 @@ class EFPFanFicNet(BaseSiteAdapter):
                 self.chapterUrls.append((title,url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
+        self.story.setMetadata('language','Italian')
         
         # normalize story URL to first chapter if later chapter URL was given:
         url = self.chapterUrls[0][1].replace('&i=1','')
