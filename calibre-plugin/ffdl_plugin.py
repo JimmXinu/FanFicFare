@@ -241,15 +241,28 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("create_menu_item_ex after %s"%menu_text)
         return ac
 
+    def is_library_view(self):
+        # 0 = library, 1 = main, 2 = card_a, 3 = card_b
+        return self.gui.stack.currentIndex() == 0
+    
     def plugin_button(self):
-        if len(self.gui.library_view.get_selected_ids()) > 0 and prefs['updatedefault']:
+        if self.is_library_view() and \
+                len(self.gui.library_view.get_selected_ids()) > 0 and \
+                prefs['updatedefault']:
             self.update_existing()
         else:
             self.add_dialog()
 
     def update_lists(self,add=True):
-        if len(self.gui.library_view.get_selected_ids()) > 0 and \
-                (prefs['addtolists'] or prefs['addtoreadlists']) :
+        if prefs['addtolists'] or prefs['addtoreadlists']:
+            if not self.is_library_view():
+                self.gui.status_bar.show_message(_('Cannot Update Reading Lists from Device View'), 3000)
+                return
+        
+            if len(self.gui.library_view.get_selected_ids()) == 0:
+                self.gui.status_bar.show_message(_('No Selected Books to Update Reading Lists'), 3000)
+                return
+
             self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
 
     def get_urls_from_page(self):
@@ -287,19 +300,35 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
             
     def get_list_urls(self):
-        if len(self.gui.library_view.get_selected_ids()) > 0:
-            book_list = map( partial(self._convert_id_to_book, good=False), self.gui.library_view.get_selected_ids() )
+        if self.gui.current_view().selectionModel().selectedRows() == 0 :
+            self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
+                                             3000)
+            return
+            
+        if self.is_library_view():
+            book_list = map( partial(self._convert_id_to_book, good=False),
+                             self.gui.library_view.get_selected_ids() )
 
-            LoopProgressDialog(self.gui,
-                               book_list,
-                               partial(self._get_story_url_for_list, db=self.gui.current_db),
-                               self._finish_get_list_urls,
-                               init_label="Collecting URLs for stories...",
-                               win_title="Get URLs for stories",
-                               status_prefix="URL retrieved")
+        else: # device view, get from epubs on device.
+            view = self.gui.current_view()
+            rows = view.selectionModel().selectedRows()
+            # paths = view.model().paths(rows)
+            book_list = map( partial(self._convert_row_to_book, good=False), rows )
+            
+        LoopProgressDialog(self.gui,
+                           book_list,
+                           partial(self._get_story_url_for_list, db=self.gui.current_db),
+                           self._finish_get_list_urls,
+                           init_label="Collecting URLs for stories...",
+                           win_title="Get URLs for stories",
+                           status_prefix="URL retrieved")
             
     def _get_story_url_for_list(self,book,db=None):
-        book['url'] = self._get_story_url(db,book['calibre_id'])
+        if book['calibre_id']:
+            book['url'] = self._get_story_url(db,book_id=book['calibre_id'])
+        elif book['path']:
+            book['url'] = self._get_story_url(db,path=book['path'])
+            
         if book['url'] == None:
             book['good']=False
         else:
@@ -318,21 +347,36 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         show_copy_button=False)
                 
     def reject_list_urls(self):
-        if len(self.gui.library_view.get_selected_ids()) > 0:
+        if self.gui.current_view().selectionModel().selectedRows() == 0 :
+            self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'), 3000)
+            return
+            
+        if self.is_library_view():
             book_list = map( partial(self._convert_id_to_book, good=False),
-                             self.gui.library_view.get_selected_ids() )            
+                             self.gui.library_view.get_selected_ids() )
 
-            LoopProgressDialog(self.gui,
-                               book_list,
-                               partial(self._reject_story_url_for_list, db=self.gui.current_db),
-                               self._finish_reject_list_urls,
-                               init_label="Collecting URLs for Reject List...",
-                               win_title="Get URLs for Reject List",
-                               status_prefix="URL retrieved")
+        else: # device view, get from epubs on device.
+            view = self.gui.current_view()
+            rows = view.selectionModel().selectedRows()
+            #paths = view.model().paths(rows)
+            book_list = map( partial(self._convert_row_to_book, good=False), rows )
+            
+        LoopProgressDialog(self.gui,
+                           book_list,
+                           partial(self._reject_story_url_for_list, db=self.gui.current_db),
+                           self._finish_reject_list_urls,
+                           init_label="Collecting URLs for Reject List...",
+                           win_title="Get URLs for Reject List",
+                           status_prefix="URL retrieved")
             
     def _reject_story_url_for_list(self,book,db=None): 
-        self._populate_book_from_calibre_id(book,db)
-        book['url'] = self._get_story_url(db,book['calibre_id'])
+        if book['calibre_id']:
+            # want title/author, too, for rejects.
+            self._populate_book_from_calibre_id(book,db)
+            book['url'] = self._get_story_url(db,book_id=book['calibre_id'])
+        elif book['path']:
+            
+            book['url'] = self._get_story_url(db,path=book['path'])
                 
         if book['url'] == None:
             book['good']=False
@@ -399,6 +443,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self.start_downloads( options, add_books )
         
     def update_existing(self):
+        if not self.is_library_view():
+            self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
+            return
+        
         if len(self.gui.library_view.get_selected_ids()) == 0:
             self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
             return
@@ -576,11 +624,6 @@ make_firstimage_cover:true
         else:
             book['comments']=''
         book['series'] = story.getMetadata("series", removeallentities=True)
-        
-        # adapter.opener is the element with a threadlock.  But del
-        # adapter.opener doesn't work--subproc fails when it tries
-        # to pull in the adapter object that hasn't been imported yet.
-        # book['adapter'] = adapter
         
         book['is_adult'] = adapter.is_adult
         book['username'] = adapter.username
@@ -1193,12 +1236,6 @@ make_firstimage_cover:true
                 message="<p>You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?</p>"
                 confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
 
-            # Quick demo of how an 'allow send' list might work.
-            # Issues: allow list per send list?  Naming convention?  "send(allow)"
-            # allow_list = rl_plugin.get_book_list("Allow Send to Device")
-            # # intersection of book_ids & allow_list
-            # add_book_ids = list(set(book_ids) & set(allow_list))
-
             for l in lists:
                 if l in rl_plugin.get_list_names():
                     #print("good send l:(%s)"%l)
@@ -1211,17 +1248,6 @@ make_firstimage_cover:true
                         message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
-    # def _find_existing_book_id(self,db,book,matchurl=True):
-    #     mi = MetaInformation(book["title"],book["author"]) # author is a list.
-    #     identicalbooks = db.find_identical_books(mi)
-    #     if matchurl: # only *really* identical if URL matches, too.
-    #         for ib in identicalbooks:
-    #             if self._get_story_url(db,ib) == book['url']:
-    #                 return ib
-    #     if identicalbooks:
-    #         return identicalbooks.pop()
-    #     return None
-    
     def _make_mi_from_book(self,book):
         mi = MetaInformation(book['title'],book['author']) # author is a list.
         mi.set_identifiers({'url':book['url']})
@@ -1286,6 +1312,24 @@ make_firstimage_cover:true
 
         return book
             
+    def _convert_row_to_book(self, row, good=True):
+        book = {}
+        mi = self.gui.current_view().model().get_book_display_info(row.row())
+        book['title'] = mi.title
+        book['author'] = mi.authors
+        book['path'] = mi.path
+        book['author_sort'] = mi.author_sort
+        book['good'] = good
+        book['calibre_id'] = None
+        book['begin'] = None
+        book['end'] = None
+            
+        book['comment'] = ''
+        book['url'] = ''
+        book['added'] = False
+
+        return book
+            
     def _populate_book_from_calibre_id(self, book, db=None):
         mi = db.get_metadata(book['calibre_id'], index_is_id=True)
         #book = {}
@@ -1318,31 +1362,42 @@ make_firstimage_cover:true
                 book['icon']='dialog_error.png'
                 book['status'] = 'Bad URL'
     
-    def _get_story_url(self, db, book_id):
-        identifiers = db.get_identifiers(book_id,index_is_id=True)
+    def _get_story_url(self, db, book_id=None, path=None):
+        if book_id == None:
+            identifiers={}
+        else:
+            identifiers = db.get_identifiers(book_id,index_is_id=True)
         if 'url' in identifiers:
             # identifiers have :->| in url.
-            #print("url from book:"+identifiers['url'].replace('|',':'))
+            print("url from ident url:"+identifiers['url'].replace('|',':'))
             return identifiers['url'].replace('|',':')
         elif 'uri' in identifiers:
             # identifiers have :->| in uri.
-            #print("uri from book:"+identifiers['uri'].replace('|',':'))
+            print("uri from ident uri:"+identifiers['uri'].replace('|',':'))
             return identifiers['uri'].replace('|',':')
         else:
-            ## only epub has URL in it--at least where I can easily find it.
-            if db.has_format(book_id,'EPUB',index_is_id=True):
+            existingepub = None
+            if path == None and db.has_format(book_id,'EPUB',index_is_id=True):
                 existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
                 mi = get_metadata(existingepub,'EPUB')
                 identifiers = mi.get_identifiers()
                 if 'url' in identifiers:
-                    #print("url from epub:"+identifiers['url'].replace('|',':'))
+                    print("url from get_metadata:"+identifiers['url'].replace('|',':'))
                     return identifiers['url'].replace('|',':')
+            elif path.lower().endswith('.epub'):
+                existingepub = path
+                
+            ## only epub has URL in it--at least where I can easily find it.
+            if existingepub:                
                 # look for dc:source first, then scan HTML if lookforurlinhtml
                 link = get_dcsource(existingepub)
                 if link:
+                    print("url from get_dcsource:"+link)
                     return link
                 elif prefs['lookforurlinhtml']:
-                    return get_story_url_from_html(existingepub,self._is_good_downloader_url)
+                    link = get_story_url_from_html(existingepub,self._is_good_downloader_url)
+                    print("url from get_story_url_from_html:"+link)
+                    return link
         return None
 
     def _is_good_downloader_url(self,url):
