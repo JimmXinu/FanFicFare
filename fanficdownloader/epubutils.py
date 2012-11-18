@@ -22,7 +22,7 @@ def get_dcsource_chaptercount(inputio):
 def get_update_data(inputio,
                     getfilecount=True,
                     getsoups=True):
-    epub = ZipFile(inputio, 'r')
+    epub = ZipFile(inputio, 'r') # works equally well with inputio as a path or a blob
 
     ## Find the .opf file.
     container = epub.read("META-INF/container.xml")
@@ -153,7 +153,7 @@ def get_path_part(n):
 def get_story_url_from_html(inputio,_is_good_url=None):
 
     #print("get_story_url_from_html called")
-    epub = ZipFile(inputio, 'r')
+    epub = ZipFile(inputio, 'r') # works equally well with inputio as a path or a blob
 
     ## Find the .opf file.
     container = epub.read("META-INF/container.xml")
