@@ -10,10 +10,12 @@ __docformat__ = 'restructuredtext en'
 import traceback
 
 from PyQt4 import QtGui
-from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout, QGridLayout,
-                      QPushButton, QProgressDialog, QString, QLabel, QCheckBox, QIcon, QTextCursor,
-                      QTextEdit, QLineEdit, QInputDialog, QComboBox, QClipboard, QVariant,
-                      QProgressDialog, QTimer, QDialogButtonBox, QPixmap, Qt, QAbstractItemView )
+from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout,
+                      QGridLayout, QPushButton, QProgressDialog, QString, QLabel,
+                      QCheckBox, QIcon, QTextCursor, QTextEdit, QLineEdit, QInputDialog,
+                      QComboBox, QClipboard, QVariant, QProgressDialog, QTimer,
+                      QDialogButtonBox, QPixmap, Qt, QAbstractItemView, SIGNAL,
+                      QTableWidgetItem )
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -712,3 +714,209 @@ class StoryListTableWidget(QTableWidget):
             self.setItem(dest_row, col, self.takeItem(src_row, col))
         self.removeRow(src_row)
         self.blockSignals(False)
+
+class RejectListTableWidget(QTableWidget):
+
+    def __init__(self, parent):
+        QTableWidget.__init__(self, parent)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+    def on_headersection_clicked(self):
+        self.setSortingEnabled(True)
+        
+    def populate_table(self, reject_list):
+        self.clear()
+        self.setAlternatingRowColors(True)
+        self.setRowCount(len(reject_list))
+        header_labels = ['URL', 'Note']
+        self.setColumnCount(len(header_labels))
+        self.setHorizontalHeaderLabels(header_labels)
+        self.horizontalHeader().setStretchLastSection(True)
+        #self.verticalHeader().setDefaultSectionSize(24)
+        self.verticalHeader().hide()
+
+        # need sortingEnbled to sort, but off to up & down.
+        self.connect(self.horizontalHeader(),
+                     SIGNAL('sectionClicked(int)'),
+                     self.on_headersection_clicked)
+
+        # row is just row number.
+        for row, rejectrow in enumerate(reject_list):
+            self.populate_table_row(row,rejectrow)
+
+        self.resizeColumnsToContents()
+        self.setMinimumColumnWidth(1, 100)
+        self.setMinimumColumnWidth(2, 100)
+        self.setMinimumSize(300, 0)
+
+    def setMinimumColumnWidth(self, col, minimum):
+        if self.columnWidth(col) < minimum:
+            self.setColumnWidth(col, minimum)
+
+    def populate_table_row(self, row, rejectrow):
+
+        (bookid,url,note) = rejectrow
+        url_cell = ReadOnlyTableWidgetItem(url)
+        url_cell.setData(Qt.UserRole, QVariant(bookid))
+        url_cell.setToolTip('URL to add to the Reject List.')
+        self.setItem(row, 0, url_cell)
+      
+        note_cell = QTableWidgetItem(note)
+        note_cell.setToolTip('Double-click to edit note.')
+        self.setItem(row, 1, note_cell)
+      
+    def get_reject_list(self):
+        rejectrows = []
+        for row in range(self.rowCount()):
+            bookid = self.item(row, 0).data(Qt.UserRole).toPyObject()
+            url = unicode(self.item(row, 0).text())
+            note = unicode(self.item(row, 1).text())
+            rejectrows.append((bookid,url,note))
+        return rejectrows
+
+    def remove_selected_rows(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        message = '<p>Are you sure you want to remove this URL from the list?'
+        if len(rows) > 1:
+            message = '<p>Are you sure you want to remove the %d selected URLs from the list?'%len(rows)
+        if not confirm(message,'ffdl_rejectlist_delete_item_again', self):
+            return
+        first_sel_row = self.currentRow()
+        for selrow in reversed(rows):
+            self.removeRow(selrow.row())
+        if first_sel_row < self.rowCount():
+            self.select_and_scroll_to_row(first_sel_row)
+        elif self.rowCount() > 0:
+            self.select_and_scroll_to_row(first_sel_row - 1)
+
+    def select_and_scroll_to_row(self, row):
+        self.selectRow(row)
+        self.scrollToItem(self.currentItem())
+
+    def move_rows_up(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        first_sel_row = rows[0].row()
+        if first_sel_row <= 0:
+            return
+        # Workaround for strange selection bug in Qt which "alters" the selection
+        # in certain circumstances which meant move down only worked properly "once"
+        selrows = []
+        for row in rows:
+            selrows.append(row.row())
+        selrows.sort()
+        for selrow in selrows:
+            self.swap_row_widgets(selrow - 1, selrow + 1)
+        scroll_to_row = first_sel_row - 1
+        if scroll_to_row > 0:
+            scroll_to_row = scroll_to_row - 1
+        self.scrollToItem(self.item(scroll_to_row, 0))
+
+    def move_rows_down(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        last_sel_row = rows[-1].row()
+        if last_sel_row == self.rowCount() - 1:
+            return
+        # Workaround for strange selection bug in Qt which "alters" the selection
+        # in certain circumstances which meant move down only worked properly "once"
+        selrows = []
+        for row in rows:
+            selrows.append(row.row())
+        selrows.sort()
+        for selrow in reversed(selrows):
+            self.swap_row_widgets(selrow + 2, selrow)
+        scroll_to_row = last_sel_row + 1
+        if scroll_to_row < self.rowCount() - 1:
+            scroll_to_row = scroll_to_row + 1
+        self.scrollToItem(self.item(scroll_to_row, 0))
+
+    def swap_row_widgets(self, src_row, dest_row):
+        self.blockSignals(True)
+        self.setSortingEnabled(False)
+        self.insertRow(dest_row)
+        for col in range(0, self.columnCount()):
+            self.setItem(dest_row, col, self.takeItem(src_row, col))
+        self.removeRow(src_row)
+        self.blockSignals(False)
+
+class RejectListDialog(SizePersistedDialog):
+    def __init__(self, gui, reject_list,
+                 header="List of Books to Reject",
+                 icon='rotate-right.png',
+                 show_delete=True,
+                 save_size_name='ffdl:reject list dialog'):
+        SizePersistedDialog.__init__(self, gui, save_size_name)
+        self.gui = gui
+      
+        self.setWindowTitle(header)
+        self.setWindowIcon(get_icon(icon))
+      
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
+        title_layout = ImageTitleLayout(self, icon, header,
+                                        '<i></i>FFDL will remember these URLs and display the note and offer to reject them if you try to download them again later.')
+        layout.addLayout(title_layout)
+        rejects_layout = QHBoxLayout()
+        layout.addLayout(rejects_layout)
+
+        self.rejects_table = RejectListTableWidget(self)
+        rejects_layout.addWidget(self.rejects_table)
+
+        button_layout = QVBoxLayout()
+        rejects_layout.addLayout(button_layout)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        button_layout.addItem(spacerItem)
+        # self.move_up_button = QtGui.QToolButton(self)
+        # self.move_up_button.setToolTip('Move selected books up the list')
+        # self.move_up_button.setIcon(QIcon(I('arrow-up.png')))
+        # self.move_up_button.clicked.connect(self.books_table.move_rows_up)
+        # button_layout.addWidget(self.move_up_button)
+        self.remove_button = QtGui.QToolButton(self)
+        self.remove_button.setToolTip('Remove selected URL(s) from the list')
+        self.remove_button.setIcon(get_icon('list_remove.png'))
+        self.remove_button.clicked.connect(self.remove_from_list)
+        button_layout.addWidget(self.remove_button)
+        # self.move_down_button = QtGui.QToolButton(self)
+        # self.move_down_button.setToolTip('Move selected books down the list')
+        # self.move_down_button.setIcon(QIcon(I('arrow-down.png')))
+        # self.move_down_button.clicked.connect(self.books_table.move_rows_down)
+        # button_layout.addWidget(self.move_down_button)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        button_layout.addItem(spacerItem1)
+
+        options_layout = QHBoxLayout()
+
+        if show_delete:
+            self.deletebooks = QCheckBox('Delete Books (including books without FanFiction URLs)?',self)
+            self.deletebooks.setToolTip("Delete the selected books after adding them to the Rejected URLs list.")
+            self.deletebooks.setChecked(True)
+            options_layout.addWidget(self.deletebooks)
+        
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        options_layout.addWidget(button_box)
+      
+        layout.addLayout(options_layout)
+      
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
+        self.rejects_table.populate_table(reject_list)
+
+    def remove_from_list(self):
+        self.rejects_table.remove_selected_rows()
+
+    def get_reject_list(self):
+        return self.rejects_table.get_reject_list()
+
+    def get_deletebooks(self):
+        return self.deletebooks.isChecked()
+

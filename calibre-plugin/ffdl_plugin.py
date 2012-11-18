@@ -41,10 +41,10 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable i
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
-from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values)
+from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values, rejecturllist)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog, display_story_list, DisplayStoryListDialog,
-    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, 
+    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload )
 
@@ -190,6 +190,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
                                                                 triggered=self.get_urls_from_page)
 
+            self.reject_list_action = self.create_menu_item_ex(self.menu, 'Reject Selected Books', image='rotate-right.png',
+                                                               triggered=self.reject_list_urls)
+
             # print("platform.system():%s"%platform.system())
             # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
             if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
@@ -314,6 +317,56 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         show=True,
                         show_copy_button=False)
                 
+    def reject_list_urls(self):
+        if len(self.gui.library_view.get_selected_ids()) > 0:
+            book_list = map( partial(self._convert_id_to_book, good=False),
+                             self.gui.library_view.get_selected_ids() )            
+
+            LoopProgressDialog(self.gui,
+                               book_list,
+                               partial(self._reject_story_url_for_list, db=self.gui.current_db),
+                               self._finish_reject_list_urls,
+                               init_label="Collecting URLs for Reject List...",
+                               win_title="Get URLs for Reject List",
+                               status_prefix="URL retrieved")
+            
+    def _reject_story_url_for_list(self,book,db=None): 
+        self._populate_book_from_calibre_id(book,db)
+        book['url'] = self._get_story_url(db,book['calibre_id'])
+                
+        if book['url'] == None:
+            book['good']=False
+        else:
+            book['good']=True
+            
+    def _finish_reject_list_urls(self, book_list):
+        # construct reject list of (calibre_id, url, note) tuples.
+        reject_list = [ (x['calibre_id'],x['url'],
+                         "%s by %s"%(x['title'],
+                                     ', '.join(x['author']))) for x in book_list if x['good'] ]
+        if reject_list:
+            d = RejectListDialog(self.gui,reject_list)
+            d.exec_()
+            
+            if d.result() != d.Accepted:
+                return
+
+            bookids=[]
+            rejectlist=[]
+            for (bookid,url,note) in d.get_reject_list():
+                bookids.append(bookid)
+                rejectlist.append((url,note))
+                
+            rejecturllist.add(rejectlist)
+
+            if d.get_deletebooks():
+                self.gui.iactions['Remove Books'].delete_books()
+            
+        else:
+            message="<p>Rejecting FFDL URLs: None of the books selected have FanFiction URLs.</p><p>Proceed to Remove?</p>"
+            if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
+                self.gui.iactions['Remove Books'].delete_books()
+                
     def add_dialog(self):
 
         #print("add_dialog()")
@@ -347,6 +400,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def update_existing(self):
         if len(self.gui.library_view.get_selected_ids()) == 0:
+            self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
             return
         #print("update_existing()")
         
@@ -431,6 +485,29 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         necessary data.  To be called from LoopProgressDialog
         'loop'.  Also pops dialogs for is adult, user/pass.
         '''
+
+        url = book['url']
+        print("url:%s"%url)
+
+        rejnote = rejecturllist.check(url)
+        if rejnote:
+            if question_dialog(self.gui, 'Reject URL?',
+                               '<p>Reject URL?</p>'+
+                               '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
+                               "<p>Click 'No' to download anyway.</p>",
+                               show_copy_button=False):
+                book['comment'] = "Story on Reject URLs list (%s)."%rejnote
+                book['good']=False
+                book['icon']='rotate-right.png'
+                book['status'] = 'Rejected'
+                return
+            else:
+                if question_dialog(self.gui, 'Remove Reject URL?',
+                                   "<p>Remove URL from Reject List?</p>"+
+                                   '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
+                                   "<p>Click 'Yes' to remove it from the list and download,<br /> 'No' to download, but leave it on the Reject list.</p>",
+                                   show_copy_button=False):
+                    rejecturllist.remove(url)
         
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
@@ -447,8 +524,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # book has already been flagged bad for whatever reason.
             return
         
-        url = book['url']
-        print("url:%s"%url)
         skip_date_update = False
         
         options['personal.ini'] = prefs['personal.ini']
@@ -1208,7 +1283,7 @@ make_firstimage_cover:true
         book['comment'] = ''
         book['url'] = ''
         book['added'] = False
-        
+
         return book
             
     def _populate_book_from_calibre_id(self, book, db=None):

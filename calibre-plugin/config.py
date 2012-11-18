@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import traceback, copy
+import traceback, copy, threading
 from collections import OrderedDict
 
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont, QWidget,
@@ -18,7 +18,7 @@ from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
-    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order)
+    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getConfigSections
 
@@ -34,6 +34,7 @@ PREFS_KEY_SETTINGS = 'settings'
 # take from here.
 default_prefs = {}
 default_prefs['personal.ini'] = get_resources('plugin-example.ini')
+default_prefs['rejecturls'] = ''
 
 default_prefs['updatemeta'] = True
 default_prefs['updatecover'] = False
@@ -137,8 +138,68 @@ class PrefsFacade():
     def save_to_db(self):
         set_library_config(self._get_prefs())
         
-
 prefs = PrefsFacade(default_prefs)
+
+class RejectURLList:
+    def __init__(self,prefs):
+        self.prefs = prefs
+        self.sync_lock = threading.RLock()
+        self.listcache = None
+
+    def _get_listcache(self):
+        if self.listcache == None:
+            self.listcache = {}
+            for line in self.prefs['rejecturls'].splitlines():
+                if ',' in line:
+                    (rejurl,note) = line.split(',',1)
+                else:
+                    (rejurl,note) = (line,'')
+                self.listcache[rejurl] = note
+        return self.listcache
+
+    def _save_list(self,listcache):
+        rejectlist = []
+        for url in listcache:
+            rejectlist.append("%s,%s"%(url,listcache[url]))
+            
+        self.prefs['rejecturls'] = '\n'.join(rejectlist)
+        self.prefs.save_to_db()
+        self.listcache = None
+        
+    def check(self,url):
+        with self.sync_lock:
+            listcache = self._get_listcache()
+            if url in listcache:
+                note = listcache[url]
+                if not note: # in case of URL, but no note.
+                    note = "(no reject note)"
+                return note
+            
+            # not found
+            return None
+
+    def remove(self,url):
+        with self.sync_lock:
+            listcache = self._get_listcache()
+            if url in listcache:
+                del listcache[url]
+                self._save_list(listcache)
+
+    def add(self,rejectlist,clear=False):
+        # rejectlist=list of (url,note) tuples.
+        with self.sync_lock:
+            if clear:
+                listcache={}
+            else:
+                listcache = self._get_listcache()
+            for (url,note) in rejectlist:
+                listcache[url]=note
+            self._save_list(listcache)
+
+    def get_list(self):
+        return copy.deepcopy(self._get_listcache())
+            
+rejecturllist = RejectURLList(prefs)
     
 class ConfigWidget(QWidget):
 
@@ -161,6 +222,9 @@ class ConfigWidget(QWidget):
 
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
+        
+        # self.rejecturls_tab = RejectUrlsTab(self, plugin_action)
+        # tab_widget.addTab(self.rejecturls_tab, 'Reject URLs')
         
         self.readinglist_tab = ReadingListTab(self, plugin_action)
         tab_widget.addTab(self.readinglist_tab, 'Reading Lists')
@@ -396,6 +460,13 @@ class BasicTab(QWidget):
         self.injectseries.setChecked(prefs['injectseries'])
         self.l.addWidget(self.injectseries)
 
+        self.l.addSpacing(10)        
+
+        self.rejectlist = QPushButton('View Reject URL List', self)
+        self.rejectlist.setToolTip("View list of URLs FFDL will automatically Reject.")
+        self.rejectlist.clicked.connect(self.show_rejectlist)
+        self.l.addWidget(self.rejectlist)
+        
         self.l.insertStretch(-1)
         
     def set_collisions(self):
@@ -411,6 +482,26 @@ class BasicTab(QWidget):
     def show_defaults(self):
         text = get_resources('plugin-defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
+
+    def show_rejectlist(self):
+        rejectlist = []
+        for (url,note) in rejecturllist.get_list().items():
+            rejectlist.append((None,url,note))
+            
+        d = RejectListDialog(self,
+                             rejectlist,
+                             header="Edit Reject URLs List",
+                             show_delete=False)
+        d.exec_()
+        
+        if d.result() != d.Accepted:
+            return
+        
+        rejectlist=[]
+        for (bookid,url,note) in d.get_reject_list():
+            rejectlist.append((url,note))
+
+        rejecturllist.add(rejectlist,clear=True)
         
 class PersonalIniTab(QWidget):
 
@@ -452,6 +543,34 @@ class PersonalIniTab(QWidget):
         text = get_resources('plugin-defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
 
+# class RejectUrlsTab(QWidget):
+
+#     def __init__(self, parent_dialog, plugin_action):
+#         self.parent_dialog = parent_dialog
+#         self.plugin_action = plugin_action
+#         QWidget.__init__(self)
+        
+#         self.l = QVBoxLayout()
+#         self.setLayout(self.l)
+
+#         label = QLabel("List of story URLs you've previously rejected followed by an optional note.  FFDL will stop and ask you if try to download a story on your reject list.  The system will put title, author and why you rejected it when added from the FFDL 'Reject Story' option.")
+#         label.setWordWrap(True)
+#         self.l.addWidget(label)
+#         self.l.addSpacing(5)
+        
+#         self.label = QLabel('Rejected URLs: (URL,Notes)')
+#         self.l.addWidget(self.label)
+
+#         self.rejecturls = QTextEdit(self)
+#         try:
+#             self.rejecturls.setFont(QFont("Courier",
+#                                           self.plugin_action.gui.font().pointSize()+1));
+#         except Exception as e:
+#             print("Couldn't get font: %s"%e)
+#         self.rejecturls.setLineWrapMode(QTextEdit.NoWrap)
+#         self.rejecturls.setText(prefs['rejecturls'])
+#         self.l.addWidget(self.rejecturls)
+        
 class ShowDefaultsIniDialog(QDialog):
 
     def __init__(self, icon, text, parent=None):
@@ -916,3 +1035,4 @@ class StandardColumnsTab(QWidget):
             self.l.addLayout(horz)
         
         self.l.insertStretch(-1)
+
