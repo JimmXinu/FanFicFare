@@ -196,7 +196,7 @@ class ImageTitleLayout(QHBoxLayout):
     '''
     A reusable layout widget displaying an image followed by a title
     '''
-    def __init__(self, parent, icon_name, title):
+    def __init__(self, parent, icon_name, title, tooltip=None):
         QHBoxLayout.__init__(self)
         title_image_label = QLabel(parent)
         pixmap = get_pixmap(icon_name)
@@ -217,6 +217,9 @@ class ImageTitleLayout(QHBoxLayout):
         self.addWidget(shelf_label)
         self.insertStretch(-1)
 
+        if tooltip:
+            title_image_label.setToolTip(tooltip)
+            shelf_label.setToolTip(tooltip)
 
 class SizePersistedDialog(QDialog):
     '''
