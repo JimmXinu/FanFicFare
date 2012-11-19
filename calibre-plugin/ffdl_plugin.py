@@ -347,10 +347,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         show_copy_button=False)
                 
     def reject_list_urls(self):
-        if self.gui.current_view().selectionModel().selectedRows() == 0 :
-            self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'), 3000)
-            return
-            
         if self.is_library_view():
             book_list = map( partial(self._convert_id_to_book, good=False),
                              self.gui.library_view.get_selected_ids() )
@@ -360,6 +356,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             rows = view.selectionModel().selectedRows()
             #paths = view.model().paths(rows)
             book_list = map( partial(self._convert_row_to_book, good=False), rows )
+            
+        if len(book_list) == 0 :
+            self.gui.status_bar.show_message(_('No Selected Books have URLs to Reject'), 3000)
+            return
             
         LoopProgressDialog(self.gui,
                            book_list,
@@ -375,21 +375,27 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self._populate_book_from_calibre_id(book,db)
             book['url'] = self._get_story_url(db,book_id=book['calibre_id'])
         elif book['path']:
-            
             book['url'] = self._get_story_url(db,path=book['path'])
                 
         if book['url'] == None:
             book['good']=False
         else:
             book['good']=True
+            # get existing note, if there is one.
+            book['oldrejnote']=rejecturllist.check(book['url'])
             
     def _finish_reject_list_urls(self, book_list):
-        # construct reject list of (calibre_id, url, note) tuples.
-        reject_list = [ (x['calibre_id'],x['url'],
-                         "%s by %s"%(x['title'],
-                                     ', '.join(x['author']))) for x in book_list if x['good'] ]
+
+        # construct reject list of tuples:
+        # (calibre_id, url, "title, authors", old reject note).
+        reject_list = [ ( x['calibre_id'],x['url'],
+                          "%s by %s"%(x['title'],
+                                      ', '.join(x['author'])),
+                          x['oldrejnote'])
+                        for x in book_list if x['good'] ]
         if reject_list:
-            d = RejectListDialog(self.gui,reject_list)
+            d = RejectListDialog(self.gui,reject_list,
+                                 rejectreasons=rejecturllist.get_reject_reasons())
             d.exec_()
             
             if d.result() != d.Accepted:
@@ -400,6 +406,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             for (bookid,url,note) in d.get_reject_list():
                 bookids.append(bookid)
                 rejectlist.append((url,note))
+                print("Adding (%s) to Reject List: %s"%(url,note))
                 
             rejecturllist.add(rejectlist)
 
@@ -1369,11 +1376,11 @@ make_firstimage_cover:true
             identifiers = db.get_identifiers(book_id,index_is_id=True)
         if 'url' in identifiers:
             # identifiers have :->| in url.
-            print("url from ident url:"+identifiers['url'].replace('|',':'))
+            # print("url from ident url:%s"%identifiers['url'].replace('|',':'))
             return identifiers['url'].replace('|',':')
         elif 'uri' in identifiers:
             # identifiers have :->| in uri.
-            print("uri from ident uri:"+identifiers['uri'].replace('|',':'))
+            # print("uri from ident uri:%s"%identifiers['uri'].replace('|',':'))
             return identifiers['uri'].replace('|',':')
         else:
             existingepub = None
@@ -1382,7 +1389,7 @@ make_firstimage_cover:true
                 mi = get_metadata(existingepub,'EPUB')
                 identifiers = mi.get_identifiers()
                 if 'url' in identifiers:
-                    print("url from get_metadata:"+identifiers['url'].replace('|',':'))
+                    # print("url from get_metadata:%s"%identifiers['url'].replace('|',':'))
                     return identifiers['url'].replace('|',':')
             elif path.lower().endswith('.epub'):
                 existingepub = path
@@ -1392,11 +1399,11 @@ make_firstimage_cover:true
                 # look for dc:source first, then scan HTML if lookforurlinhtml
                 link = get_dcsource(existingepub)
                 if link:
-                    print("url from get_dcsource:"+link)
+                    # print("url from get_dcsource:%s"%link)
                     return link
                 elif prefs['lookforurlinhtml']:
                     link = get_story_url_from_html(existingepub,self._is_good_downloader_url)
-                    print("url from get_story_url_from_html:"+link)
+                    # print("url from get_story_url_from_html:%s"%link)
                     return link
         return None
 

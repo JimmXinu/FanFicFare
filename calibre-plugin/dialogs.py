@@ -8,6 +8,7 @@ __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback
+from functools import partial
 
 from PyQt4 import QtGui
 from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout,
@@ -19,6 +20,7 @@ from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayo
 
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.complete2 import EditWithComplete
 
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic
@@ -717,9 +719,10 @@ class StoryListTableWidget(QTableWidget):
 
 class RejectListTableWidget(QTableWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent,rejectreasons=[]):
         QTableWidget.__init__(self, parent)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.rejectreasons = rejectreasons
 
     def on_headersection_clicked(self):
         self.setSortingEnabled(True)
@@ -755,22 +758,58 @@ class RejectListTableWidget(QTableWidget):
 
     def populate_table_row(self, row, rejectrow):
 
-        (bookid,url,note) = rejectrow
+        (bookid,url,titleauth,oldrejnote) = rejectrow
+        if oldrejnote:
+            noteprefix = note = oldrejnote
+            # incase the existing note ends with one of the known reasons.
+            for reason in self.rejectreasons:
+                if noteprefix.endswith(' - '+reason):
+                    noteprefix = noteprefix[:-len(' - '+reason)]
+                    break
+        else:
+            noteprefix = note = titleauth
+            
         url_cell = ReadOnlyTableWidgetItem(url)
         url_cell.setData(Qt.UserRole, QVariant(bookid))
         url_cell.setToolTip('URL to add to the Reject List.')
         self.setItem(row, 0, url_cell)
-      
-        note_cell = QTableWidgetItem(note)
-        note_cell.setToolTip('Double-click to edit note.')
-        self.setItem(row, 1, note_cell)
+
+        note_cell = EditWithComplete(self)
+
+        # This is a more than slightly kludgey way to get
+        # EditWithComplete to *not* alpha-order the reasons, but leave
+        # them in the order entered.  If
+        # calibre.gui2.complete2.CompleteModel.set_items ever changes,
+        # this function will need to also.
+        def complete_model_set_items_kludge(self, items):
+            items = [unicode(x.strip()) for x in items]
+            items = [x for x in items if x]
+            items = tuple(items)
+            self.all_items = self.current_items = items
+            self.current_prefix = ''
+            self.reset()
+
+        note_cell.lineEdit().mcompleter.model().set_items = \
+            partial(complete_model_set_items_kludge,
+                    note_cell.lineEdit().mcompleter.model())
+        
+        items = [note]+[ noteprefix+" - "+x for x in self.rejectreasons ]
+        note_cell.update_items_cache(items)
+        note_cell.show_initial_value(note)
+        note_cell.set_separator(None)
+        note_cell.setToolTip('Select or Edit Reject Note.')
+        self.setCellWidget(row, 1, note_cell)
+        
+        # note_cell = QTableWidgetItem(note)
+        # note_cell.setToolTip('Double-click to edit note.')
+        # self.setItem(row, 1, note_cell)
       
     def get_reject_list(self):
         rejectrows = []
         for row in range(self.rowCount()):
             bookid = self.item(row, 0).data(Qt.UserRole).toPyObject()
             url = unicode(self.item(row, 0).text())
-            note = unicode(self.item(row, 1).text())
+            note = unicode(self.cellWidget(row, 1).currentText()).strip()
             rejectrows.append((bookid,url,note))
         return rejectrows
 
@@ -849,6 +888,7 @@ class RejectListTableWidget(QTableWidget):
 
 class RejectListDialog(SizePersistedDialog):
     def __init__(self, gui, reject_list,
+                 rejectreasons=[],
                  header="List of Books to Reject",
                  icon='rotate-right.png',
                  show_delete=True,
@@ -867,7 +907,7 @@ class RejectListDialog(SizePersistedDialog):
         rejects_layout = QHBoxLayout()
         layout.addLayout(rejects_layout)
 
-        self.rejects_table = RejectListTableWidget(self)
+        self.rejects_table = RejectListTableWidget(self,rejectreasons=rejectreasons)
         rejects_layout.addWidget(self.rejects_table)
 
         button_layout = QVBoxLayout()
@@ -919,4 +959,3 @@ class RejectListDialog(SizePersistedDialog):
 
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
-

@@ -10,8 +10,10 @@ __docformat__ = 'restructuredtext en'
 import traceback, copy, threading
 from collections import OrderedDict
 
-from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QFont, QWidget,
-                      QTextEdit, QComboBox, QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea)
+from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+                      QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
+                      QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea,
+                      QDialogButtonBox )
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.utils.config import JSONConfig
@@ -35,6 +37,9 @@ PREFS_KEY_SETTINGS = 'settings'
 default_prefs = {}
 default_prefs['personal.ini'] = get_resources('plugin-example.ini')
 default_prefs['rejecturls'] = ''
+default_prefs['rejectreasons'] = '''Sucked
+Boring
+Dup from another site'''
 
 default_prefs['updatemeta'] = True
 default_prefs['updatecover'] = False
@@ -199,6 +204,9 @@ class RejectURLList:
     def get_list(self):
         return copy.deepcopy(self._get_listcache())
             
+    def get_reject_reasons(self):
+        return self.prefs['rejectreasons'].splitlines()
+
 rejecturllist = RejectURLList(prefs)
     
 class ConfigWidget(QWidget):
@@ -462,10 +470,19 @@ class BasicTab(QWidget):
 
         self.l.addSpacing(10)        
 
-        self.rejectlist = QPushButton('View Reject URL List', self)
-        self.rejectlist.setToolTip("View list of URLs FFDL will automatically Reject.")
+        horz = QHBoxLayout()
+        
+        self.rejectlist = QPushButton('Edit Reject URL List', self)
+        self.rejectlist.setToolTip("Edit list of URLs FFDL will automatically Reject.")
         self.rejectlist.clicked.connect(self.show_rejectlist)
-        self.l.addWidget(self.rejectlist)
+        horz.addWidget(self.rejectlist)
+        
+        self.reject_reasons = QPushButton('Edit Reject Reasons List', self)
+        self.reject_reasons.setToolTip("Customize the Reasons presented when Rejecting URLs")
+        self.reject_reasons.clicked.connect(self.show_reject_reasons)
+        horz.addWidget(self.reject_reasons)
+        
+        self.l.addLayout(horz)
         
         self.l.insertStretch(-1)
         
@@ -486,10 +503,11 @@ class BasicTab(QWidget):
     def show_rejectlist(self):
         rejectlist = []
         for (url,note) in rejecturllist.get_list().items():
-            rejectlist.append((None,url,note))
+            rejectlist.append((None,url,note,note))
             
         d = RejectListDialog(self,
                              rejectlist,
+                             rejectreasons=rejecturllist.get_reject_reasons(),
                              header="Edit Reject URLs List",
                              show_delete=False)
         d.exec_()
@@ -503,6 +521,40 @@ class BasicTab(QWidget):
 
         rejecturllist.add(rejectlist,clear=True)
         
+    def show_reject_reasons(self):
+        print("rejectreasons:%s"%prefs['rejectreasons'])
+        d = RejectReasonsDialog(self.windowIcon(),prefs['rejectreasons'],self)
+        d.exec_()
+        if d.result() == d.Accepted:
+            prefs['rejectreasons'] = unicode(d.reasons.toPlainText())
+        print("rejectreasons:%s"%prefs['rejectreasons'])
+        
+
+class RejectReasonsDialog(QDialog):
+
+    def __init__(self, icon, text, parent=None):
+        QDialog.__init__(self, parent)
+        self.resize(600, 500)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.label = QLabel("Customize Reject List Reasons")
+        tooltip="Customize the Reasons presented when Rejecting URLs"
+        self.label.setToolTip(tooltip)
+        self.setWindowTitle(_('Reject Reasons'))
+        self.setWindowIcon(icon)
+        self.l.addWidget(self.label)
+        
+        self.reasons = QTextEdit(self)
+        self.reasons.setToolTip(tooltip)
+        self.reasons.setLineWrapMode(QTextEdit.NoWrap)
+        self.reasons.setText(text)
+        self.l.addWidget(self.reasons)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.l.addWidget(button_box)
+                
 class PersonalIniTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
@@ -542,34 +594,6 @@ class PersonalIniTab(QWidget):
     def show_defaults(self):
         text = get_resources('plugin-defaults.ini')
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
-
-# class RejectUrlsTab(QWidget):
-
-#     def __init__(self, parent_dialog, plugin_action):
-#         self.parent_dialog = parent_dialog
-#         self.plugin_action = plugin_action
-#         QWidget.__init__(self)
-        
-#         self.l = QVBoxLayout()
-#         self.setLayout(self.l)
-
-#         label = QLabel("List of story URLs you've previously rejected followed by an optional note.  FFDL will stop and ask you if try to download a story on your reject list.  The system will put title, author and why you rejected it when added from the FFDL 'Reject Story' option.")
-#         label.setWordWrap(True)
-#         self.l.addWidget(label)
-#         self.l.addSpacing(5)
-        
-#         self.label = QLabel('Rejected URLs: (URL,Notes)')
-#         self.l.addWidget(self.label)
-
-#         self.rejecturls = QTextEdit(self)
-#         try:
-#             self.rejecturls.setFont(QFont("Courier",
-#                                           self.plugin_action.gui.font().pointSize()+1));
-#         except Exception as e:
-#             print("Couldn't get font: %s"%e)
-#         self.rejecturls.setLineWrapMode(QTextEdit.NoWrap)
-#         self.rejecturls.setText(prefs['rejecturls'])
-#         self.l.addWidget(self.rejecturls)
         
 class ShowDefaultsIniDialog(QDialog):
 
