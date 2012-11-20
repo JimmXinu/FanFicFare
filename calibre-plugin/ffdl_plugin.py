@@ -214,7 +214,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if menu_id not in self.actions_unique_map:
                     self.gui.keyboard.unregister_shortcut(unique_name)
             self.old_actions_unique_map = self.actions_unique_map
-            self.gui.keyboard.finalize()            
+            self.gui.keyboard.finalize()
 
     def about(self):
         # Get the about text from a file inside the plugin zip file

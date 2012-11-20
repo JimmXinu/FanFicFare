@@ -769,6 +769,9 @@ class RejectListTableWidget(QTableWidget):
         else:
             noteprefix = note = titleauth
             
+        if len(noteprefix) > 0:
+            noteprefix = noteprefix+' - '
+            
         url_cell = ReadOnlyTableWidgetItem(url)
         url_cell.setData(Qt.UserRole, QVariant(bookid))
         url_cell.setToolTip('URL to add to the Reject List.')
@@ -793,7 +796,7 @@ class RejectListTableWidget(QTableWidget):
             partial(complete_model_set_items_kludge,
                     note_cell.lineEdit().mcompleter.model())
         
-        items = [note]+[ noteprefix+" - "+x for x in self.rejectreasons ]
+        items = [note]+[ noteprefix+x for x in self.rejectreasons ]
         note_cell.update_items_cache(items)
         note_cell.show_initial_value(note)
         note_cell.set_separator(None)
@@ -959,3 +962,35 @@ class RejectListDialog(SizePersistedDialog):
 
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
+
+class EditTextDialog(QDialog):
+
+    def __init__(self, parent, text,
+                 icon=None, title=None, label=None, tooltip=None):
+        QDialog.__init__(self, parent)
+        self.resize(600, 500)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.label = QLabel(label)
+        if title:
+            self.setWindowTitle(title)
+        if icon:
+            self.setWindowIcon(icon)
+        self.l.addWidget(self.label)
+        
+        self.textedit = QTextEdit(self)
+        self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        self.textedit.setText(text)
+        self.l.addWidget(self.textedit)
+
+        if tooltip:
+            self.label.setToolTip(tooltip)
+            self.textedit.setToolTip(tooltip)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.l.addWidget(button_box)
+
+    def get_plain_text(self):
+        return unicode(self.textedit.toPlainText())
