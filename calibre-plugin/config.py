@@ -20,7 +20,8 @@ from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
-    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog)
+    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog,
+            EditTextDialog)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getConfigSections
 
@@ -151,15 +152,20 @@ class RejectURLList:
         self.sync_lock = threading.RLock()
         self.listcache = None
 
+    def _read_list_from_text(self,text):
+        cache = {}
+        for line in text.splitlines():
+            if ',' in line:
+                (rejurl,note) = line.split(',',1)
+            else:
+                (rejurl,note) = (line,'')
+            cache[rejurl] = note
+        return cache
+        
+
     def _get_listcache(self):
         if self.listcache == None:
-            self.listcache = {}
-            for line in self.prefs['rejecturls'].splitlines():
-                if ',' in line:
-                    (rejurl,note) = line.split(',',1)
-                else:
-                    (rejurl,note) = (line,'')
-                self.listcache[rejurl] = note
+            self.listcache = self._read_list_from_text(prefs['rejecturls'])
         return self.listcache
 
     def _save_list(self,listcache):
@@ -176,8 +182,6 @@ class RejectURLList:
             listcache = self._get_listcache()
             if url in listcache:
                 note = listcache[url]
-                if not note: # in case of URL, but no note.
-                    note = "(no reject note)"
                 return note
             
             # not found
@@ -190,6 +194,9 @@ class RejectURLList:
                 del listcache[url]
                 self._save_list(listcache)
 
+    def add_text(self,rejecttext):
+        self.add(self._read_list_from_text(rejecttext).items())
+            
     def add(self,rejectlist,clear=False):
         # rejectlist=list of (url,note) tuples.
         with self.sync_lock:
@@ -477,6 +484,11 @@ class BasicTab(QWidget):
         self.rejectlist.clicked.connect(self.show_rejectlist)
         horz.addWidget(self.rejectlist)
         
+        self.reject_urls = QPushButton('Add Reject URLs', self)
+        self.reject_urls.setToolTip("Add additional URLs to Reject as text.")
+        self.reject_urls.clicked.connect(self.add_reject_urls)
+        horz.addWidget(self.reject_urls)
+        
         self.reject_reasons = QPushButton('Edit Reject Reasons List', self)
         self.reject_reasons.setToolTip("Customize the Reasons presented when Rejecting URLs")
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
@@ -522,38 +534,26 @@ class BasicTab(QWidget):
         rejecturllist.add(rejectlist,clear=True)
         
     def show_reject_reasons(self):
-        print("rejectreasons:%s"%prefs['rejectreasons'])
-        d = RejectReasonsDialog(self.windowIcon(),prefs['rejectreasons'],self)
+        d = EditTextDialog(self,
+                           prefs['rejectreasons'],
+                           icon=self.windowIcon(),
+                           title="Reject Reasons",
+                           label="Customize Reject List Reasons",
+                           tooltip="Customize the Reasons presented when Rejecting URLs")
         d.exec_()
         if d.result() == d.Accepted:
-            prefs['rejectreasons'] = unicode(d.reasons.toPlainText())
-        print("rejectreasons:%s"%prefs['rejectreasons'])
-        
-
-class RejectReasonsDialog(QDialog):
-
-    def __init__(self, icon, text, parent=None):
-        QDialog.__init__(self, parent)
-        self.resize(600, 500)
-        self.l = QVBoxLayout()
-        self.setLayout(self.l)
-        self.label = QLabel("Customize Reject List Reasons")
-        tooltip="Customize the Reasons presented when Rejecting URLs"
-        self.label.setToolTip(tooltip)
-        self.setWindowTitle(_('Reject Reasons'))
-        self.setWindowIcon(icon)
-        self.l.addWidget(self.label)
-        
-        self.reasons = QTextEdit(self)
-        self.reasons.setToolTip(tooltip)
-        self.reasons.setLineWrapMode(QTextEdit.NoWrap)
-        self.reasons.setText(text)
-        self.l.addWidget(self.reasons)
-
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-        self.l.addWidget(button_box)
+            prefs['rejectreasons'] = d.get_plain_text()
+                
+    def add_reject_urls(self):
+        d = EditTextDialog(self,
+                           "",
+                           icon=self.windowIcon(),
+                           title="Add Reject URLs",
+                           label="Add Reject URLs. Use: 'http://...,note'",
+                           tooltip="One URL per line, everything after ',' will be put in the note.")
+        d.exec_()
+        if d.result() == d.Accepted:
+            rejecturllist.add_text(d.get_plain_text())
                 
 class PersonalIniTab(QWidget):
 
