@@ -1408,20 +1408,7 @@ make_firstimage_cover:true
         return None
 
     def _is_good_downloader_url(self,url):
-        # this is the accepted way to 'check for existance of a class variable'?  really?
-        try:
-            self.dummyconfig
-        except AttributeError:
-            self.dummyconfig = Configuration("test1.com","EPUB")
-        # pulling up an adapter is pretty low over-head.  If
-        # it fails, it's a bad url.
-        try:
-            adapter = adapters.getAdapter(self.dummyconfig,url)
-            url = adapter.url
-            del adapter
-            return url
-        except:
-            return None;
+        return adapters.getNormalStoryURL(url)
 
 def get_url_list(urls):
     def f(x):

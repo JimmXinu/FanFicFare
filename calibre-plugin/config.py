@@ -22,8 +22,9 @@ from calibre.gui2.ui import get_gui
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog,
             EditTextDialog)
-
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getConfigSections
+    
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
+    import (getConfigSections, getNormalStoryURL)
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( get_library_uuid, KeyboardConfigDialog, PrefsViewerDialog )
@@ -159,7 +160,9 @@ class RejectURLList:
                 (rejurl,note) = line.split(',',1)
             else:
                 (rejurl,note) = (line,'')
-            cache[rejurl] = note
+            rejurl = getNormalStoryURL(rejurl)
+            if rejurl:
+                cache[rejurl] = note
         return cache
         
 
@@ -549,8 +552,8 @@ class BasicTab(QWidget):
                            "",
                            icon=self.windowIcon(),
                            title="Add Reject URLs",
-                           label="Add Reject URLs. Use: 'http://...,note'",
-                           tooltip="One URL per line, everything after ',' will be put in the note.")
+                           label="Add Reject URLs. Use: <b>http://...,note</b>",
+                           tooltip="One URL per line, everything after <b>,</b> will be put in the note.")
         d.exec_()
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text())

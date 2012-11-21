@@ -23,6 +23,7 @@ import urlparse as up
 logger = logging.getLogger(__name__)
 
 from .. import exceptions as exceptions
+from ..configurable import Configuration
 
 ## must import each adapter here.
 
@@ -124,6 +125,22 @@ for x in imports():
     if "fanficdownloader.adapters.adapter_" in x:
         #print x
         __class_list.append(sys.modules[x].getClass())
+
+def getNormalStoryURL(url):
+    if not getNormalStoryURL.__dummyconfig:
+        getNormalStoryURL.__dummyconfig = Configuration("test1.com","EPUB")
+    # pulling up an adapter is pretty low over-head.  If
+    # it fails, it's a bad url.
+    try:
+        adapter = getAdapter(getNormalStoryURL.__dummyconfig,url)
+        url = adapter.url
+        del adapter
+        return url
+    except:
+        return None;
+
+# kludgey function static/singleton
+getNormalStoryURL.__dummyconfig = None
 
 def getAdapter(config,url):
 
