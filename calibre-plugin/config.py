@@ -549,7 +549,7 @@ class BasicTab(QWidget):
                 
     def add_reject_urls(self):
         d = EditTextDialog(self,
-                           "",
+                           "http://example.com?story.php?sid=5,Reason why I rejected it",
                            icon=self.windowIcon(),
                            title="Add Reject URLs",
                            label="Add Reject URLs. Use: <b>http://...,note</b>",
