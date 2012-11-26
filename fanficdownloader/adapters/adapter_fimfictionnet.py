@@ -146,8 +146,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 coverurl = storyMetadata["full_image"]
             else:
                 coverurl = storyMetadata["image"]
-            if coverurl.startswith('//static.fimfiction.net'): # fix for img urls missing 'http:'
+            if coverurl.startswith('//'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
+
             self.setCoverImage(self.url,coverurl)
 
         # the fimfic API gives bbcode for desc, not html.
