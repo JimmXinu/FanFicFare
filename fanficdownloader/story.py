@@ -21,6 +21,7 @@ import string
 from math import floor
 from functools import partial
 import logging
+logger = logging.getLogger(__name__)
 import urlparse as up
 
 import exceptions
@@ -29,10 +30,21 @@ from configurable import Configurable
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
+        
+imagetypes = {
+    'jpg':'image/jpeg',
+    'jpeg':'image/jpeg',
+    'png':'image/png',
+    'gif':'image/gif',
+    'svg':'image/svg+xml',
+    }
+
 try:
     from calibre.utils.magick import Image
+    convtype = {'jpg':'JPG', 'png':'PNG'}
 
-    def convert_image(url,data,sizes,grayscale):
+    def convert_image(url,data,sizes,grayscale,
+                      removetrans,imgtype="jpg",background='#ffffff'):
         export = False
         img = Image()
         img.load(data)
@@ -44,18 +56,25 @@ try:
             img.size = (nwidth, nheight)
             export = True
             
+        if normalize_format_name(img.format) != imgtype:
+            export = True
+
+        if removetrans and img.has_transparent_pixels():
+            canvas = Image()
+            canvas.create_canvas(int(img.size[0]), int(img.size[1]), str(background))
+            canvas.compose(img)
+            img = canvas
+            export = True
+            
         if grayscale and img.type != "GrayscaleType":
             img.type = "GrayscaleType"
             export = True
 
-        if normalize_format_name(img.format) != "jpg":
-            export = True
-
         if export:
-            return (img.export('JPG'),'jpg','image/jpeg')
+            return (img.export(convtype[imgtype]),imgtype,imagetypes[imgtype])
         else:
-            logging.debug("image used unchanged")
-            return (data,'jpg','image/jpeg')
+            logger.debug("image used unchanged")
+            return (data,imgtype,imagetypes[imgtype])
         
 except:
 
@@ -63,8 +82,9 @@ except:
     try:
         import Image
         from StringIO import StringIO
-        def convert_image(url,data,sizes,grayscale):
-            
+        convtype = {'jpg':'JPEG', 'png':'PNG'}
+        def convert_image(url,data,sizes,grayscale,
+                          removetrans,imgtype="jpg",background='#ffffff'):
             export = False
             img = Image.open(StringIO(data))
             
@@ -75,36 +95,36 @@ except:
                 img = img.resize((nwidth, nheight),Image.ANTIALIAS)
                 export = True
                 
-            if grayscale and img.mode != "L":
-                img = img.convert("L")
-                export = True
-
-            if normalize_format_name(img.format) != "jpg":
+            if normalize_format_name(img.format) != imgtype:
                 if img.mode == "P":
                     # convert pallete gifs to RGB so jpg save doesn't fail.
                     img = img.convert("RGB")
                 export = True
 
+            if removetrans and img.mode == "RGBA":
+                background = Image.new('RGBA', img.size, background)
+                # Paste the image on top of the background
+                background.paste(img, img)
+                img = background.convert('RGB')
+                export = True
+
+            if grayscale and img.mode != "L":
+                img = img.convert("L")
+                export = True
+
             if export:
                 outsio = StringIO()
-                img.save(outsio,'JPEG')
-                return (outsio.getvalue(),'jpg','image/jpeg')
+                img.save(outsio,convtype[imgtype])
+                return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
-                logging.debug("image used unchanged")
-                return (data,'jpg','image/jpeg')
+                logger.debug("image used unchanged")
+                return (data,imgtype,imagetypes[imgtype])
         
     except:
         # No calibre or PIL, simple pass through with mimetype.
-        def convert_image(url,data,sizes,grayscale):
+        def convert_image(url,data,sizes,grayscale,
+                          removetrans,imgtype="jpg",background='#ffffff'):
             return no_convert_image(url,data)
-        
-imagetypes = {
-    'jpg':'image/jpeg',
-    'jpeg':'image/jpeg',
-    'png':'image/png',
-    'gif':'image/gif',
-    'svg':'image/svg+xml',
-    }
 
 ## also used for explicit no image processing.
 def no_convert_image(url,data):
@@ -113,7 +133,7 @@ def no_convert_image(url,data):
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
     
     if ext not in imagetypes:
-        logging.debug("no_convert_image url:%s - no known extension"%url)
+        logger.debug("no_convert_image url:%s - no known extension"%url)
         # doesn't have extension? use jpg.
         ext='jpg'
         
@@ -519,18 +539,27 @@ class Story(Configurable):
             try:
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
-                                                   fetch(imgurl))
+                                                       fetch(imgurl))
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
                     except Exception, e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
+                    grayscale = self.getConfig('grayscale_images')
+                    imgtype = self.getConfig('convert_images_to')
+                    if not imgtype:
+                        imgtype = "jpg"
+                    removetrans = self.getConfig('remove_transparency')
+                    removetrans = removetrans or grayscale or imgtype=="jpg"
                     (data,ext,mime) = convert_image(imgurl,
                                                     fetch(imgurl),
                                                     sizes,
-                                                    self.getConfig('grayscale_images'))
+                                                    grayscale,
+                                                    removetrans,
+                                                    imgtype,
+                                                    background="#"+self.getConfig('background_color'))
             except Exception, e:
-                logging.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
+                logger.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
             
             # explicit cover, make the first image.
@@ -565,7 +594,7 @@ class Story(Configurable):
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                 
-            logging.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+            logger.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
             
