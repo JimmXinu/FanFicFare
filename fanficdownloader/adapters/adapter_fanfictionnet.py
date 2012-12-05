@@ -68,7 +68,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return "http://www.fanfiction.net/s/1234/1/ http://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title"
 
     def getSiteURLPattern(self):
-        return r"http://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[a-zA-Z0-9_-]+)?/?$"
+        return r"http://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -215,9 +215,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        img = soup.find('img',{'class':'cimage'})
-        if img:
-            self.setCoverImage(url,img['src'])
+        # Try the larger image first.
+        try:
+            img = soup.find('img',{'class':'lazy cimage'})
+            self.setCoverImage(url,img['data-original'])
+        except:
+            img = soup.find('img',{'class':'cimage'})
+            if img:
+                self.setCoverImage(url,img['src'])
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
