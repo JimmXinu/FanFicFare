@@ -108,7 +108,6 @@ import adapter_jlaunlimitedcom
 import adapter_qafficcom
 import adapter_efpfanficnet
 
-
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
 ## to pick out the adapter.
@@ -172,10 +171,6 @@ def getClassFor(url):
     ## remove any trailing '#' locations.
     fixedurl = re.sub(r"#.*$","",fixedurl)
     
-    ## remove any trailing '&' parameters--?sid=999 will be left.
-    ## that's all that any of the current adapters need or want.
-    fixedurl = re.sub(r"&.*$","",fixedurl)
-    
     parsedUrl = up.urlparse(fixedurl)
     domain = parsedUrl.netloc.lower()
     if( domain != parsedUrl.netloc ):
@@ -192,6 +187,8 @@ def getClassFor(url):
         cls = getClassFromList("www."+domain)
         fixedurl = fixedurl.replace("http://","http://www.")
         
+    fixedurl = cls.stripURLParameters(fixedurl)
+    
     return (cls,fixedurl)
     
 def getClassFromList(domain):
