@@ -233,13 +233,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             chars = a.findAll('a',{'class':"tag"})
             for char in chars:
                 self.story.addToList('characters',char.string)
+                
         a = metasoup.find('dd',{'class':"relationship tags"})
         if a != None:
             ships = a.findAll('a',{'class':"tag"})
             for ship in ships:
                 self.story.addToList('ships',ship.string)
 		
-
+        a = metasoup.find('dd',{'class':"collections"})
+        if a != None:
+            collections = a.findAll('a')
+            for collection in collections:
+                self.story.addToList('collections',collection.string)
+		
         stats = metasoup.find('dl',{'class':'stats'})
         dt = stats.findAll('dt')
         dd = stats.findAll('dd')
