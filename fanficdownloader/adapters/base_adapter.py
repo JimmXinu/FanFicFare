@@ -255,6 +255,13 @@ class BaseSiteAdapter(Configurable):
         "Only needs to be overriden if != site domain."
         return cls.getSiteDomain()
     
+    @classmethod
+    def stripURLParameters(cls,url):
+        "Only needs to be overriden if URL contains more than one parameter"
+        ## remove any trailing '&' parameters--?sid=999 will be left.
+        ## that's all that any of the current adapters need or want.
+        return re.sub(r"&.*$","",url)
+    
     ## URL pattern validation is done *after* picking an adaptor based
     ## on domain instead of *as* the adaptor selector so we can offer
     ## the user example(s) for that particular site.

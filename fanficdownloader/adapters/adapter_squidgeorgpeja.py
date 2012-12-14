@@ -76,7 +76,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.squidge.org'
     
-    @classmethod # must be @staticmethod, don't remove it.
+    @classmethod # must be @classmethod, don't remove it.
     def getConfigSection(cls):
         # The config section name.  Only override if != site domain.
         return cls.getSiteDomain()+'/peja'
