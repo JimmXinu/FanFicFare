@@ -145,6 +145,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def library_changed(self, db):
         # We need to reset our menus after switching libraries
         self.rebuild_menus()
+        rejecturllist.clear_cache()
         
     def rebuild_menus(self):
         with self.menus_lock:

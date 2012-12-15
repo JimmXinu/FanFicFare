@@ -180,6 +180,9 @@ class RejectURLList:
         self.prefs.save_to_db()
         self.listcache = None
         
+    def clear_cache(self):
+        self.listcache = None
+
     def check(self,url):
         with self.sync_lock:
             listcache = self._get_listcache()
@@ -240,9 +243,6 @@ class ConfigWidget(QWidget):
 
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
-        
-        # self.rejecturls_tab = RejectUrlsTab(self, plugin_action)
-        # tab_widget.addTab(self.rejecturls_tab, 'Reject URLs')
         
         self.readinglist_tab = ReadingListTab(self, plugin_action)
         tab_widget.addTab(self.readinglist_tab, 'Reading Lists')
