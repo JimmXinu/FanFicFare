@@ -120,6 +120,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), storyMetadata["author"]["name"]))
         
         chapters = [{"chapterTitle": chapter["title"], "chapterURL": chapter["link"]} for chapter in storyMetadata["chapters"]]
+        
+        ## this is bit of a kludge based on the assumption all the
+        ## 'bad' chapters will be at the end.
+        ## limit down to the number of chapters reported by chapter_count.
+        chapters = chapters[:storyMetadata["chapter_count"]] 
+        
         for chapter in chapters:
             self.chapterUrls.append((chapter["chapterTitle"], chapter["chapterURL"]))
         self.story.setMetadata("numChapters", len(self.chapterUrls))
