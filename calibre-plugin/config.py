@@ -153,7 +153,7 @@ class RejectURLList:
         self.sync_lock = threading.RLock()
         self.listcache = None
 
-    def _read_list_from_text(self,text):
+    def _read_list_from_text(self,text,addreasontext=None):
         cache = {}
         for line in text.splitlines():
             if ',' in line:
@@ -162,6 +162,10 @@ class RejectURLList:
                 (rejurl,note) = (line,'')
             rejurl = getNormalStoryURL(rejurl)
             if rejurl:
+                if addreasontext and note:
+                    note = note +" - "+addreasontext
+                elif addreasontext:
+                    note = addreasontext
                 cache[rejurl] = note
         return cache
         
@@ -200,8 +204,8 @@ class RejectURLList:
                 del listcache[url]
                 self._save_list(listcache)
 
-    def add_text(self,rejecttext):
-        self.add(self._read_list_from_text(rejecttext).items())
+    def add_text(self,rejecttext,addreasontext):
+        self.add(self._read_list_from_text(rejecttext,addreasontext).items())
             
     def add(self,rejectlist,clear=False):
         # rejectlist=list of (url,note) tuples.
@@ -524,7 +528,8 @@ class BasicTab(QWidget):
                              rejectlist,
                              rejectreasons=rejecturllist.get_reject_reasons(),
                              header="Edit Reject URLs List",
-                             show_delete=False)
+                             show_delete=False,
+                             show_all_reasons=False)
         d.exec_()
         
         if d.result() != d.Accepted:
@@ -552,11 +557,13 @@ class BasicTab(QWidget):
                            "http://example.com?story.php?sid=5,Reason why I rejected it",
                            icon=self.windowIcon(),
                            title="Add Reject URLs",
-                           label="Add Reject URLs. Use: <b>http://...,note</b>",
-                           tooltip="One URL per line, everything after <b>,</b> will be put in the note.")
+                           label="Add Reject URLs. Use: <b>http://...,note</b><br>Invalid story URLs will be ignored.",
+                           tooltip="One URL per line, everything after <b>,</b> will be put in the note.",
+                           rejectreasons=rejecturllist.get_reject_reasons(),
+                           reasonslabel='Add this reason to all URLs added:')
         d.exec_()
         if d.result() == d.Accepted:
-            rejecturllist.add_text(d.get_plain_text())
+            rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
                 
 class PersonalIniTab(QWidget):
 
