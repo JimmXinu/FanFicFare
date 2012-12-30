@@ -404,8 +404,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             bookids=[]
             rejectlist=[]
+            addreasontext=d.get_reason_text()
             for (bookid,url,note) in d.get_reject_list():
                 bookids.append(bookid)
+                if addreasontext and note:
+                    note = note +" - "+addreasontext
+                elif addreasontext:
+                    note = addreasontext
                 rejectlist.append((url,note))
                 print("Adding (%s) to Reject List: %s"%(url,note))
                 

@@ -45,6 +45,19 @@ collision_order=[SKIP,
                  OVERWRITEALWAYS,
                  CALIBREONLY,]
         
+# This is a more than slightly kludgey way to get
+# EditWithComplete to *not* alpha-order the reasons, but leave
+# them in the order entered.  If
+# calibre.gui2.complete2.CompleteModel.set_items ever changes,
+# this function will need to also.
+def complete_model_set_items_kludge(self, items):
+    items = [unicode(x.strip()) for x in items]
+    items = [x for x in items if x]
+    items = tuple(items)
+    self.all_items = self.current_items = items
+    self.current_prefix = ''
+    self.reset()
+    
 class NotGoingToDownload(Exception):
     def __init__(self,error,icon='dialog_error.png'):
         self.error=error
@@ -779,19 +792,6 @@ class RejectListTableWidget(QTableWidget):
 
         note_cell = EditWithComplete(self)
 
-        # This is a more than slightly kludgey way to get
-        # EditWithComplete to *not* alpha-order the reasons, but leave
-        # them in the order entered.  If
-        # calibre.gui2.complete2.CompleteModel.set_items ever changes,
-        # this function will need to also.
-        def complete_model_set_items_kludge(self, items):
-            items = [unicode(x.strip()) for x in items]
-            items = [x for x in items if x]
-            items = tuple(items)
-            self.all_items = self.current_items = items
-            self.current_prefix = ''
-            self.reset()
-
         note_cell.lineEdit().mcompleter.model().set_items = \
             partial(complete_model_set_items_kludge,
                     note_cell.lineEdit().mcompleter.model())
@@ -895,6 +895,7 @@ class RejectListDialog(SizePersistedDialog):
                  header="List of Books to Reject",
                  icon='rotate-right.png',
                  show_delete=True,
+                 show_all_reasons=True,
                  save_size_name='ffdl:reject list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
         self.gui = gui
@@ -935,6 +936,26 @@ class RejectListDialog(SizePersistedDialog):
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem1)
 
+        if show_all_reasons:
+            self.reason_edit = EditWithComplete(self)
+            self.reason_edit.lineEdit().mcompleter.model().set_items = \
+                partial(complete_model_set_items_kludge,
+                        self.reason_edit.lineEdit().mcompleter.model())
+            
+            items = ['']+rejectreasons
+            self.reason_edit.update_items_cache(items)
+            self.reason_edit.show_initial_value('')
+            self.reason_edit.set_separator(None)
+            self.reason_edit.setToolTip("This will be added to whatever note you've set for each URL above.")
+            
+            horz = QHBoxLayout()
+            label = QLabel("Add this reason to all URLs added:")
+            label.setToolTip("This will be added to whatever note you've set for each URL above.")
+            horz.addWidget(label)
+            horz.addWidget(self.reason_edit)
+            horz.insertStretch(-1)
+            layout.addLayout(horz)
+                    
         options_layout = QHBoxLayout()
 
         if show_delete:
@@ -960,13 +981,18 @@ class RejectListDialog(SizePersistedDialog):
     def get_reject_list(self):
         return self.rejects_table.get_reject_list()
 
+    def get_reason_text(self):
+        return unicode(self.reason_edit.currentText()).strip()
+    
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
 class EditTextDialog(QDialog):
 
     def __init__(self, parent, text,
-                 icon=None, title=None, label=None, tooltip=None):
+                 icon=None, title=None, label=None, tooltip=None,
+                 rejectreasons=[],reasonslabel=None
+                 ):
         QDialog.__init__(self, parent)
         self.resize(600, 500)
         self.l = QVBoxLayout()
@@ -987,6 +1013,29 @@ class EditTextDialog(QDialog):
             self.label.setToolTip(tooltip)
             self.textedit.setToolTip(tooltip)
 
+        if rejectreasons or reasonslabel:
+            self.reason_edit = EditWithComplete(self)
+
+            self.reason_edit.lineEdit().mcompleter.model().set_items = \
+                partial(complete_model_set_items_kludge,
+                        self.reason_edit.lineEdit().mcompleter.model())
+            
+            items = ['']+rejectreasons
+            self.reason_edit.update_items_cache(items)
+            self.reason_edit.show_initial_value('')
+            self.reason_edit.set_separator(None)
+            self.reason_edit.setToolTip(reasonslabel)
+            
+            if reasonslabel:
+                horz = QHBoxLayout()
+                label = QLabel(reasonslabel)
+                label.setToolTip(reasonslabel)
+                horz.addWidget(label)
+                horz.addWidget(self.reason_edit)
+                self.l.addLayout(horz)
+            else:
+                self.l.addWidget(self.reason_edit)
+            
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -994,3 +1043,7 @@ class EditTextDialog(QDialog):
 
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
+
+    def get_reason_text(self):
+        return unicode(self.reason_edit.currentText()).strip()
+    
