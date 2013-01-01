@@ -217,7 +217,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
             for genre in genres:
-                self.story.addToList('freefromtags',genre.string)
+                self.story.addToList('freeformtags',genre.string)
                 self.story.addToList('genre',genre.string)
                 
         a = metasoup.find('dd',{'class':"category tags"})
