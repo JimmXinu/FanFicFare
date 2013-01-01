@@ -107,7 +107,7 @@ import adapter_jlaunlimitedcom
 import adapter_qafficcom
 import adapter_efpfanficnet
 #import adapter_buffynfaithnet
-import adapter_potterficscom
+#import adapter_potterficscom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
