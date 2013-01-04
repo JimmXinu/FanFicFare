@@ -28,11 +28,11 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return PommedeSangComAdapter
+    return PommeDeSangComAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class PommedeSangComAdapter(BaseSiteAdapter):
+class PommeDeSangComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -50,15 +50,25 @@ class PommedeSangComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
         
+        # pommedesang.com has two 'sections', shown in URL as
+        # 'efiction' and 'sds' that change how things should be
+        # handled.
+        # http://pommedesang.com/efiction/viewstory.php?sid=1234
+        # http://pommedesang.com/sds/viewstory.php?sid=1234
+        self.section=self.parsedUrl.path.split('/',)[1]
+        
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/efiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/'+self.section+'/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','pmds')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%b %d, %Y"
+        if 'efiction' in self.section:
+            self.dateformat = "%b %d, %Y"
+        else:
+            self.dateformat = "%m/%d/%y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -66,10 +76,10 @@ class PommedeSangComAdapter(BaseSiteAdapter):
         return 'pommedesang.com'
 
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/sds/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=")+r"\d+$"
+        return r"http://"+self.getSiteDomain()+"/(efiction|sds)?/viewstory.php\?sid=\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -92,7 +102,7 @@ class PommedeSangComAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/efiction/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/'+self.section+'/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -180,7 +190,7 @@ class PommedeSangComAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/efiction/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -253,7 +263,7 @@ class PommedeSangComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/efiction/'+a['href']
+            series_url = 'http://'+self.host+'/'+self.section+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
