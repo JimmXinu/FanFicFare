@@ -81,8 +81,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             apiResponse = urllib2.urlopen("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId"))).read()
             apiData = json.loads(apiResponse)
             
-            # Unfortunately, we still need to load the story index page to parse the characters
+            # Unfortunately, we still need to load the story index
+            # page to parse the characters.  And chapters, now, too.
             data = self._fetchUrl(self.url)
+            soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -114,22 +116,34 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
          
         storyMetadata = apiData["story"]    
             
-        self.story.setMetadata("title", storyMetadata["title"])
+        ## Title
+        a = soup.find('a', href=re.compile(r'^/story/'+self.story.getMetadata('storyId')))
+        self.story.setMetadata('title',a.string)
+        
+        # self.story.setMetadata("title", storyMetadata["title"])
+        # if not storyMetadata["title"]:
+        #     raise exceptions.FailedToDownload("%s doesn't have a title in the API.  This is a known fimfiction.net bug with titles containing ."%self.url)
+        
         self.story.setMetadata("author", storyMetadata["author"]["name"])
         self.story.setMetadata("authorId", storyMetadata["author"]["id"])
         self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), storyMetadata["author"]["name"]))
+
+        # chapters = [{"chapterTitle": chapter["title"], "chapterURL": chapter["link"]} for chapter in storyMetadata["chapters"]]
         
-        chapters = [{"chapterTitle": chapter["title"], "chapterURL": chapter["link"]} for chapter in storyMetadata["chapters"]]
+        # ## this is bit of a kludge based on the assumption all the
+        # ## 'bad' chapters will be at the end.
+        # ## limit down to the number of chapters reported by chapter_count.
+        # chapters = chapters[:storyMetadata["chapter_count"]] 
         
-        ## this is bit of a kludge based on the assumption all the
-        ## 'bad' chapters will be at the end.
-        ## limit down to the number of chapters reported by chapter_count.
-        chapters = chapters[:storyMetadata["chapter_count"]] 
-        
-        for chapter in chapters:
-            self.chapterUrls.append((chapter["chapterTitle"], chapter["chapterURL"]))
-        self.story.setMetadata("numChapters", len(self.chapterUrls))
-        
+        # for chapter in chapters:
+        #     self.chapterUrls.append((chapter["chapterTitle"], chapter["chapterURL"]))
+        # self.story.setMetadata("numChapters", len(self.chapterUrls))
+
+        for chapter in soup.findAll('a',{'class':'chapter_link'}):
+            self.chapterUrls.append((stripHTML(chapter), 'http://'+self.host+chapter['href']))
+
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+            
         # In the case of fimfiction.net, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
         # For the sake of bringing it in line with the other adapters, 'Incomplete' becomes 'In-Progress'
         # and 'Complete' beomes 'Completed'. 'Cancelled' seems an important enough (not to mention more strictly true) 
@@ -139,7 +153,17 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         status = storyMetadata["status"].replace("Incomplete", "In-Progress").replace("Complete", "Completed")
         self.story.setMetadata("status", status)
         self.story.setMetadata("rating", storyMetadata["content_rating_text"])
-            
+
+        ## Warnings aren't included in the API.
+        bottomli = soup.find('li',{'class':'bottom'})
+        if bottomli:
+            bottomspans = bottomli.findAll('span')
+            # the first span in bottom is the rating, obtained above.
+            if bottomspans and len(bottomspans) > 1:
+                for warning in bottomspans[1:]:
+                    self.story.addToList('warnings',warning.string)
+                
+        
         for category in storyMetadata["categories"]:
             if storyMetadata["categories"][category]:
                 self.story.addToList("genre", category) 
@@ -169,11 +193,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         rawDateUpdated = storyMetadata["date_modified"]
         self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
 
-        soup = bs.BeautifulSoup(data).find("div", {"class":"story"})
+        chars = soup.find("div", {"class":"story"})
         # fimfic stopped putting the char name on or around the char
         # icon now for some reason.  Pull it from the image name with
         # some heuristics.
-        for character in [character_icon["src"] for character_icon in soup.findAll("img", {"class":"character_icon"})]:
+        for character in [character_icon["src"] for character_icon in chars.findAll("img", {"class":"character_icon"})]:
             # //static.fimfiction.net/images/characters/twilight_sparkle.png
             # 5th split /, remove last four, replace _, capitolize every word(title())
             char = character.split('/')[5][:-4].replace('_',' ').title()
