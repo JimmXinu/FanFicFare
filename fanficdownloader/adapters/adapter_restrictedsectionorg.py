@@ -93,6 +93,12 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
                 storya = soup.find('a',href=re.compile(r"^story.php\?story=\d+"))
                 url = 'http://'+self.host+'/'+storya['href'].split('&')[0]  # strip rs_session
 
+                fileas = soup.find('a',href=re.compile(r"^file.php\?file=\d+"))
+                if fileas:
+                    for filea in fileas:
+                        if 'Previous Chapter' in filea.string or 'Next Chapter' in filea.string:
+                            raise exceptions.FailedToDownload(self.getSiteDomain() +" Cannot use chapter url with multi-chapter stories on this site.")
+                    
             logger.debug("metadata URL: "+url)
             data = self._fetchUrl(url)
             # print data
