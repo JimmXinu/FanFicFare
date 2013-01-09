@@ -922,7 +922,8 @@ make_firstimage_cover:true
 
         book_list = job.result
         good_list = filter(lambda x : x['good'], book_list)
-        bad_list = filter(lambda x : x['calibre_id'] and not x['good'], book_list)
+        bad_list = filter(lambda x : not x['good'], book_list)
+        print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
         
         msg = '''
@@ -937,14 +938,14 @@ make_firstimage_cover:true
                 status = book['status']
             else:
                 status = 'Good'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['comment'],book['url']]) + '</td></tr>'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
         
         for book in bad_list:
             if 'status' in book:
                 status = book['status']
             else:
                 status = 'Bad'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([status,book['title'],", ".join(book['author']),book['comment'],book['url']]) + '</td></tr>'
+            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
         
         htmllog = htmllog + '</table></body></html>'
         
@@ -952,7 +953,6 @@ make_firstimage_cover:true
                 payload, htmllog,
                 'FFDL log', 'FFDL download complete', msg,
                 show_copy_button=False)
-        
         
     def _do_download_list_update(self, payload):
         
@@ -1423,3 +1423,6 @@ def get_url_list(urls):
     # set removes dups.
     return set(filter(f,urls.strip().splitlines()))
 
+def escapehtml(txt):
+    return txt.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")
+        
