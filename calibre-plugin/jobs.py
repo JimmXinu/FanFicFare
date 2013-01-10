@@ -39,11 +39,12 @@ def do_download_worker(book_list, options,
 
     print(options['version'])
     total = 0
+    alreadybad = []
     # Queue all the jobs
     print("Adding jobs for URLs:")
     for book in book_list:
+        print("%s"%book['url'])
         if book['good']:
-            print("%s"%book['url'])
             total += 1
             args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
                     'do_download_for_worker',
@@ -58,6 +59,9 @@ def do_download_worker(book_list, options,
             # job._modified_date = modified_date
             # job._existing_isbn = existing_isbn
             server.add_job(job)
+        else:
+            # was already bad before the subprocess ever started.
+            alreadybad.append(book)
     
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
@@ -90,11 +94,11 @@ def do_download_worker(book_list, options,
             print("Successfully downloaded:")
             for book in book_list:
                 if book['good']:
-                    print(book['title'])
+                    print("%s %s"%(book['title'],book['url']))
             print("\nUnsuccessful:")
             for book in book_list:
                 if not book['good']:
-                    print(book['title'])
+                    print("%s %s"%(book['title'],book['url']))
             break
 
     server.close()
