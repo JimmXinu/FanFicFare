@@ -112,6 +112,7 @@ import adapter_dotmoonnet
 import adapter_pommedesangcom
 import adapter_restrictedsectionorg
 import adapter_imagineeficcom
+import adapter_buffynfaithnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
