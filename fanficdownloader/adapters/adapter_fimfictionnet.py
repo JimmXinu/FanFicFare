@@ -97,9 +97,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if "/images/missing_story.png" in data:
             raise exceptions.StoryDoesNotExist(self.url)
         
-        if "Invalid story id" in apiData.values():
-            raise exceptions.StoryDoesNotExist(self.url)
-        
         if "This story has been marked as having adult content." in data:
             raise exceptions.AdultCheckRequired(self.url)
         
@@ -114,6 +111,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             else:
                 raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
          
+        if "Invalid story id" in apiData.values():
+            raise exceptions.StoryDoesNotExist(self.url)
+        
         storyMetadata = apiData["story"]    
             
         ## Title
