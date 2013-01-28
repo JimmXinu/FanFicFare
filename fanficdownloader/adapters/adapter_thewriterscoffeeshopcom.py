@@ -48,7 +48,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/library/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        self.dateformat = "%B %d, %Y"
+        self.dateformat = "%d %b %Y"
 
             
     @staticmethod
