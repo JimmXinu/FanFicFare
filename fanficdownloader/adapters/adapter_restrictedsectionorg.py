@@ -205,10 +205,26 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
         params['accept.x'] = 1
         params['accept.y'] = 1
 
-        data = self._postUrl(url, params)
-        if "I certify that I am over the age of 18 and that accessing the following story will not violate the laws of my country or local ordinances." in data:
-            raise exceptions.FailedToLogin(url,params['username'])
-        return data
+        excpt=None
+        for sleeptime in [0.5, 1.5, 4, 9]:
+            time.sleep(sleeptime)	
+            try:
+                data = self._postUrl(url, params)
+                if data == "Unable to connect to the database":
+                    raise exceptions.FailedToDownload("Site reported 'Unable to connect to the database'")
+                if "I certify that I am over the age of 18 and that accessing the following story will not violate the laws of my country or local ordinances." in data:
+                    raise exceptions.FailedToLogin(url,params['username'])
+                return data
+            except exceptions.FailedToLogin, ftl:
+                # no need to retry these.
+                raise(ftl)
+            except Exception, e:
+                excpt=e
+                logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
+
+        logger.error("Giving up on %s" %url)
+        logger.exception(excpt)
+        raise(excpt)
         
     # grab the text for an individual chapter.
     def getChapterText(self, url):
@@ -216,6 +232,13 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         data = self._postUrlUP(url)
+        #print("data:%s"%data)
+        
+        # some stories have html that confuses the parser.  For story
+        # text we don't care about anything before '<table id="page"'
+        # and seems to clear the issue.
+        data = data[data.index('<table id="page"'):]
+        
         soup = bs.BeautifulSoup(data)
         
         div = soup.find('td',{'id':'page_content'})
