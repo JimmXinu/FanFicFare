@@ -101,7 +101,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 }
             self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
-        
+        if idnum == 0:
+            self.setSeries('0 The Great Test',idnum)
         self.story.setMetadata('rating','Tweenie')
         
 
@@ -210,6 +211,22 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=673 - Succeeds, multiple authors</p>
 <p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
+'''
+        elif self.story.getMetadata('storyId') == '0':
+            text=u'''
+    <br />
+    Those things in the bar could be genetic mutations.<br />
+    <br />
+    eyes… but I’m not convinced we should automatically<br />
+    <br />
+    eyes… but I’m not convinced we should automatically.<br />
+    <br />
+    <p>Those things in the bar could be genetic mutations.</p>
+    <p>t I’m not convinced we should automatically</p>
+    <p>ut I’m not convinced we should automatically</p>
+    <p>but I’m not convinced we should automatically</p>
+    <p> but I’m not convinced we should automatically</p>
+    <p>Those things in the bar could be genetic mutations.</p>
 '''
         else:
             text=u'''
