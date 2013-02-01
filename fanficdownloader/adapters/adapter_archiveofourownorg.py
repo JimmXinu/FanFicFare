@@ -82,7 +82,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
-        return re.escape("http://")+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/(?P<id>\d+)"
+        # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
+        return re.escape("http://")+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/0*(?P<id>\d+)"
         
     ## Login
     def needToLoginCheck(self, data):
