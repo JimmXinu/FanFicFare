@@ -290,12 +290,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         url_list = get_urls_from_page(url,configuration)
 
         if url_list:
-            d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
-            d.setWindowIcon(get_icon('bookmarks.png'))
-            d.exec_()
+            self.add_dialog("\n".join(url_list))
         else:
-            info_dialog(self.gui, _('List of URLs'),
-                        _('No Valid URLs found on given page.'),
+            info_dialog(self.gui, _('List of Story URLs'),
+                        _('No Valid Story URLs found on given page.'),
                         show=True,
                         show_copy_button=False)
         
@@ -338,12 +336,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def _finish_get_list_urls(self, book_list):
         url_list = [ x['url'] for x in book_list if x['good'] ]
         if url_list:
-            d = ViewLog(_("List of URLs"),"\n".join(url_list),parent=self.gui)
+            d = ViewLog(_("List of Story URLs"),"\n".join(url_list),parent=self.gui)
             d.setWindowIcon(get_icon('bookmarks.png'))
             d.exec_()
         else:
             info_dialog(self.gui, _('List of URLs'),
-                        _('No URLs found in selected books.'),
+                        _('No Story URLs found in selected books.'),
                         show=True,
                         show_copy_button=False)
                 
@@ -424,12 +422,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
                 
-    def add_dialog(self):
+    def add_dialog(self,url_list_text=None):
 
         #print("add_dialog()")
 
-        url_list = self.get_urls_clip()
-        url_list_text = "\n".join(url_list)
+        if not url_list_text:
+            url_list = self.get_urls_clip()
+            url_list_text = "\n".join(url_list)
         
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
