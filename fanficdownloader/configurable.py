@@ -74,7 +74,8 @@ class Configuration(ConfigParser.SafeConfigParser):
             # internal stuff.
             'langcode',
             'output_css',
-            'authorHTML'
+            'authorHTML',
+            'lastupdate'
             ]
 
     def addConfigSection(self,section):
