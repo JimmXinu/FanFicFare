@@ -102,9 +102,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
         if idnum == 0:
-            self.setSeries('0 The Great Test',idnum)
+            self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
+            
         self.story.setMetadata('rating','Tweenie')
-        
 
         if self.story.getMetadata('storyId') == '673':
             self.story.addToList('author','Author From List')
@@ -206,27 +206,24 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
+
+
+
+
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
-<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
-<p>http://test1.com?sid=673 - Succeeds, multiple authors</p>
-<p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
+<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p><p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p><p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
 '''
         elif self.story.getMetadata('storyId') == '0':
             text=u'''
-    <br />
-    Those things in the bar could be genetic mutations.<br />
-    <br />
+<h3>45. Pronglet Returns to Hogwarts: Chapter 7</h3>
+<br />
     eyes… but I’m not convinced we should automatically<br />
-    <br />
-    eyes… but I’m not convinced we should automatically.<br />
-    <br />
-    <p>Those things in the bar could be genetic mutations.</p>
-    <p>t I’m not convinced we should automatically</p>
-    <p>ut I’m not convinced we should automatically</p>
-    <p>but I’m not convinced we should automatically</p>
-    <p> but I’m not convinced we should automatically</p>
-    <p>Those things in the bar could be genetic mutations.</p>
+<br /><br />
+<b>Thanks to the latest to recommend me: Alastor</b><br />
+<br /><br />
+    “Sure, invite her along. Does she have children?”<br />
+<br />
 '''
         else:
             text=u'''
