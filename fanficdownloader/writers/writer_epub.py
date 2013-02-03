@@ -21,6 +21,7 @@ import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import urllib
+import re
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -657,7 +658,12 @@ div { margin: 0pt; padding: 0pt; }
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big
                 # (200k+)
-                fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
+                #fullhtml = fullhtml.replace('</p>','</p>\n').replace('<br />','<br />\n')
+                # The replaces above added tons of extra newlines
+                # during *each* epub update.  The regexp version adds
+                # only one and removes any extra.
+                fullhtml = re.sub(r'(</p>|<br />)\n*',r'\1\n',fullhtml)
+
                 outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
                 del fullhtml
 
