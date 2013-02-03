@@ -874,9 +874,14 @@ make_firstimage_cover:true
         add_ids = [ x['calibre_id'] for x in add_list ]
         update_list = filter(lambda x : x['good'] and not x['added'], book_list)
         update_ids = [ x['calibre_id'] for x in update_list ]
+        all_ids = add_ids
+        all_ids.extend(update_ids)
+
+        if options['collision'] != CALIBREONLY and \
+                (prefs['addtolists'] or prefs['addtoreadlists']):
+            self._update_reading_lists(all_ids,add=True)
         
         if len(add_list):
-            ## even shows up added to searchs.  Nice.
             self.gui.library_view.model().books_added(len(add_list))
             self.gui.library_view.model().refresh_ids(add_ids)
 
@@ -905,8 +910,6 @@ make_firstimage_cover:true
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
 
-        all_ids = add_ids
-        all_ids.extend(update_ids)
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
@@ -1016,8 +1019,9 @@ make_firstimage_cover:true
                     print("remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
 
-        if prefs['addtolists'] or prefs['addtoreadlists']:
-            self._update_reading_lists([book_id],add=True)
+        # moved up so whole lists are done at once for efficiency.
+        # if prefs['addtolists'] or prefs['addtoreadlists']:
+        #     self._update_reading_lists([book_id],add=True)
                 
         return book_id
 
