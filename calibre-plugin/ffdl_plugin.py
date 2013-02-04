@@ -1055,6 +1055,7 @@ make_firstimage_cover:true
         if 'authorUrl' in book['all_metadata']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
             for i, auth in enumerate(book['author']):
+                #print("===Update author url for %s to %s"%(auth,authurls[i]))
                 autid=db.get_author_id(auth)
                 db.set_link_field_for_author(autid, unicode(authurls[i]),
                                              commit=False, notify=False)
