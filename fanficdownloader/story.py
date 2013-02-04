@@ -432,8 +432,13 @@ class Story(Configurable):
                                   map(removeAllEntities,retlist) )
 
         if retlist:
-            # remove dups and sort.
-            return sorted(list(set(retlist)))
+            if listname in ('author','authorUrl'):
+                # need to retain order for author & authorUrl so the
+                # two match up.
+                return retlist
+            else:
+                # remove dups and sort.
+                return sorted(list(set(retlist)))
         else:
             return []
 
