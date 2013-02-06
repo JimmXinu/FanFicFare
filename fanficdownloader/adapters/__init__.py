@@ -113,6 +113,8 @@ import adapter_pommedesangcom
 import adapter_restrictedsectionorg
 import adapter_imagineeficcom
 import adapter_buffynfaithnet
+import adapter_psychficcom
+import adapter_hennethannunnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
