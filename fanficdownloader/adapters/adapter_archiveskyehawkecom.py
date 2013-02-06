@@ -66,14 +66,16 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'archive.skyehawke.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        # mobile.fimifction.com isn't actually a valid domain, but we can still get the story id from URLs anyway
+        return ['archive.skyehawke.com','www.skyehawke.com']
+
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/story.php?no=1234"
+        return "http://archive.skyehawke.com/story.php?no=1234 http://www.skyehawke.com/archive/story.php?no=1234  http://skyehawke.com/archive/story.php?no=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/story.php?no=")+r"\d+$"
-
-
-        
+        return re.escape("http://")+r"(archive|www)\.skyehawke\.com/(archive/)?story\.php\?no=\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
