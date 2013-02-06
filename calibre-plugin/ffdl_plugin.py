@@ -523,13 +523,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         tdir = PersistentTemporaryDirectory(prefix='fanfictiondownloader_')
         options['tdir']=tdir
 
-        self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
-        
         if 0 < len(filter(lambda x : x['good'], books)):
+            self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
             LoopProgressDialog(self.gui,
                                books,
                                partial(self.get_metadata_for_book, options = options),
                                partial(self.start_download_list, options = options))
+        else:
+            self.gui.status_bar.show_message(_('No valid story URLs entered.'), 3000)
         # LoopProgressDialog calls get_metadata_for_book for each 'good' story,
         # get_metadata_for_book updates book for each,
         # LoopProgressDialog calls start_download_list at the end which goes
