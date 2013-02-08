@@ -219,7 +219,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'id' : 'chapter_container'})
+        soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         return self.utf8FromSoup(url,soup)
