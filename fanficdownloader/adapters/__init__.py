@@ -151,7 +151,7 @@ getNormalStoryURL.__dummyconfig = None
 
 def getAdapter(config,url):
 
-    logger.debug("trying url:"+url)
+    #logger.debug("trying url:"+url)
     (cls,fixedurl) = getClassFor(url)
     logger.debug("fixedurl:"+fixedurl)
     if cls:
@@ -187,11 +187,11 @@ def getClassFor(url):
     cls = getClassFromList(domain)
     if not cls and domain.startswith("www."):
         domain = domain.replace("www.","")
-        logger.debug("trying site:without www: "+domain)
+        #logger.debug("trying site:without www: "+domain)
         cls = getClassFromList(domain)
         fixedurl = fixedurl.replace("http://www.","http://")
     if not cls:
-        logger.debug("trying site:www."+domain)
+        #logger.debug("trying site:www."+domain)
         cls = getClassFromList("www."+domain)
         fixedurl = fixedurl.replace("http://","http://www.")
         

@@ -37,10 +37,10 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
                                          create_menu_action_unique, get_library_uuid)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
+from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
 from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values, rejecturllist)
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog, display_story_list, DisplayStoryListDialog,
@@ -159,7 +159,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                        triggered=self.add_dialog )
 
             self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
-                                                          triggered=self.update_existing)
+                                                          triggered=self.update_dialog)
 
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
                 self.menu.addSeparator()
@@ -186,7 +186,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
-                                                            triggered=self.get_list_urls)
+                                                            triggered=self.list_story_urls)
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
                                                                 triggered=self.get_urls_from_page)
@@ -250,7 +250,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if self.is_library_view() and \
                 len(self.gui.library_view.get_selected_ids()) > 0 and \
                 prefs['updatedefault']:
-            self.update_existing()
+            self.update_dialog()
         else:
             self.add_dialog()
 
@@ -264,7 +264,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.gui.status_bar.show_message(_('No Selected Books to Update Reading Lists'), 3000)
                 return
 
-            self._update_reading_lists(self.gui.library_view.get_selected_ids(),add)
+            self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
 
     def get_urls_from_page(self):
 
@@ -282,9 +282,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("get_urls_from_page URL:%s"%url)
 
         if 'archiveofourown.org' in url:
-            configuration = Configuration(adapters.getConfigSectionFor(url),"EPUB")
-            configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-            configuration.readfp(StringIO(prefs['personal.ini']))
+            configuration = get_ffdl_config(url)
         else:
             configuration = None
         url_list = get_urls_from_page(url,configuration)
@@ -296,44 +294,44 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         _('No Valid Story URLs found on given page.'),
                         show=True,
                         show_copy_button=False)
-        
-            
-    def get_list_urls(self):
+
+    def list_story_urls(self):
+        '''Get list of URLs from existing books.'''
         if self.gui.current_view().selectionModel().selectedRows() == 0 :
             self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
                                              3000)
             return
             
         if self.is_library_view():
-            book_list = map( partial(self._convert_id_to_book, good=False),
+            book_list = map( partial(self.make_book_id_only),
                              self.gui.library_view.get_selected_ids() )
 
         else: # device view, get from epubs on device.
             view = self.gui.current_view()
             rows = view.selectionModel().selectedRows()
             # paths = view.model().paths(rows)
-            book_list = map( partial(self._convert_row_to_book, good=False), rows )
+            book_list = map( partial(self.make_book_from_device_row), rows )
             
         LoopProgressDialog(self.gui,
                            book_list,
-                           partial(self._get_story_url_for_list, db=self.gui.current_db),
-                           self._finish_get_list_urls,
+                           partial(self.get_list_story_urls_loop, db=self.gui.current_db),
+                           self.get_list_story_urls_finish,
                            init_label="Collecting URLs for stories...",
                            win_title="Get URLs for stories",
                            status_prefix="URL retrieved")
             
-    def _get_story_url_for_list(self,book,db=None):
+    def get_list_story_urls_loop(self,book,db=None):
         if book['calibre_id']:
-            book['url'] = self._get_story_url(db,book_id=book['calibre_id'])
+            book['url'] = self.get_story_url(db,book_id=book['calibre_id'])
         elif book['path']:
-            book['url'] = self._get_story_url(db,path=book['path'])
+            book['url'] = self.get_story_url(db,path=book['path'])
             
         if book['url'] == None:
             book['good']=False
         else:
             book['good']=True
             
-    def _finish_get_list_urls(self, book_list):
+    def get_list_story_urls_finish(self, book_list):
         url_list = [ x['url'] for x in book_list if x['good'] ]
         if url_list:
             d = ViewLog(_("List of Story URLs"),"\n".join(url_list),parent=self.gui)
@@ -347,14 +345,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
     def reject_list_urls(self):
         if self.is_library_view():
-            book_list = map( partial(self._convert_id_to_book, good=False),
+            book_list = map( partial(self.make_book_id_only),
                              self.gui.library_view.get_selected_ids() )
 
         else: # device view, get from epubs on device.
             view = self.gui.current_view()
             rows = view.selectionModel().selectedRows()
             #paths = view.model().paths(rows)
-            book_list = map( partial(self._convert_row_to_book, good=False), rows )
+            book_list = map( partial(self.make_book_from_device_row), rows )
             
         if len(book_list) == 0 :
             self.gui.status_bar.show_message(_('No Selected Books have URLs to Reject'), 3000)
@@ -362,28 +360,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
         LoopProgressDialog(self.gui,
                            book_list,
-                           partial(self._reject_story_url_for_list, db=self.gui.current_db),
-                           self._finish_reject_list_urls,
+                           partial(self.reject_list_urls_loop, db=self.gui.current_db),
+                           self.reject_list_urls_finish,
                            init_label="Collecting URLs for Reject List...",
                            win_title="Get URLs for Reject List",
                            status_prefix="URL retrieved")
             
-    def _reject_story_url_for_list(self,book,db=None): 
+    def reject_list_urls_loop(self,book,db=None):
+        self.get_list_story_urls_loop(book,db) # common with.
         if book['calibre_id']:
             # want title/author, too, for rejects.
-            self._populate_book_from_calibre_id(book,db)
-            book['url'] = self._get_story_url(db,book_id=book['calibre_id'])
-        elif book['path']:
-            book['url'] = self._get_story_url(db,path=book['path'])
-                
-        if book['url'] == None:
-            book['good']=False
-        else:
-            book['good']=True
+            self.populate_book_from_calibre_id(book,db)
+        if book['url']:
             # get existing note, if there is one.
             book['oldrejnote']=rejecturllist.check(book['url'])
             
-    def _finish_reject_list_urls(self, book_list):
+    def reject_list_urls_finish(self, book_list):
 
         # construct reject list of tuples:
         # (calibre_id, url, "title, authors", old reject note).
@@ -443,8 +435,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if d.result() != d.Accepted:
             return
         
-        url_list = get_url_list(d.get_urlstext())
-        add_books = self._convert_urls_to_books(url_list)
+        url_list = split_text_to_urls(d.get_urlstext())
+        add_books = self.convert_urls_to_books(url_list)
         #print("add_books:%s"%add_books)
         #print("options:%s"%d.get_ffdl_options())
 
@@ -452,9 +444,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         options['version'] = self.version
         print(self.version)
         
-        self.start_downloads( options, add_books )
-        
-    def update_existing(self):
+        self.prep_downloads( options, add_books )
+
+    def update_dialog(self):
         if not self.is_library_view():
             self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
             return
@@ -462,24 +454,25 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(self.gui.library_view.get_selected_ids()) == 0:
             self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
             return
-        #print("update_existing()")
+        #print("update_dialog()")
         
         db = self.gui.current_db
-        book_list = map( partial(self._convert_id_to_book, good=False), self.gui.library_view.get_selected_ids() )
+        book_list = map( partial(self.make_book_id_only), self.gui.library_view.get_selected_ids() )
         #book_ids = self.gui.library_view.get_selected_ids()
 
         LoopProgressDialog(self.gui,
                            book_list,
-                           partial(self._populate_book_from_calibre_id, db=self.gui.current_db),
-                           self._update_existing_2,
+                           partial(self.populate_book_from_calibre_id, db=self.gui.current_db),
+                           self.update_dialog_finish,
                            init_label="Collecting stories for update...",
                            win_title="Get stories for updates",
                            status_prefix="URL retrieved")            
         
-        #books = self._convert_calibre_ids_to_books(db, book_ids)
+        #books = self.convert_calibre_ids_to_books(db, book_ids)
         #print("update books:%s"%books)
 
-    def _update_existing_2(self,book_list):
+    def update_dialog_finish(self,book_list):
+        '''Present list to update and head to prep when done.'''
         
         d = UpdateExistingDialog(self.gui,
                                  'Update Existing List',
@@ -500,13 +493,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             options = d.get_ffdl_options()
             options['version'] = self.version
             print(self.version)
-            self.start_downloads( options, update_books )
+            self.prep_downloads( options, update_books )
             
     def get_urls_clip(self,storyurls=True):
         url_list = []
         if prefs['urlsfromclip']:
             for url in unicode(QApplication.instance().clipboard().text()).split():
-                if not storyurls or self._is_good_downloader_url(url):
+                if not storyurls or self.is_good_downloader_url(url):
                     url_list.append(url)
                     
         return url_list
@@ -515,9 +508,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # No need to do anything with perfs here, but we could.
         prefs
 
-    def start_downloads(self, options, books):
+    def prep_downloads(self, options, books):
+        '''Fetch metadata for stories from servers, launch BG job when done.'''
 
-        #print("start_downloads:%s"%books)
+        #print("prep_downloads:%s"%books)
 
         # create and pass temp dir.
         tdir = PersistentTemporaryDirectory(prefix='fanfictiondownloader_')
@@ -527,20 +521,20 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
             LoopProgressDialog(self.gui,
                                books,
-                               partial(self.get_metadata_for_book, options = options),
-                               partial(self.start_download_list, options = options))
+                               partial(self.prep_download_loop, options = options),
+                               partial(self.start_download_job, options = options))
         else:
             self.gui.status_bar.show_message(_('No valid story URLs entered.'), 3000)
-        # LoopProgressDialog calls get_metadata_for_book for each 'good' story,
-        # get_metadata_for_book updates book for each,
-        # LoopProgressDialog calls start_download_list at the end which goes
+        # LoopProgressDialog calls prep_download_loop for each 'good' story,
+        # prep_download_loop updates book object for each with metadata from site,
+        # LoopProgressDialog calls start_download_job at the end which goes
         # into the BG, or shows list if no 'good' books.
 
-    def get_metadata_for_book(self,book,
-                              options={'fileform':'epub',
-                                       'collision':ADDNEW,
-                                       'updatemeta':True,
-                                       'updateepubcover':True}):
+    def prep_download_loop(self,book,
+                           options={'fileform':'epub',
+                                    'collision':ADDNEW,
+                                    'updatemeta':True,
+                                    'updateepubcover':True}):
         '''
         Update passed in book dict with metadata from website and
         necessary data.  To be called from LoopProgressDialog
@@ -581,25 +575,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         updatemeta= options['updatemeta']
         updateepubcover= options['updateepubcover']
 
+        # Dialogs should prevent this case now.
+        if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
+            raise NotGoingToDownload("Cannot update non-epub format.")
+        
         if not book['good']:
             # book has already been flagged bad for whatever reason.
             return
         
         skip_date_update = False
         
-        options['personal.ini'] = prefs['personal.ini']
-        if prefs['includeimages']:
-            # this is a cheat to make it easier for users.
-            options['personal.ini'] = '''[epub]
-include_images:true
-keep_summary_html:true
-make_firstimage_cover:true
-''' + options['personal.ini']
-
-        configuration = Configuration(adapters.getConfigSectionFor(url),fileform)
-        configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        configuration.readfp(StringIO(options['personal.ini']))
-        adapter = adapters.getAdapter(configuration,url)
+        options['personal.ini'] = get_ffdl_personalini()
+        adapter = get_ffdl_adapter(url,fileform)
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
@@ -627,7 +614,9 @@ make_firstimage_cover:true
         if 'version' in options:
             story.setMetadata('version',options['version'])
 
+        # all_metadata duplicates some data, but also includes extra_entries, etc.
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+        
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
@@ -645,18 +634,12 @@ make_firstimage_cover:true
         book['icon'] = 'plus.png'
         book['status'] = 'Add'
         if story.getMetadataRaw('datePublished'):
-            # should only happen when an adapter is broken, but better to
-            # fail gracefully.
             book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
         book['timestamp'] = None # filled below if not skipped.
         
         if collision in (CALIBREONLY):
             book['icon'] = 'metadata.png'
             book['status'] = 'Meta'
-        
-        # Dialogs should prevent this case now.
-        if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
-            raise NotGoingToDownload("Cannot update non-epub format.")
         
         book_id = None
         
@@ -780,7 +763,7 @@ make_firstimage_cover:true
                 
         return
         
-    def start_download_list(self,book_list,
+    def start_download_job(self,book_list,
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
@@ -789,7 +772,7 @@ make_firstimage_cover:true
         Called by LoopProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
         '''
-        #print("start_download_list:book_list:%s"%book_list)
+        #print("start_download_job:book_list:%s"%book_list)
 
         ## No need to BG process when CALIBREONLY!  Fake it.
         if options['collision'] in (CALIBREONLY):
@@ -816,20 +799,7 @@ make_firstimage_cover:true
                                        )
             d.exec_()
 
-            
-            custom_columns = self.gui.library_view.model().custom_columns
-            if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
-                label = custom_columns[prefs['errorcol']]['label']
-                ## if error column and all bad.
-                self.previous = self.gui.library_view.currentIndex()
-                LoopProgressDialog(self.gui,
-                                   book_list,
-                                   partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
-                                   partial(self._update_books_completed, options=options, showlist=False),
-                                   init_label="Updating calibre for BAD FanFiction stories...",
-                                   win_title="Update calibre for BAD FanFiction stories",
-                                   status_prefix="Updated")
-            
+            self.update_error_column(book_list,options)
             
             return
             
@@ -845,31 +815,24 @@ make_firstimage_cover:true
         
         self.gui.status_bar.show_message('Starting %d FanFictionDownLoads'%len(book_list),3000)
 
-    def _update_book(self,book,db=None,
+    def update_books_loop(self,book,db=None,
                      options={'fileform':'epub',
                               'collision':ADDNEW,
                               'updatemeta':True,
                               'updateepubcover':True}):
         print("add/update %s %s"%(book['title'],book['url']))
-        mi = self._make_mi_from_book(book)
+        mi = self.make_mi_from_book(book)
                 
         if options['collision'] != CALIBREONLY:
-            self._add_or_update_book(book,options,prefs,mi)
+            self.add_book_or_update_format(book,options,prefs,mi)
 
         if options['collision'] == CALIBREONLY or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
-            self._update_metadata(db, book['calibre_id'], book, mi, options)
+            self.update_metadata(db, book['calibre_id'], book, mi, options)
 
-    def _update_bad_book(self,book,db=None,label='errorcol',
-                         options={'fileform':'epub',
-                                  'collision':ADDNEW,
-                                  'updatemeta':True,
-                                  'updateepubcover':True},):
-        if book['calibre_id']:
-            print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
-
-    def _update_books_completed(self, book_list, options={}, showlist=True):
+    def update_books_finish(self, book_list, options={}, showlist=True):
+        '''Notify calibre about updated rows, update external plugins
+        (Reading Lists & Count Pages) as configured'''
         
         add_list = filter(lambda x : x['good'] and x['added'], book_list)
         add_ids = [ x['calibre_id'] for x in add_list ]
@@ -880,7 +843,7 @@ make_firstimage_cover:true
 
         if options['collision'] != CALIBREONLY and \
                 (prefs['addtolists'] or prefs['addtoreadlists']):
-            self._update_reading_lists(all_ids,add=True)
+            self.update_reading_lists(all_ids,add=True)
         
         if len(add_list):
             self.gui.library_view.model().books_added(len(add_list))
@@ -926,7 +889,7 @@ make_firstimage_cover:true
         book_list = job.result
         good_list = filter(lambda x : x['good'], book_list)
         bad_list = filter(lambda x : not x['good'], book_list)
-        print("book_list:%s"%book_list)
+        #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
         
         msg = '''
@@ -951,13 +914,13 @@ make_firstimage_cover:true
             htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
         
         htmllog = htmllog + '</table></body></html>'
+
+        self.gui.proceed_question(partial(self.do_download_list_update),
+                                  payload, htmllog,
+                                  'FFDL log', 'FFDL download complete', msg,
+                                  show_copy_button=False)
         
-        self.gui.proceed_question(self._do_download_list_update,
-                payload, htmllog,
-                'FFDL log', 'FFDL download complete', msg,
-                show_copy_button=False)
-        
-    def _do_download_list_update(self, payload):
+    def do_download_list_update(self, payload):
         
         (good_list,bad_list,options) = payload
         total_good = len(good_list)
@@ -967,8 +930,8 @@ make_firstimage_cover:true
         if total_good > 0:
             LoopProgressDialog(self.gui,
                                good_list,
-                               partial(self._update_book, options=options, db=self.gui.current_db),
-                               partial(self._update_books_completed, options=options),
+                               partial(self.update_books_loop, options=options, db=self.gui.current_db),
+                               partial(self.update_books_finish, options=options),
                                init_label="Updating calibre for FanFiction stories...",
                                win_title="Update calibre for FanFiction stories",
                                status_prefix="Updated")
@@ -976,25 +939,33 @@ make_firstimage_cover:true
         total_bad = len(bad_list)
 
         if total_bad > 0:
-            custom_columns = self.gui.library_view.model().custom_columns
-            if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
-                self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%total_bad))
-                label = custom_columns[prefs['errorcol']]['label']
-                ## if error column and all bad.
-                LoopProgressDialog(self.gui,
-                                   bad_list,
-                                   partial(self._update_bad_book, label=label, options=options, db=self.gui.current_db),
-                                   partial(self._update_books_completed, options=options, showlist=False),
-                                   init_label="Updating calibre for BAD FanFiction stories...",
-                                   win_title="Update calibre for BAD FanFiction stories",
-                                   status_prefix="Updated")
+            self.update_error_column(bad_list,options)
 
-                
-    def _add_or_update_book(self,book,options,prefs,mi=None):
+    def update_error_column(self,book_list,options):
+        '''Update custom error column if configured.'''
+        custom_columns = self.gui.library_view.model().custom_columns
+        if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+            self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
+            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%len(book_list)))
+            label = custom_columns[prefs['errorcol']]['label']
+            LoopProgressDialog(self.gui,
+                               book_list,
+                               partial(self.update_error_column_loop, db=self.gui.current_db, label=label),
+                               partial(self.update_books_finish, options=options, showlist=False),
+                               init_label="Updating calibre for BAD FanFiction stories...",
+                               win_title="Update calibre for BAD FanFiction stories",
+                               status_prefix="Updated")
+
+    def update_error_column_loop(self,book,db=None,label='errorcol'):
+        if book['calibre_id']:
+            print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+
+    def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
         
         if mi == None:
-            mi = self._make_mi_from_book(book)
+            mi = self.make_mi_from_book(book)
 
         book_id = book['calibre_id']
         if book_id == None:
@@ -1020,13 +991,9 @@ make_firstimage_cover:true
                     print("remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
 
-        # moved up so whole lists are done at once for efficiency.
-        # if prefs['addtolists'] or prefs['addtoreadlists']:
-        #     self._update_reading_lists([book_id],add=True)
-                
         return book_id
 
-    def _update_metadata(self, db, book_id, book, mi, options):
+    def update_metadata(self, db, book_id, book, mi, options):
         oldmi = db.get_metadata(book_id,index_is_id=True)
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
@@ -1111,16 +1078,13 @@ make_firstimage_cover:true
                     val = book['all_metadata']['status'] == 'In-Progress'
                 db.set_custom(book_id, val, label=label, commit=False)
 
-        adapter = None
+        configuration = None
         if prefs['allow_custcol_from_ini']:
-            configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
-            configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-            configuration.readfp(StringIO(options['personal.ini']))
-            adapter = adapters.getAdapter(configuration,book['url'])
+            configuration = get_ffdl_config(book['url'],options['fileform'])
 
             # meta => custcol[,a|n|r]
             # cliches=>\#acolumn,r
-            for line in adapter.getConfig('custom_columns_settings').splitlines():
+            for line in configuration.getConfig('custom_columns_settings').splitlines():
                 if "=>" in line:
                     (meta,custcol) = map( lambda x: x.strip(), line.split("=>") )
                     flag='r'
@@ -1171,16 +1135,13 @@ make_firstimage_cover:true
             gc_plugin = self.gui.iactions['Generate Cover']
             setting_name = None
             if prefs['allow_gc_from_ini']:
-                if not adapter: # might already have it from allow_custcol_from_ini
-                    configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
-                    configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-                    configuration.readfp(StringIO(options['personal.ini']))
-                    adapter = adapters.getAdapter(configuration,book['url'])
+                if not configuration: # might already have it from allow_custcol_from_ini
+                    configuration = get_ffdl_config(book['url'],options['fileform'])
 
                 # template => regexp to match => GC Setting to use.
                 # generate_cover_settings:
                 # ${category} => Buffy:? the Vampire Slayer => Buffy
-                for line in adapter.getConfig('generate_cover_settings').splitlines():
+                for line in configuration.getConfig('generate_cover_settings').splitlines():
                     if "=>" in line:
                         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                         value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
@@ -1211,13 +1172,13 @@ make_firstimage_cover:true
             label = custom_columns[prefs['errorcol']]['label']
             db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
 
-    def _get_clean_reading_lists(self,lists):
+    def get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :
             return []
         else:
             return filter( lambda x : x, map( lambda x : x.strip(), lists.split(',') ) )
         
-    def _update_reading_lists(self,book_ids,add=True):
+    def update_reading_lists(self,book_ids,add=True):
         try:
             rl_plugin = self.gui.iactions['Reading List']
         except:
@@ -1226,14 +1187,13 @@ make_firstimage_cover:true
                 confirm(message,'fanfictiondownloader_no_reading_list_plugin', self.gui)
             return
         
-        # XXX check for existence of lists, warning if not.
         if prefs['addtoreadlists']:
             if add:
                 addremovefunc = rl_plugin.add_books_to_list
             else:
                 addremovefunc = rl_plugin.remove_books_from_list
                 
-            lists = self._get_clean_reading_lists(prefs['read_lists'])
+            lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
                 message="<p>You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?</p>"
                 confirm(message,'fanfictiondownloader_no_read_lists', self.gui)
@@ -1249,7 +1209,7 @@ make_firstimage_cover:true
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
                         
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
-            lists = self._get_clean_reading_lists(prefs['send_lists'])
+            lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
                 message="<p>You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?</p>"
                 confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
@@ -1266,32 +1226,40 @@ make_firstimage_cover:true
                         message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
-    def _make_mi_from_book(self,book):
+    def make_mi_from_book(self,book):
         mi = MetaInformation(book['title'],book['author']) # author is a list.
         mi.set_identifiers({'url':book['url']})
         mi.publisher = book['publisher']
         mi.tags = book['tags']
-        #mi.languages = ['en'] # handled in _update_metadata so it can check for existing lang.
+        #mi.languages = ['en'] # handled in update_metadata so it can check for existing lang.
         mi.pubdate = book['pubdate']
         mi.timestamp = book['timestamp']
         mi.comments = book['comments']
         mi.series = book['series']
         return mi
 
-
-    def _convert_urls_to_books(self, urls):
+    # Can't make book a class because it needs to be passed into the
+    # bg jobs and only serializable things can be.
+    def make_book(self):
+        book = {}
+        book['title'] = 'Unknown'
+        book['author_sort'] = book['author'] = ['Unknown'] # list    
+        book['comments'] = '' # note this is the book comments.
+        
+        book['good'] = True
+        book['calibre_id'] = None
+        book['begin'] = None
+        book['end'] = None
+        book['comment'] = '' # note this is a comment on the d/l or update.
+        book['url'] = ''
+        book['added'] = False
+        return book
+    
+    def convert_urls_to_books(self, urls):
         books = []
         uniqueurls = set()
         for url in urls:
-            # look here for [\d,\d] at end of url, and remove?
-            mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>,)?(?P<end>\d+)?\])?$",url)
-            print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
-            url = mc.group('url')
-            book = self._convert_url_to_book(url)
-            book['begin'] = mc.group('begin')
-            book['end'] = mc.group('end')
-            if book['begin'] and not mc.group('comma'):
-                book['end'] = book['begin']
+            book = self.convert_url_to_book(url)
             if book['url'] in uniqueurls:
                 book['good'] = False
                 book['comment'] = "Same story already included."
@@ -1299,72 +1267,58 @@ make_firstimage_cover:true
             books.append(book)
         return books
 
-    def _convert_url_to_book(self, url):
-        book = {}
-        book['good'] = True
-        book['calibre_id'] = None
-        book['title'] = 'Unknown'
-        book['author_sort'] = book['author'] = ['Unknown'] # list
-        book['begin'] = None
-        book['end'] = None
+    def convert_url_to_book(self, url):
+        book = self.make_book()
+        # look here for [\d,\d] at end of url, and remove?
+        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>,)?(?P<end>\d+)?\])?$",url)
+        #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
+        url = mc.group('url')
+        book['begin'] = mc.group('begin')
+        book['end'] = mc.group('end')
+        if book['begin'] and not mc.group('comma'):
+            book['end'] = book['begin']
             
-        book['comment'] = ''
-        book['url'] = ''
-        book['added'] = False
-        
-        self._set_book_url_and_comment(book,url)
+        self.set_book_url_and_comment(book,url)
         return book
-        
-    def _convert_id_to_book(self, idval, good=True):
-        book = {}
-        book['good'] = good
-        book['calibre_id'] = idval
-        book['title'] = 'Unknown'
-        book['author_sort'] = book['author'] = ['Unknown'] # list
-        book['begin'] = None
-        book['end'] = None
-            
-        book['comment'] = ''
-        book['url'] = ''
-        book['added'] = False
 
+    # basic book, plus calibre_id.  Assumed bad until proven
+    # otherwise.
+    def make_book_id_only(self, idval):
+        book = self.make_book()
+        book['good'] = False
+        book['calibre_id'] = idval
         return book
-            
-    def _convert_row_to_book(self, row, good=True):
-        book = {}
-        mi = self.gui.current_view().model().get_book_display_info(row.row())
+
+    def populate_book_from_mi(self,book,mi):
         book['title'] = mi.title
         book['author'] = mi.authors
-        book['path'] = mi.path
         book['author_sort'] = mi.author_sort
-        book['good'] = good
-        book['calibre_id'] = None
-        book['begin'] = None
-        book['end'] = None
-            
-        book['comment'] = ''
-        book['url'] = ''
-        book['added'] = False
+        if hasattr(mi,'publisher'):
+            book['publisher'] = mi.publisher
+        if hasattr(mi,'path'):
+            book['path'] = mi.path
+        if hasattr(mi,'id'):
+            book['calibre_id'] = mi.id
 
+    # book data from device.  Assumed bad until proven otherwise.
+    def make_book_from_device_row(self, row):
+        book = self.make_book()
+        mi = self.gui.current_view().model().get_book_display_info(row.row())
+        self.populate_book_from_mi(book,mi)
+        book['good'] = False
         return book
             
-    def _populate_book_from_calibre_id(self, book, db=None):
+    def populate_book_from_calibre_id(self, book, db=None):
         mi = db.get_metadata(book['calibre_id'], index_is_id=True)
         #book = {}
         book['good'] = True
-        book['calibre_id'] = mi.id
-        book['title'] = mi.title
-        book['author'] = mi.authors
-        book['author_sort'] = mi.author_sort
-        book['comment'] = ''
-        book['url'] = ""
-        book['added'] = False
-        
-        url = self._get_story_url(db,book['calibre_id'])
-        self._set_book_url_and_comment(book,url)
-        #return book
+        self.populate_book_from_mi(book,mi)
 
-    def _set_book_url_and_comment(self,book,url):
+        url = self.get_story_url(db,book['calibre_id'])
+        self.set_book_url_and_comment(book,url)
+        #return book - populated passed in book.
+
+    def set_book_url_and_comment(self,book,url):
         if not url:
             book['comment'] = "No story URL found."
             book['good'] = False
@@ -1372,7 +1326,7 @@ make_firstimage_cover:true
             book['status'] = 'Not Found'
         else:
             # get normalized url or None.
-            book['url'] = self._is_good_downloader_url(url)
+            book['url'] = self.is_good_downloader_url(url)
             if book['url'] == None:
                 book['url'] = url
                 book['comment'] = "URL is not a valid story URL."
@@ -1380,7 +1334,7 @@ make_firstimage_cover:true
                 book['icon']='dialog_error.png'
                 book['status'] = 'Bad URL'
     
-    def _get_story_url(self, db, book_id=None, path=None):
+    def get_story_url(self, db, book_id=None, path=None):
         if book_id == None:
             identifiers={}
         else:
@@ -1402,6 +1356,10 @@ make_firstimage_cover:true
                 if 'url' in identifiers:
                     # print("url from get_metadata:%s"%identifiers['url'].replace('|',':'))
                     return identifiers['url'].replace('|',':')
+                elif 'uri' in identifiers:
+                    # identifiers have :->| in uri.
+                    # print("uri from ident uri:%s"%identifiers['uri'].replace('|',':'))
+                    return identifiers['uri'].replace('|',':')
             elif path.lower().endswith('.epub'):
                 existingepub = path
                 
@@ -1413,20 +1371,25 @@ make_firstimage_cover:true
                     # print("url from get_dcsource:%s"%link)
                     return link
                 elif prefs['lookforurlinhtml']:
-                    link = get_story_url_from_html(existingepub,self._is_good_downloader_url)
+                    link = get_story_url_from_html(existingepub,self.is_good_downloader_url)
                     # print("url from get_story_url_from_html:%s"%link)
                     return link
         return None
 
-    def _is_good_downloader_url(self,url):
+    def is_good_downloader_url(self,url):
         return adapters.getNormalStoryURL(url)
 
-def get_url_list(urls):
+def split_text_to_urls(urls):
+    # remove dups while preserving order.
+    dups=set()
     def f(x):
-        if x.strip(): return True
-        else: return False
-    # set removes dups.
-    return set(filter(f,urls.strip().splitlines()))
+        x=x.strip()
+        if x and x not in dups:
+            dups.add(x)
+            return True
+        else:
+            return False
+    return filter(f,urls.strip().splitlines())
 
 def escapehtml(txt):
     return txt.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")
