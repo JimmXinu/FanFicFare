@@ -18,9 +18,9 @@ from calibre.utils.ipc.job import ParallelJob
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
 
+from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
 # ------------------------------------------------------------------------------
 #
 #              Functions to perform downloads using worker jobs
@@ -114,9 +114,9 @@ def do_download_for_worker(book,options):
     try:
         book['comment'] = 'Download started...'
 
-        configuration = Configuration(adapters.getConfigSectionFor(book['url']),options['fileform'])
-        configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-        configuration.readfp(StringIO(options['personal.ini']))
+        configuration = get_ffdl_config(book['url'],
+                                        options['fileform'],
+                                        options['personal.ini'])
         
         if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
             configuration.set("overrides","never_make_cover","true")
