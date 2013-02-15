@@ -27,7 +27,12 @@ make_firstimage_cover:true
 def get_ffdl_config(url,fileform="EPUB",personalini=None):
     if not personalini:
         personalini = get_ffdl_personalini()
-    configuration = Configuration(adapters.getConfigSectionFor(url),fileform)
+    site='unknown'
+    try:
+        site = adapters.getConfigSectionFor(url)
+    except Exception as e:
+        print("Failed trying to get ini config for url(%s): %s, using section [%s] instead"%(url,e,site))
+    configuration = Configuration(site,fileform)
     configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
     configuration.readfp(StringIO(personalini))
 

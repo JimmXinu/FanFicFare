@@ -30,13 +30,13 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
             ImageTitleLayout, get_icon)
 
-SKIP='Skip'
-ADDNEW='Add New Book'
-UPDATE='Update EPUB if New Chapters'
-UPDATEALWAYS='Update EPUB Always'
-OVERWRITE='Overwrite if Newer'
-OVERWRITEALWAYS='Overwrite Always'
-CALIBREONLY='Update Calibre Metadata Only'
+SKIP=u'Skip'
+ADDNEW=u'Add New Book'
+UPDATE=u'Update EPUB if New Chapters'
+UPDATEALWAYS=u'Update EPUB Always'
+OVERWRITE=u'Overwrite if Newer'
+OVERWRITEALWAYS=u'Overwrite Always'
+CALIBREONLY=u'Update Calibre Metadata Only'
 collision_order=[SKIP,
                  ADDNEW,
                  UPDATE,
@@ -44,6 +44,10 @@ collision_order=[SKIP,
                  OVERWRITE,
                  OVERWRITEALWAYS,
                  CALIBREONLY,]
+
+anthology_collision_order=[UPDATE,
+                           UPDATEALWAYS,
+                           OVERWRITEALWAYS]
         
 # This is a more than slightly kludgey way to get
 # EditWithComplete to *not* alpha-order the reasons, but leave
@@ -84,10 +88,23 @@ class DroppableQTextEdit(QTextEdit):
                             
 class AddNewDialog(SizePersistedDialog):
 
-    def __init__(self, gui, prefs, icon, url_list_text):
+    def __init__(self, gui, prefs, icon, url_list_text, merge=False, newmerge=False):
         SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:add new dialog')
         self.gui = gui
+        self.merge = merge
+        self.newmerge = newmerge
 
+        if merge:
+            labeltext = 'Story URL(s) for anthology, one per line:'
+            tooltiptext = 'URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'
+            collisiontext = 'If Story Already Exists in Anthology?'
+            collisiontooltip = "What to do if there's already an existing story with the same URL in the anthology."
+        else:
+            labeltext = 'Story URL(s), one per line:'
+            tooltiptext = 'URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.'
+            collisiontext = 'If Story Already Exists?'
+            collisiontooltip = "What to do if there's already an existing story with the same URL or title and author."
+            
         if prefs['adddialogstaysontop']:
             QDialog.setWindowFlags ( self, Qt.Dialog|Qt.WindowStaysOnTopHint )
         
@@ -98,55 +115,58 @@ class AddNewDialog(SizePersistedDialog):
         self.setWindowTitle('FanFictionDownLoader')
         self.setWindowIcon(icon)
 
-        self.l.addWidget(QLabel('Story URL(s), one per line:'))
+        self.l.addWidget(QLabel(labeltext))
         self.url = DroppableQTextEdit(self)
-        self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.')
+        self.url.setToolTip(tooltiptext)
         self.url.setLineWrapMode(QTextEdit.NoWrap)
         self.url.setText(url_list_text)
         self.l.addWidget(self.url)
-        
-        horz = QHBoxLayout()
-        label = QLabel('Output &Format:')
-        horz.addWidget(label)
-        self.fileform = QComboBox(self)
-        self.fileform.addItem('epub')
-        self.fileform.addItem('mobi')
-        self.fileform.addItem('html')
-        self.fileform.addItem('txt')
-        self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
-        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
-        self.fileform.activated.connect(self.set_collisions)
-        
-        label.setBuddy(self.fileform)
-        horz.addWidget(self.fileform)
-        self.l.addLayout(horz)
 
-        horz = QHBoxLayout()
-        label = QLabel('If Story Already Exists?')
-        horz.addWidget(label)
-        self.collision = QComboBox(self)
-        self.collision.setToolTip("What to do if there's already an existing story with the same URL or title and author.")
-        # add collision options
-        self.set_collisions()
-        i = self.collision.findText(prefs['collision'])
-        if i > -1:
-            self.collision.setCurrentIndex(i)
-        label.setBuddy(self.collision)
-        horz.addWidget(self.collision)
-        self.l.addLayout(horz)
+        if not merge:
+            horz = QHBoxLayout()
+            label = QLabel('Output &Format:')
+            horz.addWidget(label)
+            self.fileform = QComboBox(self)
+            self.fileform.addItem('epub')
+            self.fileform.addItem('mobi')
+            self.fileform.addItem('html')
+            self.fileform.addItem('txt')
+            self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
+            self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+            self.fileform.activated.connect(self.set_collisions)
+            
+            label.setBuddy(self.fileform)
+            horz.addWidget(self.fileform)
+            self.l.addLayout(horz)
 
-        horz = QHBoxLayout()
-        self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
-        self.updatemeta.setChecked(prefs['updatemeta'])
-        horz.addWidget(self.updatemeta)
-
-        self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
-        self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
-        horz.addWidget(self.updateepubcover)
-        
-        self.l.addLayout(horz)
+        if not newmerge:
+            horz = QHBoxLayout()
+            label = QLabel(collisiontext)
+            horz.addWidget(label)
+            self.collision = QComboBox(self)
+            self.collision.setToolTip(collisiontooltip)
+            # add collision options
+            self.set_collisions()
+            i = self.collision.findText(prefs['collision'])
+            if i > -1:
+                self.collision.setCurrentIndex(i)
+            label.setBuddy(self.collision)
+            horz.addWidget(self.collision)
+            self.l.addLayout(horz)
+    
+            horz = QHBoxLayout()
+            self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
+            self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
+            self.updatemeta.setChecked(prefs['updatemeta'])
+            horz.addWidget(self.updatemeta)
+    
+            if not merge: # hide if anthology merge.
+                self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
+                self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
+                self.updateepubcover.setChecked(prefs['updateepubcover'])
+                horz.addWidget(self.updateepubcover)
+            
+            self.l.addLayout(horz)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
@@ -163,20 +183,39 @@ class AddNewDialog(SizePersistedDialog):
     def set_collisions(self):
         prev=self.collision.currentText()
         self.collision.clear()
-        for o in collision_order:
-            if self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
+        if self.merge:
+            order = anthology_collision_order
+        else:
+            order = collision_order
+        for o in order:
+            if self.merge or self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
                 self.collision.addItem(o)
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)
         
     def get_ffdl_options(self):
-        return {
-            'fileform': unicode(self.fileform.currentText()),
-            'collision': unicode(self.collision.currentText()),
-            'updatemeta': self.updatemeta.isChecked(),
-            'updateepubcover': self.updateepubcover.isChecked(),
-            }
+        if self.merge:
+            if self.newmerge:
+                updatemeta=True
+                collision=ADDNEW
+            else:
+                updatemeta=self.updatemeta.isChecked()
+                collision=unicode(self.collision.currentText())
+                
+            return {
+                'fileform': 'epub',
+                'collision': collision,
+                'updatemeta': updatemeta,
+                'updateepubcover': True,
+                }
+        else:
+            return {
+                'fileform': unicode(self.fileform.currentText()),
+                'collision': unicode(self.collision.currentText()),
+                'updatemeta': self.updatemeta.isChecked(),
+                'updateepubcover': self.updateepubcover.isChecked(),
+                }
 
     def get_urlstext(self):
         return unicode(self.url.toPlainText())
@@ -193,10 +232,11 @@ class CollectURLDialog(SizePersistedDialog):
     '''
     Collect single url for get urls.
     '''
-    def __init__(self, gui, title, url_text): 
+    def __init__(self, gui, title, url_text, epubmerge_plugin=None): 
         SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:get story urls')
         self.gui = gui
         self.status=False
+        self.anthology=False
 
         self.setMinimumWidth(300)
         
@@ -204,26 +244,38 @@ class CollectURLDialog(SizePersistedDialog):
         self.setLayout(self.l)
 
         self.setWindowTitle(title)
-        self.l.addWidget(QLabel(title),0,0,1,2)
+        self.l.addWidget(QLabel(title),0,0,1,3)
         
         self.l.addWidget(QLabel("URL:"),1,0)
         self.url = QLineEdit(self)
         self.url.setText(url_text)
-        self.l.addWidget(self.url,1,1)
+        self.l.addWidget(self.url,1,1,1,2)
    
-        self.ok_button = QPushButton('OK', self)
-        self.ok_button.clicked.connect(self.ok)
-        self.l.addWidget(self.ok_button,2,0)
+        self.indiv_button = QPushButton('For Individual Books', self)
+        self.indiv_button.setToolTip('Get URLs and go to dialog for individual story downloads.')
+        self.indiv_button.clicked.connect(self.indiv)
+        self.l.addWidget(self.indiv_button,2,0)
+
+        self.merge_button = QPushButton('For Anthology Book', self)
+        self.merge_button.setToolTip('Get URLs and go to dialog for Anthology download.\nRequires EpubMerge 1.3.0+ plugin.')
+        self.merge_button.clicked.connect(self.merge)
+        self.l.addWidget(self.merge_button,2,1)
+        self.merge_button.setEnabled(epubmerge_plugin!=None)
 
         self.cancel_button = QPushButton('Cancel', self)
         self.cancel_button.clicked.connect(self.cancel)
-        self.l.addWidget(self.cancel_button,2,1)
+        self.l.addWidget(self.cancel_button,2,2)
 
         # restore saved size.
         self.resize_dialog()
 
-    def ok(self):
+    def indiv(self):
         self.status=True
+        self.accept()
+
+    def merge(self):
+        self.status=True
+        self.anthology=True
         self.accept()
 
     def cancel(self):

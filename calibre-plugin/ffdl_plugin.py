@@ -161,6 +161,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
                                                           triggered=self.update_dialog)
 
+            if self.get_epubmerge_plugin():
+                self.menu.addSeparator()
+                self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs to Download from Web Page', image='view.png',
+                                                                    unique_name='Get Story URLs from Web Page',
+                                                                    triggered=self.get_urls_from_page_menu)
+                
+                self.makeanth_action = self.create_menu_item_ex(self.menu, '&Make Anthology Manually from URL(s)', image='plusplus.png',
+                                                                unique_name='Make FanFiction Anthology Manually from URL(s)',
+                                                                shortcut_name='Make FanFiction Anthology Manually from URL(s)',
+                                                                triggered=partial(self.add_dialog,merge=True) )
+                
+                self.updateanth_action = self.create_menu_item_ex(self.menu, '&Update Anthology', image='plusplus.png',
+                                                                  unique_name='Update FanFiction Anthology',
+                                                                  shortcut_name='Update FanFiction Anthology',
+                                                                  triggered=self.update_anthology)
+
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
                 self.menu.addSeparator()
                 addmenutxt, rmmenutxt = None, None
@@ -188,8 +204,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
                                                             triggered=self.list_story_urls)
 
-            self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
-                                                                triggered=self.get_urls_from_page)
+            if not self.get_epubmerge_plugin():
+                self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
+                                                                    triggered=self.get_urls_from_page_menu)
 
             self.reject_list_action = self.create_menu_item_ex(self.menu, 'Reject Selected Books', image='rotate-right.png',
                                                                triggered=self.reject_list_urls)
@@ -254,6 +271,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         else:
             self.add_dialog()
 
+    def get_epubmerge_plugin(self):
+        if 'EpubMerge' in self.gui.iactions and self.gui.iactions['EpubMerge'].interface_action_base_plugin.version >= (1,3,0):
+            return self.gui.iactions['EpubMerge']
+            
     def update_lists(self,add=True):
         if prefs['addtolists'] or prefs['addtoreadlists']:
             if not self.is_library_view():
@@ -266,7 +287,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
 
-    def get_urls_from_page(self):
+    def get_urls_from_page_menu(self):
 
         if prefs['urlsfromclip']:
             try:
@@ -274,27 +295,30 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             except:
                 urltxt = ""
         
-        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page",urltxt)
+        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page",urltxt,self.get_epubmerge_plugin())
         d.exec_()
         if not d.status:
             return
         url = u"%s"%d.url.text()
-        print("get_urls_from_page URL:%s"%url)
 
-        if 'archiveofourown.org' in url:
-            configuration = get_ffdl_config(url)
-        else:
-            configuration = None
-        url_list = get_urls_from_page(url,configuration)
+        url_list = self.get_urls_from_page(url)
 
         if url_list:
-            self.add_dialog("\n".join(url_list))
+            self.add_dialog("\n".join(url_list),merge=d.anthology,anthology_url=url)
         else:
             info_dialog(self.gui, _('List of Story URLs'),
                         _('No Valid Story URLs found on given page.'),
                         show=True,
                         show_copy_button=False)
 
+    def get_urls_from_page(self,url):
+        print("get_urls_from_page URL:%s"%url)
+        if 'archiveofourown.org' in url:
+            configuration = get_ffdl_config(url)
+        else:
+            configuration = None
+        return get_urls_from_page(url,configuration)
+        
     def list_story_urls(self):
         '''Get list of URLs from existing books.'''
         if self.gui.current_view().selectionModel().selectedRows() == 0 :
@@ -357,7 +381,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(book_list) == 0 :
             self.gui.status_bar.show_message(_('No Selected Books have URLs to Reject'), 3000)
             return
-            
+
+        # Progbar because fetching urls from device epubs can be slow.
         LoopProgressDialog(self.gui,
                            book_list,
                            partial(self.reject_list_urls_loop, db=self.gui.current_db),
@@ -367,7 +392,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            status_prefix="URL retrieved")
             
     def reject_list_urls_loop(self,book,db=None):
-        self.get_list_story_urls_loop(book,db) # common with.
+        self.get_list_story_urls_loop(book,db) # common with get_list_story_urls_loop
         if book['calibre_id']:
             # want title/author, too, for rejects.
             self.populate_book_from_calibre_id(book,db)
@@ -414,7 +439,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
                 
-    def add_dialog(self,url_list_text=None):
+    def add_dialog(self,url_list_text=None,merge=False,anthology_url=None):
 
         #print("add_dialog()")
 
@@ -430,6 +455,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                          prefs,
                          self.qaction.icon(),
                          url_list_text,
+                         merge=merge,
+                         newmerge=merge # if here, it's a new anthology.
                          )
         d.exec_()
         if d.result() != d.Accepted:
@@ -442,10 +469,118 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         options = d.get_ffdl_options()
         options['version'] = self.version
+        options['anthology_url']=anthology_url
         print(self.version)
         
-        self.prep_downloads( options, add_books )
+        self.prep_downloads( options, add_books, merge=merge )
 
+    def update_anthology(self):
+        if not self.get_epubmerge_plugin():
+            self.gui.status_bar.show_message(_('Cannot Make Anthologys without EpubMerge 1.3.0+'), 3000)
+            return
+            
+        if not self.is_library_view():
+            self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
+            return
+        
+        if len(self.gui.library_view.get_selected_ids()) != 1:
+            self.gui.status_bar.show_message(_('Can only update 1 anthology at a time'), 3000)
+            return
+        #print("update_existing()")        
+        
+        db = self.gui.current_db
+        book_id = self.gui.library_view.get_selected_ids()[0]
+        mergebook = self.make_book_id_only(book_id)
+        self.populate_book_from_calibre_id(mergebook, db)
+
+        if not db.has_format(book_id,'EPUB',index_is_id=True):
+            self.gui.status_bar.show_message(_('Can only Update Epub Anthologies'), 3000)
+            return
+            
+        tdir = PersistentTemporaryDirectory(prefix='ffdl_anthology_')
+        print("tdir:\n%s"%tdir)
+
+        bookepubio = StringIO(db.format(book_id,'EPUB',index_is_id=True))
+        
+        filenames = self.get_epubmerge_plugin().do_unmerge(bookepubio,tdir)
+        urlmapfile = {}
+        url_list = []
+        for f in filenames:
+            url = get_dcsource(f)
+            if url:
+                urlmapfile[url]=f
+                url_list.append(url)
+
+        if not filenames or len(filenames) != len (url_list):
+            info_dialog(self.gui, _("Cannot Update Anthology"),
+                        _("<p>Cannot Update Anthology</p><p>Book isn't an FFDL Anthology or contains book(s) without valid FFDL URLs."),
+                        show=True,
+                        show_copy_button=False)
+            remove_dir(tdir)
+            return
+
+        # get list from identifiers:url/uri if present, but only if
+        # it's *not* a valid story URL.
+        mergeurl = self.get_story_url(db,book_id)
+        if mergeurl and not self.is_good_downloader_url(mergeurl):
+            url_list = self.get_urls_from_page(mergeurl)
+
+        url_list_text = "\n".join(url_list)
+        
+        #print("urlmapfile:%s"%urlmapfile)
+
+        # self.gui is the main calibre GUI. It acts as the gateway to access
+        # all the elements of the calibre user interface, it should also be the
+        # parent of the dialog
+        # AddNewDialog just collects URLs, format and presents buttons.
+        d = AddNewDialog(self.gui,
+                         prefs,
+                         self.qaction.icon(),
+                         url_list_text,
+                         merge=True,
+                         newmerge=False
+                         )
+        d.exec_()
+        if d.result() != d.Accepted:
+            return
+
+        url_list = split_text_to_urls(d.get_urlstext())
+            
+        update_books = self.convert_urls_to_books(url_list)
+        
+        for j, book in enumerate(update_books):
+            url = book['url']
+            book['mergeorder'] = j
+            if url in urlmapfile:
+                #print("found epub for %s"%url)
+                book['epub_for_update']=urlmapfile[url]
+                del urlmapfile[url]
+            #else:
+                #print("didn't found epub for %s"%url)
+
+        if urlmapfile:
+            text = '''
+            <p>There are %d stories in the current anthology that are <b>not</b> going kept if you go ahead.</p>
+            <p>Story URLs that will be removed:</p>
+            <ul>
+            <li>%s</li>
+            </ul>
+            <p>Update anyway?</p>
+            '''%(len(urlmapfile),"</li><li>".join(urlmapfile.keys()))
+            if not question_dialog(self.gui, 'Stories Removed',
+                               text, show_copy_button=False):
+                print("Canceling anthology update due to removed stories.")
+                return
+
+        options = d.get_ffdl_options()
+        options['version'] = self.version
+        options['tdir'] = tdir
+        #options['collision'] = UPDATEALWAYS
+        print(self.version)
+
+        options['mergebook'] = mergebook
+        self.prep_downloads( options, update_books, merge=True )
+        
     def update_dialog(self):
         if not self.is_library_view():
             self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
@@ -508,21 +643,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # No need to do anything with perfs here, but we could.
         prefs
 
-    def prep_downloads(self, options, books):
+    def prep_downloads(self, options, books, merge=False):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
 
         #print("prep_downloads:%s"%books)
 
-        # create and pass temp dir.
-        tdir = PersistentTemporaryDirectory(prefix='fanfictiondownloader_')
-        options['tdir']=tdir
+        if 'tdir' not in options: # if merging an anthology, there's alread a tdir.
+            # create and pass temp dir.
+            tdir = PersistentTemporaryDirectory(prefix='fanfictiondownloader_')
+            options['tdir']=tdir
 
         if 0 < len(filter(lambda x : x['good'], books)):
             self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
             LoopProgressDialog(self.gui,
                                books,
-                               partial(self.prep_download_loop, options = options),
-                               partial(self.start_download_job, options = options))
+                               partial(self.prep_download_loop, options = options, merge=merge),
+                               partial(self.start_download_job, options = options, merge=merge))
         else:
             self.gui.status_bar.show_message(_('No valid story URLs entered.'), 3000)
         # LoopProgressDialog calls prep_download_loop for each 'good' story,
@@ -534,7 +670,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
                                     'updatemeta':True,
-                                    'updateepubcover':True}):
+                                    'updateepubcover':True},
+                           merge=False):
         '''
         Update passed in book dict with metadata from website and
         necessary data.  To be called from LoopProgressDialog
@@ -544,26 +681,27 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         url = book['url']
         print("url:%s"%url)
 
-        rejnote = rejecturllist.check(url)
-        if rejnote:
-            if question_dialog(self.gui, 'Reject URL?',
-                               '<p>Reject URL?</p>'+
-                               '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
-                               "<p>Click 'No' to download anyway.</p>",
-                               show_copy_button=False):
-                book['comment'] = "Story on Reject URLs list (%s)."%rejnote
-                book['good']=False
-                book['icon']='rotate-right.png'
-                book['status'] = 'Rejected'
-                return
-            else:
-                if question_dialog(self.gui, 'Remove Reject URL?',
-                                   "<p>Remove URL from Reject List?</p>"+
+        if not merge: # skip reject list when merging.
+            rejnote = rejecturllist.check(url)
+            if rejnote:
+                if question_dialog(self.gui, 'Reject URL?',
+                                   '<p>Reject URL?</p>'+
                                    '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
-                                   "<p>Click 'Yes' to remove it from the list and download,<br /> 'No' to download, but leave it on the Reject list.</p>",
+                                   "<p>Click 'No' to download anyway.</p>",
                                    show_copy_button=False):
-                    rejecturllist.remove(url)
-        
+                    book['comment'] = "Story on Reject URLs list (%s)."%rejnote
+                    book['good']=False
+                    book['icon']='rotate-right.png'
+                    book['status'] = 'Rejected'
+                    return
+                else:
+                    if question_dialog(self.gui, 'Remove Reject URL?',
+                                       "<p>Remove URL from Reject List?</p>"+
+                                       '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
+                                       "<p>Click 'Yes' to remove it from the list and download,<br /> 'No' to download, but leave it on the Reject list.</p>",
+                                       show_copy_button=False):
+                        rejecturllist.remove(url)
+            
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
         # This class has many, many methods that allow you to do a lot of
@@ -635,120 +773,120 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['status'] = 'Add'
         if story.getMetadataRaw('datePublished'):
             book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
-        book['timestamp'] = None # filled below if not skipped.
-        
-        if collision in (CALIBREONLY):
-            book['icon'] = 'metadata.png'
-            book['status'] = 'Meta'
-        
-        book_id = None
-        
-        if book['calibre_id'] != None:
-            # updating an existing book.  Update mode applies.
-            print("update existing id:%s"%book['calibre_id'])
-            book_id = book['calibre_id']
-            # No handling needed: OVERWRITEALWAYS,CALIBREONLY
-            
-        # only care about collisions when not ADDNEW
-        elif collision != ADDNEW:
-            # 'new' book from URL.  collision handling applies.
-            print("from URL(%s)"%url)
-
-            # try to find by identifier url or uri first.
-            searchstr = 'identifiers:"~ur(i|l):=%s"'%url.replace(":","|")
-            identicalbooks = db.search_getting_ids(searchstr, None)
-            if len(identicalbooks) < 1:
-                # find dups
-                authlist = story.getList("author", removeallentities=True)
-                if len(authlist) > 100 and calibre_version < (0, 8, 61):
-                    ## should be fixed from 0.8.61 on.  In the
-                    ## meantime, if it matches the title *and* first
-                    ## 100 authors, I'm prepared to assume it's a
-                    ## match.
-                    print("reduce author list to 100 only when calibre < 0.8.61")
-                    authlist = authlist[:100]
-                mi = MetaInformation(story.getMetadata("title", removeallentities=True),
-                                     authlist)
-                identicalbooks = db.find_identical_books(mi)
-                if len(identicalbooks) > 0:
-                    print("existing found by title/author(s)")
-
-            else:
-                print("existing found by identifier URL")
-                
-            if collision == SKIP and identicalbooks:
-                raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
-
-            if len(identicalbooks) > 1:
-                raise NotGoingToDownload("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite.","minusminus.png")
-
-            ## changed: add new book when CALIBREONLY if none found.
-            if collision == CALIBREONLY and not identicalbooks:
-                collision = ADDNEW
-                options['collision'] = ADDNEW
-
-            if len(identicalbooks)>0:
-                book_id = identicalbooks.pop()
-                book['calibre_id'] = book_id
-                book['icon'] = 'edit-redo.png'
-                book['status'] = 'Update'
-
-        if book_id != None and collision != ADDNEW:
-            if collision in (CALIBREONLY):
-                book['comment'] = 'Metadata collected.'
-                # don't need temp file created below.
-                return
-            
-            ## newer/chaptercount checks are the same for both:
-            # Update epub, but only if more chapters.
-            if collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
-                # 'book' can exist without epub.  If there's no existing epub,
-                # let it go and it will download it.
-                if db.has_format(book_id,fileform,index_is_id=True):
-                    (epuburl,chaptercount) = \
-                        get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
-                                                                     index_is_id=True)))
-                    urlchaptercount = int(story.getMetadata('numChapters'))
-                    if chaptercount == urlchaptercount:
-                        if collision == UPDATE:
-                            raise NotGoingToDownload("Already contains %d chapters."%chaptercount,'edit-undo.png')
-                        else:
-                            # UPDATEALWAYS
-                            skip_date_update = True
-                    elif chaptercount > urlchaptercount:
-                        raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
-    
-            if collision == OVERWRITE and \
-                    db.has_format(book_id,formmapping[fileform],index_is_id=True):
-                # check make sure incoming is newer.
-                lastupdated=story.getMetadataRaw('dateUpdated').date()
-                fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8]).date()
-                if fileupdated > lastupdated:
-                    raise NotGoingToDownload("Not Overwriting, web site is not newer.",'edit-undo.png')
-    
-            # For update, provide a tmp file copy of the existing epub so
-            # it can't change underneath us.
-            if collision in (UPDATE,UPDATEALWAYS) and \
-                    db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
-                tmp = PersistentTemporaryFile(prefix='old-%s-'%book['calibre_id'],
-                                              suffix='.epub',
-                                              dir=options['tdir'])
-                db.copy_format_to(book_id,fileform,tmp,index_is_id=True)
-                print("existing epub tmp:"+tmp.name)
-                book['epub_for_update'] = tmp.name
-
-        if collision != CALIBREONLY and not skip_date_update:
-            # I'm half convinced this should be dateUpdated instead, but
-            # this behavior matches how epubs come out when imported
-            # dateCreated == packaged--epub/etc created.
+        if story.getMetadataRaw('dateUpdated'):
+            book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
+        if story.getMetadataRaw('dateCreated'):
             book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+        else:
+            book['timestamp'] = None # need *something* there for calibre.
 
-        if book_id != None and prefs['injectseries']:
-            mi = db.get_metadata(book_id,index_is_id=True)
-            if not book['series'] and mi.series != None:
-                book['calibre_series'] = (mi.series,mi.series_index)
-                print("calibre_series:%s [%s]"%book['calibre_series'])
+        if not merge:# skip all the collision code when d/ling for merging.
+            if collision in (CALIBREONLY):
+                book['icon'] = 'metadata.png'
+                book['status'] = 'Meta'
             
+            book_id = None
+            
+            if book['calibre_id'] != None:
+                # updating an existing book.  Update mode applies.
+                print("update existing id:%s"%book['calibre_id'])
+                book_id = book['calibre_id']
+                # No handling needed: OVERWRITEALWAYS,CALIBREONLY
+                
+            # only care about collisions when not ADDNEW
+            elif collision != ADDNEW:
+                # 'new' book from URL.  collision handling applies.
+                print("from URL(%s)"%url)
+    
+                # try to find by identifier url or uri first.
+                searchstr = 'identifiers:"~ur(i|l):=%s"'%url.replace(":","|")
+                identicalbooks = db.search_getting_ids(searchstr, None)
+                if len(identicalbooks) < 1:
+                    # find dups
+                    authlist = story.getList("author", removeallentities=True)
+                    if len(authlist) > 100 and calibre_version < (0, 8, 61):
+                        ## should be fixed from 0.8.61 on.  In the
+                        ## meantime, if it matches the title *and* first
+                        ## 100 authors, I'm prepared to assume it's a
+                        ## match.
+                        print("reduce author list to 100 only when calibre < 0.8.61")
+                        authlist = authlist[:100]
+                    mi = MetaInformation(story.getMetadata("title", removeallentities=True),
+                                         authlist)
+                    identicalbooks = db.find_identical_books(mi)
+                    if len(identicalbooks) > 0:
+                        print("existing found by title/author(s)")
+    
+                else:
+                    print("existing found by identifier URL")
+                    
+                if collision == SKIP and identicalbooks:
+                    raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
+    
+                if len(identicalbooks) > 1:
+                    raise NotGoingToDownload("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite.","minusminus.png")
+    
+                ## changed: add new book when CALIBREONLY if none found.
+                if collision == CALIBREONLY and not identicalbooks:
+                    collision = ADDNEW
+                    options['collision'] = ADDNEW
+    
+                if len(identicalbooks)>0:
+                    book_id = identicalbooks.pop()
+                    book['calibre_id'] = book_id
+                    book['icon'] = 'edit-redo.png'
+                    book['status'] = 'Update'
+    
+            if book_id != None and collision != ADDNEW:
+                if collision in (CALIBREONLY):
+                    book['comment'] = 'Metadata collected.'
+                    # don't need temp file created below.
+                    return
+                
+                ## newer/chaptercount checks are the same for both:
+                # Update epub, but only if more chapters.
+                if collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
+                    # 'book' can exist without epub.  If there's no existing epub,
+                    # let it go and it will download it.
+                    if db.has_format(book_id,fileform,index_is_id=True):
+                        (epuburl,chaptercount) = \
+                            get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
+                                                                         index_is_id=True)))
+                        urlchaptercount = int(story.getMetadata('numChapters'))
+                        if chaptercount == urlchaptercount:
+                            if collision == UPDATE:
+                                raise NotGoingToDownload("Already contains %d chapters."%chaptercount,'edit-undo.png')
+                            else:
+                                # UPDATEALWAYS
+                                skip_date_update = True
+                        elif chaptercount > urlchaptercount:
+                            raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
+        
+                if collision == OVERWRITE and \
+                        db.has_format(book_id,formmapping[fileform],index_is_id=True):
+                    # check make sure incoming is newer.
+                    lastupdated=story.getMetadataRaw('dateUpdated').date()
+                    fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8]).date()
+                    if fileupdated > lastupdated:
+                        raise NotGoingToDownload("Not Overwriting, web site is not newer.",'edit-undo.png')
+        
+                # For update, provide a tmp file copy of the existing epub so
+                # it can't change underneath us.
+                if collision in (UPDATE,UPDATEALWAYS) and \
+                        db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
+                    tmp = PersistentTemporaryFile(prefix='old-%s-'%book['calibre_id'],
+                                                  suffix='.epub',
+                                                  dir=options['tdir'])
+                    db.copy_format_to(book_id,fileform,tmp,index_is_id=True)
+                    print("existing epub tmp:"+tmp.name)
+                    book['epub_for_update'] = tmp.name
+    
+            if book_id != None and prefs['injectseries']:
+                mi = db.get_metadata(book_id,index_is_id=True)
+                if not book['series'] and mi.series != None:
+                    book['calibre_series'] = (mi.series,mi.series_index)
+                    print("calibre_series:%s [%s]"%book['calibre_series'])
+                
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
             # For HTML format users, make the filename inside the zip something reasonable.
@@ -767,7 +905,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
-                                     'updateepubcover':True}):
+                                     'updateepubcover':True},
+                            merge=False):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
         adapter_list is a list of tuples of (url,adapter)
@@ -775,7 +914,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("start_download_job:book_list:%s"%book_list)
 
         ## No need to BG process when CALIBREONLY!  Fake it.
-        if options['collision'] in (CALIBREONLY):
+        #print("options:%s"%options)
+        if options['collision'] == CALIBREONLY:
             class NotJob(object):
                 def __init__(self,result):
                     self.failed=False
@@ -809,7 +949,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 (book_list, options, cpus)]
         desc = 'Download FanFiction Book'
         job = self.gui.job_manager.run_job(
-                self.Dispatcher(partial(self.download_list_completed,options=options)),
+                self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
                 func, args=args,
                 description=desc)
         
@@ -878,7 +1018,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
 
-    def download_list_completed(self, job, options={}):
+    def download_list_completed(self, job, options={},merge=False):
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
@@ -892,33 +1032,120 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
         
-        msg = '''
+        if merge:
+            if len(good_list) < 1:
+                info_dialog(self.gui, _('No Good Stories for Anthology'),
+                            _('No good stories/updates where downloaded, Anthology creation/update aborted.'),
+                            show=True,
+                            show_copy_button=False)
+                return
+
+            msg = '<p>FFDL found <b>%s</b> good and <b>%s</b> bad updates.</p>'%(len(good_list),len(bad_list))
+            if len(bad_list) > 0:
+                msg = msg + '''<p>Are you sure you want to continue with creating/updating this Anthology?</p>
+<p>Any updates that failed will <b>not</b> be included in the Anthology.</p>
+<p>However, if there's an older version, it will still be included.</p>
+<p>See log for details.</p>
+'''
+            msg = msg + '<p>Proceed with updating this anthology and your library?</p>'
+    
+            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            for book in sorted(good_list+bad_list,key=lambda x : x['mergeorder']):
+                if 'status' in book:
+                    status = book['status']
+                else:
+                    if book in good_list:
+                        status = 'Good'
+                    else:
+                        status = 'Bad'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+            
+            htmllog = htmllog + '</table></body></html>'
+
+            for book in bad_list:
+                if 'epub_for_update' in book:
+                    book['good']=True
+                    book['outfile'] = book['epub_for_update']
+                    good_list.append(book)
+    
+            do_update_func = self.do_download_merge_update
+        else:        
+            msg = '''
 <p>FFDL found <b>%s</b> good and <b>%s</b> bad updates.</p>
 <p>See log for details.</p>
 <p>Proceed with updating your library?</p>
 '''%(len(good_list),len(bad_list))
-
-        htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
-        for book in good_list:
-            if 'status' in book:
-                status = book['status']
-            else:
-                status = 'Good'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
-        
-        for book in bad_list:
-            if 'status' in book:
-                status = book['status']
-            else:
-                status = 'Bad'
-            htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
-        
-        htmllog = htmllog + '</table></body></html>'
-
-        self.gui.proceed_question(partial(self.do_download_list_update),
+    
+            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            for book in good_list:
+                if 'status' in book:
+                    status = book['status']
+                else:
+                    status = 'Good'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+            
+            for book in bad_list:
+                if 'status' in book:
+                    status = book['status']
+                else:
+                    status = 'Bad'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+            
+            htmllog = htmllog + '</table></body></html>'
+    
+            do_update_func = self.do_download_list_update
+            
+        self.gui.proceed_question(do_update_func,
                                   payload, htmllog,
                                   'FFDL log', 'FFDL download complete', msg,
                                   show_copy_button=False)
+        
+    def do_download_merge_update(self, payload):
+        
+        (good_list,bad_list,options) = payload
+        total_good = len(good_list)
+
+        print("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['mergeorder']) for x in good_list ]))
+
+        good_list = sorted(good_list,key=lambda x : x['mergeorder'])
+        bad_list = sorted(bad_list,key=lambda x : x['mergeorder'])
+        
+        self.gui.status_bar.show_message(_('Merging %s books.'%total_good))
+
+        
+        existingbook = None
+        if 'mergebook' in options:
+            existingbook = options['mergebook']
+        mergebook = self.merge_meta_books(existingbook,good_list)
+
+        if 'mergebook' in options:
+            mergebook['calibre_id'] = options['mergebook']['calibre_id']
+            #mergeid = options['mergebook']['calibre_id']
+
+        if 'anthology_url' in options:
+            mergebook['url'] = options['anthology_url']
+            
+        print("mergebook:\n%s"%mergebook)
+        
+        if mergebook['good']: # there shouldn't be any !'good' books at this point.
+            # if still 'good', make a temp file to write the output to.
+            # For HTML format users, make the filename inside the zip something reasonable.
+            # For crazy long titles/authors, limit it to 200chars.
+            # For weird/OS-unsafe characters, use file safe only.
+            tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
+                                          dir=options['tdir'])
+            print("title:"+mergebook['title'])
+            print("outfile:"+tmp.name)
+            mergebook['outfile'] = tmp.name
+
+        self.get_epubmerge_plugin().do_merge(tmp.name,
+                                             [ x['outfile'] for x in good_list ],
+                                             titleopt=mergebook['title'],
+                                             keepmetadatafiles=True)
+        
+        options['collision']=OVERWRITEALWAYS
+        self.update_books_loop(mergebook,self.gui.current_db,options)
+        self.update_books_finish([mergebook], options=options, showlist=False)
         
     def do_download_list_update(self, payload):
         
@@ -1081,7 +1308,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         configuration = None
         if prefs['allow_custcol_from_ini']:
             configuration = get_ffdl_config(book['url'],options['fileform'])
-
             # meta => custcol[,a|n|r]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
@@ -1122,8 +1348,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             vallist = [book['all_metadata'][meta]]
                             
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
-            
-                
+
         db.commit()
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
@@ -1258,12 +1483,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def convert_urls_to_books(self, urls):
         books = []
         uniqueurls = set()
-        for url in urls:
+        for i, url in enumerate(urls):
             book = self.convert_url_to_book(url)
             if book['url'] in uniqueurls:
                 book['good'] = False
                 book['comment'] = "Same story already included."
             uniqueurls.add(book['url'])
+            book['mergeorder']=i # BG d/l jobs don't come back in order.
+                                 # Didn't matter until anthologies.
             books.append(book)
         return books
 
@@ -1378,6 +1605,105 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def is_good_downloader_url(self,url):
         return adapters.getNormalStoryURL(url)
+
+    def merge_meta_books(self,existingbook,book_list):
+        book = self.make_book()
+        book['author'] = []
+        book['tags'] = []
+        book['url'] = ''
+        book['all_metadata'] = {}
+        book['comment'] = ''
+        book['added'] = True
+        book['good'] = True
+        book['calibre_id'] = None
+        book['series'] = None
+    
+        serieslist=[]
+        
+        # copy list top level
+        for b in book_list:
+            if b['series']:
+                serieslist.append(b['series'][:b['series'].index(" [")])
+                #print("book series:%s"%serieslist[-1])
+
+            if b['publisher']:
+                if 'publisher' not in book:
+                    book['publisher']=b['publisher']
+                elif book['publisher']!=b['publisher']:
+                    book['publisher']=None # if any are different, don't use.
+                
+            # copy authors & tags.
+            for k in ('author','tags'):
+                for v in b[k]:
+                    if v not in book[k]:
+                        book[k].append(v)
+                        
+            # fill from first of each if not already present:
+            for k in ('pubdate', 'timestamp', 'updatedate'):
+                if k not in b: # not in this book?  Skip it.
+                    continue
+                if k not in book: # first is good enough for publisher.
+                    book[k]=b[k]
+
+                # Do these even on first to get the all_metadata settings.
+                # pubdate should be earliest date.
+                if k == 'pubdate' and book[k] >= b[k]:
+                    book[k]=b[k]
+                    book['all_metadata']['datePublished'] = b['all_metadata']['datePublished']
+                # timestamp should be latest date.
+                if k == 'timestamp' and book[k] <= b[k]:
+                    book[k]=b[k]
+                    book['all_metadata']['dateCreated'] = b['all_metadata']['dateCreated']
+                # updated should be latest date.
+                if k == 'updatedate' and book[k] <= b[k]:
+                    book[k]=b[k]
+                    book['all_metadata']['dateUpdated'] = b['all_metadata']['dateUpdated']
+        
+            # copy list all_metadata
+            for (k,v) in b['all_metadata'].iteritems():
+                #print("merge_meta_books v:%s k:%s"%(v,k))
+                if k in ('numChapters','numWords'):
+                    if k not in book['all_metadata']:
+                        book['all_metadata'][k] = b['all_metadata'][k]
+                    else:
+                        # lot of work for a simple add.
+                        book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
+                elif k in ('dateUpdated','datePublished','dateCreated',
+                           'series','status','title'):
+                    pass # handled above, below or skip these for now, not going to do anything with them.
+                elif k not in book['all_metadata'] or not book['all_metadata'][k]:
+                    book['all_metadata'][k]=v
+                elif v:
+                    if k == 'description':
+                        book['all_metadata'][k]=book['all_metadata'][k]+"\n"+v
+                    else:
+                        book['all_metadata'][k]=book['all_metadata'][k]+", "+v
+    
+        if existingbook:
+            book['title'] = deftitle = existingbook['title']
+            book['comments'] = existingbook['comments']
+        else:
+            book['title'] = deftitle = book_list[0]['title']+" Anthology"
+            book['comments'] = book['all_metadata']['description']
+            # "Anthology containing:\n" + \
+            # "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
+        
+        # if all same series, use series for name.  But only if all and not previous named
+        if len(serieslist) == len(book_list):
+            book['title'] = serieslist[0]
+            for sr in serieslist:
+                if book['title'] != sr:
+                    book['title'] = deftitle;
+                    break
+                
+        book['all_metadata']['title'] = book['title'] # because custom columns are set from all_metadata
+        book['all_metadata']['author'] = ", ".join(book['author'])
+        book['author_sort']=book['author']
+        for v in ['Completed','In-Progress']:
+            if v in book['tags']:
+                book['tags'].remove(v)
+        book['tags'].append('Anthology')
+        return book
 
 def split_text_to_urls(urls):
     # remove dups while preserving order.

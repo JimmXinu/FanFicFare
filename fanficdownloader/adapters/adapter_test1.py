@@ -115,6 +115,10 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         
             self.story.addToList('authorUrl','http://author/url')
             self.story.addToList('authorUrl','http://author/url-2')
+            self.story.addToList('category','Power Rangers')
+            self.story.addToList('category','SG-1')
+            self.story.addToList('genre','Porn')
+            self.story.addToList('genre','Drama')
         else:
             self.story.setMetadata('authorId','98765')
             self.story.setMetadata('authorUrl','http://author/url')
@@ -162,9 +166,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
                             ('Chapter 4',self.url+"&chapter=5"),
                             ('Chapter 5',self.url+"&chapter=6"),
-                            #('Chapter 6',self.url+"&chapter=7"),
-                            #('Chapter 7',self.url+"&chapter=8"),
-                            #('Chapter 8',self.url+"&chapter=9"),
+                            ('Chapter 6',self.url+"&chapter=7"),
+                            ('Chapter 7',self.url+"&chapter=8"),
+                            ('Chapter 8',self.url+"&chapter=9"),
                             #('Chapter 9',self.url+"&chapter=0"),
                             #('Chapter 0',self.url+"&chapter=a"),
                             #('Chapter a',self.url+"&chapter=b"),
@@ -187,9 +191,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        if self.story.getMetadata('storyId') == '667':
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
-
         if self.story.getMetadata('storyId').startswith('670') or \
                 self.story.getMetadata('storyId').startswith('672'):
             time.sleep(1.0)
@@ -202,7 +203,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=664 - Crazy string title</p>
 <p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
-<p>http://test1.com?sid=667 - raises FailedToDownload on chapter 1</p>
+<p>http://test1.com?sid=667 - raises FailedToDownload on chapters 2+</p>
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
@@ -211,7 +212,10 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
 
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
-<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p><p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p><p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
+<p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
+<p>http://test1.com?sid=673 - Succeeds, multiple authors, extra categories, genres</p>
+<p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p>
+<p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
 '''
         elif self.story.getMetadata('storyId') == '0':
@@ -226,9 +230,13 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <br />
 '''
         else:
+            if self.story.getMetadata('storyId') == '667':
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
+
             text=u'''
 <div>
 <h3>Chapter title from site</h3>
+<p>Timestamp:'''+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'''</p>
 <p>Lorem '''+self.crazystring+u''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
 Puella Magi Madoka Magica/魔法少女まどか★マギカ
