@@ -171,6 +171,17 @@ def do_download_for_worker(book,options):
              adapter.calibrebookmark,
              adapter.logfile) = get_update_data(book['epub_for_update'])
 
+            # dup handling from ffdl_plugin needed for anthology updates.
+            if options['collision'] == UPDATE:
+                if chaptercount == urlchaptercount:
+                    book['comment']="Already contains %d chapters.  Reuse as is."%chaptercount
+                    book['outfile'] = book['epub_for_update'] # for anthology merge ops.
+                    return book
+
+            # dup handling from ffdl_plugin needed for anthology updates.
+            if chaptercount > urlchaptercount:
+                raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
+                            
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
             print("write to %s"%outfile)
 
