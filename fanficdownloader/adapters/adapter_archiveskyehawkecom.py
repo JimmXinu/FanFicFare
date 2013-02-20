@@ -68,7 +68,6 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        # mobile.fimifction.com isn't actually a valid domain, but we can still get the story id from URLs anyway
         return ['archive.skyehawke.com','www.skyehawke.com']
 
     def getSiteExampleURLs(self):

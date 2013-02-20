@@ -149,6 +149,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def rebuild_menus(self):
         with self.menus_lock:
+            #self.qaction.setText("FFDL")
             do_user_config = self.interface_action_base_plugin.do_user_config
             self.menu.clear()
             self.actions_unique_map = {}
@@ -167,14 +168,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                                     unique_name='Get Story URLs from Web Page',
                                                                     triggered=self.get_urls_from_page_menu)
                 
-                self.makeanth_action = self.create_menu_item_ex(self.menu, '&Make Anthology Manually from URL(s)', image='plusplus.png',
-                                                                unique_name='Make FanFiction Anthology Manually from URL(s)',
-                                                                shortcut_name='Make FanFiction Anthology Manually from URL(s)',
+                self.makeanth_action = self.create_menu_item_ex(self.menu, '&Make Anthology Epub Manually from URL(s)', image='plusplus.png',
+                                                                unique_name='Make FanFiction Anthology Epub Manually from URL(s)',
+                                                                shortcut_name='Make FanFiction Anthology Epub Manually from URL(s)',
                                                                 triggered=partial(self.add_dialog,merge=True) )
                 
-                self.updateanth_action = self.create_menu_item_ex(self.menu, '&Update Anthology', image='plusplus.png',
-                                                                  unique_name='Update FanFiction Anthology',
-                                                                  shortcut_name='Update FanFiction Anthology',
+                self.updateanth_action = self.create_menu_item_ex(self.menu, '&Update Anthology Epub', image='plusplus.png',
+                                                                  unique_name='Update FanFiction Anthology Epub',
+                                                                  shortcut_name='Update FanFiction Anthology Epub',
                                                                   triggered=self.update_anthology)
 
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
@@ -272,7 +273,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.add_dialog()
 
     def get_epubmerge_plugin(self):
-        if 'EpubMerge' in self.gui.iactions and self.gui.iactions['EpubMerge'].interface_action_base_plugin.version >= (1,3,0):
+        if 'EpubMerge' in self.gui.iactions and self.gui.iactions['EpubMerge'].interface_action_base_plugin.version >= (1,3,1):
             return self.gui.iactions['EpubMerge']
             
     def update_lists(self,add=True):
@@ -1141,7 +1142,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self.get_epubmerge_plugin().do_merge(tmp.name,
                                              [ x['outfile'] for x in good_list ],
                                              titleopt=mergebook['title'],
-                                             keepmetadatafiles=True)
+                                             keepmetadatafiles=True,
+                                             source=mergebook['url'])
         
         options['collision']=OVERWRITEALWAYS
         self.update_books_loop(mergebook,self.gui.current_db,options)
@@ -1675,7 +1677,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     book['all_metadata'][k]=v
                 elif v:
                     if k == 'description':
-                        book['all_metadata'][k]=book['all_metadata'][k]+"\n"+v
+                        book['all_metadata'][k]=book['all_metadata'][k]+"\n\n"+v
                     else:
                         book['all_metadata'][k]=book['all_metadata'][k]+", "+v
     
@@ -1684,18 +1686,19 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             book['comments'] = existingbook['comments']
         else:
             book['title'] = deftitle = book_list[0]['title']+" Anthology"
-            book['comments'] = book['all_metadata']['description']
-            # "Anthology containing:\n" + \
-            # "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
+            book['comments'] = "Anthology containing:\n" + \
+                "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
+            # book['all_metadata']['description']
         
         # if all same series, use series for name.  But only if all and not previous named
         if len(serieslist) == len(book_list):
-            book['title'] = serieslist[0]
+            series = serieslist[0]
+            book['title'] = series+" Anthology"
             for sr in serieslist:
-                if book['title'] != sr:
+                if series != sr:
                     book['title'] = deftitle;
-                    break
-                
+                    break    
+            
         book['all_metadata']['title'] = book['title'] # because custom columns are set from all_metadata
         book['all_metadata']['author'] = ", ".join(book['author'])
         book['author_sort']=book['author']

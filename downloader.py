@@ -69,13 +69,13 @@ def main():
                      help="Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.",)
    parser.add_option("-u", "--update-epub",
                      action="store_true", dest="update",
-                     help="Update an existing epub with new chapter, give epub filename instead of storyurl.",)
+                     help="Update an existing epub with new chapters, give epub filename instead of storyurl.",)
    parser.add_option("--update-cover",
                      action="store_true", dest="updatecover",
                      help="Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.",)
    parser.add_option("--force",
                      action="store_true", dest="force",
-                     help="Force overwrite or update of an existing epub, download and overwrite all chapters.",)
+                     help="Force overwrite of an existing epub, download and overwrite all chapters.",)
    parser.add_option("-l", "--list",
                      action="store_true", dest="list",
                      help="Get list of valid story URLs from page given.",)
@@ -155,9 +155,7 @@ def main():
        return
 
    try:
-
        adapter = adapters.getAdapter(configuration,url)
-
        adapter.setChaptersRange(options.begin,options.end)
            
        ## Check for include_images and absence of PIL, give warning.
@@ -173,7 +171,6 @@ def main():
                    print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
                    if not sys.stdin.readline().strip().lower().startswith('y'):
                        return
-               
 
        ## three tries, that's enough if both user/pass & is_adult needed,
        ## or a couple tries of one or the other
