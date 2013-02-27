@@ -256,8 +256,8 @@ class CollectURLDialog(SizePersistedDialog):
         self.indiv_button.clicked.connect(self.indiv)
         self.l.addWidget(self.indiv_button,2,0)
 
-        self.merge_button = QPushButton('For Anthology Book', self)
-        self.merge_button.setToolTip('Get URLs and go to dialog for Anthology download.\nRequires EpubMerge 1.3.0+ plugin.')
+        self.merge_button = QPushButton('For Anthology Epub', self)
+        self.merge_button.setToolTip('Get URLs and go to dialog for Anthology download.\nRequires EpubMerge 1.3.1+ plugin.')
         self.merge_button.clicked.connect(self.merge)
         self.l.addWidget(self.merge_button,2,1)
         self.merge_button.setEnabled(epubmerge_plugin!=None)
