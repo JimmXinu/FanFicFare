@@ -1117,22 +1117,19 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         existingbook = None
         if 'mergebook' in options:
             existingbook = options['mergebook']
+        #print("existingbook:\n%s"%existingbook)
         mergebook = self.merge_meta_books(existingbook,good_list)
 
         if 'mergebook' in options:
             mergebook['calibre_id'] = options['mergebook']['calibre_id']
-            #mergeid = options['mergebook']['calibre_id']
 
         if 'anthology_url' in options:
             mergebook['url'] = options['anthology_url']
-            
-        print("mergebook:\n%s"%mergebook)
+                    
+        #print("mergebook:\n%s"%mergebook)
         
         if mergebook['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
-            # For HTML format users, make the filename inside the zip something reasonable.
-            # For crazy long titles/authors, limit it to 200chars.
-            # For weird/OS-unsafe characters, use file safe only.
             tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
                                           dir=options['tdir'])
             print("title:"+mergebook['title'])
@@ -1690,14 +1687,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
             # book['all_metadata']['description']
         
-        # if all same series, use series for name.  But only if all and not previous named
-        if len(serieslist) == len(book_list):
-            series = serieslist[0]
-            book['title'] = series+" Anthology"
-            for sr in serieslist:
-                if series != sr:
-                    book['title'] = deftitle;
-                    break    
+            # if all same series, use series for name.  But only if all and not previous named
+            if len(serieslist) == len(book_list):
+                series = serieslist[0]
+                book['title'] = series+" Anthology"
+                for sr in serieslist:
+                    if series != sr:
+                        book['title'] = deftitle;
+                        break
             
         book['all_metadata']['title'] = book['title'] # because custom columns are set from all_metadata
         book['all_metadata']['author'] = ", ".join(book['author'])
