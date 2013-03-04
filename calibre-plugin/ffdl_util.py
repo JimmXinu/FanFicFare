@@ -24,7 +24,7 @@ make_firstimage_cover:true
     else:
         return prefs['personal.ini']
 
-def get_ffdl_config(url,fileform="EPUB",personalini=None):
+def get_ffdl_config(url,fileform="epub",personalini=None):
     if not personalini:
         personalini = get_ffdl_personalini()
     site='unknown'
@@ -38,6 +38,6 @@ def get_ffdl_config(url,fileform="EPUB",personalini=None):
 
     return configuration
 
-def get_ffdl_adapter(url,fileform="EPUB",personalini=None):
+def get_ffdl_adapter(url,fileform="epub",personalini=None):
     return adapters.getAdapter(get_ffdl_config(url,fileform,personalini),url)
     
