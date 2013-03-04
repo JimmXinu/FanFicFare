@@ -1703,6 +1703,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if v in book['tags']:
                 book['tags'].remove(v)
         book['tags'].append('Anthology')
+        book['all_metadata']['anthology'] = "true"
         return book
 
 def split_text_to_urls(urls):

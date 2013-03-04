@@ -100,8 +100,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     
         if "Stories Published" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['penname']))
-            raise exceptions.FailedToLogin(url,params['penname'])
+                                                             params['urealname']))
+            raise exceptions.FailedToLogin(self.url,params['urealname'])
             return False
         else:
             return True
