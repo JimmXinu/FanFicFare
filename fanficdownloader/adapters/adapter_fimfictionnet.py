@@ -28,8 +28,6 @@ from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from ..bbcodeutils.bbcodeparser import bbcodeparser
-
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
@@ -182,14 +180,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.setCoverImage(self.url,coverurl)
 
         self.setDescription(self.url,soup.find("div", {"class":"description"}))
-        # if "description" in storyMetadata and storyMetadata["description"]:
-        #     # the fimfic API gives bbcode for desc, not html.
-        #     # btw, bbcode honors newlines, html doesn't.  change newlines to br tags.
-        #     self.setDescription(self.url,
-        #                         bbcodeparser().parse(storyMetadata["description"]).html(doDeepCopy=False).replace('\r','').replace('\n','<br />'))
-        # elif "short_description" in storyMetadata and storyMetadata["short_description"]:
-        #     self.setDescription(self.url,
-        #                         bbcodeparser().parse(storyMetadata["short_description"]).html(doDeepCopy=False).replace('\r','').replace('\n','<br />'))
         
         # Dates are in Unix time
         # Take the publish date from the first chapter posted
