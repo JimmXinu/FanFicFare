@@ -27,7 +27,7 @@ if __name__=="__main__":
     exclude=['*.pyc','*~','*.xcf','*[0-9].png']
     # from top dir. 'w' for overwrite
     createZipFile(filename,"w",
-                  ['plugin-defaults.ini','plugin-example.ini','fanficdownloader'],
+                  ['plugin-defaults.ini','plugin-example.ini','fanficdownloader','downloader.py','defaults.ini'],
                   exclude=exclude)
     #from calibre-plugin dir. 'a' for append
     os.chdir('calibre-plugin')

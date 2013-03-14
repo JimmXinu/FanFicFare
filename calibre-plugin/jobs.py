@@ -153,6 +153,22 @@ def do_download_for_worker(book,options):
         elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
                 ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
 
+            # preserve logfile even on overwrite.
+            if 'epub_for_update' in book:
+                (urlignore,
+                 chaptercountignore,
+                 oldchaptersignore,
+                 oldimgsignore,
+                 oldcoverignore,
+                 calibrebookmarkignore,
+                 # only logfile set in adapter, so others aren't used.
+                 adapter.logfile) = get_update_data(book['epub_for_update'])
+
+                # change the existing entries id to notid so
+                # write_epub writes a whole new set to indicate overwrite.
+                if adapter.logfile:
+                    adapter.logfile = adapter.logfile.replace("span id","span notid")
+            
             print("write to %s"%outfile)
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
