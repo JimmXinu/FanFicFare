@@ -80,11 +80,29 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
         if ac is not None:
             ac.apply_settings()
 
-# For testing, run from command line with this:
-# calibre-debug -e __init__.py
-# 
-if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
-    from calibre.gui2.preferences import test_widget
-    app = QApplication([])
-    test_widget('Advanced', 'Plugins')
+    def cli_main(self,argv):
+        # I believe there's no performance hit loading these here when
+        # CLI--it would load everytime anyway.
+        from StringIO import StringIO
+        from calibre.library import db
+        from calibre_plugins.fanfictiondownloader_plugin.downloader import main as ffdl_main
+        from calibre_plugins.fanfictiondownloader_plugin.prefs import PrefsFacade
+        from calibre.utils.config import OptionParser, prefs as calibre_prefs
+
+        parser = OptionParser('%prog --run-plugin FanFictionDownLoader -- [options] <storyurl>')
+        go = parser.add_option_group(_('GLOBAL OPTIONS'))
+        go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+        # go.add_option('--dont-notify-gui', default=False, action='store_true',
+        #               help=_('Do not notify the running calibre GUI (if any) that the database has'
+        #                      ' changed. Use with care, as it can lead to database corruption!'))
+
+        pargs = [x for x in argv if x.startswith('--with-library') or x.startswith('--library-path')
+                 or not x.startswith('-')]
+        opts, args = parser.parse_args(pargs)
+
+        ffdl_prefs = PrefsFacade(db(path=opts.library_path,
+                                    read_only=True))
+        ffdl_main(argv[1:],
+                  parser=parser,
+                  passed_defaultsini=StringIO(get_resources("defaults.ini")),
+                  passed_personalini=StringIO(ffdl_prefs["personal.ini"]))

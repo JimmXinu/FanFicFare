@@ -32,10 +32,17 @@ if sys.version_info >= (2, 7):
     loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
     rootlogger.addHandler(loghandler)
 
-from fanficdownloader import adapters,writers,exceptions
-from fanficdownloader.configurable import Configuration
-from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
-from fanficdownloader.geturls import get_urls_from_page
+try:
+    from fanficdownloader import adapters,writers,exceptions
+    from fanficdownloader.configurable import Configuration
+    from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
+    from fanficdownloader.geturls import get_urls_from_page
+except:
+    # running under calibre
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
@@ -48,15 +55,23 @@ def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
     del writer
     return output_filename
 
-def main():
+def main(argv,
+         parser=None,
+         passed_defaultsini=None,
+         passed_personalini=None):
    # read in args, anything starting with -- will be treated as --<varible>=<value>
-   usage = "usage: %prog [options] storyurl"
-   parser = OptionParser(usage)
+   if not parser:
+       parser = OptionParser("usage: %prog [options] storyurl")
    parser.add_option("-f", "--format", dest="format", default="epub",
-                     help="write story as FORMAT, epub(default), text or html", metavar="FORMAT")
+                     help="write story as FORMAT, epub(default), mobi, text or html", metavar="FORMAT")
+
+   if passed_defaultsini:
+       config_help="read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficdownloader/personal.ini, and ./personal.ini"
+   else:
+       config_help="read config from specified file(s) in addition to ~/.fanficdownloader/defaults.ini, ~/.fanficdownloader/personal.ini, ./defaults.ini, and ./personal.ini"
    parser.add_option("-c", "--config",
                      action="append", dest="configfile", default=None,
-                     help="read config from specified file(s) in addition to ~/.fanficdownloader/defaults.ini, ~/.fanficdownloader/personal.ini, ./defaults.ini, ./personal.ini", metavar="CONFIG")
+                     help=config_help, metavar="CONFIG")
    parser.add_option("-b", "--begin", dest="begin", default=None,
                      help="Begin with Chapter START", metavar="START")
    parser.add_option("-e", "--end", dest="end", default=None,
@@ -83,7 +98,7 @@ def main():
                      action="store_true", dest="debug",
                      help="Show debug output while downloading.",)
    
-   (options, args) = parser.parse_args()
+   (options, args) = parser.parse_args(argv)
 
    if not options.debug:
        logger = logging.getLogger("fanficdownloader")
@@ -107,12 +122,18 @@ def main():
 
    conflist = []
    homepath = join(expanduser("~"),".fanficdownloader")
+
+   if passed_defaultsini:
+       configuration.readfp(passed_defaultsini)
    
    if isfile(join(homepath,"defaults.ini")):
        conflist.append(join(homepath,"defaults.ini"))
    if isfile("defaults.ini"):
        conflist.append("defaults.ini")
        
+   if passed_personalini:
+       configuration.readfp(passed_personalini)
+   
    if isfile(join(homepath,"personal.ini")):
        conflist.append(join(homepath,"personal.ini"))
    if isfile("personal.ini"):
@@ -240,5 +261,5 @@ def main():
 if __name__ == "__main__":
     #import time
     #start = time.time()
-    main()
+    main(sys.argv[1:])
     #print("Total time seconds:%f"%(time.time()-start))

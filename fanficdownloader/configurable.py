@@ -94,7 +94,12 @@ class Configuration(ConfigParser.SafeConfigParser):
                 #print("found %s in section [%s]"%(key,section))
                 return True
             except:
-                pass
+                try:
+                    self.get(section,"add_to_"+key)
+                    #print("found add_to_%s in section [%s]"%(key,section))
+                    return True
+                except:
+                    pass
 
         return False
         
@@ -106,16 +111,24 @@ class Configuration(ConfigParser.SafeConfigParser):
                 if val and val.lower() == "false":
                     val = False
                 #print "getConfig(%s)=[%s]%s" % (key,section,val)
-                return val
+                break
             except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
                 pass
 
+        for section in self.sectionslist[::-1]:
+            # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
+            try:
+                val = val + self.get(section,"add_to_"+key)
+                #print "getConfig(add_to_%s)=[%s]%s" % (key,section,val)
+            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
+                pass
+            
         return val
 
     # split and strip each.
     def getConfigList(self, key):
         vlist = self.getConfig(key).split(',')
-        vlist = [ v.strip() for v in vlist ]
+        vlist = filter( lambda x : x !='', [ v.strip() for v in vlist ])
         #print "vlist("+key+"):"+str(vlist)
         return vlist        
 

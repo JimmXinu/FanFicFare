@@ -41,9 +41,10 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils impo
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 
 from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
-from calibre_plugins.fanfictiondownloader_plugin.config import (prefs, permitted_values, rejecturllist)
+from calibre_plugins.fanfictiondownloader_plugin.config import (permitted_values, rejecturllist)
+from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
-    AddNewDialog, UpdateExistingDialog, display_story_list, DisplayStoryListDialog,
+    AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload )
@@ -551,7 +552,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         for j, book in enumerate(update_books):
             url = book['url']
-            book['mergeorder'] = j
+            book['listorder'] = j
             if url in urlmapfile:
                 #print("found epub for %s"%url)
                 book['epub_for_update']=urlmapfile[url]
@@ -596,6 +597,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book_list = map( partial(self.make_book_id_only), self.gui.library_view.get_selected_ids() )
         #book_ids = self.gui.library_view.get_selected_ids()
 
+        for j, book in enumerate(book_list):
+            book['listorder'] = j
+            
         LoopProgressDialog(self.gui,
                            book_list,
                            partial(self.populate_book_from_calibre_id, db=self.gui.current_db),
@@ -872,8 +876,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         raise NotGoingToDownload("Not Overwriting, web site is not newer.",'edit-undo.png')
         
                 # For update, provide a tmp file copy of the existing epub so
-                # it can't change underneath us.
-                if collision in (UPDATE,UPDATEALWAYS) and \
+                # it can't change underneath us.  Now also overwrite for logpage preserve.
+                if collision in (UPDATE,UPDATEALWAYS,OVERWRITE,OVERWRITEALWAYS) and \
+                        fileform == 'epub' and \
                         db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
                     tmp = PersistentTemporaryFile(prefix='old-%s-'%book['calibre_id'],
                                                   suffix='.epub',
@@ -930,18 +935,28 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 break
         else:
             ## No good stories to try to download, go straight to
-            ## list.
-            d = DisplayStoryListDialog(self.gui,
-                                       'Nothing to Download',
-                                       prefs,
-                                       self.qaction.icon(),
-                                       book_list,
-                                       label_text='None of the URLs/stories given can be/need to be downloaded.'
-                                       )
-            d.exec_()
-
-            self.update_error_column(book_list,options)
+            ## updating error col.
+            msg = '''
+<p>None of the <b>%d</b> URLs/stories given can be/need to be downloaded.</p>
+<p>See log for details.</p>
+<p>Proceed with updating your library(Error Column, if configured)?</p>
+'''%len(book_list)
+    
+            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            for book in book_list:
+                if 'status' in book:
+                    status = book['status']
+                else:
+                    status = 'Bad'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
             
+            htmllog = htmllog + '</table></body></html>'
+
+            payload = ([], book_list, options)
+            self.gui.proceed_question(self.update_error_column,
+                                      payload, htmllog,
+                                      'FFDL log', 'FFDL download ended', msg,
+                                      show_copy_button=False)
             return
             
         func = 'arbitrary_n'
@@ -961,6 +976,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                               'collision':ADDNEW,
                               'updatemeta':True,
                               'updateepubcover':True}):
+        custom_columns = self.gui.library_view.model().custom_columns
+        if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+            label = custom_columns[prefs['errorcol']]['label']
+            if not book['good']:
+                print("record/update error message column %s %s"%(book['title'],book['url']))
+                db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True) # book['comment']
+            else:
+                db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
+                
+        if not book['good']:
+            return # only update errorcol on error.
+        
         print("add/update %s %s"%(book['title'],book['url']))
         mi = self.make_mi_from_book(book)
                 
@@ -979,8 +1006,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         add_ids = [ x['calibre_id'] for x in add_list ]
         update_list = filter(lambda x : x['good'] and not x['added'], book_list)
         update_ids = [ x['calibre_id'] for x in update_list ]
-        all_ids = add_ids
-        all_ids.extend(update_ids)
+        all_ids = add_ids + update_ids
+
+        failed_list = filter(lambda x : not x['good'] , book_list)
+        failed_ids = [ x['calibre_id'] for x in failed_list ]
 
         if options['collision'] != CALIBREONLY and \
                 (prefs['addtolists'] or prefs['addtoreadlists']):
@@ -999,19 +1028,26 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         if self.gui.cover_flow:
             self.gui.cover_flow.dataChanged()
-        
+
+        if showlist: # don't use with anthology
+            db = self.gui.current_db
+            marked_ids = dict()
+            marked_text = "ffdl_success"
+            for index, book_id in enumerate(all_ids):
+                marked_ids[book_id] = '%s_%04d' % (marked_text, index)
+            for index, book_id in enumerate(failed_ids):
+                marked_ids[book_id] = 'ffdl_failed_%04d' % index
+            # Mark the results in our database
+            db.set_marked_ids(marked_ids)
+            
+            if prefs['showmarked']: # show add/update
+                # Search to display the list contents
+                self.gui.search.set_search_string('marked:' + marked_text)
+                # Sort by our marked column to display the books in order
+                self.gui.library_view.sort_by_named_field('marked', True)
+                
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
             
-        if showlist and (len(update_list) + len(add_list) != len(book_list)):
-            d = DisplayStoryListDialog(self.gui,
-                                       'Updates completed, final status',
-                                       prefs,
-                                       self.qaction.icon(),
-                                       book_list,
-                                       label_text='Stories have be added or updated in Calibre, some had additional problems.'
-                                       )
-            d.exec_()
-    
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
 
@@ -1030,6 +1066,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book_list = job.result
         good_list = filter(lambda x : x['good'], book_list)
         bad_list = filter(lambda x : not x['good'], book_list)
+        good_list = sorted(good_list,key=lambda x : x['listorder'])
+        bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
         
@@ -1051,7 +1089,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             msg = msg + '<p>Proceed with updating this anthology and your library?</p>'
     
             htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
-            for book in sorted(good_list+bad_list,key=lambda x : x['mergeorder']):
+            for book in sorted(good_list+bad_list,key=lambda x : x['listorder']):
                 if 'status' in book:
                     status = book['status']
                 else:
@@ -1106,10 +1144,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         (good_list,bad_list,options) = payload
         total_good = len(good_list)
 
-        print("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['mergeorder']) for x in good_list ]))
+        print("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['listorder']) for x in good_list ]))
 
-        good_list = sorted(good_list,key=lambda x : x['mergeorder'])
-        bad_list = sorted(bad_list,key=lambda x : x['mergeorder'])
+        good_list = sorted(good_list,key=lambda x : x['listorder'])
+        bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         
         self.gui.status_bar.show_message(_('Merging %s books.'%total_good))
 
@@ -1149,26 +1187,23 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def do_download_list_update(self, payload):
         
         (good_list,bad_list,options) = payload
-        total_good = len(good_list)
+        good_list = sorted(good_list,key=lambda x : x['listorder'])
+        bad_list = sorted(bad_list,key=lambda x : x['listorder'])
 
-        self.gui.status_bar.show_message(_('Adding/Updating %s books.'%total_good))
+        self.gui.status_bar.show_message(_('FFDL Adding/Updating books.'))
 
-        if total_good > 0:
+        if good_list or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in self.gui.library_view.model().custom_columns):
             LoopProgressDialog(self.gui,
-                               good_list,
+                               good_list+bad_list,
                                partial(self.update_books_loop, options=options, db=self.gui.current_db),
                                partial(self.update_books_finish, options=options),
                                init_label="Updating calibre for FanFiction stories...",
                                win_title="Update calibre for FanFiction stories",
                                status_prefix="Updated")
 
-        total_bad = len(bad_list)
-
-        if total_bad > 0:
-            self.update_error_column(bad_list,options)
-
-    def update_error_column(self,book_list,options):
+    def update_error_column(self,payload):
         '''Update custom error column if configured.'''
+        (empty_list,book_list,options)=payload
         custom_columns = self.gui.library_view.model().custom_columns
         if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
@@ -1391,11 +1426,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 realmi = db.get_metadata(book_id, index_is_id=True)
                 gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
 
-        ## if error column set.
-        if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
-            label = custom_columns[prefs['errorcol']]['label']
-            db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
-
     def get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :
             return []
@@ -1488,8 +1518,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 book['good'] = False
                 book['comment'] = "Same story already included."
             uniqueurls.add(book['url'])
-            book['mergeorder']=i # BG d/l jobs don't come back in order.
-                                 # Didn't matter until anthologies.
+            book['listorder']=i # BG d/l jobs don't come back in order.
+                                # Didn't matter until anthologies & 'marked' successes
             books.append(book)
         return books
 

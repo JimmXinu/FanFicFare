@@ -11,7 +11,7 @@ from StringIO import StringIO
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
-from calibre_plugins.fanfictiondownloader_plugin.config import (prefs)
+from calibre_plugins.fanfictiondownloader_plugin.prefs import (prefs)
 
 def get_ffdl_personalini():
     if prefs['includeimages']:
