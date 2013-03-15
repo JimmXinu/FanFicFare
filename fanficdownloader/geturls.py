@@ -27,8 +27,6 @@ from configurable import Configuration
 
 def get_urls_from_page(url,configuration=None):
 
-    normalized = set() # normalized url
-    retlist = [] # orig urls.
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
 
@@ -56,6 +54,16 @@ def get_urls_from_page(url,configuration=None):
         opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
+    return get_urls_from_html(data,url)
+
+def get_urls_from_html(data,url=None,configuration=None):
+
+    normalized = set() # normalized url
+    retlist = [] # orig urls.
+    
+    if not configuration:
+        configuration = Configuration("test1.com","EPUB")
+
     soup = BeautifulSoup(data)
     
     for a in soup.findAll('a'):
@@ -78,6 +86,33 @@ def get_urls_from_page(url,configuration=None):
                     retlist.append(href)
             except:
                 pass
+
+    return retlist
+
+def get_urls_from_text(data,configuration=None):
+
+    normalized = set() # normalized url
+    retlist = [] # orig urls.
+    
+    if not configuration:
+        configuration = Configuration("test1.com","EPUB")
+    
+    for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
+        # this (should) catch normal story links, some javascript
+        # 'are you old enough' links, and 'Report This' links.
+        # The 'normalized' set prevents duplicates.
+        if 'story.php' in href:
+            m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
+            if m != None:
+                href = form_url(None,m.group('sid'))
+        try:
+            href = href.replace('&index=1','')
+            adapter = adapters.getAdapter(configuration,href)
+            if adapter.story.getMetadata('storyUrl') not in normalized:
+                normalized.add(adapter.story.getMetadata('storyUrl'))
+                retlist.append(href)
+        except:
+            pass
 
     return retlist
 
