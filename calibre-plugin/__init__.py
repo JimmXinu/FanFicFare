@@ -27,7 +27,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (1, 7, 12)
+    version             = (1, 7, 13)
     minimum_calibre_version = (0, 8, 57)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -87,12 +87,12 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
         from calibre.library import db
         from calibre_plugins.fanfictiondownloader_plugin.downloader import main as ffdl_main
         from calibre_plugins.fanfictiondownloader_plugin.prefs import PrefsFacade
-        from calibre.utils.config import OptionParser, prefs as calibre_prefs
+        from calibre.utils.config import prefs as calibre_prefs
+        from optparse import OptionParser      
 
-        parser = OptionParser('%prog --run-plugin FanFictionDownLoader -- [options] <storyurl>')
-        go = parser.add_option_group(_('GLOBAL OPTIONS'))
-        go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
-        # go.add_option('--dont-notify-gui', default=False, action='store_true',
+        parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')
+        parser.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+        # parser.add_option('--dont-notify-gui', default=False, action='store_true',
         #               help=_('Do not notify the running calibre GUI (if any) that the database has'
         #                      ' changed. Use with care, as it can lead to database corruption!'))
 
