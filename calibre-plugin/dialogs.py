@@ -10,6 +10,9 @@ __docformat__ = 'restructuredtext en'
 import traceback
 from functools import partial
 
+import urllib
+import email
+
 from PyQt4 import QtGui
 from PyQt4.Qt import (QDialog, QTableWidget, QMessageBox, QVBoxLayout, QHBoxLayout,
                       QGridLayout, QPushButton, QProgressDialog, QString, QLabel,
@@ -29,6 +32,8 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapter
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
             ImageTitleLayout, get_icon)
+
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
 
 SKIP=u'Skip'
 ADDNEW=u'Add New Book'
@@ -73,6 +78,46 @@ class NotGoingToDownload(Exception):
 class DroppableQTextEdit(QTextEdit):
     def __init__(self,parent):
         QTextEdit.__init__(self,parent)
+
+    def dropEvent(self,event):
+        # print("event:%s"%event)
+        # print("event.mimeData():%s"%event.mimeData())
+        # print("event.mimeData().text():%s"%str(event.mimeData().text()))
+        # print("event.mimeData().data():%s"%str(event.mimeData().data()))
+        # print("event.mimeData().formats():%s"%[str(f) for f in event.mimeData().formats()])
+        # for f in event.mimeData().formats():
+        #     try:
+        #         print("event.mimeData().data('%s'):%s"%(f,event.mimeData().data(f)))
+        #     except:
+        #         print("failed %s"%f)
+
+        mimetype='text/uri-list'
+        # print("event.mimeData().data('%s'):%s"%(mimetype,event.mimeData().data(mimetype)))
+
+        urllist=[]
+        filelist="%s"%event.mimeData().data(mimetype)
+        for f in filelist.splitlines():
+            #print("filename:%s"%f)
+            if f.endswith(".eml"):
+                fhandle = urllib.urlopen(f)
+                #print("file:\n%s\n\n"%fhandle.read())
+                msg = email.message_from_file(fhandle)
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        #print("part type:%s"%part.get_content_type())
+                        if part.get_content_type() == "text/html":
+                            #print("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
+                            urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                        if part.get_content_type() == "text/plain":
+                            #print("part content:text/plain")
+                            # print("part content:%s"%part.get_payload(decode=True))
+                            urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                else:
+                    urllist.extend(get_urls_from_text("%s"%msg))
+        
+        if urllist:
+            self.append("\n".join(urllist))
+        return QTextEdit.dropEvent(self,event)
         
     def canInsertFromMimeData(self, source):
         if source.hasUrls():
