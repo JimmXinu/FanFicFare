@@ -415,11 +415,13 @@ class Story(Configurable):
         # includelist prevents infinite recursion of include_in_'s
         if self.hasConfig("include_in_"+listname) and listname not in includelist:
             for k in self.getConfigList("include_in_"+listname):
-                retlist.extend(self.getList(k,removeallentities,doreplacements,includelist=includelist+[listname]))
+                retlist.extend(self.getList(k,removeallentities=False,
+                                            doreplacements=doreplacements,includelist=includelist+[listname]))
         else:
         
             if not self.isList(listname):
-                retlist = [self.getMetadata(listname,removeallentities, doreplacements)]
+                retlist = [self.getMetadata(listname,removeallentities=False,
+                                            doreplacements=doreplacements)]
             else:
                 retlist = self.getMetadataRaw(listname)
 
