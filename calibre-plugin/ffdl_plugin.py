@@ -1363,9 +1363,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     else:
                         coldef = custom_columns[custcol]
                         label = coldef['label']
-                    
+
                     if flag == 'r' or book['added']: # flag 'n' isn't actually needed--*always* set if configured and new book.
-                        db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
+                        if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
+                            val = unicode(book['all_metadata'][meta]).replace(",","")
+                        else:
+                            val = book['all_metadata'][meta]
+                        db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
                         vallist = []
