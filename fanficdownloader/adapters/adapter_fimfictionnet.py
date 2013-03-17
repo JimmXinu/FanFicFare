@@ -179,7 +179,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
             self.setCoverImage(self.url,coverurl)
 
-        self.setDescription(self.url,soup.find("div", {"class":"description"}))
+        # fimf has started including extra stuff inside the description div.
+        descdivstr = "%s"%soup.find("div", {"class":"description"})
+        hrstr="<hr />"
+        descdivstr = '<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+        self.setDescription(self.url,descdivstr)
         
         # Dates are in Unix time
         # Take the publish date from the first chapter posted
@@ -188,7 +192,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         rawDateUpdated = storyMetadata["date_modified"]
         self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
 
-        chars = soup.find("div", {"class":"story"})
+        chars = soup.find("div", {"class":"inner_data"})
         # fimfic stopped putting the char name on or around the char
         # icon now for some reason.  Pull it from the image name with
         # some heuristics.
