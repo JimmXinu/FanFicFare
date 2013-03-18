@@ -259,6 +259,9 @@ class AddNewDialog(SizePersistedDialog):
             self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.')
             self.collisionlabel.setText('If Story Already Exists?')
             self.collision.setToolTip("What to do if there's already an existing story with the same URL or title and author.")
+
+        # Need to re-able after hiding/showing
+        self.setAcceptDrops(True)
             
         if self.prefs['adddialogstaysontop']:
             QDialog.setWindowFlags ( self, Qt.Dialog | Qt.WindowStaysOnTopHint )
