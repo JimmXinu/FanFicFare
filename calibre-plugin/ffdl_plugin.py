@@ -126,6 +126,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # been displayed once.
         self.rebuild_menus()
 
+        self.add_new_dialog = AddNewDialog(self.gui,
+                                           prefs,
+                                           self.qaction.icon())
+
     ## Kludgey, yes, but with the real configuration inside the
     ## library now, how else would a user be able to change this
     ## setting if it's crashing calibre?
@@ -440,41 +444,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             message="<p>Rejecting FFDL URLs: None of the books selected have FanFiction URLs.</p><p>Proceed to Remove?</p>"
             if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
-                
-    def add_dialog(self,url_list_text=None,merge=False,anthology_url=None):
 
-        #print("add_dialog()")
+    def add_dialog(self,url_list_text=None,merge=False,anthology_url=None):
+        'Both new individual stories and new anthologies are created here.'
 
         if not url_list_text:
             url_list = self.get_urls_clip()
             url_list_text = "\n".join(url_list)
         
-        # self.gui is the main calibre GUI. It acts as the gateway to access
-        # all the elements of the calibre user interface, it should also be the
-        # parent of the dialog
-        # AddNewDialog just collects URLs, format and presents buttons.
-        d = AddNewDialog(self.gui,
-                         prefs,
-                         self.qaction.icon(),
-                         url_list_text,
-                         merge=merge,
-                         newmerge=merge # if here, it's a new anthology.
-                         )
-        d.exec_()
-        if d.result() != d.Accepted:
-            return
-        
-        url_list = split_text_to_urls(d.get_urlstext())
-        add_books = self.convert_urls_to_books(url_list)
-        #print("add_books:%s"%add_books)
-        #print("options:%s"%d.get_ffdl_options())
-
-        options = d.get_ffdl_options()
-        options['version'] = self.version
-        options['anthology_url']=anthology_url
-        print(self.version)
-        
-        self.prep_downloads( options, add_books, merge=merge )
+        # AddNewDialog collects URLs, format and presents buttons.
+        # add_new_dialog is modeless and reused, both for new stories
+        # and anthologies, and for updating existing anthologies.
+        self.add_new_dialog.show_dialog(url_list_text,
+                                        self.prep_downloads,
+                                        merge=merge,
+                                        newmerge=True,
+                                        extraoptions={'anthology_url':anthology_url})
 
     def update_anthology(self):
         if not self.get_epubmerge_plugin():
@@ -488,7 +473,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if len(self.gui.library_view.get_selected_ids()) != 1:
             self.gui.status_bar.show_message(_('Can only update 1 anthology at a time'), 3000)
             return
-        #print("update_existing()")        
         
         db = self.gui.current_db
         book_id = self.gui.library_view.get_selected_ids()[0]
@@ -530,25 +514,30 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         url_list_text = "\n".join(url_list)
         
         #print("urlmapfile:%s"%urlmapfile)
+        
+        # AddNewDialog collects URLs, format and presents buttons.
+        # add_new_dialog is modeless and reused, both for new stories
+        # and anthologies, and for updating existing anthologies.
+        self.add_new_dialog.show_dialog(url_list_text,
+                                        self.prep_anthology_downloads,
+                                        show=False,
+                                        merge=True,
+                                        newmerge=False,
+                                        extrapayload=urlmapfile,
+                                        extraoptions={'tdir':tdir,
+                                                      'mergebook':mergebook})
+        # Need to use AddNewDialog modal here because it's an update
+        # of an existing book.  Don't want the user deleting it or
+        # switching libraries on us.
+        self.add_new_dialog.exec_()
 
-        # self.gui is the main calibre GUI. It acts as the gateway to access
-        # all the elements of the calibre user interface, it should also be the
-        # parent of the dialog
-        # AddNewDialog just collects URLs, format and presents buttons.
-        d = AddNewDialog(self.gui,
-                         prefs,
-                         self.qaction.icon(),
-                         url_list_text,
-                         merge=True,
-                         newmerge=False
-                         )
-        d.exec_()
-        if d.result() != d.Accepted:
-            return
 
-        url_list = split_text_to_urls(d.get_urlstext())
-            
-        update_books = self.convert_urls_to_books(url_list)
+    def prep_anthology_downloads(self, options, update_books,
+                                 merge=False, urlmapfile=None):
+        
+        if isinstance(update_books,basestring):
+            url_list = split_text_to_urls(update_books)
+            update_books = self.convert_urls_to_books(url_list)
         
         for j, book in enumerate(update_books):
             url = book['url']
@@ -574,13 +563,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 print("Canceling anthology update due to removed stories.")
                 return
 
-        options = d.get_ffdl_options()
-        options['version'] = self.version
-        options['tdir'] = tdir
-        #options['collision'] = UPDATEALWAYS
-        print(self.version)
-
-        options['mergebook'] = mergebook
+        # Now that we've 
         self.prep_downloads( options, update_books, merge=True )
         
     def update_dialog(self):
@@ -631,8 +614,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # only if there's some good ones.
         if 0 < len(filter(lambda x : x['good'], update_books)):
             options = d.get_ffdl_options()
-            options['version'] = self.version
-            print(self.version)
             self.prep_downloads( options, update_books )
             
     def get_urls_clip(self,storyurls=True):
@@ -648,9 +629,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # No need to do anything with perfs here, but we could.
         prefs
 
-    def prep_downloads(self, options, books, merge=False):
+    def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
 
+        if isinstance(books,basestring):
+            url_list = split_text_to_urls(books)
+            books = self.convert_urls_to_books(url_list)
+
+        options['version'] = self.version
+        print(self.version)
+        
         #print("prep_downloads:%s"%books)
 
         if 'tdir' not in options: # if merging an anthology, there's alread a tdir.
