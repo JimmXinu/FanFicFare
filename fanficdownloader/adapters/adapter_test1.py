@@ -126,21 +126,36 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('warnings','Swearing')
         self.story.addToList('warnings','Violence')
 
-        self.story.addToList('category','Harry Potter')
-        self.story.addToList('category','Furbie')
-        self.story.addToList('category','Crossover')
-        self.story.addToList('category',u'Puella Magi Madoka Magica/魔法少女まどか★マギカ')
-        self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
-
+        if self.story.getMetadata('storyId') == '80':
+            self.story.addToList('category',u'Rizzoli & Isles')
+            self.story.addToList('characters','J. Rizzoli')
+        elif self.story.getMetadata('storyId') == '81':
+            self.story.addToList('category',u'Pitch Perfect')
+            self.story.addToList('characters','Chloe B.')
+        elif self.story.getMetadata('storyId') == '83':
+            self.story.addToList('category',u'Rizzoli & Isles')
+            self.story.addToList('characters','J. Rizzoli')
+            self.story.addToList('category',u'Pitch Perfect')
+            self.story.addToList('characters','Chloe B.')
+        elif self.story.getMetadata('storyId') == '82':
+            self.story.addToList('characters','Henry (Once Upon a Time)')        
+            self.story.addToList('category',u'Once Upon a Time (TV)')
+        else:
+            self.story.addToList('category','Harry Potter')
+            self.story.addToList('category','Furbie')
+            self.story.addToList('category','Crossover')
+            self.story.addToList('category',u'Puella Magi Madoka Magica/魔法少女まどか★マギカ')
+            self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
+            self.story.addToList('category',u'Once Upon a Time (TV)')
+            self.story.addToList('characters','Bob Smith')
+            self.story.addToList('characters','George Johnson')
+            self.story.addToList('characters','Fred Smythe')
+            
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','Comedy')
         self.story.addToList('genre','Sci-Fi')
         self.story.addToList('genre','Noir')
-        
-        self.story.addToList('characters','Bob Smith')
-        self.story.addToList('characters','George Johnson')
-        self.story.addToList('characters','Fred Smythe')
-        
+                
         self.story.addToList('listX','xVal1')
         self.story.addToList('listX','xVal2')
         self.story.addToList('listX','xVal3')
