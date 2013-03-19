@@ -262,6 +262,7 @@ class AddNewDialog(SizePersistedDialog):
 
         # Need to re-able after hiding/showing
         self.setAcceptDrops(True)
+        self.url.setFocus()
             
         if self.prefs['adddialogstaysontop']:
             QDialog.setWindowFlags ( self, Qt.Dialog | Qt.WindowStaysOnTopHint )
