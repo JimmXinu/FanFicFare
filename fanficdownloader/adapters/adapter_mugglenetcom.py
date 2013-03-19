@@ -306,6 +306,7 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
                 if 'contact.php' not in a['href'] and 'index' not in a['href']:
                     if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
                         self.setSeries(series_name, i)
+                        self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
             

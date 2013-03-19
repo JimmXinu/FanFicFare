@@ -101,8 +101,10 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 }
             self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
+            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=1')
         if idnum == 0:
             self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
+            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=0')
             
         self.story.setMetadata('rating','Tweenie')
 

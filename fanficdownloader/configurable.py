@@ -50,6 +50,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             'characters',
             'ships',
             'series',
+            'seriesUrl',
             'status',
             'datePublished',
             'dateUpdated',
@@ -75,6 +76,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             'langcode',
             'output_css',
             'authorHTML',
+            'seriesHTML',
             'lastupdate'
             ]
 

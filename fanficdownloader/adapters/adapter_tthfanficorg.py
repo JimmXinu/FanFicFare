@@ -255,9 +255,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                      pseries.text)
         if m:
             self.setSeries(m.group('series'),m.group('num'))
-        
-        return
-
+            self.story.setMetadata('seriesUrl',"http://"+self.host+pseries.find('a')['href'])
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)

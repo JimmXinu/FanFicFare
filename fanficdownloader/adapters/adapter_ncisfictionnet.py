@@ -193,7 +193,7 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
             series_name = a.find('a').string
             i = a.text.split('#')[1]
             self.setSeries(series_name, i)
-            
+            self.story.setMetadata('seriesUrl','http://'+self.host+'/'+a.find('a')['href'])
         except:
             # I find it hard to care if the series parsing fails
             pass
