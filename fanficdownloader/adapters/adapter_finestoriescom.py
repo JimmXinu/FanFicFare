@@ -187,6 +187,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             a = lc4.find('a', href=re.compile(r"/library/show_series.php\?id=\d+"))
             i = a.parent.text.split('(')[1].split(')')[0]
             self.setSeries(a.text, i)
+            self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
         except:
             pass
         try:

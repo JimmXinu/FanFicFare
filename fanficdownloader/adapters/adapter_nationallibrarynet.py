@@ -163,6 +163,7 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
             
             if 'Series' in label:
                 self.setSeries(stripHTML(value.nextSibling), value.nextSibling.nextSibling.string[2:])
+                self.story.setMetadata('seriesUrl','http://'+self.host+'/'+value.nextSibling['href'])
                 
         asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
         story=asoup.find('a', href=re.compile(r'viewstory.php\?storyid='+self.story.getMetadata('storyId')))

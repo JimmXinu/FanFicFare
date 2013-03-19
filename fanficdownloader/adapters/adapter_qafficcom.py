@@ -236,6 +236,7 @@ class QafFicComAdapter(BaseSiteAdapter):
                             name=seriessoup.find('div', {'id' : 'pagetitle'})
                             name.find('a').extract()
                             self.setSeries(name.text.split(' by[')[0], i)
+                            self.story.setMetadata('seriesUrl',series_url)
                             i=0
                             break
                         i+=1

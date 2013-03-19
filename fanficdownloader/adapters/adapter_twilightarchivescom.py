@@ -163,6 +163,7 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
                 for a in storyas:
                     if a['href'] == ('/read/'+self.story.getMetadata('storyId')):
                         self.setSeries(series_name, i)
+                        self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
                     

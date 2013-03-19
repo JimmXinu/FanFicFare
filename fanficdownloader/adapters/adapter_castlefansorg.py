@@ -284,6 +284,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
                     self.setSeries(series_name, i)
+                    self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
             

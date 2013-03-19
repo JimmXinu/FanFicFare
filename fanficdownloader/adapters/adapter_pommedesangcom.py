@@ -275,6 +275,7 @@ class PommeDeSangComAdapter(BaseSiteAdapter):
                 if 'contact.php' not in a['href'] and 'index' not in a['href']:
                     if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in a['href']:
                         self.setSeries(series_name, i)
+                        self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
             

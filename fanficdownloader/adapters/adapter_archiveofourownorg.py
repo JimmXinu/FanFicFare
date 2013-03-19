@@ -295,6 +295,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/fanfic/'+b['href']
             series_index = int(a.text.split(' ')[1])
             self.setSeries(series_name, series_index)
+            self.story.setMetadata('seriesUrl',series_url)
             
         except:
             # I find it hard to care if the series parsing fails

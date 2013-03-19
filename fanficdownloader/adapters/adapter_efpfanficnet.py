@@ -280,6 +280,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId'))+'&i=1':
                     self.setSeries(series_name, i)
+                    self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
             

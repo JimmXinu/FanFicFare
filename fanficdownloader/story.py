@@ -352,7 +352,7 @@ class Story(Configurable):
         allmetadata = {}
         
         # special handling for authors/authorUrls
-        authlinkhtml="<a class='authorlink' href='%s'>%s</a>"
+        linkhtml="<a class='%slink' href='%s'>%s</a>"
         if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
             for i, v in enumerate(self.getList('author')):
@@ -366,12 +366,14 @@ class Story(Configurable):
                     aurl=removeAllEntities(aurl)
                     auth=removeAllEntities(auth)
                 
-                htmllist.append(authlinkhtml%(aurl,auth))
+                htmllist.append(linkhtml%('author',aurl,auth))
             self.setMetadata('authorHTML',', '.join(htmllist))
         else:
-           self.setMetadata('authorHTML',authlinkhtml%(self.getMetadata('authorUrl', removeallentities, doreplacements),
-                                                       self.getMetadata('author', removeallentities, doreplacements)))
+            self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
+                                                    self.getMetadata('author', removeallentities, doreplacements)))
 
+        self.setMetadata('seriesHTML',linkhtml%('series',self.getMetadata('seriesUrl', removeallentities, doreplacements),
+                                                self.getMetadata('series', removeallentities, doreplacements)))
         for k in self.getValidMetaList():
             if self.isList(k) and keeplists:
                 allmetadata[k] = self.getList(k, removeallentities, doreplacements)
