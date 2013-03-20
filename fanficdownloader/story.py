@@ -372,8 +372,9 @@ class Story(Configurable):
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
                                                     self.getMetadata('author', removeallentities, doreplacements)))
 
-        self.setMetadata('seriesHTML',linkhtml%('series',self.getMetadata('seriesUrl', removeallentities, doreplacements),
-                                                self.getMetadata('series', removeallentities, doreplacements)))
+        if self.getMetadataRaw('series') != None:
+            self.setMetadata('seriesHTML',linkhtml%('series',self.getMetadata('seriesUrl', removeallentities, doreplacements),
+                                                    self.getMetadata('series', removeallentities, doreplacements)))
         for k in self.getValidMetaList():
             if self.isList(k) and keeplists:
                 allmetadata[k] = self.getList(k, removeallentities, doreplacements)
