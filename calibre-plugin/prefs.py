@@ -39,6 +39,7 @@ default_prefs['deleteotherforms'] = False
 default_prefs['adddialogstaysontop'] = False
 default_prefs['includeimages'] = False
 default_prefs['lookforurlinhtml'] = False
+default_prefs['checkforseriesurlid'] = True
 default_prefs['injectseries'] = False
 
 default_prefs['send_lists'] = ''
