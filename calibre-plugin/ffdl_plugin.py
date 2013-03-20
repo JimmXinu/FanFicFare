@@ -741,6 +741,30 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # let other exceptions percolate up.
         story = adapter.getStoryMetadataOnly()
 
+        series = story.getMetadata('series')
+        if not merge and series and prefs['checkforseriesurlid']:
+            # try to find *series anthology* by *seriesUrl* identifier url or uri first.
+            searchstr = 'identifiers:"~ur(i|l):=%s"'%story.getMetadata('seriesUrl').replace(":","|")
+            identicalbooks = db.search_getting_ids(searchstr, None)
+            # print("searchstr:%s"%searchstr)
+            # print("identicalbooks:%s"%identicalbooks)
+            if len(identicalbooks) > 0 and question_dialog(self.gui, 'Skip Story?',
+                                                           '<p>Skip Anthology Story?</p>'+
+                                                           '<p>Story "%s" is in series "<a href="%s">%s</a>" that you have an anthology book for.</p>'%
+                                                           (story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')])+
+                                                           "<p>Click 'No' to download anyway.</p>",
+                                                           show_copy_button=False):
+                book['comment'] = "Story in Series Anthology(%s)."%series
+                book['title'] = story.getMetadata('title')
+                book['author'] = [story.getMetadata('author')]
+                book['good']=False
+                book['icon']='rotate-right.png'
+                book['status'] = 'Skipped'
+                return
+                
+
+        ################################################################################################################################################33
+
         # set PI version instead of default.
         if 'version' in options:
             story.setMetadata('version',options['version'])

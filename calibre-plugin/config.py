@@ -173,6 +173,7 @@ class ConfigWidget(QWidget):
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
+        prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
 
         if self.readinglist_tab:
@@ -368,6 +369,11 @@ class BasicTab(QWidget):
         self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
+
+        self.checkforseriesurlid = QCheckBox("Check for existing Series Anthology books?",self)
+        self.checkforseriesurlid.setToolTip("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.")
+        self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
+        self.l.addWidget(self.checkforseriesurlid)
 
         self.injectseries = QCheckBox("Inject calibre Series when none found?",self)
         self.injectseries.setToolTip("If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover).")
