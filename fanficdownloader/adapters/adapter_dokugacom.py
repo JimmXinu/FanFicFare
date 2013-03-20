@@ -81,6 +81,46 @@ class DokugaComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://"+self.getSiteDomain()+"/(fanfiction|spark)?/story/\d+/?\d+?$"
 
+    ## Login seems to be reasonably standard across eFiction sites.
+    def needToLoginCheck(self, data):
+        if 'The author has disabled anonymous viewing for this story.' in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self, url,soup):
+        params = {}
+
+        if self.password:
+            params['username'] = self.username
+            params['passwd'] = self.password
+        else:
+            params['username'] = self.getConfig("username")
+            params['passwd'] = self.getConfig("password")
+        params['Submit'] = 'Submit'
+
+        # copy all hidden input tags to pick up appropriate tokens.
+        for tag in soup.findAll('input',{'type':'hidden'}):
+            params[tag['name']] = tag['value']
+    
+        loginUrl = 'http://' + self.getSiteDomain() + '/fanfiction'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['username']))
+    
+        d = self._postUrl(loginUrl, params)
+
+        if "Your session has expired. Please log in again." in d:
+            d = self._postUrl(loginUrl, params)
+
+        print("d:\n:%s"%d)
+    
+        if "Logout" not in d : #Member Account
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['username']))
+            raise exceptions.FailedToLogin(url,params['username'])
+            return False
+        else:
+            return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -97,12 +137,18 @@ class DokugaComAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+                
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        soup = bs.BeautifulSoup(data)
+        
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url,soup)
+            data = self._fetchUrl(url)
+            soup = bs.BeautifulSoup(data)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
@@ -217,10 +263,6 @@ class DokugaComAdapter(BaseSiteAdapter):
             
             a=div.text.split('Words ')
             if len(a)==2: self.story.setMetadata('numWords', a[1])
-            
-        
-
-
             
     # grab the text for an individual chapter.
     def getChapterText(self, url):
