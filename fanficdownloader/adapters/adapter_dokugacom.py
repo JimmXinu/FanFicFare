@@ -112,8 +112,6 @@ class DokugaComAdapter(BaseSiteAdapter):
         if "Your session has expired. Please log in again." in d:
             d = self._postUrl(loginUrl, params)
 
-        print("d:\n:%s"%d)
-    
         if "Logout" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['username']))
