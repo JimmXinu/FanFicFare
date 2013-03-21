@@ -153,7 +153,7 @@ def getAdapter(config,url):
 
     #logger.debug("trying url:"+url)
     (cls,fixedurl) = getClassFor(url)
-    logger.debug("fixedurl:"+fixedurl)
+    #logger.debug("fixedurl:"+fixedurl)
     if cls:
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
         return adapter

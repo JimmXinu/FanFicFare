@@ -18,10 +18,10 @@ from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
-from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
+from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog,
-            EditTextDialog)
+            EditTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
     import (getConfigSections, getNormalStoryURL)
@@ -37,22 +37,16 @@ class RejectURLList:
         self.sync_lock = threading.RLock()
         self.listcache = None
 
-    def _read_list_from_text(self,text,addreasontext=None):
-        cache = {}
+    def _read_list_from_text(self,text,addreasontext=''):
+        cache = OrderedDict()
+
+        #print("_read_list_from_text")
         for line in text.splitlines():
-            if ',' in line:
-                (rejurl,note) = line.split(',',1)
-            else:
-                (rejurl,note) = (line,'')
-            rejurl = getNormalStoryURL(rejurl)
-            if rejurl:
-                if addreasontext and note:
-                    note = note +" - "+addreasontext
-                elif addreasontext:
-                    note = addreasontext
-                cache[rejurl] = note
-        return cache
-        
+            rue = RejectUrlEntry(line,addreasontext=addreasontext,fromline=True)
+            #print("rue.url:%s"%rue.url)
+            if rue.valid:
+                cache[rue.url] = rue
+        return cache        
 
     def _get_listcache(self):
         if self.listcache == None:
@@ -60,26 +54,35 @@ class RejectURLList:
         return self.listcache
 
     def _save_list(self,listcache):
-        rejectlist = []
-        for url in listcache:
-            rejectlist.append("%s,%s"%(url,listcache[url]))
-            
-        self.prefs['rejecturls'] = '\n'.join(rejectlist)
+        #print("_save_list")
+        self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
         self.prefs.save_to_db()
         self.listcache = None
         
     def clear_cache(self):
         self.listcache = None
 
+    # true if url is in list.
     def check(self,url):
         with self.sync_lock:
             listcache = self._get_listcache()
+            return url in listcache
+        
+    def get_note(self,url):
+        with self.sync_lock:
+            listcache = self._get_listcache()
             if url in listcache:
-                note = listcache[url]
-                return note
-            
+                return listcache[url].note
             # not found
-            return None
+            return ''
+
+    def get_full_note(self,url):
+        with self.sync_lock:
+            listcache = self._get_listcache()
+            if url in listcache:
+                return listcache[url].fullnote()
+            # not found
+            return ''
 
     def remove(self,url):
         with self.sync_lock:
@@ -89,27 +92,26 @@ class RejectURLList:
                 self._save_list(listcache)
 
     def add_text(self,rejecttext,addreasontext):
-        self.add(self._read_list_from_text(rejecttext,addreasontext).items())
+        self.add(self._read_list_from_text(rejecttext,addreasontext).values())
             
     def add(self,rejectlist,clear=False):
-        # rejectlist=list of (url,note) tuples.
         with self.sync_lock:
             if clear:
-                listcache={}
+                listcache=OrderedDict()
             else:
                 listcache = self._get_listcache()
-            for (url,note) in rejectlist:
-                listcache[url]=note
+            for l in rejectlist:
+                listcache[l.url]=l
             self._save_list(listcache)
 
     def get_list(self):
-        return copy.deepcopy(self._get_listcache())
+        return self._get_listcache().values()
             
     def get_reject_reasons(self):
         return self.prefs['rejectreasons'].splitlines()
 
 rejecturllist = RejectURLList(prefs)
-    
+
 class ConfigWidget(QWidget):
 
     def __init__(self, plugin_action):
@@ -418,12 +420,8 @@ class BasicTab(QWidget):
         ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
 
     def show_rejectlist(self):
-        rejectlist = []
-        for (url,note) in rejecturllist.get_list().items():
-            rejectlist.append((None,url,note,note))
-            
         d = RejectListDialog(self,
-                             rejectlist,
+                             rejecturllist.get_list(),
                              rejectreasons=rejecturllist.get_reject_reasons(),
                              header="Edit Reject URLs List",
                              show_delete=False,
@@ -433,11 +431,7 @@ class BasicTab(QWidget):
         if d.result() != d.Accepted:
             return
         
-        rejectlist=[]
-        for (bookid,url,note) in d.get_reject_list():
-            rejectlist.append((url,note))
-
-        rejecturllist.add(rejectlist,clear=True)
+        rejecturllist.add(d.get_reject_list(),clear=True)
         
     def show_reject_reasons(self):
         d = EditTextDialog(self,
@@ -452,11 +446,11 @@ class BasicTab(QWidget):
                 
     def add_reject_urls(self):
         d = EditTextDialog(self,
-                           "http://example.com?story.php?sid=5,Reason why I rejected it",
+                           "http://example.com/story.php?sid=5,Reason why I rejected it\nhttp://example.com/story.php?sid=6,Title by Author - Reason why I rejected it",
                            icon=self.windowIcon(),
                            title="Add Reject URLs",
-                           label="Add Reject URLs. Use: <b>http://...,note</b><br>Invalid story URLs will be ignored.",
-                           tooltip="One URL per line, everything after <b>,</b> will be put in the note.",
+                           label="Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored.",
+                           tooltip="One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>",
                            rejectreasons=rejecturllist.get_reject_reasons(),
                            reasonslabel='Add this reason to all URLs added:')
         d.exec_()

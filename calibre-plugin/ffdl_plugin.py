@@ -47,7 +47,7 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
-    NotGoingToDownload )
+    NotGoingToDownload, RejectUrlEntry )
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -403,17 +403,17 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # want title/author, too, for rejects.
             self.populate_book_from_calibre_id(book,db)
         if book['url']:
-            # get existing note, if there is one.
-            book['oldrejnote']=rejecturllist.check(book['url'])
+            # get existing note, if on rejected list.
+            book['oldrejnote']=rejecturllist.get_note(book['url'])
             
     def reject_list_urls_finish(self, book_list):
 
         # construct reject list of tuples:
         # (calibre_id, url, "title, authors", old reject note).
-        reject_list = [ ( x['calibre_id'],x['url'],
-                          "%s by %s"%(x['title'],
-                                      ', '.join(x['author'])),
-                          x['oldrejnote'])
+        reject_list = [ RejectUrlEntry(x['url'],
+                                       x['oldrejnote'],
+                                       x['title'],
+                                       ', '.join(x['author']))
                         for x in book_list if x['good'] ]
         if reject_list:
             d = RejectListDialog(self.gui,reject_list,
@@ -423,19 +423,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             if d.result() != d.Accepted:
                 return
 
-            bookids=[]
-            rejectlist=[]
-            addreasontext=d.get_reason_text()
-            for (bookid,url,note) in d.get_reject_list():
-                bookids.append(bookid)
-                if addreasontext and note:
-                    note = note +" - "+addreasontext
-                elif addreasontext:
-                    note = addreasontext
-                rejectlist.append((url,note))
-                print("Adding (%s) to Reject List: %s"%(url,note))
-                
-            rejecturllist.add(rejectlist)
+            rejecturllist.add(d.get_reject_list())
 
             if d.get_deletebooks():
                 self.gui.iactions['Remove Books'].delete_books()
@@ -675,12 +663,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("url:%s"%url)
 
         if not merge: # skip reject list when merging.
-            rejnote = rejecturllist.check(url)
-            if rejnote:
+            if rejecturllist.check(url):
+                rejnote = rejecturllist.get_full_note(url)
                 if question_dialog(self.gui, 'Reject URL?',
-                                   '<p>Reject URL?</p>'+
-                                   '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
-                                   "<p>Click 'No' to download anyway.</p>",
+                                   '<h3>Reject URL?</h3>'+
+                                   '<p><b>%s</b> is on your Reject URL list:</p><p>"<b>%s</b>"</p>'%(url,rejnote)+
+                                   "<p>Click '<b>Yes</b>' to Reject.</p>"+
+                                   "<p>Click '<b>No</b>' to download anyway.</p>",
                                    show_copy_button=False):
                     book['comment'] = "Story on Reject URLs list (%s)."%rejnote
                     book['good']=False
@@ -689,9 +678,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     return
                 else:
                     if question_dialog(self.gui, 'Remove Reject URL?',
-                                       "<p>Remove URL from Reject List?</p>"+
-                                       '<p>%s is on the Reject URL list:<br />"%s"</p>'%(url,rejnote)+
-                                       "<p>Click 'Yes' to remove it from the list and download,<br /> 'No' to download, but leave it on the Reject list.</p>",
+                                       "<h3>Remove URL from Reject List?</h3>"+
+                                       '<p><b>%s</b> is on your Reject URL list:</p><p>"<b>%s</b>"</p>'%(url,rejnote)+
+                                       "<p>Click '<b>Yes</b>' to remove it from the list,</p>"+
+                                       "<p>Click '<b>No</b>' to leave it on the list.</p>",
                                        show_copy_button=False):
                         rejecturllist.remove(url)
             
@@ -749,10 +739,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # print("searchstr:%s"%searchstr)
             # print("identicalbooks:%s"%identicalbooks)
             if len(identicalbooks) > 0 and question_dialog(self.gui, 'Skip Story?',
-                                                           '<p>Skip Anthology Story?</p>'+
-                                                           '<p>Story "%s" is in series "<a href="%s">%s</a>" that you have an anthology book for.</p>'%
+                                                           '<h3>Skip Anthology Story?</h3>'+
+                                                           '<p>"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.</p>'%
                                                            (story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')])+
-                                                           "<p>Click 'No' to download anyway.</p>",
+                                                           "<p>Click '<b>Yes</b>' to Skip.</p>"+
+                                                           "<p>Click '<b>No</b>' to download anyway.</p>",
                                                            show_copy_button=False):
                 book['comment'] = "Story in Series Anthology(%s)."%series
                 book['title'] = story.getMetadata('title')

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import traceback
+import traceback, re
 from functools import partial
 
 import urllib
@@ -27,6 +27,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils \
             ImageTitleLayout, get_icon)
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getNormalStoryURL
 
 SKIP=u'Skip'
 ADDNEW=u'Add New Book'
@@ -46,7 +47,62 @@ collision_order=[SKIP,
 anthology_collision_order=[UPDATE,
                            UPDATEALWAYS,
                            OVERWRITEALWAYS]
+
+class RejectUrlEntry:
+
+    matchpat=re.compile(r"^(?P<url>[^,]+)(,(?P<fullnote>(((?P<title>.+) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
+    
+    def __init__(self,url_or_line,note=None,title=None,auth=None,
+                 addreasontext=None,fromline=False):
         
+        self.url=url_or_line
+        self.note=note
+        self.title=title
+        self.auth=auth
+        self.valid=False
+
+        if fromline:
+            mc = re.match(self.matchpat,url_or_line)
+            if mc:
+                #print("mc:%s"%mc.groupdict())
+                (url,title,auth,note) = mc.group('url','title','auth','note')
+                if not mc.group('title'):
+                    title=''
+                    auth=''
+                    note=mc.group('fullnote')
+                self.url=url
+                self.note=note
+                self.title=title
+                self.auth=auth
+        
+        if not self.note:
+            if addreasontext:
+                self.note = addreasontext
+            else:
+                self.note = ''
+        else:
+            if addreasontext:
+                self.note = self.note + ' - ' + addreasontext
+                
+        self.url = getNormalStoryURL(self.url)
+        self.valid = self.url != None
+                
+    def to_line(self):
+        # always 'url,'
+        return self.url+","+self.fullnote()
+        
+    def fullnote(self):
+        retval = ""
+        if self.title and self.auth:
+            retval = retval + "%s by %s"%(self.title,self.auth)
+            if self.note:
+                retval = retval + " - "
+                
+        if self.note:
+            retval = retval + self.note
+            
+        return retval
+
 # This is a more than slightly kludgey way to get
 # EditWithComplete to *not* alpha-order the reasons, but leave
 # them in the order entered.  If
@@ -74,18 +130,8 @@ class DroppableQTextEdit(QTextEdit):
 
     def dropEvent(self,event):
         # print("event:%s"%event)
-        # print("event.mimeData():%s"%event.mimeData())
-        # print("event.mimeData().text():%s"%str(event.mimeData().text()))
-        # print("event.mimeData().data():%s"%str(event.mimeData().data()))
-        # print("event.mimeData().formats():%s"%[str(f) for f in event.mimeData().formats()])
-        # for f in event.mimeData().formats():
-        #     try:
-        #         print("event.mimeData().data('%s'):%s"%(f,event.mimeData().data(f)))
-        #     except:
-        #         print("failed %s"%f)
 
         mimetype='text/uri-list'
-        # print("event.mimeData().data('%s'):%s"%(mimetype,event.mimeData().data(mimetype)))
 
         urllist=[]
         filelist="%s"%event.mimeData().data(mimetype)
@@ -272,13 +318,6 @@ class AddNewDialog(SizePersistedDialog):
         if not self.merge:
             self.fileform.setCurrentIndex(self.fileform.findText(self.prefs['fileform']))
 
-        # if url_list_text:
-        #     self.fileform.setVisible(True)
-        #     self.formlabel.setVisible(True)
-        # else:
-        #     self.fileform.setVisible(False)
-        #     self.formlabel.setVisible(False)
-        
         if self.merge and not self.newmerge:
             self.set_collisions()
             i = self.collision.findText(self.prefs['collision'])
@@ -571,11 +610,7 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         button_layout = QVBoxLayout()
         books_layout.addLayout(button_layout)
-        # self.move_up_button = QtGui.QToolButton(self)
-        # self.move_up_button.setToolTip('Move selected books up the list')
-        # self.move_up_button.setIcon(QIcon(I('arrow-up.png')))
-        # self.move_up_button.clicked.connect(self.books_table.move_rows_up)
-        # button_layout.addWidget(self.move_up_button)
+
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem)
         self.remove_button = QtGui.QToolButton(self)
@@ -585,11 +620,6 @@ class UpdateExistingDialog(SizePersistedDialog):
         button_layout.addWidget(self.remove_button)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem1)
-        # self.move_down_button = QtGui.QToolButton(self)
-        # self.move_down_button.setToolTip('Move selected books down the list')
-        # self.move_down_button.setIcon(QIcon(I('arrow-down.png')))
-        # self.move_down_button.clicked.connect(self.books_table.move_rows_down)
-        # button_layout.addWidget(self.move_down_button)
 
         options_layout = QHBoxLayout()
 
@@ -615,7 +645,6 @@ class UpdateExistingDialog(SizePersistedDialog):
         i = self.collision.findText(prefs['collision'])
         if i > -1:
             self.collision.setCurrentIndex(i)
-        # self.collision.setToolTip('Overwrite will replace the existing story.  Add New will create a new story with the same title and author.')
         label.setBuddy(self.collision)
         options_layout.addWidget(self.collision)
 
@@ -724,11 +753,9 @@ class StoryListTableWidget(QTableWidget):
         self.setItem(row, 2, AuthorTableWidgetItem(", ".join(book['author']), ", ".join(book['author_sort'])))
         
         url_cell = ReadOnlyTableWidgetItem(book['url'])
-        #url_cell.setData(Qt.UserRole, QVariant(book['url']))
         self.setItem(row, 3, url_cell)
         
         comment_cell = ReadOnlyTableWidgetItem(book['comment'])
-        #comment_cell.setData(Qt.UserRole, QVariant(book))
         self.setItem(row, 4, comment_cell)
 
     def get_books(self):
@@ -762,56 +789,6 @@ class StoryListTableWidget(QTableWidget):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
 
-    def move_rows_up(self):
-        self.setFocus()
-        rows = self.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        first_sel_row = rows[0].row()
-        if first_sel_row <= 0:
-            return
-        # Workaround for strange selection bug in Qt which "alters" the selection
-        # in certain circumstances which meant move down only worked properly "once"
-        selrows = []
-        for row in rows:
-            selrows.append(row.row())
-        selrows.sort()
-        for selrow in selrows:
-            self.swap_row_widgets(selrow - 1, selrow + 1)
-        scroll_to_row = first_sel_row - 1
-        if scroll_to_row > 0:
-            scroll_to_row = scroll_to_row - 1
-        self.scrollToItem(self.item(scroll_to_row, 0))
-
-    def move_rows_down(self):
-        self.setFocus()
-        rows = self.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        last_sel_row = rows[-1].row()
-        if last_sel_row == self.rowCount() - 1:
-            return
-        # Workaround for strange selection bug in Qt which "alters" the selection
-        # in certain circumstances which meant move down only worked properly "once"
-        selrows = []
-        for row in rows:
-            selrows.append(row.row())
-        selrows.sort()
-        for selrow in reversed(selrows):
-            self.swap_row_widgets(selrow + 2, selrow)
-        scroll_to_row = last_sel_row + 1
-        if scroll_to_row < self.rowCount() - 1:
-            scroll_to_row = scroll_to_row + 1
-        self.scrollToItem(self.item(scroll_to_row, 0))
-
-    def swap_row_widgets(self, src_row, dest_row):
-        self.blockSignals(True)
-        self.insertRow(dest_row)
-        for col in range(0, self.columnCount()):
-            self.setItem(dest_row, col, self.takeItem(src_row, col))
-        self.removeRow(src_row)
-        self.blockSignals(False)
-
 class RejectListTableWidget(QTableWidget):
 
     def __init__(self, parent,rejectreasons=[]):
@@ -819,81 +796,53 @@ class RejectListTableWidget(QTableWidget):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.rejectreasons = rejectreasons
 
-    def on_headersection_clicked(self):
-        self.setSortingEnabled(True)
-        
     def populate_table(self, reject_list):
         self.clear()
         self.setAlternatingRowColors(True)
         self.setRowCount(len(reject_list))
-        header_labels = ['URL', 'Note']
+        header_labels = ['URL', 'Title', 'Author', 'Note']
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.horizontalHeader().setStretchLastSection(True)
         #self.verticalHeader().setDefaultSectionSize(24)
         self.verticalHeader().hide()
 
-        # need sortingEnbled to sort, but off to up & down.
-        self.connect(self.horizontalHeader(),
-                     SIGNAL('sectionClicked(int)'),
-                     self.on_headersection_clicked)
-
+        # it's generally recommended to enable sort after pop, not
+        # before.  But then it needs to be sorted on a column and I'd
+        # rather keep the order given.
+        self.setSortingEnabled(True)
         # row is just row number.
         for row, rejectrow in enumerate(reject_list):
+            #print("populating table:%s"%rejectrow.to_line())
             self.populate_table_row(row,rejectrow)
 
         self.resizeColumnsToContents()
-        self.setMinimumColumnWidth(1, 100)
-        self.setMinimumColumnWidth(2, 100)
+        self.setMinimumColumnWidth(0, 100)
+        self.setMinimumColumnWidth(3, 100)
         self.setMinimumSize(300, 0)
 
     def setMinimumColumnWidth(self, col, minimum):
         if self.columnWidth(col) < minimum:
             self.setColumnWidth(col, minimum)
 
-    def populate_table_row(self, row, rejectrow):
+    def populate_table_row(self, row, rej):
 
-        (bookid,url,titleauth,oldrejnote) = rejectrow
-        if oldrejnote:
-            noteprefix = note = oldrejnote
-            # incase the existing note ends with one of the known reasons.
-            for reason in self.rejectreasons:
-                if noteprefix.endswith(' - '+reason):
-                    noteprefix = noteprefix[:-len(' - '+reason)]
-                    break
-        else:
-            noteprefix = note = titleauth
-            
-        if len(noteprefix) > 0:
-            noteprefix = noteprefix+' - '
-            
-        url_cell = ReadOnlyTableWidgetItem(url)
-        url_cell.setData(Qt.UserRole, QVariant(bookid))
-        url_cell.setToolTip('URL to add to the Reject List.')
-        self.setItem(row, 0, url_cell)
-
+        self.setItem(row, 0, ReadOnlyTableWidgetItem(rej.url))
+        self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
+        self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
+        
         note_cell = EditWithComplete(self)
-
         note_cell.lineEdit().mcompleter.model().set_items = \
             partial(complete_model_set_items_kludge,
                     note_cell.lineEdit().mcompleter.model())
         
-        items = [note]+[ noteprefix+x for x in self.rejectreasons ]
+        items = [rej.note]+self.rejectreasons
         note_cell.update_items_cache(items)
-        note_cell.show_initial_value(note)
+        note_cell.show_initial_value(rej.note)
         note_cell.set_separator(None)
         note_cell.setToolTip('Select or Edit Reject Note.')
-        self.setCellWidget(row, 1, note_cell)
+        self.setCellWidget(row, 3, note_cell)
         
-    def get_reject_list(self):
-        rejectrows = []
-        for row in range(self.rowCount()):
-            bookid = self.item(row, 0).data(Qt.UserRole).toPyObject()
-            url = unicode(self.item(row, 0).text())
-            note = unicode(self.cellWidget(row, 1).currentText()).strip()
-            rejectrows.append((bookid,url,note))
-        return rejectrows
-
     def remove_selected_rows(self):
         self.setFocus()
         rows = self.selectionModel().selectedRows()
@@ -915,57 +864,6 @@ class RejectListTableWidget(QTableWidget):
     def select_and_scroll_to_row(self, row):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
-
-    def move_rows_up(self):
-        self.setFocus()
-        rows = self.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        first_sel_row = rows[0].row()
-        if first_sel_row <= 0:
-            return
-        # Workaround for strange selection bug in Qt which "alters" the selection
-        # in certain circumstances which meant move down only worked properly "once"
-        selrows = []
-        for row in rows:
-            selrows.append(row.row())
-        selrows.sort()
-        for selrow in selrows:
-            self.swap_row_widgets(selrow - 1, selrow + 1)
-        scroll_to_row = first_sel_row - 1
-        if scroll_to_row > 0:
-            scroll_to_row = scroll_to_row - 1
-        self.scrollToItem(self.item(scroll_to_row, 0))
-
-    def move_rows_down(self):
-        self.setFocus()
-        rows = self.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        last_sel_row = rows[-1].row()
-        if last_sel_row == self.rowCount() - 1:
-            return
-        # Workaround for strange selection bug in Qt which "alters" the selection
-        # in certain circumstances which meant move down only worked properly "once"
-        selrows = []
-        for row in rows:
-            selrows.append(row.row())
-        selrows.sort()
-        for selrow in reversed(selrows):
-            self.swap_row_widgets(selrow + 2, selrow)
-        scroll_to_row = last_sel_row + 1
-        if scroll_to_row < self.rowCount() - 1:
-            scroll_to_row = scroll_to_row + 1
-        self.scrollToItem(self.item(scroll_to_row, 0))
-
-    def swap_row_widgets(self, src_row, dest_row):
-        self.blockSignals(True)
-        self.setSortingEnabled(False)
-        self.insertRow(dest_row)
-        for col in range(0, self.columnCount()):
-            self.setItem(dest_row, col, self.takeItem(src_row, col))
-        self.removeRow(src_row)
-        self.blockSignals(False)
 
 class RejectListDialog(SizePersistedDialog):
     def __init__(self, gui, reject_list,
@@ -995,21 +893,13 @@ class RejectListDialog(SizePersistedDialog):
         rejects_layout.addLayout(button_layout)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem)
-        # self.move_up_button = QtGui.QToolButton(self)
-        # self.move_up_button.setToolTip('Move selected books up the list')
-        # self.move_up_button.setIcon(QIcon(I('arrow-up.png')))
-        # self.move_up_button.clicked.connect(self.books_table.move_rows_up)
-        # button_layout.addWidget(self.move_up_button)
+        
         self.remove_button = QtGui.QToolButton(self)
         self.remove_button.setToolTip('Remove selected URL(s) from the list')
         self.remove_button.setIcon(get_icon('list_remove.png'))
         self.remove_button.clicked.connect(self.remove_from_list)
         button_layout.addWidget(self.remove_button)
-        # self.move_down_button = QtGui.QToolButton(self)
-        # self.move_down_button.setToolTip('Move selected books down the list')
-        # self.move_down_button.setIcon(QIcon(I('arrow-down.png')))
-        # self.move_down_button.clicked.connect(self.books_table.move_rows_down)
-        # button_layout.addWidget(self.move_down_button)
+
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem1)
 
@@ -1056,10 +946,21 @@ class RejectListDialog(SizePersistedDialog):
         self.rejects_table.remove_selected_rows()
 
     def get_reject_list(self):
-        return self.rejects_table.get_reject_list()
+        rejectrows = []
+        for row in range(self.rejects_table.rowCount()):
+            url = unicode(self.rejects_table.item(row, 0).text()).strip()
+            title = unicode(self.rejects_table.item(row, 1).text()).strip()
+            auth = unicode(self.rejects_table.item(row, 2).text()).strip()
+            note = unicode(self.rejects_table.cellWidget(row, 3).currentText()).strip()
+            rejectrows.append(RejectUrlEntry(url,note,title,auth,self.get_reason_text()))
+        return rejectrows
 
     def get_reason_text(self):
-        return unicode(self.reason_edit.currentText()).strip()
+        try:
+            return unicode(self.reason_edit.currentText()).strip()
+        except:
+            # doesn't have self.reason_edit when editing existing list.
+            return None
     
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
