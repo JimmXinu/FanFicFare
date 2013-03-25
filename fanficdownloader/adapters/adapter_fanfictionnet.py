@@ -159,9 +159,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.setDescription(url,stripHTML(summarydiv))
             
         
-        metatext = stripHTML(gui_table1i.find('div', {'style':'color:gray;'})).replace('Hurt/Comfort','Hurt-Comfort')
+        metatext = stripHTML(gui_table1i.find('div', {'class':'xgray'})).replace('Hurt/Comfort','Hurt-Comfort')
         metalist = metatext.split(" - ")
-        #logger.debug("metatext:(%s)"%metalist)
+        logger.debug("metatext:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
 
