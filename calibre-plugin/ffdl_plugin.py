@@ -102,7 +102,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # are not found in the zip file will result in null QIcons.
         icon = get_icon('images/icon.png')
 
-        #self.qaction.setText('FFDL')
+        self.qaction.setText('FanFictionDL')
         
         # The qaction is automatically created from the action_spec defined
         # above

@@ -318,15 +318,16 @@ class AddNewDialog(SizePersistedDialog):
         if not self.merge:
             self.fileform.setCurrentIndex(self.fileform.findText(self.prefs['fileform']))
 
-        if self.merge and not self.newmerge:
-            self.set_collisions()
-            i = self.collision.findText(self.prefs['collision'])
-            if i > -1:
-                self.collision.setCurrentIndex(i)
-            self.updatemeta.setChecked(self.prefs['updatemeta'])
-
-            if not self.merge:
-                self.updateepubcover.setChecked(self.prefs['updateepubcover'])
+        # add collision options
+        self.set_collisions()
+        
+        i = self.collision.findText(self.prefs['collision'])
+        if i > -1:
+            self.collision.setCurrentIndex(i)
+        self.updatemeta.setChecked(self.prefs['updatemeta'])
+            
+        if not self.merge:
+            self.updateepubcover.setChecked(self.prefs['updateepubcover'])
                 
         self.url.setText(url_list_text)
         if url_list_text:
