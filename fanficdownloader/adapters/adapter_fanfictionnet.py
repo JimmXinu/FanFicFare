@@ -158,10 +158,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if summarydiv:
             self.setDescription(url,stripHTML(summarydiv))
             
-        
-        metatext = stripHTML(gui_table1i.find('div', {'class':'xgray'})).replace('Hurt/Comfort','Hurt-Comfort')
+
+        graydiv = gui_table1i.find('div', {'class':'xgray'})
+        for b in graydiv.findAll('button'):
+            b.extract()
+        metatext = stripHTML(graydiv).replace('Hurt/Comfort','Hurt-Comfort')
+        #logger.debug("metatext:(%s)"%metatext)
         metalist = metatext.split(" - ")
-        logger.debug("metatext:(%s)"%metalist)
+        #logger.debug("metalist:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
 
