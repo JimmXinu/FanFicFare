@@ -126,8 +126,13 @@ class WraithBaitComAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+            # include author on chapters if multiple authors.
+            if len(alist) > 1:
+                add = " by %s"%stripHTML(chapter.findNext('a', href=re.compile(r"viewuser.php\?uid=\d+")))
+            else:
+                add = ""
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter)+add,'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
