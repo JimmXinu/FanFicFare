@@ -61,6 +61,13 @@ default_prefs['allow_custcol_from_ini'] = True
 
 default_prefs['std_cols_newonly'] = {}
 
+# This is where all preferences for this plugin *were* stored
+# Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
+# in a global namespace, so make it as unique as possible.
+# You should always prefix your config file name with plugins/,
+# so as to ensure you dont accidentally clobber a calibre config file
+old_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
+
 def set_library_config(library_config,db):
     db.prefs.set_namespaced(PREFS_NAMESPACE,
                             PREFS_KEY_SETTINGS,
@@ -74,7 +81,7 @@ def get_library_config(db):
     if library_id in old_prefs:
         #print("get prefs from old_prefs")
         library_config = old_prefs[library_id]
-        set_library_config(library_config)
+        set_library_config(library_config,db)
         old_prefs["migrated to library db %s"%library_id] = old_prefs[library_id]
         del old_prefs[library_id]
 
@@ -83,13 +90,6 @@ def get_library_config(db):
         library_config = db.prefs.get_namespaced(PREFS_NAMESPACE, PREFS_KEY_SETTINGS,
                                                  copy.deepcopy(default_prefs))
     return library_config
-
-# This is where all preferences for this plugin *were* stored
-# Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
-# in a global namespace, so make it as unique as possible.
-# You should always prefix your config file name with plugins/,
-# so as to ensure you dont accidentally clobber a calibre config file
-old_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
 
 # fake out so I don't have to change the prefs calls anywhere.  The
 # Java programmer in me is offended by op-overloading, but it's very
