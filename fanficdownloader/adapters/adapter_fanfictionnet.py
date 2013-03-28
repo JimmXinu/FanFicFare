@@ -132,9 +132,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## For 1, use the second link.
         ## For 2, fetch the crossover page and pull the two categories from there.
 
-        categories = soup.findAll('a',{'class':'xcontrast_txt'})
+        categories = soup.find('div',{'id':'pre_story_links'}).findAll('a',{'class':'xcontrast_txt'})
+        #print("xcontrast_txt a:%s"%categories)
         if len(categories) > 1:
-            self.story.addToList('category',stripHTML(categories[-1]))
+            self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
             caturl = "http://%s%s"%(self.getSiteDomain(),categories[0]['href'])
             catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
@@ -159,15 +160,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.setDescription(url,stripHTML(summarydiv))
             
 
-        graydiv = gui_table1i.find('div', {'class':'xgray'})
-        for b in graydiv.findAll('button'):
-            b.extract()
-        metatext = stripHTML(graydiv).replace('Hurt/Comfort','Hurt-Comfort')
+        grayspan = gui_table1i.find('span', {'class':'xgray xcontrast_txt'})
+        # for b in grayspan.findAll('button'):
+        #     b.extract()
+        metatext = stripHTML(grayspan).replace('Hurt/Comfort','Hurt-Comfort')
         #logger.debug("metatext:(%s)"%metatext)
         metalist = metatext.split(" - ")
         #logger.debug("metalist:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
+        # Rated: Fiction T - English - Adventure/Sci-Fi - Naruto U. - Chapters: 22 - Words: 114,414 - Reviews: 395 - Favs: 779 - Follows: 835 - Updated: 03-21-13 - Published: 04-28-12 - id: 8067258 
 
         # rating is obtained above more robustly.
         if metalist[0].startswith('Rated:'):
