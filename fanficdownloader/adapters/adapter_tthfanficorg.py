@@ -163,17 +163,44 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 infodata = self._fetchUrl(infourl)
                 infosoup = bs.BeautifulSoup(infodata)
 
-                for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
-                    self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
-                    self.story.addToList('authorUrl','http://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
-                    self.story.addToList('author',stripHTML(a))                
+                # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
+                #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
+                #     self.story.addToList('authorUrl','http://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
+                #     self.story.addToList('author',stripHTML(a))
+
+                # second verticaltable is the chapter list.
+                table = infosoup.findAll('table',{'class':'verticaltable'})[1]
+                for a in table.findAll('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
+                    autha = a.findNext('a',href=re.compile(r"^/Author-\d+"))
+                    self.story.addToList('authorId',autha['href'].split('/')[1].split('-')[1])
+                    self.story.addToList('authorUrl','http://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
+                    self.story.addToList('author',stripHTML(autha))
+                    # include leading number to match 1. ... 2. ...
+                    self.chapterUrls.append(("%d. %s by %s"%(len(self.chapterUrls)+1,
+                                                             stripHTML(a),
+                                                             stripHTML(autha)),'http://'+self.host+a['href']))
                                             
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(url)
                 else:
                     raise e
+        else: # single author:
+            # Find the chapter selector 
+            select = soup.find('select', { 'name' : 'chapnav' } )
+        	 
+            if select is None:
+        	   # no selector found, so it's a one-chapter story.
+        	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+            else:
+                allOptions = select.findAll('option')
+                for o in allOptions:
+                    url = "http://"+self.host+o['value']
+                    # just in case there's tags, like <i> in chapter titles.
+                    self.chapterUrls.append((stripHTML(o),url))
     
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+
         try:
             # going to pull part of the meta data from *primary* author list page.
             logger.debug("**AUTHOR** URL: "+authorurl)
@@ -235,21 +262,6 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if BtVS:
             self.story.addToList('category','Buffy: The Vampire Slayer')
             
-        # Find the chapter selector 
-        select = soup.find('select', { 'name' : 'chapnav' } )
-    	 
-        if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
-        else:
-            allOptions = select.findAll('option')
-            for o in allOptions:
-                url = "http://"+self.host+o['value']
-                # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(o),url))
-
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
-
         pseries = soup.find('p', {'style':'margin-top:0px'})
         m = re.match('This story is No\. (?P<num>\d+) in the series &quot;(?P<series>.+)&quot;\.',
                      pseries.text)
