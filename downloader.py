@@ -94,6 +94,9 @@ def main(argv,
    parser.add_option("-l", "--list",
                      action="store_true", dest="list",
                      help="Get list of valid story URLs from page given.",)
+   parser.add_option("-n", "--normalize-list",
+                     action="store_true", dest="normalize",default=False,
+                     help="Get list of valid story URLs from page given, but normalized to standard forms.",)
    parser.add_option("-d", "--debug",
                      action="store_true", dest="debug",
                      help="Show debug output while downloading.",)
@@ -169,8 +172,8 @@ def main(argv,
            (var,val) = opt.split('=')
            configuration.set("overrides",var,val)
 
-   if options.list:
-       retlist = get_urls_from_page(args[0], configuration)
+   if options.list or options.normalize:
+       retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
        print "\n".join(retlist)
                
        return
