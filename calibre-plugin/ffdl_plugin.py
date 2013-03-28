@@ -140,7 +140,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             file_path = os.path.join(calibre_config_dir,
                                      *("plugins/fanfictiondownloader_macmenuhack.txt".split('/')))
             file_path = os.path.abspath(file_path)
-            print("macmenuhack file_path:%s"%file_path)
+            print("Plugin %s macmenuhack file_path:%s"%(self.name,file_path))
             self.macmenuhack = os.access(file_path, os.F_OK)
             return self.macmenuhack
 
@@ -1533,7 +1533,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def convert_url_to_book(self, url):
         book = self.make_book()
         # look here for [\d,\d] at end of url, and remove?
-        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>,)?(?P<end>\d+)?\])?$",url)
+        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>[,-])?(?P<end>\d+)?\])?$",url)
         #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
         url = mc.group('url')
         book['begin'] = mc.group('begin')
