@@ -105,9 +105,9 @@ def get_urls_from_text(data,configuration=None,normalize=False):
         # 'are you old enough' links, and 'Report This' links.
         # The 'normalized' set prevents duplicates.
         if 'story.php' in href:
-            m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
+            m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
             if m != None:
-                href = form_url(None,m.group('sid'))
+                href = form_url(href,m.group('sid'))
         try:
             href = href.replace('&index=1','')
             adapter = adapters.getAdapter(configuration,href)
