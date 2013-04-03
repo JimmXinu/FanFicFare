@@ -59,7 +59,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %B %Y"
+        self.dateformat = "%B %d, %Y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -79,7 +79,8 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'This story contains adult content not suitable for children' in data \
-                or "That password doesn't match the one in our database" in data:
+                or "That password doesn't match the one in our database" in data \
+                or "Registered Users Only" in data:
             return True
         else:
             return False
@@ -94,17 +95,16 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
             params['penname'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
         params['rememberme'] = '1'
-        params['sid'] = ''
-        params['intent'] = ''
+        params['action'] = 'login'
         params['submit'] = 'Submit'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/elysian/user.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
-        d = self._fetchUrl(loginUrl, params)
+        d = self._postUrl(loginUrl, params)
     
-        if "User Account Page" not in d : #Member Account
+        if "Member Account" not in d : #User Account Page
             logger.info("Failed to login to URL %s as %s, or have no authorization to access the story" % (loginUrl, params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
             return False
@@ -128,7 +128,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
-            addurl="&ageconsent=ok"
+            addurl="&ageconsent=ok&warning=5"
             self.performLogin(url)
             data = self._fetchUrl(url+addurl)
             
@@ -142,33 +142,41 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title and author
-        a = soup.find('div', {'id' : 'pagetitle'})
+        div = soup.find('div', {'id' : 'pagetitle'})
         
-        aut = a.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        aut = div.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/elysian/'+aut['href'])
         self.story.setMetadata('author',aut.string)
         aut.extract()
-        
-        self.story.setMetadata('title',a.string[:(len(a.string)-3)])
+
+        # first a tag in pagetitle is title
+        self.story.setMetadata('title',stripHTML(div.find('a')))
 
         # Find the chapters:
-        chapters=soup.find('select', {'name' : 'chapter'})
-        if chapters != None:
-            for chapter in chapters.findAll('option'):
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/elysian/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
-        else:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+        # chapters=soup.find('select', {'name' : 'chapter'})
+        # if chapters != None:
+        #     for chapter in chapters.findAll('option'):
+        #         self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/elysian/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
+        # else:
+        #     self.chapterUrls.append((self.story.getMetadata('title'),url+"&chapter=1"))
 
+        for chapa in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+
+                                                       self.story.getMetadata('storyId')+'&chapter=\d+')):
+            self.chapterUrls.append((stripHTML(chapa),'http://'+self.host+'/elysian/'+chapa['href']))
+        
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         
         asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
         
-        for list in asoup.findAll('div', {'class' : re.compile('listbox\s+')}):
-            a = list.find('a', href=re.compile(r'viewstory.php\?sid='))
-            if a != None:
-                if 'viewstory.php?sid='+self.story.getMetadata('storyId') in a['href']:
-                    break
+        # for metalist in asoup.findAll('div', {'class' : re.compile('listbox\s+')}):
+        #     a = metalist.find('a', href=re.compile(r'viewstory.php\?sid='))
+        #     if a != None:
+        #         if 'viewstory.php?sid='+self.story.getMetadata('storyId') in a['href']:
+        #             break
+
+        metalist = asoup.find('a', href=re.compile(r'viewstory.php\?sid='+
+                                                   self.story.getMetadata('storyId')+'($|[^\d])')).parent.parent
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
@@ -182,7 +190,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
                 
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = list.findAll('span', {'class' : 'classification'})
+        labels = metalist.findAll('span', {'class' : 'label'})
         for labelspan in labels:
             label = labelspan.text
             value = labelspan.nextSibling
@@ -190,7 +198,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not (defaultGetattr(value,'class') == 'classification' or "Chapters: " in stripHTML(value)):
+                while not (defaultGetattr(value,'class') == 'label' or "Chapters: " in stripHTML(value)):
                     svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -238,7 +246,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         try:
             # Find Series name from series URL.
-            a = list.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
+            a = metalist.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
             series_name = a.string
             series_url = 'http://'+self.host+'/elysian/'+a['href']
 
@@ -265,8 +273,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url))
         
         div = soup.find('div', {'id' : 'story'})
 
