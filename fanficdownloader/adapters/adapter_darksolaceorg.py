@@ -49,7 +49,6 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
-		
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/elysian/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -113,9 +112,19 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
+        
+        if self.is_adult or self.getConfig("is_adult"):
+            # Weirdly, different sites use different warning numbers.
+            # If the title search below fails, there's a good chance
+            # you need a different number.  print data at that point
+            # and see what the 'click here to continue' url says.
+            addurl = "&ageconsent=ok&warning=5"
+        else:
+            addurl=""
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
-        url = self.url
+        url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
         try:
@@ -128,9 +137,30 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
-            addurl="&ageconsent=ok&warning=5"
             self.performLogin(url)
-            data = self._fetchUrl(url+addurl)
+            data = self._fetchUrl(url)
+            
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logger.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
