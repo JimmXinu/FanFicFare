@@ -37,9 +37,17 @@ class Configuration(ConfigParser.SafeConfigParser):
     def __init__(self, site, fileform):
         ConfigParser.SafeConfigParser.__init__(self)
         self.sectionslist = ['defaults']
+
+        if site.startswith("www."):
+            altsite = site.replace("www.","")
+        else:
+            altsite = "www."+site
+        
+        self.addConfigSection(altsite)
         self.addConfigSection(site)
         if fileform:
             self.addConfigSection(fileform)
+            self.addConfigSection(altsite+":"+fileform)
             self.addConfigSection(site+":"+fileform)
         self.addConfigSection("overrides")
         
