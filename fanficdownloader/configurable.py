@@ -39,16 +39,18 @@ class Configuration(ConfigParser.SafeConfigParser):
         self.sectionslist = ['defaults']
 
         if site.startswith("www."):
-            altsite = site.replace("www.","")
+            sitewith = site
+            sitewithout = site.replace("www.","")
         else:
-            altsite = "www."+site
+            sitewith = "www."+site
+            sitewithout = site
         
-        self.addConfigSection(altsite)
-        self.addConfigSection(site)
+        self.addConfigSection(sitewith)
+        self.addConfigSection(sitewithout)
         if fileform:
             self.addConfigSection(fileform)
-            self.addConfigSection(altsite+":"+fileform)
-            self.addConfigSection(site+":"+fileform)
+            self.addConfigSection(sitewith+":"+fileform)
+            self.addConfigSection(sitewithout+":"+fileform)
         self.addConfigSection("overrides")
         
         self.validEntries = [
