@@ -239,8 +239,8 @@ class SizePersistedDialog(QDialog):
             self.restoreGeometry(self.geom)
 
     def dialog_closing(self, result):
-        geom = bytearray(self.saveGeometry())
-        gprefs[self.unique_pref_name] = geom
+        self.geom = bytearray(self.saveGeometry())
+        gprefs[self.unique_pref_name] = self.geom
 
 
 class ReadOnlyTableWidgetItem(QTableWidgetItem):

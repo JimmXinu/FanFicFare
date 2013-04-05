@@ -258,8 +258,8 @@ class AddNewDialog(SizePersistedDialog):
 
     # invoke the 
     def ok_clicked(self):
+        self.dialog_closing(None) # save persistent size.
         self.hide()
-        print("ok_clicked called")
         self.go_signal.emit( self.get_ffdl_options(),
                              self.get_urlstext(),
                              self.merge,
