@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#  -*- coding: utf-8 -*-
 
 # Copyright 2011 Fanficdownloader team
 #
@@ -292,7 +292,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             a = metasoup.find('dd',{'class':"series"})
             b = a.find('a', href=re.compile(r"/series/\d+"))
             series_name = b.string
-            series_url = 'http://'+self.host+'/fanfic/'+b['href']
+            series_url = 'http://'+self.host+b['href']
             series_index = int(a.text.split(' ')[1])
             self.setSeries(series_name, series_index)
             self.story.setMetadata('seriesUrl',series_url)
