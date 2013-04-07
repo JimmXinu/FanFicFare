@@ -244,16 +244,23 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
         data = data[data.index("<body"):]
-        
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-        span = soup.find('div', {'id' : 'story'})
 
-        if None == span:
+        chapter=bs.BeautifulSoup('<div class="story"></div>')
+        
+        soup = bs.BeautifulSoup(data)
+
+        found=False
+        for div in soup.findAll('div'):
+            if div.has_key('class') and div['class'] == 'notes':
+                chapter.append(div)
+            if div.has_key('id') and div['id'] == 'story':
+                chapter.append(div)
+                found=True
+
+        if not found:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return self.utf8FromSoup(url,span)
+
+        return self.utf8FromSoup(url,chapter)
 
 def getClass():
     return TheWritersCoffeeShopComSiteAdapter
