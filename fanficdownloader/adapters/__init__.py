@@ -71,7 +71,6 @@ import adapter_thehexfilesnet
 import adapter_dokugacom
 import adapter_iketernalnet
 import adapter_onedirectionfanfictioncom
-import adapter_prisonbreakficnet
 import adapter_storiesofardacom
 import adapter_samdeanarchivenu
 import adapter_destinysgatewaycom
@@ -88,7 +87,6 @@ import adapter_pretendercentrecom
 import adapter_darksolaceorg
 import adapter_finestoriescom
 import adapter_hpfanficarchivecom
-import adapter_svufictioncom
 import adapter_twilightarchivescom
 import adapter_wizardtalesnet
 import adapter_nhamagicalworldsus
