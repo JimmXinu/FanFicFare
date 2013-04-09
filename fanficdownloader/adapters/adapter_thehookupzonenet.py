@@ -183,7 +183,7 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/CriminalMinds/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
