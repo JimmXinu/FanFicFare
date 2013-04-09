@@ -33,16 +33,24 @@ if sys.version_info >= (2, 7):
     rootlogger.addHandler(loghandler)
 
 try:
-    from fanficdownloader import adapters,writers,exceptions
-    from fanficdownloader.configurable import Configuration
-    from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
-    from fanficdownloader.geturls import get_urls_from_page
+    from calibre.constants import numeric_version as calibre_version
+    is_calibre = True
 except:
+    is_calibre = False
+
+# using try/except directly was masking errors during development.
+if is_calibre:
     # running under calibre
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
+else:
+    from fanficdownloader import adapters,writers,exceptions
+    from fanficdownloader.configurable import Configuration
+    from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
+    from fanficdownloader.geturls import get_urls_from_page
+    
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
