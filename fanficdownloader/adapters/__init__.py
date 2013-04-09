@@ -115,6 +115,7 @@ import adapter_psychficcom
 import adapter_hennethannunnet
 import adapter_tokrafandomnetcom
 import adapter_netraptororg
+import adapter_asr3slashzoneorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
