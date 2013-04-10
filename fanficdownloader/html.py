@@ -17,7 +17,7 @@ class HtmlProcessor:
     self.unfill = unfill
     html = self._ProcessRawHtml(html)
     self._soup = BeautifulSoup(html)
-    if self._soup.title:
+    if self._soup.title.contents:
       self.title = self._soup.title.contents[0]
     else:
       self.title = None

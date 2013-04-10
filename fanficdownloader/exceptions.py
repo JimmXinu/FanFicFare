@@ -68,3 +68,10 @@ class UnknownSite(Exception):
     def __str__(self):
         return "Unknown Site(%s).  Supported sites: (%s)" % (self.url, ", ".join(self.supported_sites_list))
 
+class FailedToWriteOutput(Exception):
+    def __init__(self,error):
+        self.error=error
+
+    def __str__(self):
+        return self.error
+

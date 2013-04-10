@@ -8,6 +8,8 @@ import time
 import random
 import logging
 
+logger = logging.getLogger(__name__)
+
 from html import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
@@ -124,8 +126,8 @@ class Converter:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
     except Exception, e:
-      logging.error('Error %s', e)
-      logging.debug('Details: %s' % html_strs)
+      logger.error('Error %s', e)
+      #logger.debug('Details: %s' % html_strs)
 
   def _ConvertStringToFile(self, html_data, out):
     html = HtmlProcessor(html_data)
