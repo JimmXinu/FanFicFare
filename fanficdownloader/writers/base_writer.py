@@ -177,11 +177,12 @@ class BaseStoryWriter(Configurable):
             
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
-            for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
+            for index, (url,title,html) in enumerate(self.story.getChapters(fortoc=True)):
                 if html:
                     self._write(out,ENTRY.substitute({'chapter':title,
                                                       'number':index+1,
-                                                      'index':"%04d"%(index+1)}))
+                                                      'index':"%04d"%(index+1),
+                                                      'url':url}))
 
             self._write(out,END.substitute(self.story.getAllMetadata()))
 

@@ -197,7 +197,8 @@ class BaseSiteAdapter(Configurable):
             for index, (title,url) in enumerate(self.chapterUrls):
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
-                    self.story.addChapter(removeEntities(title),
+                    self.story.addChapter(url,
+                                          removeEntities(title),
                                           None)
                 else:
                     if self.oldchapters and index < len(self.oldchapters):
@@ -206,7 +207,8 @@ class BaseSiteAdapter(Configurable):
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
                     else:
                         data = self.getChapterText(url)
-                    self.story.addChapter(removeEntities(title),
+                    self.story.addChapter(url,
+                                          removeEntities(title),
                                           removeEntities(data))
             self.storyDone = True
             
