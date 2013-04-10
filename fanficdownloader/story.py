@@ -470,11 +470,11 @@ class Story(Configurable):
 
         return list(subjectset | set(self.getConfigList("extratags")))
             
-    def addChapter(self, title, html):
+    def addChapter(self, url, title, html):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
-        self.chapters.append( (title,html) )
+        self.chapters.append( (url,title,html) )
 
     def getChapters(self,fortoc=False):
         "Chapters will be tuples of (title,html)"
@@ -484,8 +484,10 @@ class Story(Configurable):
                 (self.getConfig('add_chapter_numbers') == "true" \
                      or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
                      and self.getConfig('chapter_title_add_pattern'):
-            for index, (title,html) in enumerate(self.chapters):
-                retval.append( (string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),html) ) 
+            for index, (url,title,html) in enumerate(self.chapters):
+                retval.append( (url,
+                                string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),
+                                html) )
         else:
             retval = self.chapters
             

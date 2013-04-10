@@ -130,6 +130,9 @@ def get_update_data(inputio,
                         h2 = soup.find('h2')
                         if h2:
                             h2.extract()
+
+                        for skip in soup.findAll(attrs={'class':'skip_on_ffdl_update'}):
+                            skip.extract()
                             
                         soups.append(soup)
                         

@@ -501,7 +501,7 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (title,html) in enumerate(self.story.getChapters(fortoc=True)):
+        for index, (url,title,html) in enumerate(self.story.getChapters(fortoc=True)):
             if html:
                 i=index+1
                 items.append(("file%04d"%i,
@@ -649,10 +649,10 @@ div { margin: 0pt; padding: 0pt; }
         else:
             CHAPTER_END = self.EPUB_CHAPTER_END
         
-        for index, (title,html) in enumerate(self.story.getChapters()):
+        for index, (url,title,html) in enumerate(self.story.getChapters()):
             if html:
                 logger.debug('Writing chapter text for: %s' % title)
-                vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+                vals={'url':url, 'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
                 fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
