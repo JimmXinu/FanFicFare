@@ -154,6 +154,30 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',stripHTML(a))
         authorurl = 'http://'+self.host+a['href']
 
+        try:
+            # going to pull part of the meta data from *primary* author list page.
+            logger.debug("**AUTHOR** URL: "+authorurl)
+            authordata = self._fetchUrl(authorurl)
+            descurl=authorurl
+            authorsoup = bs.BeautifulSoup(authordata)
+            # author can have several pages, scan until we find it.
+            while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
+                nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
+                logger.debug("**AUTHOR** nextpage URL: "+nextpage)
+                authordata = self._fetchUrl(nextpage)
+                descurl=nextpage
+                authorsoup = bs.BeautifulSoup(authordata)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                raise exceptions.StoryDoesNotExist(url)
+            else:
+                raise e
+
+        storydiv = authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")})
+        self.setDescription(descurl,storydiv.find('div',{'class':'storydesc'}))
+        #self.story.setMetadata('description',stripHTML(storydiv.find('div',{'class':'storydesc'})))
+        self.story.setMetadata('title',stripHTML(storydiv.find('a',{'class':'storylink'})))
+
         ainfo = soup.find('a', href='/StoryInfo-%s-1'%self.story.getMetadata('storyId'))
         if ainfo != None: # indicates multiple authors/contributors.
             try:
@@ -200,30 +224,6 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     self.chapterUrls.append((stripHTML(o),url))
     
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-
-        try:
-            # going to pull part of the meta data from *primary* author list page.
-            logger.debug("**AUTHOR** URL: "+authorurl)
-            authordata = self._fetchUrl(authorurl)
-            descurl=authorurl
-            authorsoup = bs.BeautifulSoup(authordata)
-            # author can have several pages, scan until we find it.
-            while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
-                nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
-                logger.debug("**AUTHOR** nextpage URL: "+nextpage)
-                authordata = self._fetchUrl(nextpage)
-                descurl=nextpage
-                authorsoup = bs.BeautifulSoup(authordata)
-        except urllib2.HTTPError, e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
-
-        storydiv = authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")})
-        self.setDescription(descurl,storydiv.find('div',{'class':'storydesc'}))
-        #self.story.setMetadata('description',stripHTML(storydiv.find('div',{'class':'storydesc'})))
-        self.story.setMetadata('title',stripHTML(storydiv.find('a',{'class':'storylink'})))
 
         verticaltable = soup.find('table', {'class':'verticaltable'})
 
