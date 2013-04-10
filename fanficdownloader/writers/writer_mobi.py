@@ -22,6 +22,9 @@ import StringIO
 from base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
+from ..exceptions import FailedToWriteOutput
+
+logger = logging.getLogger(__name__)
 
 class MobiWriter(BaseStoryWriter):
 
@@ -160,7 +163,7 @@ ${value}<br />
         
         for index, (title,html) in enumerate(self.story.getChapters()):
             if html:
-                logging.debug('Writing chapter text for: %s' % title)
+                logger.debug('Writing chapter text for: %s' % title)
                 vals={'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
                 fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
@@ -175,6 +178,8 @@ ${value}<br />
                       author=self.getMetadata('author'),
                       publisher=self.getMetadata('site'))
         mobidata = c.ConvertStrings(files)
+        if len(mobidata) < 1:
+            raise FailedToWriteOutput("Zero length mobi output")
         out.write(mobidata)
         
         del files
