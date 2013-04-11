@@ -1159,7 +1159,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if 'mergebook' in options:
             existingbook = options['mergebook']
         #print("existingbook:\n%s"%existingbook)
-        mergebook = self.merge_meta_books(existingbook,good_list)
+        mergebook = self.merge_meta_books(existingbook,good_list,options['fileform'])
 
         if 'mergebook' in options:
             mergebook['calibre_id'] = options['mergebook']['calibre_id']
@@ -1642,7 +1642,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def is_good_downloader_url(self,url):
         return adapters.getNormalStoryURL(url)
 
-    def merge_meta_books(self,existingbook,book_list):
+    def merge_meta_books(self,existingbook,book_list,fileform):
         book = self.make_book()
         book['author'] = []
         book['tags'] = []
@@ -1719,7 +1719,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             book['title'] = deftitle = existingbook['title']
             book['comments'] = existingbook['comments']
         else:
-            book['title'] = deftitle = book_list[0]['title']+" Anthology"
+            book['title'] = deftitle = book_list[0]['title']
             book['comments'] = "Anthology containing:\n" + \
                 "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
             # book['all_metadata']['description']
@@ -1727,12 +1727,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # if all same series, use series for name.  But only if all and not previous named
             if len(serieslist) == len(book_list):
                 series = serieslist[0]
-                book['title'] = series+" Anthology"
+                book['title'] = series
                 for sr in serieslist:
                     if series != sr:
                         book['title'] = deftitle;
                         break
             
+            configuration = get_ffdl_config(book['url'],fileform)
+            print("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
+            if configuration.getConfig('anthology_title_pattern'):
+                tmplt = Template(configuration.getConfig('anthology_title_pattern'))
+                book['title'] = tmplt.safe_substitute({'title':book['title']}).encode('utf8')
+            else:
+                # No setting, do fall back default.  Shouldn't happen,
+                # should always have a version in defaults.
+                book['title'] = book['title']+" Anthology"
+        
         book['all_metadata']['title'] = book['title'] # because custom columns are set from all_metadata
         book['all_metadata']['author'] = ", ".join(book['author'])
         book['author_sort']=book['author']
@@ -1741,6 +1751,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 book['tags'].remove(v)
         book['tags'].append('Anthology')
         book['all_metadata']['anthology'] = "true"
+        
         return book
 
 def split_text_to_urls(urls):
