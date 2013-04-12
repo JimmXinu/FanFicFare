@@ -101,7 +101,6 @@ import adapter_merlinficdtwinscouk
 import adapter_thehookupzonenet
 import adapter_bloodtiesfancom
 import adapter_indeathnet
-import adapter_jlaunlimitedcom
 import adapter_qafficcom
 import adapter_efpfanficnet
 import adapter_potterficscom
