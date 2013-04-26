@@ -280,10 +280,10 @@ class Story(Configurable):
         for line in replace.splitlines():
             (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
             if "&&" in line:
-                (line,conditional) = map( lambda x: x.strip(), line.split("&&") )
-                (condkey,condregexp) = map( lambda x: x.strip(), conditional.split("=>") )
+                (line,conditional) = line.split("&&")
+                (condkey,condregexp) = conditional.split("=>")
             if "=>" in line:
-                parts = map( lambda x: x.strip(), line.split("=>") )
+                parts = line.split("=>")
                 if len(parts) > 2:
                     metakeys = map( lambda x: x.strip(), parts[0].split(",") )
                     (regexp,replacement)=parts[1:]
@@ -294,6 +294,10 @@ class Story(Configurable):
                 regexp = re.compile(regexp)
                 if condregexp:
                     condregexp = re.compile(condregexp)
+                # A way to explicitly include spaces in the
+                # replacement string.  The .ini parser eats any
+                # trailing spaces.
+                replacement=replacement.replace('\s',' ') 
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
     
     def doReplacments(self,value,key):
