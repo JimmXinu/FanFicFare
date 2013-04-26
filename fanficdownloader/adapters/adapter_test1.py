@@ -139,6 +139,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('characters','J. Rizzoli')
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
+            self.story.addToList('ships','Chloe B. &amp; J. Rizzoli')
         elif self.story.getMetadata('storyId') == '82':
             self.story.addToList('characters','Henry (Once Upon a Time)')        
             self.story.addToList('category',u'Once Upon a Time (TV)')
