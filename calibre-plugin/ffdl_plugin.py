@@ -1281,7 +1281,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
             epubmi = get_metadata(existingepub,'EPUB')
             if epubmi.cover_data[1] is not None:
-                db.set_cover(book_id, epubmi.cover_data[1])
+                try:
+                    db.set_cover(book_id, epubmi.cover_data[1])
+                except:
+                    print("Failed to set_cover, skipping")
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         if 'authorUrl' in book['all_metadata']:
