@@ -408,12 +408,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
     def reject_list_urls_finish(self, book_list):
 
-        # construct reject list of tuples:
-        # (calibre_id, url, "title, authors", old reject note).
+        # construct reject list of objects
         reject_list = [ RejectUrlEntry(x['url'],
                                        x['oldrejnote'],
                                        x['title'],
-                                       ', '.join(x['author']))
+                                       ', '.join(x['author']),
+                                       book_id=x['calibre_id'])
                         for x in book_list if x['good'] ]
         if reject_list:
             d = RejectListDialog(self.gui,reject_list,
@@ -426,7 +426,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             rejecturllist.add(d.get_reject_list())
 
             if d.get_deletebooks():
-                self.gui.iactions['Remove Books'].delete_books()
+                self.gui.iactions['Remove Books'].do_library_delete(d.get_reject_list_ids())
             
         else:
             message="<p>Rejecting FFDL URLs: None of the books selected have FanFiction URLs.</p><p>Proceed to Remove?</p>"
