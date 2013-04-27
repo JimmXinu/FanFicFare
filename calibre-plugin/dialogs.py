@@ -53,13 +53,14 @@ class RejectUrlEntry:
     matchpat=re.compile(r"^(?P<url>[^,]+)(,(?P<fullnote>(((?P<title>.+) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
     
     def __init__(self,url_or_line,note=None,title=None,auth=None,
-                 addreasontext=None,fromline=False):
-        
+                 addreasontext=None,fromline=False,book_id=None):
+
         self.url=url_or_line
         self.note=note
         self.title=title
         self.auth=auth
         self.valid=False
+        self.book_id=book_id
 
         if fromline:
             mc = re.match(self.matchpat,url_or_line)
@@ -828,7 +829,9 @@ class RejectListTableWidget(QTableWidget):
 
     def populate_table_row(self, row, rej):
 
-        self.setItem(row, 0, ReadOnlyTableWidgetItem(rej.url))
+        url_cell = ReadOnlyTableWidgetItem(rej.url)
+        url_cell.setData(Qt.UserRole, QVariant(rej.book_id))
+        self.setItem(row, 0, url_cell)
         self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
         self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
         
@@ -950,10 +953,19 @@ class RejectListDialog(SizePersistedDialog):
         rejectrows = []
         for row in range(self.rejects_table.rowCount()):
             url = unicode(self.rejects_table.item(row, 0).text()).strip()
+            book_id = self.rejects_table.item(row, 0).data(Qt.UserRole).toPyObject()
             title = unicode(self.rejects_table.item(row, 1).text()).strip()
             auth = unicode(self.rejects_table.item(row, 2).text()).strip()
             note = unicode(self.rejects_table.cellWidget(row, 3).currentText()).strip()
-            rejectrows.append(RejectUrlEntry(url,note,title,auth,self.get_reason_text()))
+            rejectrows.append(RejectUrlEntry(url,note,title,auth,self.get_reason_text(),book_id=book_id))
+        return rejectrows
+
+    def get_reject_list_ids(self):
+        rejectrows = []
+        for row in range(self.rejects_table.rowCount()):
+            book_id = self.rejects_table.item(row, 0).data(Qt.UserRole).toPyObject()
+            if book_id:
+                rejectrows.append(book_id)
         return rejectrows
 
     def get_reason_text(self):
