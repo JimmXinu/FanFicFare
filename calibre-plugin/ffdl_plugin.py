@@ -661,6 +661,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         url = book['url']
         print("url:%s"%url)
+        mi = None
 
         if not merge: # skip reject list when merging.
             if rejecturllist.check(url):
@@ -889,6 +890,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     db.copy_format_to(book_id,fileform,tmp,index_is_id=True)
                     print("existing epub tmp:"+tmp.name)
                     book['epub_for_update'] = tmp.name
+
+            if book_id and mi: # book_id and mi only set if matched by title/author.
+                liburl = self.get_story_url(db,book_id)
+                if book['url'] != liburl:
+                    if not question_dialog(self.gui, 'Change Story URL?',
+                                           '<h3>Change Story URL?</h3>'+
+                                           '<p><u>%s</u> by %s is already in your library with a different source URL:</p>'%
+                                               (mi.title,', '.join(mi.author))+
+                                           '<p>In library: <b>%s</b></p><p>New URL: <b>%s</b></p>'%
+                                               (liburl,book['url'])+
+                                           "<p>Click '<b>Yes</b>' to change book to new URL.</p>"+
+                                           "<p>Click '<b>No</b>' to skip updating this book.</p>",
+                                           show_copy_button=False):
+                        book['comment'] = "Update declined by user due to differing story URL(%s)"%liburl
+                        book['good']=False
+                        book['icon']='rotate-right.png'
+                        book['status'] = 'Different URL'
+                        return
     
             if book_id != None and prefs['injectseries']:
                 mi = db.get_metadata(book_id,index_is_id=True)
