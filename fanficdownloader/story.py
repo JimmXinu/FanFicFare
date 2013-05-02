@@ -300,7 +300,7 @@ class Story(Configurable):
                 replacement=replacement.replace('\s',' ') 
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
     
-    def doReplacments(self,value,key):
+    def doReplacements(self,value,key):
         for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
@@ -340,7 +340,7 @@ class Story(Configurable):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
 
             if doreplacements:
-                value=self.doReplacments(value,key)
+                value=self.doReplacements(value,key)
             if removeallentities and value != None:
                 return removeAllEntities(value)
             else:
@@ -364,8 +364,8 @@ class Story(Configurable):
                 auth = v
                 # make sure doreplacements & removeallentities are honored.
                 if doreplacements:
-                    aurl=self.doReplacments(aurl,'authorUrl')
-                    auth=self.doReplacments(auth,'author')
+                    aurl=self.doReplacements(aurl,'authorUrl')
+                    auth=self.doReplacements(auth,'author')
                 if removeallentities:
                     aurl=removeAllEntities(aurl)
                     auth=removeAllEntities(auth)
@@ -438,7 +438,7 @@ class Story(Configurable):
         if retlist:
             if doreplacements:
                 retlist = filter( lambda x : x!=None and x!='' ,
-                                  map(partial(self.doReplacments,key=listname),retlist) )
+                                  map(partial(self.doReplacements,key=listname),retlist) )
             if removeallentities:
                 retlist = filter( lambda x : x!=None and x!='' ,
                                   map(removeAllEntities,retlist) )
