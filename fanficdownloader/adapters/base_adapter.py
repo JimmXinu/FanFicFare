@@ -315,6 +315,8 @@ class BaseSiteAdapter(Configurable):
             fetch=self._fetchUrlRaw
 
         acceptable_attributes = ['href','name','class','id']
+        if self.getConfig("keep_style_attr"):
+            acceptable_attributes.append('style')
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
