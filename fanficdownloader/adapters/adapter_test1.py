@@ -47,31 +47,63 @@ class TestSiteAdapter(BaseSiteAdapter):
         return BaseSiteAdapter.getSiteURLPattern(self)+r'/?\?sid=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
+        idstr = self.story.getMetadata('storyId')
+        idnum = int(idstr)
 
-        if self.story.getMetadata('storyId') == '665' and not (self.is_adult or self.getConfig("is_adult")):
+        if idnum >= 1000:
+            logger.warn("storyId:%s - Custom INI data will be used."%idstr)
+
+            sections = ['teststory:%s'%idstr,'teststory:defaults']
+            #print("self.get_config_list(sections,'valid_entries'):%s"%self.get_config_list(sections,'valid_entries'))
+            for key in self.get_config_list(sections,'valid_entries'):
+                if key.endswith("_list"):
+                    nkey = key[:-len("_list")]
+                    #print("addList:%s"%(nkey))
+                    for val in self.get_config_list(sections,key):
+                        #print("addList:%s->%s"%(nkey,val))
+                        self.story.addToList(nkey,val.decode('utf-8').replace('{{storyId}}',idstr))
+                else:
+                    # Special cases:
+                    if key in ['datePublished','dateUpdated']:
+                        self.story.setMetadata(key,makeDate(self.get_config(sections,key),"%Y-%m-%d"))
+                    else:
+                        self.story.setMetadata(key,self.get_config(sections,key).decode('utf-8').replace('{{storyId}}',idstr))
+                    #print("set:%s->%s"%(key,self.story.getMetadata(key)))
+
+            self.chapterUrls = []
+            for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
+                self.chapterUrls.append( (chap,self.url+"&chapter=%d"%j) )
+            # self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
+            #                 ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
+            #                 ]
+            self.story.setMetadata('numChapters',len(self.chapterUrls))
+            
+            return
+
+        if idstr == '665' and not (self.is_adult or self.getConfig("is_adult")):
             logger.warn("self.is_adult:%s"%self.is_adult)
             raise exceptions.AdultCheckRequired(self.url)
 
-        if self.story.getMetadata('storyId') == '666':
+        if idstr == '666':
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if self.story.getMetadata('storyId').startswith('670'):
+        if idstr.startswith('670'):
             time.sleep(1.0)
             
-        if self.story.getMetadata('storyId').startswith('671'):
+        if idstr.startswith('671'):
             time.sleep(1.0)
             
         if self.getConfig("username"):
             self.username = self.getConfig("username")
         
-        if self.story.getMetadata('storyId') == '668' and self.username != "Me" :
+        if idstr == '668' and self.username != "Me" :
             raise exceptions.FailedToLogin(self.url,self.username)
 
-        if self.story.getMetadata('storyId') == '664':
-            self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId')+self.crazystring)
+        if idstr == '664':
+            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring)
             self.story.setMetadata('author','Test Author aa bare amp(&) quote(&#39;) amp(&amp;)')
         else:
-            self.story.setMetadata(u'title',"Test Story Title "+self.story.getMetadata('storyId'))
+            self.story.setMetadata(u'title',"Test Story Title "+idstr)
             self.story.setMetadata('author','Test Author aa')
         self.story.setMetadata('storyUrl',self.url)
         self.setDescription(self.url,u'Description '+self.crazystring+u''' Done
@@ -79,13 +111,12 @@ class TestSiteAdapter(BaseSiteAdapter):
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 ''')
         self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
-        if self.story.getMetadata('storyId') == '669':
+        if idstr == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
             self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
         self.story.setMetadata('numWords','123456')
 
-        idnum = int(self.story.getMetadata('storyId'))
         if idnum % 2 == 1:
             self.story.setMetadata('status','In-Progress')
         else:
@@ -108,7 +139,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             
         self.story.setMetadata('rating','Tweenie')
 
-        if self.story.getMetadata('storyId') == '673':
+        if idstr == '673':
             self.story.addToList('author','Author From List')
             self.story.addToList('author','Author From List 2')
         
@@ -128,19 +159,19 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('warnings','Swearing')
         self.story.addToList('warnings','Violence')
 
-        if self.story.getMetadata('storyId') == '80':
+        if idstr == '80':
             self.story.addToList('category',u'Rizzoli & Isles')
             self.story.addToList('characters','J. Rizzoli')
-        elif self.story.getMetadata('storyId') == '81':
+        elif idstr == '81':
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
-        elif self.story.getMetadata('storyId') == '83':
+        elif idstr == '83':
             self.story.addToList('category',u'Rizzoli & Isles')
             self.story.addToList('characters','J. Rizzoli')
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
             self.story.addToList('ships','Chloe B. &amp; J. Rizzoli')
-        elif self.story.getMetadata('storyId') == '82':
+        elif idstr == '82':
             self.story.addToList('characters','Henry (Once Upon a Time)')        
             self.story.addToList('category',u'Once Upon a Time (TV)')
         else:
@@ -218,6 +249,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <div>
 <h3>Prologue</h3>
 <p>This is a fake adapter for testing purposes.  Different sid's will give different errors:</p>
+<h4>Config(personal.ini)</h4>
+<p>sid&gt;=1000 will use custom test story data from your configuration(personal.ini)</p>
+<p>Hard coded ids:</p>
 <p>http://test1.com?sid=664 - Crazy string title</p>
 <p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
@@ -225,10 +259,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>
 <p>http://test1.com?sid=669 - Succeeds with Updated Date=now</p>
 <p>http://test1.com?sid=670 - Succeeds, but sleeps 2sec on each chapter</p>
-
-
-
-
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>http://test1.com?sid=673 - Succeeds, multiple authors, extra categories, genres</p>
