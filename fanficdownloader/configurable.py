@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-import ConfigParser
+import ConfigParser, re
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -99,8 +99,12 @@ class Configuration(ConfigParser.SafeConfigParser):
     def getValidMetaList(self):
         return self.validEntries + self.getConfigList("extra_valid_entries")
 
+    # used by adapters & writers, non-convention naming style
     def hasConfig(self, key):
-        for section in self.sectionslist:
+        return self.has_config(self.sectionslist, key)
+
+    def has_config(self, sections, key):
+        for section in sections:
             try:
                 self.get(section,key)
                 #print("found %s in section [%s]"%(key,section))
@@ -114,10 +118,14 @@ class Configuration(ConfigParser.SafeConfigParser):
                     pass
 
         return False
-        
+
+    # used by adapters & writers, non-convention naming style
     def getConfig(self, key, default=""):
+        return self.get_config(self.sectionslist,key,default)
+    
+    def get_config(self, sections, key, default=""):        
         val = default
-        for section in self.sectionslist:
+        for section in sections:
             try:
                 val = self.get(section,key)
                 if val and val.lower() == "false":
@@ -127,7 +135,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
                 pass
 
-        for section in self.sectionslist[::-1]:
+        for section in sections[::-1]:
             # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
             try:
                 val = val + self.get(section,"add_to_"+key)
@@ -138,11 +146,15 @@ class Configuration(ConfigParser.SafeConfigParser):
         return val
 
     # split and strip each.
-    def getConfigList(self, key):
-        vlist = self.getConfig(key).split(',')
-        vlist = filter( lambda x : x !='', [ v.strip() for v in vlist ])
+    def get_config_list(self, sections, key):
+        vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
+        vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
         #print "vlist("+key+"):"+str(vlist)
         return vlist        
+    
+    # used by adapters & writers, non-convention naming style
+    def getConfigList(self, key):
+        return self.get_config_list(self.sectionslist, key)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
@@ -157,11 +169,19 @@ class Configurable(object):
         return self.configuration.getValidMetaList()
     
     def hasConfig(self, key):
-        return self.configuration.hasConfig(key)
+        return self.configuration.hasConfig(key)        
         
+    def has_config(self, sections, key):
+        return self.configuration.has_config(sections, key)
+
     def getConfig(self, key, default=""):
         return self.configuration.getConfig(key,default)
 
+    def get_config(self, sections, key, default=""):
+        return self.configuration.get_config(sections,key,default)
+
     def getConfigList(self, key):
         return self.configuration.getConfigList(key)
-        
+
+    def get_config_list(self, sections, key):
+        return self.configuration.get_config_list(sections,key)
