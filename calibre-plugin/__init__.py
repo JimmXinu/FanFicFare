@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Jim Miller'
+__copyright__ = '2013, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 # The class that all Interface Action plugin wrappers must inherit from
@@ -26,7 +26,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     description         = 'UI plugin to download FanFiction stories from various sites.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (1, 7, 24)
+    version             = (1, 7, 25)
     minimum_calibre_version = (0, 8, 57)
 
     #: This field defines the GUI plugin class that contains all the code
