@@ -1395,7 +1395,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                     if flag == 'r' or book['added']: # flag 'n' isn't actually needed--*always* set if configured and new book.
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
-                            val = unicode(book['all_metadata'][meta]).replace(",","")
+                            if meta in book['anthology_meta_list']:
+                                # re-split list, strip commas, convert to floats, sum up.
+                                val = sum([ float(x.replace(",","")) for x in book['all_metadata'][meta].split(", ") ])
+                            else:
+                                val = unicode(book['all_metadata'][meta]).replace(",","")
                         else:
                             val = book['all_metadata'][meta]
                         db.set_custom(book_id, val, label=label, commit=False)
@@ -1674,6 +1678,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['tags'] = []
         book['url'] = ''
         book['all_metadata'] = {}
+        book['anthology_meta_list'] = {}
         book['comment'] = ''
         book['added'] = True
         book['good'] = True
@@ -1740,6 +1745,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         book['all_metadata'][k]=book['all_metadata'][k]+"\n\n"+v
                     else:
                         book['all_metadata'][k]=book['all_metadata'][k]+", "+v
+                        # flag psuedo list element.  Used so numeric
+                        # cust cols can convert back to numbers and
+                        # add.
+                        book['anthology_meta_list'][k]=True
     
         if existingbook:
             book['title'] = deftitle = existingbook['title']
