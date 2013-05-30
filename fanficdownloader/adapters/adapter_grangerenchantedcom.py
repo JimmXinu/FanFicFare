@@ -227,6 +227,9 @@ class GrangerEnchantedCom(BaseSiteAdapter):
             if 'Word count' in label:
                 self.story.setMetadata('numWords', value)
 
+            if 'Read' in label:
+                self.story.setMetadata('read', value)
+
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 for cat in cats:
@@ -278,7 +281,14 @@ class GrangerEnchantedCom(BaseSiteAdapter):
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+        except:
+            # I find it hard to care if the series parsing fails
+            pass
+
+        try:
+            self.story.setMetadata('reviews',
+                                   stripHTML(soup.find('div',{'id':'sort'}).
+                                             findAll('a', href=re.compile(r'^reviews.php'))[1]))
         except:
             # I find it hard to care if the series parsing fails
             pass
