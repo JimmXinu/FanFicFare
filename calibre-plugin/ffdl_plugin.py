@@ -1395,7 +1395,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                     if flag == 'r' or book['added']: # flag 'n' isn't actually needed--*always* set if configured and new book.
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
-                            if meta in book['anthology_meta_list']:
+                            if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
                                 # re-split list, strip commas, convert to floats, sum up.
                                 val = sum([ float(x.replace(",","")) for x in book['all_metadata'][meta].split(", ") ])
                             else:
