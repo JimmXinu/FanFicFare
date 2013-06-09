@@ -135,12 +135,25 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         categories = soup.find('div',{'id':'pre_story_links'}).findAll('a',{'class':'xcontrast_txt'})
         #print("xcontrast_txt a:%s"%categories)
         if len(categories) > 1:
+            # Strangely, the ones with *two* links are the
+            # non-crossover categories.  Each is in a category itself
+            # of Book, Movie, etc.
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
             caturl = "http://%s%s"%(self.getSiteDomain(),categories[0]['href'])
             catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/")):
                 self.story.addToList('category',stripHTML(a))
+            else:
+                # Fall back.  I ran across a story with a Crossver
+                # category link to a broken page once.
+                # http://www.fanfiction.net/s/2622060/1/
+                # Naruto + Harry Potter Crossover
+                logger.info("Fall back category collection")
+                for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
+                    self.story.addToList('category',c)
+                
+                
             
         a = soup.find('a', href='http://www.fictionratings.com/')
         rating = a.string
