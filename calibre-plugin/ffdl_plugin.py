@@ -862,11 +862,25 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                "<p>Click '<b>Yes</b>' to %se book with new URL.</p>"%updat+
                                                "<p>Click '<b>No</b>' to skip %sing this book.</p>"%updat,
                                                show_copy_button=False):
-                            book['comment'] = "Update declined by user due to differing story URL(%s)"%liburl
-                            book['good']=False
-                            book['icon']='rotate-right.png'
-                            book['status'] = 'Different URL'
-                            return
+                            if question_dialog(self.gui, 'Download as New Book?',
+                                               '<h3>Download as New Book?</h3>'+
+                                               '<p><b>%s</b> by <b>%s</b> is already in your library with a different source URL.</p>'%
+                                               (mi.title,', '.join(mi.author))+
+                                               '<p>You chose not to update the existing book.  Do you want to add a new book for this URL?</p>'+
+                                               '<p>New URL: <a href="%(newurl)s">%(newurl)s</a></p>'%
+                                               {'newurl':book['url']}+
+                                               "<p>Click '<b>Yes</b>' to a new book with new URL.</p>"+
+                                               "<p>Click '<b>No</b>' to skip URL.</p>",
+                                               show_copy_button=False):
+                                book_id = None
+                                mi = None
+                                book['calibre_id'] = None
+                            else:
+                                book['comment'] = "Update declined by user due to differing story URL(%s)"%liburl
+                                book['good']=False
+                                book['icon']='rotate-right.png'
+                                book['status'] = 'Different URL'
+                                return
         
             if book_id != None and collision != ADDNEW:
                 if collision in (CALIBREONLY):
@@ -1309,15 +1323,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 except:
                     print("Failed to set_cover, skipping")
 
-        # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
-        if 'authorUrl' in book['all_metadata']:
-            authurls = book['all_metadata']['authorUrl'].split(", ")
-            for i, auth in enumerate(book['author']):
-                #print("===Update author url for %s to %s"%(auth,authurls[i]))
-                autid=db.get_author_id(auth)
-                db.set_link_field_for_author(autid, unicode(authurls[i]),
-                                             commit=False, notify=False)
-
         # implement 'newonly' flags here by setting to the current
         # value again.
         if not book['added']:
@@ -1419,6 +1424,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             vallist = [book['all_metadata'][meta]]
                             
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
+
+        # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
+        # Moved down so author's already in the DB.
+        if 'authorUrl' in book['all_metadata']:
+            authurls = book['all_metadata']['authorUrl'].split(", ")
+            for i, auth in enumerate(book['author']):
+                #print("===Update author url for %s to %s"%(auth,authurls[i]))
+                autid=db.get_author_id(auth)
+                db.set_link_field_for_author(autid, unicode(authurls[i]),
+                                             commit=False, notify=False)
 
         db.commit()
 
