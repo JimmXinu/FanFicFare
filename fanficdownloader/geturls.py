@@ -54,9 +54,14 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
-    return get_urls_from_html(data,url,configuration,normalize)
+    # kludge because I don't see it on enough sites to be worth generalizing yet.
+    restrictsearch=None
+    if 'scarvesandcoffee.net' in url:
+        restrictsearch=('div',{'id':'mainpage'})
 
-def get_urls_from_html(data,url=None,configuration=None,normalize=False):
+    return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
+
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None):
 
     normalized = [] # normalized url
     retlist = [] # orig urls.
@@ -65,6 +70,9 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False):
         configuration = Configuration("test1.com","EPUB")
 
     soup = BeautifulSoup(data)
+    if restrictsearch:
+        soup = soup.find(*restrictsearch)
+        print("restrict search:%s"%soup)
     
     for a in soup.findAll('a'):
         if a.has_key('href'):
