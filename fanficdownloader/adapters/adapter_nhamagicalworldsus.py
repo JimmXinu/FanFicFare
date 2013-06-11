@@ -112,7 +112,8 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
 		
         for info in asoup.findAll('table', {'width' : '100%', 'bordercolor' : re.compile(r'#')}):
             a = info.find('a')
-            if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in a['href']:
+            if 'viewstory.php?sid='+self.story.getMetadata('storyId') == a['href'] or \
+                    ('viewstory.php?sid='+self.story.getMetadata('storyId')+'&') in a['href']:
                 self.story.setMetadata('title',a.string)
                 break
 		
@@ -142,14 +143,14 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
         for cat in cats:
             self.story.addToList('category',cat.string)
 					
-        a = info.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
+        a = info.find('a', href=re.compile(r'viewuser.php'))
         val = a.nextSibling
         svalue = ""
         while not defaultGetattr(val) == 'br':
             val = val.nextSibling
         val = val.nextSibling
         while not defaultGetattr(val) == 'br':
-            svalue += str(val)
+            svalue += unicode(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
         
