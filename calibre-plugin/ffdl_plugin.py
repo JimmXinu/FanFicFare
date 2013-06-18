@@ -1668,7 +1668,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     # identifiers have :->| in uri.
                     # print("uri from ident uri:%s"%identifiers['uri'].replace('|',':'))
                     return identifiers['uri'].replace('|',':')
-            elif path.lower().endswith('.epub'):
+            elif path and path.lower().endswith('.epub'):
                 existingepub = path
                 
             ## only epub has URL in it--at least where I can easily find it.

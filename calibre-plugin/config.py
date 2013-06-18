@@ -15,8 +15,8 @@ from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                       QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea,
                       QDialogButtonBox )
 
-from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
+from calibre.gui2 import dynamic, info_dialog
 
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
