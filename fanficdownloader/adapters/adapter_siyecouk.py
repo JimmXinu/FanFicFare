@@ -110,7 +110,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
         ## Title
         titlea = authsoup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',titlea.string)
+        self.story.setMetadata('title',stripHTML(titlea))
         
         # Find the chapters (from soup, not authsoup):
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
