@@ -66,14 +66,18 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
-        # The site domain.  Does have www here, if it uses it.
-        return 'fanfiction.mugglenet.com' # XXX
+        # The site domain.
+        return 'fanfiction.mugglenet.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['fanfiction.mugglenet.com','fanfic.mugglenet.com']
 
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"fanfic(tion)?\.mugglenet\.com"+re.escape("/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
