@@ -272,12 +272,18 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         ## slow_down_sleep_time setting is.
         data = self._fetchUrl(url)
 
+        if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
+        
         # some ancient stories have body tags inside them that cause
         # soup parsing to discard the content.  For story text we
         # don't care about anything before "<div class='storytextp"
         # (there's a space after storytextp, so no close quote(')) and
         # this kills any body tags.
-        data = data[data.index("<div class='storytextp"):]
+        if "<div class='storytextp" not in data:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        else:
+            data = data[data.index("<div class='storytextp"):]
         data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
         
         soup = bs.BeautifulSoup(data)
