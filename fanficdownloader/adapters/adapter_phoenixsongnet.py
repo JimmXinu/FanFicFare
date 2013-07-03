@@ -112,6 +112,8 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
+            if self.getConfig('force_login'):
+                self.performLogin(url)
             data = self._fetchUrl(url)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -123,7 +125,6 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url)
-			
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
