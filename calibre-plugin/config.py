@@ -13,7 +13,7 @@ from collections import OrderedDict
 from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                       QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                       QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea,
-                      QDialogButtonBox )
+                      QDialogButtonBox, QGroupBox )
 
 from calibre.gui2.ui import get_gui
 from calibre.gui2 import dynamic, info_dialog
@@ -266,13 +266,16 @@ class BasicTab(QWidget):
         self.plugin_action = plugin_action
         QWidget.__init__(self)
         
-        self.l = QVBoxLayout()
-        self.setLayout(self.l)
+        topl = QVBoxLayout()
+        self.setLayout(topl)
 
         label = QLabel('These settings control the basic features of the plugin--downloading FanFiction.')
         label.setWordWrap(True)
-        self.l.addWidget(label)
-        self.l.addSpacing(5)
+        topl.addWidget(label)
+
+        defs_gb = groupbox = QGroupBox("Defaults Options on Download")
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
 
         tooltip = "On each download, FFDL offers an option to select the output format. <br />This sets what that option will default to."
         horz = QHBoxLayout()
@@ -317,7 +320,9 @@ class BasicTab(QWidget):
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
-        self.l.addSpacing(10)        
+        cali_gb = groupbox = QGroupBox("Updating Calibre Options")
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
 
         self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
         self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
@@ -334,14 +339,24 @@ class BasicTab(QWidget):
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
 
-        self.l.addSpacing(10)        
+        self.checkforseriesurlid = QCheckBox("Check for existing Series Anthology books?",self)
+        self.checkforseriesurlid.setToolTip("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.")
+        self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
+        self.l.addWidget(self.checkforseriesurlid)
+
+        self.lookforurlinhtml = QCheckBox("Search EPUB text for Story URL?",self)
+        self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
+        self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
+        self.l.addWidget(self.lookforurlinhtml)
 
         self.showmarked = QCheckBox("Show added/updated books when finished?",self)
         self.showmarked.setToolTip("Show added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
 
-        self.l.addSpacing(10)        
+        gui_gb = groupbox = QGroupBox("GUI Options")
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
 
         self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
         self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New.')
@@ -359,7 +374,9 @@ class BasicTab(QWidget):
         self.adddialogstaysontop.setChecked(prefs['adddialogstaysontop'])
         self.l.addWidget(self.adddialogstaysontop)
 
-        self.l.addSpacing(10)        
+        misc_gb = groupbox = QGroupBox("Misc Options")
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
 
         # this is a cheat to make it easier for users to realize there's a new include_images features.
         self.includeimages = QCheckBox("Include images in EPUBs?",self)
@@ -367,43 +384,43 @@ class BasicTab(QWidget):
         self.includeimages.setChecked(prefs['includeimages'])
         self.l.addWidget(self.includeimages)
 
-        self.lookforurlinhtml = QCheckBox("Search EPUB text for Story URL?",self)
-        self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
-        self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
-        self.l.addWidget(self.lookforurlinhtml)
-
-        self.checkforseriesurlid = QCheckBox("Check for existing Series Anthology books?",self)
-        self.checkforseriesurlid.setToolTip("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.")
-        self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
-        self.l.addWidget(self.checkforseriesurlid)
-
         self.injectseries = QCheckBox("Inject calibre Series when none found?",self)
         self.injectseries.setToolTip("If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover).")
         self.injectseries.setChecked(prefs['injectseries'])
         self.l.addWidget(self.injectseries)
 
-        self.l.addSpacing(10)        
+        rej_gb = groupbox = QGroupBox("Reject List")
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
 
-        horz = QHBoxLayout()
-        
         self.rejectlist = QPushButton('Edit Reject URL List', self)
         self.rejectlist.setToolTip("Edit list of URLs FFDL will automatically Reject.")
         self.rejectlist.clicked.connect(self.show_rejectlist)
-        horz.addWidget(self.rejectlist)
+        self.l.addWidget(self.rejectlist)
         
         self.reject_urls = QPushButton('Add Reject URLs', self)
         self.reject_urls.setToolTip("Add additional URLs to Reject as text.")
         self.reject_urls.clicked.connect(self.add_reject_urls)
-        horz.addWidget(self.reject_urls)
+        self.l.addWidget(self.reject_urls)
         
         self.reject_reasons = QPushButton('Edit Reject Reasons List', self)
         self.reject_reasons.setToolTip("Customize the Reasons presented when Rejecting URLs")
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
-        horz.addWidget(self.reject_reasons)
+        self.l.addWidget(self.reject_reasons)
+
+        topl.addWidget(defs_gb)
+
+        horz = QHBoxLayout()
+        topl.addLayout(horz)
+        horz.addWidget(cali_gb)
+        horz.addWidget(rej_gb)
         
-        self.l.addLayout(horz)
-        
-        self.l.insertStretch(-1)
+        horz = QHBoxLayout()
+        topl.addLayout(horz)
+        horz.addWidget(gui_gb)
+        horz.addWidget(misc_gb)
+
+        topl.insertStretch(-1)
         
     def set_collisions(self):
         prev=self.collision.currentText()
