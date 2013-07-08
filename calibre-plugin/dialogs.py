@@ -17,7 +17,8 @@ from PyQt4 import QtGui
 from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                       QPushButton, QString, QLabel, QCheckBox, QIcon, QLineEdit,
                       QComboBox, QVariant, QProgressDialog, QTimer, QDialogButtonBox,
-                      QPixmap, Qt, QAbstractItemView, SIGNAL, QTextEdit, pyqtSignal)
+                      QPixmap, Qt, QAbstractItemView, SIGNAL, QTextEdit, pyqtSignal,
+                      QGroupBox, QFrame)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
@@ -47,6 +48,8 @@ collision_order=[SKIP,
 anthology_collision_order=[UPDATE,
                            UPDATEALWAYS,
                            OVERWRITEALWAYS]
+
+gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-bottom:0px;}' #  background-color:red;
 
 class RejectUrlEntry:
 
@@ -200,6 +203,24 @@ class AddNewDialog(SizePersistedDialog):
         # elements to show again when doing *update* merge
         self.mergeupdateshow = []
 
+        self.groupbox = QGroupBox("Show Download Options")
+        self.groupbox.setCheckable(True)
+        self.groupbox.setChecked(False)
+        self.groupbox.setFlat(True)
+        print("style:%s"%self.groupbox.styleSheet())
+        self.groupbox.setStyleSheet(gpstyle);
+
+        self.gbf = QFrame()
+        self.gbl = QVBoxLayout()
+        self.gbl.addWidget(self.gbf)
+        self.groupbox.setLayout(self.gbl)
+        self.gbl = QVBoxLayout()
+        self.gbf.setLayout(self.gbl)
+        self.l.addWidget(self.groupbox)
+
+        self.gbf.setVisible(False)
+        self.groupbox.toggled.connect(self.gbf.setVisible)
+        
         horz = QHBoxLayout()
         label = QLabel('Output &Format:')
         self.mergehide.append(label)
@@ -215,7 +236,7 @@ class AddNewDialog(SizePersistedDialog):
         horz.addWidget(label)
         label.setBuddy(self.fileform)
         horz.addWidget(self.fileform)
-        self.l.addLayout(horz)
+        self.gbl.addLayout(horz)
         self.mergehide.append(self.fileform)
 
         horz = QHBoxLayout()
@@ -230,7 +251,7 @@ class AddNewDialog(SizePersistedDialog):
             self.collision.setCurrentIndex(i)
         self.collisionlabel.setBuddy(self.collision)
         horz.addWidget(self.collision)
-        self.l.addLayout(horz)
+        self.gbl.addLayout(horz)
         self.mergehide.append(self.collisionlabel)
         self.mergehide.append(self.collision)
         self.mergeupdateshow.append(self.collisionlabel)
@@ -250,7 +271,7 @@ class AddNewDialog(SizePersistedDialog):
         horz.addWidget(self.updateepubcover)
         self.mergehide.append(self.updateepubcover)
         
-        self.l.addLayout(horz)
+        self.gbl.addLayout(horz)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.ok_clicked)
@@ -288,6 +309,8 @@ class AddNewDialog(SizePersistedDialog):
         self.newmerge = newmerge
         self.extraoptions = extraoptions
         self.extrapayload = extrapayload
+
+        self.groupbox.setVisible(not(self.merge and self.newmerge))
         
         if self.merge:
             self.toplabel.setText('Story URL(s) for anthology, one per line:')
@@ -625,8 +648,25 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         options_layout = QHBoxLayout()
 
+        groupbox = QGroupBox("Show Download Options")
+        groupbox.setCheckable(True)
+        groupbox.setChecked(False)
+        groupbox.setFlat(True)
+        groupbox.setStyleSheet(gpstyle)
+
+        gbf = QFrame()
+        gbl = QVBoxLayout()
+        gbl.addWidget(gbf)
+        groupbox.setLayout(gbl)
+        gbl = QHBoxLayout()
+        gbf.setLayout(gbl)
+        options_layout.addWidget(groupbox)
+
+        gbf.setVisible(False)
+        groupbox.toggled.connect(gbf.setVisible)
+        
         label = QLabel('Output &Format:')
-        options_layout.addWidget(label)
+        gbl.addWidget(label)
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
         self.fileform.addItem('mobi')
@@ -636,10 +676,10 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
-        options_layout.addWidget(self.fileform)
+        gbl.addWidget(self.fileform)
         
         label = QLabel('Update Mode:')
-        options_layout.addWidget(label)
+        gbl.addWidget(label)
         self.collision = QComboBox(self)
         self.collision.setToolTip("What sort of update to perform.  May set default from plugin configuration.")
         # add collision options
@@ -648,17 +688,19 @@ class UpdateExistingDialog(SizePersistedDialog):
         if i > -1:
             self.collision.setCurrentIndex(i)
         label.setBuddy(self.collision)
-        options_layout.addWidget(self.collision)
+        gbl.addWidget(self.collision)
 
         self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
         self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
         self.updatemeta.setChecked(prefs['updatemeta'])
-        options_layout.addWidget(self.updatemeta)
+        gbl.addWidget(self.updatemeta)
                 
         self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
         self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
         self.updateepubcover.setChecked(prefs['updateepubcover'])
-        options_layout.addWidget(self.updateepubcover)
+        gbl.addWidget(self.updateepubcover)
+
+
         
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
