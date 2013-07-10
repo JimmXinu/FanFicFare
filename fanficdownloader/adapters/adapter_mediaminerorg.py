@@ -55,6 +55,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.mediaminer.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fanfic/view_st.php/123456 http://"+self.getSiteDomain()+"/fanfic/view_ch.php/1234123/123444#fic_c"
 

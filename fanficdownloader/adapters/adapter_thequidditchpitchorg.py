@@ -74,6 +74,7 @@ class TheQuidditchPitchOrgAdapter(BaseSiteAdapter): # XXX
     def getAcceptDomains(cls):
         return ['www.thequidditchpitch.org','thequidditchpitch.org']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

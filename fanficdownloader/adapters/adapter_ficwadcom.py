@@ -45,8 +45,9 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'ficwad.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://ficwad.com/story/137169"
+        return "http://ficwad.com/story/1234"
 
     def getSiteURLPattern(self):
         return re.escape(r"http://"+self.getSiteDomain())+"/story/\d+?$"

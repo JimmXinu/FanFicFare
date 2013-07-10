@@ -66,6 +66,7 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'nha.magical-worlds.us'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

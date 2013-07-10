@@ -67,8 +67,9 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'finestories.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/s/10537 http://"+self.getSiteDomain()+"/s/10537:4010 http://"+self.getSiteDomain()+"/library/storyInfo.php?id=10537"
+        return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010 http://"+self.getSiteDomain()+"/library/storyInfo.php?id=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain())+r"/(s|library)?/(storyInfo.php\?id=)?\d+(:\d+)?(;\d+)?$"

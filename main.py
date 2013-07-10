@@ -104,13 +104,22 @@ class MainHandler(webapp2.RequestHandler):
             self.response.headers['Content-Type'] = 'text/html'
             path = os.path.join(os.path.dirname(__file__), 'index.html')
 
-            self.response.out.write(template.render(path, template_values))
         else:
             logging.debug(users.create_login_url('/'))
             url = users.create_login_url(self.request.uri)
             template_values = {'login_url' : url, 'authorized': False}
             path = os.path.join(os.path.dirname(__file__), 'index.html')
-            self.response.out.write(template.render(path, template_values))
+
+        
+        template_values['supported_sites'] = '<dl>\n'
+        for (site,examples) in adapters.getSiteExamples():
+            template_values['supported_sites'] += "<dt>%s</dt>\n<dd>Example Story URLs:<br>"%site
+            for u in examples:
+                template_values['supported_sites'] += "<a href='%s'>%s</a><br>\n"%(u,u)
+            template_values['supported_sites'] += "</dd>\n"
+        template_values['supported_sites'] += '</dl>\n'
+
+        self.response.out.write(template.render(path, template_values))
 
 
 class EditConfigServer(UserConfigServer):

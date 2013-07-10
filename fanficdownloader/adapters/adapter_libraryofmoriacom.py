@@ -66,6 +66,7 @@ class LibraryOfMoriaComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.libraryofmoria.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/a/viewstory.php?sid=1234"
 

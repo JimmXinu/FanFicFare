@@ -66,6 +66,7 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
         # doesn't matter too much anymore.
         return 'tokra.fandomnet.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

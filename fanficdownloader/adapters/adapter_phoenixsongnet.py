@@ -65,6 +65,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.phoenixsong.net'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fanfiction/story/1234/"
 

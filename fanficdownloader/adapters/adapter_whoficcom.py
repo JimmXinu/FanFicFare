@@ -41,6 +41,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.whofic.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

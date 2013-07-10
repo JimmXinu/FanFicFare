@@ -75,6 +75,7 @@ class PommeDeSangComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'pommedesang.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/sds/viewstory.php?sid=1234"
 

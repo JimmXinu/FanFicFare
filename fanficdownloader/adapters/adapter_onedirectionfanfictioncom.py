@@ -70,6 +70,7 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
         return ['www.onedirectionfanfiction.com','onedirectionfanfiction.com']
 
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

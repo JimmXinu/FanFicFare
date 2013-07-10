@@ -65,6 +65,7 @@ class ImagineEFicComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'imagine.e-fic.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

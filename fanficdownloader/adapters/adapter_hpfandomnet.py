@@ -70,6 +70,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         # The site domain.  Does have www here, if it uses it.
         return 'www.hpfandom.net' # XXX
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/eff/viewstory.php?sid=1234"
 

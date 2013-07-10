@@ -63,6 +63,7 @@ class NetRaptorOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'netraptor.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fanfiction/viewstory.php?sid=1234"
 

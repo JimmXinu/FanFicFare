@@ -64,6 +64,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.checkmated.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/story.php?story=1234"
 

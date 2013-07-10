@@ -65,6 +65,7 @@ class HennethAnnunNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.henneth-annun.net'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/stories/chapter.cfm?stid=1234"
 

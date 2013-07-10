@@ -70,8 +70,9 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.ponyfictionarchive.net','ponyfictionarchive.net','explicit.ponyfictionarchive.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234 http://explicit."+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+"(www\.|explicit\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"

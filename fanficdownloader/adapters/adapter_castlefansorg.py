@@ -90,6 +90,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         # The site domain.  Does have www here, if it uses it.
         return 'castlefans.org' # XXX
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=1234"
 

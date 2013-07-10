@@ -75,6 +75,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.dokuga.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fanfiction/story/1234/1 http://"+self.getSiteDomain()+"/spark/story/1234/1"
 

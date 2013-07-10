@@ -64,8 +64,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.fanfiction.net','m.fanfiction.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.fanfiction.net/s/1234/1/ http://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title"
+        return "http://www.fanfiction.net/s/1234/1/ http://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
 
     def getSiteURLPattern(self):
         return r"http://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"

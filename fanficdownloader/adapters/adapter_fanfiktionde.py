@@ -67,6 +67,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.fanfiktion.de'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050"
 

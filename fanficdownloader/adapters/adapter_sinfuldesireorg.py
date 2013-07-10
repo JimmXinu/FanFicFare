@@ -65,6 +65,7 @@ class SinfulDesireOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.sinful-desire.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234"
 

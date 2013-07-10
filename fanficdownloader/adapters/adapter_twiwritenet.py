@@ -58,8 +58,9 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.twiwrite.net','twiwrite.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.twiwrite.net/viewstory.php?sid=1234 http://twiwrite.net/viewstory.php?sid=5678"
+        return "http://www.twiwrite.net/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?"+re.escape("twiwrite.net/viewstory.php?sid=")+r"\d+$"

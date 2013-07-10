@@ -69,6 +69,7 @@ class SamDeanArchiveNuAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.samdean.archive.nu','samdean.archive.nu']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

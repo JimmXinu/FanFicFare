@@ -272,6 +272,7 @@ class BaseSiteAdapter(Configurable):
         "Used to validate URL.  Should be override in each adapter class."
         return '^http://'+re.escape(self.getSiteDomain())
     
+    @classmethod
     def getSiteExampleURLs(self):
         """
         Needs to be overriden in each adapter class.  It's the adapter

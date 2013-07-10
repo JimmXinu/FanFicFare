@@ -66,6 +66,7 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
         return 'www.twilightarchives.com'
        
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/read/1234"
 

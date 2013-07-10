@@ -167,6 +167,12 @@ def getAdapter(config,url):
 def getConfigSections():
     return [cls.getConfigSection() for cls in __class_list]
 
+def getSiteExamples():
+    l=[]
+    for cls in sorted(__class_list, key=lambda x : x.getConfigSection()):
+        l.append((cls.getConfigSection(),cls.getSiteExampleURLs().split()))
+    return l
+
 def getConfigSectionFor(url):
     (cls,fixedurl) = getClassFor(url)
     if cls:

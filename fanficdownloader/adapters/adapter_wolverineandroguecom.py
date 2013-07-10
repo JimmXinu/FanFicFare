@@ -65,6 +65,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.wolverineandrogue.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/wrfa/viewstory.php?sid=1234"
 

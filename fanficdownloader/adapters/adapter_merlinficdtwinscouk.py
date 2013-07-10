@@ -65,6 +65,7 @@ class MerlinFicDtwinsCoUk(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'merlinfic.dtwins.co.uk'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

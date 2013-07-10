@@ -63,6 +63,7 @@ class Asr3SlashzoneOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'asr3.slashzone.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234"
 

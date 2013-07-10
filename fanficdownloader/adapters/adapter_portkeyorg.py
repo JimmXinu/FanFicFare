@@ -72,6 +72,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         # The site domain.  Does have www here, if it uses it.
         return 'fanfiction.portkey.org' # XXX
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/story/1234"
 
