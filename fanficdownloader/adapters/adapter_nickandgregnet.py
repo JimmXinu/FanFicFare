@@ -66,6 +66,7 @@ class NickAndGregNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.nickandgreg.net'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/desert_archive/viewstory.php?sid=1234"
 

@@ -65,6 +65,7 @@ class QafFicComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.qaf-fic.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/atp/viewstory.php?sid=1234"
 

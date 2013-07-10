@@ -69,6 +69,7 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.thehexfiles.net','thehexfiles.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

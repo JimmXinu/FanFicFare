@@ -69,8 +69,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.ficbook.net'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/readfic/12345"
+        return "http://"+self.getSiteDomain()+"/readfic/12345 http://"+self.getSiteDomain()+"/readfic/93626/246417#part_content"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/readfic/")+r"\d+"

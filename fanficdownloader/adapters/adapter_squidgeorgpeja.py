@@ -81,6 +81,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         # The config section name.  Only override if != site domain.
         return cls.getSiteDomain()+'/peja'
     
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
 

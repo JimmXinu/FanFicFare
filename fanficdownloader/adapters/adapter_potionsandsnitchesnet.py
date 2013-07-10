@@ -55,8 +55,9 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.potionsandsnitches.net','potionsandsnitches.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.potionsandsnitches.net/fanfiction/viewstory.php?sid=1234 http://potionsandsnitches.net/fanfiction/viewstory.php?sid=5678"
+        return "http://www.potionsandsnitches.net/fanfiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?"+re.escape("potionsandsnitches.net/fanfiction/viewstory.php?sid=")+r"\d+$"

@@ -52,6 +52,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.adastrafanfic.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

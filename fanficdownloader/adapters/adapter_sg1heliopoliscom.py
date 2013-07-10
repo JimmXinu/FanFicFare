@@ -74,6 +74,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'sg1-heliopolis.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/adult/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/atlantis/viewstory.php?sid=1234"
 

@@ -68,6 +68,7 @@ class NCISFicComAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.ncisfic.com','ncisfic.com']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?storyid=1234"
 

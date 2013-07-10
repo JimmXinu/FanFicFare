@@ -65,6 +65,7 @@ class DotMoonNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.dotmoon.net'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/library_view.php?storyid=1234"
 

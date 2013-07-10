@@ -57,8 +57,9 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.twilighted.net','twilighted.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.twilighted.net/viewstory.php?sid=1234 http://twilighted.net/viewstory.php?sid=5678"
+        return "http://www.twilighted.net/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?"+re.escape("twilighted.net/viewstory.php?sid=")+r"\d+$"

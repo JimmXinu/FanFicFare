@@ -65,6 +65,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.hpfanficarchive.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/stories/viewstory.php?sid=1234"
 

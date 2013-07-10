@@ -40,6 +40,7 @@ class TestSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'test1.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"?sid=1234"
 

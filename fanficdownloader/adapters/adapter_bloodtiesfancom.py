@@ -88,6 +88,7 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
         # The site domain.  Does have www here, if it uses it.
         return 'bloodties-fans.com' # XXX
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/fiction/viewstory.php?sid=1234"
 

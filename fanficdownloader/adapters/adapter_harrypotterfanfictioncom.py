@@ -56,8 +56,9 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.harrypotterfanfiction.com','harrypotterfanfiction.com']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.harrypotterfanfiction.com/viewstory.php?psid=1234 http://harrypotterfanfiction.com/viewstory.php?psid=5678"
+        return "http://www.harrypotterfanfiction.com/viewstory.php?psid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"

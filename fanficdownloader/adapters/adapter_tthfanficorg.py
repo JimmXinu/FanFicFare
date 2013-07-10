@@ -54,13 +54,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'www.tthfanfic.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.tthfanfic.org/Story-5583 http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm http://www.tthfanfic.org/T-526321777890480578489880055880/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm"
+        return "http://www.tthfanfic.org/Story-1234 http://www.tthfanfic.org/Story-1234/Author+Story+Title.htm http://www.tthfanfic.org/T-99999999/Story-1234-1/Author+Story+Title.htm http://www.tthfanfic.org/story.php?no=12345"
 
-    # http://www.tthfanfic.org/T-526321777848988007890480555880/Story-26448-15/batzulger+Willow+Rosenberg+and+the+Mind+Riders.htm
-    # http://www.tthfanfic.org/Story-5583
-    # http://www.tthfanfic.org/Story-5583/Greywizard+Marked+By+Kane.htm
-    # http://www.tthfanfic.org/story.php?no=26093
+    # http://www.tthfanfic.org/T-999999999999/Story-12345-1/Author+Story+Title.htm
+    # http://www.tthfanfic.org/Story-12345
+    # http://www.tthfanfic.org/Story-12345/Author+Story+Title.htm
+    # http://www.tthfanfic.org/story.php?no=12345
     def getSiteURLPattern(self):
         return r"http://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 

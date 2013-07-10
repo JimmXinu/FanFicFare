@@ -68,8 +68,10 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.national-library.net','national-library.net']
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "ONLY the stories archived on or after June 17, 2006 and that are hosted on the website: http://"+self.getSiteDomain()+"/viewstory.php?storyid=1234"
+        # ONLY the stories archived on or after June 17, 2006 and that are hosted on the website: 
+        return "http://"+self.getSiteDomain()+"/viewstory.php?storyid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?storyid=")+r"\d+$"

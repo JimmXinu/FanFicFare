@@ -72,13 +72,9 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.potterfics.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return \
-                "http://www.potterfics.com/historias/127583 "\
-                "http://www.potterfics.com/historias/127583/capitulo-1 "\
-                "http://www.potterfics.com/historias/127583/capitulo-4 "\
-                "http://www.potterfics.com/historias/92810 "\
-                "http://www.potterfics.com/historias/111194"
+        return "http://www.potterfics.com/historias/12345 http://www.potterfics.com/historias/12345/capitulo-1 "
 
     def getSiteURLPattern(self):
         #http://www.potterfics.com/historias/127583

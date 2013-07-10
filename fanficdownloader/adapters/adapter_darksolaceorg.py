@@ -69,6 +69,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['www.dark-solace.org','dark-solace.org']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/elysian/viewstory.php?sid=1234"
 

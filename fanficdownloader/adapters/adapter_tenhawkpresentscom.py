@@ -55,6 +55,7 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
     def getSiteDomain():
         return 'fanfiction.tenhawkpresents.com'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

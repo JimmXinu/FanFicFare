@@ -105,6 +105,9 @@ def main(argv,
    parser.add_option("-n", "--normalize-list",
                      action="store_true", dest="normalize",default=False,
                      help="Get list of valid story URLs from page given, but normalized to standard forms.",)
+   parser.add_option("-s", "--sites-list",
+                     action="store_true", dest="siteslist",default=False,
+                     help="Get list of valid story URLs examples.",)
    parser.add_option("-d", "--debug",
                      action="store_true", dest="debug",
                      help="Show debug output while downloading.",)
@@ -115,8 +118,15 @@ def main(argv,
        logger = logging.getLogger("fanficdownloader")
        logger.setLevel(logging.INFO)
    
-   if len(args) != 1:
+   if not options.siteslist and len(args) != 1:
        parser.error("incorrect number of arguments")
+
+   if options.siteslist:
+       for (site,examples) in adapters.getSiteExamples():
+           print("\n====%s====\n\nExample URLs:"%site)
+           for u in examples:
+               print("  * %s"%u)
+       return
 
    if options.update and options.format != 'epub':
        parser.error("-u/--update-epub only works with epub")

@@ -63,6 +63,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'www.walkingtheplank.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234"
 

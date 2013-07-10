@@ -70,6 +70,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
     def getAcceptDomains(cls):
         return ['archive.skyehawke.com','www.skyehawke.com']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://archive.skyehawke.com/story.php?no=1234 http://www.skyehawke.com/archive/story.php?no=1234  http://skyehawke.com/archive/story.php?no=1234"
 

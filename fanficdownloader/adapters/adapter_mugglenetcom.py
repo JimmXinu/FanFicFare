@@ -73,6 +73,7 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
     def getAcceptDomains(cls):
         return ['fanfiction.mugglenet.com','fanfic.mugglenet.com']
 
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 

@@ -72,6 +72,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'themasque.net'
         
+    @classmethod
     def getSiteExampleURLs(self):
         return "http://themasque.net/wiktt/efiction/viewstory.php?sid=1234 http://themasque.net/efiction/viewstory.php?sid=1234"
 

@@ -77,8 +77,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'archiveofourown.org'
 
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456"
+        return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+self.getSiteDomain()+"/works/123456/chapters/78901"
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
