@@ -326,7 +326,11 @@ class Story(Configurable):
             return value
 
         if self.isList(key):
-            return u', '.join(self.getList(key, removeallentities, doreplacements=True))
+            join_string = self.getConfig("join_string_"+key,u", ").replace('\s',' ') 
+            value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
+            if doreplacements:
+                value = self.doReplacements(value,key+"_LIST")
+            return value
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -371,7 +375,8 @@ class Story(Configurable):
                     auth=removeAllEntities(auth)
                 
                 htmllist.append(linkhtml%('author',aurl,auth))
-            self.setMetadata('authorHTML',', '.join(htmllist))
+            join_string = self.getConfig("join_string_authorHTML",u", ").replace('\s',' ') 
+            self.setMetadata('authorHTML',join_string.join(htmllist))
         else:
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
                                                     self.getMetadata('author', removeallentities, doreplacements)))
@@ -444,7 +449,7 @@ class Story(Configurable):
                                   map(removeAllEntities,retlist) )
 
         if retlist:
-            if listname in ('author','authorUrl'):
+            if listname in ('author','authorUrl') or self.getConfig('keep_in_order_'+listname):
                 # need to retain order for author & authorUrl so the
                 # two match up.
                 return retlist
