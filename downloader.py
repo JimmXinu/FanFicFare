@@ -132,10 +132,17 @@ def main(argv,
        parser.error("-u/--update-epub only works with epub")
 
    ## Attempt to update an existing epub.
+   chaptercount = None
+   output_filename = None
    if options.update:
-       (url,chaptercount) = get_dcsource_chaptercount(args[0])
-       print "Updating %s, URL: %s" % (args[0],url)
-       output_filename = args[0]
+       try:
+           (url,chaptercount) = get_dcsource_chaptercount(args[0])
+           print "Updating %s, URL: %s" % (args[0],url)
+           output_filename = args[0]
+       except:
+           # if there's an error reading the update file, maybe it's a URL?
+           # we'll look for an existing outputfile down below.
+           url = args[0]
    else:
        url = args[0]
            
@@ -174,8 +181,8 @@ def main(argv,
    if options.force:
        configuration.set("overrides","always_overwrite","true")
 
-   if options.update:
-       configuration.set("overrides","output_filename",args[0])
+   if options.update and chaptercount:
+       configuration.set("overrides","output_filename",output_filename)
        
    if options.update and not options.updatecover:
        configuration.set("overrides","never_make_cover","true")
@@ -199,7 +206,18 @@ def main(argv,
    try:
        adapter = adapters.getAdapter(configuration,url)
        adapter.setChaptersRange(options.begin,options.end)
-           
+
+       # check for updating from URL (vs from file)
+       if options.update and not chaptercount:
+           try:
+               writer = writers.getWriter("epub",configuration,adapter)
+               output_filename=writer.getOutputFileName()
+               (noturl,chaptercount) = get_dcsource_chaptercount(output_filename)
+               print "Updating %s, URL: %s" % (output_filename,url)
+           except:
+               options.update = False
+               pass
+       
        ## Check for include_images and absence of PIL, give warning.
        if adapter.getConfig('include_images'):
            try:
@@ -235,11 +253,11 @@ def main(argv,
 
        if options.update and not options.force:
            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
-           
+
            if chaptercount == urlchaptercount and not options.metaonly:
-               print "%s already contains %d chapters." % (args[0],chaptercount)
+               print "%s already contains %d chapters." % (output_filename,chaptercount)
            elif chaptercount > urlchaptercount:
-               print "%s contains %d chapters, more than source: %d." % (args[0],chaptercount,urlchaptercount)
+               print "%s contains %d chapters, more than source: %d." % (output_filename,chaptercount,urlchaptercount)
            else:
                print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
                if not options.metaonly:
@@ -253,7 +271,7 @@ def main(argv,
                     adapter.oldimgs,
                     adapter.oldcover,
                     adapter.calibrebookmark,
-                    adapter.logfile) = get_update_data(args[0])
+                    adapter.logfile) = get_update_data(output_filename)
 
                    writeStory(configuration,adapter,"epub")
                    
