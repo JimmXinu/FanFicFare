@@ -510,7 +510,7 @@ class Story(Configurable):
 
         if not allowunsafefilename:
             values={}
-            pattern = re.compile(r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+")
+            pattern = re.compile(self.getConfig("output_filename_safepattern",r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+"))
             for k in origvalues.keys():
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
     
