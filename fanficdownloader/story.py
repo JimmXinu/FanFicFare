@@ -448,8 +448,14 @@ class Story(Configurable):
                 retlist = filter( lambda x : x!=None and x!='' ,
                                   map(removeAllEntities,retlist) )
 
+        # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
+        # use replace_metadata to change separator first if needed.
+        # ships=>[ ]*(/|&amp;|&)[ ]*=>/
+        if listname == 'ships' and self.getConfig('sort_ships'):
+            retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
+                
         if retlist:
-            if listname in ('author','authorUrl') or self.getConfig('keep_in_order_'+listname):
+            if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
                 # need to retain order for author & authorUrl so the
                 # two match up.
                 return retlist

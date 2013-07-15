@@ -213,13 +213,13 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('warnings','Violence')
 
         if idstr == '80':
-            self.story.addToList('category',u'Rizzoli & Isles')
+            self.story.addToList('category',u'Rizzoli &amp; Isles')
             self.story.addToList('characters','J. Rizzoli')
         elif idstr == '81':
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
         elif idstr == '83':
-            self.story.addToList('category',u'Rizzoli & Isles')
+            self.story.addToList('category',u'Rizzoli &amp; Isles')
             self.story.addToList('characters','J. Rizzoli')
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
@@ -237,6 +237,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('characters','Bob Smith')
             self.story.addToList('characters','George Johnson')
             self.story.addToList('characters','Fred Smythe')
+            self.story.addToList('ships','Harry Potter/Ginny Weasley')
+            self.story.addToList('ships','Harry Potter/Ginny Weasley/Albus Dumbledore')
+            self.story.addToList('ships','Harry Potter &amp; Hermione Granger')
             
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','Comedy')
