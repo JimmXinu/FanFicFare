@@ -49,7 +49,7 @@ def do_download_worker(book_list, options,
             args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
                     'do_download_for_worker',
                     (book,options)]
-            job = ParallelJob('arbitrary',
+            job = ParallelJob('arbitrary_n',
                               "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
                               done=None,
                               args=args)
@@ -84,7 +84,7 @@ def do_download_worker(book_list, options,
         book_id = job._book['calibre_id']
         #title = job._title
         count = count + 1
-        notification(float(count)/total, 'Downloaded Story')
+        notification(float(count)/total, '%d of %d stories finished downloading'%(count,total))
         # Add this job's output to the current log
         print('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         print(job.details)
@@ -106,7 +106,7 @@ def do_download_worker(book_list, options,
     # return the book list as the job result
     return book_list
 
-def do_download_for_worker(book,options):
+def do_download_for_worker(book,options,notification=lambda x,y:x):
     '''
     Child job, to extract isbn from formats for this specific book,
     when run as a worker job
@@ -206,6 +206,22 @@ def do_download_for_worker(book,options):
             book['comment'] = 'Update %s completed, added %s chapters for %s total.'%\
                 (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
         
+        if options['smarten_punctuation'] and options['fileform'] == "epub":
+            # do smarten_punctuation from calibre's polish feature
+            from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
+            from calibre.utils.logging import Log
+            from collections import namedtuple
+        
+            data = {'smarten_punctuation':True}
+            opts = ALL_OPTS.copy()
+            opts.update(data)
+            O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+            opts = O(**opts)
+            
+            log = Log(level=Log.DEBUG)
+            # report = []
+            polish({outfile:outfile}, opts, log, print) # report.append
+        
     except NotGoingToDownload as d:
         book['good']=False
         book['comment']=unicode(d)
@@ -218,6 +234,6 @@ def do_download_for_worker(book,options):
         book['status'] = 'Error'
         print("Exception: %s:%s"%(book,unicode(e)))
         traceback.print_exc()
-
+        
     #time.sleep(10)
     return book

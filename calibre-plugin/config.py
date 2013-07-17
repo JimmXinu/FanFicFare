@@ -177,6 +177,7 @@ class ConfigWidget(QWidget):
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
+        prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
 
         if self.readinglist_tab:
             # lists
@@ -319,6 +320,11 @@ class BasicTab(QWidget):
         self.updateepubcover.setToolTip("On each download, FFDL offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off.")
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
+
+        self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
+        self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
+        self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
+        self.l.addWidget(self.smarten_punctuation)
 
         cali_gb = groupbox = QGroupBox("Updating Calibre Options")
         self.l = QVBoxLayout()

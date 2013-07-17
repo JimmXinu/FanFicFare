@@ -383,6 +383,7 @@ class AddNewDialog(SizePersistedDialog):
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
+            'smarten_punctuation':self.prefs['smarten_punctuation']
                 }
         
         if self.merge:
@@ -618,7 +619,8 @@ class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
                  save_size_name='fanfictiondownloader_plugin:update list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
-        
+
+        self.prefs = prefs
         self.setWindowTitle(header)
         self.setWindowIcon(icon)
         
@@ -736,6 +738,7 @@ class UpdateExistingDialog(SizePersistedDialog):
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
+            'smarten_punctuation':self.prefs['smarten_punctuation']
             }
 
 class StoryListTableWidget(QTableWidget):
