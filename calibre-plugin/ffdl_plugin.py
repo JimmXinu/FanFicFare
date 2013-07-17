@@ -12,8 +12,10 @@ from StringIO import StringIO
 from functools import partial
 from datetime import datetime
 from string import Template
+import urllib
+import email
 
-from PyQt4.Qt import (QApplication, QMenu, QToolButton)
+from PyQt4.Qt import (QApplication, QMenu, QToolButton, QTimer)
 
 from PyQt4.Qt import QPixmap, Qt
 from PyQt4.QtCore import QBuffer
@@ -38,7 +40,7 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text
 
 from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
 from calibre_plugins.fanfictiondownloader_plugin.config import (permitted_values, rejecturllist)
@@ -144,6 +146,72 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.macmenuhack = os.access(file_path, os.F_OK)
             return self.macmenuhack
 
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library") or \
+                mime_data.hasFormat("text/plain") or \
+                mime_data.hasFormat("text/uri-list"):
+            return True
+                
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        return self.accept_enter_event(event, mime_data)
+
+    def drop_event(self, event, mime_data):
+
+        dropped_ids=None
+        urllist=[]
+        
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+        
+        mimetype='text/uri-list'
+        filelist="%s"%event.mimeData().data(mimetype)
+        if filelist:
+            for f in filelist.splitlines():
+                #print("filename:%s"%f)
+                if f.endswith(".eml"):
+                    fhandle = urllib.urlopen(f)
+                    msg = email.message_from_file(fhandle)
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            #print("part type:%s"%part.get_content_type())
+                            if part.get_content_type() == "text/html":
+                                #print("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
+                                urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                            if part.get_content_type() == "text/plain":
+                                #print("part content:text/plain")
+                                #print("part content:%s"%part.get_payload(decode=True))
+                                urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                    else:
+                        urllist.extend(get_urls_from_text("%s"%msg))
+                else:
+                    urllist.extend(get_urls_from_text(f))
+        else:
+            mimetype='text/plain'
+            if mime_data.hasFormat(mimetype):
+                #print("text/plain:%s"%event.mimeData().data(mimetype))
+                urllist.extend(get_urls_from_text(event.mimeData().data(mimetype)))
+
+        #print("urllist:%s\ndropped_ids:%s"%(urllist,dropped_ids))
+        if urllist or dropped_ids:
+            QTimer.singleShot(1, partial(self.do_drop,
+                                         dropped_ids=dropped_ids,
+                                         urllist=urllist))
+            return True
+        
+        return False
+
+    def do_drop(self,dropped_ids=None,urllist=None):
+        # shouldn't ever be both.
+        if dropped_ids:
+            self.update_dialog(dropped_ids)
+        elif urllist:
+            self.add_dialog("\n".join(urllist))
+    
     def about_to_show_menu(self):
         self.rebuild_menus()
 
@@ -554,19 +622,21 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Now that we've 
         self.prep_downloads( options, update_books, merge=True )
         
-    def update_dialog(self):
+    def update_dialog(self, id_list=None):
         if not self.is_library_view():
             self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
             return
+
+        if not id_list:
+            id_list = self.gui.library_view.get_selected_ids();
         
-        if len(self.gui.library_view.get_selected_ids()) == 0:
+        if len(id_list) == 0:
             self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
             return
         #print("update_dialog()")
         
         db = self.gui.current_db
-        book_list = map( partial(self.make_book_id_only), self.gui.library_view.get_selected_ids() )
-        #book_ids = self.gui.library_view.get_selected_ids()
+        book_list = map( self.make_book_id_only, id_list )
 
         for j, book in enumerate(book_list):
             book['listorder'] = j

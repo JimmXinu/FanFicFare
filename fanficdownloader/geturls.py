@@ -104,6 +104,7 @@ def get_urls_from_text(data,configuration=None,normalize=False):
 
     normalized = [] # normalized url
     retlist = [] # orig urls.
+    data=unicode(data)
     
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
