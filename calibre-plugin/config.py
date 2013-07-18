@@ -17,6 +17,7 @@ from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 
 from calibre.gui2.ui import get_gui
 from calibre.gui2 import dynamic, info_dialog
+from calibre.constants import numeric_version as calibre_version
 
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
@@ -321,10 +322,11 @@ class BasicTab(QWidget):
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
-        self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
-        self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
-        self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
-        self.l.addWidget(self.smarten_punctuation)
+        if calibre_version >= (0, 9, 39):
+            self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
+            self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
+            self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
+            self.l.addWidget(self.smarten_punctuation)
 
         cali_gb = groupbox = QGroupBox("Updating Calibre Options")
         self.l = QVBoxLayout()

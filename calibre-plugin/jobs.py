@@ -14,6 +14,7 @@ from StringIO import StringIO
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
+from calibre.constants import numeric_version as calibre_version
 
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
@@ -206,7 +207,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             book['comment'] = 'Update %s completed, added %s chapters for %s total.'%\
                 (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
         
-        if options['smarten_punctuation'] and options['fileform'] == "epub":
+        if options['smarten_punctuation'] and options['fileform'] == "epub" \
+                and calibre_version >= (0, 9, 39):
             # do smarten_punctuation from calibre's polish feature
             from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
             from calibre.utils.logging import Log
