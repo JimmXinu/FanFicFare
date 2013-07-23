@@ -103,7 +103,7 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
+        self.story.setMetadata('author',stripHTML(a))
         asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 		
         try:
@@ -118,7 +118,7 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
         for info in asoup.findAll('table', {'cellspacing' : '4'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
-                self.story.setMetadata('title',a.string)
+                self.story.setMetadata('title',stripHTML(a))
                 break
 		
 

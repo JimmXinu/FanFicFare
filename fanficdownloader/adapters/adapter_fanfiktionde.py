@@ -69,10 +69,10 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050"
+        return "http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050 http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050/1 http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050/1/story-name"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?$"
+        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
         
         ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -138,15 +138,15 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
-        a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',a.string)
+        a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+"/"))
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.
         head = soup.find('div', {'class' : 'story-metadata-left-top'})
         a = head.find('a')
         self.story.setMetadata('authorId',a['href'].split('/')[2])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
+        self.story.setMetadata('author',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.find('select').findAll('option'):
@@ -179,8 +179,8 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         
         td = tr[i].findAll('td')
         self.story.addToList('category',stripHTML(td[1]))
-        self.story.setMetadata('rating', td[4].string)
-        self.story.setMetadata('numWords', td[5].string)
+        self.story.setMetadata('rating', stripHTML(td[4]))
+        self.story.setMetadata('numWords', stripHTML(td[5]))
  
             
     # grab the text for an individual chapter.
