@@ -322,10 +322,10 @@ class BasicTab(QWidget):
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
+        self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
+        self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
+        self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
         if calibre_version >= (0, 9, 39):
-            self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
-            self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
-            self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
             self.l.addWidget(self.smarten_punctuation)
 
         cali_gb = groupbox = QGroupBox("Updating Calibre Options")
