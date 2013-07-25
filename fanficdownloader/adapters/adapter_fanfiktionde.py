@@ -173,7 +173,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         tr=asoup.findAll('tr')
         for i in range(1,len(tr)):
             a = tr[i].find('a')
-            if a['href'] == '/s/'+self.story.getMetadata('storyId'):
+            if '/s/'+self.story.getMetadata('storyId')+'/1/' in a['href']:
                 break
         self.setDescription(url,a['onmouseover'].split("', '")[1])
         
