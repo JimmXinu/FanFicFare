@@ -137,8 +137,20 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
+        if self.getConfig('is_adult'):
+            params = {'confirmAge':'1'}
+            data = self._postUrl(url,params)
+        else:
+            data = self._fetchUrl(url)
+
+        data = data[data.index('<table width="90%" align="center">'):]
+        data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
+            
+        soup = bs.BeautifulStoneSoup(data,
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+
+        if "Please indicate that you are an adult by selecting the appropriate choice below" in data:
+            raise exceptions.FailedToDownload("Chapter requires you be an adult.  Set is_adult in personal.ini (chapter url:%s)" % url)
         
         div = soup.find('table', {'width' : '90%'}).find('td')
         div.name='div'
