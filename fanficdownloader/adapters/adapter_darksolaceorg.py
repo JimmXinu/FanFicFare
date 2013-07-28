@@ -184,31 +184,31 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
         # first a tag in pagetitle is title
         self.story.setMetadata('title',stripHTML(div.find('a')))
 
-        # Find the chapters:
-        # chapters=soup.find('select', {'name' : 'chapter'})
-        # if chapters != None:
-        #     for chapter in chapters.findAll('option'):
-        #         self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/elysian/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
-        # else:
-        #     self.chapterUrls.append((self.story.getMetadata('title'),url+"&chapter=1"))
-
         for chapa in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+
                                                        self.story.getMetadata('storyId')+'&chapter=\d+')):
             self.chapterUrls.append((stripHTML(chapa),'http://'+self.host+'/elysian/'+chapa['href']))
         
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
+
         asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        storylink = asoup.find('a', href=re.compile(r'viewstory.php\?sid='+
+                                                    self.story.getMetadata('storyId')+'($|[^\d])'))
+        # author's story list is paginated if there's a pagelinks div.
+        # Only need to look in it if the story wasn't on the first page.
+        pagelinks = asoup.find('div',{'id':'pagelinks'})
+        if pagelinks and storylink==None:
+            authpageslist = pagelinks.findAll('a',href=re.compile(r'action=storiesby'))
+            for page in authpageslist[1:]: # skip first, already checked above.
+                asoup = bs.BeautifulSoup(self._fetchUrl('http://'+self.host+'/elysian/'+page['href']))
+                storylink = asoup.find('a', href=re.compile(r'viewstory.php\?sid='+
+                                                            self.story.getMetadata('storyId')+'($|[^\d])'))
+                if storylink:
+                    break
+
+        if not storylink:
+            raise exceptions.FailedToDownload("Unable to find story metadata on author's page(s)")
         
-        # for metalist in asoup.findAll('div', {'class' : re.compile('listbox\s+')}):
-        #     a = metalist.find('a', href=re.compile(r'viewstory.php\?sid='))
-        #     if a != None:
-        #         if 'viewstory.php?sid='+self.story.getMetadata('storyId') in a['href']:
-        #             break
-
-        metalist = asoup.find('a', href=re.compile(r'viewstory.php\?sid='+
-                                                   self.story.getMetadata('storyId')+'($|[^\d])')).parent.parent
-
+        metalist = storylink.parent.parent
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
 
@@ -229,7 +229,7 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not (defaultGetattr(value,'class') == 'label' or "Chapters: " in stripHTML(value)):
+                while value and not (defaultGetattr(value,'class') == 'label' or "Chapters: " in stripHTML(value)):
                     svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -284,20 +284,40 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
-            storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
-            i=1
-            for a in storyas:
-                # skip 'report this' and 'TOC' links
-                if 'contact.php' not in a['href'] and 'index' not in a['href']:
-                    if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in a['href']:
-                        self.setSeries(series_name, i)
-                        self.story.setMetadata('seriesUrl',series_url)
+            storylink = seriessoup.find('a', href=re.compile(r'viewstory.php\?sid='+
+                                                             self.story.getMetadata('storyId')+'($|[^\d])'))
+            if storylink and storylink.parent and storylink.parent['class'] != 'title': # in case of links inside story summaries.
+                storylink = None
+
+            offset = 0
+            # series story list is paginated if there's a pagelinks div.
+            # Only need to look in it if the story wasn't on the first page.
+            pagelinks = seriessoup.find('div',{'id':'pagelinks'})
+            if pagelinks and storylink==None:
+                authpageslist = pagelinks.findAll('a',href=re.compile(r'offset='))
+                for page in authpageslist[1:]: # skip first, already checked above.
+                    seriessoup = bs.BeautifulSoup(self._fetchUrl('http://'+self.host+'/elysian/'+page['href']))
+                    storylink = seriessoup.find('a', href=re.compile(r'viewstory.php\?sid='+
+                                                                     self.story.getMetadata('storyId')+'($|[^\d])'))
+                    if storylink and storylink.parent and storylink.parent['class'] != 'title': # in case of links inside story summaries.
+                        storylink = None
+                    if storylink:
+                        offset = int(page['href'].split('=')[-1]) # offset is last.
                         break
-                    i+=1
+
+            # for reasons I don't understand, searching for story
+            # links by regex wasn't working reliably.  It was missing
+            # the javascript links sometimes.  This is cleaner anyway.
+            for i, div in enumerate(seriessoup.findAll('div', {'class':'title'})):
+                a = div.find('a') # first a is story link.
+                # skip 'report this' and 'TOC' links
+                if a == storylink:
+                    self.setSeries(series_name, 1+i+offset)
+                    self.story.setMetadata('seriesUrl',series_url)
+                    break
             
-        except:
-            # I find it hard to care if the series parsing fails
-            pass
+        except Exception, e:
+            print("Series parsing failed: %s"%e)
             
     # grab the text for an individual chapter.
     def getChapterText(self, url):
