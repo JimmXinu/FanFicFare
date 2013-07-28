@@ -37,10 +37,10 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        # ncisfiction.net blocks IPs the default user-agent.  However,
+        # ncisfiction.net blocks the default user-agent.  However,
         # when asked, they said it was just general anti-spam, not
         # targeted at us.  That lets me do this in good conscience:
-        self.opener.addheaders = [('User-agent', 'FFDL/1.6')]
+        self.opener.addheaders = [('User-agent', 'FFDL/1.7')]
         
         self.decode = ["iso-8859-1",
                        "Windows-1252"] # 1252 is a superset of iso-8859-1.
