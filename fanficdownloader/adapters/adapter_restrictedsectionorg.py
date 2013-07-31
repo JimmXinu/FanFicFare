@@ -55,7 +55,6 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
             
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/' + m.group('filestory') + '.php?' + m.group('filestory') + '=' + self.story.getMetadata('storyId'))
-            logger.debug("storyUrl: (%s)"%self.story.getMetadata('storyUrl'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),

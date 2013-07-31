@@ -210,8 +210,9 @@ def getClassFor(url):
         #logger.debug("trying site:www."+domain)
         cls = getClassFromList("www."+domain)
         fixedurl = fixedurl.replace("http://","http://www.")
-        
-    fixedurl = cls.stripURLParameters(fixedurl)
+
+    if cls:
+        fixedurl = cls.stripURLParameters(fixedurl)
     
     return (cls,fixedurl)
     

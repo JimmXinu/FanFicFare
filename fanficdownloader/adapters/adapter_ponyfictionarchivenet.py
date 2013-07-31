@@ -49,7 +49,6 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         
-        logger.info(self.parsedUrl.netloc)
         # normalized story URL.
         if "explicit" in self.parsedUrl.netloc:
             self._setURL('http://explicit.' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
