@@ -58,7 +58,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL. gets rid of chapter if there, left with ch 1 URL on this site
             nurl = "http://"+self.getSiteDomain()+"/fanfictions/index.php?act=vie&id="+self.story.getMetadata('storyId')
             self._setURL(nurl)
@@ -69,7 +69,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','bnfnet')

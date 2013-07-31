@@ -48,7 +48,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         self.section=self.parsedUrl.path.split('/',)[1]
              
         # normalized story URL.

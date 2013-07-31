@@ -41,7 +41,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL.
             self._setURL("http://"+self.getSiteDomain()\
                          +"/Story-"+self.story.getMetadata('storyId'))

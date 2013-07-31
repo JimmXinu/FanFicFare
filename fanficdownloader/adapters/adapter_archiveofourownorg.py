@@ -51,13 +51,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
         else:

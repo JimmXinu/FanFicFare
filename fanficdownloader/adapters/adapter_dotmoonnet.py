@@ -48,7 +48,7 @@ class DotMoonNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL. www.dotmoon.net/library_view.php?storyid=3
         self._setURL('http://' + self.getSiteDomain() + '/library_view.php?storyid='+self.story.getMetadata('storyId'))

@@ -50,7 +50,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
         if 'storyInfo' in self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/storyInfo.php?id='+self.story.getMetadata('storyId'))
