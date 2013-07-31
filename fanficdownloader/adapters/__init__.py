@@ -126,6 +126,7 @@ import adapter_scarheadnet
     
 ## List of registered site adapters.
 __class_list = []
+__domain_map = {}
 
 def imports():
     for name, val in globals().items():
@@ -135,7 +136,10 @@ def imports():
 for x in imports():
     if "fanficdownloader.adapters.adapter_" in x:
         #print x
-        __class_list.append(sys.modules[x].getClass())
+        cls = sys.modules[x].getClass()
+        __class_list.append(cls)
+        for site in cls.getAcceptDomains():
+            __domain_map[site]=cls
 
 def getNormalStoryURL(url):
     if not getNormalStoryURL.__dummyconfig:
@@ -153,12 +157,14 @@ def getNormalStoryURL(url):
 # kludgey function static/singleton
 getNormalStoryURL.__dummyconfig = None
 
-def getAdapter(config,url):
+def getAdapter(config,url,anyurl=False):
 
     #logger.debug("trying url:"+url)
     (cls,fixedurl) = getClassFor(url)
     #logger.debug("fixedurl:"+fixedurl)
     if cls:
+        if anyurl:
+            fixedurl = cls.getSiteExampleURLs().split()[0]
         adapter = cls(config,fixedurl) # raises InvalidStoryURL
         return adapter
     # No adapter found.
@@ -210,6 +216,7 @@ def getClassFor(url):
     return (cls,fixedurl)
     
 def getClassFromList(domain):
-    for cls in __class_list:
-        if cls.matchesSite(domain):
-            return cls
+    try:
+        return __domain_map[domain]
+    except KeyError:
+        pass # return none.
