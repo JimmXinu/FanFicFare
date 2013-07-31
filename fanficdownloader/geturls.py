@@ -24,6 +24,7 @@ from gziphttp import GZipProcessor
 
 import adapters
 from configurable import Configuration
+from exceptions import UnknownSite
 
 def get_urls_from_page(url,configuration=None,normalize=False):
 
@@ -31,26 +32,31 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         configuration = Configuration("test1.com","EPUB")
 
     data = None
+    adapter = None
+    try:
+        adapter = adapters.getAdapter(configuration,url,anyurl=True)
+        
+        # special stuff to log into archiveofourown.org, if possible.
+        # Unlike most that show the links to 'adult' stories, but protect
+        # them, AO3 doesn't even show them if not logged in.  Only works
+        # with saved user/pass--not going to prompt for list.
+        if 'archiveofourown.org' in url:
+            if adapter.getConfig("username"):
+                if adapter.getConfig("is_adult"):
+                    addurl = "?view_adult=true"
+                else:
+                    addurl=""
+                # just to get an authenticity_token.
+                data = adapter._fetchUrl(url+addurl)
+                # login the session.
+                adapter.performLogin(url,data)
+                # get the list page with logged in session.
     
-    # special stuff to log into archiveofourown.org, if possible.
-    # Unlike most that show the links to 'adult' stories, but protect
-    # them, AO3 doesn't even show them if not logged in.  Only works
-    # with saved user/pass--not going to prompt for list.
-    if 'archiveofourown.org' in url:
-        ao3adapter = adapters.getAdapter(configuration,"http://www.archiveofourown.org/works/0")
-        if ao3adapter.getConfig("username"):
-            if ao3adapter.getConfig("is_adult"):
-                addurl = "?view_adult=true"
-            else:
-                addurl=""
-            # just to get an authenticity_token.
-            data = ao3adapter._fetchUrl(url+addurl)
-            # login the session.
-            ao3adapter.performLogin(url,data)
-            # get the list page with logged in session.
-            data = ao3adapter._fetchUrl(url)
-
-    if not data:
+        # this way it uses User-Agent or other special settings.  Only AO3
+        # is doing login.
+        data = adapter._fetchUrl(url)
+    except UnknownSite:
+        # no adapter with anyurl=True, must be a random site.
         opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
@@ -72,11 +78,13 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     soup = BeautifulSoup(data)
     if restrictsearch:
         soup = soup.find(*restrictsearch)
-        print("restrict search:%s"%soup)
+        #print("restrict search:%s"%soup)
     
     for a in soup.findAll('a'):
         if a.has_key('href'):
+            #print("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
+            #print("1 urlhref:%s"%href)
             # this (should) catch normal story links, some javascript
             # 'are you old enough' links, and 'Report This' links.
             # The 'normalized' set prevents duplicates.
@@ -84,15 +92,19 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                 #print("trying:%s"%a['href'])
                 m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
                 if m != None:
-                    href = form_url(url,m.group('sid'))
+                    href = form_url(a['href'] if '//' in a['href'] else url,
+                                    m.group('sid'))
                     
             try:
                 href = href.replace('&index=1','')
+                #print("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
+                #print("found adapter")
                 if adapter.story.getMetadata('storyUrl') not in normalized:
                     normalized.append(adapter.story.getMetadata('storyUrl'))
                     retlist.append(href)
-            except:
+            except Exception, e:
+                #print e
                 pass
 
     if normalize:

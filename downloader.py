@@ -145,8 +145,15 @@ def main(argv,
            url = args[0]
    else:
        url = args[0]
-           
-   configuration = Configuration(adapters.getConfigSectionFor(url),options.format)
+
+   try:
+       configuration = Configuration(adapters.getConfigSectionFor(url),options.format)
+   except exceptions.UnknownSite, e:
+       if options.list or options.normalize:
+           # list for page doesn't have to be a supported site.
+           configuration = Configuration("test1.com",options.format)
+       else:
+           raise e
 
    conflist = []
    homepath = join(expanduser("~"),".fanficdownloader")
@@ -199,8 +206,7 @@ def main(argv,
 
    if options.list or options.normalize:
        retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
-       print "\n".join(retlist)
-               
+       print "\n".join(retlist)               
        return
 
    try:
