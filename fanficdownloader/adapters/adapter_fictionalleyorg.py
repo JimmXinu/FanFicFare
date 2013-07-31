@@ -45,7 +45,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         if m:
             self.story.setMetadata('authorId',m.group('auth'))
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL.
             self._setURL(url)
         else:

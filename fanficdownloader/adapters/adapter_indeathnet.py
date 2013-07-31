@@ -51,7 +51,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL.
             self._setURL('http://www.' + self.getSiteDomain() + '/blog/archive/'+self.story.getMetadata('storyId')+'-'+m.group('name')+'/')
         else:

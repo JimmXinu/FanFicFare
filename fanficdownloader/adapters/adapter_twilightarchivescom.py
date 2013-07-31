@@ -48,7 +48,7 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL. http://www.twilightarchives.com/read/9353
         self._setURL('http://' + self.getSiteDomain() + '/read/'+self.story.getMetadata('storyId'))

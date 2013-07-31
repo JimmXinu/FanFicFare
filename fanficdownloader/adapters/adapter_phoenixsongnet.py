@@ -48,7 +48,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/fanfiction/story/' +self.story.getMetadata('storyId')+'/')

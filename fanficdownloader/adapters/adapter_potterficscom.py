@@ -54,7 +54,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+            
             # normalized story URL. gets rid of chapter if there, left with chapter index URL
             nurl = "http://"+self.getSiteDomain()+"/historias/"+self.story.getMetadata('storyId')
             self._setURL(nurl)
@@ -62,7 +62,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','potficscom')

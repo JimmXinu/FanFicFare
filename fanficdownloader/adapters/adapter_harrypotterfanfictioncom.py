@@ -42,7 +42,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only psid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))

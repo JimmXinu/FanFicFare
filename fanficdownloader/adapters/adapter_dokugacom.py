@@ -48,7 +48,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
 
         # www.dokuga.com has two 'sections', shown in URL as
         # 'fanfiction' and 'spark' that change how things should be

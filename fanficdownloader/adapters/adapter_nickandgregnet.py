@@ -48,7 +48,7 @@ class NickAndGregNetAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        logger.debug("storyId: (%s)"%self.story.getMetadata('storyId'))
+        
         
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
