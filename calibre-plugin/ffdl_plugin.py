@@ -976,6 +976,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                 skip_date_update = True
                         elif chaptercount > urlchaptercount:
                             raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
+                        elif chaptercount == 0:
+                            raise NotGoingToDownload("FFDL doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update.",'dialog_error.png')
         
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
