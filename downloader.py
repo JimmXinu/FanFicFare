@@ -137,6 +137,9 @@ def main(argv,
    if options.update:
        try:
            (url,chaptercount) = get_dcsource_chaptercount(args[0])
+           if not url:
+               print "No story URL found in epub to update."
+               return
            print "Updating %s, URL: %s" % (args[0],url)
            output_filename = args[0]
        except:
@@ -264,6 +267,8 @@ def main(argv,
                print "%s already contains %d chapters." % (output_filename,chaptercount)
            elif chaptercount > urlchaptercount:
                print "%s contains %d chapters, more than source: %d." % (output_filename,chaptercount,urlchaptercount)
+           elif chaptercount == 0:
+               print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % (output_filename)
            else:
                print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
                if not options.metaonly:
