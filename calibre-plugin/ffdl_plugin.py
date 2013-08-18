@@ -23,7 +23,7 @@ from PyQt4.QtCore import QBuffer
 from calibre.constants import numeric_version as calibre_version
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
-from calibre.ebooks.metadata import MetaInformation, authors_to_string
+from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -1606,6 +1606,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def make_mi_from_book(self,book):
         mi = MetaInformation(book['title'],book['author']) # author is a list.
+        if prefs['suppressauthorsort']:
+            # otherwise author names will have calibre's sort algs
+            # applied automatically.
+            mi.author_sort = ' & '.join(book['author'])
+        if prefs['suppresstitlesort']:
+            # otherwise titles will have calibre's sort algs applied
+            # automatically.
+            mi.title_sort = book['title']
         mi.set_identifiers({'url':book['url']})
         mi.publisher = book['publisher']
         mi.tags = book['tags']

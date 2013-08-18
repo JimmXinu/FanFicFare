@@ -169,6 +169,8 @@ class ConfigWidget(QWidget):
         prefs['updatecover'] = self.basic_tab.updatecover.isChecked()
         prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
+        prefs['suppressauthorsort'] = self.basic_tab.suppressauthorsort.isChecked()
+        prefs['suppresstitlesort'] = self.basic_tab.suppresstitlesort.isChecked()
         prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
@@ -347,6 +349,16 @@ class BasicTab(QWidget):
         self.keeptags.setToolTip("Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
+
+        self.suppressauthorsort = QCheckBox('Force Author into Author Sort?',self)
+        self.suppressauthorsort.setToolTip("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc.")
+        self.suppressauthorsort.setChecked(prefs['suppressauthorsort'])
+        self.l.addWidget(self.suppressauthorsort)
+
+        self.suppresstitlesort = QCheckBox('Force Title into Title Sort?',self)
+        self.suppresstitlesort.setToolTip("If checked, the title as given will be used for the Title Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc.")
+        self.suppresstitlesort.setChecked(prefs['suppresstitlesort'])
+        self.l.addWidget(self.suppresstitlesort)
 
         self.checkforseriesurlid = QCheckBox("Check for existing Series Anthology books?",self)
         self.checkforseriesurlid.setToolTip("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.")
