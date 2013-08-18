@@ -40,6 +40,7 @@ default_prefs['adddialogstaysontop'] = False
 default_prefs['includeimages'] = False
 default_prefs['lookforurlinhtml'] = False
 default_prefs['checkforseriesurlid'] = True
+default_prefs['checkforurlchange'] = True
 default_prefs['injectseries'] = False
 default_prefs['smarten_punctuation'] = False
 
