@@ -628,7 +628,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             return
 
         if not id_list:
-            id_list = self.gui.library_view.get_selected_ids();
+            id_list = self.gui.library_view.get_selected_ids()
         
         if len(id_list) == 0:
             self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
@@ -918,7 +918,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     
                 if book_id and mi: # book_id and mi only set if matched by title/author.
                     liburl = self.get_story_url(db,book_id)
-                    if book['url'] != liburl:
+                    if book['url'] != liburl and prefs['checkforurlchange']:
                         if collision in (OVERWRITE,OVERWRITEALWAYS):
                             updat="overwrit"
                         else:
@@ -1852,7 +1852,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 book['title'] = series
                 for sr in serieslist:
                     if series != sr:
-                        book['title'] = deftitle;
+                        book['title'] = deftitle
                         break
             
             configuration = get_ffdl_config(book['url'],fileform)

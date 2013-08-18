@@ -177,6 +177,7 @@ class ConfigWidget(QWidget):
         prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
+        prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
         prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
 
@@ -352,6 +353,11 @@ class BasicTab(QWidget):
         self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
         self.l.addWidget(self.checkforseriesurlid)
 
+        self.checkforurlchange = QCheckBox("Check for changed Story URL?",self)
+        self.checkforurlchange.setToolTip("Warn you if an update will change the URL of an existing book.")
+        self.checkforurlchange.setChecked(prefs['checkforurlchange'])
+        self.l.addWidget(self.checkforurlchange)
+
         self.lookforurlinhtml = QCheckBox("Search EPUB text for Story URL?",self)
         self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
@@ -503,7 +509,7 @@ class PersonalIniTab(QWidget):
         self.ini = QTextEdit(self)
         try:
             self.ini.setFont(QFont("Courier",
-                                   self.plugin_action.gui.font().pointSize()+1));
+                                   self.plugin_action.gui.font().pointSize()+1))
         except Exception as e:
             print("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
@@ -539,7 +545,7 @@ class ShowDefaultsIniDialog(QDialog):
         self.ini.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
         try:
             self.ini.setFont(QFont("Courier",
-                                   get_gui().font().pointSize()+1));
+                                   get_gui().font().pointSize()+1))
         except Exception as e:
             print("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)

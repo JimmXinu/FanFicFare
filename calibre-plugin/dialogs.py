@@ -164,7 +164,7 @@ class DroppableQTextEdit(QTextEdit):
         
     def canInsertFromMimeData(self, source):
         if source.hasUrls():
-            return True;
+            return True
         else:
             return QTextEdit.canInsertFromMimeData(self,source)
 
@@ -208,7 +208,7 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.setChecked(False)
         self.groupbox.setFlat(True)
         print("style:%s"%self.groupbox.styleSheet())
-        self.groupbox.setStyleSheet(gpstyle);
+        self.groupbox.setStyleSheet(gpstyle)
 
         self.gbf = QFrame()
         self.gbl = QVBoxLayout()
