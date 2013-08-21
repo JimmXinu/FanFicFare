@@ -143,7 +143,7 @@ class SimplyUndeniableComAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('h1')
-        self.story.setMetadata('title',a.text)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
@@ -155,7 +155,7 @@ class SimplyUndeniableComAdapter(BaseSiteAdapter):
         for info in asoup.findAll('table', {'cellpadding' : '5'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
-                self.story.setMetadata('title',a.string)
+                self.story.setMetadata('title',stripHTML(a))
                 break
                 
         # Find the chapters:

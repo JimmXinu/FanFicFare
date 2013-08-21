@@ -126,10 +126,12 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
         
         self.story.setMetadata('authorId',ahref.split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+ahref)
-        self.story.setMetadata('author',a.string)
+        self.story.setMetadata('author',stripHTML(a))
 
         # title, remove byauthorname.
-        self.story.setMetadata('title',h2.text[:h2.text.index("by"+a.string)])
+        auth=stripHTML(a)
+        title=stripHTML(h2)
+        self.story.setMetadata('title',title[:title.index(" by "+auth)])
 
         dates = soup.findAll('span', {'class':'date'})
         if dates: # only for multi-chapter

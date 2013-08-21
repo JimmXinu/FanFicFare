@@ -147,7 +147,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #find first metadata block
         mb = cell.div.findNextSibling('div')
         #Get meta...
-        self.story.setMetadata('title', mb.b.string)
+        self.story.setMetadata('title', stripHTML(mb.b))
         #strip out brackets on rating
         self.story.setMetadata('rating', mb.span.string[1:-1])
         #Completion status is denoted by the presence of this image:

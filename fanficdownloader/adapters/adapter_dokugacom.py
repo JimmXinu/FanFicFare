@@ -164,7 +164,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         aut.extract()
         
         a = a.string[:(len(a.string)-4)]
-        self.story.setMetadata('title',a)
+        self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters:
         chapters = soup.find('select').findAll('option')

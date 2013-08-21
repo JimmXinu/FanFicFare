@@ -177,7 +177,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))

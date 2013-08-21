@@ -163,7 +163,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('a', href=re.compile(r"^/works/\d+$"))
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
 		
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))

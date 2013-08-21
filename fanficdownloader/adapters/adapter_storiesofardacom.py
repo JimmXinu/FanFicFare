@@ -104,7 +104,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
         
         a.find('em').extract()
-        self.story.setMetadata('title',a.text)
+        self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters: chapterview.asp?sid=7000&cid=30919
         chapters=soup.findAll('a', href=re.compile(r'chapterview.asp\?sid='+self.story.getMetadata('storyId')+"&cid=\d+$"))

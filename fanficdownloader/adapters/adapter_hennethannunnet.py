@@ -101,7 +101,7 @@ class HennethAnnunNetAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('h2', {'id':'page_heading'})
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters: chapter_view.cfm?stid=6663&amp;spordinal=1" 
         for chapter in soup.findAll('a', href=re.compile(r'chapter_view.cfm\?stid='+self.story.getMetadata('storyId')+"&spordinal=\d+$")):

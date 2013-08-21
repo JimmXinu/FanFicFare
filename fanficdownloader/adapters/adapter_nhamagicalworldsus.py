@@ -115,7 +115,7 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
             a = info.find('a')
             if 'viewstory.php?sid='+self.story.getMetadata('storyId') == a['href'] or \
                     ('viewstory.php?sid='+self.story.getMetadata('storyId')+'&') in a['href']:
-                self.story.setMetadata('title',a.string)
+                self.story.setMetadata('title',stripHTML(a))
                 break
 		
 

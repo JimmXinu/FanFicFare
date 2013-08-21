@@ -106,7 +106,7 @@ class HLFictionNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',aut.string)
         aut.extract()
         
-        self.story.setMetadata('title',a.string[:(len(a.string)-3)])
+        self.story.setMetadata('title',stripHTML(a)[:(len(a.string)-3)])
 
         # Find the chapters:
         chapters=soup.find('select')

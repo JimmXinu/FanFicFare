@@ -136,7 +136,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         ## Title
         b = soup.find('div', {'id' : 'nav25'})
         a = b.find('a', href=re.compile(r'fanfiction/story/'+self.story.getMetadata('storyId')+"/$"))
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.  /fanfiction/stories.php?psid=125
         a = b.find('a', href=re.compile(r"/fanfiction/stories.php\?psid=\d+"))

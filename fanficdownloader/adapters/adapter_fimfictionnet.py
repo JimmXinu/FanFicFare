@@ -117,7 +117,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             
         ## Title
         a = soup.find('a', href=re.compile(r'^/story/'+self.story.getMetadata('storyId')))
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         
         # self.story.setMetadata("title", storyMetadata["title"])
         # if not storyMetadata["title"]:

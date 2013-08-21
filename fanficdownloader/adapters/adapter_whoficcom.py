@@ -70,7 +70,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                 raise e
 
         # pull title(title) and author from the HTML title.
-        title = soup.find('title').string
+        title = stripHTML(soup.find('title'))
         logger.debug('Title: %s' % title)
         title = title.split('::')[1].strip()
         self.story.setMetadata('title',title.split(' by ')[0].strip())

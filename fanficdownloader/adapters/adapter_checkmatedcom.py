@@ -143,11 +143,11 @@ class CheckmatedComAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title
-        a = soup.findAll('span', {'class' : 'storytitle'})
-        self.story.setMetadata('title',a[0].string)
+        a = soup.find('span', {'class' : 'storytitle'})
+        self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.
-        a = a[1].find('a', href=re.compile(r"authors.php\?name\=\w+"))
+        a = a.parent.find('a', href=re.compile(r"authors.php\?name\=\w+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)

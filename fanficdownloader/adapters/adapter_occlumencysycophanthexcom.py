@@ -158,7 +158,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         for info in asoup.findAll('table', {'class' : 'border'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
-                self.story.setMetadata('title',a.text)
+                self.story.setMetadata('title',stripHTML(a))
                 break
 		
 
