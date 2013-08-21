@@ -111,7 +111,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             url=self.url
             logger.debug("Normalizing to URL: "+url)
             ## title's right there...
-            self.story.setMetadata('title',storya.string)
+            self.story.setMetadata('title',stripHTML(storya))
             data = self._fetchUrl(url)
             soup = bs.BeautifulSoup(data)
             chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
@@ -121,7 +121,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             ## same way.
             chapsoup = bs.BeautifulSoup(chapterdata)
             storya = chapsoup.find('div',{'class':'breadcrumbs'}).findAll('a')[1]
-            self.story.setMetadata('title',storya.string)
+            self.story.setMetadata('title',stripHTML(storya))
             del chapsoup
 
         del chapterdata

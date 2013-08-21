@@ -101,7 +101,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('div', {'class':"story border"}).find('span',{'class':'left'})
-        title=a.text.split('"')[1]
+        title=stripHTML(a).split('"')[1]
         self.story.setMetadata('title',title)
         
         # Find authorid and URL from... author url.

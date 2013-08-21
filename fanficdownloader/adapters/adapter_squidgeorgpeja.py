@@ -122,7 +122,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         # formating, so it's a little ugly.
 
         title = authorSoup.find('a',{'href':'viewstory.php?sid='+self.story.getMetadata('storyId')})
-        self.story.setMetadata('title',title.string)
+        self.story.setMetadata('title',stripHTML(title))
         titleblock=title.parent.parent
         
         chapterselect=soup.find('select',{'name':'chapter'})

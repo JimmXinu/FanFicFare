@@ -107,10 +107,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         for font in title.findAll('font'):
             font.extract() # removes 'font' tags from inside the td.        
         if title.has_key('colspan'):
-            titlet = title.text
+            titlet = stripHTML(title)
         else:
             ## No colspan, it's part chapter title--even if it's a one-shot.
-            titlet = ':'.join(title.text.split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
+            titlet = ':'.join(stripHTML(title).split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
         self.story.setMetadata('title',titlet)
         ## The story title is difficult to reliably parse from the
         ## story pages.  Getting it from the author page is, but costs

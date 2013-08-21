@@ -109,7 +109,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
         ## Title
         h = soup.find('a', id="blog_title")
         t = h.find('span')
-        self.story.setMetadata('title',t.contents[0].string.strip())
+        self.story.setMetadata('title',stripHTML(t.contents[0]).strip())
 		
         s = t.find('div')        
         if s != None:
@@ -121,9 +121,6 @@ class InDeathNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',m.group('id'))
         self.story.setMetadata('authorUrl',a['href'])
         self.story.setMetadata('author',m.group('name'))
-
-
-
 
         # Find the chapters:
         chapters=soup.findAll('a', title="View entry", href=re.compile(r'http://www.indeath.net/blog/'+self.story.getMetadata('storyId')+"/entry\-(\d+)\-([^/]*)/$"))

@@ -116,7 +116,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         # title - first h4 tag will be title.
         titleh4 = soup.find('h4')
-        self.story.setMetadata('title', titleh4.a.string)
+        self.story.setMetadata('title', stripHTML(titleh4.a))
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/author/\d+"))

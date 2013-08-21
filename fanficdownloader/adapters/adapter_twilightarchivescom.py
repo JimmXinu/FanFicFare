@@ -100,7 +100,7 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('h1')
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find the chapters:
         chapters=soup.find('ol', {'class' : 'chapters'})

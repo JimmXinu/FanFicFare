@@ -142,7 +142,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         
         ## Title
         a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',a.text)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/a/\w+"))

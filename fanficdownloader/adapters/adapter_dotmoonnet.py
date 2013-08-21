@@ -141,7 +141,7 @@ class DotMoonNetAdapter(BaseSiteAdapter):
         
         ## Title
         a = body.find('b')
-        self.story.setMetadata('title',a.string)
+        self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url. http://www.dotmoon.net/board/index.php?action=profile;u=1'
         a = body.find('a', href=re.compile(r"index.php\?action=profile;u=\d+"))
