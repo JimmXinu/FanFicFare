@@ -205,7 +205,6 @@ class DokugaComAdapter(BaseSiteAdapter):
             
             a=div.text.split('Category: ')
             if len(a) == 2: self.story.addToList('category', a[1].split('&')[0])
-            self.story.addToList('category', 'Fanfiction')
         
             a=div.text.split('Created: ')
             if len(a) == 2: self.story.setMetadata('datePublished', makeDate(stripHTML(a[1].split('&')[0]), self.dateformat))
