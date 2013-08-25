@@ -1163,6 +1163,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
 
+        print("Count Pages:prefs:%s\nCP plugin available %s\nids:%s"%(prefs['countpagesstats'],'Count Pages' in self.gui.iactions,all_ids))
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
@@ -1370,14 +1371,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         oldmi = db.get_metadata(book_id,index_is_id=True)
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
+            print("old_tags:%s"%old_tags)
+            print("mi.tags:%s"%mi.tags)
             # remove old Completed/In-Progress only if there's a new one.
             if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
                 old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
                 # remove old Last Update tags if there are new ones.
             if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
                 old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
+                
             # mi.tags needs to be list, but set kills dups.
-            mi.tags = list(set(list(old_tags)+mi.tags))
+            # this way also removes case-mismatched dups, keeping old_tags version.
+            foldedcase_tags = dict()
+            for t in list(mi.tags) + list(old_tags):
+                foldedcase_tags[t.lower()] = t
+
+            mi.tags = foldedcase_tags.values()
+                
+            print("mi.tags:%s"%mi.tags)
 
         if book['all_metadata']['langcode']:
             mi.languages=[book['all_metadata']['langcode']]
@@ -1415,7 +1426,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("all_metadata: %s"%book['all_metadata'])
         custom_columns = self.gui.library_view.model().custom_columns
 
-        #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
+        print("prefs['custom_cols'] %s"%prefs['custom_cols'])
         for col, meta in prefs['custom_cols'].iteritems():
             #print("setting %s to %s"%(col,meta))
             if col not in custom_columns:
@@ -1434,15 +1445,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 continue
             label = coldef['label']
             if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
-                db.set_custom(book_id, book['all_metadata'][meta], label=label, commit=False)
+                print("1 db.set_custom(%s,%s,%s)"%(book_id, book['all_metadata'][meta], label))
+                db.set_custom(book_id, book['all_metadata'][meta], label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
+                print("2 db.set_custom(%s,%s,%s)"%(book_id, num, label))
                 db.set_custom(book_id, num, label=label, commit=False)
             elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
                 if meta == 'status-C':
                     val = book['all_metadata']['status'] == 'Completed'
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
+                print("3 db.set_custom(%s,%s,%s)"%(book_id, val, label))
                 db.set_custom(book_id, val, label=label, commit=False)
 
         configuration = None
@@ -1479,6 +1493,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                 val = unicode(book['all_metadata'][meta]).replace(",","")
                         else:
                             val = book['all_metadata'][meta]
+                        print("4 db.set_custom(%s,%s,%s)"%(book_id, val, label))
                         db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
@@ -1495,6 +1510,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         if book['all_metadata'][meta]:
                             vallist = [book['all_metadata'][meta]]
                             
+                        print("5 db.set_custom(%s,%s,%s)"%(book_id, ", ".join(vallist), label))
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
@@ -1507,7 +1523,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 db.set_link_field_for_author(autid, unicode(authurls[i]),
                                              commit=False, notify=False)
 
+        print("About to call db.commit()")
         db.commit()
+        print("After call db.commit()")
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
             
