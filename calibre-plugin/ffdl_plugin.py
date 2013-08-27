@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import time, os, copy, threading, re, platform
+import time, os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
 from datetime import datetime
 from string import Template
 import urllib
 import email
+import traceback
 
 from PyQt4.Qt import (QApplication, QMenu, QToolButton, QTimer)
 
@@ -1003,7 +1004,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 mi = db.get_metadata(book_id,index_is_id=True)
                 if not book['series'] and mi.series != None:
                     book['calibre_series'] = (mi.series,mi.series_index)
-                    print("calibre_series:%s [%s]"%book['calibre_series'])
+                    #print("calibre_series:%s [%s]"%book['calibre_series'])
                 
         if book['good']: # there shouldn't be any !'good' books at this point.
             # if still 'good', make a temp file to write the output to.
@@ -1108,7 +1109,17 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if options['collision'] == CALIBREONLY or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
-            self.update_metadata(db, book['calibre_id'], book, mi, options)
+            try:
+                self.update_metadata(db, book['calibre_id'], book, mi, options)
+            except:
+                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\nStory Details:\n%s"%book
+                print("Error Updating Metadata:\n%s"%det_msg)
+                error_dialog(self.gui,
+                             "Error Updating Metadata",
+                             "<p>An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>.</p>"%(book['url'],book['title'])+
+                             "The ebook has been updated, but the metadata has not.",
+                             det_msg=det_msg,
+                             show=True)
 
     def update_books_finish(self, book_list, options={}, showlist=True):
         '''Notify calibre about updated rows, update external plugins
@@ -1163,7 +1174,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         print("all done, remove temp dir.")
         remove_dir(options['tdir'])
 
-        print("Count Pages:prefs:%s\nCP plugin available %s\nids:%s"%(prefs['countpagesstats'],'Count Pages' in self.gui.iactions,all_ids))
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
@@ -1371,8 +1381,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         oldmi = db.get_metadata(book_id,index_is_id=True)
         if prefs['keeptags']:
             old_tags = db.get_tags(book_id)
-            print("old_tags:%s"%old_tags)
-            print("mi.tags:%s"%mi.tags)
+            #print("old_tags:%s"%old_tags)
+            #print("mi.tags:%s"%mi.tags)
             # remove old Completed/In-Progress only if there's a new one.
             if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
                 old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
@@ -1386,9 +1396,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             for t in list(mi.tags) + list(old_tags):
                 foldedcase_tags[t.lower()] = t
 
-            mi.tags = foldedcase_tags.values()
-                
-            print("mi.tags:%s"%mi.tags)
+            mi.tags = foldedcase_tags.values()   
+            #print("mi.tags:%s"%mi.tags)
 
         if book['all_metadata']['langcode']:
             mi.languages=[book['all_metadata']['langcode']]
@@ -1426,7 +1435,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("all_metadata: %s"%book['all_metadata'])
         custom_columns = self.gui.library_view.model().custom_columns
 
-        print("prefs['custom_cols'] %s"%prefs['custom_cols'])
+        #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
         for col, meta in prefs['custom_cols'].iteritems():
             #print("setting %s to %s"%(col,meta))
             if col not in custom_columns:
@@ -1445,18 +1454,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 continue
             label = coldef['label']
             if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
-                print("1 db.set_custom(%s,%s,%s)"%(book_id, book['all_metadata'][meta], label))
                 db.set_custom(book_id, book['all_metadata'][meta], label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
-                print("2 db.set_custom(%s,%s,%s)"%(book_id, num, label))
                 db.set_custom(book_id, num, label=label, commit=False)
             elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
                 if meta == 'status-C':
                     val = book['all_metadata']['status'] == 'Completed'
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
-                print("3 db.set_custom(%s,%s,%s)"%(book_id, val, label))
                 db.set_custom(book_id, val, label=label, commit=False)
 
         configuration = None
@@ -1471,14 +1477,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     if "," in custcol:
                         (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
 
-                    print("meta:(%s) => custcol:(%s), flag(%s) "%(meta,custcol,flag))
-                    
                     if meta not in book['all_metadata']:
                         print("No value for %s, skipping custom column(%s) update."%(meta,custcol))
                         continue
                     
                     if custcol not in custom_columns:
-                        print("No custom column(%s), skipping."%(custcol))
                         continue
                     else:
                         coldef = custom_columns[custcol]
@@ -1493,7 +1496,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                 val = unicode(book['all_metadata'][meta]).replace(",","")
                         else:
                             val = book['all_metadata'][meta]
-                        print("4 db.set_custom(%s,%s,%s)"%(book_id, val, label))
                         db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
@@ -1510,22 +1512,35 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         if book['all_metadata'][meta]:
                             vallist = [book['all_metadata'][meta]]
                             
-                        print("5 db.set_custom(%s,%s,%s)"%(book_id, ", ".join(vallist), label))
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         # Moved down so author's already in the DB.
         if 'authorUrl' in book['all_metadata']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
-            for i, auth in enumerate(book['author']):
-                #print("===Update author url for %s to %s"%(auth,authurls[i]))
-                autid=db.get_author_id(auth)
-                db.set_link_field_for_author(autid, unicode(authurls[i]),
-                                             commit=False, notify=False)
+            if hasattr(db, 'new_api'): # new_api starts in calibre 1.0.0
+                authorids = db.new_api.get_item_ids('authors',book['author'])
+                authordata = db.new_api.author_data(authorids.values())
+                # print("\n\nauthorids:%s"%authorids)
+                # print("authordata:%s"%authordata)
 
-        print("About to call db.commit()")
+                author_id_to_link_map = dict()
+                for i, author in enumerate(book['author']):
+                    aid = authorids[author]
+                    # this additional check shouldn't be needed after calibre 1.0.0
+                    if authordata[aid]['link'] != authurls[i]: 
+                        author_id_to_link_map[aid] = authurls[i]
+
+                # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
+                db.new_api.set_link_for_authors(author_id_to_link_map)
+            else:
+                # keep for pre-calibre 1.0.0
+                for i, auth in enumerate(book['author']):
+                    #print("===Update author url for %s to %s"%(auth,authurls[i]))
+                    autid=db.get_author_id(auth)
+                    db.set_link_field_for_author(autid, unicode(authurls[i]),
+                                             commit=False, notify=False)
         db.commit()
-        print("After call db.commit()")
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
             
@@ -1917,3 +1932,17 @@ def split_text_to_urls(urls):
 def escapehtml(txt):
     return txt.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")
         
+def pretty_book(d, indent=0, spacer='     '):
+    kindent = spacer * indent
+
+    if isinstance(d, list):
+        return '\n'.join([(pretty_book(v, indent, spacer)) for v in d])
+
+    if isinstance(d, dict):
+        for k in ('password','username'):
+            if k in d and d[k]:
+                d[k]='<was set, removed for security>'
+        return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer)) 
+                          for k, v in d.items()])
+    return "%s%s"%(kindent, d)
+
