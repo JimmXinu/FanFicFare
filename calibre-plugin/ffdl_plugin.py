@@ -1112,7 +1112,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             try:
                 self.update_metadata(db, book['calibre_id'], book, mi, options)
             except:
-                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\nStory Details:\n%s"%book
+                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\nStory Details:\n%s"%pretty_book(book)
                 print("Error Updating Metadata:\n%s"%det_msg)
                 error_dialog(self.gui,
                              "Error Updating Metadata",
@@ -1430,6 +1430,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             pass
 
         db.set_metadata(book_id,mi)
+        # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
+        db.set_authors(book_id,book['author']) # author is a list.
 
         # do configured column updates here.
         #print("all_metadata: %s"%book['all_metadata'])
@@ -1519,23 +1521,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if 'authorUrl' in book['all_metadata']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
             if hasattr(db, 'new_api'): # new_api starts in calibre 1.0.0
-                authorids = db.new_api.get_item_ids('authors',book['author'])
+                authorlist = [ a.replace('&',';') for a in book['author'] ]
+                authorids = db.new_api.get_item_ids('authors',authorlist)
                 authordata = db.new_api.author_data(authorids.values())
                 # print("\n\nauthorids:%s"%authorids)
                 # print("authordata:%s"%authordata)
 
                 author_id_to_link_map = dict()
-                for i, author in enumerate(book['author']):
+                for i, author in enumerate(authorlist):
                     aid = authorids[author]
                     # this additional check shouldn't be needed after calibre 1.0.0
-                    if authordata[aid]['link'] != authurls[i]: 
+                    if aid and ('link' not in authordata[aid] or authordata[aid]['link'] != authurls[i]): 
                         author_id_to_link_map[aid] = authurls[i]
 
                 # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
                 db.new_api.set_link_for_authors(author_id_to_link_map)
             else:
                 # keep for pre-calibre 1.0.0
-                for i, auth in enumerate(book['author']):
+                for i, auth in enumerate(authorlist):
                     #print("===Update author url for %s to %s"%(auth,authurls[i]))
                     autid=db.get_author_id(auth)
                     db.set_link_field_for_author(autid, unicode(authurls[i]),
@@ -1935,8 +1938,8 @@ def escapehtml(txt):
 def pretty_book(d, indent=0, spacer='     '):
     kindent = spacer * indent
 
-    if isinstance(d, list):
-        return '\n'.join([(pretty_book(v, indent, spacer)) for v in d])
+    # if isinstance(d, list):
+    #     return '\n'.join([(pretty_book(v, indent, spacer)) for v in d])
 
     if isinstance(d, dict):
         for k in ('password','username'):
