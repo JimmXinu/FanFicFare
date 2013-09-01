@@ -1539,10 +1539,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
                 author_id_to_link_map = dict()
                 for i, author in enumerate(authorlist):
-                    aid = authorids[author]
-                    # this additional check shouldn't be needed after calibre 1.0.0
-                    if aid and ('link' not in authordata[aid] or authordata[aid]['link'] != authurls[i]): 
-                        author_id_to_link_map[aid] = authurls[i]
+                    author_id_to_link_map[authorids[author]] = authurls[i]
 
                 # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
                 db.new_api.set_link_for_authors(author_id_to_link_map)
