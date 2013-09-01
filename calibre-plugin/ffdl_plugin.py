@@ -1170,10 +1170,20 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.gui.library_view.sort_by_named_field('marked', True)
                 
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
-            
+
+        1+1
+        
         print("all done, remove temp dir.")
+
+        1+1
+        
         remove_dir(options['tdir'])
 
+        1+1
+        
+        print("removed temp dir.")
+
+        
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
