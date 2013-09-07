@@ -131,55 +131,55 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         ## Finding the metadata is a bit of a pain.  Most of the meta
         ## data is in a center.table without a bgcolor.
-        for center in soup.findAll('center'):
-            table = center.find('table',{'bgcolor':None})
-            if table:
-                metastr = stripHTML(str(table)).replace('\n',' ').replace('\t',' ')
-                # Rating: 12+ Story Reviews: 3
-                # Chapters: 3
-                # Characters: Andromeda, Ted, Bellatrix, R. Lestrange, Lucius, Narcissa, OC
-                # Genre(s): Fluff, Romance, Young Adult Era: OtherPairings: Other Pairing, Lucius/Narcissa
-                # Status: Completed
-                # First Published: 2010.09.02
-                # Last Published Chapter: 2010.09.28
-                # Last Updated: 2010.09.28
-                # Favorite Story Of: 1 users
-                # Warnings: Scenes of a Mild Sexual Nature
+        #for center in soup.findAll('center'):
+        table = soup.find('table',{'class':'storymaininfo'})
+        if table:
+            metastr = stripHTML(str(table)).replace('\n',' ').replace('\t',' ')
+            # Rating: 12+ Story Reviews: 3
+            # Chapters: 3
+            # Characters: Andromeda, Ted, Bellatrix, R. Lestrange, Lucius, Narcissa, OC
+            # Genre(s): Fluff, Romance, Young Adult Era: OtherPairings: Other Pairing, Lucius/Narcissa
+            # Status: Completed
+            # First Published: 2010.09.02
+            # Last Published Chapter: 2010.09.28
+            # Last Updated: 2010.09.28
+            # Favorite Story Of: 1 users
+            # Warnings: Scenes of a Mild Sexual Nature
 
-                m = re.match(r".*?Status: Completed.*?",metastr)
-                if m:
-                    self.story.setMetadata('status','Completed')
-                else:
-                    self.story.setMetadata('status','In-Progress')
+            m = re.match(r".*?Status: Completed.*?",metastr)
+            if m:
+                self.story.setMetadata('status','Completed')
+            else:
+                self.story.setMetadata('status','In-Progress')
 
-                m = re.match(r".*?Rating: (.+?) Story Reviews.*?",metastr)
-                if m:
-                    self.story.setMetadata('rating', m.group(1))
+            m = re.match(r".*?Rating: (.+?) Story Reviews.*?",metastr)
+            if m:
+                self.story.setMetadata('rating', m.group(1))
 
-                m = re.match(r".*?Genre\(s\): (.+?) Era.*?",metastr)
-                if m:
-                    for g in m.group(1).split(','):
-                        self.story.addToList('genre',g)
-        
-                m = re.match(r".*?Characters: (.+?) Genre.*?",metastr)
-                if m:
-                    for g in m.group(1).split(','):
-                        self.story.addToList('characters',g)
-        
-                m = re.match(r".*?Warnings: (.+).*?",metastr)
-                if m:
-                    for w in m.group(1).split(','):
-                        if w != 'Now Warnings':
-                            self.story.addToList('warnings',w)
-        
-                m = re.match(r".*?First Published: ([0-9\.]+).*?",metastr)
-                if m:
-                    self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y.%m.%d"))
+            m = re.match(r".*?Genre\(s\): (.+?) Era.*?",metastr)
+            if m:
+                for g in m.group(1).split(','):
+                    self.story.addToList('genre',g)
+    
+            m = re.match(r".*?Characters: (.+?) Genre.*?",metastr)
+            if m:
+                for g in m.group(1).split(','):
+                    self.story.addToList('characters',g)
+    
+            m = re.match(r".*?Warnings: (.+).*?",metastr)
+            if m:
+                for w in m.group(1).split(','):
+                    if w != 'Now Warnings':
+                        self.story.addToList('warnings',w)
+    
+            m = re.match(r".*?First Published: ([0-9\.]+).*?",metastr)
+            if m:
+                self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y.%m.%d"))
 
-                # Updated can have more than one space after it. <shrug>
-                m = re.match(r".*?Last Updated: ([0-9\.]+).*?",metastr)
-                if m:
-                    self.story.setMetadata('dateUpdated',makeDate(m.group(1), "%Y.%m.%d"))
+            # Updated can have more than one space after it. <shrug>
+            m = re.match(r".*?Last Updated: ([0-9\.]+).*?",metastr)
+            if m:
+                self.story.setMetadata('dateUpdated',makeDate(m.group(1), "%Y.%m.%d"))
 
     def getChapterText(self, url):
 
