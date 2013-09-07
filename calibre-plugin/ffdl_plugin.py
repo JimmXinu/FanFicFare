@@ -1530,8 +1530,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # Moved down so author's already in the DB.
         if 'authorUrl' in book['all_metadata']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
+            authorlist = [ a.replace('&',';') for a in book['author'] ]
             if hasattr(db, 'new_api'): # new_api starts in calibre 1.0.0
-                authorlist = [ a.replace('&',';') for a in book['author'] ]
                 authorids = db.new_api.get_item_ids('authors',authorlist)
                 authordata = db.new_api.author_data(authorids.values())
                 # print("\n\nauthorids:%s"%authorids)
