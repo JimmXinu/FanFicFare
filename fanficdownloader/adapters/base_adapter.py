@@ -77,6 +77,8 @@ class BaseSiteAdapter(Configurable):
         self.is_adult=False
         
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        ## Specific UA because too many sites are blocking the default python UA.
+        self.opener.addheaders = [('User-agent', 'FFDL/1.7')]
         self.storyDone = False
         self.metadataDone = False
         self.story = Story(configuration)
