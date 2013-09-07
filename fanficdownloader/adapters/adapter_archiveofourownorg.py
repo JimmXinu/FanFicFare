@@ -210,10 +210,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if a != None:
             warnings = a.findAll('a',{'class':"tag"})
             for warning in warnings:
-                if warning.string == "Author Chose Not To Use Archive Warnings":
-                    warning.string = "No Archive Warnings Apply"
-                if warning.string != "No Archive Warnings Apply":
-                    self.story.addToList('warnings',warning.string)
+                self.story.addToList('warnings',warning.string)
 		
         a = metasoup.find('dd',{'class':"freeform tags"})
         if a != None:
@@ -288,19 +285,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
 		
-        try:
-            # Find Series name from series URL.
-            a = metasoup.find('dd',{'class':"series"})
-            b = a.find('a', href=re.compile(r"/series/\d+"))
-            series_name = b.string
-            series_url = 'http://'+self.host+b['href']
-            series_index = int(a.text.split(' ')[1])
-            self.setSeries(series_name, series_index)
-            self.story.setMetadata('seriesUrl',series_url)
-            
-        except:
-            # I find it hard to care if the series parsing fails
-            pass
+        # Find Series name from series URL.
+        ddseries = metasoup.find('dd',{'class':"series"})
+
+        for i, a in enumerate(ddseries.findAll('a', href=re.compile(r"/series/\d+"))):
+            series_name = stripHTML(a)
+            series_url = 'http://'+self.host+a['href']
+            series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
+            self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
+            self.story.setMetadata('series%02dUrl'%i,series_url)
+            if i == 0:
+                self.setSeries(series_name, series_index)
+                self.story.setMetadata('seriesUrl',series_url)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
