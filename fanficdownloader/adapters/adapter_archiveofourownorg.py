@@ -288,15 +288,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # Find Series name from series URL.
         ddseries = metasoup.find('dd',{'class':"series"})
 
-        for i, a in enumerate(ddseries.findAll('a', href=re.compile(r"/series/\d+"))):
-            series_name = stripHTML(a)
-            series_url = 'http://'+self.host+a['href']
-            series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
-            self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
-            self.story.setMetadata('series%02dUrl'%i,series_url)
-            if i == 0:
-                self.setSeries(series_name, series_index)
-                self.story.setMetadata('seriesUrl',series_url)
+        if ddseries:
+            for i, a in enumerate(ddseries.findAll('a', href=re.compile(r"/series/\d+"))):
+                series_name = stripHTML(a)
+                series_url = 'http://'+self.host+a['href']
+                series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
+                self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
+                self.story.setMetadata('series%02dUrl'%i,series_url)
+                if i == 0:
+                    self.setSeries(series_name, series_index)
+                    self.story.setMetadata('seriesUrl',series_url)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
