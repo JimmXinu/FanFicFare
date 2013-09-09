@@ -199,7 +199,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         for g in genrelist:
             #logger.debug("g:(%s)"%g)
             if g.strip() not in ffnetgenres:
-                logger.info("g not in ffnetgenres")
+                #logger.info("g not in ffnetgenres")
                 goodgenres=False
         if goodgenres:
             self.story.extendList('genre',genrelist)
@@ -266,11 +266,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
-        time.sleep(0.5) ## ffnet(and, I assume, fpcom) tends to fail
+        time.sleep(5.0) ## ffnet(and, I assume, fpcom) tends to fail
                         ## more if hit too fast.  This is in
                         ## additional to what ever the
                         ## slow_down_sleep_time setting is.
+        logger.debug('Getting chapter text from: %s' % url)
         data = self._fetchUrl(url)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
