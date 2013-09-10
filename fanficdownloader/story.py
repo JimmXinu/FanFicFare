@@ -349,6 +349,8 @@ class Story(Configurable):
                 return removeAllEntities(value)
             else:
                 return value
+        else: #if self.getConfig("default_value_"+key):
+            return self.getConfig("default_value_"+key)
         
     def getAllMetadata(self,
                        removeallentities=False,
