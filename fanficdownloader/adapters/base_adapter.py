@@ -379,7 +379,7 @@ fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"0
            "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
            "November":"11", "December":"12" }
 
-def makeDate(string,format):
+def makeDate(string,dateform):
     # Surprise!  Abstracting this turned out to be more useful than
     # just saving bytes.
 
@@ -388,10 +388,10 @@ def makeDate(string,format):
     # there's non-english content. -- ficbook.net now makes that a
     # lie.  It has to do something even more complicated to get
     # Russian month names correct everywhere.
-    do_abbrev = "%b" in format
+    do_abbrev = "%b" in dateform
         
-    if "%B" in format or do_abbrev:
-        format = format.replace("%B","%m").replace("%b","%m")
+    if "%B" in dateform or do_abbrev:
+        dateform = dateform.replace("%B","%m").replace("%b","%m")
         for (name,num) in fullmon.items():
             if do_abbrev:
                 name = name[:3] # first three for abbrev
@@ -399,5 +399,5 @@ def makeDate(string,format):
                 string = string.replace(name,num)
                 break
             
-    return datetime.datetime.strptime(string,format)
+    return datetime.datetime.strptime(string,dateform)
 
