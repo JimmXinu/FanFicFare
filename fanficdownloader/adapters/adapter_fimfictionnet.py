@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 import cookielib as cl
-from datetime import datetime
+#from datetime import datetime
+import dateutil.parser as dparser
 import json
 
 from .. import BeautifulSoup as bs
@@ -185,14 +186,30 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         hrstr="<hr />"
         descdivstr = '<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         self.setDescription(self.url,descdivstr)
-        
+
+        # Can't trust dates from API anymore I'm told.
         # Dates are in Unix time
         # Take the publish date from the first chapter posted
-        rawDatePublished = storyMetadata["chapters"][0]["date_modified"]
-        self.story.setMetadata("datePublished", datetime.fromtimestamp(rawDatePublished))
-        rawDateUpdated = storyMetadata["date_modified"]
-        self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
-
+        # rawDatePublished = storyMetadata["chapters"][0]["date_modified"]
+        # self.story.setMetadata("datePublished", datetime.fromtimestamp(rawDatePublished))
+        # rawDateUpdated = storyMetadata["date_modified"]
+        # self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
+        
+        oldestChapter = None
+        newestChapter = None
+        # Scan all chapters to find the oldest and newest, on
+        # FiMFiction it's possible for authors to insert new chapters
+        # out-of-order or change the dates of earlier ones by editing
+        # them--That WILL break epub update.
+        for chapterDate in soup.findAll('span', {'class':'date'}):
+            chapterDate = dparser.parse(chapterDate.contents[1].strip())
+            if oldestChapter == None or chapterDate < oldestChapter:
+                oldestChapter = chapterDate
+            if newestChapter == None or chapterDate > newestChapter:
+                newestChapter = chapterDate
+        self.story.setMetadata("datePublished", oldestChapter)
+        self.story.setMetadata("dateUpdated", newestChapter)
+        
         chars = soup.find("div", {"class":"inner_data"})
         # fimfic stopped putting the char name on or around the char
         # icon now for some reason.  Pull it from the image name with
@@ -215,7 +232,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 if not isinstance(value,basestring):
                     value = unicode(value)
                 self.story.setMetadata(metakey, value)
-        
+
+        rawGroupList = soup.find('ul', {'id':'story_group_list'})
+        if rawGroupList is not None:
+            for groupName in rawGroupList.findAll('a', {'href':re.compile('^/group/')}):
+                self.story.addToList("groups",stripHTML(groupName))
             
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
