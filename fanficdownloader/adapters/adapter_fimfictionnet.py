@@ -21,8 +21,6 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 import cookielib as cl
-#from datetime import datetime
-import dateutil.parser as dparser
 import json
 
 from .. import BeautifulSoup as bs
@@ -43,6 +41,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self._setURL("http://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
         self.is_adult = False
         
+        # The date format will vary from site to site.
+        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        self.dateformat = "%d %b %Y"
+            
     @staticmethod
     def getSiteDomain():
         return 'www.fimfiction.net'
@@ -202,7 +204,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # out-of-order or change the dates of earlier ones by editing
         # them--That WILL break epub update.
         for chapterDate in soup.findAll('span', {'class':'date'}):
-            chapterDate = dparser.parse(chapterDate.contents[1].strip())
+            date=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",chapterDate.contents[1].strip())
+            chapterDate = makeDate(date,self.dateformat)
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
             if newestChapter == None or chapterDate > newestChapter:
