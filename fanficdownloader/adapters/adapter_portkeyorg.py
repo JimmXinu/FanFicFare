@@ -252,7 +252,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         logger.debug('Getting chapter text from: %s' % url)
         data = self._fetchUrl(url)
 
-#        data = data.replace("HTML>","div>")
+        data = data.replace("HTML>","div>")
         
         soup = bs.BeautifulSoup(data)
 
