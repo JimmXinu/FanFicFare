@@ -1469,7 +1469,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 db.set_custom(book_id, book['all_metadata'][meta], label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
-                db.set_custom(book_id, num, label=label, commit=False)
+                if num != '':
+                    db.set_custom(book_id, num, label=label, commit=False)
             elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
                 if meta == 'status-C':
                     val = book['all_metadata']['status'] == 'Completed'
