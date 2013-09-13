@@ -251,8 +251,10 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
         data = self._fetchUrl(url)
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+
+#        data = data.replace("HTML>","div>")
+        
+        soup = bs.BeautifulSoup(data)
 
         #print("soup:%s"%soup)
         tag = soup.find('td', {'class' : 'story'})
