@@ -69,8 +69,9 @@ def removeEntities(text):
     
     if text is None:
         return ""
-    if not (isinstance(text,str) or isinstance(text,unicode)):
-        return str(text)
+    
+    if not isinstance(text,basestring):
+        return unicode(text)
     
     try:
         t = text.decode('utf-8')
