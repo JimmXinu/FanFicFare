@@ -22,6 +22,7 @@ import re
 import urllib2
 
 from .. import BeautifulSoup as bs
+from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
