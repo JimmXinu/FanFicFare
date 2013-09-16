@@ -487,6 +487,8 @@ class Story(Configurable):
 
         if None in subjectset:
             subjectset.remove(None)
+        if '' in subjectset:
+            subjectset.remove('')
 
         return list(subjectset | set(self.getConfigList("extratags")))
             
