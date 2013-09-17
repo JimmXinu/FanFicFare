@@ -51,7 +51,14 @@
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if fic.failure %}
-	      <span id='error'>{{ fic.failure }}</span>
+          <h3>fanfiction.net</h3>
+          <p>
+            FYI, fanfiction.net appears to be blocking access from Google
+            App Engine, which prevents this web service.  There's
+            nothing I can do about it.  At the time of writing, the
+            latest CLI and calibre plugin versions worked.
+          </p>
+	  <span id='error'>{{ fic.failure }}</span>
 	  {% endif %}
 	  {% if  not fic.completed and not fic.failure %}
 	      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
