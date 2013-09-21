@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <title>{% if fic.completed %} Finished {% else %} {% if fic.failure %} Failed {% else %} Working... {% endif %} {% endif %} - FanFictionDownLoader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
+    {% if not fic.completed and not fic.failure %}
+    <meta http-equiv="refresh" content="10">
+    {% endif %}
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12136939-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
+  <body>
+    <div id='main'>
+      <h1>
+	<a href="/" style="text-decoration: none; color: black;">FanFictionDownLoader</a>
+      </h1>
+      <div style="text-align: center">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "ca-pub-0320924304307555";
+                                          /* Standard */
+                                          google_ad_slot = "8974025478";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+
+      <div id='urlbox'>
+	{% if fic.url %}
+	<div id='greeting'>
+	<p>
+	  {% if fic.completed %}
+ 	      <p>Your fic has finished processing and you can download it now.</p>
+  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  {% if fic.failure %}
+          <h3>fanfiction.net</h3>
+          <p>
+            FYI, fanfiction.net appears to be blocking access from Google
+            App Engine, which prevents this web service.  There's
+            nothing I can do about it.  At the time of writing, the
+            latest CLI and calibre plugin versions worked.
+          </p>
+	  <span id='error'>{{ fic.failure }}</span>
+	  {% endif %}
+	  {% if  not fic.completed and not fic.failure %}
+	      <p>Not done yet.  This page will periodically poll to see if your story has finished.</p>
+  	      <span class="recent">Processing <i>{{ fic.title }}</i></span>
+	      by {{ fic.author }} ({{ fic.format }})
+	  {% endif %}
+	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
+   	  {% if fic.completed and escaped_url %}
+   	      <a href="http://www.convertfiles.com/index.php?url={{ escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
+	  {% endif %}
+	</p>
+	</div>
+	{% endif %}
+	  <p>See your personal list of <a href="/recent">previously downloaded fanfics</a>.</p>
+      </div>
+
+      <div style='text-align: center'>
+	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+	     alt="Powered by Google App Engine" />
+	<br/><br/>
+	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFictionDownLoader</a><br/>
+	Copyright &copy; Fanficdownloader team
+      </div>
+
+      <div style="margin-top: 1em; text-align: center'">
+        <script type="text/javascript"><!--
+                                          google_ad_client = "ca-pub-0320924304307555";
+                                          /* Standard */
+                                          google_ad_slot = "8974025478";
+                                          google_ad_width = 468;
+                                          google_ad_height = 60;
+                                          //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+      </div>
+    </div>
+  </body>
+</html>
