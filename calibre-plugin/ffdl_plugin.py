@@ -1509,7 +1509,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                 val = unicode(book['all_metadata'][meta]).replace(",","")
                         else:
                             val = book['all_metadata'][meta]
-                        db.set_custom(book_id, val, label=label, commit=False)
+                        if val != '':
+                            db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
                         vallist = []
