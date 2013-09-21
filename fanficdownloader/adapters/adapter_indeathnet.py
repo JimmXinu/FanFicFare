@@ -46,8 +46,8 @@ class InDeathNetAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
         
-		
-		  # get storyId from url--url validation guarantees query correct
+        
+        # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
@@ -87,6 +87,34 @@ class InDeathNetAdapter(BaseSiteAdapter):
         postdate = makeDate(d.group('day')+' '+ym.group('mon')+' '+ym.group('year'),self.dateformat)
         return postdate
 
+    def getAuthorData(self):
+        
+        mainUrl = self.url.replace("/archive","")
+        
+        try:
+            maindata = self._fetchUrl(mainUrl)
+            
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                raise exceptions.StoryDoesNotExist(self.meta)
+            else:
+                raise e
+
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        mainsoup = bs.BeautifulSoup(maindata)
+
+        # find first entry
+        e = mainsoup.find('div',{'class':"entry"})
+        
+        # get post author as author
+        d = e.find('div',{'class':"desc"})
+        a = d.find('strong')
+        self.story.setMetadata('author',a.contents[0].string.strip())
+        
+        # Don't seem to be able to get author pages anymore
+        self.story.setMetadata('authorUrl','http://www.indeath.net/')
+        self.story.setMetadata('authorId','0')
+        
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -110,17 +138,13 @@ class InDeathNetAdapter(BaseSiteAdapter):
         h = soup.find('a', id="blog_title")
         t = h.find('span')
         self.story.setMetadata('title',stripHTML(t.contents[0]).strip())
-		
+        
         s = t.find('div')        
         if s != None:
             self.setDescription(url,s)
-		
-        # Find authorid and URL from first link in Recent Entries (don't yet reference 'recent entries' - let's see if that is required)
-        a = soup.find('a', href=re.compile(r"http://www.indeath.net/user/\d+\-[a-z0-9]+/$"))		#http://www.indeath.net/user/9083-cyrex/
-        m = re.search('http://www.indeath.net/user/(?P<id>\d+)\-(?P<name>[a-z0-9]*)/$',a['href'])
-        self.story.setMetadata('authorId',m.group('id'))
-        self.story.setMetadata('authorUrl',a['href'])
-        self.story.setMetadata('author',m.group('name'))
+
+        # Get Author from main blog page since it's not reliably on the archive page
+        self.getAuthorData()
 
         # Find the chapters:
         chapters=soup.findAll('a', title="View entry", href=re.compile(r'http://www.indeath.net/blog/'+self.story.getMetadata('storyId')+"/entry\-(\d+)\-([^/]*)/$"))
@@ -149,21 +173,20 @@ class InDeathNetAdapter(BaseSiteAdapter):
             if len(chapters)==1:
                 self.chapterUrls.append((self.story.getMetadata('title'),chapter['href']))
             else:
-            	ct = stripHTML(chapter)
-            	tnew = re.match("(?i)"+self.story.getMetadata('title')+r" - (?P<newtitle>.*)$",ct)
-            	if tnew:
-            		chaptertitle = tnew.group('newtitle')
-            	else:
-            		chaptertitle = ct
+                ct = stripHTML(chapter)
+                tnew = re.match("(?i)"+self.story.getMetadata('title')+r" - (?P<newtitle>.*)$",ct)
+                if tnew:
+                    chaptertitle = tnew.group('newtitle')
+                else:
+                    chaptertitle = ct
                 self.chapterUrls.append((chaptertitle,chapter['href']))
-	
-		
+
         
         
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-		
+        
         #chapter=bs.BeautifulSoup('<div class="story"></div>')
         data = self._fetchUrl(url)
         soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr','span','center'))
