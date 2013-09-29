@@ -231,10 +231,10 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         BtVS = True
         BtVSNonX = False
         for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
-            if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
+            if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BTVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
                 self.story.addToList('category',cat.string)
             else:
-                if 'Non-BtVS' in cat.string:
+                if 'Non-BtVS' in cat.string or 'Non-BTVS' in cat.string:
                     BtVS = False
                 if 'BtVS/AtS Non-Crossover' == cat.string:
                     BtVSNonX = True
