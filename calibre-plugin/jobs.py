@@ -198,7 +198,10 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             # dup handling from ffdl_plugin needed for anthology updates.
             if chaptercount > urlchaptercount:
                 raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
-                            
+
+            if adapter.getConfig("do_update_hook"):
+                chaptercount = adapter.hookForUpdates(chaptercount)
+
             print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
             print("write to %s"%outfile)
 

@@ -96,8 +96,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if "/images/missing_story.png" in data:
-            raise exceptions.StoryDoesNotExist(self.url)
+        # Can cause problems if a missing story is referenced in a comment.
+        # Shouldn't be needed anyway.
+        # if "/images/missing_story.png" in data:
+        #     raise exceptions.StoryDoesNotExist(self.url)
         
         if "This story has been marked as having adult content." in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -199,20 +201,31 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         
         oldestChapter = None
         newestChapter = None
+        self.newestChapterNum = None # save for comparing during update.
         # Scan all chapters to find the oldest and newest, on
         # FiMFiction it's possible for authors to insert new chapters
         # out-of-order or change the dates of earlier ones by editing
         # them--That WILL break epub update.
-        for chapterDate in soup.findAll('span', {'class':'date'}):
+        for index, chapterDate in enumerate(soup.findAll('span', {'class':'date'})):
             date=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",chapterDate.contents[1].strip())
             chapterDate = makeDate(date,self.dateformat)
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
             if newestChapter == None or chapterDate > newestChapter:
                 newestChapter = chapterDate
-        self.story.setMetadata("datePublished", oldestChapter)
+                self.newestChapterNum = index
+
         self.story.setMetadata("dateUpdated", newestChapter)
         
+        pubdatetag = soup.find('span', {'class':'date_approved'})
+        if pubdatetag is None:
+            self.story.setMetadata("datePublished", oldestChapter)            
+        else:
+            pubdateraw = pubdatetag('span')[1].text
+            datestripped=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",pubdateraw.strip())
+            pubDate = makeDate(datestripped,self.dateformat)
+            self.story.setMetadata("datePublished", pubDate)
+            
         chars = soup.find("div", {"class":"inner_data"})
         # fimfic stopped putting the char name on or around the char
         # icon now for some reason.  Pull it from the image name with
@@ -241,8 +254,16 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             for groupName in rawGroupList.findAll('a', {'href':re.compile('^/group/')}):
                 self.story.addToList("groups",stripHTML(groupName))
             
+    def hookForUpdates(self,chaptercount):
+        if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
+            print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
+            self.oldchapters = self.oldchapters[:self.newestChapterNum]
+        return len(self.oldchapters)
+            
+        
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
+        
         soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

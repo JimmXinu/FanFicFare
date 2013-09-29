@@ -270,7 +270,6 @@ def main(argv,
            elif chaptercount == 0:
                print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % (output_filename)
            else:
-               print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
                if not options.metaonly:
 
                    # update now handled by pre-populating the old
@@ -283,6 +282,11 @@ def main(argv,
                     adapter.oldcover,
                     adapter.calibrebookmark,
                     adapter.logfile) = get_update_data(output_filename)
+
+                   print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
+
+                   if adapter.getConfig("do_update_hook"):
+                       chaptercount = adapter.hookForUpdates(chaptercount)
 
                    writeStory(configuration,adapter,"epub")
                    

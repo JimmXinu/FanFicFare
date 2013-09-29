@@ -247,6 +247,10 @@ class BaseSiteAdapter(Configurable):
             self.metadataDone = True
         return self.story
 
+    def hookForUpdates(self,chaptercount):
+        "Usually not needed."
+        return chaptercount
+
     ###############################
     
     @staticmethod
