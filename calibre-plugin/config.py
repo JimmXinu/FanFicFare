@@ -174,6 +174,7 @@ class ConfigWidget(QWidget):
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
         prefs['suppressauthorsort'] = self.basic_tab.suppressauthorsort.isChecked()
         prefs['suppresstitlesort'] = self.basic_tab.suppresstitlesort.isChecked()
+        prefs['mark'] = self.basic_tab.mark.isChecked()
         prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
@@ -378,8 +379,13 @@ class BasicTab(QWidget):
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
 
-        self.showmarked = QCheckBox("Show added/updated books when finished?",self)
-        self.showmarked.setToolTip("Show added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
+        self.mark = QCheckBox("Mark added/updated books when finished?",self)
+        self.mark.setToolTip("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
+        self.mark.setChecked(prefs['mark'])
+        self.l.addWidget(self.mark)
+
+        self.showmarked = QCheckBox("Show Marked books when finished?",self)
+        self.showmarked.setToolTip("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
 

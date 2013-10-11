@@ -32,6 +32,7 @@ default_prefs['updateepubcover'] = False
 default_prefs['keeptags'] = False
 default_prefs['suppressauthorsort'] = False
 default_prefs['suppresstitlesort'] = False
+default_prefs['mark'] = True
 default_prefs['showmarked'] = False
 default_prefs['urlsfromclip'] = True
 default_prefs['updatedefault'] = True
