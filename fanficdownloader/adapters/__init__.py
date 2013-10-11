@@ -119,6 +119,7 @@ import adapter_nickandgregnet
 import adapter_potterheadsanonymouscom
 import adapter_simplyundeniablecom
 import adapter_scarheadnet
+import adapter_fictionpadcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
