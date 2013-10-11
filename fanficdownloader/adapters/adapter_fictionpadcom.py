@@ -64,7 +64,45 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         # http://fictionpad.com/author/Serdd/stories/4275
         return r"http(s)?://(www\.)?fictionpad\.com/author/(?P<author>[^/]+)/stories/(?P<id>\d+)"
 
+# <form method="post" action="/signin">
+#     <input name="authenticity_token" type="hidden" value="u+cfdXh46dRnwVnSlmE2B2BFmHgu760paqgBG6KQeos=" />
+#     <input type="hidden" name="remember" value="1">
+#     <strong class="help-start text-center">or with FictionPad</strong>
+#     <label class="control-label hidden-placeholder">Pseudonym or Email Address</label>
+#     <input name="login" class="input-block-level" type="text" placeholder="Pseudonym or Email Address" maxlength="50" required autofocus>
+#     <label class="control-label hidden-placeholder">Password</label>
+#     <input name="password" class="input-block-level" type="password" placeholder="Password" minlength="6" required>
+#     <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+#     <p class="help-end">
+#         <a href="/passwordreset">Forgot your password?</a>
+#     </p>
+# </form>
+    def performLogin(self):
+        params = {}
 
+        if self.password:
+            params['login'] = self.username
+            params['password'] = self.password
+        else:
+            params['login'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['remember'] = '1'
+
+        loginUrl = 'http://' + self.getSiteDomain() + '/signin'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['login']))
+
+        ## need to pull empty login page first to get authenticity_token
+        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl))
+        params['authenticity_token']=soup.find('input', {'name':'authenticity_token'})['value']
+        
+        data = self._postUrl(loginUrl, params)
+
+        if "Invalid email/pseudonym and password combination." in data:
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['login']))
+            raise exceptions.FailedToLogin(loginUrl,params['login'])
+            
 
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter.  From that we will get almost all the
@@ -75,13 +113,16 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
+            if "This is a mature story.  Please sign in to read it." in data:
+                self.performLogin()
+                data = self._fetchUrl(url)
+            
             find = "wordyarn.config.page = "
             data = data[data.index(find)+len(find):]
             data = data[:data.index("</script>")]
             data = data[:data.rindex(";")]
             data = data.replace('tables:','"tables":')
             tables = json.loads(data)['tables']
-            #print("data:\n%s"%data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -99,7 +140,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('title',story_ver['title'])
         self.setDescription(url,story_ver['description'])
-        print("story_ver['profile_image_url@2x']:%s"%story_ver['profile_image_url@2x'])
+        
         if not ('assets/story_versions/covers' in story_ver['profile_image_url@2x']):
             self.setCoverImage(url,story_ver['profile_image_url@2x'])
 
