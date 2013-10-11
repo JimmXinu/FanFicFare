@@ -22,7 +22,6 @@ import re
 import urllib2
 import cookielib as cl
 from datetime import datetime
-import json
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML

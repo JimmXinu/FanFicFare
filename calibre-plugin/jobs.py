@@ -8,6 +8,9 @@ __copyright__ = '2012, Jim Miller'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import time, os, traceback
 
 from StringIO import StringIO
@@ -38,13 +41,13 @@ def do_download_worker(book_list, options,
     '''
     server = Server(pool_size=cpus)
 
-    print(options['version'])
+    logger.info(options['version'])
     total = 0
     alreadybad = []
     # Queue all the jobs
-    print("Adding jobs for URLs:")
+    logger.info("Adding jobs for URLs:")
     for book in book_list:
-        print("%s"%book['url'])
+        logger.info("%s"%book['url'])
         if book['good']:
             total += 1
             args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
@@ -87,19 +90,19 @@ def do_download_worker(book_list, options,
         count = count + 1
         notification(float(count)/total, '%d of %d stories finished downloading'%(count,total))
         # Add this job's output to the current log
-        print('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
-        print(job.details)
+        logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
+        logger.info(job.details)
 
         if count >= total:
             # All done!  Output some lists for convenience of some users.
-            print("Successfully downloaded:")
+            logger.info("Successfully downloaded:")
             for book in book_list:
                 if book['good']:
-                    print("%s %s"%(book['title'],book['url']))
-            print("\nUnsuccessful:")
+                    logger.info("%s %s"%(book['title'],book['url']))
+            logger.info("\nUnsuccessful:")
             for book in book_list:
                 if not book['good']:
-                    print("%s %s"%(book['title'],book['url']))
+                    logger.info("%s %s"%(book['title'],book['url']))
             break
 
     server.close()
@@ -147,7 +150,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
 
         ## No need to download at all.  Shouldn't ever get down here.
         if options['collision'] in (CALIBREONLY):
-            print("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
+            logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
             book['comment'] = 'Metadata collected.'
             
         ## checks were done earlier, it's new or not dup or newer--just write it.
@@ -170,7 +173,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 if adapter.logfile:
                     adapter.logfile = adapter.logfile.replace("span id","span notid")
             
-            print("write to %s"%outfile)
+            logger.info("write to %s"%outfile)
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
             
@@ -199,11 +202,12 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             if chaptercount > urlchaptercount:
                 raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
 
-            if adapter.getConfig("do_update_hook"):
+            if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
+                    and adapter.getConfig("do_update_hook"):
                 chaptercount = adapter.hookForUpdates(chaptercount)
 
-            print("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
-            print("write to %s"%outfile)
+            logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
+            logger.info("write to %s"%outfile)
 
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             
@@ -225,7 +229,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             
             log = Log(level=Log.DEBUG)
             # report = []
-            polish({outfile:outfile}, opts, log, print) # report.append
+            polish({outfile:outfile}, opts, log, logger.info) # report.append
         
     except NotGoingToDownload as d:
         book['good']=False
@@ -237,7 +241,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
         book['comment']=unicode(e)
         book['icon']='dialog_error.png'
         book['status'] = 'Error'
-        print("Exception: %s:%s"%(book,unicode(e)))
+        logger.info("Exception: %s:%s"%(book,unicode(e)))
         traceback.print_exc()
         
     #time.sleep(10)

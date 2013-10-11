@@ -7,6 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import time, os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
@@ -143,7 +146,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             file_path = os.path.join(calibre_config_dir,
                                      *("plugins/fanfictiondownloader_macmenuhack.txt".split('/')))
             file_path = os.path.abspath(file_path)
-            print("Plugin %s macmenuhack file_path:%s"%(self.name,file_path))
+            logger.debug("Plugin %s macmenuhack file_path:%s"%(self.name,file_path))
             self.macmenuhack = os.access(file_path, os.F_OK)
             return self.macmenuhack
 
@@ -387,7 +390,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         show_copy_button=False)
 
     def get_urls_from_page(self,url):
-        print("get_urls_from_page URL:%s"%url)
+        logger.debug("get_urls_from_page URL:%s"%url)
         if 'archiveofourown.org' in url:
             configuration = get_ffdl_config(url)
         else:
@@ -541,7 +544,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             return
             
         tdir = PersistentTemporaryDirectory(prefix='ffdl_anthology_')
-        print("tdir:\n%s"%tdir)
+        logger.debug("tdir:\n%s"%tdir)
 
         bookepubio = StringIO(db.format(book_id,'EPUB',index_is_id=True))
         
@@ -617,7 +620,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             '''%(len(urlmapfile),"</li><li>".join(urlmapfile.keys()))
             if not question_dialog(self.gui, 'Stories Removed',
                                text, show_copy_button=False):
-                print("Canceling anthology update due to removed stories.")
+                logger.debug("Canceling anthology update due to removed stories.")
                 return
 
         # Now that we've 
@@ -696,7 +699,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             books = self.convert_urls_to_books(url_list)
 
         options['version'] = self.version
-        print(self.version)
+        logger.debug(self.version)
         
         #print("prep_downloads:%s"%books)
 
@@ -731,7 +734,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         '''
 
         url = book['url']
-        print("url:%s"%url)
+        logger.debug("url:%s"%url)
         mi = None
 
         if not merge: # skip reject list when merging.
@@ -787,7 +790,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             try:
                 adapter.getStoryMetadataOnly()
             except exceptions.FailedToLogin, f:
-                print("Login Failed, Need Username/Password.")
+                logger.warn("Login Failed, Need Username/Password.")
                 userpass = UserPassDialog(self.gui,url,f)
                 userpass.exec_() # exec_ will make it act modal
                 if userpass.status:
@@ -869,14 +872,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
             if book['calibre_id'] != None:
                 # updating an existing book.  Update mode applies.
-                print("update existing id:%s"%book['calibre_id'])
+                logger.debug("update existing id:%s"%book['calibre_id'])
                 book_id = book['calibre_id']
                 # No handling needed: OVERWRITEALWAYS,CALIBREONLY
                 
             # only care about collisions when not ADDNEW
             elif collision != ADDNEW:
                 # 'new' book from URL.  collision handling applies.
-                print("from URL(%s)"%url)
+                logger.debug("from URL(%s)"%url)
     
                 # try to find by identifier url or uri first.
                 searchstr = 'identifiers:"~ur(i|l):=%s"'%url.replace(":","|")
@@ -889,16 +892,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         ## meantime, if it matches the title *and* first
                         ## 100 authors, I'm prepared to assume it's a
                         ## match.
-                        print("reduce author list to 100 only when calibre < 0.8.61")
+                        logger.debug("reduce author list to 100 only when calibre < 0.8.61")
                         authlist = authlist[:100]
                     mi = MetaInformation(story.getMetadata("title", removeallentities=True),
                                          authlist)
                     identicalbooks = db.find_identical_books(mi)
                     if len(identicalbooks) > 0:
-                        print("existing found by title/author(s)")
+                        logger.debug("existing found by title/author(s)")
     
                 else:
-                    print("existing found by identifier URL")
+                    logger.debug("existing found by identifier URL")
                     
                 if collision == SKIP and identicalbooks:
                     raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
@@ -997,7 +1000,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                   suffix='.epub',
                                                   dir=options['tdir'])
                     db.copy_format_to(book_id,fileform,tmp,index_is_id=True)
-                    print("existing epub tmp:"+tmp.name)
+                    logger.debug("existing epub tmp:"+tmp.name)
                     book['epub_for_update'] = tmp.name
 
             if book_id != None and prefs['injectseries']:
@@ -1014,8 +1017,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             tmp = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
                                           suffix='.'+options['fileform'],
                                           dir=options['tdir'])
-            print("title:"+book['title'])
-            print("outfile:"+tmp.name)
+            logger.debug("title:"+book['title'])
+            logger.debug("outfile:"+tmp.name)
             book['outfile'] = tmp.name            
                 
         return
@@ -1093,7 +1096,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             label = custom_columns[prefs['errorcol']]['label']
             if not book['good']:
-                print("record/update error message column %s %s"%(book['title'],book['url']))
+                logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
                 db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True) # book['comment']
             else:
                 db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
@@ -1101,7 +1104,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not book['good']:
             return # only update errorcol on error.
         
-        print("add/update %s %s"%(book['title'],book['url']))
+        logger.debug("add/update %s %s"%(book['title'],book['url']))
         mi = self.make_mi_from_book(book)
                 
         if options['collision'] != CALIBREONLY:
@@ -1113,7 +1116,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.update_metadata(db, book['calibre_id'], book, mi, options)
             except:
                 det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\nStory Details:\n%s"%pretty_book(book)
-                print("Error Updating Metadata:\n%s"%det_msg)
+                logger.error("Error Updating Metadata:\n%s"%det_msg)
                 error_dialog(self.gui,
                              "Error Updating Metadata",
                              "<p>An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>.</p>"%(book['url'],book['title'])+
@@ -1170,19 +1173,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.gui.library_view.sort_by_named_field('marked', True)
                 
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
-
-        1+1
-        
-        print("all done, remove temp dir.")
-
-        1+1
-        
         remove_dir(options['tdir'])
-
-        1+1
-        
-        print("removed temp dir.")
-
         
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
@@ -1277,7 +1268,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         (good_list,bad_list,options) = payload
         total_good = len(good_list)
 
-        print("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['listorder']) for x in good_list ]))
+        logger.debug("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['listorder']) for x in good_list ]))
 
         good_list = sorted(good_list,key=lambda x : x['listorder'])
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
@@ -1303,8 +1294,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             # if still 'good', make a temp file to write the output to.
             tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
                                           dir=options['tdir'])
-            print("title:"+mergebook['title'])
-            print("outfile:"+tmp.name)
+            logger.debug("title:"+mergebook['title'])
+            logger.debug("outfile:"+tmp.name)
             mergebook['outfile'] = tmp.name
 
         self.get_epubmerge_plugin().do_merge(tmp.name,
@@ -1352,7 +1343,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def update_error_column_loop(self,book,db=None,label='errorcol'):
         if book['calibre_id']:
-            print("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+            logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
             db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
@@ -1382,7 +1373,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
             for fmt in fmts:
                 if fmt != formmapping[options['fileform']]:
-                    print("remove f:"+fmt)
+                    logger.debug("remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
 
         return book_id
@@ -1423,7 +1414,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 try:
                     db.set_cover(book_id, epubmi.cover_data[1])
                 except:
-                    print("Failed to set_cover, skipping")
+                    logger.info("Failed to set_cover, skipping")
 
         # implement 'newonly' flags here by setting to the current
         # value again.
@@ -1436,7 +1427,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         try:
                             mi.__setattr__(col,oldmi.__getattribute__(col))
                         except AttributeError:
-                            print("AttributeError? %s"%col)
+                            logger.warn("AttributeError? %s"%col)
                             pass
 
         db.set_metadata(book_id,mi)
@@ -1451,18 +1442,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         for col, meta in prefs['custom_cols'].iteritems():
             #print("setting %s to %s"%(col,meta))
             if col not in custom_columns:
-                print("%s not an existing column, skipping."%col)
+                logger.debug("%s not an existing column, skipping."%col)
                 continue
             coldef = custom_columns[col]
             if col in prefs['custom_cols_newonly'] and prefs['custom_cols_newonly'][col] and not book['added']:
-                print("Skipping custom column(%s) update, set to New Books Only"%coldef['name'])
+                logger.debug("Skipping custom column(%s) update, set to New Books Only"%coldef['name'])
                 continue
             if not meta.startswith('status-') and meta not in book['all_metadata'] or \
                     meta.startswith('status-') and 'status' not in book['all_metadata']:
-                print("No value for %s, skipping custom column(%s) update."%(meta,coldef['name']))
+                logger.debug("No value for %s, skipping custom column(%s) update."%(meta,coldef['name']))
                 continue
             if meta not in permitted_values[coldef['datatype']]:
-                print("%s not a valid column type for %s, skipping."%(col,meta))
+                logger.debug("%s not a valid column type for %s, skipping."%(col,meta))
                 continue
             label = coldef['label']
             if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
@@ -1491,7 +1482,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
 
                     if meta not in book['all_metadata']:
-                        print("No value for %s, skipping custom column(%s) update."%(meta,custcol))
+                        logger.debug("No value for %s, skipping custom column(%s) update."%(meta,custcol))
                         continue
                     
                     if custcol not in custom_columns:
@@ -1579,9 +1570,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             break
 
                 if setting_name:
-                    print("Generate Cover Setting from generate_cover_settings(%s)"%line)
+                    logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%line)
                     if setting_name not in gc_plugin.get_saved_setting_names():
-                        print("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
+                        logger.info("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
                         setting_name = None
                 
             if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
@@ -1591,7 +1582,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 setting_name =  prefs['gc_site_settings']['Default']
                 
             if setting_name:
-                print("Running Generate Cover with settings %s."%setting_name)
+                logger.debug("Running Generate Cover with settings %s."%setting_name)
                 realmi = db.get_metadata(book_id, index_is_id=True)
                 gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
 
@@ -1909,7 +1900,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         break
             
             configuration = get_ffdl_config(book['url'],fileform)
-            print("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
+            logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):
                 tmplt = Template(configuration.getConfig('anthology_title_pattern'))
                 book['title'] = tmplt.safe_substitute({'title':book['title']}).encode('utf8')

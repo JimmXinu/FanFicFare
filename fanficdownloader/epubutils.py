@@ -7,6 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import re, os, traceback
 from zipfile import ZipFile
 from xml.dom.minidom import parseString
@@ -72,7 +75,7 @@ def get_update_data(inputio,
                 # remove all .. and the path part above it, if present.
                 # Mostly for epubs edited by Sigil.
                 src = re.sub(r"([^/]+/\.\./)","",src)
-                print("epubutils: found pre-existing cover image:%s"%src)
+                #print("epubutils: found pre-existing cover image:%s"%src)
                 oldcoverimghref = src
                 oldcoverimgdata = epub.read(src)
                 for item in contentdom.getElementsByTagName("item"):
@@ -81,8 +84,8 @@ def get_update_data(inputio,
                         break
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
-                print("Cover Image %s not found"%src)
-                print("Exception: %s"%(unicode(e)))
+                logger.warn("Cover Image %s not found"%src)
+                logger.warn("Exception: %s"%(unicode(e)))
                 traceback.print_exc()
 
     filecount = 0
@@ -118,8 +121,8 @@ def get_update_data(inputio,
                                 images[longdesc] = data
                                 img['src'] = img['longdesc']
                             except Exception as e:
-                                print("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                print("Exception: %s"%(unicode(e)))
+                                logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+                                logger.warn("Exception: %s"%(unicode(e)))
                                 traceback.print_exc()
                         soup = soup.find('body')
                         # ffdl epubs have chapter title h3
@@ -143,8 +146,8 @@ def get_update_data(inputio,
     except:
         pass
                     
-    for k in images.keys():
-        print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
+    #for k in images.keys():
+        #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
     return (source,filecount,soups,images,oldcover,calibrebookmark,logfile)
 
 def get_path_part(n):
