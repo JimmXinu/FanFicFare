@@ -7,6 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import traceback, copy, threading
 from collections import OrderedDict
 
@@ -523,7 +526,7 @@ class PersonalIniTab(QWidget):
             self.ini.setFont(QFont("Courier",
                                    self.plugin_action.gui.font().pointSize()+1))
         except Exception as e:
-            print("Couldn't get font: %s"%e)
+            logger.error("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(prefs['personal.ini'])
         self.l.addWidget(self.ini)
@@ -559,7 +562,7 @@ class ShowDefaultsIniDialog(QDialog):
             self.ini.setFont(QFont("Courier",
                                    get_gui().font().pointSize()+1))
         except Exception as e:
-            print("Couldn't get font: %s"%e)
+            logger.error("Couldn't get font: %s"%e)
         self.ini.setLineWrapMode(QTextEdit.NoWrap)
         self.ini.setText(text)
         self.ini.setReadOnly(True)

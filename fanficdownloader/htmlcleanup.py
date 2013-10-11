@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+import logging
+logger = logging.getLogger(__name__)
+
 import re
 
 def _unirepl(match):
@@ -31,7 +34,7 @@ def _unirepl(match):
     except:
         # This way, at least if there's more of entities out there
         # that fail, it doesn't blow the entire download.
-        print "Numeric entity translation failed, skipping: &#x%s%s"%(match.group(1),match.group(2))
+        logger.warn("Numeric entity translation failed, skipping: &#x%s%s"%(match.group(1),match.group(2)))
         retval = ""
     return retval
 

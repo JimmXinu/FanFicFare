@@ -7,8 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import traceback, re
 from functools import partial
+
+import logging
+logger = logging.getLogger(__name__)
 
 import urllib
 import email
@@ -207,7 +213,7 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.setCheckable(True)
         self.groupbox.setChecked(False)
         self.groupbox.setFlat(True)
-        print("style:%s"%self.groupbox.styleSheet())
+        #print("style:%s"%self.groupbox.styleSheet())
         self.groupbox.setStyleSheet(gpstyle)
 
         self.gbf = QFrame()
@@ -537,7 +543,7 @@ class LoopProgressDialog(QProgressDialog):
     def updateStatus(self):
         self.setLabelText("%s %d of %d"%(self.status_prefix,self.i+1,len(self.book_list)))
         self.setValue(self.i+1)
-        print(self.labelText())
+        #print(self.labelText())
 
     def do_loop(self):
 
@@ -558,7 +564,7 @@ class LoopProgressDialog(QProgressDialog):
         except Exception as e:
             book['good']=False
             book['comment']=unicode(e)
-            print("Exception: %s:%s"%(book,unicode(e)))
+            logger.error("Exception: %s:%s"%(book,unicode(e)))
             traceback.print_exc()
             
         self.updateStatus()

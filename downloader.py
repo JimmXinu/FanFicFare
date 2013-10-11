@@ -285,7 +285,8 @@ def main(argv,
 
                    print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
 
-                   if adapter.getConfig("do_update_hook"):
+                   if not (options.update and chaptercount == urlchaptercount) \
+                           and adapter.getConfig("do_update_hook"):
                        chaptercount = adapter.hookForUpdates(chaptercount)
 
                    writeStory(configuration,adapter,"epub")

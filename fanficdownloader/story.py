@@ -631,7 +631,7 @@ class Story(Configurable):
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                 
-            logger.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+            #logger.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
             

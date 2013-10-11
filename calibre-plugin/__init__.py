@@ -7,6 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import sys
+if sys.version_info >= (2, 7):
+    import logging
+    logger = logging.getLogger(__name__)
+    loghandler=logging.StreamHandler()
+    loghandler.setFormatter(logging.Formatter("FFDL:%(levelname)s:%(filename)s(%(lineno)d):%(message)s"))
+    logger.addHandler(loghandler)
+    loghandler.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
+
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
