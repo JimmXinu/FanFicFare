@@ -1155,7 +1155,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if self.gui.cover_flow:
             self.gui.cover_flow.dataChanged()
 
-        if showlist: # don't use with anthology
+        if showlist and prefs['mark']: # don't use with anthology or when off
             db = self.gui.current_db
             marked_ids = dict()
             marked_text = "ffdl_success"
