@@ -1127,7 +1127,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def update_books_finish(self, book_list, options={}, showlist=True):
         '''Notify calibre about updated rows, update external plugins
         (Reading Lists & Count Pages) as configured'''
-        
+
         add_list = filter(lambda x : x['good'] and x['added'], book_list)
         add_ids = [ x['calibre_id'] for x in add_list ]
         update_list = filter(lambda x : x['good'] and not x['added'], book_list)
@@ -1155,7 +1155,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if self.gui.cover_flow:
             self.gui.cover_flow.dataChanged()
 
-        if showlist and prefs['mark']: # don't use with anthology or when off
+        if showlist and prefs['mark']: # don't use with anthology
             db = self.gui.current_db
             marked_ids = dict()
             marked_text = "ffdl_success"
@@ -1316,7 +1316,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('FFDL Adding/Updating books.'))
 
-        if good_list or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in self.gui.library_view.model().custom_columns):
+        if good_list or prefs['mark'] or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in self.gui.library_view.model().custom_columns):
             LoopProgressDialog(self.gui,
                                good_list+bad_list,
                                partial(self.update_books_loop, options=options, db=self.gui.current_db),
@@ -1329,22 +1329,24 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         '''Update custom error column if configured.'''
         (empty_list,book_list,options)=payload
         custom_columns = self.gui.library_view.model().custom_columns
-        if prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
+        if prefs['mark'] or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
             self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%len(book_list)))
             label = custom_columns[prefs['errorcol']]['label']
             LoopProgressDialog(self.gui,
                                book_list,
                                partial(self.update_error_column_loop, db=self.gui.current_db, label=label),
-                               partial(self.update_books_finish, options=options, showlist=False),
+                               partial(self.update_books_finish, options=options),
                                init_label="Updating calibre for BAD FanFiction stories...",
                                win_title="Update calibre for BAD FanFiction stories",
                                status_prefix="Updated")
 
     def update_error_column_loop(self,book,db=None,label='errorcol'):
         if book['calibre_id']:
-            logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+            custom_columns = self.gui.library_view.model().custom_columns
+            if (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
+                logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+                db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
