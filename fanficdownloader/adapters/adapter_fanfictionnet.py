@@ -281,10 +281,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # don't care about anything before "<div class='storytextp"
         # (there's a space after storytextp, so no close quote(')) and
         # this kills any body tags.
-        if "<div class='storytextp" not in data:
+        divstr = "<div role='main' class='storytextp"
+        if divstr not in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         else:
-            data = data[data.index("<div class='storytextp"):]
+            data = data[data.index(divstr):]
         data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
         
         soup = bs.BeautifulSoup(data)
