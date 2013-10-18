@@ -129,9 +129,15 @@ class ConfigWidget(QWidget):
         label.setOpenExternalLinks(True)
         self.l.addWidget(label)
 
-        tab_widget = QTabWidget(self)
-        self.l.addWidget(tab_widget)
 
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setFrameShape(QScrollArea.NoFrame)
+        self.scroll_area.setWidgetResizable(True)
+        self.l.addWidget(self.scroll_area)
+
+        tab_widget = QTabWidget(self)
+        self.scroll_area.setWidget(tab_widget)
+        
         self.basic_tab = BasicTab(self, plugin_action)
         tab_widget.addTab(self.basic_tab, 'Basic')
 
@@ -446,15 +452,17 @@ class BasicTab(QWidget):
         topl.addWidget(defs_gb)
 
         horz = QHBoxLayout()
-        topl.addLayout(horz)
-        horz.addWidget(cali_gb)
-        horz.addWidget(rej_gb)
-        
-        horz = QHBoxLayout()
-        topl.addLayout(horz)
-        horz.addWidget(gui_gb)
-        horz.addWidget(misc_gb)
 
+        horz.addWidget(cali_gb)
+
+        vert = QVBoxLayout()
+        vert.addWidget(gui_gb)
+        vert.addWidget(misc_gb)
+        vert.addWidget(rej_gb)
+        
+        horz.addLayout(vert)
+        
+        topl.addLayout(horz)
         topl.insertStretch(-1)
         
     def set_collisions(self):
