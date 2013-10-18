@@ -94,11 +94,10 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
         else:
             params['penname'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
-        params['rememberme'] = '1'
         params['action'] = 'login'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/elysian/user.php'
+        loginUrl = 'http://www.' + self.getSiteDomain() + '/elysian/user.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
