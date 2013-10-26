@@ -323,7 +323,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 </div>
 '''
         elif self.story.getMetadata('storyId') == '0':
-            text=u'''
+            text=u'''<div>
 <h3>45. Pronglet Returns to Hogwarts: Chapter 7</h3>
 <br />
     eyes… but I’m not convinced we should automatically<br />
@@ -332,6 +332,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <br /><br />
     “Sure, invite her along. Does she have children?”<br />
 <br />
+</div>
 '''
         else:
             if self.story.getMetadata('storyId') == '667':

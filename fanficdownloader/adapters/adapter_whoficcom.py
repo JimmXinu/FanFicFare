@@ -228,7 +228,8 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
+        span.name='div'
         return self.utf8FromSoup(url,span)
 
 def getClass():

@@ -26,6 +26,7 @@ from functools import partial
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
+from ..htmlheuristics import replace_br_with_p
 
 logger = logging.getLogger(__name__)
 
@@ -354,13 +355,8 @@ class BaseSiteAdapter(Configurable):
 	    # removes paired, but empty tags.
             if t.string != None and len(t.string.strip()) == 0 :
                 t.extract()
-                
-        retval = soup.__str__('utf8').decode('utf-8')
 
-        if self.getConfig('replace_hr'):
-            # replacing a self-closing tag with a container tag in the
-            # soup is more difficult than it first appears.  So cheat.
-            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
+        retval = soup.__str__('utf8').decode('utf-8')
 
         if self.getConfig('nook_img_fix'):
             # if the <img> tag doesn't have a div or a p around it,
@@ -371,7 +367,19 @@ class BaseSiteAdapter(Configurable):
             
         # Don't want body tags in chapter html--writers add them.
         # This is primarily for epub updates.
-        return re.sub(r"</?body>\r?\n?","",retval)
+        retval = re.sub(r"</?body>\r?\n?","",retval)
+        
+        if self.getConfig("replace_br_with_p"):
+            # Apply heuristic processing to replace <br> paragraph
+            # breaks with <p> tags.
+            retval = replace_br_with_p(self,retval)
+            
+        if self.getConfig('replace_hr'):
+            # replacing a self-closing tag with a container tag in the
+            # soup is more difficult than it first appears.  So cheat.
+            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
+
+        return retval
 
 def cachedfetch(realfetch,cache,url):
     if url in cache:

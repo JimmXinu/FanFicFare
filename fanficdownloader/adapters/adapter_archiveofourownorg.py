@@ -303,7 +303,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 		
-        chapter=bs.BeautifulSoup('<div class="story"></div>')
+        chapter=bs.BeautifulSoup('<div class="story"></div>').find('div')
         data = self._fetchUrl(url)
         soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr'))
 		
