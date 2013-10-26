@@ -214,5 +214,6 @@ class SimplyUndeniableComAdapter(BaseSiteAdapter):
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        div.name='div'
     
         return self.utf8FromSoup(url,div)

@@ -241,5 +241,6 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         
         if None == story:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        story.name='div'
     
         return self.utf8FromSoup(url,story)

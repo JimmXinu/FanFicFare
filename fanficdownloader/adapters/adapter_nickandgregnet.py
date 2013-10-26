@@ -166,10 +166,11 @@ class NickAndGregNetAdapter(BaseSiteAdapter):
 
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-        div = soup.find('table', {'class' : 'tblborder6'})
 
-        if None == div:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+        # wrap a div around it.
+        divsoup = bs.BeautifulStoneSoup('<div class="story"></div>',
+                                        selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        div = divsoup.find('div')
+        div.append(soup.find('table', {'class' : 'tblborder6'}))
+
         return self.utf8FromSoup(url,div)
