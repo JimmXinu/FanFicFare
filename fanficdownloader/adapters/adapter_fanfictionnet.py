@@ -222,14 +222,18 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             elif  metalist[0].startswith('Words'):
                 self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
             elif not donechars:
-                self.story.extendList('characters',metalist[0].split('&'))
+                # with 'pairing' support, pairings are bracketed w/o comma after
+                # [Caspian X, Lucy Pevensie] Edmund Pevensie, Peter Pevensie
+                self.story.extendList('characters',metalist[0].replace('[','').replace(']',',').split(','))
+
+                l = metalist[0]
+                while '[' in l:
+                    self.story.addToList('ships',l[l.index('[')+1:l.index(']')].replace(', ','/'))
+                    l = l[l.index(']')+1:]
+
                 donechars = True
             metalist=metalist[1:]
 
-        # next might be characters, otherwise Reviews, Updated, Published, Words
-        # if not ( metalist[0].startswith('Reviews') or metalist[0].startswith('Updated') or metalist[0].startswith('Published') or metalist[0].startswith('Words') or metalist[0].startswith('Chapters') ):
-        #     self.story.extendList('characters',metalist[0].split('&'))
-        
         if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
         else:
