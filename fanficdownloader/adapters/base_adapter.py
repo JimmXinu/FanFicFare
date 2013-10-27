@@ -372,7 +372,7 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig("replace_br_with_p"):
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
-            retval = replace_br_with_p(self,retval)
+            retval = replace_br_with_p(retval)
             
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the
