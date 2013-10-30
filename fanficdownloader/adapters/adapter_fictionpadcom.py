@@ -180,7 +180,11 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulSoup("<div id='story'>"+self._fetchUrl(url)+"</div>")
+        if not url:
+            data = u"<em>This chapter has no text.</em>"
+        else:
+            data = self._fetchUrl(url)
+        soup = bs.BeautifulSoup(u"<div id='story'>"+data+u"</div>")
         return self.utf8FromSoup(url,soup)
     
 def getClass():
