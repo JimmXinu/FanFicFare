@@ -93,7 +93,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             params['theusername'] = self.getConfig("username")
             params['thepassword'] = self.getConfig("password")
         params['rememberMe'] = '1'
-        params['page'] = 'http://finestories.com/'
+        params['page'] = 'http://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
     
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
@@ -261,8 +261,6 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             
                 last[len(last)-1]=last[len(last)-1].append(next)
                 div.append(div1)
-            
-            
             
         # removing all the left-over stuff    
         for a in div.findAll('span'):
