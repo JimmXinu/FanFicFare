@@ -23,10 +23,6 @@ from . import exceptions as exceptions
 
 def replace_br_with_p(body):
 
-    logger.debug('Body Length.: %d' % len(body))
-    logger.debug('Body First >: %d' % body.find('>'))
-    logger.debug('Body Last <.: %d' % body.rfind("<"))
-
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a reagular space.
     body = body.replace(u'\xa0', u' ')

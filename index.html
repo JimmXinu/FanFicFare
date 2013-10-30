@@ -46,6 +46,14 @@
       {{yourfile}}
       <!--			</div> -->
 
+          <h3>fanfiction.net</h3>
+          <p>
+            Fanfiction.net appears to be blocking access from Google
+            App Engine, which prevents this web service.  There's
+            nothing I can do about it.  At the time of writing, the
+            latest CLI and calibre plugin versions worked.
+          </p>
+	  
       {% if authorized %}
       <form action="/fdown" method="post">
 	<div id='urlbox'>
@@ -57,18 +65,12 @@
 	  <h3>Changes:</h3>
 	  <p>
 	    <ul>
-              <li>Fixes for dark-solace.org.</li>
+              <li>New site: storiesonline.net</li>
+              <li>Add replace_br_with_p heuristic processing feature.  Turn on in personal.ini</li>
+              <li>Handling for fictionpad.com empty chapters. "This chapter has no text."</li>
 	    </ul>
 	  </p>
           
-          <h3>fanfiction.net</h3>
-          <p>
-            Fanfiction.net appears to be blocking access from Google
-            App Engine, which prevents this web service.  There's
-            nothing I can do about it.  At the time of writing, the
-            latest CLI and calibre plugin versions worked.
-          </p>
-	  
 	  <p>
 	    Questions?  Check out our 
 	    <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>.
@@ -77,7 +79,7 @@
 	    If you have any problems with this application, please
 	    report them in
 	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
-	    <a href="http://4-4-77.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
+	    <a href="http://4-4-79.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
 	    {{ error_message }}
