@@ -35,6 +35,9 @@ def replace_br_with_p(body):
     # last tags.
     body = u'<p>'+body[body.index('>')+1:body.rindex("<")]+u'</p>'
 
+    # Nuke div tags surrounding a HR tag.
+    body = re.sub(r'<div[^>]+>\s*<hr[^>]+>\s*</div>', r'\n<hr />\n', body)
+
     # So many people add formatting to their HR tags, and ePub does not allow those, we are supposed to use css.
     # This nukes the hr tag attributes.
     body = re.sub(r'\s*<hr[^>]+>\s*', r'\n<hr />\n', body)
@@ -119,6 +122,9 @@ def replace_br_with_p(body):
     body = re.sub(r'<p([^>]*)>\s*', r'<p\1>', body)
     # superflous cleaning, remove whitespaces leading closing p tags. These does not affect formatting.
     body = re.sub(r'\s*</p>', r'</p>', body)
+
+    # Remove empty tag pairs
+    body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
 
     # re-wrap in div tag.
     body = u'<div>\n' + body + u'\n</div>'
