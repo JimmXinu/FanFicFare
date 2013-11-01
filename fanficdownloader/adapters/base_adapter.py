@@ -352,8 +352,8 @@ class BaseSiteAdapter(Configurable):
             if t.name in ('center'):
                 t['class']=t.name
                 t.name='div'
-	    # removes paired, but empty tags.
-            if t.string != None and len(t.string.strip()) == 0 :
+	    # removes paired, but empty non paragraph tags.
+            if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
                 t.extract()
 
         retval = soup.__str__('utf8').decode('utf-8')
