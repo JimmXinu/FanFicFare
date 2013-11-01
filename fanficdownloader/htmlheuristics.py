@@ -82,7 +82,7 @@ def replace_br_with_p(body):
     breaksMaxIndex = 0;
 
     for i in range(len(breaksCount)):
-        if breaksCount[i] > breaksMax:
+        if breaksCount[i] >= breaksMax:
             breaksMax = breaksCount[i]
             breaksMaxIndex = i
 
@@ -91,6 +91,8 @@ def replace_br_with_p(body):
     for i in range(len(breaksCount)):
         if i <= breaksMaxIndex:
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
+        elif i == breaksMaxIndex+1:
+            body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
