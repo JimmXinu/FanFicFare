@@ -252,7 +252,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         rawGroupList = soup.find('ul', {'id':'story_group_list'})
         if rawGroupList is not None:
             for groupName in rawGroupList.findAll('a', {'href':re.compile('^/group/')}):
-                self.story.addToList("groups",stripHTML(groupName))
+                self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
             
     def hookForUpdates(self,chaptercount):
         if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
