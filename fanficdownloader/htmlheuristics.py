@@ -30,6 +30,10 @@ def replace_br_with_p(body):
     if body.find('>') == -1 or body.rfind("<") == -1:
         return body
 
+    # logger.debug(u'BODY start.: ' + body[:250])
+    # logger.debug(u'BODY end...: ' + body[-250:])
+    # logger.debug(u'BODY: ' + body)
+
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
@@ -81,19 +85,67 @@ def replace_br_with_p(body):
     breaksMax = 0
     breaksMaxIndex = 0;
 
-    for i in range(len(breaksCount)):
+    for i in range(1,len(breaksCount)):
         if breaksCount[i] >= breaksMax:
             breaksMax = breaksCount[i]
             breaksMaxIndex = i
+
+    lines = body.split(u'[br /]')
+    contentLines = 0;
+    contentLinesSum = 0;
+    longestLineLength = 0;
+    averageLineLength = 0;
+
+    for line in lines:
+        lineLen = len(line.strip())
+        if lineLen > 0:
+            contentLines += 1
+            contentLinesSum += lineLen
+            if lineLen > longestLineLength:
+                longestLineLength = lineLen
+
+    averageLineLength = contentLinesSum/contentLines
+
+    logger.debug(u'---')
+    logger.debug(u'Lines.............: ' + str(len(lines)))
+    logger.debug(u'contentLines......: ' + str(contentLines))
+    logger.debug(u'contentLinesSum...: ' + str(contentLinesSum))
+    logger.debug(u'longestLineLength.: ' + str(longestLineLength))
+    logger.debug(u'averageLineLength.: ' + str(averageLineLength))
+
+    if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
+        breaksMaxIndex = 0
+        breaksMax = breaksCount[0]
+
+
+    logger.debug(u'---')
+    logger.debug(u'breaks 1: ' + str(breaksCount[0]))
+    logger.debug(u'breaks 2: ' + str(breaksCount[1]))
+    logger.debug(u'breaks 3: ' + str(breaksCount[2]))
+    logger.debug(u'breaks 4: ' + str(breaksCount[3]))
+    logger.debug(u'breaks 5: ' + str(breaksCount[4]))
+    logger.debug(u'breaks 6: ' + str(breaksCount[5]))
+    logger.debug(u'breaks 7: ' + str(breaksCount[6]))
+    logger.debug(u'breaks 8: ' + str(breaksCount[7]))
+    logger.debug(u'----')
+    logger.debug(u'max found: ' + str(breaksMax))
+    logger.debug(u'max Index: ' + str(breaksMaxIndex))
+    logger.debug(u'----')
+
+    if breaksMaxIndex > 0 and breaksCount[0] > breaksMax and averageLineLength < 90:
+        body = breaksRegexp[0].sub(r'\1 \n\3', body)
 
     # Find all instances of consecutive breaks less than otr equal to the max count use most often
     #  replase those tags to inverted p tag pairs, those with more connsecutive breaks are replaced them with a horisontal line
     for i in range(len(breaksCount)):
         if i <= breaksMaxIndex:
+            logger.debug(str(i) + u' <= breaksMaxIndex (' + str(breaksMaxIndex) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
         elif i == breaksMaxIndex+1:
+            logger.debug(str(i) + u' == breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
+            logger.debug(str(i) + u' > breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
     body = breaksRegexp[8].sub(r'</p>\n<hr />\n<p>', body)
