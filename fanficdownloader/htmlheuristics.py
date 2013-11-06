@@ -23,7 +23,6 @@ from . import exceptions as exceptions
 
 def replace_br_with_p(body):
 
-
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a reagular space.
     body = body.replace(u'\xa0', u' ')
@@ -33,6 +32,7 @@ def replace_br_with_p(body):
 
     # logger.debug(u'BODY start.: ' + body[:250])
     # logger.debug(u'BODY end...: ' + body[-250:])
+    # logger.debug(u'BODY.......: ' + body)
 
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
@@ -42,9 +42,16 @@ def replace_br_with_p(body):
     # Need to look at BeautifulSoup to see if it'll even return breaks that aren't properly formatted (<br />).
     body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
 
-    # Find all bexisting blocks with p, pre and blockquote tags, we need to leave those alone.
+    # Find all bexisting blocks with p, pre and blockquote tags, we need to shields break tags inside those.
+    # This is for "lenient" mode, however it is also used to clear break tags before and after the block elements.
     blocksRegex = re.compile(r'(\s*<br\ */*>\s*)*\s*<(pre|p|blockquote)([^>]*)>(.+?)</\2>\s*(\s*<br\ */*>\s*)*', re.DOTALL)
     body = blocksRegex.sub(r'\n<\2\3>\4</\2>\n', body)
+
+    # if aggressive mode = true
+        # blocksRegex = re.compile(r'(\s*<br\ */*>\s*)*\s*<(pre)([^>]*)>(.+?)</\2>\s*(\s*<br\ */*>\s*)*', re.DOTALL)
+        # In aggressive mode, we also check breakes inside blockquotes, meaning we can get orphaned paragraph tags.
+        # body = re.sub(r'<blockquote([^>]*)>(.+?)</blockquote>', r'<blockquote\1><p>\2</p></blockquote>', body, re.DOTALL)
+    # end aggressive mode
 
     blocks = blocksRegex.finditer(body)
     # For our replacements to work, we need to work backwards, so we reverse the iterator.
@@ -194,9 +201,9 @@ def replace_br_with_p(body):
     body = re.sub(r'\s*(<\/\s*p>\s*){2,}', r'</p>\n', body)
 
     # superflous cleaning, remove whitespaces traling opening p tags. These does affect formatting.
-    body = re.sub(r'<p([^>]*)>\s*', r'<p\1>', body)
+    body = re.sub(r'\s*<p([^>]*)>\s*', r'\n<p\1>', body)
     # superflous cleaning, remove whitespaces leading closing p tags. These does not affect formatting.
-    body = re.sub(r'\s*</p>', r'</p>', body)
+    body = re.sub(r'\s*</p>\s*', r'</p>\n', body)
 
     # Remove empty tag pairs
     body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
@@ -204,7 +211,7 @@ def replace_br_with_p(body):
     body = body.replace(u'{br /}', u'<br />')
     
     # re-wrap in div tag.
-    body = u'<div>\n' + body + u'\n</div>'
+    body = u'<div>\n' + body + u'</div>\n'
 
     return body 
 
