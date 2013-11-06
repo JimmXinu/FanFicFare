@@ -23,6 +23,7 @@ from . import exceptions as exceptions
 
 def replace_br_with_p(body):
 
+
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a reagular space.
     body = body.replace(u'\xa0', u' ')
@@ -32,12 +33,33 @@ def replace_br_with_p(body):
 
     # logger.debug(u'BODY start.: ' + body[:250])
     # logger.debug(u'BODY end...: ' + body[-250:])
-    # logger.debug(u'BODY: ' + body)
 
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
-    body = u'<p>'+body[body.index('>')+1:body.rindex("<")]+u'</p>'
+    body = body[body.index('>')+1:body.rindex("<")]
+
+    # Need to look at BeautifulSoup to see if it'll even return breaks that aren't properly formatted (<br />).
+    body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
+
+    # Find all bexisting blocks with p, pre and blockquote tags, we need to leave those alone.
+    blocksRegex = re.compile(r'(\s*<br\ */*>\s*)*\s*<(pre|p|blockquote)([^>]*)>(.+?)</\2>\s*(\s*<br\ */*>\s*)*', re.DOTALL)
+    body = blocksRegex.sub(r'\n<\2\3>\4</\2>\n', body)
+
+    blocks = blocksRegex.finditer(body)
+    # For our replacements to work, we need to work backwards, so we reverse the iterator.
+    blocksList = []
+    for match in blocks:
+        blocksList.insert(0, match)
+
+    for match in blocksList:
+        group4 =  match.group(4).replace(u'<br />', u'{br /}')
+        body = body[:match.start(4)] + group4 + body[match.end(4):]
+
+    # change surrounding div to a p and remove attrs Top surrounding
+    # tag in all cases now should be div, to just strip the first and
+    # last tags.
+    body = u'<p>' + body + u'</p>'
 
     # Nuke div tags surrounding a HR tag.
     body = re.sub(r'<div[^>]+>\s*<hr[^>]+>\s*</div>', r'\n<hr />\n', body)
@@ -45,9 +67,6 @@ def replace_br_with_p(body):
     # So many people add formatting to their HR tags, and ePub does not allow those, we are supposed to use css.
     # This nukes the hr tag attributes.
     body = re.sub(r'\s*<hr[^>]+>\s*', r'\n<hr />\n', body)
-
-    # Need to look at BeautifulSoup to see if it'll even return breaks that aren't properly formatted (<br />).
-    body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
 
     # Remove leading and trailing breaks from HR tags
     body = re.sub(r'\s*(<br\ \/>)*\s*<hr\ \/>\s*(<br\ \/>)*\s*', r'\n<hr />\n', body)
@@ -117,7 +136,6 @@ def replace_br_with_p(body):
         breaksMaxIndex = 0
         breaksMax = breaksCount[0]
 
-
     logger.debug(u'---')
     logger.debug(u'breaks 1: ' + str(breaksCount[0]))
     logger.debug(u'breaks 2: ' + str(breaksCount[1]))
@@ -163,6 +181,9 @@ def replace_br_with_p(body):
     body = re.sub(r'<p>\s*</p>', r'<p><br/></p>', body)
 
     # Clean up hr tags, and add inverted p tag pairs
+    body = re.sub(r'(<div[^>]+>)*\s*<hr\ \/>\s*(</div>)*', r'\n<hr />\n', body)
+
+    # Clean up hr tags, and add inverted p tag pairs
     body = re.sub(r'\s*<hr\ \/>\s*', r'</p>\n<hr />\n<p>', body)
 
     # Because the previous regexp may cause trouble if the hr tag already had a p tag pair around it, w nee dot repair that.
@@ -180,6 +201,8 @@ def replace_br_with_p(body):
     # Remove empty tag pairs
     body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
 
+    body = body.replace(u'{br /}', u'<br />')
+    
     # re-wrap in div tag.
     body = u'<div>\n' + body + u'\n</div>'
 
