@@ -71,13 +71,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+r"/s/\d+(:\d+)?(;\d+)?$"
+        return re.escape("http://"+self.getSiteDomain())+r"/s/\d+((:\d+)?(;\d+)?$|(:i)?$)"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'Free Registration' in data \
                 or "Invalid Password!" in data \
                 or "Invalid User Name!" in data \
+                or "Log In" in data \
                 or "Access to unlinked chapters requires" in data:
             return True
         else:
@@ -119,7 +120,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self._fetchUrl(url+":i")
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -129,10 +130,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
-            
+            data = self._fetchUrl(url+":i")
+        
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
@@ -151,7 +154,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',stripHTML(a).replace("'s Page",""))
 
         # Find the chapters:
-        chapters = soup.findAll('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+":\d+$"))
+        chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+$"))
         if len(chapters) != 0:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
@@ -166,7 +169,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         i=0
         while i == 0:
             asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+str(skip)))
-        
+
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
                 if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
@@ -174,7 +177,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     break
                 if a[len(a)-1] == lc2:
                     skip=skip+10
-        
+
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('genre',cat.text)
 
@@ -197,14 +200,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         except:
             pass
             
-        for a in lc4.findAll('span', {'class' : 'help'}):
-            a.extract()
-        for a in lc4.findAll('br'):
-            a.extract()
 
-        desc = "%s"%lc4
-        desc = desc[desc.index(">")+1:]
-        desc = desc[:desc.index("<")]
+        desc = lc4.contents[0]
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
             
         for b in lc4.findAll('b'):
@@ -238,7 +235,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if  status != None:
             self.story.setMetadata('status', 'In-Progress')
             if "Last Activity" in status.text:
-                self.story.setMetadata('dateUpdated', makeDate(status.text.split('Activity: ')[1].split(')')[0], self.dateformat))
+                # date is passed as a timestamp and converted in JS.
+                value = status.findNext('noscript').text
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
         else:
             self.story.setMetadata('status', 'Completed')
 
@@ -258,8 +257,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if pager != None:
             urls=pager.findAll('a')
             urls=urls[:len(urls)-1]
-            
-            
+                        
             for ur in urls:
                 soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
