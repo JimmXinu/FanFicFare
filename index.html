@@ -46,12 +46,15 @@
       {{yourfile}}
       <!--			</div> -->
 
-          <h3>fanfiction.net</h3>
+          <h3>fanfiction.net / fimfiction.net</h3>
           <p>
             Fanfiction.net appears to be blocking access from Google
             App Engine, which prevents this web service.  There's
             nothing I can do about it.  At the time of writing, the
             latest CLI and calibre plugin versions worked.
+          </p>
+          <p>It appears that FimFiction.net is also blocking access from Google
+            App Engine now.
           </p>
 	  
       {% if authorized %}
@@ -65,9 +68,8 @@
 	  <h3>Changes:</h3>
 	  <p>
 	    <ul>
-              <li>New site: storiesonline.net</li>
-              <li>Add replace_br_with_p heuristic processing feature.  Turn on in personal User Config.  Thanks, Asbjørn Grandt.</li>
-              <li>Handling for fictionpad.com empty chapters. "This chapter has no text."</li>
+              <li>Fixes for storiesonline.net, thanks davidfor</li>
+              <li>Additional fixes/enhancements for replace_br_with_p heuristic processing feature.  Turn on in personal User Config.  Thanks, Asbjørn Grandt.</li>
 	    </ul>
 	  </p>
           
@@ -79,7 +81,7 @@
 	    If you have any problems with this application, please
 	    report them in
 	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
-	    <a href="http://4-4-79.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
+	    <a href="http://4-4-80.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
 	    {{ error_message }}
