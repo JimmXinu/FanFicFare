@@ -78,7 +78,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     # (text, icon_path, tooltip, keyboard shortcut)
     # icon_path isn't in the zip--icon loaded below.
     action_spec = (name, None,
-                   'Download FanFiction stories from various web sites', ())
+                   _('Download FanFiction stories from various web sites'), ())
     # None for keyboard shortcut doesn't allow shortcut.  () does, there just isn't one yet
 
     action_type = 'global'
@@ -108,7 +108,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # are not found in the zip file will result in null QIcons.
         icon = get_icon('images/icon.png')
 
-        self.qaction.setText('FanFictionDL')
+        self.qaction.setText(_('FanFictionDL'))
         
         # The qaction is automatically created from the action_spec defined
         # above
@@ -709,7 +709,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             options['tdir']=tdir
 
         if 0 < len(filter(lambda x : x['good'], books)):
-            self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.'%len(books)), 3000)
+            self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.')%len(books), 3000)
             LoopProgressDialog(self.gui,
                                books,
                                partial(self.prep_download_loop, options = options, merge=merge),
@@ -1172,7 +1172,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 # Sort by our marked column to display the books in order
                 self.gui.library_view.sort_by_named_field('marked', True)
                 
-        self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.'%(len(update_list) + len(add_list))), 3000)
+        self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)
         remove_dir(options['tdir'])
         
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
@@ -1273,7 +1273,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         good_list = sorted(good_list,key=lambda x : x['listorder'])
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         
-        self.gui.status_bar.show_message(_('Merging %s books.'%total_good))
+        self.gui.status_bar.show_message(_('Merging %s books.')%total_good)
 
         
         existingbook = None
@@ -1331,7 +1331,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         custom_columns = self.gui.library_view.model().custom_columns
         if prefs['mark'] or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
-            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.'%len(book_list)))
+            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.')%len(book_list))
             label = custom_columns[prefs['errorcol']]['label']
             LoopProgressDialog(self.gui,
                                book_list,
