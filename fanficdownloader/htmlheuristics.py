@@ -226,7 +226,7 @@ def replace_br_with_p(body):
     return body
 
 def is_valid_block(block):
-    return str(block).find('<') == 0
+    return str(block).find('<') == 0 and str(block).find('<!') != 0
 
 def soup_up_div(body):
     blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
@@ -245,7 +245,7 @@ def soup_up_div(body):
     for i in soup.contents[0]:
         if str(i).strip().__len__() > 0:
             s = str(i)
-            if is_valid_block(i):
+            if  type(i) == bs.Tag:
                 if  i.name in blockTags:
                     if lastElement > 1:
                         body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
@@ -264,6 +264,8 @@ def soup_up_div(body):
 
                     lastElement = 2
                     body += s
+            elif type(i) == bs.Comment:
+                body += s
             else:
                 if lastElement == 1:
                     body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
