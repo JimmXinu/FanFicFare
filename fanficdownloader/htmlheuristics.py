@@ -18,6 +18,7 @@
 import logging
 logger = logging.getLogger(__name__)
 import re
+import BeautifulSoup as bs
 
 from . import exceptions as exceptions
 
@@ -34,17 +35,22 @@ def replace_br_with_p(body):
     # logger.debug(u'BODY end...: ' + body[-250:])
     # logger.debug(u'BODY.......: ' + body)
 
+    # clean breaks (<br />), removing whitespaces between them.
+    body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
+
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
-    body = body[body.index('>')+1:body.rindex("<")]
+    if is_valid_block(body) and body.find('<div') == 0:
+        body = body[body.index('>')+1:body.rindex("<")]
 
-    # Need to look at BeautifulSoup to see if it'll even return breaks that aren't properly formatted (<br />).
-    body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
+    body = soup_up_div(u'<div>' + body + u'</div>')
+
+    body = body[body.index('>')+1:body.rindex("<")]
 
     # Find all bexisting blocks with p, pre and blockquote tags, we need to shields break tags inside those.
     # This is for "lenient" mode, however it is also used to clear break tags before and after the block elements.
-    blocksRegex = re.compile(r'(\s*<br\ */*>\s*)*\s*<(pre|p|blockquote)([^>]*)>(.+?)</\2>\s*(\s*<br\ */*>\s*)*', re.DOTALL)
+    blocksRegex = re.compile(r'(\s*<br\ />\s*)*\s*<(pre|p|blockquote|table)([^>]*)>(.+?)</\2>\s*(\s*<br\ />\s*)*', re.DOTALL)
     body = blocksRegex.sub(r'\n<\2\3>\4</\2>\n', body)
 
     # if aggressive mode = true
@@ -66,7 +72,7 @@ def replace_br_with_p(body):
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
-    body = u'<p>' + body + u'</p>'
+    # body = u'<p>' + body + u'</p>'
 
     # Nuke div tags surrounding a HR tag.
     body = re.sub(r'<div[^>]+>\s*<hr[^>]+>\s*</div>', r'\n<hr />\n', body)
@@ -181,6 +187,9 @@ def replace_br_with_p(body):
     body = body.replace(u'&squareBracketStart;', u'[')
     body = body.replace(u'&squareBracketEnd;', u']')
 
+    body = body.replace(u'{p}', u'<p>')
+    body = body.replace(u'{/p}', u'</p>')
+
     # If for some reason, a third break makes its way inside the paragraph, preplace that with the empty paragraph for the additional linespaing.
     body = re.sub(r'<p>\s*(<br\ \/>)+', r'<p><br /></p>\n<p>', body)
 
@@ -209,9 +218,64 @@ def replace_br_with_p(body):
     body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
 
     body = body.replace(u'{br /}', u'<br />')
-    
+    body = body.strip()
+
     # re-wrap in div tag.
     body = u'<div>\n' + body + u'</div>\n'
 
-    return body 
+    return body
 
+def is_valid_block(block):
+    return str(block).find('<') == 0
+
+def soup_up_div(body):
+    blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
+    recurseTags = ['blockquote', 'div', 'noscript']
+
+    tag = body[:body.index('>')+1]
+    tagend = body[body.rindex('<'):]
+
+    body = body.replace(u'<br />', u'[br /]')
+
+    soup = bs.BeautifulSoup(body)
+
+    body = u''
+    lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
+
+    for i in soup.contents[0]:
+        if str(i).strip().__len__() > 0:
+            s = str(i)
+            if is_valid_block(i):
+                if  i.name in blockTags:
+                    if lastElement > 1:
+                        body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
+                        body += u'{/p}'
+
+                    lastElement = 1
+
+                    if i.name in recurseTags:
+                        s = soup_up_div(s)
+
+                    body += s.strip() + '\n'
+                else:
+                    if lastElement == 1:
+                        body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
+                        body += u'{p}'
+
+                    lastElement = 2
+                    body += s
+            else:
+                if lastElement == 1:
+                    body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
+                    body += u'{p}'
+
+                lastElement = 3
+                body += s
+
+    if lastElement > 1:
+        body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
+        body += u'{/p}'
+
+    body = body.replace(u'[br /]', u'<br />')
+
+    return tag + body + tagend
