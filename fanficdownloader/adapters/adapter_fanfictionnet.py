@@ -165,7 +165,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # after Rating, the same bit of text containing id:123456 contains
         # Complete--if completed.
-        gui_table1i = soup.find('table',{'cellpadding':'5'})
+        gui_table1i = soup.find('div',{'id':'content_wrapper_inner'})
 
         self.story.setMetadata('title', stripHTML(gui_table1i.find('b'))) # title appears to be only(or at least first) bold tag in gui_table1i
 
