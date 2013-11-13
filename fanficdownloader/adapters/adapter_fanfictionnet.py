@@ -16,6 +16,7 @@
 #
 
 import time
+from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
@@ -205,6 +206,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.extendList('genre',genrelist)
             metalist=metalist[1:]
 
+        # Updated: <span data-xutime='1368059198'>5/8</span> - Published: <span data-xutime='1278984264'>7/12/2010</span>
+        # Published: <span data-xutime='1384358726'>8m ago</span>
+        dates = soup.findAll('span',{'data-xutime':re.compile(r'^\d+$')})
+        if len(dates) > 1 :
+            # updated get set to the same as published upstream if not found.
+            self.story.setMetadata('dateUpdated',datetime.fromtimestamp(float(dates[0]['data-xutime'])))
+        self.story.setMetadata('datePublished',datetime.fromtimestamp(float(dates[-1]['data-xutime'])))
+            
         donechars = False
         while len(metalist) > 0:
             if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:'):
@@ -215,18 +224,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('favs',metalist[0].split(':')[1].strip())
             elif  metalist[0].startswith('Follows:'):
                 self.story.setMetadata('follows',metalist[0].split(':')[1].strip())
-            elif  metalist[0].startswith('Updated'):
-                datefield = metalist[0].split(':')[1].strip()
-                format = '%m/%d/%Y'
-                if datefield.count('/') == 1:
-                    format = '%m/%d'
-                self.story.setMetadata('dateUpdated',makeDate(datefield, format))
-            elif  metalist[0].startswith('Published'):
-                datefield = metalist[0].split(':')[1].strip()
-                format = '%m/%d/%Y'
-                if datefield.count('/') == 1:
-                    format = '%m/%d'
-                self.story.setMetadata('datePublished',makeDate(datefield, format))
             elif  metalist[0].startswith('Words'):
                 self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
             elif not donechars:
