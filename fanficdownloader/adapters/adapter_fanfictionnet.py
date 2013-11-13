@@ -216,9 +216,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             elif  metalist[0].startswith('Follows:'):
                 self.story.setMetadata('follows',metalist[0].split(':')[1].strip())
             elif  metalist[0].startswith('Updated'):
-                self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
+                self.story.setMetadata('dateUpdated',makeDate(metalist[0].split(':')[1].strip(), '%m/%d/%Y'))
             elif  metalist[0].startswith('Published'):
-                self.story.setMetadata('datePublished',makeDate(metalist[0].split(':')[1].strip(), '%m-%d-%y'))
+                self.story.setMetadata('datePublished',makeDate(metalist[0].split(':')[1].strip(), '%m/%d/%Y'))
             elif  metalist[0].startswith('Words'):
                 self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
             elif not donechars:
