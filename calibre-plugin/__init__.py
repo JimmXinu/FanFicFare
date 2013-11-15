@@ -17,6 +17,12 @@ if sys.version_info >= (2, 7):
     loghandler.setLevel(logging.DEBUG)
     logger.setLevel(logging.DEBUG)
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
@@ -33,7 +39,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     calibre utilities to run without needing to load the GUI libraries.
     '''
     name                = 'FanFictionDownLoader'
-    description         = 'UI plugin to download FanFiction stories from various sites.'
+    description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
     version             = (1, 7, 54)
