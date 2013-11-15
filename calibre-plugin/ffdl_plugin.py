@@ -39,6 +39,12 @@ from calibre.constants import config_dir as calibre_config_dir
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin_icon_resources, get_icon,
                                          create_menu_action_unique, get_library_uuid)
 
@@ -77,7 +83,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     # (text, icon_path, tooltip, keyboard shortcut)
     # icon_path isn't in the zip--icon loaded below.
-    action_spec = (name, None,
+    action_spec = (_('FanFictionDownLoader'), None,
                    _('Download FanFiction stories from various web sites'), ())
     # None for keyboard shortcut doesn't allow shortcut.  () does, there just isn't one yet
 
@@ -231,78 +237,89 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             self.menu.clear()
             self.actions_unique_map = {}
             self.menu_actions = []
-            self.add_action = self.create_menu_item_ex(self.menu, '&Add New from URL(s)', image='plus.png',
+            self.add_action = self.create_menu_item_ex(self.menu, _('&Add New from URL(s)'), image='plus.png',
                                                        unique_name='Add New FanFiction Book(s) from URL(s)',
-                                                       shortcut_name='Add New FanFiction Book(s) from URL(s)',
+                                                       shortcut_name=_('Add New FanFiction Book(s) from URL(s)'),
                                                        triggered=self.add_dialog )
 
-            self.update_action = self.create_menu_item_ex(self.menu, '&Update Existing FanFiction Book(s)', image='plusplus.png',
+            self.update_action = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Book(s)'), image='plusplus.png',
+                                                          unique_name='&Update Existing FanFiction Book(s)',
                                                           triggered=self.update_dialog)
 
             if self.get_epubmerge_plugin():
                 self.menu.addSeparator()
-                self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs to Download from Web Page', image='view.png',
+                self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs to Download from Web Page'), image='view.png',
                                                                     unique_name='Get Story URLs from Web Page',
                                                                     triggered=self.get_urls_from_page_menu)
                 
-                self.makeanth_action = self.create_menu_item_ex(self.menu, '&Make Anthology Epub Manually from URL(s)', image='plusplus.png',
+                self.makeanth_action = self.create_menu_item_ex(self.menu, _('&Make Anthology Epub Manually from URL(s)'), image='plusplus.png',
                                                                 unique_name='Make FanFiction Anthology Epub Manually from URL(s)',
-                                                                shortcut_name='Make FanFiction Anthology Epub Manually from URL(s)',
+                                                                shortcut_name=_('Make FanFiction Anthology Epub Manually from URL(s)'),
                                                                 triggered=partial(self.add_dialog,merge=True) )
                 
-                self.updateanth_action = self.create_menu_item_ex(self.menu, '&Update Anthology Epub', image='plusplus.png',
+                self.updateanth_action = self.create_menu_item_ex(self.menu, _('&Update Anthology Epub'), image='plusplus.png',
                                                                   unique_name='Update FanFiction Anthology Epub',
-                                                                  shortcut_name='Update FanFiction Anthology Epub',
+                                                                  shortcut_name=_('Update FanFiction Anthology Epub'),
                                                                   triggered=self.update_anthology)
 
             if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
+                
                 self.menu.addSeparator()
                 addmenutxt, rmmenutxt = None, None
                 if prefs['addtolists'] and prefs['addtoreadlists'] :
-                    addmenutxt = 'Add to "To Read" and "Send to Device" Lists'
+                    addmenutxt = _('Add to "To Read" and "Send to Device" Lists')
                     if prefs['addtolistsonread']:
-                        rmmenutxt = 'Remove from "To Read" and add to "Send to Device" Lists'
+                        rmmenutxt = _('Remove from "To Read" and add to "Send to Device" Lists')
                     else:
-                        rmmenutxt = 'Remove from "To Read" Lists'
+                        rmmenutxt = _('Remove from "To Read" Lists')
                 elif prefs['addtolists'] :
-                    addmenutxt = 'Add Selected to "Send to Device" Lists'
+                    addmenutxt = _('Add Selected to "Send to Device" Lists')
                 elif prefs['addtoreadlists']:
-                    addmenutxt = 'Add to "To Read" Lists'
-                    rmmenutxt = 'Remove from "To Read" Lists'
+                    addmenutxt = _('Add to "To Read" Lists')
+                    rmmenutxt = _('Remove from "To Read" Lists')
 
                 if addmenutxt:
-                    self.add_send_action = self.create_menu_item_ex(self.menu, addmenutxt, image='plusplus.png',
+                    self.add_send_action = self.create_menu_item_ex(self.menu, addmenutxt,
+                                                                    unique_name='Add to "To Read" and "Send to Device" Lists',
+                                                                    image='plusplus.png',
                                                                     triggered=partial(self.update_lists,add=True))
 
                 if rmmenutxt:
-                    self.add_remove_action = self.create_menu_item_ex(self.menu, rmmenutxt, image='minusminus.png',
+                    self.add_remove_action = self.create_menu_item_ex(self.menu, rmmenutxt,
+                                                                      unique_name='Remove from "To Read" and add to "Send to Device" Lists',
+                                                                      image='minusminus.png',
                                                                       triggered=partial(self.update_lists,add=False))
                 
             self.menu.addSeparator()
-            self.get_list_action = self.create_menu_item_ex(self.menu, 'Get URLs from Selected Books', image='bookmarks.png',
+            self.get_list_action = self.create_menu_item_ex(self.menu, _('Get URLs from Selected Books'),
+                                                            unique_name='Get URLs from Selected Books',
+                                                            image='bookmarks.png',
                                                             triggered=self.list_story_urls)
 
             if not self.get_epubmerge_plugin():
-                self.get_list_url_action = self.create_menu_item_ex(self.menu, 'Get Story URLs from Web Page', image='view.png',
+                self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'),
+                                                                    unique_name='Get Story URLs from Web Page',
+                                                                    image='view.png',
                                                                     triggered=self.get_urls_from_page_menu)
 
-            self.reject_list_action = self.create_menu_item_ex(self.menu, 'Reject Selected Books', image='rotate-right.png',
+            self.reject_list_action = self.create_menu_item_ex(self.menu, _('Reject Selected Books'),
+                                                               unique_name='Reject Selected Books', image='rotate-right.png',
                                                                triggered=self.reject_list_urls)
 
             # print("platform.system():%s"%platform.system())
             # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
             if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
                 self.menu.addSeparator()
-                self.config_action = self.create_menu_item_ex(self.menu, '&Configure Plugin',
+                self.config_action = self.create_menu_item_ex(self.menu, _('&Configure Plugin'),
                                                               image= 'config.png',
                                                               unique_name='Configure FanFictionDownLoader',
-                                                              shortcut_name='Configure FanFictionDownLoader',
+                                                              shortcut_name=_('Configure FanFictionDownLoader'),
                                                               triggered=partial(do_user_config,parent=self.gui))
             
-                self.about_action = self.create_menu_item_ex(self.menu, 'About Plugin',
+                self.about_action = self.create_menu_item_ex(self.menu, _('About Plugin'),
                                                              image= 'images/icon.png',
                                                              unique_name='About FanFictionDownLoader', 
-                                                             shortcut_name='About FanFictionDownLoader', 
+                                                             shortcut_name=_('About FanFictionDownLoader'), 
                                                              triggered=self.about)
             
             # Before we finalize, make sure we delete any actions for menus that are no longer displayed
@@ -373,7 +390,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             except:
                 urltxt = ""
         
-        d = CollectURLDialog(self.gui,"Get Story URLs from Web Page",urltxt,self.get_epubmerge_plugin())
+        d = CollectURLDialog(self.gui,_("Get Story URLs from Web Page"),urltxt,self.get_epubmerge_plugin())
         d.exec_()
         if not d.status:
             return
@@ -418,9 +435,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            book_list,
                            partial(self.get_list_story_urls_loop, db=self.gui.current_db),
                            self.get_list_story_urls_finish,
-                           init_label="Collecting URLs for stories...",
-                           win_title="Get URLs for stories",
-                           status_prefix="URL retrieved")
+                           init_label=_("Collecting URLs for stories..."),
+                           win_title=_("Get URLs for stories"),
+                           status_prefix=_("URL retrieved"))
             
     def get_list_story_urls_loop(self,book,db=None):
         if book['calibre_id']:
@@ -465,9 +482,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            book_list,
                            partial(self.reject_list_urls_loop, db=self.gui.current_db),
                            self.reject_list_urls_finish,
-                           init_label="Collecting URLs for Reject List...",
-                           win_title="Get URLs for Reject List",
-                           status_prefix="URL retrieved")
+                           init_label=_("Collecting URLs for Reject List..."),
+                           win_title=_("Get URLs for Reject List"),
+                           status_prefix=_("URL retrieved"))
             
     def reject_list_urls_loop(self,book,db=None):
         self.get_list_story_urls_loop(book,db) # common with get_list_story_urls_loop
@@ -501,7 +518,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.gui.iactions['Remove Books'].do_library_delete(d.get_reject_list_ids())
             
         else:
-            message="<p>Rejecting FFDL URLs: None of the books selected have FanFiction URLs.</p><p>Proceed to Remove?</p>"
+            message="<p>"+_("Rejecting FFDL URLs: None of the books selected have FanFiction URLs.")+"</p><p>"+_("Proceed to Remove?")+"</p>"
             if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
@@ -523,7 +540,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def update_anthology(self):
         if not self.get_epubmerge_plugin():
-            self.gui.status_bar.show_message(_('Cannot Make Anthologys without EpubMerge 1.3.0+'), 3000)
+            self.gui.status_bar.show_message(_('Cannot Make Anthologys without %s')%'EpubMerge 1.3.1+', 3000)
             return
             
         if not self.is_library_view():
@@ -559,7 +576,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if not filenames or len(filenames) != len (url_list):
             info_dialog(self.gui, _("Cannot Update Anthology"),
-                        _("<p>Cannot Update Anthology</p><p>Book isn't an FFDL Anthology or contains book(s) without valid FFDL URLs."),
+                        "<p>"+_("Cannot Update Anthology")+"</p><p>"+_("Book isn't an FFDL Anthology or contains book(s) without valid FFDL URLs."),
                         show=True,
                         show_copy_button=False)
             remove_dir(tdir)
@@ -611,14 +628,17 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if urlmapfile:
             text = '''
-            <p>There are %d stories in the current anthology that are <b>not</b> going kept if you go ahead.</p>
-            <p>Story URLs that will be removed:</p>
-            <ul>
-            <li>%s</li>
-            </ul>
-            <p>Update anyway?</p>
-            '''%(len(urlmapfile),"</li><li>".join(urlmapfile.keys()))
-            if not question_dialog(self.gui, 'Stories Removed',
+                 <p>%s</p>
+                 <p>%s</p>
+                 <ul>
+                 <li>%s</li>
+                 </ul>
+                 <p>%s</p>'''%(
+                _('There are %d stories in the current anthology that are <b>not</b> going to be kept if you go ahead.')%len(urlmapfile),
+                _('Story URLs that will be removed:'),
+                "</li><li>".join(urlmapfile.keys()),
+                _('Update anyway?'))
+            if not question_dialog(self.gui, _('Stories Removed'),
                                text, show_copy_button=False):
                 logger.debug("Canceling anthology update due to removed stories.")
                 return
@@ -649,9 +669,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                            book_list,
                            partial(self.populate_book_from_calibre_id, db=self.gui.current_db),
                            self.update_dialog_finish,
-                           init_label="Collecting stories for update...",
-                           win_title="Get stories for updates",
-                           status_prefix="URL retrieved")            
+                           init_label=_("Collecting stories for update..."),
+                           win_title=_("Get stories for updates"),
+                           status_prefix=_("URL retrieved"))            
         
         #books = self.convert_calibre_ids_to_books(db, book_ids)
         #print("update books:%s"%books)
@@ -660,7 +680,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         '''Present list to update and head to prep when done.'''
         
         d = UpdateExistingDialog(self.gui,
-                                 'Update Existing List',
+                                 _('Update Existing List'),
                                  prefs,
                                  self.qaction.icon(),
                                  book_list,
@@ -740,23 +760,35 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not merge: # skip reject list when merging.
             if rejecturllist.check(url):
                 rejnote = rejecturllist.get_full_note(url)
-                if question_dialog(self.gui, 'Reject URL?',
-                                   '<h3>Reject URL?</h3>'+
-                                   '<p><b>%s</b> is on your Reject URL list:</p><p>"<b>%s</b>"</p>'%(url,rejnote)+
-                                   "<p>Click '<b>Yes</b>' to Reject.</p>"+
-                                   "<p>Click '<b>No</b>' to download anyway.</p>",
+                if question_dialog(self.gui, _('Reject URL?'),'''
+                          <h3>%s</h3>
+                          <p>%s</p>
+                          <p>"<b>%s</b>"</p>
+                          <p>%s</p>
+                          <p>%s</p>'''%(
+                        _('Reject URL?'),
+                        _('<b>%s</b> is on your Reject URL list:')%url,
+                        rejnote,
+                        _("Click '<b>Yes</b>' to Reject."),
+                        _("Click '<b>No</b>' to download anyway.")),
                                    show_copy_button=False):
-                    book['comment'] = "Story on Reject URLs list (%s)."%rejnote
+                    book['comment'] = _("Story on Reject URLs list (%s).")%rejnote
                     book['good']=False
                     book['icon']='rotate-right.png'
-                    book['status'] = 'Rejected'
+                    book['status'] = _('Rejected')
                     return
                 else:
-                    if question_dialog(self.gui, 'Remove Reject URL?',
-                                       "<h3>Remove URL from Reject List?</h3>"+
-                                       '<p><b>%s</b> is on your Reject URL list:</p><p>"<b>%s</b>"</p>'%(url,rejnote)+
-                                       "<p>Click '<b>Yes</b>' to remove it from the list,</p>"+
-                                       "<p>Click '<b>No</b>' to leave it on the list.</p>",
+                    if question_dialog(self.gui, _('Remove Reject URL?'),'''
+                              <h3>%s</h3>
+                              <p>%s</p>
+                              <p>"<b>%s</b>"</p>
+                              <p>%s</p>
+                              <p>%s</p>'''%(
+                            _("Remove URL from Reject List?"),
+                            _('<b>%s</b> is on your Reject URL list:')%url,
+                            rejnote,
+                            _("Click '<b>Yes</b>' to remove it from the list,"),
+                            _("Click '<b>No</b>' to leave it on the list.")),
                                        show_copy_button=False):
                         rejecturllist.remove(url)
             
@@ -773,7 +805,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         # Dialogs should prevent this case now.
         if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
-            raise NotGoingToDownload("Cannot update non-epub format.")
+            raise NotGoingToDownload(_("Cannot update non-epub format."))
         
         if not book['good']:
             # book has already been flagged bad for whatever reason.
@@ -798,8 +830,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     adapter.password = userpass.passwd.text()
                 
             except exceptions.AdultCheckRequired:
-                if question_dialog(self.gui, 'Are You Adult?', '<p>'+
-                                   "%s requires that you be an adult.  Please confirm you are an adult in your locale:"%url,
+                if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
+                                   _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
                                    show_copy_button=False):
                     adapter.is_adult=True
 
@@ -813,19 +845,23 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             identicalbooks = db.search_getting_ids(searchstr, None)
             # print("searchstr:%s"%searchstr)
             # print("identicalbooks:%s"%identicalbooks)
-            if len(identicalbooks) > 0 and question_dialog(self.gui, 'Skip Story?',
-                                                           '<h3>Skip Anthology Story?</h3>'+
-                                                           '<p>"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.</p>'%
-                                                           (story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')])+
-                                                           "<p>Click '<b>Yes</b>' to Skip.</p>"+
-                                                           "<p>Click '<b>No</b>' to download anyway.</p>",
+            if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
+                                                              <h3>%s</h3>
+                                                              <p>%s</p>
+                                                              <p>%s</p>
+                                                              <p>%s</p>
+                                                           '''%(
+                                                           _('Skip Anthology Story?'),
+                                                           _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                           _("Click '<b>Yes</b>' to Skip."),
+                                                           _("Click '<b>No</b>' to download anyway.")),
                                                            show_copy_button=False):
-                book['comment'] = "Story in Series Anthology(%s)."%series
+                book['comment'] = _("Story in Series Anthology(%s).")%series
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
                 book['good']=False
                 book['icon']='rotate-right.png'
-                book['status'] = 'Skipped'
+                book['status'] = _('Skipped')
                 return
                 
 
@@ -853,7 +889,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['password'] = adapter.password
 
         book['icon'] = 'plus.png'
-        book['status'] = 'Add'
+        book['status'] = _('Add')
         if story.getMetadataRaw('datePublished'):
             book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
         if story.getMetadataRaw('dateUpdated'):
@@ -866,7 +902,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not merge:# skip all the collision code when d/ling for merging.
             if collision in (CALIBREONLY):
                 book['icon'] = 'metadata.png'
-                book['status'] = 'Meta'
+                book['status'] = _('Meta')
             
             book_id = None
             
@@ -904,7 +940,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     logger.debug("existing found by identifier URL")
                     
                 if collision == SKIP and identicalbooks:
-                    raise NotGoingToDownload("Skipping duplicate story.","list_remove.png")
+                    raise NotGoingToDownload(_("Skipping duplicate story."),"list_remove.png")
     
                 if len(identicalbooks) > 1:
                     raise NotGoingToDownload("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite.","minusminus.png")
@@ -918,47 +954,52 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     book_id = identicalbooks.pop()
                     book['calibre_id'] = book_id
                     book['icon'] = 'edit-redo.png'
-                    book['status'] = 'Update'
+                    book['status'] = _('Update')
     
                 if book_id and mi: # book_id and mi only set if matched by title/author.
                     liburl = self.get_story_url(db,book_id)
                     if book['url'] != liburl and prefs['checkforurlchange']:
-                        if collision in (OVERWRITE,OVERWRITEALWAYS):
-                            updat="overwrit"
-                        else:
-                            updat="updat"
-                        if not question_dialog(self.gui, 'Change Story URL?',
-                                               '<h3>Change Story URL?</h3>'+
-                                               '<p><b>%s</b> by <b>%s</b> is already in your library with a different source URL:</p>'%
-                                                   (mi.title,', '.join(mi.author))+
-                                               '<p>In library: <a href="%(liburl)s">%(liburl)s</a></p><p>New URL: <a href="%(newurl)s">%(newurl)s</a></p>'%
-                                                   {'liburl':liburl,'newurl':book['url']}+
-                                               "<p>Click '<b>Yes</b>' to %se book with new URL.</p>"%updat+
-                                               "<p>Click '<b>No</b>' to skip %sing this book.</p>"%updat,
+                        if not question_dialog(self.gui, _('Change Story URL?'),'''
+                                                  <h3>%s</h3>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>'''%(
+                                _('Change Story URL?'),
+                                _('<b>%s</b> by <b>%s</b> is already in your library with a different source URL:')%(mi.title,', '.join(mi.author)),
+                                _('In library: <a href="%(liburl)s">%(liburl)s</a>')%{'liburl':liburl},
+                                _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
+                                _("Click '<b>Yes</b>' to update/overwrite book with new URL."),
+                                _("Click '<b>No</b>' to skip updating/overwriting this book.")),
                                                show_copy_button=False):
-                            if question_dialog(self.gui, 'Download as New Book?',
-                                               '<h3>Download as New Book?</h3>'+
-                                               '<p><b>%s</b> by <b>%s</b> is already in your library with a different source URL.</p>'%
-                                               (mi.title,', '.join(mi.author))+
-                                               '<p>You chose not to update the existing book.  Do you want to add a new book for this URL?</p>'+
-                                               '<p>New URL: <a href="%(newurl)s">%(newurl)s</a></p>'%
-                                               {'newurl':book['url']}+
-                                               "<p>Click '<b>Yes</b>' to a new book with new URL.</p>"+
-                                               "<p>Click '<b>No</b>' to skip URL.</p>",
+                            if question_dialog(self.gui, _('Download as New Book?'),'''
+                                                  <h3>%s</h3>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>
+                                                  <p>%s</p>'''%(
+                                    _('Download as New Book?'),
+                                    _('<b>%s</b> by <b>%s</b> is already in your library with a different source URL.')%(mi.title,', '.join(mi.author)),
+                                    _('You chose not to update the existing book.  Do you want to add a new book for this URL?'),
+                                    _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
+                                    _("Click '<b>Yes</b>' to a new book with new URL."),
+                                    _("Click '<b>No</b>' to skip URL.")),
                                                show_copy_button=False):
                                 book_id = None
                                 mi = None
                                 book['calibre_id'] = None
                             else:
-                                book['comment'] = "Update declined by user due to differing story URL(%s)"%liburl
+                                book['comment'] = _("Update declined by user due to differing story URL(%s)")%liburl
                                 book['good']=False
                                 book['icon']='rotate-right.png'
-                                book['status'] = 'Different URL'
+                                book['status'] = _('Different URL')
                                 return
         
             if book_id != None and collision != ADDNEW:
                 if collision in (CALIBREONLY):
-                    book['comment'] = 'Metadata collected.'
+                    book['comment'] = _('Metadata collected.')
                     # don't need temp file created below.
                     return
                 
@@ -974,14 +1015,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         urlchaptercount = int(story.getMetadata('numChapters'))
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
-                                raise NotGoingToDownload("Already contains %d chapters."%chaptercount,'edit-undo.png')
+                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
                             else:
                                 # UPDATEALWAYS
                                 skip_date_update = True
                         elif chaptercount > urlchaptercount:
-                            raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
+                            raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
-                            raise NotGoingToDownload("FFDL doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update.",'dialog_error.png')
+                            raise NotGoingToDownload(_("FFDL doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
         
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
@@ -989,7 +1030,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     lastupdated=story.getMetadataRaw('dateUpdated').date()
                     fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8]).date()
                     if fileupdated > lastupdated:
-                        raise NotGoingToDownload("Not Overwriting, web site is not newer.",'edit-undo.png')
+                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
         
                 # For update, provide a tmp file copy of the existing epub so
                 # it can't change underneath us.  Now also overwrite for logpage preserve.
@@ -1053,17 +1094,19 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             ## No good stories to try to download, go straight to
             ## updating error col.
             msg = '''
-<p>None of the <b>%d</b> URLs/stories given can be/need to be downloaded.</p>
-<p>See log for details.</p>
-<p>Proceed with updating your library(Error Column, if configured)?</p>
-'''%len(book_list)
+                    <p>%s</p>
+                    <p>%s</p>
+                    <p>%s</p>'''%(
+                _('None of the <b>%d</b> URLs/stories given can be/need to be downloaded.')%len(book_list),
+                _('See log for details.'),
+                _('Proceed with updating your library(Error Column, if configured)?'))
     
-            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in book_list:
                 if 'status' in book:
                     status = book['status']
                 else:
-                    status = 'Bad'
+                    status = _('Bad')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
             
             htmllog = htmllog + '</table></body></html>'
@@ -1071,7 +1114,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             payload = ([], book_list, options)
             self.gui.proceed_question(self.update_error_column,
                                       payload, htmllog,
-                                      'FFDL log', 'FFDL download ended', msg,
+                                      _('FFDL log'), _('FFDL download ended'), msg,
                                       show_copy_button=False)
             return
             
@@ -1079,13 +1122,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanfictiondownloader_plugin.jobs', 'do_download_worker',
                 (book_list, options, cpus)]
-        desc = 'Download FanFiction Book'
+        desc = _('Download FanFiction Book')
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
                 func, args=args,
                 description=desc)
         
-        self.gui.status_bar.show_message('Starting %d FanFictionDownLoads'%len(book_list),3000)
+        self.gui.status_bar.show_message(_('Starting %d FanFictionDownLoads')%len(book_list),3000)
 
     def update_books_loop(self,book,db=None,
                      options={'fileform':'epub',
@@ -1115,12 +1158,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             try:
                 self.update_metadata(db, book['calibre_id'], book, mi, options)
             except:
-                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\nStory Details:\n%s"%pretty_book(book)
+                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\n"+_("Story Details:")+pretty_book(book)
                 logger.error("Error Updating Metadata:\n%s"%det_msg)
                 error_dialog(self.gui,
-                             "Error Updating Metadata",
-                             "<p>An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>.</p>"%(book['url'],book['title'])+
-                             "The ebook has been updated, but the metadata has not.",
+                             _("Error Updating Metadata"),
+                             "<p>"+_("An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
+                             _("The ebook has been updated, but the metadata has not."),
                              det_msg=det_msg,
                              show=True)
 
@@ -1203,24 +1246,29 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             show_copy_button=False)
                 return
 
-            msg = '<p>FFDL found <b>%s</b> good and <b>%s</b> bad updates.</p>'%(len(good_list),len(bad_list))
+            msg = '<p>'+_('FFDL found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list))+'</p>'
             if len(bad_list) > 0:
-                msg = msg + '''<p>Are you sure you want to continue with creating/updating this Anthology?</p>
-<p>Any updates that failed will <b>not</b> be included in the Anthology.</p>
-<p>However, if there's an older version, it will still be included.</p>
-<p>See log for details.</p>
-'''
-            msg = msg + '<p>Proceed with updating this anthology and your library?</p>'
+                msg = msg + '''
+                            <p>%s</p>
+                            <p>%s</p>
+                            <p>%s</p>
+                            <p>%s</p>'''%(
+                    _('Are you sure you want to continue with creating/updating this Anthology?'),
+                    _('Any updates that failed will <b>not</b> be included in the Anthology.'),
+                    _("However, if there's an older version, it will still be included."),
+                    _('See log for details.'))
+
+            msg = msg + '<p>'+_('Proceed with updating this anthology and your library?')+ '</p>'
     
-            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in sorted(good_list+bad_list,key=lambda x : x['listorder']):
                 if 'status' in book:
                     status = book['status']
                 else:
                     if book in good_list:
-                        status = 'Good'
+                        status = _('Good')
                     else:
-                        status = 'Bad'
+                        status = _('Bad')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
             
             htmllog = htmllog + '</table></body></html>'
@@ -1234,12 +1282,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             do_update_func = self.do_download_merge_update
         else:        
             msg = '''
-<p>FFDL found <b>%s</b> good and <b>%s</b> bad updates.</p>
-<p>See log for details.</p>
-<p>Proceed with updating your library?</p>
-'''%(len(good_list),len(bad_list))
+                  <p>%s</p>
+                  <p>%s</p>
+                  <p>%s</p>'''%(
+                _('FFDL found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list)),
+                _('See log for details.'),
+                _('Proceed with updating your library?')
+                )
     
-            htmllog='<html><body><table border="1"><tr><th>Status</th><th>Title</th><th>Author</th><th>Comment</th><th>URL</th></tr>'
+            htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in good_list:
                 if 'status' in book:
                     status = book['status']
@@ -1260,7 +1311,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
         self.gui.proceed_question(do_update_func,
                                   payload, htmllog,
-                                  'FFDL log', 'FFDL download complete', msg,
+                                  _('FFDL log'), _('FFDL download complete'), msg,
                                   show_copy_button=False)
         
     def do_download_merge_update(self, payload):
@@ -1321,9 +1372,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                good_list+bad_list,
                                partial(self.update_books_loop, options=options, db=self.gui.current_db),
                                partial(self.update_books_finish, options=options),
-                               init_label="Updating calibre for FanFiction stories...",
-                               win_title="Update calibre for FanFiction stories",
-                               status_prefix="Updated")
+                               init_label=_("Updating calibre for FanFiction stories..."),
+                               win_title=_("Update calibre for FanFiction stories"),
+                               status_prefix=_("Updated"))
 
     def update_error_column(self,payload):
         '''Update custom error column if configured.'''
@@ -1337,9 +1388,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                book_list,
                                partial(self.update_error_column_loop, db=self.gui.current_db, label=label),
                                partial(self.update_books_finish, options=options),
-                               init_label="Updating calibre for BAD FanFiction stories...",
-                               win_title="Update calibre for BAD FanFiction stories",
-                               status_prefix="Updated")
+                               init_label=_("Updating calibre for BAD FanFiction stories..."),
+                               win_title=_("Update calibre for BAD FanFiction stories"),
+                               status_prefix=_("Updated"))
 
     def update_error_column_loop(self,book,db=None,label='errorcol'):
         if book['calibre_id']:
@@ -1366,10 +1417,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not db.add_format_with_hooks(book_id,
                                         options['fileform'],
                                         book['outfile'], index_is_id=True):
-            book['comment'] = "Adding format to book failed for some reason..."
+            book['comment'] = _("Adding format to book failed for some reason...")
             book['good']=False
             book['icon']='dialog_error.png'
-            book['status'] = 'Error'
+            book['status'] = _('Error')
 
         if prefs['deleteotherforms']:
             fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
@@ -1599,7 +1650,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             rl_plugin = self.gui.iactions['Reading List']
         except:
             if prefs['addtolists'] or prefs['addtoreadlists']:
-                message="<p>You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the Reading List plugin installed anymore?</p>"
+                message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
                 confirm(message,'fanfictiondownloader_no_reading_list_plugin', self.gui)
             return
         
@@ -1611,7 +1662,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
-                message="<p>You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?</p>"
+                message="<p>"+_("You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
                 confirm(message,'fanfictiondownloader_no_read_lists', self.gui)
             for l in lists:
                 if l in rl_plugin.get_list_names():
@@ -1621,13 +1672,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                   display_warnings=False)
                 else:
                     if l != '':
-                        message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
+                        message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
                         
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
             lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
-                message="<p>You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?</p>"
+                message="<p>"+_("You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
                 confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
 
             for l in lists:
@@ -1639,7 +1690,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                 display_warnings=False)
                 else:
                     if l != '':
-                        message="<p>You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?</p>"%l
+                        message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
     def make_mi_from_book(self,book):
@@ -1746,19 +1797,19 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def set_book_url_and_comment(self,book,url):
         if not url:
-            book['comment'] = "No story URL found."
+            book['comment'] = _("No story URL found.")
             book['good'] = False
             book['icon'] = 'search_delete_saved.png'
-            book['status'] = 'Not Found'
+            book['status'] = _('Not Found')
         else:
             # get normalized url or None.
             book['url'] = self.is_good_downloader_url(url)
             if book['url'] == None:
                 book['url'] = url
-                book['comment'] = "URL is not a valid story URL."
+                book['comment'] = _("URL is not a valid story URL.")
                 book['good'] = False
                 book['icon']='dialog_error.png'
-                book['status'] = 'Bad URL'
+                book['status'] = _('Bad URL')
     
     def get_story_url(self, db, book_id=None, path=None):
         if book_id == None:
@@ -1888,8 +1939,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             book['comments'] = existingbook['comments']
         else:
             book['title'] = deftitle = book_list[0]['title']
-            book['comments'] = "Anthology containing:\n" + \
-                "\n".join([ "%s by %s"%(b['title'],', '.join(b['author'])) for b in book_list ])
+            book['comments'] = _("Anthology containing:")+"\n" + \
+                "\n".join([ _("%s by %s")%(b['title'],', '.join(b['author'])) for b in book_list ])
             # book['all_metadata']['description']
         
             # if all same series, use series for name.  But only if all and not previous named
@@ -1909,7 +1960,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             else:
                 # No setting, do fall back default.  Shouldn't happen,
                 # should always have a version in defaults.
-                book['title'] = book['title']+" Anthology"
+                book['title'] = book['title']+_(" Anthology")
         
         book['all_metadata']['title'] = book['title'] # because custom columns are set from all_metadata
         book['all_metadata']['author'] = ", ".join(book['author'])
@@ -1946,7 +1997,7 @@ def pretty_book(d, indent=0, spacer='     '):
     if isinstance(d, dict):
         for k in ('password','username'):
             if k in d and d[k]:
-                d[k]='<was set, removed for security>'
+                d[k]=_('(was set, removed for security)')
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer)) 
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)

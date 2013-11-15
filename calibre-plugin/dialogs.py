@@ -29,6 +29,12 @@ from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayo
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
             ImageTitleLayout, get_icon)
@@ -36,13 +42,13 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils \
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getNormalStoryURL
 
-SKIP=u'Skip'
-ADDNEW=u'Add New Book'
-UPDATE=u'Update EPUB if New Chapters'
-UPDATEALWAYS=u'Update EPUB Always'
-OVERWRITE=u'Overwrite if Newer'
-OVERWRITEALWAYS=u'Overwrite Always'
-CALIBREONLY=u'Update Calibre Metadata Only'
+SKIP=_('Skip')
+ADDNEW=_('Add New Book')
+UPDATE=_('Update EPUB if New Chapters')
+UPDATEALWAYS=_('Update EPUB Always')
+OVERWRITE=_('Overwrite if Newer')
+OVERWRITEALWAYS=_('Overwrite Always')
+CALIBREONLY=_('Update Calibre Metadata Only')
 collision_order=[SKIP,
                  ADDNEW,
                  UPDATE,
@@ -51,6 +57,32 @@ collision_order=[SKIP,
                  OVERWRITEALWAYS,
                  CALIBREONLY,]
 
+# best idea I've had for how to deal with config/pref saving the
+# collision name in english.
+SAVE_SKIP='Skip'
+SAVE_ADDNEW='Add New Book'
+SAVE_UPDATE='Update EPUB if New Chapters'
+SAVE_UPDATEALWAYS='Update EPUB Always'
+SAVE_OVERWRITE='Overwrite if Newer'
+SAVE_OVERWRITEALWAYS='Overwrite Always'
+SAVE_CALIBREONLY='Update Calibre Metadata Only'
+save_collisions={
+    SKIP:SAVE_SKIP,
+    ADDNEW:SAVE_ADDNEW,
+    UPDATE:SAVE_UPDATE,
+    UPDATEALWAYS:SAVE_UPDATEALWAYS,
+    OVERWRITE:SAVE_OVERWRITE,
+    OVERWRITEALWAYS:SAVE_OVERWRITEALWAYS,
+    CALIBREONLY:SAVE_CALIBREONLY,
+    SAVE_SKIP:SKIP,
+    SAVE_ADDNEW:ADDNEW,
+    SAVE_UPDATE:UPDATE,
+    SAVE_UPDATEALWAYS:UPDATEALWAYS,
+    SAVE_OVERWRITE:OVERWRITE,
+    SAVE_OVERWRITEALWAYS:OVERWRITEALWAYS,
+    SAVE_CALIBREONLY:CALIBREONLY,
+    }
+    
 anthology_collision_order=[UPDATE,
                            UPDATEALWAYS,
                            OVERWRITEALWAYS]
@@ -104,7 +136,7 @@ class RejectUrlEntry:
     def fullnote(self):
         retval = ""
         if self.title and self.auth:
-            retval = retval + "%s by %s"%(self.title,self.auth)
+            retval = retval + _("%s by %s")%(self.title,self.auth)
             if self.note:
                 retval = retval + " - "
                 
@@ -192,7 +224,7 @@ class AddNewDialog(SizePersistedDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.setWindowTitle('FanFictionDownLoader')
+        self.setWindowTitle(_('FanFictionDownLoader'))
         self.setWindowIcon(icon)
 
         self.toplabel=QLabel("Toplabel")
@@ -209,7 +241,7 @@ class AddNewDialog(SizePersistedDialog):
         # elements to show again when doing *update* merge
         self.mergeupdateshow = []
 
-        self.groupbox = QGroupBox("Show Download Options")
+        self.groupbox = QGroupBox(_("Show Download Options"))
         self.groupbox.setCheckable(True)
         self.groupbox.setChecked(False)
         self.groupbox.setFlat(True)
@@ -228,7 +260,7 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.toggled.connect(self.gbf.setVisible)
         
         horz = QHBoxLayout()
-        label = QLabel('Output &Format:')
+        label = QLabel(_('Output &Format:'))
         self.mergehide.append(label)
         
         self.fileform = QComboBox(self)
@@ -236,7 +268,7 @@ class AddNewDialog(SizePersistedDialog):
         self.fileform.addItem('mobi')
         self.fileform.addItem('html')
         self.fileform.addItem('txt')
-        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.setToolTip(_('Choose output format to create.  May set default from plugin configuration.'))
         self.fileform.activated.connect(self.set_collisions)
         
         horz.addWidget(label)
@@ -252,7 +284,7 @@ class AddNewDialog(SizePersistedDialog):
         self.collision.setToolTip("CollisionToolTip")
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(prefs['collision'])
+        i = self.collision.findText(save_collisions[prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
         self.collisionlabel.setBuddy(self.collision)
@@ -264,15 +296,15 @@ class AddNewDialog(SizePersistedDialog):
         self.mergeupdateshow.append(self.collision)
 
         horz = QHBoxLayout()
-        self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
+        self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
+        self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
         self.updatemeta.setChecked(prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
         self.mergehide.append(self.updatemeta)
         self.mergeupdateshow.append(self.updatemeta)
 
-        self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
-        self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
+        self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
+        self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
         self.mergehide.append(self.updateepubcover)
@@ -319,10 +351,10 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.setVisible(not(self.merge and self.newmerge))
         
         if self.merge:
-            self.toplabel.setText('Story URL(s) for anthology, one per line:')
-            self.url.setToolTip('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.')
-            self.collisionlabel.setText('If Story Already Exists in Anthology?')
-            self.collision.setToolTip("What to do if there's already an existing story with the same URL in the anthology.")
+            self.toplabel.setText(_('Story URL(s) for anthology, one per line:'))
+            self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
+            self.collisionlabel.setText(_('If Story Already Exists in Anthology?'))
+            self.collision.setToolTip(_("What to do if there's already an existing story with the same URL in the anthology."))
             for widget in self.mergehide:
                 widget.setVisible(False)
             if not self.newmerge:
@@ -331,10 +363,10 @@ class AddNewDialog(SizePersistedDialog):
         else:
             for widget in self.mergehide:
                 widget.setVisible(True)
-            self.toplabel.setText('Story URL(s), one per line:')
-            self.url.setToolTip('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.')
-            self.collisionlabel.setText('If Story Already Exists?')
-            self.collision.setToolTip("What to do if there's already an existing story with the same URL or title and author.")
+            self.toplabel.setText(_('Story URL(s), one per line:'))
+            self.url.setToolTip(_('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.'))
+            self.collisionlabel.setText(_('If Story Already Exists?'))
+            self.collision.setToolTip(_("What to do if there's already an existing story with the same URL or title and author."))
 
         # Need to re-able after hiding/showing
         self.setAcceptDrops(True)
@@ -350,10 +382,10 @@ class AddNewDialog(SizePersistedDialog):
 
         # add collision options
         self.set_collisions()
-        
-        i = self.collision.findText(self.prefs['collision'])
+        i = self.collision.findText(save_collisions[self.prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
+            
         self.updatemeta.setChecked(self.prefs['updatemeta'])
             
         if not self.merge:
@@ -434,18 +466,18 @@ class CollectURLDialog(SizePersistedDialog):
         self.url.setText(url_text)
         self.l.addWidget(self.url,1,1,1,2)
    
-        self.indiv_button = QPushButton('For Individual Books', self)
-        self.indiv_button.setToolTip('Get URLs and go to dialog for individual story downloads.')
+        self.indiv_button = QPushButton(_('For Individual Books'), self)
+        self.indiv_button.setToolTip(_('Get URLs and go to dialog for individual story downloads.'))
         self.indiv_button.clicked.connect(self.indiv)
         self.l.addWidget(self.indiv_button,2,0)
 
-        self.merge_button = QPushButton('For Anthology Epub', self)
-        self.merge_button.setToolTip('Get URLs and go to dialog for Anthology download.\nRequires EpubMerge 1.3.1+ plugin.')
+        self.merge_button = QPushButton(_('For Anthology Epub'), self)
+        self.merge_button.setToolTip(_('Get URLs and go to dialog for Anthology download.\nRequires %s plugin.')%'EpubMerge 1.3.1+')
         self.merge_button.clicked.connect(self.merge)
         self.l.addWidget(self.merge_button,2,1)
         self.merge_button.setEnabled(epubmerge_plugin!=None)
 
-        self.cancel_button = QPushButton('Cancel', self)
+        self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
         self.l.addWidget(self.cancel_button,2,2)
 
@@ -477,29 +509,29 @@ class UserPassDialog(QDialog):
         self.setLayout(self.l)
 
         if exception.passwdonly:
-            self.setWindowTitle('Password')
-            self.l.addWidget(QLabel("Author requires a password for this story(%s)."%exception.url),0,0,1,2)
+            self.setWindowTitle(_('Password'))
+            self.l.addWidget(QLabel(_("Author requires a password for this story(%s).")%exception.url),0,0,1,2)
             # user isn't used, but it's easier to still have it for
             # post processing.
             self.user = FakeLineEdit()
         else:
-            self.setWindowTitle('User/Password')
-            self.l.addWidget(QLabel("%s requires you to login to download this story."%site),0,0,1,2)
+            self.setWindowTitle(_('User/Password'))
+            self.l.addWidget(QLabel(_("%s requires you to login to download this story.")%site),0,0,1,2)
         
-            self.l.addWidget(QLabel("User:"),1,0)
+            self.l.addWidget(QLabel(_("User:")),1,0)
             self.user = QLineEdit(self)
             self.l.addWidget(self.user,1,1)
    
-        self.l.addWidget(QLabel("Password:"),2,0)
+        self.l.addWidget(QLabel(_("Password:")),2,0)
         self.passwd = QLineEdit(self)
         self.passwd.setEchoMode(QLineEdit.Password)
         self.l.addWidget(self.passwd,2,1)
    
-        self.ok_button = QPushButton('OK', self)
+        self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.ok)
         self.l.addWidget(self.ok_button,3,0)
 
-        self.cancel_button = QPushButton('Cancel', self)
+        self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
         self.l.addWidget(self.cancel_button,3,1)
 
@@ -521,9 +553,9 @@ class LoopProgressDialog(QProgressDialog):
                  book_list,
                  foreach_function,
                  finish_function,
-                 init_label="Fetching metadata for stories...",
-                 win_title="Downloading metadata for stories",
-                 status_prefix="Fetched metadata for"):
+                 init_label=_("Fetching metadata for stories..."),
+                 win_title=_("Downloading metadata for stories"),
+                 status_prefix=_("Fetched metadata for")):
         QProgressDialog.__init__(self,
                                  init_label,
                                  QString(), 0, len(book_list), gui)
@@ -541,7 +573,7 @@ class LoopProgressDialog(QProgressDialog):
         self.exec_()
 
     def updateStatus(self):
-        self.setLabelText("%s %d of %d"%(self.status_prefix,self.i+1,len(self.book_list)))
+        self.setLabelText("%s %d / %d"%(self.status_prefix,self.i+1,len(self.book_list)))
         self.setValue(self.i+1)
         #print(self.labelText())
 
@@ -647,7 +679,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem)
         self.remove_button = QtGui.QToolButton(self)
-        self.remove_button.setToolTip('Remove selected books from the list')
+        self.remove_button.setToolTip(_('Remove selected books from the list'))
         self.remove_button.setIcon(get_icon('list_remove.png'))
         self.remove_button.clicked.connect(self.remove_from_list)
         button_layout.addWidget(self.remove_button)
@@ -656,7 +688,7 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         options_layout = QHBoxLayout()
 
-        groupbox = QGroupBox("Show Download Options")
+        groupbox = QGroupBox(_("Show Download Options"))
         groupbox.setCheckable(True)
         groupbox.setChecked(False)
         groupbox.setFlat(True)
@@ -673,7 +705,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         gbf.setVisible(False)
         groupbox.toggled.connect(gbf.setVisible)
         
-        label = QLabel('Output &Format:')
+        label = QLabel(_('Output &Format:'))
         gbl.addWidget(label)
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
@@ -681,30 +713,30 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.addItem('html')
         self.fileform.addItem('txt')
         self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
-        self.fileform.setToolTip('Choose output format to create.  May set default from plugin configuration.')
+        self.fileform.setToolTip(_('Choose output format to create.  May set default from plugin configuration.'))
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
         gbl.addWidget(self.fileform)
         
-        label = QLabel('Update Mode:')
+        label = QLabel(_('Update Mode:'))
         gbl.addWidget(label)
         self.collision = QComboBox(self)
-        self.collision.setToolTip("What sort of update to perform.  May set default from plugin configuration.")
+        self.collision.setToolTip(_("What sort of update to perform.  May set default from plugin configuration."))
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(prefs['collision'])
+        i = self.collision.findText(save_collisions[prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
         label.setBuddy(self.collision)
         gbl.addWidget(self.collision)
 
-        self.updatemeta = QCheckBox('Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)")
+        self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
+        self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
         self.updatemeta.setChecked(prefs['updatemeta'])
         gbl.addWidget(self.updatemeta)
                 
-        self.updateepubcover = QCheckBox('Update EPUB Cover?',self)
-        self.updateepubcover.setToolTip('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.')
+        self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
+        self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         gbl.addWidget(self.updateepubcover)
 
@@ -757,7 +789,7 @@ class StoryListTableWidget(QTableWidget):
         self.clear()
         self.setAlternatingRowColors(True)
         self.setRowCount(len(books))
-        header_labels = ['','Title', 'Author', 'URL', 'Comment']
+        header_labels = ['',_('Title'), _('Author'), 'URL', _('Comment')]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.horizontalHeader().setStretchLastSection(True)
@@ -825,9 +857,9 @@ class StoryListTableWidget(QTableWidget):
         rows = self.selectionModel().selectedRows()
         if len(rows) == 0:
             return
-        message = '<p>Are you sure you want to remove this book from the list?'
+        message = '<p>'+_('Are you sure you want to remove this book from the list?')
         if len(rows) > 1:
-            message = '<p>Are you sure you want to remove the selected %d books from the list?'%len(rows)
+            message = '<p>'+_('Are you sure you want to remove the selected %d books from the list?')%len(rows)
         if not confirm(message,'fanfictiondownloader_delete_item', self):
             return
         first_sel_row = self.currentRow()
@@ -853,7 +885,7 @@ class RejectListTableWidget(QTableWidget):
         self.clear()
         self.setAlternatingRowColors(True)
         self.setRowCount(len(reject_list))
-        header_labels = ['URL', 'Title', 'Author', 'Note']
+        header_labels = ['URL', _('Title'), _('Author'), _('Note')]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.horizontalHeader().setStretchLastSection(True)
@@ -895,7 +927,7 @@ class RejectListTableWidget(QTableWidget):
         note_cell.update_items_cache(items)
         note_cell.show_initial_value(rej.note)
         note_cell.set_separator(None)
-        note_cell.setToolTip('Select or Edit Reject Note.')
+        note_cell.setToolTip(_('Select or Edit Reject Note.'))
         self.setCellWidget(row, 3, note_cell)
         
     def remove_selected_rows(self):
@@ -903,9 +935,9 @@ class RejectListTableWidget(QTableWidget):
         rows = self.selectionModel().selectedRows()
         if len(rows) == 0:
             return
-        message = '<p>Are you sure you want to remove this URL from the list?'
+        message = '<p>'+_('Are you sure you want to remove this URL from the list?')
         if len(rows) > 1:
-            message = '<p>Are you sure you want to remove the %d selected URLs from the list?'%len(rows)
+            message = '<p>'+_('Are you sure you want to remove the %d selected URLs from the list?')%len(rows)
         if not confirm(message,'ffdl_rejectlist_delete_item_again', self):
             return
         first_sel_row = self.currentRow()
@@ -923,7 +955,7 @@ class RejectListTableWidget(QTableWidget):
 class RejectListDialog(SizePersistedDialog):
     def __init__(self, gui, reject_list,
                  rejectreasons=[],
-                 header="List of Books to Reject",
+                 header=_("List of Books to Reject"),
                  icon='rotate-right.png',
                  show_delete=True,
                  show_all_reasons=True,
@@ -936,7 +968,7 @@ class RejectListDialog(SizePersistedDialog):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         title_layout = ImageTitleLayout(self, icon, header,
-                                        '<i></i>FFDL will remember these URLs and display the note and offer to reject them if you try to download them again later.')
+                                        '<i></i>'+_('FFDL will remember these URLs and display the note and offer to reject them if you try to download them again later.'))
         layout.addLayout(title_layout)
         rejects_layout = QHBoxLayout()
         layout.addLayout(rejects_layout)
@@ -950,7 +982,7 @@ class RejectListDialog(SizePersistedDialog):
         button_layout.addItem(spacerItem)
         
         self.remove_button = QtGui.QToolButton(self)
-        self.remove_button.setToolTip('Remove selected URL(s) from the list')
+        self.remove_button.setToolTip(_('Remove selected URL(s) from the list'))
         self.remove_button.setIcon(get_icon('list_remove.png'))
         self.remove_button.clicked.connect(self.remove_from_list)
         button_layout.addWidget(self.remove_button)
@@ -968,11 +1000,11 @@ class RejectListDialog(SizePersistedDialog):
             self.reason_edit.update_items_cache(items)
             self.reason_edit.show_initial_value('')
             self.reason_edit.set_separator(None)
-            self.reason_edit.setToolTip("This will be added to whatever note you've set for each URL above.")
+            self.reason_edit.setToolTip(_("This will be added to whatever note you've set for each URL above."))
             
             horz = QHBoxLayout()
-            label = QLabel("Add this reason to all URLs added:")
-            label.setToolTip("This will be added to whatever note you've set for each URL above.")
+            label = QLabel(_("Add this reason to all URLs added:"))
+            label.setToolTip(_("This will be added to whatever note you've set for each URL above."))
             horz.addWidget(label)
             horz.addWidget(self.reason_edit)
             horz.insertStretch(-1)
@@ -981,8 +1013,8 @@ class RejectListDialog(SizePersistedDialog):
         options_layout = QHBoxLayout()
 
         if show_delete:
-            self.deletebooks = QCheckBox('Delete Books (including books without FanFiction URLs)?',self)
-            self.deletebooks.setToolTip("Delete the selected books after adding them to the Rejected URLs list.")
+            self.deletebooks = QCheckBox(_('Delete Books (including books without FanFiction URLs)?'),self)
+            self.deletebooks.setToolTip(_("Delete the selected books after adding them to the Rejected URLs list."))
             self.deletebooks.setChecked(True)
             options_layout.addWidget(self.deletebooks)
         

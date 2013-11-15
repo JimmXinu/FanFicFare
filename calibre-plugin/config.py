@@ -22,9 +22,36 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2 import dynamic, info_dialog
 from calibre.constants import numeric_version as calibre_version
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
+# There are a number of things used several times that shouldn't be
+# translated.  This is just a way to make that easier by keeping them
+# out of the _() strings.
+# I'm tempted to override _() to include them...
+no_trans = { 'pini':'personal.ini',
+             'imgset':'\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n',
+             'gcset':'generate_cover_settings',
+             'ccset':'custom_columns_settings',
+             'gc':'Generate Cover',
+             'rl':'Reading List',
+             'cp':'Count Pages',
+             'cmplt':'Completed',
+             'inprog':'In-Progress',
+             'lul':'Last Updated',
+             'lus':'lastupdate',
+             'is':'include_subject',
+             'isa':'is_adult',
+             'u':'username',
+             'p':'password',
+             }
+
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
-    import (UPDATE, UPDATEALWAYS, OVERWRITE, collision_order, RejectListDialog,
+    import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
             EditTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
@@ -125,7 +152,7 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel('<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites">List of Supported Sites</a> -- <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>')
+        label = QLabel('<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites">'+_('List of Supported Sites')+'</a> -- <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">'+_('FAQs')+'</a>')
         label.setOpenExternalLinks(True)
         self.l.addWidget(label)
 
@@ -139,7 +166,7 @@ class ConfigWidget(QWidget):
         self.scroll_area.setWidget(tab_widget)
         
         self.basic_tab = BasicTab(self, plugin_action)
-        tab_widget.addTab(self.basic_tab, 'Basic')
+        tab_widget.addTab(self.basic_tab, _('Basic'))
 
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
@@ -160,20 +187,20 @@ class ConfigWidget(QWidget):
             self.countpages_tab.setEnabled(False)
 
         self.std_columns_tab = StandardColumnsTab(self, plugin_action)
-        tab_widget.addTab(self.std_columns_tab, 'Standard Columns')
+        tab_widget.addTab(self.std_columns_tab, _('Standard Columns'))
 
         self.cust_columns_tab = CustomColumnsTab(self, plugin_action)
-        tab_widget.addTab(self.cust_columns_tab, 'Custom Columns')
+        tab_widget.addTab(self.cust_columns_tab, _('Custom Columns'))
 
         self.other_tab = OtherTab(self, plugin_action)
-        tab_widget.addTab(self.other_tab, 'Other')
+        tab_widget.addTab(self.other_tab, _('Other'))
 
 
     def save_settings(self):
 
         # basic
         prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
-        prefs['collision'] = unicode(self.basic_tab.collision.currentText())
+        prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
         prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
         prefs['updatecover'] = self.basic_tab.updatecover.isChecked()
         prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
@@ -284,17 +311,17 @@ class BasicTab(QWidget):
         topl = QVBoxLayout()
         self.setLayout(topl)
 
-        label = QLabel('These settings control the basic features of the plugin--downloading FanFiction.')
+        label = QLabel(_('These settings control the basic features of the plugin--downloading FanFiction.'))
         label.setWordWrap(True)
         topl.addWidget(label)
 
-        defs_gb = groupbox = QGroupBox("Defaults Options on Download")
+        defs_gb = groupbox = QGroupBox(_("Defaults Options on Download"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
-        tooltip = "On each download, FFDL offers an option to select the output format. <br />This sets what that option will default to."
+        tooltip = _("On each download, FFDL offers an option to select the output format. <br />This sets what that option will default to.")
         horz = QHBoxLayout()
-        label = QLabel('Default Output &Format:')
+        label = QLabel(_('Default Output &Format:'))
         label.setToolTip(tooltip)
         horz.addWidget(label)
         self.fileform = QComboBox(self)
@@ -309,15 +336,15 @@ class BasicTab(QWidget):
         horz.addWidget(self.fileform)
         self.l.addLayout(horz)
 
-        tooltip = "On each download, FFDL offers an option of what happens if that story already exists. <br />This sets what that option will default to."
+        tooltip = _("On each download, FFDL offers an option of what happens if that story already exists. <br />This sets what that option will default to.")
         horz = QHBoxLayout()
-        label = QLabel('Default If Story Already Exists?')
+        label = QLabel(_('Default If Story Already Exists?'))
         label.setToolTip(tooltip)
         horz.addWidget(label)
         self.collision = QComboBox(self)
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(prefs['collision'])
+        i = self.collision.findText(save_collisions[prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
         self.collision.setToolTip(tooltip)
@@ -325,127 +352,126 @@ class BasicTab(QWidget):
         horz.addWidget(self.collision)
         self.l.addLayout(horz)
 
-        self.updatemeta = QCheckBox('Default Update Calibre &Metadata?',self)
-        self.updatemeta.setToolTip("On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books.")
+        self.updatemeta = QCheckBox(_('Default Update Calibre &Metadata?'),self)
+        self.updatemeta.setToolTip(_("On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books."))
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
-        self.updateepubcover = QCheckBox('Default Update EPUB Cover when Updating EPUB?',self)
-        self.updateepubcover.setToolTip("On each download, FFDL offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off.")
+        self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
+        self.updateepubcover.setToolTip(_("On each download, FFDL offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
-        self.smarten_punctuation = QCheckBox('Smarten Punctuation (EPUB only)',self)
-        self.smarten_punctuation.setToolTip("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update.")
+        self.smarten_punctuation = QCheckBox(_('Smarten Punctuation (EPUB only)'),self)
+        self.smarten_punctuation.setToolTip(_("Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update."))
         self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
         if calibre_version >= (0, 9, 39):
             self.l.addWidget(self.smarten_punctuation)
 
-        cali_gb = groupbox = QGroupBox("Updating Calibre Options")
+        cali_gb = groupbox = QGroupBox(_("Updating Calibre Options"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
-        self.deleteotherforms = QCheckBox('Delete other existing formats?',self)
-        self.deleteotherforms.setToolTip('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.')
+        self.deleteotherforms = QCheckBox(_('Delete other existing formats?'),self)
+        self.deleteotherforms.setToolTip(_('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.'))
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
         
-        self.updatecover = QCheckBox('Update Calibre Cover when Updating Metadata?',self)
-        self.updatecover.setToolTip("Update calibre book cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'.")
+        self.updatecover = QCheckBox(_('Update Calibre Cover when Updating Metadata?'),self)
+        self.updatecover.setToolTip(_("Update calibre book cover image from EPUB when metadata is updated.  (EPUB only.)\nDoesn't go looking for new images on 'Update Calibre Metadata Only'."))
         self.updatecover.setChecked(prefs['updatecover'])
         self.l.addWidget(self.updatecover)
 
-        self.keeptags = QCheckBox('Keep Existing Tags when Updating Metadata?',self)
-        self.keeptags.setToolTip("Existing tags will be kept and any new tags added.\nCompleted and In-Progress tags will be still be updated, if known.\nLast Updated tags will be updated if lastupdate in include_subject_tags.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")
+        self.keeptags = QCheckBox(_('Keep Existing Tags when Updating Metadata?'),self)
+        self.keeptags.setToolTip(_("Existing tags will be kept and any new tags added.\n%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n%(lul)s tags will be updated if %(lus)s in %(is)s.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")%no_trans)
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
 
-        self.suppressauthorsort = QCheckBox('Force Author into Author Sort?',self)
-        self.suppressauthorsort.setToolTip("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc.")
+        self.suppressauthorsort = QCheckBox(_('Force Author into Author Sort?'),self)
+        self.suppressauthorsort.setToolTip(_("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."))
         self.suppressauthorsort.setChecked(prefs['suppressauthorsort'])
         self.l.addWidget(self.suppressauthorsort)
 
-        self.suppresstitlesort = QCheckBox('Force Title into Title Sort?',self)
-        self.suppresstitlesort.setToolTip("If checked, the title as given will be used for the Title Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc.")
+        self.suppresstitlesort = QCheckBox(_('Force Title into Title Sort?'),self)
+        self.suppresstitlesort.setToolTip(_("If checked, the title as given will be used for the Title Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."))
         self.suppresstitlesort.setChecked(prefs['suppresstitlesort'])
         self.l.addWidget(self.suppresstitlesort)
 
-        self.checkforseriesurlid = QCheckBox("Check for existing Series Anthology books?",self)
-        self.checkforseriesurlid.setToolTip("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.")
+        self.checkforseriesurlid = QCheckBox(_("Check for existing Series Anthology books?"),self)
+        self.checkforseriesurlid.setToolTip(_("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found."))
         self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
         self.l.addWidget(self.checkforseriesurlid)
 
-        self.checkforurlchange = QCheckBox("Check for changed Story URL?",self)
-        self.checkforurlchange.setToolTip("Warn you if an update will change the URL of an existing book.")
+        self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)
+        self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book."))
         self.checkforurlchange.setChecked(prefs['checkforurlchange'])
         self.l.addWidget(self.checkforurlchange)
 
-        self.lookforurlinhtml = QCheckBox("Search EPUB text for Story URL?",self)
-        self.lookforurlinhtml.setToolTip("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files.")
+        self.lookforurlinhtml = QCheckBox(_("Search EPUB text for Story URL?"),self)
+        self.lookforurlinhtml.setToolTip(_("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files."))
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
 
-        self.mark = QCheckBox("Mark added/updated books when finished?",self)
-        self.mark.setToolTip("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
+        self.mark = QCheckBox(_("Mark added/updated books when finished?"),self)
+        self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."))
         self.mark.setChecked(prefs['mark'])
         self.l.addWidget(self.mark)
 
-        self.showmarked = QCheckBox("Show Marked books when finished?",self)
-        self.showmarked.setToolTip("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both.")
+        self.showmarked = QCheckBox(_("Show Marked books when finished?"),self)
+        self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."))
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
 
-        gui_gb = groupbox = QGroupBox("GUI Options")
+        gui_gb = groupbox = QGroupBox(_("GUI Options"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
-        self.urlsfromclip = QCheckBox('Take URLs from Clipboard?',self)
-        self.urlsfromclip.setToolTip('Prefill URLs from valid URLs in Clipboard when Adding New.')
+        self.urlsfromclip = QCheckBox(_('Take URLs from Clipboard?'),self)
+        self.urlsfromclip.setToolTip(_('Prefill URLs from valid URLs in Clipboard when Adding New.'))
         self.urlsfromclip.setChecked(prefs['urlsfromclip'])
         self.l.addWidget(self.urlsfromclip)
 
-        self.updatedefault = QCheckBox('Default to Update when books selected?',self)
-        self.updatedefault.setToolTip('The top FanFictionDownLoader plugin button will start Update if\n'+
-                                      'books are selected.  If unchecked, it will always bring up \'Add New\'.')
+        self.updatedefault = QCheckBox(_('Default to Update when books selected?'),self)
+        self.updatedefault.setToolTip(_('The top FanFictionDownLoader plugin button will start Update if\nbooks are selected.  If unchecked, it will always bring up \'Add New\'.'))
         self.updatedefault.setChecked(prefs['updatedefault'])
         self.l.addWidget(self.updatedefault)
 
-        self.adddialogstaysontop = QCheckBox("Keep 'Add New from URL(s)' dialog on top?",self)
-        self.adddialogstaysontop.setToolTip("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it.")
+        self.adddialogstaysontop = QCheckBox(_("Keep 'Add New from URL(s)' dialog on top?"),self)
+        self.adddialogstaysontop.setToolTip(_("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it."))
         self.adddialogstaysontop.setChecked(prefs['adddialogstaysontop'])
         self.l.addWidget(self.adddialogstaysontop)
 
-        misc_gb = groupbox = QGroupBox("Misc Options")
+        misc_gb = groupbox = QGroupBox(_("Misc Options"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
         # this is a cheat to make it easier for users to realize there's a new include_images features.
-        self.includeimages = QCheckBox("Include images in EPUBs?",self)
-        self.includeimages.setToolTip("Download and include images in EPUB stories.  This is equivalent to adding:\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n ...to the top of personal.ini.  Your settings in personal.ini will override this.")
+        self.includeimages = QCheckBox(_("Include images in EPUBs?"),self)
+        self.includeimages.setToolTip(_("Download and include images in EPUB stories.  This is equivalent to adding:%(imgset)s ...to the top of %(pini)s.  Your settings in %(pini)s will override this.")%no_trans)
         self.includeimages.setChecked(prefs['includeimages'])
         self.l.addWidget(self.includeimages)
 
-        self.injectseries = QCheckBox("Inject calibre Series when none found?",self)
-        self.injectseries.setToolTip("If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover).")
+        self.injectseries = QCheckBox(_("Inject calibre Series when none found?"),self)
+        self.injectseries.setToolTip(_("If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover)."))
         self.injectseries.setChecked(prefs['injectseries'])
         self.l.addWidget(self.injectseries)
 
-        rej_gb = groupbox = QGroupBox("Reject List")
+        rej_gb = groupbox = QGroupBox(_("Reject List"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
-        self.rejectlist = QPushButton('Edit Reject URL List', self)
-        self.rejectlist.setToolTip("Edit list of URLs FFDL will automatically Reject.")
+        self.rejectlist = QPushButton(_('Edit Reject URL List'), self)
+        self.rejectlist.setToolTip(_("Edit list of URLs FFDL will automatically Reject."))
         self.rejectlist.clicked.connect(self.show_rejectlist)
         self.l.addWidget(self.rejectlist)
         
-        self.reject_urls = QPushButton('Add Reject URLs', self)
-        self.reject_urls.setToolTip("Add additional URLs to Reject as text.")
+        self.reject_urls = QPushButton(_('Add Reject URLs'), self)
+        self.reject_urls.setToolTip(_("Add additional URLs to Reject as text."))
         self.reject_urls.clicked.connect(self.add_reject_urls)
         self.l.addWidget(self.reject_urls)
         
-        self.reject_reasons = QPushButton('Edit Reject Reasons List', self)
-        self.reject_reasons.setToolTip("Customize the Reasons presented when Rejecting URLs")
+        self.reject_reasons = QPushButton(_('Edit Reject Reasons List'), self)
+        self.reject_reasons.setToolTip(_("Customize the Reasons presented when Rejecting URLs"))
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
         self.l.addWidget(self.reject_reasons)
 
@@ -483,7 +509,7 @@ class BasicTab(QWidget):
         d = RejectListDialog(self,
                              rejecturllist.get_list(),
                              rejectreasons=rejecturllist.get_reject_reasons(),
-                             header="Edit Reject URLs List",
+                             header=_("Edit Reject URLs List"),
                              show_delete=False,
                              show_all_reasons=False)
         d.exec_()
@@ -497,22 +523,22 @@ class BasicTab(QWidget):
         d = EditTextDialog(self,
                            prefs['rejectreasons'],
                            icon=self.windowIcon(),
-                           title="Reject Reasons",
-                           label="Customize Reject List Reasons",
-                           tooltip="Customize the Reasons presented when Rejecting URLs")
+                           title=_("Reject Reasons"),
+                           label=_("Customize Reject List Reasons"),
+                           tooltip=_("Customize the Reasons presented when Rejecting URLs"))
         d.exec_()
         if d.result() == d.Accepted:
             prefs['rejectreasons'] = d.get_plain_text()
                 
     def add_reject_urls(self):
         d = EditTextDialog(self,
-                           "http://example.com/story.php?sid=5,Reason why I rejected it\nhttp://example.com/story.php?sid=6,Title by Author - Reason why I rejected it",
+                           "http://example.com/story.php?sid=5,"+_("Reason why I rejected it")+"\nhttp://example.com/story.php?sid=6,"+_("Title by Author")+" - "+_("Reason why I rejected it"),
                            icon=self.windowIcon(),
-                           title="Add Reject URLs",
-                           label="Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored.",
-                           tooltip="One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>",
+                           title=_("Add Reject URLs"),
+                           label=_("Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored."),
+                           tooltip=_("One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"),
                            rejectreasons=rejecturllist.get_reject_reasons(),
-                           reasonslabel='Add this reason to all URLs added:')
+                           reasonslabel=_('Add this reason to all URLs added:'))
         d.exec_()
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
@@ -527,7 +553,7 @@ class PersonalIniTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set is_adult and user/password for different sites.')
+        label = QLabel(_('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s for different sites.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -545,8 +571,8 @@ class PersonalIniTab(QWidget):
         self.ini.setText(prefs['personal.ini'])
         self.l.addWidget(self.ini)
 
-        self.defaults = QPushButton('View Defaults (plugin-defaults.ini)', self)
-        self.defaults.setToolTip("View all of the plugin's configurable settings\nand their default settings.")
+        self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
+        self.defaults.setToolTip(_("View all of the plugin's configurable settings\nand their default settings."))
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
         
@@ -564,14 +590,14 @@ class ShowDefaultsIniDialog(QDialog):
         self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
-        self.label = QLabel("Plugin Defaults (plugin-defaults.ini) (Read-Only)")
-        self.label.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
+        self.label = QLabel(_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini')
+        self.label.setToolTip(_("These are all of the plugin's configurable options\nand their default settings."))
         self.setWindowTitle(_('Plugin Defaults'))
         self.setWindowIcon(icon)
         self.l.addWidget(self.label)
         
         self.ini = QTextEdit(self)
-        self.ini.setToolTip("These are all of the plugin's configurable options\nand their default settings.")
+        self.ini.setToolTip(_("These are all of the plugin's configurable options\nand their default settings."))
         try:
             self.ini.setFont(QFont("Courier",
                                    get_gui().font().pointSize()+1))
@@ -582,7 +608,7 @@ class ShowDefaultsIniDialog(QDialog):
         self.ini.setReadOnly(True)
         self.l.addWidget(self.ini)
         
-        self.ok_button = QPushButton('OK', self)
+        self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.hide)
         self.l.addWidget(self.ok_button)
         
@@ -602,45 +628,45 @@ class ReadingListTab(QWidget):
         except KeyError:
             reading_lists= []
             
-        label = QLabel('These settings provide integration with the Reading List Plugin.  Reading List can automatically send to devices and change custom columns.  You have to create and configure the lists in Reading List to be useful.')
+        label = QLabel(_('These settings provide integration with the %(rl)s Plugin.  %(rl)s can automatically send to devices and change custom columns.  You have to create and configure the lists in %(rl)s to be useful.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
         
-        self.addtolists = QCheckBox('Add new/updated stories to "Send to Device" Reading List(s).',self)
-        self.addtolists.setToolTip('Automatically add new/updated stories to these lists in the Reading List plugin.')
+        self.addtolists = QCheckBox(_('Add new/updated stories to "Send to Device" Reading List(s).'),self)
+        self.addtolists.setToolTip(_('Automatically add new/updated stories to these lists in the %(rl)s plugin.')%no_trans)
         self.addtolists.setChecked(prefs['addtolists'])
         self.l.addWidget(self.addtolists)
             
         horz = QHBoxLayout()
-        label = QLabel('"Send to Device" Reading Lists')
-        label.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        label = QLabel(_('"Send to Device" Reading Lists'))
+        label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         horz.addWidget(label)        
         self.send_lists_box = MultiCompleteLineEdit(self)
-        self.send_lists_box.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        self.send_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.send_lists_box.update_items_cache(reading_lists)
         self.send_lists_box.setText(prefs['send_lists'])
         horz.addWidget(self.send_lists_box)
         self.l.addLayout(horz)
         
-        self.addtoreadlists = QCheckBox('Add new/updated stories to "To Read" Reading List(s).',self)
-        self.addtoreadlists.setToolTip('Automatically add new/updated stories to these lists in the Reading List plugin.\nAlso offers menu option to remove stories from the "To Read" lists.')
+        self.addtoreadlists = QCheckBox(_('Add new/updated stories to "To Read" Reading List(s).'),self)
+        self.addtoreadlists.setToolTip(_('Automatically add new/updated stories to these lists in the %(rl)s plugin.\nAlso offers menu option to remove stories from the "To Read" lists.')%no_trans)
         self.addtoreadlists.setChecked(prefs['addtoreadlists'])
         self.l.addWidget(self.addtoreadlists)
             
         horz = QHBoxLayout()
-        label = QLabel('"To Read" Reading Lists')
-        label.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        label = QLabel(_('"To Read" Reading Lists'))
+        label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         horz.addWidget(label)        
         self.read_lists_box = MultiCompleteLineEdit(self)
-        self.read_lists_box.setToolTip("When enabled, new/updated stories will be automatically added to these lists.")
+        self.read_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.read_lists_box.update_items_cache(reading_lists)
         self.read_lists_box.setText(prefs['read_lists'])
         horz.addWidget(self.read_lists_box)
         self.l.addLayout(horz)
         
-        self.addtolistsonread = QCheckBox('Add stories back to "Send to Device" Reading List(s) when marked "Read".',self)
-        self.addtolistsonread.setToolTip('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)')
+        self.addtolistsonread = QCheckBox(_('Add stories back to "Send to Device" Reading List(s) when marked "Read".'),self)
+        self.addtolistsonread.setToolTip(_('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)'))
         self.addtolistsonread.setChecked(prefs['addtolistsonread'])
         self.l.addWidget(self.addtolistsonread)
             
@@ -662,7 +688,7 @@ class GenerateCoverTab(QWidget):
         except KeyError:
             gc_settings= []
             
-        label = QLabel('The Generate Cover plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FFDL can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default.')
+        label = QLabel(_('The %(gc)s plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FFDL can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -680,14 +706,15 @@ class GenerateCoverTab(QWidget):
 
         sitelist = getConfigSections()
         sitelist.sort()
-        sitelist.insert(0,u"Default")
+        sitelist.insert(0,_("Default"))
         for site in sitelist:
             horz = QHBoxLayout()
             label = QLabel(site)
-            if site == u"Default":
-                s = "On Metadata update, run Generate Cover with this setting, if not selected for specific site."
+            if site == _("Default"):
+                s = _("On Metadata update, run %(gc)s with this setting, if not selected for specific site.")%no_trans
             else:
-                s = "On Metadata update, run Generate Cover with this setting for %s stories."%site
+                no_trans['site']=site # not ideal, but, meh.
+                s = _("On Metadata update, run %(gc)s with this setting for %(site)s stories.")%no_trans
 
             label.setToolTip(s)
             horz.addWidget(label)
@@ -705,13 +732,13 @@ class GenerateCoverTab(QWidget):
         
         self.sl.insertStretch(-1)
         
-        self.gcnewonly = QCheckBox("Run Generate Cover Only on New Books",self)
-        self.gcnewonly.setToolTip("Default is to run GC any time the calibre metadata is updated.")
+        self.gcnewonly = QCheckBox(_("Run %(gc)s Only on New Books")%no_trans,self)
+        self.gcnewonly.setToolTip(_("Default is to run GC any time the calibre metadata is updated."))
         self.gcnewonly.setChecked(prefs['gcnewonly'])
         self.l.addWidget(self.gcnewonly)
 
-        self.allow_gc_from_ini = QCheckBox('Allow generate_cover_settings from personal.ini to override',self)
-        self.allow_gc_from_ini.setToolTip("The personal.ini parameter generate_cover_settings allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \>generate_cover_settings is ignored when this is off.")
+        self.allow_gc_from_ini = QCheckBox(_('Allow %(gcset)s from %(pini)s to override')%no_trans,self)
+        self.allow_gc_from_ini.setToolTip(_("The %(pini)s parameter %(gcset)s allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \>%(gcset)s is ignored when this is off.")%no_trans)
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
             
@@ -725,39 +752,41 @@ class CountPagesTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel('These settings provide integration with the Count Pages Plugin.  Count Pages can automatically update custom columns with page, word and reading level statistics.  You have to create and configure the columns in Count Pages first.')
+        label = QLabel(_('These settings provide integration with the %(cp)s Plugin.  %(cp)s can automatically update custom columns with page, word and reading level statistics.  You have to create and configure the columns in %(cp)s first.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
 
-        label = QLabel('If any of the settings below are checked, when stories are added or updated, the Count Pages Plugin will be called to update the checked statistics.')
+        label = QLabel(_('If any of the settings below are checked, when stories are added or updated, the %(cp)s Plugin will be called to update the checked statistics.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
+        # the same for all settings.  Mostly.
+        tooltip = _('Which column and algorithm to use are configured in %(cp)s.')%no_trans
         # 'PageCount', 'WordCount', 'FleschReading', 'FleschGrade', 'GunningFog'
         self.pagecount = QCheckBox('Page Count',self)
-        self.pagecount.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.pagecount.setToolTip(tooltip)
         self.pagecount.setChecked('PageCount' in prefs['countpagesstats'])
         self.l.addWidget(self.pagecount)
             
         self.wordcount = QCheckBox('Word Count',self)
-        self.wordcount.setToolTip('Which column and algorithm to use are configured in Count Words.\nWill overwrite word count from FFDL metadata if set to update the same custom column.')
+        self.wordcount.setToolTip(tooltip+"\n"+_('Will overwrite word count from FFDL metadata if set to update the same custom column.'))
         self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
         self.l.addWidget(self.wordcount)
 
         self.fleschreading = QCheckBox('Flesch Reading Ease',self)
-        self.fleschreading.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.fleschreading.setToolTip(tooltip)
         self.fleschreading.setChecked('FleschReading' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschreading)
         
         self.fleschgrade = QCheckBox('Flesch-Kincaid Grade Level',self)
-        self.fleschgrade.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.fleschgrade.setToolTip(tooltip)
         self.fleschgrade.setChecked('FleschGrade' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschgrade)
         
         self.gunningfog = QCheckBox('Gunning Fog Index',self)
-        self.gunningfog.setToolTip('Which column and algorithm to use are configured in Count Pages.')
+        self.gunningfog.setToolTip(tooltip)
         self.gunningfog.setChecked('GunningFog' in prefs['countpagesstats'])
         self.l.addWidget(self.gunningfog)
         
@@ -773,26 +802,23 @@ class OtherTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFictionDownLoader confirmation dialogs back again.")
+        label = QLabel(_("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFictionDownLoader confirmation dialogs back again."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
         
-        keyboard_shortcuts_button = QPushButton('Keyboard shortcuts...', self)
-        keyboard_shortcuts_button.setToolTip(_(
-                    'Edit the keyboard shortcuts associated with this plugin'))
+        keyboard_shortcuts_button = QPushButton(_('Keyboard shortcuts...'), self)
+        keyboard_shortcuts_button.setToolTip(_('Edit the keyboard shortcuts associated with this plugin'))
         keyboard_shortcuts_button.clicked.connect(parent_dialog.edit_shortcuts)
         self.l.addWidget(keyboard_shortcuts_button)
 
         reset_confirmation_button = QPushButton(_('Reset disabled &confirmation dialogs'), self)
-        reset_confirmation_button.setToolTip(_(
-                    'Reset all show me again dialogs for the FanFictionDownLoader plugin'))
+        reset_confirmation_button.setToolTip(_('Reset all show me again dialogs for the FanFictionDownLoader plugin'))
         reset_confirmation_button.clicked.connect(self.reset_dialogs)
         self.l.addWidget(reset_confirmation_button)
         
-        view_prefs_button = QPushButton('&View library preferences...', self)
-        view_prefs_button.setToolTip(_(
-                    'View data stored in the library database for this plugin'))
+        view_prefs_button = QPushButton(_('&View library preferences...'), self)
+        view_prefs_button.setToolTip(_('View data stored in the library database for this plugin'))
         view_prefs_button.clicked.connect(self.view_prefs)
         self.l.addWidget(view_prefs_button)
         
@@ -852,35 +878,35 @@ permitted_values['text'] = permitted_values['enumeration']
 permitted_values['comments'] = permitted_values['enumeration']
 
 titleLabels = {
-    'category':'Category',
-    'genre':'Genre',
-    'language':'Language',
-    'status':'Status',
-    'status-C':'Status:Completed',
-    'status-I':'Status:In-Progress',
-    'series':'Series',
-    'characters':'Characters',
-    'ships':'Relationships',
-    'datePublished':'Published',
-    'dateUpdated':'Updated',
-    'dateCreated':'Created',
-    'rating':'Rating',
-    'warnings':'Warnings',
-    'numChapters':'Chapters',
-    'numWords':'Words',
-    'site':'Site',
-    'storyId':'Story ID',
-    'authorId':'Author ID',
-    'extratags':'Extra Tags',
-    'title':'Title',
-    'storyUrl':'Story URL',
-    'description':'Description',
-    'author':'Author',
-    'authorUrl':'Author URL',
-    'formatname':'File Format',
-    'formatext':'File Extension',
-    'siteabbrev':'Site Abbrev',
-    'version':'FFDL Version'
+    'category':_('Category'),
+    'genre':_('Genre'),
+    'language':_('Language'),
+    'status':_('Status'),
+    'status-C':_('Status:%(cmplt)s')%no_trans,
+    'status-I':_('Status:%(inprog)s')%no_trans,
+    'series':_('Series'),
+    'characters':_('Characters'),
+    'ships':_('Relationships'),
+    'datePublished':_('Published'),
+    'dateUpdated':_('Updated'),
+    'dateCreated':_('Created'),
+    'rating':_('Rating'),
+    'warnings':_('Warnings'),
+    'numChapters':_('Chapters'),
+    'numWords':_('Words'),
+    'site':_('Site'),
+    'storyId':_('Story ID'),
+    'authorId':_('Author ID'),
+    'extratags':_('Extra Tags'),
+    'title':_('Title'),
+    'storyUrl':_('Story URL'),
+    'description':_('Description'),
+    'author':_('Author'),
+    'authorUrl':_('Author URL'),
+    'formatname':_('File Format'),
+    'formatext':_('File Extension'),
+    'siteabbrev':_('Site Abbrev'),
+    'version':_('FFDL Version')
     }
 
 class CustomColumnsTab(QWidget):
@@ -895,7 +921,7 @@ class CustomColumnsTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel("If you have custom columns defined, they will be listed below.  Choose a metadata value type to fill your columns automatically.")
+        label = QLabel(_("If you have custom columns defined, they will be listed below.  Choose a metadata value type to fill your columns automatically."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -920,7 +946,7 @@ class CustomColumnsTab(QWidget):
                 #     print("column['%s'] => %s"%(k,v))
                 horz = QHBoxLayout()
                 label = QLabel(column['name'])
-                label.setToolTip("Update this %s column(%s) with..."%(key,column['datatype']))
+                label.setToolTip(_("Update this %s column(%s) with...")%(key,column['datatype']))
                 horz.addWidget(label)
                 dropdown = QComboBox(self)
                 dropdown.addItem('',QVariant('none'))
@@ -930,13 +956,13 @@ class CustomColumnsTab(QWidget):
                 if key in prefs['custom_cols']:
                     dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['custom_cols'][key])))
                 if column['datatype'] == 'enumeration':
-                    dropdown.setToolTip("Metadata values valid for this type of column.\nValues that aren't valid for this enumeration column will be ignored.")
+                    dropdown.setToolTip(_("Metadata values valid for this type of column.")+"\n"+_("Values that aren't valid for this enumeration column will be ignored."))
                 else:
-                    dropdown.setToolTip("Metadata values valid for this type of column.")
+                    dropdown.setToolTip(_("Metadata values valid for this type of column."))
                 horz.addWidget(dropdown)
 
-                newonlycheck = QCheckBox("New Only",self)
-                newonlycheck.setToolTip("Write to %s(%s) only for new\nbooks, not updates to existing books."%(column['name'],key))
+                newonlycheck = QCheckBox(_("New Only"),self)
+                newonlycheck.setToolTip(_("Write to %s(%s) only for new\nbooks, not updates to existing books.")%(column['name'],key))
                 self.custcol_newonlycheck[key] = newonlycheck
                 if key in prefs['custom_cols_newonly']:
                     newonlycheck.setChecked(prefs['custom_cols_newonly'][key])
@@ -947,19 +973,19 @@ class CustomColumnsTab(QWidget):
         self.sl.insertStretch(-1)
 
         self.l.addSpacing(5)
-        self.allow_custcol_from_ini = QCheckBox('Allow custom_columns_settings from personal.ini to override',self)
-        self.allow_custcol_from_ini.setToolTip("The personal.ini parameter custom_columns_settings allows you to set custom columns to site specific values that aren't common to all sites.<br \>custom_columns_settings is ignored when this is off.")
+        self.allow_custcol_from_ini = QCheckBox(_('Allow %(ccset)s from %(pini)s to override')%no_trans,self)
+        self.allow_custcol_from_ini.setToolTip(_("The %(pini)s parameter %(ccset)s allows you to set custom columns to site specific values that aren't common to all sites.<br />%(ccset)s is ignored when this is off.")%no_trans)
         self.allow_custcol_from_ini.setChecked(prefs['allow_custcol_from_ini'])
         self.l.addWidget(self.allow_custcol_from_ini)
         
         self.l.addSpacing(5)
-        label = QLabel("Special column:")
+        label = QLabel(_("Special column:"))
         label.setWordWrap(True)
         self.l.addWidget(label)
         
         horz = QHBoxLayout()
-        label = QLabel("Update/Overwrite Error Column:")
-        tooltip="When an update or overwrite of an existing story fails, record the reason in this column.\n(Text and Long Text columns only.)"
+        label = QLabel(_("Update/Overwrite Error Column:"))
+        tooltip=_("When an update or overwrite of an existing story fails, record the reason in this column.\n(Text and Long Text columns only.)")
         label.setToolTip(tooltip)
         horz.addWidget(label)
         self.errorcol = QComboBox(self)
@@ -984,21 +1010,21 @@ class StandardColumnsTab(QWidget):
 
         columns=OrderedDict()
         
-        columns["title"]="Title"
-        columns["authors"]="Author(s)"
-        columns["publisher"]="Publisher"
-        columns["tags"]="Tags"
-        columns["languages"]="Languages"
-        columns["pubdate"]="Published Date"
-        columns["timestamp"]="Date"
-        columns["comments"]="Comments"
-        columns["series"]="Series"
-        columns["identifiers"]="Ids(url id only)"
+        columns["title"]=_("Title")
+        columns["authors"]=_("Author(s)")
+        columns["publisher"]=_("Publisher")
+        columns["tags"]=_("Tags")
+        columns["languages"]=_("Languages")
+        columns["pubdate"]=_("Published Date")
+        columns["timestamp"]=_("Date")
+        columns["comments"]=_("Comments")
+        columns["series"]=_("Series")
+        columns["identifiers"]=_("Ids(url id only)")
 
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel("The standard calibre metadata columns are listed below.  You may choose whether FFDL will fill each column automatically on updates or only for new books.")
+        label = QLabel(_("The standard calibre metadata columns are listed below.  You may choose whether FFDL will fill each column automatically on updates or only for new books."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -1011,8 +1037,8 @@ class StandardColumnsTab(QWidget):
             #label.setToolTip("Update this %s column(%s) with..."%(key,column['datatype']))
             horz.addWidget(label)
 
-            newonlycheck = QCheckBox("New Only",self)
-            newonlycheck.setToolTip("Write to %s only for new\nbooks, not updates to existing books."%column)
+            newonlycheck = QCheckBox(_("New Only"),self)
+            newonlycheck.setToolTip(_("Write to %s only for new\nbooks, not updates to existing books.")%column)
             self.stdcol_newonlycheck[key] = newonlycheck
             if key in prefs['std_cols_newonly']:
                 newonlycheck.setChecked(prefs['std_cols_newonly'][key])
