@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-11-15 14:15+Central Standard Time\n"
+"POT-Creation-Date: 2013-11-16 09:49+Central Standard Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -166,7 +166,9 @@ msgid "Check for changed Story URL?"
 msgstr ""
 
 #: config.py:406
-msgid "Warn you if an update will change the URL of an existing book."
+msgid ""
+"Warn you if an update will change the URL of an existing book.\n"
+"fanfiction.net URLs will change from http to https silently."
 msgstr ""
 
 #: config.py:410
@@ -487,7 +489,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: config.py:884 ffdl_plugin.py:1104 ffdl_plugin.py:1263 ffdl_plugin.py:1293
+#: config.py:884 ffdl_plugin.py:1106 ffdl_plugin.py:1265 ffdl_plugin.py:1295
 msgid "Status"
 msgstr ""
 
@@ -515,7 +517,7 @@ msgstr ""
 msgid "Published"
 msgstr ""
 
-#: config.py:891 ffdl_plugin.py:1377 ffdl_plugin.py:1393
+#: config.py:891 ffdl_plugin.py:1379 ffdl_plugin.py:1395
 msgid "Updated"
 msgstr ""
 
@@ -556,7 +558,7 @@ msgid "Extra Tags"
 msgstr ""
 
 #: config.py:901 config.py:1013 dialogs.py:792 dialogs.py:888
-#: ffdl_plugin.py:1104 ffdl_plugin.py:1263 ffdl_plugin.py:1293
+#: ffdl_plugin.py:1106 ffdl_plugin.py:1265 ffdl_plugin.py:1295
 msgid "Title"
 msgstr ""
 
@@ -568,8 +570,8 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: config.py:904 dialogs.py:792 dialogs.py:888 ffdl_plugin.py:1104
-#: ffdl_plugin.py:1263 ffdl_plugin.py:1293
+#: config.py:904 dialogs.py:792 dialogs.py:888 ffdl_plugin.py:1106
+#: ffdl_plugin.py:1265 ffdl_plugin.py:1295
 msgid "Author"
 msgstr ""
 
@@ -711,7 +713,7 @@ msgstr ""
 msgid "Update Calibre Metadata Only"
 msgstr ""
 
-#: dialogs.py:139 ffdl_plugin.py:1943
+#: dialogs.py:139 ffdl_plugin.py:1945
 msgid "%s by %s"
 msgstr ""
 
@@ -860,7 +862,7 @@ msgstr ""
 msgid "What sort of update to perform.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:792 ffdl_plugin.py:1104 ffdl_plugin.py:1263 ffdl_plugin.py:1293
+#: dialogs.py:792 ffdl_plugin.py:1106 ffdl_plugin.py:1265 ffdl_plugin.py:1295
 msgid "Comment"
 msgstr ""
 
@@ -1212,247 +1214,247 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: ffdl_plugin.py:962 ffdl_plugin.py:969
+#: ffdl_plugin.py:964 ffdl_plugin.py:971
 msgid "Change Story URL?"
 msgstr ""
 
-#: ffdl_plugin.py:970
+#: ffdl_plugin.py:972
 msgid "<b>%s</b> by <b>%s</b> is already in your library with a different source URL:"
 msgstr ""
 
-#: ffdl_plugin.py:971
+#: ffdl_plugin.py:973
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr ""
 
-#: ffdl_plugin.py:972 ffdl_plugin.py:986
+#: ffdl_plugin.py:974 ffdl_plugin.py:988
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr ""
 
-#: ffdl_plugin.py:973
+#: ffdl_plugin.py:975
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr ""
 
-#: ffdl_plugin.py:974
+#: ffdl_plugin.py:976
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr ""
 
-#: ffdl_plugin.py:976 ffdl_plugin.py:983
+#: ffdl_plugin.py:978 ffdl_plugin.py:985
 msgid "Download as New Book?"
 msgstr ""
 
-#: ffdl_plugin.py:984
+#: ffdl_plugin.py:986
 msgid "<b>%s</b> by <b>%s</b> is already in your library with a different source URL."
 msgstr ""
 
-#: ffdl_plugin.py:985
+#: ffdl_plugin.py:987
 msgid "You chose not to update the existing book.  Do you want to add a new book for this URL?"
 msgstr ""
 
-#: ffdl_plugin.py:987
+#: ffdl_plugin.py:989
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr ""
 
-#: ffdl_plugin.py:988
+#: ffdl_plugin.py:990
 msgid "Click '<b>No</b>' to skip URL."
 msgstr ""
 
-#: ffdl_plugin.py:994
+#: ffdl_plugin.py:996
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr ""
 
-#: ffdl_plugin.py:997
+#: ffdl_plugin.py:999
 msgid "Different URL"
 msgstr ""
 
-#: ffdl_plugin.py:1002
+#: ffdl_plugin.py:1004
 msgid "Metadata collected."
 msgstr ""
 
-#: ffdl_plugin.py:1018
+#: ffdl_plugin.py:1020
 msgid "Already contains %d chapters."
 msgstr ""
 
-#: ffdl_plugin.py:1023
+#: ffdl_plugin.py:1025
 msgid "Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update."
 msgstr ""
 
-#: ffdl_plugin.py:1025
+#: ffdl_plugin.py:1027
 msgid "FFDL doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."
 msgstr ""
 
-#: ffdl_plugin.py:1033
+#: ffdl_plugin.py:1035
 msgid "Not Overwriting, web site is not newer."
 msgstr ""
 
-#: ffdl_plugin.py:1100
+#: ffdl_plugin.py:1102
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr ""
 
-#: ffdl_plugin.py:1101 ffdl_plugin.py:1259 ffdl_plugin.py:1289
+#: ffdl_plugin.py:1103 ffdl_plugin.py:1261 ffdl_plugin.py:1291
 msgid "See log for details."
 msgstr ""
 
-#: ffdl_plugin.py:1102
+#: ffdl_plugin.py:1104
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr ""
 
-#: ffdl_plugin.py:1109 ffdl_plugin.py:1271
+#: ffdl_plugin.py:1111 ffdl_plugin.py:1273
 msgid "Bad"
 msgstr ""
 
-#: ffdl_plugin.py:1117
+#: ffdl_plugin.py:1119
 msgid "FFDL download ended"
 msgstr ""
 
-#: ffdl_plugin.py:1117 ffdl_plugin.py:1314
+#: ffdl_plugin.py:1119 ffdl_plugin.py:1316
 msgid "FFDL log"
 msgstr ""
 
-#: ffdl_plugin.py:1125
+#: ffdl_plugin.py:1127
 msgid "Download FanFiction Book"
 msgstr ""
 
-#: ffdl_plugin.py:1131
+#: ffdl_plugin.py:1133
 msgid "Starting %d FanFictionDownLoads"
 msgstr ""
 
-#: ffdl_plugin.py:1161
+#: ffdl_plugin.py:1163
 msgid "Story Details:"
 msgstr ""
 
-#: ffdl_plugin.py:1164
+#: ffdl_plugin.py:1166
 msgid "Error Updating Metadata"
 msgstr ""
 
-#: ffdl_plugin.py:1165
+#: ffdl_plugin.py:1167
 msgid "An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>."
 msgstr ""
 
-#: ffdl_plugin.py:1166
+#: ffdl_plugin.py:1168
 msgid "The ebook has been updated, but the metadata has not."
 msgstr ""
 
-#: ffdl_plugin.py:1218
+#: ffdl_plugin.py:1220
 msgid "Finished Adding/Updating %d books."
 msgstr ""
 
-#: ffdl_plugin.py:1243
+#: ffdl_plugin.py:1245
 msgid "No Good Stories for Anthology"
 msgstr ""
 
-#: ffdl_plugin.py:1244
+#: ffdl_plugin.py:1246
 msgid "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr ""
 
-#: ffdl_plugin.py:1249 ffdl_plugin.py:1288
+#: ffdl_plugin.py:1251 ffdl_plugin.py:1290
 msgid "FFDL found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: ffdl_plugin.py:1256
+#: ffdl_plugin.py:1258
 msgid "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr ""
 
-#: ffdl_plugin.py:1257
+#: ffdl_plugin.py:1259
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr ""
 
-#: ffdl_plugin.py:1258
+#: ffdl_plugin.py:1260
 msgid "However, if there's an older version, it will still be included."
 msgstr ""
 
-#: ffdl_plugin.py:1261
+#: ffdl_plugin.py:1263
 msgid "Proceed with updating this anthology and your library?"
 msgstr ""
 
-#: ffdl_plugin.py:1269
+#: ffdl_plugin.py:1271
 msgid "Good"
 msgstr ""
 
-#: ffdl_plugin.py:1290
+#: ffdl_plugin.py:1292
 msgid "Proceed with updating your library?"
 msgstr ""
 
-#: ffdl_plugin.py:1314
+#: ffdl_plugin.py:1316
 msgid "FFDL download complete"
 msgstr ""
 
-#: ffdl_plugin.py:1327
+#: ffdl_plugin.py:1329
 msgid "Merging %s books."
 msgstr ""
 
-#: ffdl_plugin.py:1368
+#: ffdl_plugin.py:1370
 msgid "FFDL Adding/Updating books."
 msgstr ""
 
-#: ffdl_plugin.py:1375
+#: ffdl_plugin.py:1377
 msgid "Updating calibre for FanFiction stories..."
 msgstr ""
 
-#: ffdl_plugin.py:1376
+#: ffdl_plugin.py:1378
 msgid "Update calibre for FanFiction stories"
 msgstr ""
 
-#: ffdl_plugin.py:1385
+#: ffdl_plugin.py:1387
 msgid "Adding/Updating %s BAD books."
 msgstr ""
 
-#: ffdl_plugin.py:1391
+#: ffdl_plugin.py:1393
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr ""
 
-#: ffdl_plugin.py:1392
+#: ffdl_plugin.py:1394
 msgid "Update calibre for BAD FanFiction stories"
 msgstr ""
 
-#: ffdl_plugin.py:1420
+#: ffdl_plugin.py:1422
 msgid "Adding format to book failed for some reason..."
 msgstr ""
 
-#: ffdl_plugin.py:1423
+#: ffdl_plugin.py:1425
 msgid "Error"
 msgstr ""
 
-#: ffdl_plugin.py:1653
+#: ffdl_plugin.py:1655
 msgid "You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: ffdl_plugin.py:1665
+#: ffdl_plugin.py:1667
 msgid "You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?"
 msgstr ""
 
-#: ffdl_plugin.py:1675 ffdl_plugin.py:1693
+#: ffdl_plugin.py:1677 ffdl_plugin.py:1695
 msgid "You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?"
 msgstr ""
 
-#: ffdl_plugin.py:1681
+#: ffdl_plugin.py:1683
 msgid "You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?"
 msgstr ""
 
-#: ffdl_plugin.py:1800
+#: ffdl_plugin.py:1802
 msgid "No story URL found."
 msgstr ""
 
-#: ffdl_plugin.py:1803
+#: ffdl_plugin.py:1805
 msgid "Not Found"
 msgstr ""
 
-#: ffdl_plugin.py:1809
+#: ffdl_plugin.py:1811
 msgid "URL is not a valid story URL."
 msgstr ""
 
-#: ffdl_plugin.py:1812
+#: ffdl_plugin.py:1814
 msgid "Bad URL"
 msgstr ""
 
-#: ffdl_plugin.py:1942
+#: ffdl_plugin.py:1944
 msgid "Anthology containing:"
 msgstr ""
 
-#: ffdl_plugin.py:1963
+#: ffdl_plugin.py:1965
 msgid " Anthology"
 msgstr ""
 
-#: ffdl_plugin.py:2000
+#: ffdl_plugin.py:2002
 msgid "(was set, removed for security)"
 msgstr ""
 
