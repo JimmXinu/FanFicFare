@@ -44,7 +44,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
 
         # normalized story URL.
-        self._setURL("http://"+self.getSiteDomain()\
+        self._setURL("https://"+self.getSiteDomain()\
                          +"/s/"+self.story.getMetadata('storyId')+"/1/")
 
         # ffnet update emails have the latest chapter URL.
@@ -53,9 +53,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # chapter list doesn't get the latest.  So save and use the
         # original URL given to pull chapter list & metadata.
         self.origurl = url
-        if "http://m." in self.origurl:
+        if "https://m." in self.origurl:
             ## accept m(mobile)url, but use www.
-            self.origurl = self.origurl.replace("http://m.","http://www.")
+            self.origurl = self.origurl.replace("https://m.","https://www.")
 
     @staticmethod
     def getSiteDomain():
@@ -67,10 +67,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.fanfiction.net/s/1234/1/ http://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
+        return "https://www.fanfiction.net/s/1234/1/ https://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
 
     def getSiteURLPattern(self):
-        return r"http://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
+        return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -108,9 +108,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             except:
                 chapcount = 1
             chapter = url.split('/',)[5]
-            tryurl = "http://%s/s/%s/%d/"%(self.getSiteDomain(),
-                                           self.story.getMetadata('storyId'),
-                                           chapcount+1)
+            tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
+                                            self.story.getMetadata('storyId'),
+                                            chapcount+1)
             logger.debug('=Trying newer chapter: %s' % tryurl)
             newdata = self._fetchUrl(tryurl)
             if "not found. Please check to see you are not using an outdated url." \
@@ -123,7 +123,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
         ## Pull some additional data from html.
@@ -142,7 +142,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # of Book, Movie, etc.
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
-            caturl = "http://%s%s"%(self.getSiteDomain(),categories[0]['href'])
+            caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
             catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/")):
                 self.story.addToList('category',stripHTML(a))
@@ -216,7 +216,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             
         donechars = False
         while len(metalist) > 0:
-            if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:'):
+            if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:') or metalist[0].startswith('Updated:') or metalist[0].startswith('Published:'):
                 pass
             elif  metalist[0].startswith('Reviews'):
                 self.story.setMetadata('reviews',metalist[0].split(':')[1].strip())
@@ -262,9 +262,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             allOptions = select.findAll('option')
             for o in allOptions:
-                url = u'http://%s/s/%s/%s/' % ( self.getSiteDomain(),
-                                            self.story.getMetadata('storyId'),
-                                            o['value'])
+                url = u'https://%s/s/%s/%s/' % ( self.getSiteDomain(),
+                                                 self.story.getMetadata('storyId'),
+                                                 o['value'])
                 # just in case there's tags, like <i> in chapter titles.
                 title = u"%s" % o
                 title = re.sub(r'<[^>]+>','',title)
