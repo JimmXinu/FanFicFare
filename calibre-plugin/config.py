@@ -403,7 +403,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.checkforseriesurlid)
 
         self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)
-        self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book."))
+        self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book.\nfanfiction.net URLs will change from http to https silently."))
         self.checkforurlchange.setChecked(prefs['checkforurlchange'])
         self.l.addWidget(self.checkforurlchange)
 
