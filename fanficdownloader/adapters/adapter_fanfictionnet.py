@@ -144,7 +144,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         elif 'Crossover' in categories[0]['href']:
             caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
             catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
-            for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/")):
+            for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
                 self.story.addToList('category',stripHTML(a))
             else:
                 # Fall back.  I ran across a story with a Crossver
