@@ -103,6 +103,9 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 raise e
 
         data = self._fetchUrl(url)
+
+        if "fatal MySQL error was encountered" in data:
+            raise exceptions.FailedToDownload("Site SQL Error--bad story")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)

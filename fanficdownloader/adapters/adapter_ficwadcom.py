@@ -85,7 +85,11 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            soup = bs.BeautifulSoup(self._fetchUrl(url))
+            data = self._fetchUrl(url)
+            # non-existent/removed story urls get thrown to the front page.
+            if "<h2>Welcome to FicWad</h2>" in data:
+                raise exceptions.StoryDoesNotExist(self.url)
+            soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
