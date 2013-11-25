@@ -361,7 +361,7 @@ div { margin: 0pt; padding: 0pt; }
 
         metadata.appendChild(newTag(contentdom,"dc:contributor",text="fanficdownloader [http://fanficdownloader.googlecode.com]",attrs={"opf:role":"bkp"}))
         metadata.appendChild(newTag(contentdom,"dc:rights",text=""))
-        if self.story.getMetadata('langcode') != None:
+        if self.story.getMetadata('langcode'):
             metadata.appendChild(newTag(contentdom,"dc:language",text=self.story.getMetadata('langcode')))
         else:
             metadata.appendChild(newTag(contentdom,"dc:language",text='en'))
