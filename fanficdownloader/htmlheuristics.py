@@ -18,7 +18,9 @@
 import logging
 logger = logging.getLogger(__name__)
 import re
+import codecs
 import BeautifulSoup as bs
+import HtmlTagStack as stack
 
 from . import exceptions as exceptions
 
@@ -28,7 +30,7 @@ def replace_br_with_p(body):
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a reagular space.
     body = body.replace(u'\xa0', u' ')
 
-    if body.find('>') == -1 or body.rfind("<") == -1:
+    if body.find('>') == -1 or body.rfind('<') == -1:
         return body
 
     # logger.debug(u'BODY start.: ' + body[:250])
@@ -42,11 +44,11 @@ def replace_br_with_p(body):
     # tag in all cases now should be div, to just strip the first and
     # last tags.
     if is_valid_block(body) and body.find('<div') == 0:
-        body = body[body.index('>')+1:body.rindex("<")]
+        body = body[body.index('>')+1:body.rindex('<')]
 
     body = soup_up_div(u'<div>' + body + u'</div>')
 
-    body = body[body.index('>')+1:body.rindex("<")]
+    body = body[body.index('>')+1:body.rindex('<')]
 
     # Find all bexisting blocks with p, pre and blockquote tags, we need to shields break tags inside those.
     # This is for "lenient" mode, however it is also used to clear break tags before and after the block elements.
@@ -169,6 +171,7 @@ def replace_br_with_p(body):
     # Find all instances of consecutive breaks less than otr equal to the max count use most often
     #  replase those tags to inverted p tag pairs, those with more connsecutive breaks are replaced them with a horisontal line
     for i in range(len(breaksCount)):
+        # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
             logger.debug(str(i) + u' <= breaksMaxIndex (' + str(breaksMaxIndex) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
@@ -223,7 +226,8 @@ def replace_br_with_p(body):
     # re-wrap in div tag.
     body = u'<div>\n' + body + u'</div>\n'
 
-    return body
+    # return body
+    return tag_sanitizer(body)
 
 def is_valid_block(block):
     return str(block).find('<') == 0 and str(block).find('<!') != 0
@@ -281,3 +285,61 @@ def soup_up_div(body):
     body = body.replace(u'[br /]', u'<br />')
 
     return tag + body + tagend
+
+
+def is_end_tag(tag):
+    return re.match(r'</([^\ >]+)>', tag) != None
+
+def is_comment_tag(tag):
+    return re.match(r'<\!\-\-([^>]+)>', tag) != None
+
+def is_closed_tag(tag):
+    return re.match(r'<(.+?)/>', tag) != None
+
+def tag_sanitizer(html):
+    blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'pre', 'table', 'ul']
+
+    body = u''
+    tags = re.findall(r'(<[^>]+>)([^<]*)', html)
+
+    for rTag in tags:
+        name = stack.get_tag_name(rTag[0])
+        is_end = is_end_tag(rTag[0])
+        is_closed = is_closed_tag(rTag[0]) or is_comment_tag(rTag[0])
+
+        # is_comment = is_comment_tag(rTag[0])
+        # logger.debug(u'%s >  isEnd: %s >  isClosed: %s >  isComment: %s'%(name, str(is_end), str(is_closed), str(is_comment)))
+        # logger.debug(u'> %s%s\n'%(rTag[0], rTag[1]))
+
+        if name in blockTags:
+            body += rTag[0]
+            body += rTag[1]
+        elif name == u'p':
+            if is_end:
+                body += stack.spool_end()
+                body += rTag[0]
+                body += rTag[1]
+            elif is_closed:
+                body += rTag[0]
+                body += rTag[1]
+            else:
+                body += rTag[0]
+                body += stack.spool_start()
+                body += rTag[1]
+        else:
+            if is_end:
+                t = stack.get_last()
+                tn = stack.get_tag_name(t)
+                rTn = stack.get_tag_name(rTag[0])
+                if tn == rTn:
+                    body += rTag[0]
+                    stack.pop()
+            elif not is_closed:
+                stack.push(rTag[0])
+                body += rTag[0]
+            else:
+                body += rTag[0]
+
+            body += rTag[1]
+    stack.flush()
+    return body
