@@ -725,7 +725,8 @@ class GenerateCoverTab(QWidget):
                 dropdown.addItem(setting,QVariant(setting))
             if site == _("Default"):
                 self.gc_dropdowns["Default"] = dropdown
-                dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['gc_site_settings']['Default'])))
+                if 'Default' in prefs['gc_site_settings']:
+                    dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['gc_site_settings']['Default'])))
             else:
                 self.gc_dropdowns[site] = dropdown
             if site in prefs['gc_site_settings']:
