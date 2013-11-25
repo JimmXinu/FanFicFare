@@ -1014,7 +1014,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         (epuburl,chaptercount) = \
                             get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
                                                                          index_is_id=True)))
-                        urlchaptercount = int(story.getMetadata('numChapters'))
+                        urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
                                 raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
@@ -1601,6 +1601,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         db.commit()
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
+
+            logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
             
             # force a refresh if generating cover so complex composite
             # custom columns are current and correct
@@ -1632,9 +1634,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
                 setting_name =  prefs['gc_site_settings'][book['all_metadata']['site']]
+                logger.debug("Generate Cover Setting from site(%s)"%setting_name)
 
             if not setting_name and 'Default' in prefs['gc_site_settings']:
                 setting_name =  prefs['gc_site_settings']['Default']
+                logger.debug("Generate Cover Setting from Default(%s)"%setting_name)
                 
             if setting_name:
                 logger.debug("Running Generate Cover with settings %s."%setting_name)
