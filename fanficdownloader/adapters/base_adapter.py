@@ -358,7 +358,7 @@ class BaseSiteAdapter(Configurable):
 
         retval = soup.__str__('utf8').decode('utf-8')
 
-        if self.getConfig('nook_img_fix'):
+        if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
             # if the <img> tag doesn't have a div or a p around it,
             # nook gets confused and displays it on every page after
             # that under the text for the rest of the chapter.
