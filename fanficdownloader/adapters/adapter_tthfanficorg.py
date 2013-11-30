@@ -134,18 +134,18 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if "<h2>Story Not Found</h2>" in data:
             raise exceptions.StoryDoesNotExist(url)
         
+        if self.is_adult or self.getConfig("is_adult"):
+            form = soup.find('form', {'id':'sitemaxratingform'})
+            params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
+                    'sitemaxrating':'5'}
+            logger.info("Attempting to get rating cookie for %s" % url)
+            data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
+            # refetch story page.
+            data = self._fetchUrl(url)
+            soup = bs.BeautifulSoup(data)
+
         if "NOTE: This story is rated FR21 which is above your chosen filter level." in data:
-            if self.is_adult or self.getConfig("is_adult"):
-                form = soup.find('form', {'id':'sitemaxratingform'})
-                params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
-                        'sitemaxrating':'5'}
-                logger.info("Attempting to get rating cookie for %s" % url)
-                data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
-                # refetch story page.
-                data = self._fetchUrl(url)
-                soup = bs.BeautifulSoup(data)
-            else:
-                raise exceptions.AdultCheckRequired(self.url)
+            raise exceptions.AdultCheckRequired(self.url)
 
         # http://www.tthfanfic.org/AuthorStories-3449/Greywizard.htm
         # Find authorid and URL from... author url.
@@ -163,7 +163,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             authorsoup = bs.BeautifulSoup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
-                nextpage = 'http://'+self.host+authorsoup.find('a', {'class':'arrowf'})['href']
+                nextarrow = authorsoup.find('a', {'class':'arrowf'})
+                if not nextarrow:
+                    ## if rating is set lower than story, it won't be
+                    ## visible on author lists unless.  The *story* is
+                    ## visible via the url, just not the entry on
+                    ## author list.
+                    raise exceptions.AdultCheckRequired(self.url)
+                nextpage = 'http://'+self.host+nextarrow['href']
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 descurl=nextpage
