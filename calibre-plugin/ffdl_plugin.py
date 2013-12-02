@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 import time, os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
-from datetime import datetime
+from datetime import datetime, time
 from string import Template
 import urllib
 import email
@@ -841,7 +841,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         series = story.getMetadata('series')
         if not merge and series and prefs['checkforseriesurlid']:
             # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-            searchstr = 'identifiers:"~ur(i|l):=%s"'%story.getMetadata('seriesUrl').replace(":","|")
+            searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\:','https?(\:|\|)',re.escape(story.getMetadata('seriesUrl')))
             identicalbooks = db.search_getting_ids(searchstr, None)
             # print("searchstr:%s"%searchstr)
             # print("identicalbooks:%s"%identicalbooks)
@@ -918,8 +918,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 logger.debug("from URL(%s)"%url)
     
                 # try to find by identifier url or uri first.
-                searchstr = 'identifiers:"~ur(i|l):=%s"'%url.replace(":","|")
+                searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\:','https?(\:|\|)',url)
                 identicalbooks = db.search_getting_ids(searchstr, None)
+                # print("searchstr:%s"%searchstr)
+                # print("identicalbooks:%s"%identicalbooks)
                 if len(identicalbooks) < 1:
                     # find dups
                     authlist = story.getList("author", removeallentities=True)
@@ -943,7 +945,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     raise NotGoingToDownload(_("Skipping duplicate story."),"list_remove.png")
     
                 if len(identicalbooks) > 1:
-                    raise NotGoingToDownload("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite.","minusminus.png")
+                    raise NotGoingToDownload(_("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite."),"minusminus.png")
     
                 ## changed: add new book when CALIBREONLY if none found.
                 if collision == CALIBREONLY and not identicalbooks:
@@ -1029,10 +1031,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
                     # check make sure incoming is newer.
-                    lastupdated=story.getMetadataRaw('dateUpdated').date()
-                    fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8]).date()
-                    if fileupdated > lastupdated:
+                    lastupdated=story.getMetadataRaw('dateUpdated')
+                    fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8])
+
+                    # updated doesn't have time (or is midnight), use dates only.
+                    # updated does have time, use full timestamps.
+                    if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
+                            (lastupdated.time() != time.min and fileupdated > lastupdated):
                         raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+                    
+                    
         
                 # For update, provide a tmp file copy of the existing epub so
                 # it can't change underneath us.  Now also overwrite for logpage preserve.
