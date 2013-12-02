@@ -136,7 +136,8 @@ class RejectUrlEntry:
     def fullnote(self):
         retval = ""
         if self.title and self.auth:
-            retval = retval + _("%s by %s")%(self.title,self.auth)
+            # don't translate--ends up being saved and confuses regex above.
+            retval = retval + "%s by %s"%(self.title,self.auth)
             if self.note:
                 retval = retval + " - "
                 
