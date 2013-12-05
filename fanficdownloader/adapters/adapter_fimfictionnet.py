@@ -249,11 +249,33 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                     value = unicode(value)
                 self.story.setMetadata(metakey, value)
 
-        rawGroupList = soup.find('ul', {'id':'story_group_list'})
-        if rawGroupList is not None:
-            for groupName in rawGroupList.findAll('a', {'href':re.compile('^/group/')}):
+        #Sequel links and group links are each bundled into story_group_list containers.
+        #Rather than mess around examining the header text, which is outside the containers,
+        #one can tell the two link types apart by examining them directly.
+        allGroupLists = soup.findAll('ul', {'id':'story_group_list'})
+        for groupList in allGroupLists:
+            for groupName in groupList.findAll('a', {'href':re.compile('^/group/')}):
+                self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"]) 
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
-            
+            for sequel in groupList.findAll('a', {'class':'story_link'}):
+                self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
+                self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
+
+        #The link to the prequel is embedded in the description text, so erring
+        #on the side of caution and wrapping this whole thing in a try block.
+        #If anything goes wrong this probably wasn't a valid prequel link.
+        try:
+            description = soup.find('div', {'class':'description'})
+            firstHR = description.find("hr")
+            nextSib = firstHR.nextSibling
+            if "This story is a sequel to" in nextSib.string:
+                link = nextSib.nextSibling
+                if link.name == "a":
+                    self.story.setMetadata("prequelUrl", 'http://'+self.host+link["href"])
+                    self.story.setMetadata("prequel", stripHTML(link))
+        except:
+            pass
+        
     def hookForUpdates(self,chaptercount):
         if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
             print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))

@@ -30,7 +30,7 @@ from configurable import Configurable
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
-        
+
 imagetypes = {
     'jpg':'image/jpeg',
     'jpeg':'image/jpeg',
@@ -48,14 +48,14 @@ try:
         export = False
         img = Image()
         img.load(data)
-        
+
         owidth, oheight = img.size
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
         if scaled:
             img.size = (nwidth, nheight)
             export = True
-            
+
         if normalize_format_name(img.format) != imgtype:
             export = True
 
@@ -65,7 +65,7 @@ try:
             canvas.compose(img)
             img = canvas
             export = True
-            
+
         if grayscale and img.type != "GrayscaleType":
             img.type = "GrayscaleType"
             export = True
@@ -75,7 +75,7 @@ try:
         else:
             logger.debug("image used unchanged")
             return (data,imgtype,imagetypes[imgtype])
-        
+
 except:
 
     # No calibre routines, try for PIL for CLI.
@@ -87,14 +87,14 @@ except:
                           removetrans,imgtype="jpg",background='#ffffff'):
             export = False
             img = Image.open(StringIO(data))
-            
+
             owidth, oheight = img.size
             nwidth, nheight = sizes
             scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
             if scaled:
                 img = img.resize((nwidth, nheight),Image.ANTIALIAS)
                 export = True
-                
+
             if normalize_format_name(img.format) != imgtype:
                 if img.mode == "P":
                     # convert pallete gifs to RGB so jpg save doesn't fail.
@@ -119,7 +119,7 @@ except:
             else:
                 logger.debug("image used unchanged")
                 return (data,imgtype,imagetypes[imgtype])
-        
+
     except:
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
@@ -129,16 +129,16 @@ except:
 ## also used for explicit no image processing.
 def no_convert_image(url,data):
     parsedUrl = up.urlparse(url)
-    
+
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
-    
+
     if ext not in imagetypes:
         logger.debug("no_convert_image url:%s - no known extension"%url)
         # doesn't have extension? use jpg.
         ext='jpg'
-        
+
     return (data,ext,imagetypes[ext])
-        
+
 def normalize_format_name(fmt):
     if fmt:
         fmt = fmt.lower()
@@ -222,7 +222,7 @@ langs = {
     }
 
 class Story(Configurable):
-    
+
     def __init__(self, configuration):
         Configurable.__init__(self, configuration)
         try:
@@ -234,7 +234,7 @@ class Story(Configurable):
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
         self.imgtuples = []
-        
+
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
         self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
@@ -251,7 +251,7 @@ class Story(Configurable):
                 self.addToList(metadata,val)
 
         self.setReplace(self.getConfig('replace_metadata'))
-        
+
     def setMetadata(self, key, value, condremoveentities=True):
         ## still keeps &lt; &lt; and &amp;
         if condremoveentities:
@@ -297,9 +297,9 @@ class Story(Configurable):
                 # A way to explicitly include spaces in the
                 # replacement string.  The .ini parser eats any
                 # trailing spaces.
-                replacement=replacement.replace('\s',' ') 
+                replacement=replacement.replace('\s',' ')
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
-    
+
     def doReplacements(self,value,key):
         for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (metakeys == None or key in metakeys) \
@@ -309,11 +309,11 @@ class Story(Configurable):
                 if condkey and condkey != key: # prevent infinite recursion.
                     condval = self.getMetadata(condkey)
                     doreplace = condval != None and condregexp.search(condval)
-                    
+
                 if doreplace:
                     value = regexp.sub(replacement,value)
         return value
-        
+
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
             return self.metadata[key]
@@ -326,7 +326,7 @@ class Story(Configurable):
             return value
 
         if self.isList(key):
-            join_string = self.getConfig("join_string_"+key,u", ").replace('\s',' ') 
+            join_string = self.getConfig("join_string_"+key,u", ").replace('\s',' ')
             value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
@@ -351,7 +351,7 @@ class Story(Configurable):
                 return value
         else: #if self.getConfig("default_value_"+key):
             return self.getConfig("default_value_"+key)
-        
+
     def getAllMetadata(self,
                        removeallentities=False,
                        doreplacements=True,
@@ -360,13 +360,13 @@ class Story(Configurable):
         All single value *and* list value metadata as strings (unless keeplists=True, then keep lists).
         '''
         allmetadata = {}
-        
+
         # special handling for authors/authorUrls
         linkhtml="<a class='%slink' href='%s'>%s</a>"
         if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
             for i, v in enumerate(self.getList('author')):
-                aurl = self.getList('authorUrl')[i]                    
+                aurl = self.getList('authorUrl')[i]
                 auth = v
                 # make sure doreplacements & removeallentities are honored.
                 if doreplacements:
@@ -375,9 +375,9 @@ class Story(Configurable):
                 if removeallentities:
                     aurl=removeAllEntities(aurl)
                     auth=removeAllEntities(auth)
-                
+
                 htmllist.append(linkhtml%('author',aurl,auth))
-            join_string = self.getConfig("join_string_authorHTML",u", ").replace('\s',' ') 
+            join_string = self.getConfig("join_string_authorHTML",u", ").replace('\s',' ')
             self.setMetadata('authorHTML',join_string.join(htmllist))
         else:
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
@@ -388,20 +388,38 @@ class Story(Configurable):
                                                     self.getMetadata('series', removeallentities, doreplacements)))
         elif self.getMetadataRaw('series') != None:
             self.setMetadata('seriesHTML',self.getMetadataRaw('series'))
-            
+
+        for k in self.getConfigList('make_linkhtml_entries'):
+            # Assuming list, because it has to be site specific and
+            # they are all lists.
+            htmllist=[]
+            for i, v in enumerate(self.getList(k)):
+                url = self.getList(k+'Url')[i]
+                # make sure doreplacements & removeallentities are honored.
+                if doreplacements:
+                    url=self.doReplacements(url,k+'Url')
+                    v=self.doReplacements(v,k)
+                if removeallentities:
+                    url=removeAllEntities(url)
+                    v=removeAllEntities(v)
+
+                htmllist.append(linkhtml%('author',url,v))
+            join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace('\s',' ')
+            self.setMetadata(k+'HTML',join_string.join(htmllist))
+
         for k in self.getValidMetaList():
             if self.isList(k) and keeplists:
                 allmetadata[k] = self.getList(k, removeallentities, doreplacements)
             else:
                 allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
-                
+
         return allmetadata
 
     # just for less clutter in adapters.
     def extendList(self,listname,l):
         for v in l:
             self.addToList(listname,v.strip())
-    
+
     def addToList(self,listname,value):
         if value==None:
             return
@@ -421,24 +439,24 @@ class Story(Configurable):
         return self.hasConfig("include_in_"+listname) or \
             ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
                   and isinstance(self.metadata[listname],list) )
-    
+
     def getList(self,listname,
                 removeallentities=False,
                 doreplacements=True,
                 includelist=[]):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
-        
+
         if not self.isValidMetaEntry(listname):
             return retlist
-        
+
         # includelist prevents infinite recursion of include_in_'s
         if self.hasConfig("include_in_"+listname) and listname not in includelist:
             for k in self.getConfigList("include_in_"+listname):
                 retlist.extend(self.getList(k,removeallentities=False,
                                             doreplacements=doreplacements,includelist=includelist+[listname]))
         else:
-        
+
             if not self.isList(listname):
                 retlist = [self.getMetadata(listname,removeallentities=False,
                                             doreplacements=doreplacements)]
@@ -458,7 +476,7 @@ class Story(Configurable):
         # ships=>[ ]*(/|&amp;|&)[ ]*=>/
         if listname == 'ships' and self.getConfig('sort_ships'):
             retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
-                
+
         if retlist:
             if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
                 # need to retain order for author & authorUrl so the
@@ -473,9 +491,9 @@ class Story(Configurable):
     def getSubjectTags(self, removeallentities=False):
         # set to avoid duplicates subject tags.
         subjectset = set()
-        
+
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
-            
+
         # metadata all go into dc:subject tags, but only if they are configured.
         for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
             if name in tags_list:
@@ -491,7 +509,7 @@ class Story(Configurable):
             subjectset.remove('')
 
         return list(subjectset | set(self.getConfigList("extratags")))
-            
+
     def addChapter(self, url, title, html):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
@@ -512,7 +530,7 @@ class Story(Configurable):
                                 html) )
         else:
             retval = self.chapters
-            
+
         return retval
 
     def formatFileName(self,template,allowunsafefilename=True):
@@ -526,7 +544,7 @@ class Story(Configurable):
             pattern = re.compile(self.getConfig("output_filename_safepattern",r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+"))
             for k in origvalues.keys():
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
-    
+
         return string.Template(template).substitute(values).encode('utf8')
 
     # pass fetch in from adapter in case we need the cookies collected
@@ -537,7 +555,7 @@ class Story(Configurable):
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
             return
-        
+
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
 
@@ -545,7 +563,7 @@ class Story(Configurable):
         # gets too big too fast and breaks things.
         if is_appengine:
             return
-        
+
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
@@ -598,7 +616,7 @@ class Story(Configurable):
             except Exception, e:
                 logger.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
                 return "failedtoload"
-            
+
             # explicit cover, make the first image.
             if cover and not self.getConfig('never_make_cover'):
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
@@ -624,19 +642,19 @@ class Story(Configurable):
                     self.cover=newsrc
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                     self.imgurls.append(imgurl)
-            
+
                 newsrc = "images/%s-%s.%s"%(
                     prefix,
                     self.imgurls.index(imgurl),
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
-                
+
             #logger.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
-            
+
         #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
-        
+
         return newsrc
 
     def getImgUrls(self):
@@ -645,9 +663,9 @@ class Story(Configurable):
             #parsedUrl = urlparse.urlparse(url)
             retlist.append(self.imgtuples[i])
         return retlist
-    
+
     def __str__(self):
-        return "Metadata: " +str(self.metadata) 
+        return "Metadata: " +str(self.metadata)
 
 def commaGroups(s):
     groups = []
