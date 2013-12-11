@@ -389,9 +389,14 @@ class Story(Configurable):
         elif self.getMetadataRaw('series') != None:
             self.setMetadata('seriesHTML',self.getMetadataRaw('series'))
 
+        # logger.debug("make_linkhtml_entries:%s"%self.getConfig('make_linkhtml_entries'))
         for k in self.getConfigList('make_linkhtml_entries'):
             # Assuming list, because it has to be site specific and
-            # they are all lists.
+            # they are all lists.  Bail if kUrl list not the same
+            # length.
+            # logger.debug("\nk:%s\nlist:%s\nlistURL:%s"%(k,self.getList(k),self.getList(k+'Url')))
+            if len(self.getList(k+'Url')) != len(self.getList(k)):
+                continue
             htmllist=[]
             for i, v in enumerate(self.getList(k)):
                 url = self.getList(k+'Url')[i]
@@ -403,7 +408,7 @@ class Story(Configurable):
                     url=removeAllEntities(url)
                     v=removeAllEntities(v)
 
-                htmllist.append(linkhtml%('author',url,v))
+                htmllist.append(linkhtml%(k,url,v))
             join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace('\s',' ')
             self.setMetadata(k+'HTML',join_string.join(htmllist))
 
