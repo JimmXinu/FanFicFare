@@ -66,11 +66,15 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         return 'trekiverse.org'
 
     @classmethod
+    def getAcceptDomains(cls):
+        return ['trekiverse.org','efiction.trekiverse.org']
+
+    @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234"
+        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://efiction."+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r'http://trekiverse\.org/efiction/viewstory\.php\?sid=\d+'
+        return r'(http://trekiverse\.org/efiction/viewstory\.php\?sid=\d+|http://efiction\.trekiverse\.org/viewstory\.php\?sid=\d+)'
        
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):

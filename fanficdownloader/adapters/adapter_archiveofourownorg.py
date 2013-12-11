@@ -177,19 +177,28 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 self.story.addToList('authorUrl','http://'+self.host+a['href'])
                 self.story.addToList('author',a.text)
 
+        newestChapter = None
+        self.newestChapterNum = None # save for comparing during update.
+        # Scan all chapters to find the oldest and newest, on AO3 it's
+        # possible for authors to insert new chapters out-of-order or
+        # change the dates of earlier ones by editing them--That WILL
+        # break epub update.
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+"/chapters/\d+$"))
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
-        for x in range(0,len(chapters)):
-            # just in case there's tags, like <i> in chapter titles.
-            chapter=chapters[x]
-            if len(chapters)==1:
-                self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+chapter['href']+addurl))
-            else:
+        if len(chapters)==1:
+            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+chapter['href']+addurl))
+        else:
+            for index, chapter in enumerate(chapters):
+                # strip just in case there's tags, like <i> in chapter titles.
                 self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['href']+addurl))
-
-
+                # (2013-09-21)
+                date = stripHTML(chapter.findNext('span'))[1:-1]
+                chapterDate = makeDate(date,self.dateformat)
+                if newestChapter == None or chapterDate > newestChapter:
+                    newestChapter = chapterDate
+                    self.newestChapterNum = index
 
         a = metasoup.find('blockquote',{'class':'userstuff'})
         if a != None:
@@ -299,6 +308,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     self.setSeries(series_name, series_index)
                     self.story.setMetadata('seriesUrl',series_url)
 
+    def hookForUpdates(self,chaptercount):
+        if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
+            print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
+            self.oldchapters = self.oldchapters[:self.newestChapterNum]
+        return len(self.oldchapters)
+            
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
