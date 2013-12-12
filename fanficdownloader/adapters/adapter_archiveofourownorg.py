@@ -188,7 +188,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+chapter['href']+addurl))
+            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+chapters[0]['href']+addurl))
         else:
             for index, chapter in enumerate(chapters):
                 # strip just in case there's tags, like <i> in chapter titles.
