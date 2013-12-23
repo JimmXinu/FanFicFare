@@ -141,28 +141,28 @@ def replace_br_with_p(body):
     averageLineLength = contentLinesSum/contentLines
 
     logger.debug(u'---')
-    logger.debug(u'Lines.............: ' + str(len(lines)))
-    logger.debug(u'contentLines......: ' + str(contentLines))
-    logger.debug(u'contentLinesSum...: ' + str(contentLinesSum))
-    logger.debug(u'longestLineLength.: ' + str(longestLineLength))
-    logger.debug(u'averageLineLength.: ' + str(averageLineLength))
+    logger.debug(u'Lines.............: ' + unicode(len(lines)))
+    logger.debug(u'contentLines......: ' + unicode(contentLines))
+    logger.debug(u'contentLinesSum...: ' + unicode(contentLinesSum))
+    logger.debug(u'longestLineLength.: ' + unicode(longestLineLength))
+    logger.debug(u'averageLineLength.: ' + unicode(averageLineLength))
 
     if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
         breaksMaxIndex = 0
         breaksMax = breaksCount[0]
 
     logger.debug(u'---')
-    logger.debug(u'breaks 1: ' + str(breaksCount[0]))
-    logger.debug(u'breaks 2: ' + str(breaksCount[1]))
-    logger.debug(u'breaks 3: ' + str(breaksCount[2]))
-    logger.debug(u'breaks 4: ' + str(breaksCount[3]))
-    logger.debug(u'breaks 5: ' + str(breaksCount[4]))
-    logger.debug(u'breaks 6: ' + str(breaksCount[5]))
-    logger.debug(u'breaks 7: ' + str(breaksCount[6]))
-    logger.debug(u'breaks 8: ' + str(breaksCount[7]))
+    logger.debug(u'breaks 1: ' + unicode(breaksCount[0]))
+    logger.debug(u'breaks 2: ' + unicode(breaksCount[1]))
+    logger.debug(u'breaks 3: ' + unicode(breaksCount[2]))
+    logger.debug(u'breaks 4: ' + unicode(breaksCount[3]))
+    logger.debug(u'breaks 5: ' + unicode(breaksCount[4]))
+    logger.debug(u'breaks 6: ' + unicode(breaksCount[5]))
+    logger.debug(u'breaks 7: ' + unicode(breaksCount[6]))
+    logger.debug(u'breaks 8: ' + unicode(breaksCount[7]))
     logger.debug(u'----')
-    logger.debug(u'max found: ' + str(breaksMax))
-    logger.debug(u'max Index: ' + str(breaksMaxIndex))
+    logger.debug(u'max found: ' + unicode(breaksMax))
+    logger.debug(u'max Index: ' + unicode(breaksMaxIndex))
     logger.debug(u'----')
 
     if breaksMaxIndex > 0 and breaksCount[0] > breaksMax and averageLineLength < 90:
@@ -173,13 +173,13 @@ def replace_br_with_p(body):
     for i in range(len(breaksCount)):
         # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
-            logger.debug(str(i) + u' <= breaksMaxIndex (' + str(breaksMaxIndex) + u')')
+            logger.debug(unicode(i) + u' <= breaksMaxIndex (' + unicode(breaksMaxIndex) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
         elif i == breaksMaxIndex+1:
-            logger.debug(str(i) + u' == breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + u')')
+            logger.debug(unicode(i) + u' == breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
-            logger.debug(str(i) + u' > breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + u')')
+            logger.debug(unicode(i) + u' > breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
     body = breaksRegexp[8].sub(r'</p>\n<hr />\n<p>', body)
@@ -230,7 +230,7 @@ def replace_br_with_p(body):
     return tag_sanitizer(body)
 
 def is_valid_block(block):
-    return str(block).find('<') == 0 and str(block).find('<!') != 0
+    return unicode(block).find('<') == 0 and unicode(block).find('<!') != 0
 
 def soup_up_div(body):
     blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
@@ -247,8 +247,8 @@ def soup_up_div(body):
     lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
 
     for i in soup.contents[0]:
-        if str(i).strip().__len__() > 0:
-            s = str(i)
+        if unicode(i).strip().__len__() > 0:
+            s = unicode(i)
             if  type(i) == bs.Tag:
                 if  i.name in blockTags:
                     if lastElement > 1:
@@ -308,7 +308,7 @@ def tag_sanitizer(html):
         is_closed = is_closed_tag(rTag[0]) or is_comment_tag(rTag[0])
 
         # is_comment = is_comment_tag(rTag[0])
-        # logger.debug(u'%s >  isEnd: %s >  isClosed: %s >  isComment: %s'%(name, str(is_end), str(is_closed), str(is_comment)))
+        # logger.debug(u'%s >  isEnd: %s >  isClosed: %s >  isComment: %s'%(name, unicode(is_end), unicode(is_closed), unicode(is_comment)))
         # logger.debug(u'> %s%s\n'%(rTag[0], rTag[1]))
 
         if name in blockTags:
