@@ -72,6 +72,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
+    def _fetchUrl(self,url):
+        time.sleep(1.0) ## ffnet(and, I assume, fpcom) tends to fail
+                        ## more if hit too fast.  This is in
+                        ## additional to what ever the
+                        ## slow_down_sleep_time setting is.
+        return BaseSiteAdapter._fetchUrl(self,url)
+
     def extractChapterUrlsAndMetadata(self):
 
         # fetch the chapter.  From that we will get almost all the
@@ -157,7 +164,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 
                 
             
-        a = soup.find('a', href='https://www.fictionratings.com/')
+        a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
             rating = rating[8:]
@@ -275,7 +282,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        time.sleep(5.0) ## ffnet(and, I assume, fpcom) tends to fail
+        time.sleep(4.0) ## ffnet(and, I assume, fpcom) tends to fail
                         ## more if hit too fast.  This is in
                         ## additional to what ever the
                         ## slow_down_sleep_time setting is.
