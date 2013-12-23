@@ -157,7 +157,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 
                 
             
-        a = soup.find('a', href='http://www.fictionratings.com/')
+        a = soup.find('a', href='https://www.fictionratings.com/')
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
             rating = rating[8:]
