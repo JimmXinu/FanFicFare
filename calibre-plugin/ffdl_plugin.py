@@ -1393,7 +1393,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if prefs['mark'] or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
             self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.')%len(book_list))
-            label = custom_columns[prefs['errorcol']]['label']
+            if (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
+                label = custom_columns[prefs['errorcol']]['label']
+            else:
+                label = None
             LoopProgressDialog(self.gui,
                                book_list,
                                partial(self.update_error_column_loop, db=self.gui.current_db, label=label),
@@ -1402,12 +1405,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                win_title=_("Update calibre for BAD FanFiction stories"),
                                status_prefix=_("Updated"))
 
-    def update_error_column_loop(self,book,db=None,label='errorcol'):
-        if book['calibre_id']:
-            custom_columns = self.gui.library_view.model().custom_columns
-            if (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
-                logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-                db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+    def update_error_column_loop(self,book,db=None,label=None):
+        if book['calibre_id'] and label:
+            logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
