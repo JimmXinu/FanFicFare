@@ -37,11 +37,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
@@ -147,6 +142,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
         
+        notice = soup.find('div', {'class' : 'notice'})
+        if notice:
+            self.story.setMetadata('notice',unicode(notice))
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/a/\w+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
@@ -185,23 +184,35 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
         
         lc4 = lc2.findNext('td', {'class' : 'lc4'})        
-        
+        desc = lc4.contents[0]
+
         try:
             a = lc4.find('a', href=re.compile(r"/library/show_series.php\?id=\d+"))
-            i = a.parent.text.split('(')[1].split(')')[0]
-            self.setSeries(stripHTML(a), i)
-            self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
+            if a:
+                # if there's a number after the series name, series_contents is a two element list:
+                # [<a href="...">Title</a>, u' (2)']
+                series_contents = a.parent.contents
+                i = 0 if len(series_contents) == 1 else series_contents[1].strip(' ()')
+                self.setSeries(stripHTML(a), i)
+                self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
+                desc = lc4.contents[2]
         except:
             pass
         try:
             a = lc4.find('a', href=re.compile(r"/library/universe.php\?id=\d+"))
             if a:
                 self.story.setMetadata("universe",stripHTML(a))
+                desc = lc4.contents[2]
+                # Assumed only one universe, but it does have a URL--use universeHTML
+                self.story.setMetadata('universe',stripHTML(a))
+                self.story.setMetadata('universeUrl','http://'+self.host+a['href'])
+                if self.getConfig("universe_as_series"):
+                    self.setSeries(stripHTML(a), 0)
+                    self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
         except:
             pass
             
 
-        desc = lc4.contents[0]
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
             
         for b in lc4.findAll('b'):
