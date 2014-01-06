@@ -193,9 +193,38 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # [<a href="...">Title</a>, u' (2)']
                 series_contents = a.parent.contents
                 i = 0 if len(series_contents) == 1 else series_contents[1].strip(' ()')
-                self.setSeries(stripHTML(a), i)
-                self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
+                seriesUrl = 'http://'+self.host+a['href']
+                self.story.setMetadata('seriesUrl',seriesUrl)
+                series_name = stripHTML(a)
+                logger.debug("Series name= %s" % series_name)
+                series_soup = bs.BeautifulSoup(self._fetchUrl(seriesUrl))
+                if series_soup:
+                    logger.debug("Retrieving Series - looking for name")
+                    series_name = series_soup.find('span', {'id' : 'ptitle'}).text.partition(' — ')[0]
+                    logger.debug("Series name: '{0}'".format(series_name))
+                self.setSeries(series_name, i)
                 desc = lc4.contents[2]
+                # Check if series is in a universe
+                universes_soup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')  + "&type=uni")) 
+#                logger.debug("Universe page=", universes_soup)
+                if universes_soup:
+                    universes = universes_soup.findAll('div', {'class' : 'ser-box'})
+                    logger.debug("Number of Universes: %d" % len(universes))
+                    for universe in universes:
+                        logger.debug("universe.find('a')={0}".format(universe.find('a')))
+                        # The universe id is in an "a" tag that has an id but nothing else. It is the first tag.
+                        # The id is prefixed with the letter "u".
+                        universe_id = universe.find('a')['id'][1:]
+                        logger.debug("universe_id='%s'" % universe_id)
+                        universe_name = universe.find('div', {'class' : 'ser-name'}).text.partition(' ')[2]
+                        logger.debug("universe_name='%s'" % universe_name)
+                        # If there is link to the story, we have the right universe
+                        story_a = universe.find('a', {'href' : '/s/'+self.story.getMetadata('storyId')})
+                        if story_a:
+                            logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
+                            self.story.setMetadata("universe", universe_name)
+                            self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
+                            break
         except:
             pass
         try:
@@ -204,14 +233,24 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata("universe",stripHTML(a))
                 desc = lc4.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
-                self.story.setMetadata('universe',stripHTML(a))
-                self.story.setMetadata('universeUrl','http://'+self.host+a['href'])
+                universe_name = stripHTML(a)
+                universeUrl = 'http://'+self.host+a['href']
+                logger.debug("Retrieving Universe - about to get page")
+                universe_soup = bs.BeautifulSoup(self._fetchUrl(universeUrl))
+                logger.debug("Retrieving Universe - have page")
+                if universe_soup:
+                    logger.debug("Retrieving Universe - looking for name")
+                    universe_name = universe_soup.find('span', {'id' : 'ptitle'}).text.partition(' &mdash;')[0]
+                    logger.debug("Universes name: '{0}'".format(universe_name))
+
+                self.story.setMetadata('universeUrl',universeUrl)
+                logger.debug("Setting universe name: '{0}'".format(universe_name))
+                self.story.setMetadata('universe',universe_name)
                 if self.getConfig("universe_as_series"):
-                    self.setSeries(stripHTML(a), 0)
-                    self.story.setMetadata('seriesUrl','http://'+self.host+a['href'])
+                    self.setSeries(universe_name, 0)
+                    self.story.setMetadata('seriesUrl',universeUrl)
         except:
             pass
-            
 
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
             
