@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FanFictionDownLoader 1.8\n"
 "POT-Creation-Date: 2013-11-29 10:53+Central Standard Time\n"
-"PO-Revision-Date: 2014-01-07 18:56-0600\n"
+"PO-Revision-Date: 2014-01-08 14:56-0600\n"
 "Last-Translator: Jim Miller <RetiefJimm@gmail.com>\n"
 "Language-Team: Ptitprince <Leporello1791@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -229,7 +229,7 @@ msgstr ""
 
 #: config.py:400
 msgid "Check for existing Series Anthology books?"
-msgstr "Cocher pour les livres Séries Anthologies existants ?"
+msgstr "Cocher pour les livres Séries Anthologies existantes ?"
 
 #: config.py:401
 msgid ""
@@ -374,11 +374,11 @@ msgstr ""
 
 #: config.py:459
 msgid "Reject List"
-msgstr "Rejetter la liste"
+msgstr "Liste des rejets"
 
 #: config.py:463
 msgid "Edit Reject URL List"
-msgstr "Editer la liste URL rejetée"
+msgstr "Editer la Liste de Rejet URL"
 
 #: config.py:464
 msgid "Edit list of URLs FFDL will automatically Reject."
@@ -935,23 +935,23 @@ msgstr "Ajouter Nouveau Livre"
 
 #: dialogs.py:47
 msgid "Update EPUB if New Chapters"
-msgstr "Met à jour l'ePub s'il y a de nouveaux chapitres"
+msgstr "Mettre à jour l'ePub s'il y a de nouveaux chapitres"
 
 #: dialogs.py:48
 msgid "Update EPUB Always"
-msgstr "Met toujours l'ePub à jour"
+msgstr "Mettre toujours l'ePub à jour"
 
 #: dialogs.py:49
 msgid "Overwrite if Newer"
-msgstr "Ecrase si nouveau"
+msgstr "Ecraser si nouveau"
 
 #: dialogs.py:50
 msgid "Overwrite Always"
-msgstr "Ecrase toujours"
+msgstr "Ecraser toujours"
 
 #: dialogs.py:51
 msgid "Update Calibre Metadata Only"
-msgstr "Met uniquement à jour les métadonnées de calibre"
+msgstr "Mettre uniquement à jour les métadonnées de calibre"
 
 # title by author
 #: dialogs.py:139 ffdl_plugin.py:1954
@@ -987,7 +987,7 @@ msgid ""
 "(Columns set to 'New Only' in the column tabs will only be set for new "
 "books.)"
 msgstr ""
-"Mettre à jour les métadonnées pour les récists existants dans calibre depuis "
+"Mettre à jour les métadonnées pour les récits existants dans calibre depuis "
 "le site web ?\n"
 "(Les colonnes définies à  \"Nouveau uniquement\" dans les étiquettes de "
 "colonne seront uniquement définies pour les nouveaux livres.)"
@@ -1215,7 +1215,7 @@ msgstr "Ajouter un /des nouveau(x) livre(s) de Fanfiction depuis l'URL(s)"
 
 #: ffdl_plugin.py:245
 msgid "&Update Existing FanFiction Book(s)"
-msgstr "&Mettre à jour le(s) livre(s) FanFiction existant"
+msgstr "&Mettre à jour le(s) livre(s) FanFiction existant(s)"
 
 #: ffdl_plugin.py:251
 msgid "Get Story URLs to Download from Web Page"
@@ -1223,7 +1223,7 @@ msgstr "Prendre les URLs de récit à télécharger depuis la page web"
 
 #: ffdl_plugin.py:255
 msgid "&Make Anthology Epub Manually from URL(s)"
-msgstr "&Faire manuellement un ePub d'anthologie depuis depuis l'/les URL(s)"
+msgstr "Faire manuellement un ePub d'anthologie depuis depuis l'/les URL(s)"
 
 #: ffdl_plugin.py:257
 msgid "Make FanFiction Anthology Epub Manually from URL(s)"
