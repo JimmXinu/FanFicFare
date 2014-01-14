@@ -128,23 +128,22 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
-            value = labelspan.nextSibling
+            val = labelspan.nextSibling
+            value = unicode('')
+            while val and not defaultGetattr(val,'class') == 'label':
+                value += unicode(val)
+                val = val.nextSibling
             label = labelspan.string
+            #print("label:%s\nvalue:%s"%(label,value))
 
             if 'Summary' in label:
-                ## Everything until the next span class='label'
-                svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
-                    value = value.nextSibling
-                self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
+                self.setDescription(url,value)
 
             if 'Rated' in label:
-                self.story.setMetadata('rating', value)
+                self.story.setMetadata('rating', stripHTML(value))
 
             if 'Word count' in label:
-                self.story.setMetadata('numWords', value)
+                self.story.setMetadata('numWords', stripHTML(value))
 
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
@@ -167,7 +166,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
                     self.story.addToList('warnings',warning.string)
 
             if 'Completed' in label:
-                if 'Yes' in value:
+                if 'Yes' in stripHTML(value):
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
