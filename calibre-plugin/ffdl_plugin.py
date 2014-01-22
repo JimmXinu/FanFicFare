@@ -1546,8 +1546,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
 
                     if meta not in book['all_metadata']:
-                        logger.debug("No value for %s, skipping custom column(%s) update."%(meta,custcol))
-                        continue
+                        # if double quoted, use as a literal value.
+                        if meta[0] == '"' and meta[-1] == '"':
+                            val = meta[1:-1]
+                            logger.debug("No metadata value for %s, setting custom column(%s) literally to %s."%(meta,custcol,val))
+                        else:
+                            logger.debug("No value for %s, skipping custom column(%s) update."%(meta,custcol))
+                            continue
+                    else:
+                        val = book['all_metadata'][meta]    
                     
                     if custcol not in custom_columns:
                         continue
@@ -1559,11 +1566,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
                             if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
                                 # re-split list, strip commas, convert to floats, sum up.
-                                val = sum([ float(x.replace(",","")) for x in book['all_metadata'][meta].split(", ") ])
+                                val = sum([ float(x.replace(",","")) for x in val.split(", ") ])
                             else:
-                                val = unicode(book['all_metadata'][meta]).replace(",","")
+                                val = unicode(val).replace(",","")
                         else:
-                            val = book['all_metadata'][meta]
+                            val = val
                         if val != '':
                             db.set_custom(book_id, val, label=label, commit=False)
 
@@ -1578,8 +1585,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         except:
                             pass
 
-                        if book['all_metadata'][meta]:
-                            vallist = [book['all_metadata'][meta]]
+                        if val:
+                            vallist = [val]
                             
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
 
