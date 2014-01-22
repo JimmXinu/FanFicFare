@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FanFictionDownLoader 1.8\n"
 "POT-Creation-Date: 2013-11-29 10:53+Central Standard Time\n"
-"PO-Revision-Date: 2014-01-08 14:56-0600\n"
+"PO-Revision-Date: 2014-01-22 10:51-0600\n"
 "Last-Translator: Jim Miller <RetiefJimm@gmail.com>\n"
 "Language-Team: Ptitprince <Leporello1791@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -1698,7 +1698,7 @@ msgstr ""
 
 #: ffdl_plugin.py:1256 ffdl_plugin.py:1295
 msgid "FFDL found <b>%s</b> good and <b>%s</b> bad updates."
-msgstr "FFDL trouve la mise à jour <b>%s</b> bonne et <b>%s<%s</b> mauvaise"
+msgstr "FFDL trouve la mise à jour <b>%s</b> bonne et <b>%s</b> mauvaise"
 
 #: ffdl_plugin.py:1263
 msgid ""
