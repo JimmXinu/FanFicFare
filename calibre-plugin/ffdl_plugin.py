@@ -1232,6 +1232,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
 
+        if prefs['autoconvert']:
+            self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
+            self.gui.iactions['Convert Books'].auto_convert_auto_add(all_ids)
+
     def download_list_completed(self, job, options={},merge=False):
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
