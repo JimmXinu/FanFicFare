@@ -209,6 +209,7 @@ class ConfigWidget(QWidget):
         prefs['suppresstitlesort'] = self.basic_tab.suppresstitlesort.isChecked()
         prefs['mark'] = self.basic_tab.mark.isChecked()
         prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
+        prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
@@ -421,6 +422,11 @@ class BasicTab(QWidget):
         self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."))
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
+
+        self.autoconvert = QCheckBox(_("Automatically Convert new/update books?"),self)
+        self.autoconvert.setToolTip(_("Automatically call calibre's Convert for new/update books.\nConverts to the current output format as chosen in calibre's\nPreferences->Behavior settings."))
+        self.autoconvert.setChecked(prefs['autoconvert'])
+        self.l.addWidget(self.autoconvert)
 
         gui_gb = groupbox = QGroupBox(_("GUI Options"))
         self.l = QVBoxLayout()
