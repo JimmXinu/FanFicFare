@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FanFictionDownLoader 1.8\n"
 "POT-Creation-Date: 2014-01-26 11:46+Central Standard Time\n"
-"PO-Revision-Date: 2014-01-26 11:48-0600\n"
+"PO-Revision-Date: 2014-01-28 13:09-0600\n"
 "Last-Translator: Jim Miller <RetiefJimm@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: config.py:426
 msgid "Automatically Convert new/update books?"
-msgstr ""
+msgstr "Neue/aktualisierte Bücher automatisch konvertieren?"
 
 #: config.py:427
 msgid ""
@@ -311,6 +311,10 @@ msgid ""
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
 msgstr ""
+"Automatisches Aufrufen von Calibre´s Konvertierung von neuen/aktualisierten "
+"Büchern.\n"
+"Wandelt in das bevorzugte Ausgabeformat um, das aktuell in den Calibre "
+"Einstellungen-->Verhalten gewählt ist."
 
 #: config.py:431
 msgid "GUI Options"
@@ -1696,7 +1700,7 @@ msgstr "Hinzufügen/Aktualisierung von %d Büchern abgeschlossen."
 
 #: ffdl_plugin.py:1236
 msgid "Starting auto conversion of %d books."
-msgstr ""
+msgstr "Starte automatische Konvertierung von %d Büchern."
 
 #: ffdl_plugin.py:1257
 msgid "No Good Stories for Anthology"
