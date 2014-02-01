@@ -137,6 +137,9 @@ def replace_br_with_p(body):
             contentLinesSum += lineLen
             if lineLen > longestLineLength:
                 longestLineLength = lineLen
+                
+    if contentLines == 0:
+        contentLines = 1
 
     averageLineLength = contentLinesSum/contentLines
 
