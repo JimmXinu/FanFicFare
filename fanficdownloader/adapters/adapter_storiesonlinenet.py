@@ -322,8 +322,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 div.append(div1)
             
         # removing all the left-over stuff    
-        for a in div.findAll('span'):
-            a.extract() 
+        # for a in div.findAll('span'):
+        #     a.extract() 
             
         for a in div.findAll('h1'):
             a.extract()
