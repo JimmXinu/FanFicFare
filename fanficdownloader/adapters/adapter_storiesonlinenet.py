@@ -305,8 +305,18 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # some big chapters are split over several pages
         pager = div.find('span', {'class' : 'pager'})
         if pager != None:
+            a = pager.previousSibling
+            while a != None:
+                logger.debug("before pager: {0}".format(a))
+                b = a.previousSibling
+                a.extract()
+                a = b
+
             urls=pager.findAll('a')
             urls=urls[:len(urls)-1]
+            pager.extract()
+            div.contents = div.contents[2:]
+#            logger.debug(div)
                         
             for ur in urls:
                 soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
@@ -314,38 +324,76 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         
                 div1 = soup.find('div', {'id' : 'story'})
                 
-                # appending next section
-                last=div.findAll('p')
-                next=div1.find('span', {'class' : 'conTag'}).nextSibling
-            
-                last[len(last)-1]=last[len(last)-1].append(next)
-                div.append(div1)
-            
-        # removing all the left-over stuff    
-        # for a in div.findAll('span'):
-        #     a.extract() 
-            
-        for a in div.findAll('h1'):
-            a.extract()
-        for a in div.findAll('h2'):
-            a.extract()
-        for a in div.findAll('h3'):
-            a.extract()
-        for a in div.findAll('h4'):
-            a.extract()
-        for a in div.findAll('br'):
-            a.extract()
-        for a in div.findAll('div', {'class' : 'date'}):
-            a.extract()
-            
-        a = div.find('form')
-        if a != None:
-            b = a.nextSibling
-            while b != None:
+                # Find the "Continues" marker on the current page and remove everything after that. 
+                continues = div.find('span', {'class' : 'conTag'})
+                if continues != None:
+                    while continues != None:
+#                        logger.debug("removing end: {0}".format(continues))
+                        b = continues.nextSibling
+                        continues.extract()
+                        continues = b
+
+                # Find the "Continued" marker and delete everything before that
+                continued = div1.find('span', {'class' : 'conTag'})
+                if continued != None:
+                    a = continued.previousSibling
+                    while a != None:
+#                        logger.debug("before conTag: {0}".format(a))
+                        b = a.previousSibling
+                        a.extract()
+                        a = b
+                # Remove the pager from the end if this is the last page
+                endPager = div1.find('span', {'class' : 'pager'})
+                if endPager != None:
+                    b = endPager.nextSibling
+                    while endPager != None:
+                        logger.debug("removing end: {0}".format(endPager))
+                        b = endPager.nextSibling
+                        endPager.extract()
+                        endPager = b
+                    div1.contents = div1.contents[:len(div1) - 2]
+#                logger.debug("after removing pager: {0}".format(div1))
+                for tag in div1.contents[2:]:
+                    div.append(tag)
+
+        # If it is a chapter, there are dates at the start for when it was posted or modified. These plus 
+        # everything before them can be discarded. 
+        postedDates = div.findAll('div', {'class' : 'date'})
+        if postedDates:
+            a = postedDates[0].previousSibling
+            while a != None:
+#                logger.debug("before dates: {0}".format(a))
+                b = a.previousSibling
                 a.extract()
-                a=b
-                b=b.nextSibling
-        
+                a = b
+            for a in div.findAll('div', {'class' : 'date'}):
+                a.extract()
+
+        # For single chapter stories, there is a copyright statement. Remove this and everything
+        # before it.
+        copy = div.find('h4', {'class': 'copy'})
+        while copy != None:
+#            logger.debug("before copyright: {0}".format(copy))
+            b = copy.previousSibling
+            copy.extract()
+            copy = b
+
+        # For a story or the last chapter, remove voting form and the in library box
+        a = div.find('div', {'id' : 'vote-form'})
+        if a != None:
+            a.extract()
+        a = div.find('div', {'id' : 'b-man-div'})
+        if a != None:
+            a.extract()
+
+        # Kill the "The End" header and everything after it.
+        a = div.find(['h2', 'h3'], {'class' : 'end'})
+        logger.debug("Chapter end= '{0}'".format(a))
+        while a != None:
+            b = a.nextSibling
+            a.extract()
+            a=b
+
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
