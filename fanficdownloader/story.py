@@ -573,7 +573,13 @@ class Story(Configurable):
             imgurl = url
         else:
             parsedUrl = urlparse.urlparse(parenturl)
-            if url.startswith("/") :
+            if url.startswith("//") :
+                imgurl = urlparse.urlunparse(
+                    (parsedUrl.scheme,
+                     '',
+                     url,
+                     '','',''))
+            elif url.startswith("/") :
                 imgurl = urlparse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,

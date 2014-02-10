@@ -87,7 +87,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
     
     def setHeader(self):
         "buffynfaith.net wants a Referer for images.  Used both above and below(after cookieproc added)"
-        self.opener.addheaders = [('Referer', 'http://'+self.getSiteDomain()+'/')]
+        self.opener.addheaders.append(('Referer', 'http://'+self.getSiteDomain()+'/'))
         
     @classmethod
     def getSiteExampleURLs(self):
