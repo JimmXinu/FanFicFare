@@ -57,6 +57,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             ## accept m(mobile)url, but use www.
             self.origurl = self.origurl.replace("https://m.","https://www.")
 
+        self.opener.addheaders.append(('Referer',self.origurl))
+
     @staticmethod
     def getSiteDomain():
         return 'www.fanfiction.net'
