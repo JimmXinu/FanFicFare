@@ -57,6 +57,7 @@ default_prefs['addtolistsonread'] = False
 default_prefs['gcnewonly'] = False
 default_prefs['gc_site_settings'] = {}
 default_prefs['allow_gc_from_ini'] = True
+default_prefs['gc_polish_cover'] = False
 
 default_prefs['countpagesstats'] = []
 

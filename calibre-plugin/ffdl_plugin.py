@@ -1138,6 +1138,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 func, args=args,
                 description=desc)
         
+        self.gui.jobs_pointer.start()
         self.gui.status_bar.show_message(_('Starting %d FanFictionDownLoads')%len(book_list),3000)
 
     def update_books_loop(self,book,db=None,
@@ -1339,7 +1340,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         
         self.gui.status_bar.show_message(_('Merging %s books.')%total_good)
-
         
         existingbook = None
         if 'mergebook' in options:
@@ -1664,6 +1664,28 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 logger.debug("Running Generate Cover with settings %s."%setting_name)
                 realmi = db.get_metadata(book_id, index_is_id=True)
                 gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
+
+                if prefs['gc_polish_cover'] and \
+                        options['fileform'] == "epub" and calibre_version >= (0, 9, 39):
+                    # set cover inside epub from calibre's polish feature
+                    from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
+                    from calibre.utils.logging import Log
+                    from collections import namedtuple
+
+                    # Couldn't find a better way to get the cover path.
+                    cover_path = os.path.join(db.library_path, db.path(book_id, index_is_id=True), 'cover.jpg')
+                    data = {'cover':cover_path}
+                    #print("cover_path:%s"%cover_path)
+                    opts = ALL_OPTS.copy()
+                    opts.update(data)
+                    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                    opts = O(**opts)
+                
+                    log = Log(level=Log.DEBUG)
+                    outfile = db.format_abspath(book_id, formmapping[options['fileform']], index_is_id=True)
+                    #print("polish cover outfile:%s"%outfile)
+                    polish({outfile:outfile}, opts, log, logger.info)
+                
 
     def get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :

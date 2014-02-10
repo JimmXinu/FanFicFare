@@ -249,6 +249,7 @@ class ConfigWidget(QWidget):
                 #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
         prefs['gc_site_settings'] = gc_site_settings
         prefs['allow_gc_from_ini'] = self.generatecover_tab.allow_gc_from_ini.isChecked()
+        prefs['gc_polish_cover'] = self.generatecover_tab.gc_polish_cover.isChecked()
 
         # Count Pages tab
         countpagesstats = []
@@ -752,6 +753,11 @@ class GenerateCoverTab(QWidget):
         self.allow_gc_from_ini.setToolTip(_("The %(pini)s parameter %(gcset)s allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \>%(gcset)s is ignored when this is off.")%no_trans)
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
+            
+        self.gc_polish_cover = QCheckBox(_("Use calibre's Polish feature to inject/update the cover"),self)
+        self.gc_polish_cover.setToolTip(_("Calibre's Polish feature will be used to inject or update the generated cover into the ebook, EPUB only."))
+        self.gc_polish_cover.setChecked(prefs['gc_polish_cover'])
+        self.l.addWidget(self.gc_polish_cover)
             
 class CountPagesTab(QWidget):
 
