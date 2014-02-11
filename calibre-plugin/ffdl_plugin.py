@@ -1233,7 +1233,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             cp_plugin = self.gui.iactions['Count Pages']
             cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
 
-        if prefs['autoconvert']:
+        if prefs['autoconvert'] and options['collision'] != CALIBREONLY:
             self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
             self.gui.iactions['Convert Books'].auto_convert_auto_add(all_ids)
 
