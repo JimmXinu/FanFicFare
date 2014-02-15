@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-26 11:46+Central Standard Time\n"
+"POT-Creation-Date: 2014-02-15 09:39+Central Standard Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,83 +47,83 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: config.py:315
+#: config.py:316
 msgid "These settings control the basic features of the plugin--downloading FanFiction."
 msgstr ""
 
-#: config.py:319
+#: config.py:320
 msgid "Defaults Options on Download"
 msgstr ""
 
-#: config.py:323
+#: config.py:324
 msgid "On each download, FFDL offers an option to select the output format. <br />This sets what that option will default to."
 msgstr ""
 
-#: config.py:325
+#: config.py:326
 msgid "Default Output &Format:"
 msgstr ""
 
-#: config.py:340
+#: config.py:341
 msgid "On each download, FFDL offers an option of what happens if that story already exists. <br />This sets what that option will default to."
 msgstr ""
 
-#: config.py:342
+#: config.py:343
 msgid "Default If Story Already Exists?"
 msgstr ""
 
-#: config.py:356
+#: config.py:357
 msgid "Default Update Calibre &Metadata?"
 msgstr ""
 
-#: config.py:357
+#: config.py:358
 msgid "On each download, FFDL offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books."
 msgstr ""
 
-#: config.py:361
+#: config.py:362
 msgid "Default Update EPUB Cover when Updating EPUB?"
 msgstr ""
 
-#: config.py:362
+#: config.py:363
 msgid "On each download, FFDL offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."
 msgstr ""
 
-#: config.py:366
+#: config.py:367
 msgid "Smarten Punctuation (EPUB only)"
 msgstr ""
 
-#: config.py:367
+#: config.py:368
 msgid "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB download and update."
 msgstr ""
 
-#: config.py:372
+#: config.py:373
 msgid "Updating Calibre Options"
 msgstr ""
 
-#: config.py:376
+#: config.py:377
 msgid "Delete other existing formats?"
 msgstr ""
 
-#: config.py:377
+#: config.py:378
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
 msgstr ""
 
-#: config.py:381
+#: config.py:382
 msgid "Update Calibre Cover when Updating Metadata?"
 msgstr ""
 
-#: config.py:382
+#: config.py:383
 msgid ""
 "Update calibre book cover image from EPUB when metadata is updated.  (EPUB only.)\n"
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'."
 msgstr ""
 
-#: config.py:386
+#: config.py:387
 msgid "Keep Existing Tags when Updating Metadata?"
 msgstr ""
 
-#: config.py:387
+#: config.py:388
 msgid ""
 "Existing tags will be kept and any new tags added.\n"
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
@@ -131,566 +131,574 @@ msgid ""
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
 msgstr ""
 
-#: config.py:391
+#: config.py:392
 msgid "Force Author into Author Sort?"
 msgstr ""
 
-#: config.py:392
+#: config.py:393
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
 msgstr ""
 
-#: config.py:396
+#: config.py:397
 msgid "Force Title into Title Sort?"
 msgstr ""
 
-#: config.py:397
+#: config.py:398
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
 msgstr ""
 
-#: config.py:401
+#: config.py:402
 msgid "Check for existing Series Anthology books?"
 msgstr ""
 
-#: config.py:402
+#: config.py:403
 msgid ""
 "Check for existings Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found."
 msgstr ""
 
-#: config.py:406
+#: config.py:407
 msgid "Check for changed Story URL?"
 msgstr ""
 
-#: config.py:407
+#: config.py:408
 msgid ""
 "Warn you if an update will change the URL of an existing book.\n"
 "fanfiction.net URLs will change from http to https silently."
 msgstr ""
 
-#: config.py:411
+#: config.py:412
 msgid "Search EPUB text for Story URL?"
 msgstr ""
 
-#: config.py:412
+#: config.py:413
 msgid ""
 "Look for first valid story URL inside EPUB text if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on EPUB content.\n"
 "Also finds and corrects bad ffnet URLs from ficsaver.com files."
 msgstr ""
 
-#: config.py:416
+#: config.py:417
 msgid "Mark added/updated books when finished?"
 msgstr ""
 
-#: config.py:417
+#: config.py:418
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:ffdl_success'.\n"
 "'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."
 msgstr ""
 
-#: config.py:421
+#: config.py:422
 msgid "Show Marked books when finished?"
 msgstr ""
 
-#: config.py:422
+#: config.py:423
 msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:ffdl_success'.\n"
 "'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."
 msgstr ""
 
-#: config.py:426
+#: config.py:427
 msgid "Automatically Convert new/update books?"
 msgstr ""
 
-#: config.py:427
+#: config.py:428
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
 msgstr ""
 
-#: config.py:431
+#: config.py:432
 msgid "GUI Options"
 msgstr ""
 
-#: config.py:435
+#: config.py:436
 msgid "Take URLs from Clipboard?"
 msgstr ""
 
-#: config.py:436
+#: config.py:437
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
 msgstr ""
 
-#: config.py:440
+#: config.py:441
 msgid "Default to Update when books selected?"
 msgstr ""
 
-#: config.py:441
+#: config.py:442
 msgid ""
 "The top FanFictionDownLoader plugin button will start Update if\n"
 "books are selected.  If unchecked, it will always bring up 'Add New'."
 msgstr ""
 
-#: config.py:445
+#: config.py:446
 msgid "Keep 'Add New from URL(s)' dialog on top?"
 msgstr ""
 
-#: config.py:446
+#: config.py:447
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
 msgstr ""
 
-#: config.py:450
+#: config.py:451
 msgid "Misc Options"
 msgstr ""
 
-#: config.py:455
+#: config.py:456
 msgid "Include images in EPUBs?"
 msgstr ""
 
-#: config.py:456
+#: config.py:457
 msgid "Download and include images in EPUB stories.  This is equivalent to adding:%(imgset)s ...to the top of %(pini)s.  Your settings in %(pini)s will override this."
 msgstr ""
 
-#: config.py:460
+#: config.py:461
 msgid "Inject calibre Series when none found?"
 msgstr ""
 
-#: config.py:461
+#: config.py:462
 msgid "If no series is found, inject the calibre series (if there is one) so it appears on the FFDL title page(not cover)."
 msgstr ""
 
-#: config.py:465
+#: config.py:466
 msgid "Reject List"
 msgstr ""
 
-#: config.py:469
+#: config.py:470
 msgid "Edit Reject URL List"
 msgstr ""
 
-#: config.py:470
+#: config.py:471
 msgid "Edit list of URLs FFDL will automatically Reject."
 msgstr ""
 
-#: config.py:474 config.py:543
+#: config.py:475 config.py:544
 msgid "Add Reject URLs"
 msgstr ""
 
-#: config.py:475
+#: config.py:476
 msgid "Add additional URLs to Reject as text."
 msgstr ""
 
-#: config.py:479
+#: config.py:480
 msgid "Edit Reject Reasons List"
 msgstr ""
 
-#: config.py:480 config.py:534
+#: config.py:481 config.py:535
 msgid "Customize the Reasons presented when Rejecting URLs"
 msgstr ""
 
-#: config.py:518
+#: config.py:519
 msgid "Edit Reject URLs List"
 msgstr ""
 
-#: config.py:532
+#: config.py:533
 msgid "Reject Reasons"
 msgstr ""
 
-#: config.py:533
+#: config.py:534
 msgid "Customize Reject List Reasons"
 msgstr ""
 
-#: config.py:541
+#: config.py:542
 msgid "Reason why I rejected it"
 msgstr ""
 
-#: config.py:541
+#: config.py:542
 msgid "Title by Author"
 msgstr ""
 
-#: config.py:544
+#: config.py:545
 msgid "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored."
 msgstr ""
 
-#: config.py:545
+#: config.py:546
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
 msgstr ""
 
-#: config.py:547 dialogs.py:1007
+#: config.py:548 dialogs.py:1007
 msgid "Add this reason to all URLs added:"
 msgstr ""
 
-#: config.py:562
+#: config.py:563
 msgid "These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s for different sites."
 msgstr ""
 
-#: config.py:580
+#: config.py:581
 msgid "View Defaults"
 msgstr ""
 
-#: config.py:581
+#: config.py:582
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
 msgstr ""
 
-#: config.py:599
+#: config.py:600
 msgid "Plugin Defaults (%s) (Read-Only)"
 msgstr ""
 
-#: config.py:600 config.py:606
+#: config.py:601 config.py:607
 msgid ""
 "These are all of the plugin's configurable options\n"
 "and their default settings."
 msgstr ""
 
-#: config.py:601
+#: config.py:602
 msgid "Plugin Defaults"
 msgstr ""
 
-#: config.py:617 dialogs.py:531 dialogs.py:634
+#: config.py:618 dialogs.py:531 dialogs.py:634
 msgid "OK"
 msgstr ""
 
-#: config.py:637
+#: config.py:638
 msgid "These settings provide integration with the %(rl)s Plugin.  %(rl)s can automatically send to devices and change custom columns.  You have to create and configure the lists in %(rl)s to be useful."
 msgstr ""
 
-#: config.py:642
+#: config.py:643
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
 msgstr ""
 
-#: config.py:643
+#: config.py:644
 msgid "Automatically add new/updated stories to these lists in the %(rl)s plugin."
 msgstr ""
 
-#: config.py:648
+#: config.py:649
 msgid "\"Send to Device\" Reading Lists"
 msgstr ""
 
-#: config.py:649 config.py:652 config.py:665 config.py:668
+#: config.py:650 config.py:653 config.py:666 config.py:669
 msgid "When enabled, new/updated stories will be automatically added to these lists."
 msgstr ""
 
-#: config.py:658
+#: config.py:659
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
 msgstr ""
 
-#: config.py:659
+#: config.py:660
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
 msgstr ""
 
-#: config.py:664
+#: config.py:665
 msgid "\"To Read\" Reading Lists"
 msgstr ""
 
-#: config.py:674
+#: config.py:675
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
 msgstr ""
 
-#: config.py:675
+#: config.py:676
 msgid "Menu option to remove from \"To Read\" lists will also add stories back to \"Send to Device\" Reading List(s)"
 msgstr ""
 
-#: config.py:697
+#: config.py:698
 msgid "The %(gc)s plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FFDL can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default."
 msgstr ""
 
-#: config.py:715 config.py:719 config.py:732
+#: config.py:716 config.py:720 config.py:733
 msgid "Default"
 msgstr ""
 
-#: config.py:720
+#: config.py:721
 msgid "On Metadata update, run %(gc)s with this setting, if not selected for specific site."
 msgstr ""
 
-#: config.py:723
+#: config.py:724
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
 msgstr ""
 
-#: config.py:746
+#: config.py:747
 msgid "Run %(gc)s Only on New Books"
 msgstr ""
 
-#: config.py:747
+#: config.py:748
 msgid "Default is to run GC any time the calibre metadata is updated."
 msgstr ""
 
-#: config.py:751
+#: config.py:752
 msgid "Allow %(gcset)s from %(pini)s to override"
 msgstr ""
 
-#: config.py:752
+#: config.py:753
 msgid "The %(pini)s parameter %(gcset)s allows you to choose a GC setting based on metadata rather than site, but it's much more complex.<br \\>%(gcset)s is ignored when this is off."
 msgstr ""
 
-#: config.py:766
+#: config.py:757
+msgid "Use calibre's Polish feature to inject/update the cover"
+msgstr ""
+
+#: config.py:758
+msgid "Calibre's Polish feature will be used to inject or update the generated cover into the ebook, EPUB only."
+msgstr ""
+
+#: config.py:772
 msgid "These settings provide integration with the %(cp)s Plugin.  %(cp)s can automatically update custom columns with page, word and reading level statistics.  You have to create and configure the columns in %(cp)s first."
 msgstr ""
 
-#: config.py:771
+#: config.py:777
 msgid "If any of the settings below are checked, when stories are added or updated, the %(cp)s Plugin will be called to update the checked statistics."
 msgstr ""
 
-#: config.py:777
+#: config.py:783
 msgid "Which column and algorithm to use are configured in %(cp)s."
 msgstr ""
 
-#: config.py:785
+#: config.py:791
 msgid "Will overwrite word count from FFDL metadata if set to update the same custom column."
 msgstr ""
 
-#: config.py:816
+#: config.py:822
 msgid "These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFictionDownLoader confirmation dialogs back again."
 msgstr ""
 
-#: config.py:821
+#: config.py:827
 msgid "Keyboard shortcuts..."
 msgstr ""
 
-#: config.py:822
+#: config.py:828
 msgid "Edit the keyboard shortcuts associated with this plugin"
 msgstr ""
 
-#: config.py:826
+#: config.py:832
 msgid "Reset disabled &confirmation dialogs"
 msgstr ""
 
-#: config.py:827
+#: config.py:833
 msgid "Reset all show me again dialogs for the FanFictionDownLoader plugin"
 msgstr ""
 
-#: config.py:831
+#: config.py:837
 msgid "&View library preferences..."
 msgstr ""
 
-#: config.py:832
+#: config.py:838
 msgid "View data stored in the library database for this plugin"
 msgstr ""
 
-#: config.py:843
+#: config.py:849
 msgid "Done"
 msgstr ""
 
-#: config.py:844
+#: config.py:850
 msgid "Confirmation dialogs have all been reset"
 msgstr ""
 
-#: config.py:892
+#: config.py:898
 msgid "Category"
 msgstr ""
 
-#: config.py:893
+#: config.py:899
 msgid "Genre"
 msgstr ""
 
-#: config.py:894
+#: config.py:900
 msgid "Language"
 msgstr ""
 
-#: config.py:895 ffdl_plugin.py:1114 ffdl_plugin.py:1277 ffdl_plugin.py:1307
+#: config.py:901 ffdl_plugin.py:1114 ffdl_plugin.py:1278 ffdl_plugin.py:1308
 msgid "Status"
 msgstr ""
 
-#: config.py:896
+#: config.py:902
 msgid "Status:%(cmplt)s"
 msgstr ""
 
-#: config.py:897
+#: config.py:903
 msgid "Status:%(inprog)s"
 msgstr ""
 
-#: config.py:898 config.py:1032
+#: config.py:904 config.py:1038
 msgid "Series"
 msgstr ""
 
-#: config.py:899
+#: config.py:905
 msgid "Characters"
 msgstr ""
 
-#: config.py:900
+#: config.py:906
 msgid "Relationships"
 msgstr ""
 
-#: config.py:901
+#: config.py:907
 msgid "Published"
 msgstr ""
 
-#: config.py:902 ffdl_plugin.py:1391 ffdl_plugin.py:1410
+#: config.py:908 ffdl_plugin.py:1391 ffdl_plugin.py:1410
 msgid "Updated"
 msgstr ""
 
-#: config.py:903
+#: config.py:909
 msgid "Created"
 msgstr ""
 
-#: config.py:904
+#: config.py:910
 msgid "Rating"
 msgstr ""
 
-#: config.py:905
+#: config.py:911
 msgid "Warnings"
 msgstr ""
 
-#: config.py:906
+#: config.py:912
 msgid "Chapters"
 msgstr ""
 
-#: config.py:907
+#: config.py:913
 msgid "Words"
 msgstr ""
 
-#: config.py:908
+#: config.py:914
 msgid "Site"
 msgstr ""
 
-#: config.py:909
+#: config.py:915
 msgid "Story ID"
 msgstr ""
 
-#: config.py:910
+#: config.py:916
 msgid "Author ID"
 msgstr ""
 
-#: config.py:911
+#: config.py:917
 msgid "Extra Tags"
 msgstr ""
 
-#: config.py:912 config.py:1024 dialogs.py:793 dialogs.py:889
-#: ffdl_plugin.py:1114 ffdl_plugin.py:1277 ffdl_plugin.py:1307
+#: config.py:918 config.py:1030 dialogs.py:793 dialogs.py:889
+#: ffdl_plugin.py:1114 ffdl_plugin.py:1278 ffdl_plugin.py:1308
 msgid "Title"
 msgstr ""
 
-#: config.py:913
+#: config.py:919
 msgid "Story URL"
 msgstr ""
 
-#: config.py:914
+#: config.py:920
 msgid "Description"
 msgstr ""
 
-#: config.py:915 dialogs.py:793 dialogs.py:889 ffdl_plugin.py:1114
-#: ffdl_plugin.py:1277 ffdl_plugin.py:1307
+#: config.py:921 dialogs.py:793 dialogs.py:889 ffdl_plugin.py:1114
+#: ffdl_plugin.py:1278 ffdl_plugin.py:1308
 msgid "Author"
 msgstr ""
 
-#: config.py:916
+#: config.py:922
 msgid "Author URL"
 msgstr ""
 
-#: config.py:917
+#: config.py:923
 msgid "File Format"
 msgstr ""
 
-#: config.py:918
+#: config.py:924
 msgid "File Extension"
 msgstr ""
 
-#: config.py:919
+#: config.py:925
 msgid "Site Abbrev"
 msgstr ""
 
-#: config.py:920
+#: config.py:926
 msgid "FFDL Version"
 msgstr ""
 
-#: config.py:935
+#: config.py:941
 msgid "If you have custom columns defined, they will be listed below.  Choose a metadata value type to fill your columns automatically."
 msgstr ""
 
-#: config.py:960
+#: config.py:966
 msgid "Update this %s column(%s) with..."
 msgstr ""
 
-#: config.py:970
+#: config.py:976
 msgid "Values that aren't valid for this enumeration column will be ignored."
 msgstr ""
 
-#: config.py:970 config.py:972
+#: config.py:976 config.py:978
 msgid "Metadata values valid for this type of column."
 msgstr ""
 
-#: config.py:975 config.py:1051
+#: config.py:981 config.py:1057
 msgid "New Only"
 msgstr ""
 
-#: config.py:976
+#: config.py:982
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
 msgstr ""
 
-#: config.py:987
+#: config.py:993
 msgid "Allow %(ccset)s from %(pini)s to override"
 msgstr ""
 
-#: config.py:988
+#: config.py:994
 msgid "The %(pini)s parameter %(ccset)s allows you to set custom columns to site specific values that aren't common to all sites.<br />%(ccset)s is ignored when this is off."
 msgstr ""
 
-#: config.py:993
+#: config.py:999
 msgid "Special column:"
 msgstr ""
 
-#: config.py:998
+#: config.py:1004
 msgid "Update/Overwrite Error Column:"
 msgstr ""
 
-#: config.py:999
+#: config.py:1005
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
 msgstr ""
 
-#: config.py:1025
+#: config.py:1031
 msgid "Author(s)"
 msgstr ""
 
-#: config.py:1026
+#: config.py:1032
 msgid "Publisher"
 msgstr ""
 
-#: config.py:1027
+#: config.py:1033
 msgid "Tags"
 msgstr ""
 
-#: config.py:1028
+#: config.py:1034
 msgid "Languages"
 msgstr ""
 
-#: config.py:1029
+#: config.py:1035
 msgid "Published Date"
 msgstr ""
 
-#: config.py:1030
+#: config.py:1036
 msgid "Date"
 msgstr ""
 
-#: config.py:1031
+#: config.py:1037
 msgid "Comments"
 msgstr ""
 
-#: config.py:1033
+#: config.py:1039
 msgid "Ids(url id only)"
 msgstr ""
 
-#: config.py:1038
+#: config.py:1044
 msgid "The standard calibre metadata columns are listed below.  You may choose whether FFDL will fill each column automatically on updates or only for new books."
 msgstr ""
 
-#: config.py:1052
+#: config.py:1058
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
@@ -869,7 +877,7 @@ msgstr ""
 msgid "What sort of update to perform.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:793 ffdl_plugin.py:1114 ffdl_plugin.py:1277 ffdl_plugin.py:1307
+#: dialogs.py:793 ffdl_plugin.py:1114 ffdl_plugin.py:1278 ffdl_plugin.py:1308
 msgid "Comment"
 msgstr ""
 
@@ -1301,7 +1309,7 @@ msgstr ""
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr ""
 
-#: ffdl_plugin.py:1111 ffdl_plugin.py:1273 ffdl_plugin.py:1303
+#: ffdl_plugin.py:1111 ffdl_plugin.py:1274 ffdl_plugin.py:1304
 msgid "See log for details."
 msgstr ""
 
@@ -1309,7 +1317,7 @@ msgstr ""
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr ""
 
-#: ffdl_plugin.py:1119 ffdl_plugin.py:1285
+#: ffdl_plugin.py:1119 ffdl_plugin.py:1286
 msgid "Bad"
 msgstr ""
 
@@ -1317,7 +1325,7 @@ msgstr ""
 msgid "FFDL download ended"
 msgstr ""
 
-#: ffdl_plugin.py:1127 ffdl_plugin.py:1328
+#: ffdl_plugin.py:1127 ffdl_plugin.py:1329
 msgid "FFDL log"
 msgstr ""
 
@@ -1325,75 +1333,75 @@ msgstr ""
 msgid "Download FanFiction Book"
 msgstr ""
 
-#: ffdl_plugin.py:1141
+#: ffdl_plugin.py:1142
 msgid "Starting %d FanFictionDownLoads"
 msgstr ""
 
-#: ffdl_plugin.py:1171
+#: ffdl_plugin.py:1172
 msgid "Story Details:"
 msgstr ""
 
-#: ffdl_plugin.py:1174
+#: ffdl_plugin.py:1175
 msgid "Error Updating Metadata"
 msgstr ""
 
-#: ffdl_plugin.py:1175
+#: ffdl_plugin.py:1176
 msgid "An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>."
 msgstr ""
 
-#: ffdl_plugin.py:1176
+#: ffdl_plugin.py:1177
 msgid "The ebook has been updated, but the metadata has not."
 msgstr ""
 
-#: ffdl_plugin.py:1228
+#: ffdl_plugin.py:1229
 msgid "Finished Adding/Updating %d books."
 msgstr ""
 
-#: ffdl_plugin.py:1236
+#: ffdl_plugin.py:1237
 msgid "Starting auto conversion of %d books."
 msgstr ""
 
-#: ffdl_plugin.py:1257
+#: ffdl_plugin.py:1258
 msgid "No Good Stories for Anthology"
 msgstr ""
 
-#: ffdl_plugin.py:1258
+#: ffdl_plugin.py:1259
 msgid "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr ""
 
-#: ffdl_plugin.py:1263 ffdl_plugin.py:1302
+#: ffdl_plugin.py:1264 ffdl_plugin.py:1303
 msgid "FFDL found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: ffdl_plugin.py:1270
+#: ffdl_plugin.py:1271
 msgid "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr ""
 
-#: ffdl_plugin.py:1271
+#: ffdl_plugin.py:1272
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr ""
 
-#: ffdl_plugin.py:1272
+#: ffdl_plugin.py:1273
 msgid "However, if there's an older version, it will still be included."
 msgstr ""
 
-#: ffdl_plugin.py:1275
+#: ffdl_plugin.py:1276
 msgid "Proceed with updating this anthology and your library?"
 msgstr ""
 
-#: ffdl_plugin.py:1283
+#: ffdl_plugin.py:1284
 msgid "Good"
 msgstr ""
 
-#: ffdl_plugin.py:1304
+#: ffdl_plugin.py:1305
 msgid "Proceed with updating your library?"
 msgstr ""
 
-#: ffdl_plugin.py:1328
+#: ffdl_plugin.py:1329
 msgid "FFDL download complete"
 msgstr ""
 
-#: ffdl_plugin.py:1341
+#: ffdl_plugin.py:1342
 msgid "Merging %s books."
 msgstr ""
 
@@ -1429,51 +1437,51 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: ffdl_plugin.py:1679
+#: ffdl_plugin.py:1701
 msgid "You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: ffdl_plugin.py:1691
+#: ffdl_plugin.py:1713
 msgid "You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?"
 msgstr ""
 
-#: ffdl_plugin.py:1701 ffdl_plugin.py:1719
+#: ffdl_plugin.py:1723 ffdl_plugin.py:1741
 msgid "You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?"
 msgstr ""
 
-#: ffdl_plugin.py:1707
+#: ffdl_plugin.py:1729
 msgid "You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?"
 msgstr ""
 
-#: ffdl_plugin.py:1826
+#: ffdl_plugin.py:1848
 msgid "No story URL found."
 msgstr ""
 
-#: ffdl_plugin.py:1829
+#: ffdl_plugin.py:1851
 msgid "Not Found"
 msgstr ""
 
-#: ffdl_plugin.py:1835
+#: ffdl_plugin.py:1857
 msgid "URL is not a valid story URL."
 msgstr ""
 
-#: ffdl_plugin.py:1838
+#: ffdl_plugin.py:1860
 msgid "Bad URL"
 msgstr ""
 
-#: ffdl_plugin.py:1968
+#: ffdl_plugin.py:1990
 msgid "Anthology containing:"
 msgstr ""
 
-#: ffdl_plugin.py:1969
+#: ffdl_plugin.py:1991
 msgid "%s by %s"
 msgstr ""
 
-#: ffdl_plugin.py:1989
+#: ffdl_plugin.py:2011
 msgid " Anthology"
 msgstr ""
 
-#: ffdl_plugin.py:2026
+#: ffdl_plugin.py:2048
 msgid "(was set, removed for security)"
 msgstr ""
 
