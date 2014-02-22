@@ -50,6 +50,8 @@ class TestSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         idstr = self.story.getMetadata('storyId')
         idnum = int(idstr)
+        if self.getConfig('slow_down_sleep_time'):
+            time.sleep(float(self.getConfig('slow_down_sleep_time')))
 
         if idnum >= 1000:
             logger.warn("storyId:%s - Custom INI data will be used."%idstr)
@@ -296,6 +298,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
+        if self.getConfig('slow_down_sleep_time'):
+            time.sleep(float(self.getConfig('slow_down_sleep_time')))
         if self.story.getMetadata('storyId').startswith('670') or \
                 self.story.getMetadata('storyId').startswith('672'):
             time.sleep(1.0)
