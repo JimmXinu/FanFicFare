@@ -367,7 +367,7 @@ class BaseSiteAdapter(Configurable):
             
         # Don't want body tags in chapter html--writers add them.
         # This is primarily for epub updates.
-        retval = re.sub(r"</?body>\r?\n?","",retval)
+        retval = re.sub(r"</?body[^>]*>\r?\n?","",retval)
         
         if self.getConfig("replace_br_with_p"):
             # Apply heuristic processing to replace <br> paragraph
