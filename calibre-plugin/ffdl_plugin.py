@@ -1576,6 +1576,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         else:
                             val = val
                         if val != '':
+                            if coldef['datatype'] == 'bool':
+                                if val.lower() in ('t','true','1','yes','y'):
+                                    val = True
+                                elif val.lower() in ('f','false','0','no','n'):
+                                    val = False
+                                else:
+                                    val = None # for tri-state 'booleans'. Yes/No/Null
                             db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
