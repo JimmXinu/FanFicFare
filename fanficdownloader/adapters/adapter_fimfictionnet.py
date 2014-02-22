@@ -101,7 +101,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # if "/images/missing_story.png" in data:
         #     raise exceptions.StoryDoesNotExist(self.url)
         
-        if "This story has been marked as having adult content." in data:
+        if "This story has been marked as having adult content. Please click below to confirm you are of legal age to view adult material in your country." in data:
             raise exceptions.AdultCheckRequired(self.url)
         
         if self.password:
@@ -249,18 +249,20 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                     value = unicode(value)
                 self.story.setMetadata(metakey, value)
 
-        #Sequel links and group links are each bundled into story_group_list containers.
-        #Rather than mess around examining the header text, which is outside the containers,
-        #one can tell the two link types apart by examining them directly.
+        ## Groups and sequels code from FaceDeer
         allGroupLists = soup.findAll('ul', {'id':'story_group_list'})
         for groupList in allGroupLists:
             for groupName in groupList.findAll('a', {'href':re.compile('^/group/')}):
                 self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"]) 
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
-            for sequel in groupList.findAll('a', {'class':'story_link'}):
+
+        sequelStoryHeader = soup.find('h1', {'class':'header-stories'}, text="Sequels")
+        if not sequelStoryHeader == None:
+            sequelContainer = sequelStoryHeader.parent.parent
+            for sequel in sequelContainer.findAll('a', {'class':'story_link'}):
                 self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
                 self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
-
+                
         #The link to the prequel is embedded in the description text, so erring
         #on the side of caution and wrapping this whole thing in a try block.
         #If anything goes wrong this probably wasn't a valid prequel link.
