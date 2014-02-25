@@ -146,6 +146,13 @@ for x in imports():
             __domain_map[site]=cls
 
 def getNormalStoryURL(url):
+    r = getNormalStoryURLSite(url)
+    if r:
+        return r[0]
+    else:
+        return None
+
+def getNormalStoryURLSite(url):
     if not getNormalStoryURL.__dummyconfig:
         getNormalStoryURL.__dummyconfig = Configuration("test1.com","EPUB")
     # pulling up an adapter is pretty low over-head.  If
@@ -153,10 +160,11 @@ def getNormalStoryURL(url):
     try:
         adapter = getAdapter(getNormalStoryURL.__dummyconfig,url)
         url = adapter.url
+        site = adapter.getSiteDomain()
         del adapter
-        return url
+        return (url,site)
     except:
-        return None;
+        return None
 
 # kludgey function static/singleton
 getNormalStoryURL.__dummyconfig = None

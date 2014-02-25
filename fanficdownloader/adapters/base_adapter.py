@@ -76,6 +76,8 @@ class BaseSiteAdapter(Configurable):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
+
+        self.override_sleep = None
         
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         ## Specific UA because too many sites are blocking the default python UA.
@@ -147,8 +149,7 @@ class BaseSiteAdapter(Configurable):
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url, parameters={}, headers={}):
-        if self.getConfig('slow_down_sleep_time'):
-            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+        self.do_sleep()
 
         ## u2.Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
@@ -166,11 +167,20 @@ class BaseSiteAdapter(Configurable):
             return self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters)).read()
         else:
             return self.opener.open(url.replace(' ','%20')).read()
+
+    def set_sleep(self,val):
+        print("\n===========\n set sleep time %s\n==========="%val)
+        self.override_sleep = val
     
+    def do_sleep(self):
+        if self.override_sleep:
+            time.sleep(float(self.override_sleep))
+        elif self.getConfig('slow_down_sleep_time'):
+            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+        
     # parameters is a dict()
     def _fetchUrl(self, url, parameters=None):
-        if self.getConfig('slow_down_sleep_time'):
-            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+        self.do_sleep()
 
         excpt=None
         for sleeptime in [0, 0.5, 4, 9]:

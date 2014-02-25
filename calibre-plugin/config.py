@@ -55,7 +55,7 @@ from calibre_plugins.fanfictiondownloader_plugin.dialogs \
             EditTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
-    import (getConfigSections, getNormalStoryURL)
+    import getConfigSections
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )

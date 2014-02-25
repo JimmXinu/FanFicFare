@@ -660,13 +660,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("update_dialog()")
         
         db = self.gui.current_db
-        book_list = map( self.make_book_id_only, id_list )
+        books = map( self.make_book_id_only, id_list )
 
-        for j, book in enumerate(book_list):
+        for j, book in enumerate(books):
             book['listorder'] = j
-            
+
         LoopProgressDialog(self.gui,
-                           book_list,
+                           books,
                            partial(self.populate_book_from_calibre_id, db=self.gui.current_db),
                            self.update_dialog_finish,
                            init_label=_("Collecting stories for update..."),
@@ -717,6 +717,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if isinstance(books,basestring):
             url_list = split_text_to_urls(books)
             books = self.convert_urls_to_books(url_list)
+
+        ## for tweak_fg_sleep
+        options['ffnetcount']=len(filter(lambda x : x['site']=='www.fanfiction.net', books))
 
         options['version'] = self.version
         logger.debug(self.version)
@@ -815,6 +818,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         options['personal.ini'] = get_ffdl_personalini()
         adapter = get_ffdl_adapter(url,fileform)
+        # reduce foreground sleep time for ffnet when few books.
+        if 'ffnetcount' in options and \
+                adapter.getConfig('tweak_fg_sleep') and \
+                adapter.getSiteDomain() == 'www.fanfiction.net':
+            minslp = float(adapter.getConfig('min_fg_sleep'))
+            maxslp = float(adapter.getConfig('max_fg_sleep'))
+            dwnlds = float(adapter.getConfig('max_fg_sleep_at_downloads'))
+            m = (maxslp-minslp) / (dwnlds-1)
+            b = minslp - m
+            slp = min(maxslp,m*float(options['ffnetcount'])+b)
+            #print("m:%s b:%s = %s"%(m,b,slp))
+            adapter.set_sleep(slp)
 
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
@@ -1629,7 +1644,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
 
-            logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
+            #logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
             
             # force a refresh if generating cover so complex composite
             # custom columns are current and correct
@@ -1858,13 +1873,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             book['status'] = _('Not Found')
         else:
             # get normalized url or None.
-            book['url'] = self.is_good_downloader_url(url)
-            if book['url'] == None:
+            urlsitetuple = adapters.getNormalStoryURLSite(url)
+            if urlsitetuple == None:
                 book['url'] = url
                 book['comment'] = _("URL is not a valid story URL.")
                 book['good'] = False
                 book['icon']='dialog_error.png'
                 book['status'] = _('Bad URL')
+            else:
+                (book['url'],book['site'])=urlsitetuple
     
     def get_story_url(self, db, book_id=None, path=None):
         if book_id == None:

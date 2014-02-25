@@ -107,28 +107,31 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "not found. Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
-        try:
-            # rather nasty way to check for a newer chapter.  ffnet has a
-            # tendency to send out update notices in email before all
-            # their servers are showing the update on the first chapter.
+        if self.getConfig('check_next_chapter'):
             try:
-                chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
-            # get chapter part of url.
+                ## ffnet used to have a tendency to send out update
+                ## notices in email before all their servers were
+                ## showing the update on the first chapter.  It
+                ## generates another server request and doesn't seem
+                ## to be needed lately, so now default it to off.
+                try:
+                    chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+                # get chapter part of url.
+                except:
+                    chapcount = 1
+                chapter = url.split('/',)[5]
+                tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
+                                                self.story.getMetadata('storyId'),
+                                                chapcount+1)
+                logger.debug('=Trying newer chapter: %s' % tryurl)
+                newdata = self._fetchUrl(tryurl)
+                if "not found. Please check to see you are not using an outdated url." \
+                        not in newdata:
+                    logger.debug('=======Found newer chapter: %s' % tryurl)
+                    soup = bs.BeautifulSoup(newdata)
             except:
-                chapcount = 1
-            chapter = url.split('/',)[5]
-            tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
-                                            self.story.getMetadata('storyId'),
-                                            chapcount+1)
-            logger.debug('=Trying newer chapter: %s' % tryurl)
-            newdata = self._fetchUrl(tryurl)
-            if "not found. Please check to see you are not using an outdated url." \
-                    not in newdata:
-                logger.debug('=======Found newer chapter: %s' % tryurl)
-                soup = bs.BeautifulSoup(newdata)
-        except:
-            pass
-        
+                pass
+            
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
