@@ -1797,6 +1797,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['end'] = None
         book['comment'] = '' # note this is a comment on the d/l or update.
         book['url'] = ''
+        book['site'] = ''
         book['added'] = False
         return book
     
