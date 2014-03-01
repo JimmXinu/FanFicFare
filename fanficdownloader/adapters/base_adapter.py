@@ -160,13 +160,13 @@ class BaseSiteAdapter(Configurable):
         req = u2.Request(url,
                          data=urllib.urlencode(parameters),
                          headers=headers)
-        return self._decode(self.opener.open(req).read())
+        return self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
 
     def _fetchUrlRaw(self, url, parameters=None):
         if parameters != None:
-            return self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters)).read()
+            return self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
         else:
-            return self.opener.open(url.replace(' ','%20')).read()
+            return self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0))).read()
 
     def set_sleep(self,val):
         print("\n===========\n set sleep time %s\n==========="%val)
