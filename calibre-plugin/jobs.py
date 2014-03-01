@@ -93,16 +93,23 @@ def do_download_worker(book_list, options,
         logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         logger.info(job.details)
 
+
+
         if count >= total:
-            # All done!  Output some lists for convenience of some users.
-            logger.info("Successfully downloaded:")
-            for book in book_list:
-                if book['good']:
-                    logger.info("%s %s"%(book['title'],book['url']))
-            logger.info("\nUnsuccessful:")
-            for book in book_list:
-                if not book['good']:
-                    logger.info("%s %s"%(book['title'],book['url']))
+            logger.info("\nSuccessful:\n%s\n"%("\n".join([book['url'] for book in 
+                                                      filter(lambda x: x['good'], book_list) ] ) ) )
+            logger.info("\nUnsuccessful:\n%s\n"%("\n".join([book['url'] for book in 
+                                                        filter(lambda x: not x['good'], book_list) ] ) ) )
+            # # All done!  Output some lists for convenience of some users.
+            # logger.info("Successfully downloaded:")
+            # for book in book_list:
+            #     if book['good']:
+            #         logger.info("%s %s"%(book['title'],book['url']))
+            # logger.info("\nUnsuccessful:\n"+("\n".join(["%s %s"%(book['url']) for book in 
+            #                 filter(lambda x: not x['good'], book_list) ] ) ) )
+            # for book in book_list:
+            #     if not book['good']:
+            #         logger.info("%s %s"%(book['title'],book['url']))
             break
 
     server.close()
