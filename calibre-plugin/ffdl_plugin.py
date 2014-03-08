@@ -856,7 +856,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         series = story.getMetadata('series')
         if not merge and series and prefs['checkforseriesurlid']:
             # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-            searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\:','https?(\:|\|)',re.escape(story.getMetadata('seriesUrl')))
+            searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\\:','https?(\:|\|)',re.escape(story.getMetadata('seriesUrl')))
             identicalbooks = db.search_getting_ids(searchstr, None)
             # print("searchstr:%s"%searchstr)
             # print("identicalbooks:%s"%identicalbooks)
