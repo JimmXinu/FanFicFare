@@ -32,6 +32,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.utils.config import prefs as calibre_prefs
 from calibre.utils.date import local_tz
 from calibre.library.comments import sanitize_comments_html
 from calibre.constants import config_dir as calibre_config_dir
@@ -1456,8 +1457,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
             for fmt in fmts:
                 if fmt != formmapping[options['fileform']]:
-                    logger.debug("remove f:"+fmt)
+                    logger.debug("deleteotherforms remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+        elif prefs['autoconvert']:
+            ## 'Convert Book'.auto_convert_auto_add doesn't convert if
+            ## the format is already there.
+            fmt = calibre_prefs['output_format']
+            # delete if there, but not if the format we just made.
+            if fmt != formmapping[options['fileform']] and \
+                    db.has_format(book_id,fmt,index_is_id=True):
+                logger.debug("autoconvert remove f:"+fmt)
+                db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+                
 
         return book_id
 
