@@ -321,25 +321,31 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         chapter=bs.BeautifulSoup('<div class="story"></div>').find('div')
         data = self._fetchUrl(url)
         soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr'))
-		
-        headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
-        if headnotes != None:
-            headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
+
+        exclude_notes=self.getConfigList('exclude_notes')
+
+        if 'authorheadnotes' not in exclude_notes:
+            headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
-                chapter.append("<b>Author's Note:</b>")
-                chapter.append(headnotes)
+                headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
+                if headnotes != None:
+                    chapter.append("<b>Author's Note:</b>")
+                    chapter.append(headnotes)
         
-        chapsumm = soup.find('div', {'id' : "summary"})
-        if chapsumm != None:
-            chapsumm = chapsumm.find('blockquote')
-            chapter.append("<b>Summary for the Chapter:</b>")
-            chapter.append(chapsumm)
-        chapnotes = soup.find('div', {'id' : "notes"})
-        if chapnotes != None:
-            chapnotes = chapnotes.find('blockquote')
+        if 'chaptersummary' not in exclude_notes:
+            chapsumm = soup.find('div', {'id' : "summary"})
+            if chapsumm != None:
+                chapsumm = chapsumm.find('blockquote')
+                chapter.append("<b>Summary for the Chapter:</b>")
+                chapter.append(chapsumm)
+                
+        if 'chapterheadnotes' not in exclude_notes:
+            chapnotes = soup.find('div', {'id' : "notes"})
             if chapnotes != None:
-                chapter.append("<b>Notes for the Chapter:</b>")
-                chapter.append(chapnotes)
+                chapnotes = chapnotes.find('blockquote')
+                if chapnotes != None:
+                    chapter.append("<b>Notes for the Chapter:</b>")
+                    chapter.append(chapnotes)
 		
         text = soup.find('div', {'class' : "userstuff module"})
         chtext = text.find('h3', {'class' : "landmark heading"})
@@ -347,17 +353,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             chtext.extract()
         chapter.append(text)
 		
-        chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
-        if chapfoot != None:
-            chapfoot = chapfoot.find('blockquote')
-            chapter.append("<b>Notes for the Chapter:</b>")
-            chapter.append(chapfoot)
+        if 'chapterfootnotes' not in exclude_notes:
+            chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
+            if chapfoot != None:
+                chapfoot = chapfoot.find('blockquote')
+                chapter.append("<b>Notes for the Chapter:</b>")
+                chapter.append(chapfoot)
 		
-        footnotes = soup.find('div', {'id' : "work_endnotes"})
-        if footnotes != None:
-            footnotes = footnotes.find('blockquote')
-            chapter.append("<b>Author's Note:</b>")
-            chapter.append(footnotes)
+        if 'authorfootnotes' not in exclude_notes:
+            footnotes = soup.find('div', {'id' : "work_endnotes"})
+            if footnotes != None:
+                footnotes = footnotes.find('blockquote')
+                chapter.append("<b>Author's Note:</b>")
+                chapter.append(footnotes)
 			
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
