@@ -941,13 +941,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if len(identicalbooks) < 1:
                     # find dups
                     authlist = story.getList("author", removeallentities=True)
-                    if len(authlist) > 100 and calibre_version < (0, 8, 61):
-                        ## should be fixed from 0.8.61 on.  In the
-                        ## meantime, if it matches the title *and* first
-                        ## 100 authors, I'm prepared to assume it's a
-                        ## match.
-                        logger.debug("reduce author list to 100 only when calibre < 0.8.61")
-                        authlist = authlist[:100]
                     mi = MetaInformation(story.getMetadata("title", removeallentities=True),
                                          authlist)
                     identicalbooks = db.find_identical_books(mi)
@@ -1632,25 +1625,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if 'authorUrl' in book['all_metadata']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
             authorlist = [ a.replace('&',';') for a in book['author'] ]
-            if hasattr(db, 'new_api'): # new_api starts in calibre 1.0.0
-                authorids = db.new_api.get_item_ids('authors',authorlist)
-                authordata = db.new_api.author_data(authorids.values())
-                # print("\n\nauthorids:%s"%authorids)
-                # print("authordata:%s"%authordata)
+            authorids = db.new_api.get_item_ids('authors',authorlist)
+            authordata = db.new_api.author_data(authorids.values())
+            # print("\n\nauthorids:%s"%authorids)
+            # print("authordata:%s"%authordata)
 
-                author_id_to_link_map = dict()
-                for i, author in enumerate(authorlist):
-                    author_id_to_link_map[authorids[author]] = authurls[i]
+            author_id_to_link_map = dict()
+            for i, author in enumerate(authorlist):
+                author_id_to_link_map[authorids[author]] = authurls[i]
 
-                # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
-                db.new_api.set_link_for_authors(author_id_to_link_map)
-            else:
-                # keep for pre-calibre 1.0.0
-                for i, auth in enumerate(authorlist):
-                    #print("===Update author url for %s to %s"%(auth,authurls[i]))
-                    autid=db.get_author_id(auth)
-                    db.set_link_field_for_author(autid, unicode(authurls[i]),
-                                             commit=False, notify=False)
+            # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
+            db.new_api.set_link_for_authors(author_id_to_link_map)
+            
         db.commit()
 
         if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
@@ -1699,7 +1685,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
 
                 if prefs['gc_polish_cover'] and \
-                        options['fileform'] == "epub" and calibre_version >= (0, 9, 39):
+                        options['fileform'] == "epub":
                     # set cover inside epub from calibre's polish feature
                     from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                     from calibre.utils.logging import Log
