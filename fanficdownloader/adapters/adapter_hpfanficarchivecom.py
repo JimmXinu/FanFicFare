@@ -160,6 +160,11 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
                 for genre in genres:
                     self.story.addToList('genre',genre.string)
 
+            if 'Pairing' in label:
+                ships = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=4'))
+                for ship in ships:
+                    self.story.addToList('ships',ship.string)
+
             if 'Warnings' in label:
                 warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
                 for warning in warnings:
