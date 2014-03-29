@@ -270,26 +270,24 @@ def main(argv,
            elif chaptercount == 0:
                print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % (output_filename)
            else:
-               if not options.metaonly:
+               # update now handled by pre-populating the old
+               # images and chapters in the adapter rather than
+               # merging epubs.
+               (url,
+                chaptercount,
+                adapter.oldchapters,
+                adapter.oldimgs,
+                adapter.oldcover,
+                adapter.calibrebookmark,
+                adapter.logfile) = get_update_data(output_filename)
 
-                   # update now handled by pre-populating the old
-                   # images and chapters in the adapter rather than
-                   # merging epubs.
-                   (url,
-                    chaptercount,
-                    adapter.oldchapters,
-                    adapter.oldimgs,
-                    adapter.oldcover,
-                    adapter.calibrebookmark,
-                    adapter.logfile) = get_update_data(output_filename)
+               print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
 
-                   print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
+               if not (options.update and chaptercount == urlchaptercount) \
+                       and adapter.getConfig("do_update_hook"):
+                   chaptercount = adapter.hookForUpdates(chaptercount)
 
-                   if not (options.update and chaptercount == urlchaptercount) \
-                           and adapter.getConfig("do_update_hook"):
-                       chaptercount = adapter.hookForUpdates(chaptercount)
-
-                   writeStory(configuration,adapter,"epub")
+               writeStory(configuration,adapter,"epub")
                    
        else:
            # regular download
