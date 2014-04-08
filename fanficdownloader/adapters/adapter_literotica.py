@@ -203,7 +203,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # get story text
         story1 = soup1.find('div', 'b-story-body-x').p
         story1.name='div'
-        story1.append('<br>')
+        story1.append('<br />')
         storytext = self.utf8FromSoup(url,story1)
 
         # find num pages
@@ -220,7 +220,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, bs.Comment))]
                 story2 = soup2.find('div', 'b-story-body-x').p
                 story2.name='div'
-                story2.append('<br>')
+                story2.append('<br />')
                 storytext += self.utf8FromSoup(url,story2)
             except urllib2.HTTPError, e:
                 if e.code == 404:
