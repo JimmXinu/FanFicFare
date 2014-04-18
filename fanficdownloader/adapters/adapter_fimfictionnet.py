@@ -85,7 +85,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             
             # Unfortunately, we still need to load the story index
             # page to parse the characters.  And chapters, now, too.
-            data = self._fetchUrl(self.url)
+            data = self.do_fix_blockquotes(self._fetchUrl(self.url))
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -283,12 +283,21 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
             self.oldchapters = self.oldchapters[:self.newestChapterNum]
         return len(self.oldchapters)
-            
+
+    def do_fix_blockquotes(self,data):
+        if self.getConfig('fix_fimf_blockquotes'):
+            # <p class="double"><blockquote>
+            # </blockquote></p>
+            # include > in re groups so there's always something in the group.
+            data = re.sub(r'<p([^>]*>\s*)<blockquote([^>]*>)',r'<blockquote\2<p\1',data)
+            data = re.sub(r'</blockquote(>\s*)</p>',r'</p\1</blockquote>',data)
+        return data
         
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        
-        soup = bs.BeautifulSoup(self._fetchUrl(url),selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
+
+        data = self.do_fix_blockquotes(self._fetchUrl(url))
+        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         return self.utf8FromSoup(url,soup)
