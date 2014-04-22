@@ -59,7 +59,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         return "http://www.fimfiction.net/story/1234/story-title-here http://www.fimfiction.net/story/1234/ http://www.fimfiction.com/story/1234/1/ http://mobile.fimfiction.net/story/1234/1/story-title-here/chapter-title-here"
 
     def getSiteURLPattern(self):
-        return r"http://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
+        return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
         
     def extractChapterUrlsAndMetadata(self):
         
