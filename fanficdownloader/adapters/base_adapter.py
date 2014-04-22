@@ -188,9 +188,9 @@ class BaseSiteAdapter(Configurable):
             try:
                 return self._decode(self._fetchUrlRaw(url,parameters))
             except u2.HTTPError, he:
+                excpt=he
                 if he.code == 404:
                     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(he)))
-                    excpt=he
                     break # break out on 404
             except Exception, e:
                 excpt=e
