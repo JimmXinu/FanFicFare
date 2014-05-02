@@ -292,7 +292,7 @@ def main(argv,
        else:
            # regular download
            if options.metaonly:
-               print adapter.getStoryMetadataOnly()
+               print adapter.getStoryMetadataOnly().getAllMetadata()
            
            output_filename=writeStory(configuration,adapter,options.format,options.metaonly)
        
