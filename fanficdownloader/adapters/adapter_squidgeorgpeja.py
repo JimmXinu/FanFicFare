@@ -62,7 +62,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','wwomb')
@@ -83,10 +83,10 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
     
     @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
+        return "https://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/")+"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/")+r"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -116,7 +116,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         author = soup.find('div', {'id':"pagetitle"}).find('a')
         self.story.setMetadata('authorId',author['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/peja/cgi-bin/'+author['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/peja/cgi-bin/'+author['href'])
         self.story.setMetadata('author',author.string)
 		
         authorSoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
@@ -131,7 +131,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         chapterselect=soup.find('select',{'name':'chapter'})
         if chapterselect:
             for ch in chapterselect.findAll('option'):
-                self.chapterUrls.append((stripHTML(ch),'http://'+self.host+'/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+ch['value']))
+                self.chapterUrls.append((stripHTML(ch),'https://'+self.host+'/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+ch['value']))
         else:
             self.chapterUrls.append((title,url))
 		
@@ -207,7 +207,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             # http://www.squidge.org/peja/cgi-bin/series.php?seriesid=254
             a = titleblock.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/peja/cgi-bin/'+a['href']
+            series_url = 'https://'+self.host+'/peja/cgi-bin/'+a['href']
     
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))

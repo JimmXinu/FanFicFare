@@ -970,7 +970,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 if book_id and mi: # book_id and mi only set if matched by title/author.
                     liburl = self.get_story_url(db,book_id)
                     if book['url'] != liburl and prefs['checkforurlchange'] and \
-                        not (book['url'].replace('https','http') == liburl and 'fanfiction.net' in liburl):
+                        not (book['url'].replace('https','http') == liburl): # several sites have been changing to
+                                                                             # https now.  Don't flag when that's the only change.
                         # special case for ffnet urls change to https.
                         if not question_dialog(self.gui, _('Change Story URL?'),'''
                                                   <h3>%s</h3>
