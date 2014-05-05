@@ -221,6 +221,65 @@ langs = {
     "Devanagari":"hi",
     }
 
+class InExMatch:
+    keys = []
+    regex = None
+    match = None
+    negate = False
+
+    def  __init__(self,line):
+        if "=~" in line:
+            (self.keys,self.match) = line.split("=~")
+            self.match = self.match.replace('\s',' ')
+            self.regex = re.compile(self.match)
+        elif "!~" in line:
+            (self.keys,self.match) = line.split("!~")
+            self.match = self.match.replace('\s',' ')
+            self.regex = re.compile(self.match)
+            self.negate = True
+        elif "==" in line:
+            (self.keys,self.match) = line.split("==")
+            self.match = self.match.replace('\s',' ')
+        elif "!=" in line:
+            (self.keys,self.match) = line.split("!=")
+            self.match = self.match.replace('\s',' ')
+            self.negate = True
+        self.keys = map( lambda x: x.strip(), self.keys.split(",") )
+
+    # For conditional, only one key
+    def is_key(self,key):
+        return key == self.keys[0]
+
+    # For conditional, only one key
+    def key(self):
+        return self.keys[0]
+
+    def in_keys(self,key):
+        return key in self.keys
+
+    def is_match(self,value):
+        retval = False
+        if self.regex:
+            if self.regex.search(value):
+                retval = True
+            #print(">>>>>>>>>>>>>%s=~%s r: %s,%s=%s"%(self.match,value,self.negate,retval,self.negate != retval))
+        else:
+            retval = self.match == value
+            #print(">>>>>>>>>>>>>%s==%s r: %s,%s=%s"%(self.match,value,self.negate,retval, self.negate != retval))
+            
+        return self.negate != retval
+
+    def __str__(self):
+        if self.negate:
+            f='!'
+        else:
+            f='='
+        if self.regex:
+            s='~'
+        else:
+            s='='
+        return u'InExMatch(%s %s%s %s)'%(self.keys,f,s,self.match)
+
 class Story(Configurable):
 
     def __init__(self, configuration):
@@ -231,6 +290,7 @@ class Story(Configurable):
         except:
             self.metadata = {'version':'4.4'}
         self.replacements = []
+        self.in_ex_cludes = {}
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
         self.imgtuples = []
@@ -252,6 +312,15 @@ class Story(Configurable):
 
         self.setReplace(self.getConfig('replace_metadata'))
 
+        in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
+                            'include_metadata_post','exclude_metadata_post']
+        for ie in in_ex_clude_list:
+            ies = self.getConfig(ie)
+            # print("%s %s"%(ie,ies))
+            if ies:
+                iel = []
+                self.in_ex_cludes[ie] = self.set_in_ex_clude(ies)
+
     def setMetadata(self, key, value, condremoveentities=True):
         ## still keeps &lt; &lt; and &amp;
         if condremoveentities:
@@ -269,6 +338,56 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
+        
+    ## metakey[,metakey]=~pattern
+    ## metakey[,metakey]==string
+    ## *for* part lines.  Effect only when trailing conditional key=~regexp matches
+    ## metakey[,metakey]=~pattern[&&metakey=~regexp]
+    ## metakey[,metakey]==string[&&metakey=~regexp]
+    ## metakey[,metakey]=~pattern[&&metakey==string]
+    ## metakey[,metakey]==string[&&metakey==string]
+    def set_in_ex_clude(self,setting):
+        dest = []
+        # print("set_in_ex_clude:"+setting)
+        for line in setting.splitlines():
+            if line:
+                (match,condmatch)=(None,None)
+                if "&&" in line:
+                    (line,conditional) = line.split("&&")
+                    condmatch = InExMatch(conditional)
+                match = InExMatch(line)
+                dest.append([match,condmatch])
+        return dest
+              
+    def do_in_ex_clude(self,which,value,key):
+        if value and which in self.in_ex_cludes:
+            include = 'include' in which
+            keyfound = False
+            found = False
+            for (match,condmatch) in self.in_ex_cludes[which]:
+                keyfndnow = False
+                if match.in_keys(key):
+                    # key in keys and either no conditional, or conditional matched
+                    if condmatch == None or condmatch.is_key(key):
+                        keyfndnow = True
+                    else:
+                        condval = self.getMetadata(condmatch.key())
+                        keyfndnow = condmatch.is_match(condval)
+                    keyfound |= keyfndnow
+                        # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
+                        #         match,value,condmatch,condval,keyfound,found))
+                    if keyfndnow:
+                        found = isinstance(value,basestring) and match.is_match(value)
+                    if found:
+                        # print("match:%s %s\n\tkeyfndnow:%s\n\tfound:%s"%(
+                        #         match,value,keyfndnow,found))
+                        if not include:
+                            value = None
+                        break
+            if include and keyfound and not found:
+                value = None
+        return value
+        
 
     ## Two or three part lines.  Two part effect everything.
     ## Three part effect only those key(s) lists.
@@ -301,6 +420,10 @@ class Story(Configurable):
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
 
     def doReplacements(self,value,key):
+        value = self.do_in_ex_clude('include_metadata_pre',value,key)
+        value = self.do_in_ex_clude('exclude_metadata_pre',value,key)
+        # if key=='characters' and value=='Bilbo':
+        #     value = ''
         for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
@@ -312,6 +435,8 @@ class Story(Configurable):
 
                 if doreplace:
                     value = regexp.sub(replacement,value)
+        value = self.do_in_ex_clude('include_metadata_post',value,key)
+        value = self.do_in_ex_clude('exclude_metadata_post',value,key)
         return value
 
     def getMetadataRaw(self,key):
