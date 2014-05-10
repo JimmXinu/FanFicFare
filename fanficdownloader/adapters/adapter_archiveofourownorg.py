@@ -145,10 +145,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.meta)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-                
+
+        if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
+            raise exceptions.StoryDoesNotExist(self.url)
+            
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url,data)
