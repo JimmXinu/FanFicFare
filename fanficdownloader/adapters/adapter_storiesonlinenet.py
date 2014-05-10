@@ -66,7 +66,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+r"/s/\d+((:\d+)?(;\d+)?$|(:i)?$)"
+        return re.escape("http://"+self.getSiteDomain())+r"/s/\d+((:\d+)?(;\d+)?$|(:i)?$)?"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -171,7 +171,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
-                if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
+                if lc2.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId'))):
                     i=1
                     break
                 if a[len(a)-1] == lc2:
