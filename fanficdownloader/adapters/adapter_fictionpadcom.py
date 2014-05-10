@@ -133,6 +133,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         author = tables['users'][0]
         story = tables['stories'][0]
         story_ver = tables['story_versions'][0]
+        print("story:%s"%story)
         
         self.story.setMetadata('authorId',author['id'])
         self.story.setMetadata('author',author['display_name'])
@@ -151,7 +152,8 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('comments',story['comments_count'])
         self.story.setMetadata('views',story['views_count'])
         self.story.setMetadata('likes',int(story['likes'])) # no idea why they floated these.
-        self.story.setMetadata('dislikes',int(story['dislikes']))
+        if 'dislikes' in story:
+            self.story.setMetadata('dislikes',int(story['dislikes']))
 
         if story_ver['is_complete']:
             self.story.setMetadata('status', 'Completed')
