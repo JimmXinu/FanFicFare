@@ -241,24 +241,24 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
                 self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'categories.php\?catid=\d+'))
+                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 for cat in cats:
                     self.story.addToList('category',cat.string)
 
             if 'Characters' in label:
-                for char in value.string.split(', '):
-                    if not 'None' in char:
-                        self.story.addToList('characters',char)
+                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                for char in chars:
+                    self.story.addToList('characters',char.string)
 
             if 'Genre' in label:
-                for genre in value.string.split(', '):
-                    if not 'None' in genre:
-                        self.story.addToList('genre',genre)
+                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
+                for genre in genres:
+                    self.story.addToList('genre',genre.string)
 
             if 'Warnings' in label:
-                for warning in value.string.split(', '):
-                    if not 'None' in warning:
-                        self.story.addToList('warnings',warning)
+                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
+                for warning in warnings:
+                    self.story.addToList('warnings',warning.string)
 
             if 'Completed' in label:
                 if 'Yes' in value:
