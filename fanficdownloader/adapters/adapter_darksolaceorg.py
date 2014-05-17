@@ -182,6 +182,11 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
 
         # first a tag in pagetitle is title
         self.story.setMetadata('title',stripHTML(div.find('a')))
+        div.find('a').extract()
+        # only thing left in div(pagetitle) now should be 'by' and rating.
+        rating = stripHTML(div)
+        if '[' in rating:
+            self.story.setMetadata('rating', rating[rating.index('[')+1:-1])
 
         for chapa in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+
                                                        self.story.getMetadata('storyId')+'&chapter=\d+')):
@@ -233,9 +238,6 @@ class DarkSolaceOrgAdapter(BaseSiteAdapter):
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
-
-            if 'Rated' in label:
-                self.story.setMetadata('rating', value[:len(value)-2])
 
             if 'Word count' in label:
                 self.story.setMetadata('numWords', value)
