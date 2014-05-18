@@ -42,16 +42,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         
         self.story.setMetadata('siteabbrev','litero')
 
-        # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
+        # normalize to first chapter.  Not sure if they ever have more than 2 digits.
+        storyid = self.parsedUrl.path.split('/',)[2]
+        if re.match(r'-ch\d\d$',storyid):
+            storyid = storyid[:-2]+'01'
+        self.story.setMetadata('storyId',storyid)
         
         self.origurl = url
-        if "http://www.i." in self.origurl:
+        if "//www.i." in self.origurl:
             ## accept m(mobile)url, but use www.
-            self.origurl = self.origurl.replace("http://www.i.","http://www.")
+            self.origurl = self.origurl.replace("//www.i.","//www.")
 
         # normalized story URL.
-        self._setURL("http://"+self.getSiteDomain()\
+        self._setURL(url[:url.index('//')+2]+self.getSiteDomain()\
                          +"/s/"+self.story.getMetadata('storyId'))
 
         # The date format will vary from site to site.
@@ -69,10 +72,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteExampleURLs(self):
         #return "http://www.literotica.com/s/story-title http://www.literotica.com/stories/showstory.php?id=1234 http://www.i.literotica.com/stories/showstory.php?id=1234"
-        return "http://www.literotica.com/s/story-title"
+        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"http://www(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
+        return r"https?://www(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -97,20 +100,24 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # author
         a = soup1.find("span", "b-story-user-y")
         self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'])
-        self.story.setMetadata('authorUrl', a.a['href'])
+        authorurl = a.a['href']
+        if authorurl.startswith('//'):
+            authorurl = self.parsedUrl.scheme+':'+authorurl
+        self.story.setMetadata('authorUrl', authorurl)
         self.story.setMetadata('author', a.text)
 
         # get the author page
         try:
-            dataAuth = self._fetchUrl(a.a['href'])
+            dataAuth = self._fetchUrl(authorurl)
             soupAuth = bs.BeautifulSoup(dataAuth)
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(a.a['href'])
+                raise exceptions.StoryDoesNotExist(authorurl)
             else:
                 raise e
 
-        storyLink = soupAuth.find('a', href=url1)
+        ## site has started using //domain.name/asdf urls remove https?: from front
+        storyLink = soupAuth.find('a', href=url1[url1.index(':')+1:])
 
         if storyLink is not None:
             # pull the published date from the author page
@@ -166,7 +173,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('datePublished',makeDate(stripHTML(row.find('td',{'class':'dt'})), self.dateformat))
             while row['class'] == 'sl':
                 # pages include full URLs.
-                self.chapterUrls.append((row.a.string,row.a['href']))
+                chapurl = row.a['href']
+                if chapurl.startswith('//'):
+                    chapurl = self.parsedUrl.scheme+':'+chapurl
+                self.chapterUrls.append((row.a.string,chapurl))
                 if not row.nextSibling:
                     break
                 row = row.nextSibling
