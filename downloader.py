@@ -23,6 +23,7 @@ import getpass
 import string
 import ConfigParser
 from subprocess import call
+import pprint
 
 import logging
 if sys.version_info >= (2, 7):
@@ -292,7 +293,7 @@ def main(argv,
        else:
            # regular download
            if options.metaonly:
-               print adapter.getStoryMetadataOnly().getAllMetadata()
+               pprint.pprint(adapter.getStoryMetadataOnly().getAllMetadata())
            
            output_filename=writeStory(configuration,adapter,options.format,options.metaonly)
        
