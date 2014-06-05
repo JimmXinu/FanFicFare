@@ -51,12 +51,6 @@
 	      by {{ fic.author }} ({{ fic.format }})
 	  {% endif %}
 	  {% if fic.failure %}
-          <h3>fanfiction.net / fimfiction.net</h3>
-          <p>
-            As of Jan 13, 2014, fanfiction.net &amp; fimfiction.net
-            are working again.  I'd ask that users limit the number of
-            stories they download from those sites, thanks.
-          </p>
 	  <span id='error'>{{ fic.failure }}</span>
 	  {% endif %}
 	  {% if  not fic.completed and not fic.failure %}
