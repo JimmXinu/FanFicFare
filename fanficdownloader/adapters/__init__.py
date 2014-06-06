@@ -124,6 +124,8 @@ import adapter_storiesonlinenet
 import adapter_trekiverseorg
 import adapter_literotica
 import adapter_voracity2eficcom
+import adapter_spikeluvercom
+import adapter_bloodshedversecom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -207,7 +209,7 @@ def getClassFor(url):
         fixedurl = "http://%s"%url
     ## remove any trailing '#' locations.
     fixedurl = re.sub(r"#.*$","",fixedurl)
-    
+
     parsedUrl = up.urlparse(fixedurl)
     domain = parsedUrl.netloc.lower()
     if( domain != parsedUrl.netloc ):

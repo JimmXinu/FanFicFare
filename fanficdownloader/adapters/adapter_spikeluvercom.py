@@ -9,18 +9,18 @@ from .. import exceptions
 
 
 def getClass():
-    return Voracity2EficComAdapter
+    return SpikeluverComAdapter
 
 
-class Voracity2EficComAdapter(BaseSiteAdapter):
-    SITE_ABBREVIATION = 'voe'
-    SITE_DOMAIN = 'voracity2.e-fic.com'
+class SpikeluverComAdapter(BaseSiteAdapter):
+    SITE_ABBREVIATION = 'slc'
+    SITE_DOMAIN = 'spikeluver.com'
 
-    BASE_URL = 'http://' + SITE_DOMAIN + '/'
+    BASE_URL = 'http://' + SITE_DOMAIN + '/SpuffyRealm/'
     LOGIN_URL = BASE_URL + 'user.php?action=login'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%d'
     METADATA_URL_SUFFIX = '&index=1'
-    AGE_CONSENT_URL_SUFFIX = '&ageconsent=ok&warning=4'
+    AGE_CONSENT_URL_SUFFIX = '&ageconsent=ok&warning=5'
 
     DATETIME_FORMAT = '%m/%d/%Y'
 
@@ -34,32 +34,6 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         self._setURL(self.VIEW_STORY_URL_TEMPLATE % int(story_id))
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-    def _login(self):
-        # Apparently self.password is only set when login fails, i.e.
-        # the FailedToLogin exception is raised, so the adapter gets new
-        # login data and tries again
-        if self.password:
-            password = self.password
-            username = self.username
-        else:
-            username = self.getConfig('username')
-            password = self.getConfig('password')
-
-        parameters = {
-            'penname': username,
-            'password': password,
-            'submit': 'Submit'}
-
-        class CustomizedFailedToLogin(exceptions.FailedToLogin):
-            def __init__(self, url, passwdonly=False):
-                # Use username variable from outer scope
-                exceptions.FailedToLogin.__init__(self, url, username, passwdonly)
-
-        soup = self._customized_fetch_url(self.LOGIN_URL, CustomizedFailedToLogin, parameters)
-        div = soup.find('div', id='useropts')
-        if not div:
-            raise CustomizedFailedToLogin(self.LOGIN_URL)
-
     def _customized_fetch_url(self, url, exception, parameters=None):
         try:
             data = self._fetchUrl(url, parameters)
@@ -70,7 +44,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return Voracity2EficComAdapter.SITE_DOMAIN
+        return SpikeluverComAdapter.SITE_DOMAIN
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -82,37 +56,35 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX, exceptions.StoryDoesNotExist)
 
-        # Check if the story is for "Registered Users Only", i.e. has adult
-        # content. Based on the "is_adult" attributes either login or raise an
-        # error.
-        div = soup.find('div', {'class': 'errortext'})
-        if div and ''.join(div(text=True)) == 'Registered Users Only':
-            if not (self.is_adult or self.getConfig('is_adult')):
+        # No additional login is required, just check for adult
+        pagetitle_div = soup.find('div', id='pagetitle')
+        if pagetitle_div.a['href'].startswith('javascript:'):
+            if not(self.is_adult or self.getConfig('is_adult')):
                 raise exceptions.AdultCheckRequired(self.url)
-            self._login()
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
         soup = self._customized_fetch_url(url, exceptions.StoryDoesNotExist)
 
         pagetitle_div = soup.find('div', id='pagetitle')
-        self.story.setMetadata('title', pagetitle_div.a.string)
+        self.story.setMetadata('title', pagetitle_div.a.string.strip())
 
         author_anchor = pagetitle_div.a.findNextSibling('a')
         url = urlparse.urljoin(self.BASE_URL, author_anchor['href'])
         components = urlparse.urlparse(url)
         query_data = urlparse.parse_qs(components.query)
 
-        self.story.setMetadata('author', author_anchor.string)
+        self.story.setMetadata('author', author_anchor.string.strip())
         self.story.setMetadata('authorId', query_data['uid'])
         self.story.setMetadata('authorUrl', url)
 
         sort_div = soup.find('div', id='sort')
-        self.story.setMetadata('reviews', sort_div('a')[1].string)
+        self.story.setMetadata('reviews', sort_div('a')[1].string.strip())
 
-        for b_tag in soup.find('div', {'class': 'listbox'})('b'):
-            key = b_tag.string.strip(' :')
+        listbox_tag = soup.find('div', {'class': 'listbox'})
+        for span_tag in listbox_tag('span'):
+            key = span_tag.string.strip(' :')
             try:
-                value = b_tag.nextSibling.string.strip()
+                value = span_tag.nextSibling.string.strip()
             # This can happen with some fancy markup in the summary. Just
             # ignore this error and set value to None, the summary parsing
             # takes care of this
@@ -126,15 +98,13 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 # For some reason span_tag.findNextSiblings() only returns tags
                 # instead both NavigableString objects _and_ Tag objects as
                 # documented, so navigate manually
-                sibling = b_tag.nextSibling
+                sibling = span_tag.nextSibling
                 while sibling:
                     if isinstance(sibling, BeautifulSoup.Tag):
-                        # Encountered next label, break. This method is the
-                        # safest and most reliable I could think of. Blame
-                        # e-fiction sites that allow their users to include
-                        # arbitrary markup into their summaries and the
-                        # horrible HTML markup.
-                        if sibling.name == 'b' and all(sibling.name == 'br' for sibling in sibling.findPreviousSiblings(limit=2)):
+                        # Encountered next label, break. Not as bad as other
+                        # e-fiction sites, let's hope this is enough for proper
+                        # parsing.
+                        if sibling.name == 'span' and sibling.get('class', None) == 'label':
                             break
 
                         if keep_summary_html:
@@ -150,40 +120,53 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 contents.pop()
                 self.story.setMetadata('description', ''.join(contents))
 
-            elif key == 'Rating':
+            elif key == 'Rated':
                 self.story.setMetadata('rating', value)
 
-            elif key == 'Category':
-                for sibling in b_tag.findNextSiblings(['a', 'br']):
+            elif key == 'Categories':
+                for sibling in span_tag.findNextSiblings(['a', 'br']):
                     if sibling.name == 'br':
                         break
-                    self.story.addToList('category', sibling.string)
+
+                    self.story.addToList('category', sibling.string.strip())
 
             # Seems to be always "None" for some reason
             elif key == 'Characters':
-                for sibling in b_tag.findNextSiblings(['a', 'br']):
+                for sibling in span_tag.findNextSiblings(['a', 'br']):
                     if sibling.name == 'br':
                         break
-                    self.story.addToList('characters', sibling.string)
+                    self.story.addToList('characters', sibling.string.strip())
+
+            elif key == 'Genres':
+                for sibling in span_tag.findNextSiblings(['a', 'br']):
+                    if sibling.name == 'br':
+                        break
+
+                    self.story.addToList('genre', sibling.string.strip())
+
+            elif key == 'Warnings':
+                for sibling in span_tag.findNextSiblings(['a', 'br']):
+                    if sibling.name == 'br':
+                        break
+                    self.story.addToList('warnings', sibling.string.strip())
+
+            # Challenges
 
             elif key == 'Series':
-                a = b_tag.findNextSibling('a')
+                a = span_tag.findNextSibling('a')
                 if not a:
                     continue
-                self.story.setMetadata('series', a.string)
+                self.story.setMetadata('series', a.string.strip())
                 self.story.setMetadata('seriesUrl', urlparse.urljoin(self.BASE_URL, a['href']))
 
-            elif key == 'Chapter':
+            elif key == 'Chapters':
                 self.story.setMetadata('numChapters', int(value))
 
             elif key == 'Completed':
                 self.story.setMetadata('status', 'Completed' if value == 'Yes' else 'In-Progress')
 
-            elif key == 'Words':
+            elif key == 'Word count':
                 self.story.setMetadata('numWords', value)
-
-            elif key == 'Read':
-                self.story.setMetadata('readings', value)
 
             elif key == 'Published':
                 self.story.setMetadata('datePublished', makeDate(value, self.DATETIME_FORMAT))
@@ -191,9 +174,9 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
             elif key == 'Updated':
                 self.story.setMetadata('dateUpdated', makeDate(value, self.DATETIME_FORMAT))
 
-        for b_tag in soup.find('div', id='output').findNextSiblings('b'):
-            chapter_anchor = b_tag.a
-            title = chapter_anchor.string
+        for p_tag in listbox_tag.findNextSiblings('p'):
+            chapter_anchor = p_tag.find('a')
+            title = chapter_anchor.string.strip()
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.chapterUrls.append((title, url))
 
