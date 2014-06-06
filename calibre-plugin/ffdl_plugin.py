@@ -2004,7 +2004,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         # cust cols can convert back to numbers and
                         # add.
                         book['anthology_meta_list'][k]=True
-    
+
+        print("book['url']:%s"%book['url'])
+        configuration = get_ffdl_config(book['url'],fileform)
         if existingbook:
             book['title'] = deftitle = existingbook['title']
             book['comments'] = existingbook['comments']
@@ -2023,7 +2025,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         book['title'] = deftitle
                         break
             
-            configuration = get_ffdl_config(book['url'],fileform)
             logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):
                 tmplt = Template(configuration.getConfig('anthology_title_pattern'))
@@ -2039,7 +2040,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         for v in ['Completed','In-Progress']:
             if v in book['tags']:
                 book['tags'].remove(v)
-        book['tags'].append('Anthology')
+        book['tags'].extend(configuration.getConfigList('anthology_tags'))
         book['all_metadata']['anthology'] = "true"
         
         return book
