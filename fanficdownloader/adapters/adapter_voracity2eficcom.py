@@ -85,11 +85,18 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         # Check if the story is for "Registered Users Only", i.e. has adult
         # content. Based on the "is_adult" attributes either login or raise an
         # error.
-        div = soup.find('div', {'class': 'errortext'})
-        if div and ''.join(div(text=True)) == 'Registered Users Only':
-            if not (self.is_adult or self.getConfig('is_adult')):
-                raise exceptions.AdultCheckRequired(self.url)
-            self._login()
+        errortext_div = soup.find('div', {'class': 'errortext'})
+        if errortext_div:
+            error_text = ''.join(errortext_div(text=True)).strip()
+            if error_text == 'Registered Users Only':
+                if not (self.is_adult or self.getConfig('is_adult')):
+                    raise exceptions.AdultCheckRequired(self.url)
+                self._login()
+            else:
+                # This case usually occurs when the story doesn't exist, but
+                # might potentially be something else, so just raise
+                # FailedToDownload exception with the found error text.
+                raise exceptions.FailedToDownload(error_text)
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
         soup = self._customized_fetch_url(url, exceptions.StoryDoesNotExist)
