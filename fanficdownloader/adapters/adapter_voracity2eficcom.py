@@ -134,7 +134,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                         # e-fiction sites that allow their users to include
                         # arbitrary markup into their summaries and the
                         # horrible HTML markup.
-                        if sibling.name == 'b' and all(sibling.name == 'br' for sibling in sibling.findPreviousSiblings(limit=2)):
+                        if sibling.name == 'b' and sibling.findPreviousSibling().name == 'br':
                             break
 
                         if keep_summary_html:
