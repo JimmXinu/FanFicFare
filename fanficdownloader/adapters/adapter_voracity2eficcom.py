@@ -12,8 +12,6 @@ def getClass():
     return Voracity2EficComAdapter
 
 
-# If there ever appears an unreproducible parsing error, check if the theme is
-# set to the default theme: "Simple Elegance"
 class Voracity2EficComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'voe'
     SITE_DOMAIN = 'voracity2.e-fic.com'
@@ -21,10 +19,12 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
     BASE_URL = 'http://' + SITE_DOMAIN + '/'
     LOGIN_URL = BASE_URL + 'user.php?action=login'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%d'
+    CHANGE_SKIN_URL_TEMPLATE = BASE_URL + 'user.php?skin=%s'
     METADATA_URL_SUFFIX = '&index=1'
     AGE_CONSENT_URL_SUFFIX = '&ageconsent=ok&warning=4'
 
     DATETIME_FORMAT = '%m/%d/%Y'
+    REQUIRED_SKIN = 'Simple Elegance'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -35,6 +35,9 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', story_id)
         self._setURL(self.VIEW_STORY_URL_TEMPLATE % int(story_id))
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
+
+        self.original_skin = None
+        self.is_logged_in = False
 
     def _login(self):
         # Apparently self.password is only set when login fails, i.e.
@@ -62,6 +65,11 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         if not div:
             raise CustomizedFailedToLogin(self.LOGIN_URL)
 
+        self.is_logged_in = True
+
+    def _change_skin(self, name):
+        self._fetchUrl(self.CHANGE_SKIN_URL_TEMPLATE % name)
+
     def _customized_fetch_url(self, url, exception, parameters=None):
         try:
             data = self._fetchUrl(url, parameters)
@@ -80,6 +88,14 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]) + r'\d+$'
+
+    # Override getStory and append our own functionality. Change the skin back
+    # to the original one if it was changed during the scraping.
+    def getStory(self):
+        story = BaseSiteAdapter.getStory(self)
+        if self.original_skin:
+            self._change_skin(self.original_skin)
+        return story
 
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX, exceptions.StoryDoesNotExist)
@@ -102,6 +118,15 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
         soup = self._customized_fetch_url(url, exceptions.StoryDoesNotExist)
+
+        # If logged in and the skin doesn't match the required skin, change it
+        # and reload the page
+        if self.is_logged_in:
+            skin = soup.find('select', {'name': 'skin'}).find('option', selected=True)['value']
+            if skin != self.REQUIRED_SKIN:
+                self.original_skin = skin
+                self._change_skin(self.REQUIRED_SKIN)
+            soup = self._customized_fetch_url(url, exceptions.StoryDoesNotExist)
 
         pagetitle_div = soup.find('div', id='pagetitle')
         self.story.setMetadata('title', pagetitle_div.a.string)
