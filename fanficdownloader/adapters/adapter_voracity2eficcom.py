@@ -12,6 +12,8 @@ def getClass():
     return Voracity2EficComAdapter
 
 
+# If there ever appears an unreproducible parsing error, check if the theme is
+# set to the default theme: "Simple Elegance"
 class Voracity2EficComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'voe'
     SITE_DOMAIN = 'voracity2.e-fic.com'
