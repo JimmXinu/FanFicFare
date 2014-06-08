@@ -95,14 +95,11 @@ class FanficHuAdapter(BaseSiteAdapter):
             if query_data['sid'] == story_id:
                 break
 
-        title = title_anchor.string
-        self.story.setMetadata('title', title)
-        if not chapter_options:
-            self.chapterUrls.append((title, self.url))
+        self.story.setMetadata('title', title_anchor.string)
 
         rows = table('tr')
-        anchors = rows[0].div('a')
 
+        anchors = rows[0].div('a')
         author_anchor = anchors[1]
         query_data = _get_query_data(author_anchor['href'])
         self.story.setMetadata('author', author_anchor.string)
