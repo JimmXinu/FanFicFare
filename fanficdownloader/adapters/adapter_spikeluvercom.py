@@ -23,6 +23,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
     AGE_CONSENT_URL_SUFFIX = '&ageconsent=ok&warning=5'
 
     DATETIME_FORMAT = '%m/%d/%Y'
+    STORY_DOES_NOT_EXIST_ERROR_TEXT = 'That story does not exist on this archive.  You may search for it or return to the home page.'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -34,11 +35,16 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         self._setURL(self.VIEW_STORY_URL_TEMPLATE % int(story_id))
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-    def _customized_fetch_url(self, url, exception, parameters=None):
-        try:
+    def _customized_fetch_url(self, url, exception=None, parameters=None):
+        if exception:
+            try:
+                data = self._fetchUrl(url, parameters)
+            except urllib2.HTTPError:
+                raise exception(self.url)
+        # Just let self._fetchUrl throw the exception, don't catch and
+        # customize it.
+        else:
             data = self._fetchUrl(url, parameters)
-        except urllib2.HTTPError:
-            raise exception(self.url)
 
         return BeautifulSoup.BeautifulSoup(data)
 
@@ -54,7 +60,13 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]) + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
-        soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX, exceptions.StoryDoesNotExist)
+        soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX)
+
+        errortext_div = soup.find('div', {'class': 'errortext'})
+        if errortext_div:
+            error_text = ''.join(errortext_div(text=True)).strip()
+            if error_text == self.STORY_DOES_NOT_EXIST_ERROR_TEXT:
+                raise exceptions.StoryDoesNotExist(self.url)
 
         # No additional login is required, just check for adult
         pagetitle_div = soup.find('div', id='pagetitle')
@@ -63,7 +75,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
-        soup = self._customized_fetch_url(url, exceptions.StoryDoesNotExist)
+        soup = self._customized_fetch_url(url)
 
         pagetitle_div = soup.find('div', id='pagetitle')
         self.story.setMetadata('title', pagetitle_div.a.string.strip())
@@ -182,5 +194,5 @@ class SpikeluverComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX
-        soup = self._customized_fetch_url(url, exceptions.FailedToDownload)
+        soup = self._customized_fetch_url(url)
         return self.utf8FromSoup(url, soup.find('div', id='story'))
