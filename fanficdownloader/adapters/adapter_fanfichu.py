@@ -164,7 +164,7 @@ class FanficHuAdapter(BaseSiteAdapter):
                     self.story.setMetadata('dateUpdated', makeDate(value, self.DATE_FORMAT))
 
                 elif key == 'Szavak':
-                    self.story.setMetadata('words', value)
+                    self.story.setMetadata('numWords', value)
 
                 elif key == 'Befejezett':
                     self.story.setMetadata('status', 'Completed' if value == 'Nem' else 'In-Progress')
