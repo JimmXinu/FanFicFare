@@ -12,6 +12,16 @@ def getClass():
     return Voracity2EficComAdapter
 
 
+# yields Tag _and_ NavigableString siblings from the given tag. The
+# BeautifulSoup findNextSiblings() method for some reasons only returns either
+# NavigableStrings _or_ Tag objects, not both.
+def _yield_next_siblings(tag):
+    sibling = tag.nextSibling
+    while sibling:
+        yield sibling
+        sibling = sibling.nextSibling
+
+
 class Voracity2EficComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'voe'
     SITE_DOMAIN = 'voracity2.e-fic.com'
@@ -147,11 +157,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 contents = []
                 keep_summary_html = self.getConfig('keep_summary_html')
 
-                # For some reason span_tag.findNextSiblings() only returns tags
-                # instead both NavigableString objects _and_ Tag objects as
-                # documented, so navigate manually
-                sibling = b_tag.nextSibling
-                while sibling:
+                for sibling in _yield_next_siblings(b_tag):
                     if isinstance(sibling, BeautifulSoup.Tag):
                         # Encountered next label, break. This method is the
                         # safest and most reliable I could think of. Blame
@@ -167,7 +173,6 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                             contents.append(''.join(sibling(text=True)))
                     else:
                         contents.append(sibling)
-                    sibling = sibling.nextSibling
 
                 # Remove the preceding break line tag and other crud
                 contents.pop()
