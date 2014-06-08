@@ -69,8 +69,6 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         return url
 
     def extractChapterUrlsAndMetadata(self):
-        # Use URLError exception because that's the only error that can
-        # occur here, missing stories don't return a 404 header
         soup = self._customized_fetch_url(self.url)
 
         # Since no 404 error code we have to raise the exception ourselves.
