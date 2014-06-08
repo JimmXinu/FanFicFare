@@ -12,6 +12,16 @@ def getClass():
     return SpikeluverComAdapter
 
 
+# yields Tag _and_ NavigableString siblings from the given tag. The
+# BeautifulSoup findNextSiblings() method for some reasons only returns either
+# NavigableStrings _or_ Tag objects, not both.
+def _yield_next_siblings(tag):
+    sibling = tag.nextSibling
+    while sibling:
+        yield sibling
+        sibling = sibling.nextSibling
+
+
 class SpikeluverComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'slc'
     SITE_DOMAIN = 'spikeluver.com'
@@ -107,11 +117,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 contents = []
                 keep_summary_html = self.getConfig('keep_summary_html')
 
-                # For some reason span_tag.findNextSiblings() only returns tags
-                # instead both NavigableString objects _and_ Tag objects as
-                # documented, so navigate manually
-                sibling = span_tag.nextSibling
-                while sibling:
+                for sibling in _yield_next_siblings(span_tag):
                     if isinstance(sibling, BeautifulSoup.Tag):
                         # Encountered next label, break. Not as bad as other
                         # e-fiction sites, let's hope this is enough for proper
@@ -125,7 +131,6 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                             contents.append(''.join(sibling(text=True)))
                     else:
                         contents.append(sibling)
-                    sibling = sibling.nextSibling
 
                 # Remove the preceding break line tag and other crud
                 contents.pop()
