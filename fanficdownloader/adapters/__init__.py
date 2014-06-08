@@ -127,6 +127,7 @@ import adapter_voracity2eficcom
 import adapter_spikeluvercom
 import adapter_bloodshedversecom
 import adapter_nocturnallightnet
+import adapter_fanfichu
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
