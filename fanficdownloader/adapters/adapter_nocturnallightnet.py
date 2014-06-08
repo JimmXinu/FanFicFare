@@ -83,7 +83,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author_id)
         self.story.setMetadata('authorUrl', self.AUTHORS_URL_TEMPLATE % author_id)
 
-        chapter_anchors = soup('a', href=lambda href: href.startswith('/fanfiction/story/'))
+        chapter_anchors = soup('a', href=lambda href: href and href.startswith('/fanfiction/story/'))
         for chapter_anchor in chapter_anchors:
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.chapterUrls.append((chapter_anchor.string, url))
@@ -108,7 +108,6 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
 
         for b_tag in listbox('b'):
             key = b_tag.string.strip(':')
-            print repr(key)
             try:
                 value = b_tag.nextSibling.string.replace('&bull;', '').strip(': ')
             # This can happen with some fancy markup in the summary. Just
