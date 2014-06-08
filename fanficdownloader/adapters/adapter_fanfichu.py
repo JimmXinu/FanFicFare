@@ -92,10 +92,17 @@ class FanficHuAdapter(BaseSiteAdapter):
         story_id = self.story.getMetadata('storyId')
         for table in soup('table', {'class': 'mainnav'}):
             title_anchor = table.find('span', {'class': 'storytitle'}).a
-            query_data = _get_query_data(title_anchor['href'])
+            href = title_anchor['href']
+            if href.startswith('javascript:'):
+                href = href.rsplit(' ', 1)[1].strip("'")
+            query_data = _get_query_data(href)
 
             if query_data['sid'] == story_id:
                 break
+        else:
+            # This should never happen, the story must be found on the author's
+            # page.
+            raise exceptions.FailedToDownload(self.url)
 
         self.story.setMetadata('title', title_anchor.string)
 
