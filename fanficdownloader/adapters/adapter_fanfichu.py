@@ -26,6 +26,7 @@ def _get_query_data(url):
 class FanficHuAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'ffh'
     SITE_DOMAIN = 'fanfic.hu'
+    SITE_LANGUAGE = 'Hungarian'
 
     BASE_URL = 'http://' + SITE_DOMAIN + '/merengo/'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%s'
@@ -41,6 +42,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', story_id)
         self._setURL(self.VIEW_STORY_URL_TEMPLATE % story_id)
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
+        self.story.setMetadata('language', self.SITE_LANGUAGE)
 
     def _customized_fetch_url(self, url, exception=None, parameters=None):
         if exception:
