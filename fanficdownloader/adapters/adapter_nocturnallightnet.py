@@ -97,6 +97,8 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
             # parse the element
             if story_id == url_tokens[url_tokens.index('story')+1]:
                 break
+        else:
+            raise exceptions.FailedToDownload(self.url)
 
         title = listbox.a.string
         self.story.setMetadata('title', title)

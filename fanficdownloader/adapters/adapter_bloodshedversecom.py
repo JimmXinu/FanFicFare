@@ -97,6 +97,8 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             # parse the element
             if query_data['no'] == story_no:
                 break
+        else:
+            raise exceptions.FailedToDownload(self.url)
 
         title_anchor = list_box.find('a', {'class': 'fictitle'})
         self.story.setMetadata('title', title_anchor.string.strip())
