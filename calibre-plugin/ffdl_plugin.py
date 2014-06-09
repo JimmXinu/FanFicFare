@@ -1985,11 +1985,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             for (k,v) in b['all_metadata'].iteritems():
                 #print("merge_meta_books v:%s k:%s"%(v,k))
                 if k in ('numChapters','numWords'):
-                    if k not in book['all_metadata']:
-                        book['all_metadata'][k] = b['all_metadata'][k]
-                    else:
-                        # lot of work for a simple add.
-                        book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
+                    if k in b['all_metadata'] and b['all_metadata'][k]:
+                        if k not in book['all_metadata']:
+                            book['all_metadata'][k] = b['all_metadata'][k]
+                        else:
+                            # lot of work for a simple add.
+                            book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
                 elif k in ('dateUpdated','datePublished','dateCreated',
                            'series','status','title'):
                     pass # handled above, below or skip these for now, not going to do anything with them.
