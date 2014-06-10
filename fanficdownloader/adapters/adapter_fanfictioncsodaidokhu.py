@@ -108,7 +108,7 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
         else:
             raise exceptions.FailedToDownload(self.url)
 
-        title = a.string
+        title = ''.join(a(text=True))
         self.story.setMetadata('title', title)
         if not self.chapterUrls:
             self.chapterUrls.append((title, self.url))
