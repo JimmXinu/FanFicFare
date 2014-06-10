@@ -41,6 +41,7 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
 
     _STORY_DOES_NOT_EXIST_PAGE_TITLE = 'Cím:  Szerző:'
     _DATE_FORMAT = '%Y.%m.%d'
+    _SITE_LANGUAGE = 'Hungarian'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -51,6 +52,7 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', story_id)
         self._setURL(self._VIEW_STORY_URL_TEMPLATE % story_id)
         self.story.setMetadata('siteabbrev', self._SITE_DOMAIN)
+        self.story.setMetadata('language', self._SITE_LANGUAGE)
 
     def _customized_fetch_url(self, url, exception=None, parameters=None):
         if exception:
