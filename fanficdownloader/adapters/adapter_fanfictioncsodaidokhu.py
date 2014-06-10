@@ -120,10 +120,10 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl', author_url)
 
         element = element.findNextSibling('span')
-        rating = element.nextSibling.strip(' [').encode(_SOURCE_CODE_ENCODING)
+        rating = element.nextSibling.strip(' [')
 
-        if rating != 'Korhatár nélkül':
-            self.story.setMetadata('rating', element.nextSibling.strip(' ['))
+        if rating.encode(_SOURCE_CODE_ENCODING) != 'Korhatár nélkül':
+            self.story.setMetadata('rating', rating)
 
         if rating == '18':
             raise exceptions.AdultCheckRequired(self.url)
