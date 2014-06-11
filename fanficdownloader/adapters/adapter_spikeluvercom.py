@@ -192,7 +192,10 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('dateUpdated', makeDate(value, self.DATETIME_FORMAT))
 
         for p_tag in listbox_tag.findNextSiblings('p'):
-            chapter_anchor = p_tag.find('a')
+            chapter_anchor = p_tag.find('a', href=lambda href: href and href.startswith('viewstory.php?sid='))
+            if not chapter_anchor:
+                continue
+
             title = chapter_anchor.string.strip()
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.chapterUrls.append((title, url))
