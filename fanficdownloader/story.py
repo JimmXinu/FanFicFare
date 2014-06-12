@@ -301,8 +301,7 @@ class Story(Configurable):
         self.logfile=None # cheesy way to carry log file forward across update.
 
         ## Look for config parameter, split and add each to metadata field.
-        for (config,metadata) in [("extratags","extratags"),
-                                  ("extracategories","category"),
+        for (config,metadata) in [("extracategories","category"),
                                   ("extragenres","genre"),
                                   ("extracharacters","characters"),
                                   ("extraships","ships"),
@@ -435,6 +434,10 @@ class Story(Configurable):
 
                 if doreplace:
                     value = regexp.sub(replacement,value)
+        if self.isList(key) and '\,' in value:
+            l = value.split('\,')
+            value = l[0]
+            self.extendList(key,l[1:])
         value = self.do_in_ex_clude('include_metadata_post',value,key)
         value = self.do_in_ex_clude('exclude_metadata_post',value,key)
         return value
