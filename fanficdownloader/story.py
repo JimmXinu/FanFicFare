@@ -28,6 +28,9 @@ import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable
 
+SPACE_REPLACE=u'\s'
+SPLIT_META=u'\,'
+
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
 
@@ -230,19 +233,19 @@ class InExMatch:
     def  __init__(self,line):
         if "=~" in line:
             (self.keys,self.match) = line.split("=~")
-            self.match = self.match.replace('\s',' ')
+            self.match = self.match.replace(SPACE_REPLACE,' ')
             self.regex = re.compile(self.match)
         elif "!~" in line:
             (self.keys,self.match) = line.split("!~")
-            self.match = self.match.replace('\s',' ')
+            self.match = self.match.replace(SPACE_REPLACE,' ')
             self.regex = re.compile(self.match)
             self.negate = True
         elif "==" in line:
             (self.keys,self.match) = line.split("==")
-            self.match = self.match.replace('\s',' ')
+            self.match = self.match.replace(SPACE_REPLACE,' ')
         elif "!=" in line:
             (self.keys,self.match) = line.split("!=")
-            self.match = self.match.replace('\s',' ')
+            self.match = self.match.replace(SPACE_REPLACE,' ')
             self.negate = True
         self.keys = map( lambda x: x.strip(), self.keys.split(",") )
 
@@ -415,14 +418,13 @@ class Story(Configurable):
                 # A way to explicitly include spaces in the
                 # replacement string.  The .ini parser eats any
                 # trailing spaces.
-                replacement=replacement.replace('\s',' ')
+                replacement=replacement.replace(SPACE_REPLACE,' ')
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
 
     def doReplacements(self,value,key):
         value = self.do_in_ex_clude('include_metadata_pre',value,key)
         value = self.do_in_ex_clude('exclude_metadata_pre',value,key)
-        # if key=='characters' and value=='Bilbo':
-        #     value = ''
+
         for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
@@ -433,11 +435,18 @@ class Story(Configurable):
                     doreplace = condval != None and condregexp.search(condval)
 
                 if doreplace:
-                    value = regexp.sub(replacement,value)
-        if self.isList(key) and '\,' in value:
-            l = value.split('\,')
-            value = l[0]
-            self.extendList(key,l[1:])
+                    # split into more than one list entry if list and
+                    # SPLIT_META present in replacement string.  Split
+                    # first, then regex sub.
+                    if self.isList(key) and SPLIT_META in replacement:
+                        repllist = replacement.split(SPLIT_META)
+                        for repl in repllist[1:]:
+                            self.addToList(key,regexp.sub(repl,value))
+                        value = regexp.sub(repllist[0],value)
+                    else:            
+                        value = regexp.sub(replacement,value)
+                    
+
         value = self.do_in_ex_clude('include_metadata_post',value,key)
         value = self.do_in_ex_clude('exclude_metadata_post',value,key)
         return value
@@ -454,7 +463,7 @@ class Story(Configurable):
             return value
 
         if self.isList(key):
-            join_string = self.getConfig("join_string_"+key,u", ").replace('\s',' ')
+            join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
             value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
@@ -505,7 +514,7 @@ class Story(Configurable):
                     auth=removeAllEntities(auth)
 
                 htmllist.append(linkhtml%('author',aurl,auth))
-            join_string = self.getConfig("join_string_authorHTML",u", ").replace('\s',' ')
+            join_string = self.getConfig("join_string_authorHTML",u", ").replace(SPACE_REPLACE,' ')
             self.setMetadata('authorHTML',join_string.join(htmllist))
         else:
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
@@ -537,7 +546,7 @@ class Story(Configurable):
                     v=removeAllEntities(v)
 
                 htmllist.append(linkhtml%(k,url,v))
-            join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace('\s',' ')
+            join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace(SPACE_REPLACE,' ')
             self.setMetadata(k+'HTML',join_string.join(htmllist))
 
         for k in self.getValidMetaList():
