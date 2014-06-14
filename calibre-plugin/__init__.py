@@ -26,6 +26,11 @@ except NameError:
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
+# Modifying the path at the entry point allows all subsequent imports to
+# directly import packages contained within the packages directory
+import packages
+packages.insert_into_python_path()
+
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
 class FanFictionDownLoaderBase(InterfaceActionBase):

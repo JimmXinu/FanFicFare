@@ -16,6 +16,11 @@
 # limitations under the License.
 #
 
+# Modifying the path at the entry point allows all subsequent imports to
+# directly import packages contained within the packages directory
+import packages
+packages.insert_into_python_path()
+
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
