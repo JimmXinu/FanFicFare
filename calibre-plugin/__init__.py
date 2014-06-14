@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import os
 import sys
 if sys.version_info >= (2, 7):
     import logging
@@ -49,6 +50,14 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
     actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ffdl_plugin:FanFictionDownLoaderPlugin'
+
+    def initialize(self):
+        # Make packages contained in the plugin zip file directly importable.
+        # This must be done here, since in the actual plugin module and CLI
+        # code imports might exist, that already require the "packages"
+        # directory to be on the Python path.
+        packages_path = os.path.join(self.plugin_path, 'packages')
+        sys.path.insert(0, packages_path)
 
     def is_customizable(self):
         '''
