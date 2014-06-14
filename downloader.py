@@ -15,10 +15,18 @@
 # limitations under the License.
 #
 
-# Modifying the path at the entry point allows all subsequent imports to
-# directly import packages contained within the packages directory
-import packages
-packages.insert_into_python_path()
+# This extra check is needed because this code might be called from the Calibre
+# plugin when run in CLI mode, where another mechanism has already taken care
+# of making the packages directory importable, since the
+# insert_into_python_path() mechanism doesn't work there
+try:
+    import _packages_importable
+except ImportError:
+    import packages
+    # Modifying the path at the entry point allows all subsequent imports to
+    # directly import packages contained within the packages directory
+    packages.insert_into_python_path()
+
 
 import sys, os
 from os.path import normpath, expanduser, isfile, join

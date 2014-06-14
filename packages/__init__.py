@@ -2,6 +2,7 @@ import os
 import sys
 
 
+# This might be called
 def insert_into_python_path():
     """
     Inserts this directory into the Python path, making the packages contained
