@@ -889,7 +889,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         # all_metadata duplicates some data, but also includes extra_entries, etc.
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-        
+
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
@@ -1617,7 +1617,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             pass
 
                         if val:
-                            vallist = [val]
+                            vallist.append(val)
                             
                         db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
 
