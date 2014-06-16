@@ -219,15 +219,18 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         elif idstr == '81':
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
+        elif idstr == '82':
+            self.story.addToList('characters','Henry (Once Upon a Time)')        
+            self.story.addToList('category',u'Once Upon a Time (TV)')
         elif idstr == '83':
             self.story.addToList('category',u'Rizzoli &amp; Isles')
             self.story.addToList('characters','J. Rizzoli')
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
             self.story.addToList('ships','Chloe B. &amp; J. Rizzoli')
-        elif idstr == '82':
-            self.story.addToList('characters','Henry (Once Upon a Time)')        
-            self.story.addToList('category',u'Once Upon a Time (TV)')
+        elif idstr == '90':
+            self.story.setMetadata('characters','Henry (Once Upon a Time)')        
+            self.story.setMetadata('category',u'Once Upon a Time (TV)')
         else:
             self.story.addToList('category','Harry Potter')
             self.story.addToList('category','Furbie')

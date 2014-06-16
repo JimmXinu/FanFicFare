@@ -323,18 +323,28 @@ class Story(Configurable):
                 iel = []
                 self.in_ex_cludes[ie] = self.set_in_ex_clude(ies)
 
+    def join_list(self, key, vallist):
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(vallist)
+                
     def setMetadata(self, key, value, condremoveentities=True):
-        ## still keeps &lt; &lt; and &amp;
-        if condremoveentities:
-            self.metadata[key]=conditionalRemoveEntities(value)
+
+        # keep as list type, but set as only value.
+        if self.isList(key):
+            self.addToList(key,value,condremoveentities=condremoveentities,clear=True)
         else:
-            self.metadata[key]=value
+            ## still keeps &lt; &lt; and &amp;
+            if condremoveentities:
+                self.metadata[key]=conditionalRemoveEntities(value)
+            else:
+                self.metadata[key]=value
+                
         if key == "language":
             try:
                 # getMetadata not just self.metadata[] to do replace_metadata.
-                self.metadata['langcode'] = langs[self.getMetadata(key)]
+                self.setMetadata('langcode',langs[self.getMetadata(key)])
             except:
-                self.metadata['langcode'] = 'en'
+                self.setMetadata('langcode','en')
+                
         if key == 'dateUpdated':
             # Last Update tags for Bill.
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
@@ -421,11 +431,16 @@ class Story(Configurable):
                 replacement=replacement.replace(SPACE_REPLACE,' ')
                 self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
 
-    def doReplacements(self,value,key):
+    def doReplacements(self,value,key,return_list=False,seen_list=[]):
         value = self.do_in_ex_clude('include_metadata_pre',value,key)
         value = self.do_in_ex_clude('exclude_metadata_pre',value,key)
 
-        for (metakeys,regexp,replacement,condkey,condregexp) in self.replacements:
+        retlist = [value]
+        for replaceline in self.replacements:
+            if replaceline in seen_list: # recursion on pattern, bail
+                # print("bailing on %s"%replaceline)
+                continue
+            (metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
                     and regexp.search(value):
@@ -435,21 +450,32 @@ class Story(Configurable):
                     doreplace = condval != None and condregexp.search(condval)
 
                 if doreplace:
-                    # split into more than one list entry if list and
+                    # split into more than one list entry if
                     # SPLIT_META present in replacement string.  Split
-                    # first, then regex sub.
-                    if self.isList(key) and SPLIT_META in replacement:
-                        repllist = replacement.split(SPLIT_META)
-                        for repl in repllist[1:]:
-                            self.addToList(key,regexp.sub(repl,value))
-                        value = regexp.sub(repllist[0],value)
-                    else:            
-                        value = regexp.sub(replacement,value)
+                    # first, then regex sub, then recurse call replace
+                    # on each.  Break out of loop, each split element
+                    # handled individually by recursion call.
+                    if SPLIT_META in replacement:
+                        retlist = []
+                        for splitrepl in replacement.split(SPLIT_META):
+                            retlist.extend(self.doReplacements(regexp.sub(splitrepl,value),
+                                                               key,
+                                                               return_list=True,
+                                                               seen_list=seen_list+[replaceline]))
+                        break
+                    else:
+                        retlist = [regexp.sub(replacement,value)]
                     
+        for val in retlist:
+            retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
+            retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
+        # value = self.do_in_ex_clude('include_metadata_post',value,key)
+        # value = self.do_in_ex_clude('exclude_metadata_post',value,key)
 
-        value = self.do_in_ex_clude('include_metadata_post',value,key)
-        value = self.do_in_ex_clude('exclude_metadata_post',value,key)
-        return value
+        if return_list:
+            return retlist
+        else:
+            return self.join_list(key,retlist)
 
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
@@ -463,8 +489,9 @@ class Story(Configurable):
             return value
 
         if self.isList(key):
-            join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
-            value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
+            # join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
+            # value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
+            value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
             return value
@@ -494,7 +521,8 @@ class Story(Configurable):
                        doreplacements=True,
                        keeplists=False):
         '''
-        All single value *and* list value metadata as strings (unless keeplists=True, then keep lists).
+        All single value *and* list value metadata as strings (unless
+        keeplists=True, then keep lists).
         '''
         allmetadata = {}
 
@@ -514,8 +542,8 @@ class Story(Configurable):
                     auth=removeAllEntities(auth)
 
                 htmllist.append(linkhtml%('author',aurl,auth))
-            join_string = self.getConfig("join_string_authorHTML",u", ").replace(SPACE_REPLACE,' ')
-            self.setMetadata('authorHTML',join_string.join(htmllist))
+            # join_string = self.getConfig("join_string_authorHTML",u", ").replace(SPACE_REPLACE,' ')
+            self.setMetadata('authorHTML',self.join_list("join_string_authorHTML",htmllist))
         else:
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
                                                     self.getMetadata('author', removeallentities, doreplacements)))
@@ -546,8 +574,8 @@ class Story(Configurable):
                     v=removeAllEntities(v)
 
                 htmllist.append(linkhtml%(k,url,v))
-            join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace(SPACE_REPLACE,' ')
-            self.setMetadata(k+'HTML',join_string.join(htmllist))
+            # join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace(SPACE_REPLACE,' ')
+            self.setMetadata(k+'HTML',self.join_list("join_string_"+k+"HTML",htmllist))
 
         for k in self.getValidMetaList():
             if self.isList(k) and keeplists:
@@ -562,11 +590,12 @@ class Story(Configurable):
         for v in l:
             self.addToList(listname,v.strip())
 
-    def addToList(self,listname,value):
+    def addToList(self,listname,value,condremoveentities=True,clear=False):
         if value==None:
             return
-        value = conditionalRemoveEntities(value)
-        if not self.isList(listname) or not listname in self.metadata:
+        if condremoveentities:
+            value = conditionalRemoveEntities(value)
+        if clear or not self.isList(listname) or not listname in self.metadata:
             # Calling addToList to a non-list meta will overwrite it.
             self.metadata[listname]=[]
         # prevent duplicates.
@@ -578,7 +607,7 @@ class Story(Configurable):
 
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
-        return self.hasConfig("include_in_"+listname) or \
+        return self.isListType(listname) or \
             ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
                   and isinstance(self.metadata[listname],list) )
 
@@ -607,11 +636,15 @@ class Story(Configurable):
 
         if retlist:
             if doreplacements:
-                retlist = filter( lambda x : x!=None and x!='' ,
-                                  map(partial(self.doReplacements,key=listname),retlist) )
+                newretlist = []
+                for val in retlist:
+                    newretlist.extend(self.doReplacements(val,listname,return_list=True))
+                retlist = newretlist
+                
             if removeallentities:
-                retlist = filter( lambda x : x!=None and x!='' ,
-                                  map(removeAllEntities,retlist) )
+                retlist = map(removeAllEntities,retlist)
+                
+            retlist = filter( lambda x : x!=None and x!='' ,retlist)
 
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
         # use replace_metadata to change separator first if needed.

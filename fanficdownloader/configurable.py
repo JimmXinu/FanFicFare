@@ -53,46 +53,52 @@ class Configuration(ConfigParser.SafeConfigParser):
             self.addConfigSection(sitewithout+":"+fileform)
         self.addConfigSection("overrides")
         
-        self.validEntries = [
+        self.listTypeEntries = [
             'category',
             'genre',
-            'language',
             'characters',
             'ships',
             'series',
             'seriesUrl',
+            'warnings',
+            'extratags',
+            'author',
+            'authorId',
+            'authorUrl',
+            'lastupdate',
+            ]
+        
+        self.validEntries = self.listTypeEntries + [
+            'language',
             'status',
             'datePublished',
             'dateUpdated',
             'dateCreated',
             'rating',
-            'warnings',
             'numChapters',
             'numWords',
             'site',
             'storyId',
-            'authorId',
-            'extratags',
             'title',
             'storyUrl',
             'description',
-            'author',
-            'authorUrl',
             'formatname',
             'formatext',
             'siteabbrev',
             'version',
             # internal stuff.
-            'langcode',
-            'output_css',
             'authorHTML',
             'seriesHTML',
-            'lastupdate'
+            'langcode',
+            'output_css',
             ]
 
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
 
+    def isListType(self,key):
+        return key in self.listTypeEntries or self.hasConfig("include_in_"+key)
+        
     def isValidMetaEntry(self, key):
         return key in self.getValidMetaList()
 
@@ -161,6 +167,9 @@ class Configurable(object):
 
     def __init__(self, configuration):
         self.configuration = configuration
+
+    def isListType(self,key):
+        return self.configuration.isListType(key)
 
     def isValidMetaEntry(self, key):
         return self.configuration.isValidMetaEntry(key)
