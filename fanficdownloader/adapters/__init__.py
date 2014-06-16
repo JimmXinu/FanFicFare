@@ -223,11 +223,11 @@ def getClassFor(url):
         domain = domain.replace("www.","")
         #logger.debug("trying site:without www: "+domain)
         cls = getClassFromList(domain)
-        fixedurl = fixedurl.replace("http://www.","http://")
+        fixedurl = re.sub(r"^http(s?)://www\.",r"http\1://",fixedurl)
     if not cls:
         #logger.debug("trying site:www."+domain)
         cls = getClassFromList("www."+domain)
-        fixedurl = fixedurl.replace("http://","http://www.")
+        fixedurl = re.sub(r"^http(s?)://",r"http\1://www.",fixedurl)
 
     if cls:
         fixedurl = cls.stripURLParameters(fixedurl)
