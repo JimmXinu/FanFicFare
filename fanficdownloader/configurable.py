@@ -58,8 +58,6 @@ class Configuration(ConfigParser.SafeConfigParser):
             'genre',
             'characters',
             'ships',
-            'series',
-            'seriesUrl',
             'warnings',
             'extratags',
             'author',
@@ -69,6 +67,8 @@ class Configuration(ConfigParser.SafeConfigParser):
             ]
         
         self.validEntries = self.listTypeEntries + [
+            'series',
+            'seriesUrl',
             'language',
             'status',
             'datePublished',
