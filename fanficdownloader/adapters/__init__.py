@@ -129,6 +129,7 @@ import adapter_bloodshedversecom
 import adapter_nocturnallightnet
 import adapter_fanfichu
 import adapter_fanfictioncsodaidokhu
+import adapter_fictionmaniatv
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
