@@ -186,9 +186,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.setCoverImage(self.url,coverurl)
 
         # fimf has started including extra stuff inside the description div.
-        descdivstr = "%s"%soup.find("div", {"class":"description"})
-        hrstr="<hr />"
-        descdivstr = '<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+        descdivstr = u"%s"%soup.find("div", {"class":"description"})
+        hrstr=u"<hr />"
+        descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         self.setDescription(self.url,descdivstr)
 
         # Can't trust dates from API anymore I'm told.
