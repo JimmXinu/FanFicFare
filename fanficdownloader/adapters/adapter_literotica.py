@@ -99,7 +99,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # author
         a = soup1.find("span", "b-story-user-y")
-        self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'])
+        self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'][0])
         authorurl = a.a['href']
         if authorurl.startswith('//'):
             authorurl = self.parsedUrl.scheme+':'+authorurl
