@@ -209,6 +209,8 @@ def getConfigSectionFor(url):
 def getClassFor(url):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htp]+(s?)[:/]+",r"http\1://",url.strip())
+    if fixedurl.startswith("//"):
+        fixedurl = "http:%s"%url
     if not fixedurl.startswith("http"):
         fixedurl = "http://%s"%url
     ## remove any trailing '#' locations.
