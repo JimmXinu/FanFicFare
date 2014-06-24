@@ -324,7 +324,7 @@ class Story(Configurable):
                 self.in_ex_cludes[ie] = self.set_in_ex_clude(ies)
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(vallist)
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, vallist))
                 
     def setMetadata(self, key, value, condremoveentities=True):
 
@@ -649,7 +649,7 @@ class Story(Configurable):
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
         # use replace_metadata to change separator first if needed.
         # ships=>[ ]*(/|&amp;|&)[ ]*=>/
-        if listname == 'ships' and self.getConfig('sort_ships'):
+        if listname == 'ships' and self.getConfig('sort_ships') and retlist:
             retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
 
         if retlist:
