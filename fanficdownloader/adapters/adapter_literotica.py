@@ -201,8 +201,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('description', soup1.find('meta', {'name': 'description'})['content'])
         
         # li tags inside div class b-s-story-tag-list
-        for li in soup1.find('div', {'class':'b-s-story-tag-list'}).findAll('a'):
-            self.story.addToList('eroticatags',stripHTML(li))
+        taglist = soup1.find('div', {'class':'b-s-story-tag-list'})
+        if taglist:
+            for li in taglist.findAll('a'):
+                self.story.addToList('eroticatags',stripHTML(li))
 
         return
 
