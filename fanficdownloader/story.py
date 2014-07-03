@@ -768,6 +768,10 @@ class Story(Configurable):
                      '','',''))
                 #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
+        # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
+        if cover and coverexclusion and re.search(coverexclusion,imgurl):
+            return
+
         prefix='ffdl'
         if imgurl not in self.imgurls:
             parsedUrl = urlparse.urlparse(imgurl)
@@ -799,7 +803,7 @@ class Story(Configurable):
                 return "failedtoload"
 
             # explicit cover, make the first image.
-            if cover and not self.getConfig('never_make_cover'):
+            if cover:
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
                     del self.imgurls[0]
@@ -818,7 +822,7 @@ class Story(Configurable):
                 if self.cover == None and \
                         self.getConfig('make_firstimage_cover') and \
                         not self.getConfig('never_make_cover') and \
-                        (not coverexclusion or not re.search(coverexclusion,imgurl)):
+                        not (coverexclusion and re.search(coverexclusion,imgurl)):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})

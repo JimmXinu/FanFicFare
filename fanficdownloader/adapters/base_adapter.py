@@ -328,7 +328,8 @@ class BaseSiteAdapter(Configurable):
 
     def setCoverImage(self,storyurl,imgurl):
         if self.getConfig('include_images'):
-            self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True)
+            self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True,
+                                 coverexclusion=self.getConfig('cover_exclusion_regexp'))
 
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
