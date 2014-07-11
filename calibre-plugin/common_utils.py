@@ -8,12 +8,19 @@ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from PyQt4 import QtGui
-from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                      QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                      QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                      QTextEdit,
-                      QListWidget, QAbstractItemView)
+try:
+    from PyQt5 import QtWidgets as QtGui
+    from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                          QTextEdit, QListWidget, QAbstractItemView)
+except ImportError as e:
+    from PyQt4 import QtGui
+    from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                          QTextEdit, QListWidget, QAbstractItemView)
+    
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, error_dialog, UNDEFINED_QDATETIME, info_dialog
 from calibre.gui2.actions import menu_action_unique_name

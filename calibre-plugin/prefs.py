@@ -25,6 +25,7 @@ default_prefs['rejecturls'] = ''
 default_prefs['rejectreasons'] = '''Sucked
 Boring
 Dup from another site'''
+default_prefs['reject_always'] = False
 
 default_prefs['updatemeta'] = True
 default_prefs['updatecover'] = False

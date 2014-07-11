@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2012, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -19,10 +19,12 @@ import urllib
 import email
 import traceback
 
-from PyQt4.Qt import (QApplication, QMenu, QToolButton, QTimer)
-
-from PyQt4.Qt import QPixmap, Qt
-from PyQt4.QtCore import QBuffer
+try:
+    from PyQt5.Qt import (QApplication, QMenu, QTimer)
+    from PyQt5.QtCore import QBuffer
+except ImportError as e:
+    from PyQt4.Qt import (QApplication, QMenu, QTimer)
+    from PyQt4.QtCore import QBuffer
 
 from calibre.constants import numeric_version as calibre_version
 
@@ -764,7 +766,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if not merge: # skip reject list when merging.
             if rejecturllist.check(url):
                 rejnote = rejecturllist.get_full_note(url)
-                if question_dialog(self.gui, _('Reject URL?'),'''
+                if prefs['reject_always'] or question_dialog(self.gui, _('Reject URL?'),'''
                           <h3>%s</h3>
                           <p>%s</p>
                           <p>"<b>%s</b>"</p>

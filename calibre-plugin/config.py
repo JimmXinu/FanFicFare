@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2012, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -13,10 +13,16 @@ logger = logging.getLogger(__name__)
 import traceback, copy, threading
 from collections import OrderedDict
 
-from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                      QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
-                      QCheckBox, QPushButton, QTabWidget, QVariant, QScrollArea,
-                      QDialogButtonBox, QGroupBox )
+try:
+    from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+                          QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
+                          QCheckBox, QPushButton, QTabWidget, QScrollArea,
+                          QDialogButtonBox, QGroupBox )
+except ImportError as e:
+    from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+                          QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
+                          QCheckBox, QPushButton, QTabWidget, QScrollArea,
+                          QDialogButtonBox, QGroupBox )
 
 from calibre.gui2.ui import get_gui
 from calibre.gui2 import dynamic, info_dialog
@@ -60,7 +66,7 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
 
-from calibre.gui2.complete import MultiCompleteLineEdit
+from calibre.gui2.complete2 import EditWithComplete  #MultiCompleteLineEdit
 
 class RejectURLList:
     def __init__(self,prefs):
@@ -220,6 +226,7 @@ class ConfigWidget(QWidget):
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
         prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
+        prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
 
         if self.readinglist_tab:
             # lists
@@ -482,6 +489,11 @@ class BasicTab(QWidget):
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
         self.l.addWidget(self.reject_reasons)
 
+        self.reject_always = QCheckBox(_('Reject Silently?'),self)
+        self.reject_always.setToolTip(_("Always URLs on the Reject List without stopping and asking."))
+        self.reject_always.setChecked(prefs['reject_always'])
+        self.l.addWidget(self.reject_always)
+
         topl.addWidget(defs_gb)
 
         horz = QHBoxLayout()
@@ -649,7 +661,7 @@ class ReadingListTab(QWidget):
         label = QLabel(_('"Send to Device" Reading Lists'))
         label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         horz.addWidget(label)        
-        self.send_lists_box = MultiCompleteLineEdit(self)
+        self.send_lists_box = EditWithComplete(self)
         self.send_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.send_lists_box.update_items_cache(reading_lists)
         self.send_lists_box.setText(prefs['send_lists'])
@@ -665,7 +677,7 @@ class ReadingListTab(QWidget):
         label = QLabel(_('"To Read" Reading Lists'))
         label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         horz.addWidget(label)        
-        self.read_lists_box = MultiCompleteLineEdit(self)
+        self.read_lists_box = EditWithComplete(self)
         self.read_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.read_lists_box.update_items_cache(reading_lists)
         self.read_lists_box.setText(prefs['read_lists'])
@@ -727,17 +739,17 @@ class GenerateCoverTab(QWidget):
             horz.addWidget(label)
             dropdown = QComboBox(self)
             dropdown.setToolTip(s)
-            dropdown.addItem('',QVariant('none'))
+            dropdown.addItem('','none')
             for setting in gc_settings:
-                dropdown.addItem(setting,QVariant(setting))
+                dropdown.addItem(setting,setting)
             if site == _("Default"):
                 self.gc_dropdowns["Default"] = dropdown
                 if 'Default' in prefs['gc_site_settings']:
-                    dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['gc_site_settings']['Default'])))
+                    dropdown.setCurrentIndex(dropdown.findData(prefs['gc_site_settings']['Default']))
             else:
                 self.gc_dropdowns[site] = dropdown
             if site in prefs['gc_site_settings']:
-                dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['gc_site_settings'][site])))
+                dropdown.setCurrentIndex(dropdown.findData(prefs['gc_site_settings'][site]))
 
             horz.addWidget(dropdown)
             self.sl.addLayout(horz)
@@ -966,12 +978,12 @@ class CustomColumnsTab(QWidget):
                 label.setToolTip(_("Update this %s column(%s) with...")%(key,column['datatype']))
                 horz.addWidget(label)
                 dropdown = QComboBox(self)
-                dropdown.addItem('',QVariant('none'))
+                dropdown.addItem('','none')
                 for md in permitted_values[column['datatype']]:
-                    dropdown.addItem(titleLabels[md],QVariant(md))
+                    dropdown.addItem(titleLabels[md],md)
                 self.custcol_dropdowns[key] = dropdown
                 if key in prefs['custom_cols']:
-                    dropdown.setCurrentIndex(dropdown.findData(QVariant(prefs['custom_cols'][key])))
+                    dropdown.setCurrentIndex(dropdown.findData(prefs['custom_cols'][key]))
                 if column['datatype'] == 'enumeration':
                     dropdown.setToolTip(_("Metadata values valid for this type of column.")+"\n"+_("Values that aren't valid for this enumeration column will be ignored."))
                 else:
@@ -1007,11 +1019,11 @@ class CustomColumnsTab(QWidget):
         horz.addWidget(label)
         self.errorcol = QComboBox(self)
         self.errorcol.setToolTip(tooltip)
-        self.errorcol.addItem('',QVariant('none'))
+        self.errorcol.addItem('','none')
         for key, column in custom_columns.iteritems():
             if column['datatype'] in ('text','comments'):
-                self.errorcol.addItem(column['name'],QVariant(key))
-        self.errorcol.setCurrentIndex(self.errorcol.findData(QVariant(prefs['errorcol'])))
+                self.errorcol.addItem(column['name'],key)
+        self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
         horz.addWidget(self.errorcol)
         self.l.addLayout(horz)
 

@@ -19,12 +19,36 @@ logger = logging.getLogger(__name__)
 import urllib
 import email
 
-from PyQt4 import QtGui
-from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                      QPushButton, QString, QLabel, QCheckBox, QIcon, QLineEdit,
-                      QComboBox, QVariant, QProgressDialog, QTimer, QDialogButtonBox,
-                      QPixmap, Qt, QAbstractItemView, SIGNAL, QTextEdit, pyqtSignal,
-                      QGroupBox, QFrame)
+try:
+    from PyQt5 import QtWidgets as QtGui
+    from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
+                          QGroupBox, QFrame)
+except ImportError as e:
+    from PyQt4 import QtGui
+    from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
+                          QGroupBox, QFrame)
+
+try:
+    from calibre.gui2 import QVariant
+    del QVariant
+except ImportError:
+    is_qt4 = False
+    convert_qvariant = lambda x: x
+else:
+    is_qt4 = True
+    def convert_qvariant(x):
+        vt = x.type()
+        if vt == x.String:
+            return unicode(x.toString())
+        if vt == x.List:
+            return [convert_qvariant(i) for i in x.toList()]
+        return x.toPyObject()
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
@@ -559,7 +583,7 @@ class LoopProgressDialog(QProgressDialog):
                  status_prefix=_("Fetched metadata for")):
         QProgressDialog.__init__(self,
                                  init_label,
-                                 QString(), 0, len(book_list), gui)
+                                 _('Cancel'), 0, len(book_list), gui)
         self.setWindowTitle(win_title)
         self.setMinimumWidth(500)
         self.book_list = book_list
@@ -829,11 +853,11 @@ class StoryListTableWidget(QTableWidget):
             icon = get_icon(book['icon'])
 
         status_cell = IconWidgetItem(None,icon,val)
-        status_cell.setData(Qt.UserRole, QVariant(val))
+        status_cell.setData(Qt.UserRole, val)
         self.setItem(row, 0, status_cell)
         
         title_cell = ReadOnlyTableWidgetItem(book['title'])
-        title_cell.setData(Qt.UserRole, QVariant(row))
+        title_cell.setData(Qt.UserRole, row)
         self.setItem(row, 1, title_cell)
         
         self.setItem(row, 2, AuthorTableWidgetItem(", ".join(book['author']), ", ".join(book['author_sort'])))
@@ -848,7 +872,7 @@ class StoryListTableWidget(QTableWidget):
         books = []
         #print("=========================\nbooks:%s"%self.books)
         for row in range(self.rowCount()):
-            rnum = self.item(row, 1).data(Qt.UserRole).toPyObject()
+            rnum = convert_qvariant(self.item(row, 1).data(Qt.UserRole))
             book = self.books[rnum]
             books.append(book)
         return books
@@ -914,7 +938,7 @@ class RejectListTableWidget(QTableWidget):
     def populate_table_row(self, row, rej):
 
         url_cell = ReadOnlyTableWidgetItem(rej.url)
-        url_cell.setData(Qt.UserRole, QVariant(rej.book_id))
+        url_cell.setData(Qt.UserRole, rej.book_id)
         self.setItem(row, 0, url_cell)
         self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
         self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
@@ -1037,7 +1061,7 @@ class RejectListDialog(SizePersistedDialog):
         rejectrows = []
         for row in range(self.rejects_table.rowCount()):
             url = unicode(self.rejects_table.item(row, 0).text()).strip()
-            book_id = self.rejects_table.item(row, 0).data(Qt.UserRole).toPyObject()
+            book_id =convert_qvariant(self.rejects_table.item(row, 0).data(Qt.UserRole))
             title = unicode(self.rejects_table.item(row, 1).text()).strip()
             auth = unicode(self.rejects_table.item(row, 2).text()).strip()
             note = unicode(self.rejects_table.cellWidget(row, 3).currentText()).strip()
@@ -1047,7 +1071,7 @@ class RejectListDialog(SizePersistedDialog):
     def get_reject_list_ids(self):
         rejectrows = []
         for row in range(self.rejects_table.rowCount()):
-            book_id = self.rejects_table.item(row, 0).data(Qt.UserRole).toPyObject()
+            book_id = convert_qvariant(self.rejects_table.item(row, 0).data(Qt.UserRole))
             if book_id:
                 rejectrows.append(book_id)
         return rejectrows
