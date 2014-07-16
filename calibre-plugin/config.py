@@ -489,8 +489,8 @@ class BasicTab(QWidget):
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
         self.l.addWidget(self.reject_reasons)
 
-        self.reject_always = QCheckBox(_('Reject Silently?'),self)
-        self.reject_always.setToolTip(_("Always URLs on the Reject List without stopping and asking."))
+        self.reject_always = QCheckBox(_('Reject Without Confirmation?'),self)
+        self.reject_always.setToolTip(_("Always reject URLs on the Reject List without stopping and asking."))
         self.reject_always.setChecked(prefs['reject_always'])
         self.l.addWidget(self.reject_always)
 
