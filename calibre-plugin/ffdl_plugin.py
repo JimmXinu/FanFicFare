@@ -209,7 +209,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 #print("text/plain:%s"%event.mimeData().data(mimetype))
                 urllist.extend(get_urls_from_text(event.mimeData().data(mimetype)))
 
-        #print("urllist:%s\ndropped_ids:%s"%(urllist,dropped_ids))
+        # print("urllist:%s\ndropped_ids:%s"%(urllist,dropped_ids))
         if urllist or dropped_ids:
             QTimer.singleShot(1, partial(self.do_drop,
                                          dropped_ids=dropped_ids,
