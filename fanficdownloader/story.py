@@ -345,7 +345,7 @@ class Story(Configurable):
             except:
                 self.setMetadata('langcode','en')
                 
-        if key == 'dateUpdated':
+        if key == 'dateUpdated' and value:
             # Last Update tags for Bill.
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))

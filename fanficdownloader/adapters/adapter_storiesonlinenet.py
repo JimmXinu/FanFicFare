@@ -70,14 +70,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
-        if 'Free Registration' in data \
+        if self.needToLogin \
+                or 'Free Registration' in data \
                 or "Invalid Password!" in data \
                 or "Invalid User Name!" in data \
                 or "Log In" in data \
                 or "Access to unlinked chapters requires" in data:
-            return True
-        else:
-            return False
+            self.needToLogin = True
+        return self.needToLogin
         
     def performLogin(self, url):
         params = {}
@@ -114,11 +114,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
+        self.needToLogin = False
         try:
             data = self._fetchUrl(url+":i")
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
+            elif e.code == 401:
+                self.needToLogin = True
+                data = ''
             else:
                 raise e
 

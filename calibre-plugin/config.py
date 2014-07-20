@@ -250,7 +250,7 @@ class ConfigWidget(QWidget):
         prefs['gcnewonly'] = self.generatecover_tab.gcnewonly.isChecked()
         gc_site_settings = {}
         for (site,combo) in self.generatecover_tab.gc_dropdowns.iteritems():
-            val = unicode(combo.itemData(combo.currentIndex()).toString())
+            val = unicode(combo.itemData(combo.currentIndex()))
             if val != 'none':
                 gc_site_settings[site] = val
                 #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
@@ -282,12 +282,12 @@ class ConfigWidget(QWidget):
 
         # Custom Columns tab
         # error column
-        prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()).toString())
+        prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()))
 
         # cust cols tab
         colsmap = {}
         for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
-            val = unicode(combo.itemData(combo.currentIndex()).toString())
+            val = unicode(combo.itemData(combo.currentIndex()))
             if val != 'none':
                 colsmap[col] = val
                 #print("colsmap[%s]:%s"%(col,colsmap[col]))
