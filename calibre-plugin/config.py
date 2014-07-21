@@ -23,6 +23,21 @@ except ImportError as e:
                           QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
                           QDialogButtonBox, QGroupBox )
+try:
+    from calibre.gui2 import QVariant
+    del QVariant
+except ImportError:
+    is_qt4 = False
+    convert_qvariant = lambda x: x
+else:
+    is_qt4 = True
+    def convert_qvariant(x):
+        vt = x.type()
+        if vt == x.String:
+            return unicode(x.toString())
+        if vt == x.List:
+            return [convert_qvariant(i) for i in x.toList()]
+        return x.toPyObject()
 
 from calibre.gui2.ui import get_gui
 from calibre.gui2 import dynamic, info_dialog
@@ -250,7 +265,7 @@ class ConfigWidget(QWidget):
         prefs['gcnewonly'] = self.generatecover_tab.gcnewonly.isChecked()
         gc_site_settings = {}
         for (site,combo) in self.generatecover_tab.gc_dropdowns.iteritems():
-            val = unicode(combo.itemData(combo.currentIndex()))
+            val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
             if val != 'none':
                 gc_site_settings[site] = val
                 #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
@@ -282,12 +297,12 @@ class ConfigWidget(QWidget):
 
         # Custom Columns tab
         # error column
-        prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()))
+        prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
 
         # cust cols tab
         colsmap = {}
         for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
-            val = unicode(combo.itemData(combo.currentIndex()))
+            val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
             if val != 'none':
                 colsmap[col] = val
                 #print("colsmap[%s]:%s"%(col,colsmap[col]))
