@@ -170,19 +170,6 @@ class RejectUrlEntry:
             
         return retval
 
-# This is a more than slightly kludgey way to get
-# EditWithComplete to *not* alpha-order the reasons, but leave
-# them in the order entered.  If
-# calibre.gui2.complete2.CompleteModel.set_items ever changes,
-# this function will need to also.
-def complete_model_set_items_kludge(self, items):
-    items = [unicode(x.strip()) for x in items]
-    items = [x for x in items if x]
-    items = tuple(items)
-    self.all_items = self.current_items = items
-    self.current_prefix = ''
-    self.reset()
-    
 class NotGoingToDownload(Exception):
     def __init__(self,error,icon='dialog_error.png'):
         self.error=error
@@ -943,10 +930,7 @@ class RejectListTableWidget(QTableWidget):
         self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
         self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
         
-        note_cell = EditWithComplete(self)
-        note_cell.lineEdit().mcompleter.model().set_items = \
-            partial(complete_model_set_items_kludge,
-                    note_cell.lineEdit().mcompleter.model())
+        note_cell = EditWithComplete(self,sort_func=lambda x:1)
         
         items = [rej.note]+self.rejectreasons
         note_cell.update_items_cache(items)
@@ -1016,10 +1000,7 @@ class RejectListDialog(SizePersistedDialog):
         button_layout.addItem(spacerItem1)
 
         if show_all_reasons:
-            self.reason_edit = EditWithComplete(self)
-            self.reason_edit.lineEdit().mcompleter.model().set_items = \
-                partial(complete_model_set_items_kludge,
-                        self.reason_edit.lineEdit().mcompleter.model())
+            self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
             
             items = ['']+rejectreasons
             self.reason_edit.update_items_cache(items)
@@ -1113,11 +1094,7 @@ class EditTextDialog(QDialog):
             self.textedit.setToolTip(tooltip)
 
         if rejectreasons or reasonslabel:
-            self.reason_edit = EditWithComplete(self)
-
-            self.reason_edit.lineEdit().mcompleter.model().set_items = \
-                partial(complete_model_set_items_kludge,
-                        self.reason_edit.lineEdit().mcompleter.model())
+            self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
             
             items = ['']+rejectreasons
             self.reason_edit.update_items_cache(items)
