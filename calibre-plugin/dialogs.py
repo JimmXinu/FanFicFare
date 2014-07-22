@@ -207,9 +207,9 @@ class DroppableQTextEdit(QTextEdit):
                             urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
                 else:
                     urllist.extend(get_urls_from_text("%s"%msg))
-        
         if urllist:
             self.append("\n".join(urllist))
+            return None
         return QTextEdit.dropEvent(self,event)
         
     def canInsertFromMimeData(self, source):
