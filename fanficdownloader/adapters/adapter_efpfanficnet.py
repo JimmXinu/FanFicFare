@@ -74,7 +74,8 @@ class EFPFanFicNet(BaseSiteAdapter):
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
-        if 'Fai il login e leggi la storia!' in data:
+        if( 'Fai il login e leggi la storia!' in data or
+            'Questa storia presenta contenuti non adatti ai minori' in data ):
             return True
         else:
             return False
