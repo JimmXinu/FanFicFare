@@ -3,6 +3,7 @@ import urllib2
 import urlparse
 
 from .. import BeautifulSoup
+from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -88,25 +89,25 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         soup = self._customized_fetch_url(url)
 
         pagetitle_div = soup.find('div', id='pagetitle')
-        self.story.setMetadata('title', pagetitle_div.a.string.strip())
+        self.story.setMetadata('title', stripHTML(pagetitle_div.a))
 
         author_anchor = pagetitle_div.a.findNextSibling('a')
         url = urlparse.urljoin(self.BASE_URL, author_anchor['href'])
         components = urlparse.urlparse(url)
         query_data = urlparse.parse_qs(components.query)
 
-        self.story.setMetadata('author', author_anchor.string.strip())
+        self.story.setMetadata('author', stripHTML(author_anchor))
         self.story.setMetadata('authorId', query_data['uid'])
         self.story.setMetadata('authorUrl', url)
 
         sort_div = soup.find('div', id='sort')
-        self.story.setMetadata('reviews', sort_div('a')[1].string.strip())
+        self.story.setMetadata('reviews', stripHTML(sort_div('a')[1]))
 
         listbox_tag = soup.find('div', {'class': 'listbox'})
         for span_tag in listbox_tag('span'):
             key = span_tag.string.strip(' :')
             try:
-                value = span_tag.nextSibling.string.strip()
+                value = stripHTML(span_tag.nextSibling)
             # This can happen with some fancy markup in the summary. Just
             # ignore this error and set value to None, the summary parsing
             # takes care of this
@@ -145,27 +146,27 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                     if sibling.name == 'br':
                         break
 
-                    self.story.addToList('category', sibling.string.strip())
+                    self.story.addToList('category', stripHTML(sibling))
 
             # Seems to be always "None" for some reason
             elif key == 'Characters':
                 for sibling in span_tag.findNextSiblings(['a', 'br']):
                     if sibling.name == 'br':
                         break
-                    self.story.addToList('characters', sibling.string.strip())
+                    self.story.addToList('characters', stripHTML(sibling))
 
             elif key == 'Genres':
                 for sibling in span_tag.findNextSiblings(['a', 'br']):
                     if sibling.name == 'br':
                         break
 
-                    self.story.addToList('genre', sibling.string.strip())
+                    self.story.addToList('genre', stripHTML(sibling))
 
             elif key == 'Warnings':
                 for sibling in span_tag.findNextSiblings(['a', 'br']):
                     if sibling.name == 'br':
                         break
-                    self.story.addToList('warnings', sibling.string.strip())
+                    self.story.addToList('warnings', stripHTML(sibling))
 
             # Challenges
 
@@ -173,7 +174,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 a = span_tag.findNextSibling('a')
                 if not a:
                     continue
-                self.story.setMetadata('series', a.string.strip())
+                self.story.setMetadata('series', stripHTML(a))
                 self.story.setMetadata('seriesUrl', urlparse.urljoin(self.BASE_URL, a['href']))
 
             elif key == 'Chapters':
@@ -196,7 +197,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
             if not chapter_anchor:
                 continue
 
-            title = chapter_anchor.string.strip()
+            title = stripHTML(chapter_anchor)
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.chapterUrls.append((title, url))
 
