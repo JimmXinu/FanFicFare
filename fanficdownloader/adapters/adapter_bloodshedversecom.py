@@ -4,6 +4,7 @@ import urllib2
 import urlparse
 
 from .. import BeautifulSoup
+from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -74,11 +75,11 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         # Since no 404 error code we have to raise the exception ourselves.
         # A title that is just 'by' indicates that there is no author name
         # and no story title available.
-        if soup.title.string.strip() == 'by':
+        if stripHTML(soup.title) == 'by':
             raise exceptions.StoryDoesNotExist(self.url)
 
         for option in soup.find('select', {'name': 'chapter'}):
-            title = option.string.strip()
+            title = stripHTML(option)
             url = self.READ_URL_TEMPLATE % option['value']
             self.chapterUrls.append((title, url))
 
@@ -101,15 +102,15 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.url)
 
         title_anchor = list_box.find('a', {'class': 'fictitle'})
-        self.story.setMetadata('title', title_anchor.string.strip())
+        self.story.setMetadata('title', stripHTML(title_anchor))
 
         author_anchor = title_anchor.findNextSibling('a')
-        self.story.setMetadata('author', author_anchor.string.strip())
+        self.story.setMetadata('author', stripHTML(author_anchor))
         self.story.setMetadata('authorId', _get_query_data(author_anchor['href'])['who'])
         self.story.setMetadata('authorUrl', urlparse.urljoin(self.url, author_anchor['href']))
 
         list_review = list_box.find('div', {'class': 'list_review'})
-        reviews = list_review.a.string.strip().split(' ', 1)[0]
+        reviews = stripHTML(list_review.a).split(' ', 1)[0]
         self.story.setMetadata('reviews', reviews)
 
         summary_div = list_box.find('div', {'class': 'list_summary'})
@@ -122,7 +123,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
         # I'm assuming this to be the category, not sure what else it could be
         first_listinfo = list_box.find('div', {'class': 'list_info'})
-        self.story.addToList('category', first_listinfo.a.string.strip())
+        self.story.addToList('category', stripHTML(first_listinfo.a))
 
         for list_info in first_listinfo.findNextSiblings('div', {'class': 'list_info'}):
             for b_tag in list_info('b'):
