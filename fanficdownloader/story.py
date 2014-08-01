@@ -409,6 +409,7 @@ class Story(Configurable):
     ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
     def setReplace(self,replace):
         for line in replace.splitlines():
+            # print("replacement line:%s"%line)
             (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
             if "&&" in line:
                 (line,conditional) = line.split("&&")
@@ -440,6 +441,7 @@ class Story(Configurable):
             if replaceline in seen_list: # recursion on pattern, bail
                 # print("bailing on %s"%replaceline)
                 continue
+            #print("replacement tuple:%s"%replaceline)
             (metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
@@ -464,7 +466,9 @@ class Story(Configurable):
                                                                seen_list=seen_list+[replaceline]))
                         break
                     else:
-                        retlist = [regexp.sub(replacement,value)]
+                        # print("replacement,value:%s,%s->%s"%(replacement,value,regexp.sub(replacement,value)))
+                        value = regexp.sub(replacement,value)
+                        retlist = [value]
                     
         for val in retlist:
             retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
