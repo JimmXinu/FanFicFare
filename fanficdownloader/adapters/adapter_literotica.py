@@ -39,19 +39,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        
+
         self.story.setMetadata('siteabbrev','litero')
 
         # normalize to first chapter.  Not sure if they ever have more than 2 digits.
         storyid = self.parsedUrl.path.split('/',)[2]
-        if re.match(r'-ch\d\d$',storyid):
+        if re.match(r'-(ch)?\d\d$',storyid):
             storyid = storyid[:-2]+'01'
         self.story.setMetadata('storyId',storyid)
-        
-        self.origurl = url
-        if "//www.i." in self.origurl:
-            ## accept m(mobile)url, but use www.
-            self.origurl = self.origurl.replace("//www.i.","//www.")
+
+        ## accept m(mobile)url, but use www.
+        self.origurl = re.sub("^(www|german|spanish|french|dutch|italian|romanian|portuguese|other)\.i",
+                              "\1",
+                              url)
 
         # normalized story URL.
         self._setURL(url[:url.index('//')+2]+self.getSiteDomain()\
@@ -60,14 +60,31 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = '%m/%d/%y'
-        
+
     @staticmethod
     def getSiteDomain():
-        return 'www.literotica.com'
+        return 'literotica.com'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.literotica.com', 'www.i.literotica.com']
+        return ['www.literotica.com',
+                'www.i.literotica.com',
+                'german.literotica.com',
+                'german.i.literotica.com',
+                'spanish.literotica.com',
+                'spanish.i.literotica.com',
+                'french.literotica.com',
+                'french.i.literotica.com',
+                'dutch.literotica.com',
+                'dutch.i.literotica.com',
+                'italian.literotica.com',
+                'italian.i.literotica.com',
+                'romanian.literotica.com',
+                'romanian.i.literotica.com',
+                'portuguese.literotica.com',
+                'portuguese.i.literotica.com',
+                'other.literotica.com',
+                'other.i.literotica.com']
 
     @classmethod
     def getSiteExampleURLs(self):
@@ -75,13 +92,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://www(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
+        return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
 
     def extractChapterUrlsAndMetadata(self):
 
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
-        
+
         url1 = self.origurl
         logger.debug("first page URL: "+url1)
 
@@ -169,7 +186,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             # now chapter list.  Assumed oldest to newest.
             self.chapterUrls = []
             row = row.nextSibling
-                
+
             self.story.setMetadata('datePublished',makeDate(stripHTML(row.find('td',{'class':'dt'})), self.dateformat))
             while row['class'] == 'sl':
                 # pages include full URLs.
@@ -183,7 +200,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
             row = row.previousSibling
             self.story.setMetadata('dateUpdated',makeDate(stripHTML(row.find('td',{'class':'dt'})), self.dateformat))
-                
+
         else:  # if one post only
             self.chapterUrls = [(soup1.h1.string, url1)]
             self.story.setMetadata('title', soup1.h1.string)
@@ -199,7 +216,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
         # deliberately not self.setDescription() because it's never HTML.
         self.story.setMetadata('description', soup1.find('meta', {'name': 'description'})['content'])
-        
+
         # li tags inside div class b-s-story-tag-list
         taglist = soup1.find('div', {'class':'b-s-story-tag-list'})
         if taglist:
