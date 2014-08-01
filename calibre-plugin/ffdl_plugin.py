@@ -714,6 +714,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # No need to do anything with perfs here, but we could.
         prefs
 
+    def make_id_searchstr(self,url):
+        # older idents can be uri vs url and have | instead of : after
+        # http, plus many sites are now switching to https.
+        return 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\\\:','https?(\:|\|)',re.escape(url))
+
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
 
@@ -859,7 +864,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         series = story.getMetadata('series')
         if not merge and series and prefs['checkforseriesurlid']:
             # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-            searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\\:','https?(\:|\|)',re.escape(story.getMetadata('seriesUrl')))
+            searchstr = self.make_id_searchstr(story.getMetadata('seriesUrl'))
             identicalbooks = db.search_getting_ids(searchstr, None)
             # print("searchstr:%s"%searchstr)
             # print("identicalbooks:%s"%identicalbooks)
@@ -936,7 +941,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 logger.debug("from URL(%s)"%url)
     
                 # try to find by identifier url or uri first.
-                searchstr = 'identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\:','https?(\:|\|)',url)
+                searchstr = self.make_id_searchstr(url)
                 identicalbooks = db.search_getting_ids(searchstr, None)
                 # print("searchstr:%s"%searchstr)
                 # print("identicalbooks:%s"%identicalbooks)
