@@ -227,9 +227,9 @@ def main(argv,
            except:
                options.update = False
                pass
-       
-       ## Check for include_images and absence of PIL, give warning.
-       if adapter.getConfig('include_images'):
+
+       ## Check for include_images without no_image_processing. In absence of PIL, give warning.
+       if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
            try:
                from calibre.utils.magick import Image
                logging.debug("Using calibre.utils.magick")
