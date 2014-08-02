@@ -131,11 +131,12 @@ import adapter_fanfichu
 import adapter_fanfictioncsodaidokhu
 import adapter_fictionmaniatv
 import adapter_bdsmgeschichten
+import adapter_tolkienfanfiction
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
 ## to pick out the adapter.
-    
+
 ## List of registered site adapters.
 __class_list = []
 __domain_map = {}
@@ -203,7 +204,7 @@ def getConfigSectionFor(url):
     (cls,fixedurl) = getClassFor(url)
     if cls:
         return cls.getConfigSection()
-    
+
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
@@ -235,9 +236,9 @@ def getClassFor(url):
 
     if cls:
         fixedurl = cls.stripURLParameters(fixedurl)
-    
+
     return (cls,fixedurl)
-    
+
 def getClassFromList(domain):
     try:
         return __domain_map[domain]
