@@ -1804,6 +1804,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         book['url'] = ''
         book['site'] = ''
         book['added'] = False
+        book['pubdate'] = None
         return book
     
     def convert_urls_to_books(self, urls):
