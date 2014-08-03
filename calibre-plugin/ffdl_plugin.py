@@ -1970,9 +1970,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         
             # fill from first of each if not already present:
             for k in ('pubdate', 'timestamp', 'updatedate'):
-                if k not in b: # not in this book?  Skip it.
+                if k not in b or not b[k]: # not in this book?  Skip it.
                     continue
-                if k not in book: # first is good enough for publisher.
+                if k not in book or not book[k]: # first is good enough for publisher.
                     book[k]=b[k]
 
                 # Do these even on first to get the all_metadata settings.
@@ -2021,8 +2021,12 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             book['comments'] = existingbook['comments']
         else:
             book['title'] = deftitle = book_list[0]['title']
-            book['comments'] = _("Anthology containing:")+"\n" + \
-                "\n".join([ _("%s by %s")%(b['title'],', '.join(b['author'])) for b in book_list ])
+            if len(book['author']) > 1:
+                book['comments'] = _("Anthology containing:")+"\n" + \
+                    "\n".join([ _("%s by %s")%(b['title'],', '.join(b['author'])) for b in book_list ])
+            else:
+                book['comments'] = _("Anthology containing:")+"\n" + \
+                    "\n".join([ b['title'] for b in book_list ])
             # book['all_metadata']['description']
         
             # if all same series, use series for name.  But only if all and not previous named
