@@ -88,8 +88,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        #return "http://www.literotica.com/s/story-title http://www.literotica.com/stories/showstory.php?id=1234 http://www.i.literotica.com/stories/showstory.php?id=1234"
-        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title"
+        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
         return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"

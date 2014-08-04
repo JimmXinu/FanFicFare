@@ -119,7 +119,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        return ['http://www.tolkienfanfiction.com/Story_Read_Head.php?STid=1034', 'http://www.tolkienfanfiction.com/Story_Read_Chapter.php?CHid=4945']
+        return 'http://www.tolkienfanfiction.com/Story_Read_Head.php?STid=1034 http://www.tolkienfanfiction.com/Story_Read_Chapter.php?CHid=4945'
 
     def getSiteURLPattern(self):
         return r"http://www.tolkienfanfiction.com/(Story_Read_Chapter.php\?CH|Story_Read_Head.php\?ST)id=([0-9]+)"
