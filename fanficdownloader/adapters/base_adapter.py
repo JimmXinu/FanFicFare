@@ -297,9 +297,10 @@ class BaseSiteAdapter(Configurable):
     @classmethod
     def getSiteExampleURLs(self):
         """
+        Return a string of space separated example URLs.
         Needs to be overriden in each adapter class.  It's the adapter
         writer's responsibility to make sure the example(s) pass the
-        URL validate.
+        validateURL method.
         """
         return 'no such example'
     
