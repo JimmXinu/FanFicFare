@@ -214,7 +214,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from <%s>' % url)
-        # time.sleep(0.5)
         data1 = self._fetchUrl(url)
         soup1 = bs.BeautifulSoup(data1)
 
