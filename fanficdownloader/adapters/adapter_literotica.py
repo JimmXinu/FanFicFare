@@ -43,19 +43,22 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev','litero')
 
         # normalize to first chapter.  Not sure if they ever have more than 2 digits.
-        storyid = self.parsedUrl.path.split('/',)[2]
-        if re.match(r'-(ch)?\d\d$',storyid):
-            storyid = storyid[:-2]+'01'
-        self.story.setMetadata('storyId',storyid)
+        storyId = self.parsedUrl.path.split('/',)[2]
+        # replace later chapters with first chapter but don't remove numbers
+        # from the URL that disambiguate stories with the same title.
+        storyId = re.sub("-ch-?\d\d", "", storyId)
+        self.story.setMetadata('storyId', storyId)
 
         ## accept m(mobile)url, but use www.
-        self.origurl = re.sub("^(www|german|spanish|french|dutch|italian|romanian|portuguese|other)\.i",
+        url = re.sub("^(www|german|spanish|french|dutch|italian|romanian|portuguese|other)\.i",
                               "\1",
                               url)
 
-        # normalized story URL.
-        self._setURL(url[:url.index('//')+2]+self.getSiteDomain()\
-                         +"/s/"+self.story.getMetadata('storyId'))
+        ## strip ?page=...
+        url = re.sub("\?page=.*$", "", url)
+
+        ## set url
+        self._setURL(url)
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
@@ -94,24 +97,38 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
 
     def extractChapterUrlsAndMetadata(self):
+        """
+        NOTE: Some stories can have versions, 
+              e.g. /my-story-ch-05-version-10
+        NOTE: If two stories share the same title, a running index is added,
+              e.g.: /my-story-ch-02-1
+        Strategy:
+            * Go to author's page, search for the current story link,
+            * If it's in a tr.root-story => One-part story
+                * , get metadata and be done
+            * If it's in a tr.sl => Chapter in series
+                * Search up from there until we find a tr.ser-ttl (this is the
+                story)
+                * Gather metadata
+                * Search down from there for all tr.sl until the next
+                tr.ser-ttl, foreach
+                    * Chapter link is there
+        """
 
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        url1 = self.origurl
-        logger.debug("first page URL: "+url1)
-
+        logger.debug("Chapter/Story URL: <%s> " % self.url)
         try:
-            data1 = self._fetchUrl(url1)
+            data1 = self._fetchUrl(self.url)
             soup1 = bs.BeautifulSoup(data1)
+            #strip comments from soup
+            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, bs.Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url1)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-
-        #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, bs.Comment))]
 
         # author
         a = soup1.find("span", "b-story-user-y")
@@ -126,107 +143,78 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         try:
             dataAuth = self._fetchUrl(authorurl)
             soupAuth = bs.BeautifulSoup(dataAuth)
+            #strip comments from soup
+            [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, bs.Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(authorurl)
             else:
                 raise e
 
+        ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front
-        storyLink = soupAuth.find('a', href=url1[url1.index(':')+1:])
+        storyLink = soupAuth.find('a', href=self.url[self.url.index(':')+1:])
 
         if storyLink is not None:
-            # pull the published date from the author page
-            # default values from single link.  Updated below if multiple chapter.
-            date = storyLink.parent.parent.findAll('td')[-1].text
+            urlTr = storyLink.parent.parent
+            if urlTr['class'] == "sl":
+                isSingleStory = False
+            else:
+                isSingleStory = True
+        else:
+            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (url, authorurl))
+
+        if isSingleStory:
+            self.story.setMetadata('title', storyLink.text)
+            self.story.setMetadata('description', urlTr.findAll("td")[1].text)
+            self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
+            date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
-
-        # find num of pages
-        # find a "3 Pages:" string on the page and parse it
-        pgs = soup1.find("span", "b-pager-caption-t r-d45").string.split(' ')[0]
-
-        # If there are multiple pages, find and request the last page
-        if "1" != pgs:
-            logger.debug("last page number: "+pgs)
-            try:
-                data2 = self._fetchUrl(url1, {'page': pgs})
-                soup2 = bs.BeautifulSoup(data2)
-                [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, bs.Comment))]
-            except urllib2.HTTPError, e:
-                if e.code == 404:
-                    # TODO: Probably should reformat this
-                    raise exceptions.StoryDoesNotExist(url1, {'page': pgs})
-                else:
-                    raise e
+            self.chapterUrls = [(storyLink.text, self.url)]
         else:
-            #If we're already on the last page, copy the soup
-            soup2 = soup1
+            seriesTr = urlTr.previousSibling
+            while seriesTr['class'] != 'ser-ttl':
+                seriesTr = seriesTr.previousSibling
+            m = re.match("^(?P<title>.*?):\s(?P<numChapters>\d+)\sPart\sSeries$", seriesTr.find("strong").text)
+            self.story.setMetadata('title', m.group('title'))
+            self.story.setMetadata('numChapters', int(m.group('numChapters')))
 
-        # parse out the list of chapters
-        chaps = soup2.find('div', id='b-series')
-        if chaps:  # may be one post only
-            #self.chapterUrls = [(ch.a.text, ch.a['href']) for ch in chaps.findAll('li')]
-
-            # if there are chapters, lets pull them and title from the
-            # author page because *this* chapter is omitted from the
-            # list on the last page.
-            row = storyLink.parent.parent.previousSibling
-            while row['class'] != 'ser-ttl':
-                row = row.previousSibling
-
-            seriesTitle = stripHTML(row)
-            if seriesTitle:
-                # this regex is deliberately greedy. We want to get the biggest match before a ':'
-                self.story.setMetadata('title', re.match('(.*):[^:]*$', seriesTitle).group(1))
-            else:
-                self.story.setMetadata('title', soup1.h1.string)
-
-            # now chapter list.  Assumed oldest to newest.
+            ## Walk the chapters
+            chapterTr = seriesTr.nextSibling
             self.chapterUrls = []
-            row = row.nextSibling
+            dates = []
+            descriptions = []
+            while chapterTr is not None and chapterTr['class'] == 'sl':
+                descriptions.append(chapterTr.findAll("td")[1].text)
+                chapterLink = chapterTr.find("td", "fc").find("a")
+                self.chapterUrls.append((chapterLink.text, "http:" + chapterLink["href"]))
+                self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
+                dates.append(makeDate(chapterTr.findAll('td')[-1].text, self.dateformat))
+                chapterTr = chapterTr.nextSibling
 
-            self.story.setMetadata('datePublished',makeDate(stripHTML(row.find('td',{'class':'dt'})), self.dateformat))
-            while row['class'] == 'sl':
-                # pages include full URLs.
-                chapurl = row.a['href']
-                if chapurl.startswith('//'):
-                    chapurl = self.parsedUrl.scheme+':'+chapurl
-                self.chapterUrls.append((row.a.string,chapurl))
-                if not row.nextSibling:
-                    break
-                row = row.nextSibling
+            ## Set description to joint chapter descriptions
+            self.story.setMetadata('description', " / ".join(descriptions))
 
-            row = row.previousSibling
-            self.story.setMetadata('dateUpdated',makeDate(stripHTML(row.find('td',{'class':'dt'})), self.dateformat))
+            ## Set the oldest date as publication date, the newest as update date
+            dates.sort()
+            self.story.setMetadata('datePublished', dates[0])
+            self.story.setMetadata('dateUpdated', dates[-1])
 
-        else:  # if one post only
-            self.chapterUrls = [(soup1.h1.string, url1)]
-            self.story.setMetadata('title', soup1.h1.string)
+            # normalize on first chapter URL.
+            self._setURL(self.chapterUrls[0][1])
 
-        # normalize on first chapter URL.
-        self._setURL(self.chapterUrls[0][1])
-
-        # reset storyId to first chapter.
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
-
-        self.story.setMetadata('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
-        # deliberately not self.setDescription() because it's never HTML.
-        self.story.setMetadata('description', soup1.find('meta', {'name': 'description'})['content'])
-
-        # li tags inside div class b-s-story-tag-list
-        taglist = soup1.find('div', {'class':'b-s-story-tag-list'})
-        if taglist:
-            for li in taglist.findAll('a'):
-                self.story.addToList('eroticatags',stripHTML(li))
+        # set storyId to 'title-author' to avoid duplicates
+        # self.story.setMetadata('storyId', 
+        #     re.sub("[^a-z0-9]", "", self.story.getMetadata('title').lower())
+        #     + "-"
+        #     + re.sub("[^a-z0-9]", "", self.story.getMetadata('author').lower()))
 
         return
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
-        time.sleep(0.5)
+        logger.debug('Getting chapter text from <%s>' % url)
+        # time.sleep(0.5)
         data1 = self._fetchUrl(url)
         soup1 = bs.BeautifulSoup(data1)
 
