@@ -28,27 +28,41 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, makeDate
 
+def _translate_date_german_english(date):
+    fullmon = {"Januar":"01",
+               "Februar":"02",
+               u"März":"03",
+               "April":"04",
+               "Mai":"05",
+               "Juni":"06",
+               "Juli":"07",
+               "August":"08",
+               "September":"09",
+               "Oktober":"10",
+               "November":"11",
+               "Dezember":"12"}
+    for (name,num) in fullmon.items():
+        date = date.replace(name,num)
+    return date
+
 class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        self.decode = ["utf8",
-                       "Windows-1252"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
+        self.decode = ["utf8", "Windows-1252"]
 
         self.story.setMetadata('siteabbrev','bdsmgesch')
 
-        self.firstPagUrl = re.sub("-\d+$", "-1", url)
+        # Replace possible chapter numbering
+        url = re.sub("-\d+$", "-1", url)
 
-        # normalize to just the series name
-        storyid = urlparse.urlparse(self.firstPagUrl).path.split('/',)[0]
-        self.story.setMetadata('storyId', storyid)
+        # set storyId
+        self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(url).group('storyId'))
 
-        # The date format will vary from site to site.
-        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        # normalize URL
+        self._setURL('http://%s/%s' % (self.getSiteDomain(), self.story.getMetadata('storyId')))
+
         self.dateformat = '%d. %m %Y - %H:%M'
 
     @staticmethod
@@ -57,14 +71,14 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.bdsm-geschichten.net']
+        return ['www.bdsm-geschichten.net', 'www.bdsm-geschichten.net']
 
     @classmethod
     def getSiteExampleURLs(self):
-        return "http://www.bdsm-geschichten.net/title-of-story-1"
+        return ["http://www.bdsm-geschichten.net/title-of-story-1", "http://bdsm-geschichten.net/title-of-story-1"]
 
     def getSiteURLPattern(self):
-        return r"https?://www.bdsm-geschichten.net/([a-zA-Z0-9_-]+)"
+        return r"http://(www\.)?bdsm-geschichten.net/(?P<storyId>[a-zA-Z0-9_-]+)"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -72,11 +86,11 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         try:
-            data1 = self._fetchUrl(self.firstPagUrl)
+            data1 = self._fetchUrl(self.url)
             soup = bs.BeautifulSoup(data1)
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.firstPagUrl)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
 
@@ -85,7 +99,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
         # Cache the soups so we won't have to redownload in getChapterText later
         self.soupsCache = {}
-        self.soupsCache[self.firstPagUrl] = soup
+        self.soupsCache[self.url] = soup
 
         # author
         authorDiv = soup.find("div", "author-pane-line author-name")
@@ -98,34 +112,20 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
         # TODO better metadata
         date = soup.find("div", {"class": "submitted"}).string.strip()
         date = re.sub(" &#151;.*", "", date)
-        fullmon = {"Januar":"01",
-                   "Februar":"02",
-                   u"März":"03",
-                   "April":"04",
-                   "Mai":"05",
-                   "Juni":"06",
-                   "Juli":"07",
-                   "August":"08",
-                   "September":"09",
-                   "Oktober":"10",
-                   "November":"11",
-                   "Dezember":"12"}
-        for (name,num) in fullmon.items():
-            if name in date:
-                date = date.replace(name,num)
+        date = _translate_date_german_english(date)
         self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
         title1 = soup.find("h1", {'class': 'title'}).string
         storyTitle = re.sub(" Teil .*$", "", title1)
-        self.chapterUrls = [(title1, self.firstPagUrl)]
+        self.chapterUrls = [(title1, self.url)]
         self.story.setMetadata('title', storyTitle)
 
         for tagLink in soup.find("ul", "taxonomy").findAll("a"):
             self.story.addToList('category', tagLink.string)
 
+        ## Retrieve chapter soups
         nextLinkDiv = soup.find("div", "field-field-naechster-teil")
-
         while nextLinkDiv is not None:
-            nextLink = 'http://www.bdsm-geschichten.net' + nextLinkDiv.find("a")['href']
+            nextLink = 'http://' + self.getSiteDomain() + nextLinkDiv.find("a")['href']
             try:
                 logger.debug("Grabbing next chapter URL " + nextLink)
                 data2 = self._fetchUrl(nextLink)
@@ -142,10 +142,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                     raise e
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
-        logger.debug("Chapter URLS: " + repr(self.chapterUrls))
-
-        # normalize on first chapter URL.
-        self._setURL(self.chapterUrls[0][1])
+        return
 
     def getChapterText(self, url):
 
@@ -153,7 +150,6 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             logger.debug('Getting chapter <%s> from cache' % url)
             soup = self.soupsCache[url]
         else:
-            time.sleep(0.5)
             logger.debug('Downloading chapter <%s>' % url)
             data1 = self._fetchUrl(url)
             soup = bs.BeautifulSoup(data1)
