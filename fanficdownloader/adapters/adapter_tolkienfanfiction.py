@@ -130,7 +130,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
                 chapterHtml = _fix_broken_markup(self._fetchUrl(self.url))
                 chapterSoup = bs.BeautifulSoup(chapterHtml)
                 indexLink = chapterSoup.find("a", text="[Index]").parent
-                self._normalizeURL('http://' + self.host + '/' + indexLink.get('href'))
+                self._normalizeURL('http://' + self.getSiteDomain() + '/' + indexLink.get('href'))
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
