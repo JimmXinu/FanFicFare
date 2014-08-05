@@ -75,7 +75,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        return ["http://www.bdsm-geschichten.net/title-of-story-1", "http://bdsm-geschichten.net/title-of-story-1"]
+        return "http://www.bdsm-geschichten.net/title-of-story-1 http://bdsm-geschichten.net/title-of-story-1"
 
     def getSiteURLPattern(self):
         return r"http://(www\.)?bdsm-geschichten.net/(?P<storyId>[a-zA-Z0-9_-]+)"
