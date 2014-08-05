@@ -68,11 +68,8 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, makeDate
 
-def _is_chapter_url(url):
-    if "Story_Read_Chapter.php" in url:
-        return True
-    else:
-        return False
+def _is_story_url(url):
+    return "Story_Read_Head.php" in url
 
 def _latinize(text):
     """
@@ -97,17 +94,18 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        self.decode = ["ISO-8859-1",
-                       "Windows-1252"]  # 1252 is a superset of iso-8859-1.
-                                        # Most sites that claim to be
-                                        # iso-8859-1 (and some that claim to be
-                                        # utf8) are really windows-1252.
+        self.decode = ["ISO-8859-1", "Windows-1252"] 
 
         self.story.setMetadata('siteabbrev','tolkien')
 
-        # The date format will vary from site to site.
-        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = '%B %d, %Y'
+
+        self._normalizeURL(url)
+
+    def _normalizeURL(self, url):
+        if _is_story_url(url):
+            self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(url).group('storyId'))
+            self._setURL('http://' + self.getSiteDomain() + '/Story_Read_Head.php?STid=' + self.story.getMetadata('storyId'))
 
     @staticmethod
     def getSiteDomain():
@@ -115,42 +113,33 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.tolkienfanfiction.com']
+        return ['tolkienfanfiction.com', 'www.tolkienfanfiction.com']
 
     @classmethod
     def getSiteExampleURLs(self):
         return 'http://www.tolkienfanfiction.com/Story_Read_Head.php?STid=1034 http://www.tolkienfanfiction.com/Story_Read_Chapter.php?CHid=4945'
 
     def getSiteURLPattern(self):
-        return r"http://www.tolkienfanfiction.com/(Story_Read_Chapter.php\?CH|Story_Read_Head.php\?ST)id=([0-9]+)"
+        return r"http://(?:www.)?tolkienfanfiction.com/(?:Story_Read_Chapter\.php\?CH|Story_Read_Head\.php\?ST)id=(?P<storyId>[0-9]+)"
 
     def extractChapterUrlsAndMetadata(self):
 
-        # if not (self.is_adult or self.getConfig("is_adult")):
-        #     raise exceptions.AdultCheckRequired(self.url)
-
-        if not _is_chapter_url(self.url):
-            self.indexUrl = self.url
-        else:
+        if not _is_story_url(self.url):
             # Get the link to the index page
             try:
                 chapterHtml = _fix_broken_markup(self._fetchUrl(self.url))
                 chapterSoup = bs.BeautifulSoup(chapterHtml)
                 indexLink = chapterSoup.find("a", text="[Index]").parent
-                self.indexUrl = 'http://' + self.host + '/' + indexLink.get('href')
+                self._normalizeURL('http://' + self.host + '/' + indexLink.get('href'))
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
                     raise e
-        logger.debug("Determined index page: <%s>" % self.indexUrl)
-
-        storyId = self.indexUrl[self.indexUrl.index('=')+1:]
-        logger.debug("Story ID: %s" % storyId)
-        self.story.setMetadata('storyId', storyId)
+        logger.debug("Determined index page: <%s>" % self.url)
 
         try:
-            indexHtml = _fix_broken_markup(self._fetchUrl(self.indexUrl))
+            indexHtml = _fix_broken_markup(self._fetchUrl(self.url))
             soup = bs.BeautifulSoup(indexHtml)
         except urllib2.HTTPError, e:
             if e.code == 404:
@@ -195,7 +184,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
         # description
         description = soup.find("b", text="Description:").parent.nextSibling.nextSibling
-        self.story.setMetadata('description', description)
+        self.story.setDescription(description)
         logger.debug("Summary: '%s'" % description)
 
         # characters
@@ -227,9 +216,6 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        # Set the URL to the Index URL
-        self._setURL(self.indexUrl)
-
     def getChapterText(self, url):
 
         logger.debug('Downloading chapter <%s>' % url)
@@ -246,10 +232,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
         # get story text
         textDiv = soup.find("div", "text")
-        storytext = self.utf8FromSoup(url, textDiv)
-
-        return storytext
-
+        return self.utf8FromSoup(url, textDiv)
 
 def getClass():
     return TolkienFanfictionAdapter
