@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+# Software: eFiction
 import time
 import logging
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class WizardTalesNetAdapter(BaseSiteAdapter):
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m/%d/%Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
