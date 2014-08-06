@@ -38,6 +38,7 @@ class TheMapleBookshelfComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev','maplebook')
         self.decode = ["Windows-1252", "utf8"]
         self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(url).group('storyId'))
+        self._setURL("http://%s/Literati/viewstory.php?sid=%s" % (self.getSiteDomain(), self.story.getMetadata('storyId')))
         self.dateformat = "%b %d, %Y"
 
     @staticmethod
