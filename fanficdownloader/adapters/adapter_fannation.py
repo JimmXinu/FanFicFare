@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+# Software: eFiction
 from base_efiction_adapter import BaseEfictionAdapter
 
 class FanNationAdapter(BaseEfictionAdapter):

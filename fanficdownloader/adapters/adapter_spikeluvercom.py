@@ -1,3 +1,4 @@
+# Software: eFiction
 import re
 import urllib2
 import urlparse
