@@ -16,6 +16,7 @@
 #
 
 # Software: eFiction
+import re
 from base_efiction_adapter import BaseEfictionAdapter
 
 class FanNationAdapter(BaseEfictionAdapter):
@@ -24,11 +25,24 @@ class FanNationAdapter(BaseEfictionAdapter):
     def getSiteDomain():
         return 'fannation.shades-of-moonlight.com'
 
+    @classmethod
     def getPathToArchive(self):
         return '/archive'
 
+    @classmethod
     def getSiteAbbrev(self):
         return 'fannation'
+
+    @classmethod
+    def getHighestWarningLevel(self):
+        return 8
+
+    def handleMetadataPair(self, key, value):
+        if key == 'Romance':
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('categories', val)
+        else:
+            super(FanNationAdapter, self).handleMetadataPair(key, value)
 
 def getClass():
     return FanNationAdapter

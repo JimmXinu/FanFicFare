@@ -24,14 +24,21 @@ class TheMapleBookshelfComSiteAdapter(BaseEfictionAdapter):
     def getSiteDomain():
         return 'themaplebookshelf.com'
 
+    @classmethod
     def getPathToArchive(self):
         return '/Literati'
 
+    @classmethod
     def getSiteAbbrev(seluuf):
         return 'maplebook'
 
+    @classmethod
     def getDateFormat(self):
         return "%b %d, %Y"
+
+    @classmethod
+    def getHighestWarningLevel(self):
+        return 5
 
 def getClass():
     return TheMapleBookshelfComSiteAdapter
