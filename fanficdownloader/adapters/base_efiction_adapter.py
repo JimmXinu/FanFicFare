@@ -60,40 +60,129 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return [cls.getSiteDomain(),'www.' + cls.getSiteDomain()]
 
     @classmethod
-    def getSiteExampleURLs(self):
-        return getStoryUrl('1234') + ' ' + getStoryUrl('1234') + '&chapter=2'
+    def getSiteExampleURLs(cls):
+        return cls.getStoryUrl('1234') + ' ' + cls.getStoryUrl('1234') + '&chapter=2'
 
-    def getDateFormat(self):
-        return "%d %b %Y"
+    @classmethod
+    def getSiteURLPattern(self):
+        return r"http://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
 
+    @classmethod
     def getPathToArchive(cls):
+        """
+        Get the path segment of the archive, default '/'.
+
+        In many cases, it's '/archive' or '/fanfiction'
+        """
         return "/"
 
+    @classmethod
     def getViewStoryPhpName(cls):
+        """
+        Get the name of the story PHP script, by default 'viewstory.php'
+        """
         return "viewstory.php"
 
+    @classmethod
     def getViewUserPhpName(cls):
+        """
+        Get the name of the user PHP script, by default 'viewuser.php'
+        """
         return "viewuser.php"
 
+    @classmethod
+    def getDateFormat(self):
+        """
+        Describe the date format of this site in terms of strftime
+        See http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        """
+        return "%d %b %Y"
+
+    @classmethod
     def getStoryUrl(self, storyId):
+        """
+        Get the URL to a user page on this site.
+        """
         return "http://%s%s/%s?sid=%s" % (
             self.getSiteDomain(),
             self.getPathToArchive(),
             self.getViewStoryPhpName(),
             storyId)
 
+    @classmethod
     def getUserUrl(self, userId):
+        """
+        Get the URL to a user page on this site.
+        """
         return "http://%s%s/%s?uid=%s" % (
             self.getSiteDomain(),
             self.getPathToArchive(),
             self.getViewUserPhpName(),
             userId)
 
-    def getSiteURLPattern(self):
-        return r"http://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
+    @classmethod
+    def getMessageRegisteredUsersOnly(self):
+        """
+        Constant _RUSERSONLY defined in languages/en.php
+        """
+        return 'Registered Users Only'
+
+    @classmethod
+    def getMessageThereIsNoSuchAccount(self):
+        """
+        Constant _NOSUCHACCOUNT defined in languages/en.php
+        """
+        return "There is no such account on our website"
+
+    @classmethod
+    def getMessageWrongPassword(self):
+        """
+        Constant _WRONGPASSWORD defined in languages/en.php
+        """
+        return "That password doesn't match the one in our database"
+
+    ## Login seems to be reasonably standard across eFiction sites.
+    @classmethod
+    def needToLoginCheck(self, html):
+        """
+        Return whether the HTML contains either of _RUSERSONLY, _NOSUCHACCOUNT or _WRONGPASSWORD
+        """
+        return getMessageRegisteredUsersOnly() in html \
+                or getMessageThereIsNoSuchAccount in html \
+                or getMessageWrongPassword in html
+    
+    @classmethod
+    def getHighestWarningLevel(cls):
+        """
+        eFiction has a table 'fanfiction_ratings' which contains a list of
+        ratings with a warningLevel. Every story has a rating. To proceed to a rated
+        story, the user must either log-in, confirm she's adult or confirm a
+        warning message, depending on the rating of the story.
+
+        To get a list of possible warning levels on a site, go to the
+        browse.php page in Chrome, open the Console (F12) and enter
+
+        $$("select[name='rating'] option")
+
+        This will give you the options. Trial and Error: Start with the highest
+        level and try to open a story with this rating. If you get a
+        "Registered Users Only" popup, try it with the next-lower level. When
+        you get a regular popup warning, you have the highest warningLevel.
+        Set this number as the return value of this function.
+
+        Note that the warning confirmation is saved in the session, so you need
+        to do it only once when using cookies.
+        """
+        raise NotImplementedError("Must be implemented, please see docstring of getHighestWarningLevel")
 
     def _fetch_to_soup(self, url):
-        """Replaces invalid comment tags and parses to BeautifulSoup"""
+        """
+        Fetch a HTML document, fix it and parse it to BeautifulSoup.
+
+        Replaces old characters, broken meta-tags, non-self-closing hr/br.
+
+        Makes image links absolute so they can be downloaded
+        """
         try:
             html = self._fetchUrl(url)
         except urllib2.HTTPError, e:
@@ -101,18 +190,89 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+
+        # Some site use old, old-school Comments <!- comment -> (single dash)
         html = re.sub("<!-.+?->", "", html)
+
+        # There is a problem with meta tags on some sites where spaces aren't
+        # properly encoded
         html = re.sub("<meta[^<>]+>(.*</meta>)?", "", html)
-        return bs.BeautifulSoup(html)
+
+        # fix non-closing hr/br
+        html = html.replace("<hr>", "<hr/>")
+        html = html.replace("<br>", "<br/>")
+
+        soup =  bs.BeautifulSoup(html, selfClosingTags=['br','hr']) # otherwise soup eats the br/hr tags.)
+
+        ## fix all local image 'src' to absolute
+        for img in soup.findAll("img", {"src": re.compile("^(?!http)")}):
+            # TODO handle '../../' and so on
+            if img['src'].startswith('/'):
+                img['src'] = img['src'][1:]
+            img['src'] = "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), img['src'])
+
+        return soup
 
     def confirmWarnings(self, relLink):
-# TODO check whether user is_adult
+        # TODO check whether user is_adult
         absLink = "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), relLink)
         logger.debug('Confirm warnings <%s>' % (absLink))
         self._fetchUrl(absLink)
 
+    def handleMetadataPair(self, key, value):
+        """
+        Handles a key-value pair of story metadata.
+
+        Returns straight away if the value is 'None' (that's a string)
+
+        Can be overridden by subclasses::
+            def handleMetadataPair(self, key, value):
+                if key == 'MyCustomKey':
+                    self.story.setMetadata('somekye', value)
+                else:
+                    super(NameOfMyAdapter, self).handleMetadata(key, value)
+        """
+        if value == 'None':
+            return
+        if key == 'Summary':
+            self.setDescription(self.url, value)
+        elif 'Genre' in key:
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('genre', val)
+        elif 'Warning' in key:
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('warnings', val)
+        elif 'Characters' in key:
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('characters', val)
+        elif 'Categories' in key:
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('categories', val)
+        elif key == 'Chapters':
+            self.story.setMetadata('numChapters', int(value))
+        elif key == 'Rating':
+            self.story.setMetadata('rating', value)
+        elif key == 'Word count':
+            self.story.setMetadata('numWords', value)
+        elif key == 'Completed':
+            if 'Yes' in value:
+                self.story.setMetadata('status', 'Completed')
+            else:
+                self.story.setMetadata('status', 'In-Progress')
+        elif key == 'Published':
+            self.story.setMetadata('datePublished', makeDate(value, self.getDateFormat()))
+        elif key == 'Updated':
+            self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
+        elif key == 'Updated':
+            self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
+        elif key == 'Series':
+            ## TODO is not a link in the printable view, so no seriesURL possible 
+            self.story.setMetadata('series', value)
+        else:
+            logger.info("Unhandled metadata pair: '%s' : '%s'" % (key, value))
+
     def extractChapterUrlsAndMetadata(self):
-        printUrl = self.url + '&action=printable&chapter=all&textsize=0'
+        printUrl = self.url + '&action=printable&chapter=all&textsize=0&ageconsent=ok'
         soup = self._fetch_to_soup(printUrl)
 
         ## Handle warnings
@@ -140,44 +300,35 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', re.search("\d+", authorLink['href']).group(0))
         self.story.setMetadata('authorUrl', self.getUserUrl(self.story.getMetadata('authorId')))
 
-        ## Description
-        description = ""
-        summaryEnd = soup.find("div", "content").find("span", "label").nextSibling
-        while summaryEnd is not None:
-            description += summaryEnd
-            summaryEnd = summaryEnd.nextSibling
-            if type(summaryEnd) != bs.NavigableString and summaryEnd.name == 'br':
-                break
-        self.setDescription(self.url, description)
+        ## Parse the infobox
+        labelSpans = soup.find("div", "infobox").find("div", "content").findAll("span", "label")
+        for labelSpan in labelSpans:
+            valueStr = ""
+            nextEl = labelSpan.nextSibling
+            while nextEl is not None and not (\
+                        type(nextEl) is bs.Tag \
+                        and nextEl.name == "span" \
+                        and nextEl['class'] =='label' \
+                        ):
+                ## must string copy nextEl or nextEl will change trees
+                if (type(nextEl) is bs.Tag):
+                    valueStr += nextEl.prettify()
+                else:
+                    valueStr += str(nextEl)
+                nextEl = nextEl.nextSibling
+            key = labelSpan.text.strip()
 
-        ## General Metadata
-        for kSpan in soup.findAll("span", "label"):
-            k = kSpan.text.strip().replace(':', '')
-            vSpan = kSpan.nextSibling
-            if k == 'Summary:' or not vSpan or not vSpan.string:
-                continue
-            v = vSpan.string.strip()
-            if v == 'None':
-                continue
-            logger.debug("%s '%s'" %(k, v))
-            if k == 'Genre':
-                for genre in v.split(", "):
-                    self.story.addToList('genre', genre)
-            elif k == 'Chapters':
-                self.story.setMetadata('numChapters', int(v))
-            elif k == 'Word count':
-                self.story.setMetadata('numWords', v)
-            elif k == 'Published':
-                self.story.setMetadata('datePublished', makeDate(v, self.getDateFormat()))
-            elif k == 'Updated':
-                self.story.setMetadata('dateUpdated', makeDate(v, self.getDateFormat()))
-            # TODO: Series, Warnings
+            ## strip trailing line breaks
+            valueStr = re.sub("<br />", "", valueStr)
 
-        ## fix all local image 'src' to absolute
-        for img in soup.findAll("img", {"src": re.compile("^(?!http)")}):
-            if img['src'].startswith('/'):
-                img['src'] = img['src'][1:]
-            img['src'] = "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), img['src'])
+            ## strip trailing colons
+            key = re.sub("\s*:\s*$", "", key)
+
+            ## strip whitespace
+            key = key.strip()
+            valueStr = valueStr.strip()
+
+            self.handleMetadataPair(key, valueStr)
 
         ## Chapter URLs (fragment identifiers in the document, so we don' need to fetch so much)
         for chapterNumB in soup.findAll("b", text=re.compile("^\d+\.$")):
@@ -191,8 +342,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from <%s>' % url)
-        anchor = url.replace(self.url, "")
-        anchor = anchor.replace("#", "")
+        anchor = url.split('#')[1]
         chapterDiv = self.html.find("a", {"name": anchor}).parent.findNext("div", "chapter")
         return self.utf8FromSoup(self.url, chapterDiv)
 
