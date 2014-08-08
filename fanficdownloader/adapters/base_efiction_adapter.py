@@ -50,10 +50,14 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
-        self.decode = ["Windows-1252", "utf8"]
+        # TODO make configurable
+        self.decode = self.getEncoding()
         storyId = re.compile(self.getSiteURLPattern()).match(self.url).group('storyId')
         self.story.setMetadata('storyId', storyId)
-        self._setURL(self.getStoryUrl(storyId))
+        self._setURL(self.getViewStoryUrl(storyId))
+        self.triedLoggingIn = False
+        self.triedAcceptWarnings = False
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
 
     @classmethod
     def getAcceptDomains(cls):
@@ -61,11 +65,19 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return cls.getStoryUrl('1234') + ' ' + cls.getStoryUrl('1234') + '&chapter=2'
+        return cls.getViewStoryUrl('1234') + ' ' + cls.getViewStoryUrl('1234') + '&chapter=2'
 
     @classmethod
     def getSiteURLPattern(self):
         return r"http://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
+
+    @classmethod
+    def getEncoding(cls):
+        """
+        Return an array of character encodings to try to decode the HTML with
+        """
+        return ["Windows-1252", "utf8"]
+
 
     @classmethod
     def getPathToArchive(cls):
@@ -91,6 +103,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return "viewuser.php"
 
     @classmethod
+    def getUserPhpName(cls):
+        """
+        Get the name of the user PHP script, by default 'viewuser.php'
+        """
+        return "user.php"
+
+    @classmethod
     def getDateFormat(self):
         """
         Describe the date format of this site in terms of strftime
@@ -99,26 +118,32 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return "%d %b %Y"
 
     @classmethod
-    def getStoryUrl(self, storyId):
-        """
-        Get the URL to a user page on this site.
-        """
-        return "http://%s%s/%s?sid=%s" % (
+    def getUrlForPhp(self, php):
+        return "http://%s%s/%s" % (
             self.getSiteDomain(),
             self.getPathToArchive(),
-            self.getViewStoryPhpName(),
-            storyId)
+            php)
 
     @classmethod
-    def getUserUrl(self, userId):
+    def getViewStoryUrl(self, storyId):
         """
         Get the URL to a user page on this site.
         """
-        return "http://%s%s/%s?uid=%s" % (
-            self.getSiteDomain(),
-            self.getPathToArchive(),
-            self.getViewUserPhpName(),
-            userId)
+        return "%s?sid=%s" % (self.getUrlForPhp(self.getViewStoryPhpName()), storyId)
+
+    @classmethod
+    def getViewUserUrl(self, userId):
+        """
+        Get the URL to a user page on this site.
+        """
+        return "%s?sid=%s" % (self.getUrlForPhp(self.getViewUserPhpName()), userId)
+
+    @classmethod
+    def getLoginUrl(self):
+        """
+        Get the URL to the login page on this site.
+        """
+        return "%s?action=login" % self.getUrlForPhp(self.getUserPhpName())
 
     @classmethod
     def getMessageRegisteredUsersOnly(self):
@@ -141,6 +166,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         return "That password doesn't match the one in our database"
 
+    @classmethod
+    def getMessageMemberAccount(self):
+        """
+        Constant _USERACCOUNT defined in languages/en.php
+        """
+        return 'Member Account'
+
     ## Login seems to be reasonably standard across eFiction sites.
     @classmethod
     def needToLoginCheck(self, html):
@@ -150,7 +182,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return getMessageRegisteredUsersOnly() in html \
                 or getMessageThereIsNoSuchAccount in html \
                 or getMessageWrongPassword in html
-    
+
     @classmethod
     def getHighestWarningLevel(cls):
         """
@@ -213,11 +245,28 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         return soup
 
-    def confirmWarnings(self, relLink):
-        # TODO check whether user is_adult
-        absLink = "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), relLink)
-        logger.debug('Confirm warnings <%s>' % (absLink))
-        self._fetchUrl(absLink)
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+
+        logger.debug("Will now login to URL (%s) as (%s)" % (self.getLoginUrl(), params['penname']))
+
+        d = self._fetchUrl(self.getLoginUrl(), params)
+
+        if self.getMessageMemberAccount() not in d : #Member Account
+            logger.info("Failed to login to URL <%s> as '%s'" % (self.getLoginUrl(), params['penname']))
+            raise exceptions.FailedToLogin(url, params['penname'])
+            return False
+        else:
+            return True
 
     def handleMetadataPair(self, key, value):
         """
@@ -232,9 +281,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 else:
                     super(NameOfMyAdapter, self).handleMetadata(key, value)
         """
+        logger.debug(key)
         if value == 'None':
             return
-        if key == 'Summary':
+        if key == 'Read':
+            # We don't store the number of times a story has been read
+            return
+        elif key == 'Summary':
             self.setDescription(self.url, value)
         elif 'Genre' in key:
             for val in re.split("\s*,\s*", value):
@@ -248,6 +301,10 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         elif 'Categories' in key:
             for val in re.split("\s*,\s*", value):
                 self.story.addToList('categories', val)
+        elif 'Challenges' in key:
+            for val in re.split("\s*,\s*", value):
+                # TODO this should be an official field I guess
+                self.story.addToList('challenge', val)
         elif key == 'Chapters':
             self.story.setMetadata('numChapters', int(value))
         elif key == 'Rating':
@@ -265,28 +322,44 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
         elif key == 'Updated':
             self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
+        elif key == 'Pairing':
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList('ships', val)
         elif key == 'Series':
             ## TODO is not a link in the printable view, so no seriesURL possible 
             self.story.setMetadata('series', value)
         else:
             logger.info("Unhandled metadata pair: '%s' : '%s'" % (key, value))
+        # TODO ships (Pairing)
+        # TODO awards (Pairing)
 
     def extractChapterUrlsAndMetadata(self):
-        printUrl = self.url + '&action=printable&chapter=all&textsize=0&ageconsent=ok'
+        printUrl = self.url + '&action=printable&chapter=all&textsize=0'
+
+
         soup = self._fetch_to_soup(printUrl)
 
-        ## Handle warnings
+        ## Handle warnings and login checks
         errorDiv = soup.find("div", "errortext")
-        if errorDiv is not None:
-            warningLink = errorDiv.find("a", {"href": re.compile(".*warning=.*")})
-            if warningLink is not None:
-                self.confirmWarnings(warningLink['href'])
+        while errorDiv is not None:
+            if self.getMessageRegisteredUsersOnly() in errorDiv.prettify() \
+                    and not self.triedLoggingIn:
+                self.performLogin(self.url)
+                self.triedLoggingIn = True
                 soup = self._fetch_to_soup(printUrl)
                 errorDiv = soup.find("div", "errortext")
-                if errorDiv is not None:
-                    raise exceptions.FailedToDownload(errorDiv.text)
             else:
-                raise exceptions.FailedToDownload(errorDiv.text)
+                warningLink = errorDiv.find("a")
+                if warningLink is not None and not self.triedAcceptWarnings and ( \
+                        'ageconsent' in warningLink['href'] \
+                        or 'warning' in warningLink['href']):
+                    if not (self.is_adult or self.getConfig("is_adult")):
+                        raise exceptions.AdultCheckRequired(self.url)
+                    printUrl += "&ageconsent=ok&warning=%s" % (self.getHighestWarningLevel())
+                    soup = self._fetch_to_soup(printUrl)
+                    errorDiv = soup.find("div", "errortext")
+                else:
+                    raise exceptions.FailedToLogin(self.url, str(errorDiv))
 
         # title and author
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
@@ -298,7 +371,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         authorLink = pagetitleDiv.findAll("a")[1]
         self.story.setMetadata('author', authorLink.text)
         self.story.setMetadata('authorId', re.search("\d+", authorLink['href']).group(0))
-        self.story.setMetadata('authorUrl', self.getUserUrl(self.story.getMetadata('authorId')))
+        self.story.setMetadata('authorUrl', self.getViewUserUrl(self.story.getMetadata('authorId')))
 
         ## Parse the infobox
         labelSpans = soup.find("div", "infobox").find("div", "content").findAll("span", "label")
