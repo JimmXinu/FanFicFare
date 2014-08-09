@@ -36,9 +36,5 @@ class TheMapleBookshelfComSiteAdapter(BaseEfictionAdapter):
     def getDateFormat(self):
         return "%b %d, %Y"
 
-    @classmethod
-    def getHighestWarningLevel(self):
-        return 5
-
 def getClass():
     return TheMapleBookshelfComSiteAdapter

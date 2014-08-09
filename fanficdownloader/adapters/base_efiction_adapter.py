@@ -44,6 +44,13 @@ Most of them share common traits:
     page and cache between extractChapterUrlsAndMetadata and getChapterText
 """
 
+# PHP constants
+_RUSERSONLY = 'Registered Users Only'
+_NOSUCHACCOUNT = "There is no such account on our website"
+_WRONGPASSWORD = "That password doesn't match the one in our database"
+_USERACCOUNT = 'Member Account'
+
+# Regular expressions
 _REGEX_WARING_PARAM = re.compile("warning=(?P<warningId>\d+)")
 _REGEX_CHAPTER_B = re.compile("^(?P<chapterId>\d+)\.")
 _REGEX_CHAPTER_PARAM = re.compile("chapter=(?P<chapterId>\d+)$")
@@ -123,10 +130,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
     @classmethod
     def getUrlForPhp(self, php):
-        return "http://%s%s/%s" % (
-            self.getSiteDomain(),
-            self.getPathToArchive(),
-            php)
+        return "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), php)
 
     @classmethod
     def getViewStoryUrl(self, storyId):
@@ -154,28 +158,28 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         Constant _RUSERSONLY defined in languages/en.php
         """
-        return 'Registered Users Only'
+        return _RUSERSONLY
 
     @classmethod
     def getMessageThereIsNoSuchAccount(self):
         """
         Constant _NOSUCHACCOUNT defined in languages/en.php
         """
-        return "There is no such account on our website"
+        return _NOSUCHACCOUNT
 
     @classmethod
     def getMessageWrongPassword(self):
         """
         Constant _WRONGPASSWORD defined in languages/en.php
         """
-        return "That password doesn't match the one in our database"
+        return _WRONGPASSWORD
 
     @classmethod
     def getMessageMemberAccount(self):
         """
         Constant _USERACCOUNT defined in languages/en.php
         """
-        return 'Member Account'
+        return _USERACCOUNT
 
     ## Login seems to be reasonably standard across eFiction sites.
     @classmethod
@@ -186,35 +190,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return getMessageRegisteredUsersOnly() in html \
                 or getMessageThereIsNoSuchAccount in html \
                 or getMessageWrongPassword in html
-
-    @classmethod
-    def getHighestWarningLevel(cls):
-        """
-        eFiction has a table 'fanfiction_ratings' which contains a list of
-        ratings with a warningLevel. Every story has a rating. To proceed to a rated
-        story, the user must either log-in, confirm she's adult or confirm a
-        warning message, depending on the rating of the story.
-
-        To get a list of possible warning levels on a site, go to the
-        browse.php page in Chrome, open the Console (F12) and enter
-
-        $$("select[name='rating'] option")
-
-        Choose the highest rating, usually labeled 'R' or 'MA' and use the
-        value for this method
-    #
-    # XXX Unfortunately that doesn't work just that simple. The ratings are not
-    # in order, i.e. R can have id 3 but PG-13 can have id 8
-    #     This will give you the options. Trial and Error: Start with the highest
-    #     level and try to open a story with this rating. If you get a
-    #     "Registered Users Only" popup, try it with the next-lower level. When
-    #     you get a regular popup warning, you have the highest warningLevel.
-    #     Set this number as the return value of this function.
-    #
-    #     Note that the warning confirmation is saved in the session, so you need
-    #     to do it only once when using cookies.
-        """
-        raise NotImplementedError("Must be implemented, please see docstring of getHighestWarningLevel")
 
     def _fetch_to_soup(self, url):
         """
