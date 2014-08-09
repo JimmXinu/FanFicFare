@@ -44,13 +44,17 @@ Most of them share common traits:
     page and cache between extractChapterUrlsAndMetadata and getChapterText
 """
 
+_REGEX_WARING_PARAM = re.compile("warning=(?P<warningId>\d+)")
+_REGEX_CHAPTER_B = re.compile("^(?P<chapterId>\d+)\.")
+_REGEX_CHAPTER_PARAM = re.compile("chapter=(?P<chapterId>\d+)$")
+_REGEX_CHAPTER_FRAGMENT = re.compile("^#(?P<chapterId>\d+)$")
+_REGEX_DOESNT_START_WITH_HTTP = re.compile("^(?!http)")
 
 class BaseEfictionAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
-        # TODO make configurable
         self.decode = self.getEncoding()
         storyId = re.compile(self.getSiteURLPattern()).match(self.url).group('storyId')
         self.story.setMetadata('storyId', storyId)
@@ -196,14 +200,19 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         $$("select[name='rating'] option")
 
-        This will give you the options. Trial and Error: Start with the highest
-        level and try to open a story with this rating. If you get a
-        "Registered Users Only" popup, try it with the next-lower level. When
-        you get a regular popup warning, you have the highest warningLevel.
-        Set this number as the return value of this function.
-
-        Note that the warning confirmation is saved in the session, so you need
-        to do it only once when using cookies.
+        Choose the highest rating, usually labeled 'R' or 'MA' and use the
+        value for this method
+    #
+    # XXX Unfortunately that doesn't work just that simple. The ratings are not
+    # in order, i.e. R can have id 3 but PG-13 can have id 8
+    #     This will give you the options. Trial and Error: Start with the highest
+    #     level and try to open a story with this rating. If you get a
+    #     "Registered Users Only" popup, try it with the next-lower level. When
+    #     you get a regular popup warning, you have the highest warningLevel.
+    #     Set this number as the return value of this function.
+    #
+    #     Note that the warning confirmation is saved in the session, so you need
+    #     to do it only once when using cookies.
         """
         raise NotImplementedError("Must be implemented, please see docstring of getHighestWarningLevel")
 
@@ -237,7 +246,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         soup =  bs.BeautifulSoup(html, selfClosingTags=['br','hr']) # otherwise soup eats the br/hr tags.)
 
         ## fix all local image 'src' to absolute
-        for img in soup.findAll("img", {"src": re.compile("^(?!http)")}):
+        for img in soup.findAll("img", {"src": _REGEX_DOESNT_START_WITH_HTTP}):
             # TODO handle '../../' and so on
             if img['src'].startswith('/'):
                 img['src'] = img['src'][1:]
@@ -281,11 +290,8 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 else:
                     super(NameOfMyAdapter, self).handleMetadata(key, value)
         """
-        logger.debug(key)
+        # logger.debug("metadata: '%s' == '%s'" % (key, value))
         if value == 'None':
-            return
-        if key == 'Read':
-            # We don't store the number of times a story has been read
             return
         elif key == 'Summary':
             self.setDescription(self.url, value)
@@ -316,10 +322,11 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 self.story.setMetadata('status', 'Completed')
             else:
                 self.story.setMetadata('status', 'In-Progress')
+        elif key == 'Read':
+            # TODO this should be an official field I guess
+            self.story.setMetadata('readings', value)
         elif key == 'Published':
             self.story.setMetadata('datePublished', makeDate(value, self.getDateFormat()))
-        elif key == 'Updated':
-            self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
         elif key == 'Updated':
             self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
         elif key == 'Pairing':
@@ -330,11 +337,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             self.story.setMetadata('series', value)
         else:
             logger.info("Unhandled metadata pair: '%s' : '%s'" % (key, value))
-        # TODO ships (Pairing)
-        # TODO awards (Pairing)
 
     def extractChapterUrlsAndMetadata(self):
-        printUrl = self.url + '&action=printable&chapter=all&textsize=0'
+        printUrl = self.url + '&action=printable&textsize=0&chapter='
+        if self.getConfig('bulk_load'):
+            printUrl += 'all'
+        else:
+            printUrl += '1'
 
 
         soup = self._fetch_to_soup(printUrl)
@@ -342,31 +351,37 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         ## Handle warnings and login checks
         errorDiv = soup.find("div", "errortext")
         while errorDiv is not None:
-            if self.getMessageRegisteredUsersOnly() in errorDiv.prettify() \
-                    and not self.triedLoggingIn:
-                self.performLogin(self.url)
-                self.triedLoggingIn = True
-                soup = self._fetch_to_soup(printUrl)
-                errorDiv = soup.find("div", "errortext")
-            else:
-                warningLink = errorDiv.find("a")
-                if warningLink is not None and not self.triedAcceptWarnings and ( \
-                        'ageconsent' in warningLink['href'] \
-                        or 'warning' in warningLink['href']):
-                    if not (self.is_adult or self.getConfig("is_adult")):
-                        raise exceptions.AdultCheckRequired(self.url)
-                    printUrl += "&ageconsent=ok&warning=%s" % (self.getHighestWarningLevel())
+            if self.getMessageRegisteredUsersOnly() in errorDiv.prettify():
+                if not self.triedLoggingIn:
+                    self.performLogin(self.url)
                     soup = self._fetch_to_soup(printUrl)
                     errorDiv = soup.find("div", "errortext")
+                    self.triedLoggingIn = True
                 else:
                     raise exceptions.FailedToLogin(self.url, str(errorDiv))
+            else:
+                warningLink = errorDiv.find("a")
+                if warningLink is not None and ( \
+                        'ageconsent' in warningLink['href'] \
+                        or 'warning' in warningLink['href']):
+                    if not self.triedAcceptWarnings:
+                        if not (self.is_adult or self.getConfig("is_adult")):
+                            raise exceptions.AdultCheckRequired(self.url)
+                        # XXX Using this method, we're independent of # getHighestWarningLevel
+                        printUrl += "&ageconsent=ok&warning=%s" % (_REGEX_WARING_PARAM.search(warningLink['href']).group(1))
+                        # printUrl += "&ageconsent=ok&warning=%s" % self.getHighestWarningLevel()
+                        soup = self._fetch_to_soup(printUrl)
+                        errorDiv = soup.find("div", "errortext")
+                        self.triedAcceptWarnings = True
+                    else:
+                        raise exception.FailedToDownload(self.url, str(errorDiv))
+                else:
+                    raise exception.FailedToDownload(self.url, str(errorDiv))
 
         # title and author
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
         if pagetitleDiv.find('a') is None:
-            logger.debug(html)
-            logger.debug(soup)
-            raise execeptions.FailedToDownload()
+            raise execeptions.FailedToDownload("Couldn't find title and author")
         self.story.setMetadata('title', pagetitleDiv.find("a").text)
         authorLink = pagetitleDiv.findAll("a")[1]
         self.story.setMetadata('author', authorLink.text)
@@ -403,20 +418,33 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
             self.handleMetadataPair(key, valueStr)
 
-        ## Chapter URLs (fragment identifiers in the document, so we don' need to fetch so much)
-        for chapterNumB in soup.findAll("b", text=re.compile("^\d+\.$")):
-            self.chapterUrls.append((
-                chapterNumB.parent.parent.find("a").text,
-                self.url + chapterNumB.parent.parent.find("a")["href"]
-                ))
+        ## Chapter URLs 
+
+        # If we didn't bulk-load the whole chapter we now need to load
+        # the non-printable HTML version of the landing page (i.e. the story
+        # URL to get the Chapter titles
+        if not self.getConfig('bulk_load'):
+            soup = self._fetch_to_soup(self.url + '&index=1')
+
+        chapterLinks = []
+        for b in soup.findAll("b", text=_REGEX_CHAPTER_B):
+            chapterId = _REGEX_CHAPTER_B.search(b).group('chapterId')
+            chapterLink = b.findNext("a")
+            chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
+            self.chapterUrls.append((chapterLink.text, chapterLink['href']))
 
         ## Store reference to soup for getChapterText
         self.html = soup
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from <%s>' % url)
-        anchor = url.split('#')[1]
-        chapterDiv = self.html.find("a", {"name": anchor}).parent.findNext("div", "chapter")
+        if self.getConfig('bulk_load'):
+            logger.debug('Cached chapter text from <%s>' % url)
+            anchor = _REGEX_CHAPTER_PARAM.search(url).group(1)
+            chapterDiv = self.html.find("a", {"name": anchor}).parent.findNext("div", "chapter")
+        else:
+            logger.debug('Download chapter text from <%s>' % url)
+            soup = self._fetch_to_soup(url + '&action=printable')
+            chapterDiv = soup.find("div", "chapter")
         return self.utf8FromSoup(self.url, chapterDiv)
 
 def getClass():
