@@ -37,12 +37,20 @@ class TrekiverseOrgAdapter(BaseEfictionAdapter):
 
     @classmethod
     def getHighestWarningLevel(cls):
-        return 6
+        return 4
 
     @classmethod
     def getDateFormat(cls):
         return "%d %b %Y"
 
     @classmethod
-    def getDecode(cls):
+    def getEncoding(cls):
         return ["ISO-8859-1", "utf8"]
+
+    def handleMetadataPair(self, key, value):
+        if key == 'Awards':
+            self.story.setMetadata('awards', value)
+        if key == 'Read':
+            self.story.setMetadata('readings', value)
+        else:
+            super(TrekiverseOrgAdapter, self).handleMetadataPair(key, value)
