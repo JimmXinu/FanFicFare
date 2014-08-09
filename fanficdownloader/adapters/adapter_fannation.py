@@ -33,16 +33,10 @@ class FanNationAdapter(BaseEfictionAdapter):
     def getSiteAbbrev(self):
         return 'fannation'
 
-    @classmethod
-    def getHighestWarningLevel(self):
-        return 8
-
     def handleMetadataPair(self, key, value):
         if key == 'Romance':
             for val in re.split("\s*,\s*", value):
                 self.story.addToList('romance', val)
-        elif key == 'Read':
-            self.story.setMetadata('readings', value)
         else:
             super(FanNationAdapter, self).handleMetadataPair(key, value)
 
