@@ -45,6 +45,10 @@ def _translate_date_german_english(date):
         date = date.replace(name,num)
     return date
 
+_REGEX_TRAILING_DIGIT = re.compile("(\d+)$")
+_REGEX_DASH_TO_END = re.compile("-[^-]+$")
+_INITIAL_STEP = 5
+
 class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -54,8 +58,14 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('siteabbrev','bdsmgesch')
 
+
         # Replace possible chapter numbering
-        url = re.sub("-\d+$", "-1", url)
+        chapterMatch = _REGEX_TRAILING_DIGIT.search(url)
+        if chapterMatch is None:
+            self.maxChapter = 1
+        else:
+            self.maxChapter = int(chapterMatch.group(1))
+        url = re.sub(_REGEX_TRAILING_DIGIT, "1", url)
 
         # set storyId
         self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(url).group('storyId'))
@@ -123,26 +133,91 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             self.story.addToList('category', tagLink.string)
 
         ## Retrieve chapter soups
-        nextLinkDiv = soup.find("div", "field-field-naechster-teil")
-        while nextLinkDiv is not None:
-            nextLink = 'http://' + self.getSiteDomain() + nextLinkDiv.find("a")['href']
+        if self.getConfig('find_chapters') == 'guess':
+            self._find_chapters_by_guessing(title1)
+        else:
+            self._find_chapters_by_parsing(soup)
+
+        self.story.setMetadata('numChapters', len(self.chapterUrls))
+        return
+
+    def _find_chapters_by_parsing(self, soup):
+        while True:
+            nextLink = None
+            nextLinkDiv = soup.find("div", "field-field-naechster-teil")
+            if nextLinkDiv is not None:
+                nextLink = nextLinkDiv.find("a")
+            if nextLink is None:
+                nextLink = soup.find("a", text=re.compile("Fortsetzung"))
+            if nextLink is None:
+                nextLink = soup.find("a", text=re.compile("&gt;&gt;&gt;"))
+
+            if nextLink is None:
+                logger.debug("Couldn't find next part")
+                break
+            else:
+                logger.debug(nextLink)
+                if type(nextLink) != bs.Tag or nextLink.name != "a":
+                    nextLink = nextLink.findParent("a")
+                if nextLink is None or '#' in nextLink['href']:
+                    logger.debug("Couldn't find next part (false positive) <%s>" % nextLink)
+                    break
+                nextLink = nextLink['href']
+
+            if not nextLink.startswith('http:'):
+                nextLink = 'http://' + self.getSiteDomain() + nextLink
+
+
             try:
-                logger.debug("Grabbing next chapter URL " + nextLink)
-                data2 = self._fetchUrl(nextLink)
-                soup2 = bs.BeautifulSoup(data2)
-                self.soupsCache[nextLink] = soup2
-                [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, bs.Comment))]
-                nextLinkDiv = soup2.find("div", "field-field-naechster-teil")
-                title2 = soup2.find("h1", {'class': 'title'}).string
-                self.chapterUrls.append((title2, nextLink))
+                data = self._fetchUrl(nextLink)
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(nextLink)
                 else:
                     raise e
+            soup = bs.BeautifulSoup(data)
+            title2 = soup.find("h1", {'class': 'title'}).string
+            self.chapterUrls.append((title2, nextLink))
+            logger.debug("Grabbing next chapter URL " + nextLink)
+            self.soupsCache[nextLink] = soup
+            # [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, bs.Comment))]
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
-        return
+
+    def _find_chapters_by_guessing(self, title1):
+        step = _INITIAL_STEP
+        curMax = self.maxChapter + step
+        lastHit = True
+        while True:
+            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, str(curMax), self.url) 
+            if nextChapterUrl == self.url:
+                logger.debug("Unable to guess next chapter because URL doesn't end in numbers")
+                break;
+            try:
+                logger.debug("Trying chapter URL " + nextChapterUrl)
+                data = self._fetchUrl(nextChapterUrl)
+                hit = True
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    hit = False
+                else:
+                    raise e
+            if hit:
+                logger.debug("Found chapter URL " + nextChapterUrl)
+                self.maxChapter = curMax
+                self.soupsCache[nextChapterUrl] = bs.BeautifulSoup(data)
+                if not lastHit:
+                    break
+                lastHit = curMax
+                curMax += step
+            else:
+                lastHit = False
+                curMax -= 1
+            logger.debug(curMax)
+
+        for i in xrange(1, self.maxChapter):
+            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, str(i), self.url)
+            nextChapterTitle = re.sub("1", str(i), title1)
+            self.chapterUrls.append((nextChapterTitle, nextChapterUrl))
 
     def getChapterText(self, url):
 
