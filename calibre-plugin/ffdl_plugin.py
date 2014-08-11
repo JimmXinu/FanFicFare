@@ -387,6 +387,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
     def get_urls_from_page_menu(self):
 
+        urltxt = ""
         if prefs['urlsfromclip']:
             try:
                 urltxt = self.get_urls_clip(storyurls=False)[0]
