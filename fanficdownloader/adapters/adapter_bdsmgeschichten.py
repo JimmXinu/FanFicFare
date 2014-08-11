@@ -159,13 +159,14 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                 logger.debug(nextLink)
                 if type(nextLink) != bs.Tag or nextLink.name != "a":
                     nextLink = nextLink.findParent("a")
-                if nextLink is None:
-                    logger.debug("Couldn't find next part (false positive)")
+                if nextLink is None or '#' in nextLink['href']:
+                    logger.debug("Couldn't find next part (false positive) <%s>" % nextLink)
                     break
                 nextLink = nextLink['href']
 
             if not nextLink.startswith('http:'):
                 nextLink = 'http://' + self.getSiteDomain() + nextLink
+
 
             try:
                 data = self._fetchUrl(nextLink)
