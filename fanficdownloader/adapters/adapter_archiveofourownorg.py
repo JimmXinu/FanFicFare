@@ -165,11 +165,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
         
         ## Title
-        a = soup.find('a', href=re.compile(r"^/works/\d+$"))
+        a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
 		
         # Find authorid and URL from... author url.
-        alist = soup.findAll('a', href=re.compile(r"^/users/\w+/pseuds/\w+"))
+        alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
             self.story.setMetadata('authorUrl','http://archiveofourown.org/')
