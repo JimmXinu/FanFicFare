@@ -176,8 +176,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorId','0')
         else:
             for a in alist:
-                self.story.addToList('authorId',a['href'].split('/')[2])
-                self.story.addToList('authorUrl','http://'+self.host+a['href'])
+                self.story.addToList('authorId',a['href'].split('/')[-1])
+                self.story.addToList('authorUrl',a['href'])
                 self.story.addToList('author',a.text)
 
         newestChapter = None
