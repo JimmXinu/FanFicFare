@@ -178,7 +178,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 seriesTr = seriesTr.previousSibling
             m = re.match("^(?P<title>.*?):\s(?P<numChapters>\d+)\sPart\sSeries$", seriesTr.find("strong").text)
             self.story.setMetadata('title', m.group('title'))
-            self.story.setMetadata('numChapters', int(m.group('numChapters')))
 
             ## Walk the chapters
             chapterTr = seriesTr.nextSibling
@@ -204,6 +203,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             # normalize on first chapter URL.
             self._setURL(self.chapterUrls[0][1])
 
+        self.story.setMetadata('numChapters', len(self.chapterUrls))
+                
         # set storyId to 'title-author' to avoid duplicates
         # self.story.setMetadata('storyId', 
         #     re.sub("[^a-z0-9]", "", self.story.getMetadata('title').lower())
