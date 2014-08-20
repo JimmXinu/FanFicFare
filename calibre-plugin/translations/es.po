@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2014-07-14 10:52+Central Daylight Time\n"
-"PO-Revision-Date: 2014-07-17 09:47+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2014-08-15 15:00+0000\n"
+"Last-Translator: Jellby <jellby@yahoo.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -322,11 +322,11 @@ msgstr "Personalizar los motivos mostrados al rechazar URL"
 
 #: config.py:492
 msgid "Reject Without Confirmation?"
-msgstr ""
+msgstr "¿Rechazar sin confirmación?"
 
 #: config.py:493
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr ""
+msgstr "Rechazar siempre los URL en la lista de rechazos sin parar y preguntar."
 
 #: config.py:531
 msgid "Edit Reject URLs List"
