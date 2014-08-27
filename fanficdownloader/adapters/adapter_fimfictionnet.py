@@ -55,7 +55,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         return ['www.fimfiction.net','mobile.fimfiction.net', 'www.fimfiction.com', 'mobile.fimfiction.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.fimfiction.net/story/1234/story-title-here http://www.fimfiction.net/story/1234/ http://www.fimfiction.com/story/1234/1/ http://mobile.fimfiction.net/story/1234/1/story-title-here/chapter-title-here"
 
     def getSiteURLPattern(self):

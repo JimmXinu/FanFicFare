@@ -116,7 +116,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
         return ['tolkienfanfiction.com', 'www.tolkienfanfiction.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return 'http://www.tolkienfanfiction.com/Story_Read_Head.php?STid=1034 http://www.tolkienfanfiction.com/Story_Read_Chapter.php?CHid=4945'
 
     def getSiteURLPattern(self):

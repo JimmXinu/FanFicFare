@@ -66,7 +66,7 @@ class QafFicComAdapter(BaseSiteAdapter):
         return 'www.qaf-fic.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/atp/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

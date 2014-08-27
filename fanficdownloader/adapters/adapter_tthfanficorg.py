@@ -55,7 +55,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         return 'www.tthfanfic.org'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.tthfanfic.org/Story-1234 http://www.tthfanfic.org/Story-1234/Author+Story+Title.htm http://www.tthfanfic.org/T-99999999/Story-1234-1/Author+Story+Title.htm http://www.tthfanfic.org/story.php?no=12345"
 
     # http://www.tthfanfic.org/T-999999999999/Story-12345-1/Author+Story+Title.htm

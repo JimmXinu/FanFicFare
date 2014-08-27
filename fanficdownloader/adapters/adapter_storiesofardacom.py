@@ -66,7 +66,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         return 'www.storiesofarda.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/chapterlistview.asp?SID=1234"
 
     def getSiteURLPattern(self):

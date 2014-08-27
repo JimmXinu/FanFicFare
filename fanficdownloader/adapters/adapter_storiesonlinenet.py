@@ -62,7 +62,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return 'storiesonline.net'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):

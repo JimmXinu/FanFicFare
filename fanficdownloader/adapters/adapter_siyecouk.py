@@ -71,7 +71,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         return ['www.siye.co.uk','siye.co.uk']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

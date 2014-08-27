@@ -64,7 +64,7 @@ class Asr3SlashzoneOrgAdapter(BaseSiteAdapter):
         return 'asr3.slashzone.org'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

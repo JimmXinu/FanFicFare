@@ -57,7 +57,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         return 'fictionpad.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "https://fictionpad.com/author/Author/stories/1234/Some-Title"
     
     def getSiteURLPattern(self):
