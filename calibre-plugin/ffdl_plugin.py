@@ -1464,7 +1464,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         elif prefs['autoconvert']:
             ## 'Convert Book'.auto_convert_auto_add doesn't convert if
             ## the format is already there.
-            fmt = calibre_prefs['output_format']
+            fmt = calibre_prefs['output_format'].upper() # formmapping is upper.
             # delete if there, but not if the format we just made.
             if fmt != formmapping[options['fileform']] and \
                     db.has_format(book_id,fmt,index_is_id=True):
