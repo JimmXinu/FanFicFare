@@ -70,7 +70,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
         return ['www.pretendercentre.com','pretendercentre.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/missingpieces/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

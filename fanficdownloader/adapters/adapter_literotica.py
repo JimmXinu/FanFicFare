@@ -90,7 +90,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 'other.i.literotica.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):

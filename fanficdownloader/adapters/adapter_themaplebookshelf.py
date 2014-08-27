@@ -46,7 +46,7 @@ class TheMapleBookshelfComSiteAdapter(BaseSiteAdapter):
         return 'themaplebookshelf.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.themaplebookshelf.com/Literati/viewstory.php?sid=227 http://themaplebookshelf.com/Literati/viewstory.php?sid=227&chapter=2"
 
     def getSiteURLPattern(self):

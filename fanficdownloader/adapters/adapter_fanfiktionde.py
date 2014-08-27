@@ -68,7 +68,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         return 'www.fanfiktion.de'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050 http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050/1 http://"+self.getSiteDomain()+"/s/46ccbef30000616306614050/1/story-name"
 
     def getSiteURLPattern(self):

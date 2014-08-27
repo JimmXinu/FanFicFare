@@ -90,7 +90,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         self.opener.addheaders.append(('Referer', 'http://'+self.getSiteDomain()+'/'))
         
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234 http://buffynfaith.net/fanfictions/index.php?act=ovr&id=1234 http://buffynfaith.net/fanfictions/index.php?act=vie&id=1234&ch=2"
 
     def getSiteURLPattern(self):

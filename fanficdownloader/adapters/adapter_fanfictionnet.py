@@ -68,7 +68,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return ['www.fanfiction.net','m.fanfiction.net']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "https://www.fanfiction.net/s/1234/1/ https://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
 
     def getSiteURLPattern(self):

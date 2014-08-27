@@ -66,7 +66,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
         return 'www.destinysgateway.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

@@ -58,7 +58,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         return ['www.twilighted.net','twilighted.net']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.twilighted.net/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

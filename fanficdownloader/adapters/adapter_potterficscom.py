@@ -73,7 +73,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         return 'www.potterfics.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.potterfics.com/historias/12345 http://www.potterfics.com/historias/12345/capitulo-1 "
 
     def getSiteURLPattern(self):

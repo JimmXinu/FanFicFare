@@ -295,7 +295,7 @@ class BaseSiteAdapter(Configurable):
         return '^http://'+re.escape(self.getSiteDomain())
     
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         """
         Return a string of space separated example URLs.
         Needs to be overriden in each adapter class.  It's the adapter
