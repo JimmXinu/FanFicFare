@@ -65,6 +65,13 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
     # tth won't send you future updates if you aren't 'caught up'
     # on the story.  Login isn't required for F21, but logging in will
     # mark stories you've downloaded as 'read' on tth.
@@ -136,13 +143,16 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         
         if self.is_adult or self.getConfig("is_adult"):
             form = soup.find('form', {'id':'sitemaxratingform'})
-            params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
-                    'sitemaxrating':'5'}
-            logger.info("Attempting to get rating cookie for %s" % url)
-            data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
-            # refetch story page.
-            data = self._fetchUrl(url)
-            soup = bs.BeautifulSoup(data)
+            # if is_adult and rating isn't already set to FR21, set it so.
+            if not form.find('option',{'value':'5'}).get('selected'):
+                params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
+                        'sitemaxrating':'5'}
+                logger.info("Attempting to get rating cookie for %s" % url)
+                data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
+                # refetch story page.
+                ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
+                data = self._fetchUrl(url,usecache=False)
+                soup = bs.BeautifulSoup(data)
 
         if "NOTE: This story is rated FR21 which is above your chosen filter level." in data:
             raise exceptions.AdultCheckRequired(self.url)
