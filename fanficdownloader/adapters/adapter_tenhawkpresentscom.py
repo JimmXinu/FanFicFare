@@ -62,6 +62,13 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
                 or 'There is no such account on our website' in data \
@@ -120,7 +127,7 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
             url = self.url+'&index=1'+addurl
             logger.debug("Changing URL: "+url)
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self._fetchUrl(url,usecache=False)
 
         if "This story contains mature content which may include violence, sexual situations, and coarse language" in data:
             raise exceptions.AdultCheckRequired(self.url)

@@ -52,6 +52,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # latest chapter yet and going back to chapter 1 to pull the
         # chapter list doesn't get the latest.  So save and use the
         # original URL given to pull chapter list & metadata.
+        # Not used by plugin because URL gets normalized first for
+        # eliminating duplicate story urls.
         self.origurl = url
         if "https://m." in self.origurl:
             ## accept m(mobile)url, but use www.
@@ -74,14 +76,23 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
-    def _fetchUrl(self,url):
-        time.sleep(1.0) ## ffnet(and, I assume, fpcom) tends to fail
-                        ## more if hit too fast.  This is in
-                        ## additional to what ever the
-                        ## slow_down_sleep_time setting is.
-        return BaseSiteAdapter._fetchUrl(self,url)
+    def _fetchUrl(self,url,parameters=None,extrasleep=1.0):
+        # time.sleep(1.0) ## ffnet(and, I assume, fpcom) tends to fail
+        #                 ## more if hit too fast.  This is in
+        #                 ## additional to what ever the
+        #                 ## slow_down_sleep_time setting is.
+        return BaseSiteAdapter._fetchUrl(self,url,
+                                         parameters=parameters,
+                                         extrasleep=extrasleep)
 
-    def extractChapterUrlsAndMetadata(self):
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
+    def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
         # fetch the chapter.  From that we will get almost all the
         # metadata and chapter list
@@ -256,14 +267,15 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        # Try the larger image first.
-        try:
-            img = soup.find('img',{'class':'lazy cimage'})
-            self.setCoverImage(url,img['data-original'])
-        except:
-            img = soup.find('img',{'class':'cimage'})
-            if img:
-                self.setCoverImage(url,img['src'])
+        if get_cover:
+            # Try the larger image first.
+            try:
+                img = soup.find('img',{'class':'lazy cimage'})
+                self.setCoverImage(url,img['data-original'])
+            except:
+                img = soup.find('img',{'class':'cimage'})
+                if img:
+                    self.setCoverImage(url,img['src'])
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
@@ -287,12 +299,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        time.sleep(4.0) ## ffnet(and, I assume, fpcom) tends to fail
-                        ## more if hit too fast.  This is in
-                        ## additional to what ever the
-                        ## slow_down_sleep_time setting is.
+        # time.sleep(4.0) ## ffnet(and, I assume, fpcom) tends to fail
+        #                 ## more if hit too fast.  This is in
+        #                 ## additional to what ever the
+        #                 ## slow_down_sleep_time setting is.
         logger.debug('Getting chapter text from: %s' % url)
-        data = self._fetchUrl(url)
+        data = self._fetchUrl(url,extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)

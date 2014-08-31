@@ -22,7 +22,9 @@ import logging
 import urllib
 import urllib2 as u2
 import urlparse as up
+import cookielib as cl
 from functools import partial
+import pickle
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
@@ -70,6 +72,14 @@ class BaseSiteAdapter(Configurable):
     def validateURL(self):
         return re.match(self.getSiteURLPattern(), self.url)
 
+    @staticmethod
+    def get_empty_cookiejar():
+        return cl.LWPCookieJar()
+
+    @staticmethod
+    def get_empty_pagecache():
+        return {}
+
     def __init__(self, configuration, url):
         Configurable.__init__(self, configuration)
         
@@ -78,8 +88,9 @@ class BaseSiteAdapter(Configurable):
         self.is_adult=False
 
         self.override_sleep = None
-        
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        self.cookiejar = self.get_empty_cookiejar()
+        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        # self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         ## Specific UA because too many sites are blocking the default python UA.
         self.opener.addheaders = [('User-agent', self.getConfig('user_agent'))]
         self.storyDone = False
@@ -95,6 +106,9 @@ class BaseSiteAdapter(Configurable):
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
         self.logfile = None
+
+        self.pagecache = self.get_empty_pagecache()
+        
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -106,8 +120,84 @@ class BaseSiteAdapter(Configurable):
         if not self.validateURL():
             raise InvalidStoryURL(url,
                                   self.getSiteDomain(),
-                                  self.getSiteExampleURLs())        
+                                  self.getSiteExampleURLs())
 
+    def get_cookiejar(self):
+        return self.cookiejar
+
+    def set_cookiejar(self,cj):
+        self.cookiejar = cj
+        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        
+    def load_cookiejar(self,filename):
+        '''
+        Needs to be called after adapter create, but before any fetchs
+        are done.  Takes file *name*.
+        '''
+        self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
+        
+    # def save_cookiejar(self,filename):
+    #     '''
+    #     Assumed to be a FileCookieJar if self.cookiejar set.
+    #     Takes file *name*.
+    #     '''
+    #     self.get_cookiejar().save(filename, ignore_discard=True, ignore_expires=True)
+
+    # def save_pagecache(self,filename):
+    #     '''
+    #     Writes pickle of pagecache to file *name*
+    #     '''
+    #     with open(filename, 'wb') as f:
+    #         pickle.dump(self.get_pagecache(),
+    #                     f,protocol=pickle.HIGHEST_PROTOCOL)
+        
+    # def load_pagecache(self,filename):
+    #     '''
+    #     Reads pickle of pagecache from file *name*
+    #     '''
+    #     with open(filename, 'rb') as f:
+    #         self.set_pagecache(pickle.load(f))
+
+    def get_pagecache(self):
+        return self.pagecache
+    
+    def set_pagecache(self,d):
+        self.pagecache=d
+
+    def _get_cachekey(self, url, parameters=None, headers=None):
+        keylist=[url]
+        if parameters != None:
+            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
+        if headers != None:
+            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(headers.items())))
+        return '?'.join(keylist)
+
+    def _has_cachekey(self,cachekey):
+        return self.use_pagecache() and cachekey in self.get_pagecache()
+    
+    def _get_from_pagecache(self,cachekey):
+        if self.use_pagecache():
+            return self.get_pagecache().get(cachekey)
+        else:
+            return None
+
+    def _set_to_pagecache(self,cachekey,data):
+        if self.use_pagecache():
+            self.get_pagecache()[cachekey] = data
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return False
+        
+    # def story_load(self,filename):
+    #     d = pickle.load(self.story.metadata,filename)
+    #     self.story.metadata = d['metadata']
+    #     self.chapterUrls = d['chapterlist']
+    #     self.story.metadataDone = True
+        
     def _setURL(self,url):
         self.url = url
         self.parsedUrl = up.urlparse(url)
@@ -148,8 +238,25 @@ class BaseSiteAdapter(Configurable):
         return "".join([x for x in data if ord(x) < 128])
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
-    def _postUrl(self, url, parameters={}, headers={}):
-        self.do_sleep()
+    def _postUrl(self, url,
+                 parameters={},
+                 headers={},
+                 extrasleep=None,
+                 usecache=True):
+        '''
+        When should cache be cleared or not used? logins...
+        
+        extrasleep is primarily for ffnet adapter which has extra
+        sleeps.  Passed into fetchs so it can be bypassed when
+        cache hits.
+        '''
+        cachekey=self._get_cachekey(url, parameters, headers)
+        if usecache and self._has_cachekey(cachekey):
+            logger.info("#####################################\npagecache HIT: %s"%cachekey)
+            return self._get_from_pagecache(cachekey)
+        
+        logger.info("#####################################\npagecache MISS: %s"%cachekey)
+        self.do_sleep(extrasleep)
 
         ## u2.Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
@@ -160,41 +267,69 @@ class BaseSiteAdapter(Configurable):
         req = u2.Request(url,
                          data=urllib.urlencode(parameters),
                          headers=headers)
-        return self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
+        data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
+        self._set_to_pagecache(cachekey,data)
+        return data
 
-    def _fetchUrlRaw(self, url, parameters=None):
+    def _fetchUrlRaw(self, url,
+                     parameters=None,
+                     extrasleep=None,
+                     usecache=True):
+        '''
+        When should cache be cleared or not used? logins...
+        
+        extrasleep is primarily for ffnet adapter which has extra
+        sleeps.  Passed into fetchs so it can be bypassed when
+        cache hits.
+        '''
+        cachekey=self._get_cachekey(url, parameters)
+        if usecache and self._has_cachekey(cachekey):
+            logger.info("#####################################\npagecache HIT: %s"%cachekey)
+            return self._get_from_pagecache(cachekey)
+        
+        logger.info("#####################################\npagecache MISS: %s"%cachekey)
+        self.do_sleep(extrasleep)
         if parameters != None:
-            return self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
+            data = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
         else:
-            return self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0))).read()
+            data = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0))).read()
+        self._set_to_pagecache(cachekey,data)
+        return data
 
     def set_sleep(self,val):
         print("\n===========\n set sleep time %s\n==========="%val)
         self.override_sleep = val
     
-    def do_sleep(self):
+    def do_sleep(self,extrasleep=None):
+        if extrasleep:
+            time.sleep(float(extrasleep))
         if self.override_sleep:
             time.sleep(float(self.override_sleep))
         elif self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
         
     # parameters is a dict()
-    def _fetchUrl(self, url, parameters=None):
-        self.do_sleep()
+    def _fetchUrl(self, url,
+                  parameters=None,
+                  usecache=True,
+                  extrasleep=None):
 
         excpt=None
         for sleeptime in [0, 0.5, 4, 9]:
             time.sleep(sleeptime)	
             try:
-                return self._decode(self._fetchUrlRaw(url,parameters))
+                return self._decode(self._fetchUrlRaw(url,
+                                                      parameters=parameters,
+                                                      usecache=usecache,
+                                                      extrasleep=extrasleep))
             except u2.HTTPError, he:
                 excpt=he
                 if he.code == 404:
                     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(he)))
                     break # break out on 404
-            except Exception, e:
-                excpt=e
-                logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
+            # except Exception, e:
+            #     excpt=e
+            #     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
                 
         logger.error("Giving up on %s" %url)
         logger.exception(excpt)
@@ -210,7 +345,7 @@ class BaseSiteAdapter(Configurable):
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
-            self.getStoryMetadataOnly()
+            self.getStoryMetadataOnly(get_cover=True)
 
             for index, (title,url) in enumerate(self.chapterUrls):
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
@@ -253,9 +388,9 @@ class BaseSiteAdapter(Configurable):
                 
         return self.story
 
-    def getStoryMetadataOnly(self):
+    def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:
-            self.extractChapterUrlsAndMetadata()
+            self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
             
             if not self.story.getMetadataRaw('dateUpdated'):
                 self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
@@ -303,6 +438,15 @@ class BaseSiteAdapter(Configurable):
         validateURL method.
         """
         return 'no such example'
+    
+    def doExtractChapterUrlsAndMetadata(self,get_cover=True):
+        '''
+        There are a handful of adapters that fetch a cover image while
+        collecting metadata.  That isn't needed while *just*
+        collecting metadata in FG in plugin.  Those few will override
+        this instead of extractChapterUrlsAndMetadata()
+        '''
+        return self.extractChapterUrlsAndMetadata()
     
     def extractChapterUrlsAndMetadata(self):
         "Needs to be overriden in each adapter class.  Populates self.story metadata and self.chapterUrls"
