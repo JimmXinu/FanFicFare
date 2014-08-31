@@ -73,7 +73,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         return 'fanfiction.portkey.org' # XXX
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/story/1234"
 
     def getSiteURLPattern(self):

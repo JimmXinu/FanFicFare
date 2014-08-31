@@ -68,7 +68,7 @@ class LibraryOfMoriaComAdapter(BaseSiteAdapter):
         return 'www.libraryofmoria.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/a/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

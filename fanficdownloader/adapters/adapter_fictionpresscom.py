@@ -40,7 +40,7 @@ class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
         return ['www.fictionpress.com','m.fictionpress.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "https://www.fictionpress.com/s/1234/1/ https://www.fictionpress.com/s/1234/12/ http://www.fictionpress.com/s/1234/1/Story_Title http://m.fictionpress.com/s/1234/1/"
 
     def getSiteURLPattern(self):

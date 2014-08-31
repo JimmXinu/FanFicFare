@@ -69,7 +69,7 @@ class RestrictedSectionOrgSiteAdapter(BaseSiteAdapter):
         return 'www.restrictedsection.org'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/story.php?story=1234 http://"+self.getSiteDomain()+"/file.php?file=1234"
 
     def getSiteURLPattern(self):

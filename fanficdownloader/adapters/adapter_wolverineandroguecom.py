@@ -66,7 +66,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
         return 'www.wolverineandrogue.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/wrfa/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

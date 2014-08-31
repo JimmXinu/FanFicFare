@@ -62,7 +62,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         return 'finestories.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010 http://"+self.getSiteDomain()+"/library/storyInfo.php?id=1234"
 
     def getSiteURLPattern(self):

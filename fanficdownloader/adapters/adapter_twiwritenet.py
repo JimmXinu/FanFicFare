@@ -60,7 +60,7 @@ class TwiwriteNetSiteAdapter(BaseSiteAdapter):
         return ['www.twiwrite.net','twiwrite.net']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.twiwrite.net/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

@@ -732,6 +732,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         options['version'] = self.version
         logger.debug(self.version)
+        options['personal.ini'] = get_ffdl_personalini()
         
         #print("prep_downloads:%s"%books)
 
@@ -825,8 +826,16 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         skip_date_update = False
         
-        options['personal.ini'] = get_ffdl_personalini()
         adapter = get_ffdl_adapter(url,fileform)
+        ## save and share cookiejar and pagecache between all
+        ## downloads.
+        if 'pagecache' not in options:
+            options['pagecache'] = adapter.get_empty_pagecache()
+        adapter.set_pagecache(options['pagecache'])
+        if 'cookiejar' not in options:
+            options['cookiejar'] = adapter.get_empty_cookiejar()
+        adapter.set_cookiejar(options['cookiejar'])
+            
         # reduce foreground sleep time for ffnet when few books.
         if 'ffnetcount' in options and \
                 adapter.getConfig('tweak_fg_sleep') and \
@@ -844,7 +853,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         ## or a couple tries of one or the other
         for x in range(0,2):
             try:
-                adapter.getStoryMetadataOnly()
+                adapter.getStoryMetadataOnly(get_cover=False)
             except exceptions.FailedToLogin, f:
                 logger.warn("Login Failed, Need Username/Password.")
                 userpass = UserPassDialog(self.gui,url,f)
@@ -860,7 +869,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                     adapter.is_adult=True
 
         # let other exceptions percolate up.
-        story = adapter.getStoryMetadataOnly()
+        story = adapter.getStoryMetadataOnly(get_cover=False)
 
         series = story.getMetadata('series')
         if not merge and series and prefs['checkforseriesurlid']:
@@ -1088,7 +1097,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                           dir=options['tdir'])
             logger.debug("title:"+book['title'])
             logger.debug("outfile:"+tmp.name)
-            book['outfile'] = tmp.name            
+            book['outfile'] = tmp.name
+            
+            # cookiejar = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
+            #                                     suffix='.cookiejar',
+            #                                     dir=options['tdir'])
+            # adapter.save_cookiejar(cookiejar.name)
+            # book['cookiejar'] = cookiejar.name
+            # pagecache = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
+            #                                     suffix='.pagecache',
+            #                                     dir=options['tdir'])
+            # adapter.save_pagecache(pagecache.name)
+            # book['pagecache'] = pagecache.name
                 
         return
         
@@ -1145,7 +1165,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                       _('FFDL log'), _('FFDL download ended'), msg,
                                       show_copy_button=False)
             return
-            
+
+        cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
+                                                dir=options['tdir'])
+        options['cookiejar'].save(cookiejarfile.name,
+                                  ignore_discard=True,
+                                  ignore_expires=True)
+        options['cookiejarfile']=cookiejarfile.name
+        del options['cookiejar'] ## can't be pickled.
+        
         func = 'arbitrary_n'
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanfictiondownloader_plugin.jobs', 'do_download_worker',

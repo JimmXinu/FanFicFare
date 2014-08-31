@@ -74,7 +74,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         return 'themasque.net'
         
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://themasque.net/wiktt/efiction/viewstory.php?sid=1234 http://themasque.net/efiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

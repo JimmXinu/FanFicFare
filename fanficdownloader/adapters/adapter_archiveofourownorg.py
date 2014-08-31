@@ -78,7 +78,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         return 'archiveofourown.org'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+self.getSiteDomain()+"/works/123456/chapters/78901"
 
     def getSiteURLPattern(self):
