@@ -92,7 +92,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         return 'castlefans.org' # XXX
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

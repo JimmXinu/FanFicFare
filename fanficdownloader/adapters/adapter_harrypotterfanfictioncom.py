@@ -58,7 +58,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         return ['www.harrypotterfanfiction.com','harrypotterfanfiction.com']
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://www.harrypotterfanfiction.com/viewstory.php?psid=1234"
 
     def getSiteURLPattern(self):

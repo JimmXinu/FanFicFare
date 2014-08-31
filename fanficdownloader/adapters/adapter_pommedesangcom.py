@@ -77,7 +77,7 @@ class PommeDeSangComAdapter(BaseSiteAdapter):
         return 'pommedesang.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/sds/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):

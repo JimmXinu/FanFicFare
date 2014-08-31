@@ -19,6 +19,11 @@ from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 
+# for smarten punc
+from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
+from calibre.utils.logging import Log
+from collections import namedtuple
+
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
@@ -58,10 +63,6 @@ def do_download_worker(book_list, options,
                               done=None,
                               args=args)
             job._book = book
-            # job._book_id = book_id
-            # job._title = title
-            # job._modified_date = modified_date
-            # job._existing_isbn = existing_isbn
             server.add_job(job)
         else:
             # was already bad before the subprocess ever started.
@@ -69,7 +70,7 @@ def do_download_worker(book_list, options,
     
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
-    notification(0.01, 'Downloading FanFiction Stories')
+    notification(0.01, _('Downloading FanFiction Stories'))
 
     # dequeue the job results as they arrive, saving the results
     count = 0
@@ -81,24 +82,19 @@ def do_download_worker(book_list, options,
         if not job.is_finished:
             continue
         # A job really finished. Get the information.
-        output_book = job.result
-        #print("output_book:%s"%output_book)
         book_list.remove(job._book)
         book_list.append(job.result)
         book_id = job._book['calibre_id']
-        #title = job._title
         count = count + 1
         notification(float(count)/total, '%d of %d stories finished downloading'%(count,total))
         # Add this job's output to the current log
         logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         logger.info(job.details)
 
-
-
         if count >= total:
-            logger.info("\nSuccessful:\n%s\n"%("\n".join([book['url'] for book in 
+            logger.info("\n"+_("Successful:")+"\n%s\n"%("\n".join([book['url'] for book in 
                                                       filter(lambda x: x['good'], book_list) ] ) ) )
-            logger.info("\nUnsuccessful:\n%s\n"%("\n".join([book['url'] for book in 
+            logger.info("\n"+_("Unsuccessful:")+"\n%s\n"%("\n".join([book['url'] for book in 
                                                         filter(lambda x: not x['good'], book_list) ] ) ) )
             break
 
@@ -109,11 +105,10 @@ def do_download_worker(book_list, options,
 
 def do_download_for_worker(book,options,notification=lambda x,y:x):
     '''
-    Child job, to extract isbn from formats for this specific book,
-    when run as a worker job
+    Child job, to download story when run as a worker job
     '''
     try:
-        book['comment'] = 'Download started...'
+        book['comment'] = _('Download started...')
 
         configuration = get_ffdl_config(book['url'],
                                         options['fileform'],
@@ -122,8 +117,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
         if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
             configuration.set("overrides","never_make_cover","true")
 
-        # images only for epub, even if the user mistakenly turned it
-        # on else where.
+        # images only for epub, html, even if the user mistakenly
+        # turned it on else where.
         if options['fileform'] not in ("epub","html"):
             configuration.set("overrides","include_images","false")
         
@@ -132,6 +127,10 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
         adapter.username = book['username'] 
         adapter.password = book['password']
         adapter.setChaptersRange(book['begin'],book['end'])
+        
+        adapter.load_cookiejar(options['cookiejarfile'])
+        logger.debug("cookiejar:%s"%adapter.cookiejar)
+        adapter.set_pagecache(options['pagecache'])
         
         story = adapter.getStoryMetadataOnly()
         if 'calibre_series' in book:
@@ -191,13 +190,13 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             # dup handling from ffdl_plugin needed for anthology updates.
             if options['collision'] == UPDATE:
                 if chaptercount == urlchaptercount:
-                    book['comment']="Already contains %d chapters.  Reuse as is."%chaptercount
+                    book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
                     book['outfile'] = book['epub_for_update'] # for anthology merge ops.
                     return book
 
             # dup handling from ffdl_plugin needed for anthology updates.
             if chaptercount > urlchaptercount:
-                raise NotGoingToDownload("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update." % (chaptercount,urlchaptercount),'dialog_error.png')
+                raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
 
             if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
                     and adapter.getConfig("do_update_hook"):
@@ -208,16 +207,12 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
 
             writer.writeStory(outfilename=outfile, forceOverwrite=True)
             
-            book['comment'] = 'Update %s completed, added %s chapters for %s total.'%\
+            book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
                 (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
         
         if options['smarten_punctuation'] and options['fileform'] == "epub" \
                 and calibre_version >= (0, 9, 39):
             # do smarten_punctuation from calibre's polish feature
-            from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
-            from calibre.utils.logging import Log
-            from collections import namedtuple
-        
             data = {'smarten_punctuation':True}
             opts = ALL_OPTS.copy()
             opts.update(data)

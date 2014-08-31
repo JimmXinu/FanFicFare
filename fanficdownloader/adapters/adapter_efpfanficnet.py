@@ -67,7 +67,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         return 'www.efpfanfic.net'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
@@ -205,8 +205,8 @@ class EFPFanFicNet(BaseSiteAdapter):
         noteblock = storyblock.find('div', {'class':'notebloc'})
         #print("%s"%noteblock)
         notetext = ("%s" % noteblock).replace("<br />"," |")
-        # <div class="notebloc">Autore: <a href="viewuser.php?uid=243036">Cendrillon89</a> | Pubblicata: 23/10/12 | Aggiornata: 30/10/12 | Rating: Arancione | Genere: Drammatico, Sentimentale | Capitoli: 10 | Completa<br />
-        # Tipo di coppia: Het |  Personaggi: Akasuna no Sasori , Akatsuki, Nuovo Personaggio |   Note: OOC | Avvertimenti: Tematiche delicate<br />
+        # <div class="notebloc">Autore: <a href="viewuser.php?uid=243036">Cendrillon89</a> | Pubblicata: 23/10/12 | Aggiornata: 30/10/12 | Rating: Arancione | Genere: Drammatico, Sentimentale | Capitoli: 10 | Completa<br />
+        # Tipo di coppia: Het |  Personaggi: Akasuna no Sasori , Akatsuki, Nuovo Personaggio |   Note: OOC | Avvertimenti: Tematiche delicate<br />
         # Categoria: <a href="categories.php?catid=1&amp;parentcatid=1">Anime & Manga</a> > <a href="categories.php?catid=108&amp;parentcatid=108">Naruto</a> | Contesto: Naruto Shippuuden | Leggi le <a href="reviews.php?sid=1331275&amp;a=">3</a> recensioni</div>
 
         cats = noteblock.findAll('a',href=re.compile(r'browse.php\?type=categories'))

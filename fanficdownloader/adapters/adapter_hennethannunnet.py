@@ -66,7 +66,7 @@ class HennethAnnunNetAdapter(BaseSiteAdapter):
         return 'www.henneth-annun.net'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/stories/chapter.cfm?stid=1234"
 
     def getSiteURLPattern(self):

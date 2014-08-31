@@ -54,12 +54,19 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         return 'www.adastrafanfic.com'
 
     @classmethod
-    def getSiteExampleURLs(self):
+    def getSiteExampleURLs(cls):
         return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
     def extractChapterUrlsAndMetadata(self):
 
         if self.is_adult or self.getConfig("is_adult"):
