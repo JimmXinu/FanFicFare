@@ -93,7 +93,7 @@ class TheHookupZoneNetAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/CriminalMinds/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/CriminalMinds/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/CriminalMinds/viewstory.php?sid=")+r"\d+$"

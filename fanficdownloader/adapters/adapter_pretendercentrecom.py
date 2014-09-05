@@ -72,7 +72,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/missingpieces/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/missingpieces/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/missingpieces/viewstory.php?sid=")+r"\d+$"

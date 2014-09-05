@@ -73,7 +73,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/siye/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"

@@ -91,7 +91,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234 http://buffynfaith.net/fanfictions/index.php?act=ovr&id=1234 http://buffynfaith.net/fanfictions/index.php?act=vie&id=1234&ch=2"
+        return "http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234 http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=ovr&id=1234 http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234&ch=2"
 
     def getSiteURLPattern(self):
         #http://buffynfaith.net/fanfictions/index.php?act=vie&id=963

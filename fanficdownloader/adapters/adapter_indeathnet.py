@@ -74,7 +74,7 @@ class InDeathNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/blog/archive/123-story-in-death/"
+        return "http://"+cls.getSiteDomain()+"/blog/archive/123-story-in-death/"
 
     def getSiteURLPattern(self):
         # http://www.indeath.net/blog/archive/169-ransom-in-death/

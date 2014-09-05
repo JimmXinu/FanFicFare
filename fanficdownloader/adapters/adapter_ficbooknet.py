@@ -71,7 +71,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/readfic/12345 http://"+self.getSiteDomain()+"/readfic/93626/246417#part_content"
+        return "http://"+cls.getSiteDomain()+"/readfic/12345 http://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/readfic/")+r"\d+"

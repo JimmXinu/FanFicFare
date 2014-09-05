@@ -77,7 +77,7 @@ class SG1HeliopolisComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/archive/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/adult/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/atlantis/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/archive/viewstory.php?sid=1234 http://"+cls.getSiteDomain()+"/adult/viewstory.php?sid=1234 http://"+cls.getSiteDomain()+"/atlantis/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"http://sg1-heliopolis.com/(archive|adult|atlantis)?/viewstory.php\?sid=\d+$"

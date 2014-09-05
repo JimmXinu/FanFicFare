@@ -76,7 +76,7 @@ class MuggleNetComAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+r"fanfic(tion)?\.mugglenet\.com"+re.escape("/viewstory.php?sid=")+r"\d+$"

@@ -77,7 +77,7 @@ class DokugaComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/fanfiction/story/1234/1 http://"+self.getSiteDomain()+"/spark/story/1234/1"
+        return "http://"+cls.getSiteDomain()+"/fanfiction/story/1234/1 http://"+cls.getSiteDomain()+"/spark/story/1234/1"
 
     def getSiteURLPattern(self):
         return r"http://"+self.getSiteDomain()+"/(fanfiction|spark)?/story/\d+/?\d+?$"
