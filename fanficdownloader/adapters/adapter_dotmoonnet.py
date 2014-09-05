@@ -67,7 +67,7 @@ class DotMoonNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/library_view.php?storyid=1234"
+        return "http://"+cls.getSiteDomain()+"/library_view.php?storyid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/library_view.php?storyid=")+r"\d+$"

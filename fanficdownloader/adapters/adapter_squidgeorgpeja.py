@@ -84,7 +84,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
     
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+self.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/")+r"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        

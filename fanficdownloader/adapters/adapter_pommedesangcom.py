@@ -78,7 +78,7 @@ class PommeDeSangComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://"+self.getSiteDomain()+"/sds/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://"+cls.getSiteDomain()+"/sds/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"http://"+self.getSiteDomain()+"/(efiction|sds)?/viewstory.php\?sid=\d+$"

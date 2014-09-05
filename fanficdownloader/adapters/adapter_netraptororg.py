@@ -66,7 +66,7 @@ class NetRaptorOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/fanfiction/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/fanfiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/fanfiction/viewstory.php?sid=")+r"\d+$"

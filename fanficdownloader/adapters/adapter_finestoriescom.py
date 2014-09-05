@@ -63,7 +63,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/s/1234 http://"+self.getSiteDomain()+"/s/1234:4010 http://"+self.getSiteDomain()+"/library/storyInfo.php?id=1234"
+        return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010 http://"+cls.getSiteDomain()+"/library/storyInfo.php?id=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain())+r"/(s|library)?/(storyInfo.php\?id=)?\d+(:\d+)?(;\d+)?$"

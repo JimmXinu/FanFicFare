@@ -67,7 +67,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/chapterlistview.asp?SID=1234"
+        return "http://"+cls.getSiteDomain()+"/chapterlistview.asp?SID=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/chapterlistview.asp?SID=")+r"\d+$"

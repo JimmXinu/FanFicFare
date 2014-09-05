@@ -69,7 +69,7 @@ class NickAndGregNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/desert_archive/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/desert_archive/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/desert_archive/viewstory.php?sid=")+r"\d+$"

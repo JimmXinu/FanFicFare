@@ -76,7 +76,7 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/story.php?stid=01234 http://"+self.getSiteDomain()+"/chapters.php?stid=1234"
+        return "http://"+cls.getSiteDomain()+"/story.php?stid=01234 http://"+cls.getSiteDomain()+"/chapters.php?stid=1234"
 
     def getSiteURLPattern(self):
         return r'http://www\.ncisfiction\.(net|com)/(chapters|story)?.php\?stid=\d+'

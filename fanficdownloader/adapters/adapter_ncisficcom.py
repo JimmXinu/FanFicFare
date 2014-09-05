@@ -71,7 +71,7 @@ class NCISFicComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/viewstory.php?storyid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?storyid=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?storyid=")+r"\d+$"

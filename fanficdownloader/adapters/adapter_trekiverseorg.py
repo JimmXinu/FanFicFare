@@ -70,8 +70,8 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         return ['trekiverse.org','efiction.trekiverse.org']
 
     @classmethod
-    def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://efiction."+self.getSiteDomain()+"/viewstory.php?sid=1234"
+    def getSiteExampleURLs(cls):
+        return "http://"+cls.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://efiction."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r'(http://trekiverse\.org/efiction/viewstory\.php\?sid=\d+|http://efiction\.trekiverse\.org/viewstory\.php\?sid=\d+)'

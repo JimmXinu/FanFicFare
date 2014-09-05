@@ -66,7 +66,7 @@ class CheckmatedComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/story.php?story=1234"
+        return "http://"+cls.getSiteDomain()+"/story.php?story=1234"
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/story.php?story=")+r"\d+$"

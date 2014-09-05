@@ -79,7 +79,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+self.getSiteDomain()+"/works/123456 http://"+self.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+self.getSiteDomain()+"/works/123456/chapters/78901"
+        return "http://"+cls.getSiteDomain()+"/works/123456 http://"+cls.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+cls.getSiteDomain()+"/works/123456/chapters/78901"
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
