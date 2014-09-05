@@ -79,6 +79,13 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/story/")+r"\d+(/\d+)?$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -88,7 +95,6 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         # portkey screws around with using a different URL to set the
         # cookie and it's a pain.  So... cheat!
         if self.is_adult or self.getConfig("is_adult"):
-            cookieproc = urllib2.HTTPCookieProcessor()
             cookie = cl.Cookie(version=0, name='verify17', value='1',
                                port=None, port_specified=False,
                                domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
@@ -99,9 +105,8 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                                comment=None,
                                comment_url=None,
                                rest={'HttpOnly': None},
-                               rfc2109=False)
-            cookieproc.cookiejar.set_cookie(cookie)
-            self.opener = urllib2.build_opener(cookieproc)        
+                               rfc2109=False) 
+            self.cookiejar.set_cookie(cookie)
 
         try:
             data = self._fetchUrl(url)

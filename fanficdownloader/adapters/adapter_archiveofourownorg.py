@@ -123,6 +123,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             return True
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -155,8 +162,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url,data)
-            data = self._fetchUrl(url)
-            meta = self._fetchUrl(metaurl)
+            data = self._fetchUrl(url,usecache=False)
+            meta = self._fetchUrl(metaurl,usecache=False)
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)

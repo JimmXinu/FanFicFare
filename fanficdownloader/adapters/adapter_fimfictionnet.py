@@ -61,10 +61,16 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
         
-    def extractChapterUrlsAndMetadata(self):
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
+    def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         
         if self.is_adult or self.getConfig("is_adult"):
-            cookieproc = urllib2.HTTPCookieProcessor()
             cookie = cl.Cookie(version=0, name='view_mature', value='true',
                                port=None, port_specified=False,
                                domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
@@ -76,8 +82,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                                comment_url=None,
                                rest={'HttpOnly': None},
                                rfc2109=False)
-            cookieproc.cookiejar.set_cookie(cookie)
-            self.opener = urllib2.build_opener(cookieproc)
+            self.cookiejar.set_cookie(cookie)
         
         try:
             apiResponse = urllib2.urlopen("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId"))).read()
@@ -183,7 +188,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if coverurl.startswith('//'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
 
-            self.setCoverImage(self.url,coverurl)
+            if get_cover:
+                self.setCoverImage(self.url,coverurl)
 
         # fimf has started including extra stuff inside the description div.
         descdivstr = u"%s"%soup.find("div", {"class":"description"})
