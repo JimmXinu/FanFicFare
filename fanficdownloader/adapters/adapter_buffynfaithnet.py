@@ -101,6 +101,13 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
             r"(vie|ovr)&id=(?P<id>\d+)(&ch=(?P<ch>\d+))?$"
         return p
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
     def extractChapterUrlsAndMetadata(self):
 
         dateformat = "%d %B %Y"
@@ -109,7 +116,6 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         
         #set a cookie to get past adult check
         if self.is_adult or self.getConfig("is_adult"):
-            cookieproc = urllib2.HTTPCookieProcessor()
             cookie = cl.Cookie(version=0, name='my_age', value='yes',
                                port=None, port_specified=False,
                                domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
@@ -121,8 +127,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
                                comment_url=None,
                                rest={'HttpOnly': None},
                                rfc2109=False)
-            cookieproc.cookiejar.set_cookie(cookie)
-            self.opener = urllib2.build_opener(cookieproc)        
+            self.cookiejar.set_cookie(cookie)
             self.setHeader()
 
         try:
