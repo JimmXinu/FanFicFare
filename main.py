@@ -532,6 +532,10 @@ class FanfictionDownloaderTask(UserConfigServer):
                 def c(data):
                     return data
 
+            # delete existing chunks first
+            for c in download.data_chunks:
+                c.delete()
+                
             index=0
             while( len(data) > 0 ):
                 DownloadData(download=download,
