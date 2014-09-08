@@ -60,7 +60,7 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = " %m/%d/%y"
+        self.dateformat = " %d/%m/%y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -86,6 +86,28 @@ class NHAMagicalWorldsUsAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+            
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logger.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
