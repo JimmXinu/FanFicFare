@@ -91,8 +91,6 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        data = self._fetchUrl(url)
-            
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
         # print data
