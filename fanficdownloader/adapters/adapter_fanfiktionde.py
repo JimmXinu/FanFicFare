@@ -74,6 +74,13 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
         
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+    
         ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'Diese Geschichte wurde als entwicklungsbeeintr' in data \
@@ -126,7 +133,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self._fetchUrl(url,usecache=False)
             
         if "Uhr ist diese Geschichte nur nach einer" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
@@ -142,7 +149,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
         
         # Find authorid and URL from... author url.
-        head = soup.find('div', {'class' : 'story-metadata-left-top'})
+        head = soup.find('div', {'class' : 'story-left'})
         a = head.find('a')
         self.story.setMetadata('authorId',a['href'].split('/')[2])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
@@ -156,14 +163,18 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('language','German')
 
         #find metadata on the story page
-        self.story.setMetadata('datePublished', makeDate(head.text.split('erstellt: ')[1].split('\n')[0], self.dateformat))
+        headtext = stripHTML(head)
+        self.story.setMetadata('datePublished', makeDate(headtext.split('erstellt: ')[1].split('\n')[0], self.dateformat))
         
-        self.story.setMetadata('dateUpdated', makeDate(head.text.split('letztes Update: ')[1].split('\n')[0], self.dateformat))
-        
-        for genre in head.text.split('&nbsp;&nbsp;&nbsp;')[3].split('/')[0].split(', '):
-            self.story.addToList('genre',genre)
+        self.story.setMetadata('dateUpdated', makeDate(headtext.split('aktualisiert: ')[1].split('\n')[0], self.dateformat))
+
+        # second colspan=3 td in head.
+        genres=stripHTML(head.findAll('td',{'colspan':'3'})[1])
+        self.story.extendList('genre',genres[:genres.index('(')].split(', '))
+        # for genre in head.text.split('&nbsp;&nbsp;&nbsp;')[3].split('/')[0].split(', '):
+        #     self.story.addToList('genre',genre)
             
-        if 'fertiggestellt' in head.text:
+        if 'fertiggestellt' in headtext:
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In Progress')
@@ -178,9 +189,9 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.setDescription(url,a['onmouseover'].split("', '")[1])
         
         td = tr[i].findAll('td')
-        self.story.addToList('category',stripHTML(td[1]))
-        self.story.setMetadata('rating', stripHTML(td[4]))
-        self.story.setMetadata('numWords', stripHTML(td[5]))
+        self.story.addToList('category',stripHTML(td[2]))
+        self.story.setMetadata('rating', stripHTML(td[5]))
+        self.story.setMetadata('numWords', stripHTML(td[6]))
  
             
     # grab the text for an individual chapter.
