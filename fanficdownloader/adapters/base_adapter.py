@@ -252,10 +252,10 @@ class BaseSiteAdapter(Configurable):
         '''
         cachekey=self._get_cachekey(url, parameters, headers)
         if usecache and self._has_cachekey(cachekey):
-            logger.info("#####################################\npagecache HIT: %s"%cachekey)
+            logger.debug("#####################################\npagecache HIT: %s"%cachekey)
             return self._get_from_pagecache(cachekey)
         
-        logger.info("#####################################\npagecache MISS: %s"%cachekey)
+        logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
 
         ## u2.Request assumes POST when data!=None.  Also assumes data
@@ -284,10 +284,10 @@ class BaseSiteAdapter(Configurable):
         '''
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
-            logger.info("#####################################\npagecache HIT: %s"%cachekey)
+            logger.debug("#####################################\npagecache HIT: %s"%cachekey)
             return self._get_from_pagecache(cachekey)
         
-        logger.info("#####################################\npagecache MISS: %s"%cachekey)
+        logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
         if parameters != None:
             data = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
