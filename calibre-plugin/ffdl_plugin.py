@@ -420,7 +420,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def list_story_urls(self):
         '''Get list of URLs from existing books.'''
-        if self.gui.current_view().selectionModel().selectedRows() == 0 :
+        if not self.gui.current_view().selectionModel().selectedRows() :
             self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
                                              3000)
             return
