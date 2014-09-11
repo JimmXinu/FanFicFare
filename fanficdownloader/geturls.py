@@ -43,7 +43,10 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         if 'archiveofourown.org' in url:
             if adapter.getConfig("username"):
                 if adapter.getConfig("is_adult"):
-                    addurl = "?view_adult=true"
+                    if '?' in url:
+                        addurl = "&view_adult=true"
+                    else:
+                        addurl = "?view_adult=true"
                 else:
                     addurl=""
                 # just to get an authenticity_token.
