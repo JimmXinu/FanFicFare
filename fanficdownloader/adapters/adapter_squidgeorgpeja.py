@@ -87,7 +87,8 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         return "https://"+cls.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?"+re.escape("://"+self.getSiteDomain()+"/")+r"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"\d+$"        
+        # but not https://www.squidge.org/peja/cgi-bin/viewstory.php?sid=47746 -- that's the 'Site Map' negative look aead
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/")+r"~?"+re.escape("peja/cgi-bin/viewstory.php?sid=")+r"(?!47746)\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -219,7 +220,9 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                     self.setSeries(series_name, i)
                     self.story.setMetadata('seriesUrl',series_url)
                     break
-                i+=1
+                # don't count the 'site map' story.  See the url pattern method.
+                if '47746' not in a['href']:
+                    i+=1
                 
         except:
             # I find it hard to care if the series parsing fails
