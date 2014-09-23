@@ -187,11 +187,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # in lieu of word count.
         self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
         
-        lc4 = lc2.findNext('td', {'class' : 'lc4'})        
+        lc4 = lc2.findNext('td', {'class' : 'lc4'})
         desc = lc4.contents[0]
 
         try:
-            a = lc4.find('a', href=re.compile(r"/library/show_series.php\?id=\d+"))
+            a = lc4.find('a', href=re.compile(r"/series/\d+/.*"))
             if a:
                 # if there's a number after the series name, series_contents is a two element list:
                 # [<a href="...">Title</a>, u' (2)']
@@ -209,8 +209,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.setSeries(series_name, i)
                 desc = lc4.contents[2]
                 # Check if series is in a universe
-                universes_soup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')  + "&type=uni")) 
-#                logger.debug("Universe page=", universes_soup)
+                universe_url = self.story.getMetadata('authorUrl')  + "&type=uni"
+                universes_soup = bs.BeautifulSoup(self._fetchUrl(universe_url) )
+                logger.debug("Universe url='{0}'".format(universe_url))
                 if universes_soup:
                     universes = universes_soup.findAll('div', {'class' : 'ser-box'})
                     logger.debug("Number of Universes: %d" % len(universes))
@@ -223,28 +224,31 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                         universe_name = universe.find('div', {'class' : 'ser-name'}).text.partition(' ')[2]
                         logger.debug("universe_name='%s'" % universe_name)
                         # If there is link to the story, we have the right universe
-                        story_a = universe.find('a', {'href' : '/s/'+self.story.getMetadata('storyId')})
+                        story_a = universe.find('a', href=re.compile('/s/'+self.story.getMetadata('storyId')))
                         if story_a:
                             logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
                             self.story.setMetadata("universe", universe_name)
                             self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
                             break
+                else:
+                    logger.debug("No universe page")
         except:
             pass
         try:
-            a = lc4.find('a', href=re.compile(r"/library/universe.php\?id=\d+"))
+            a = lc4.find('a', href=re.compile(r"/universe/\d+/.*"))
+            logger.debug("Looking for universe - a='{0}'".format(a))
             if a:
                 self.story.setMetadata("universe",stripHTML(a))
                 desc = lc4.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
                 universe_name = stripHTML(a)
                 universeUrl = 'http://'+self.host+a['href']
-                logger.debug("Retrieving Universe - about to get page")
+                logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
                 universe_soup = bs.BeautifulSoup(self._fetchUrl(universeUrl))
                 logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
-                    universe_name = universe_soup.find('span', {'id' : 'ptitle'}).text.partition(' &mdash;')[0]
+                    universe_name = universe_soup.find('h1', {'id' : 'ptitle'}).text.partition(' &mdash;')[0]
                     logger.debug("Universes name: '{0}'".format(universe_name))
 
                 self.story.setMetadata('universeUrl',universeUrl)
@@ -253,6 +257,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if self.getConfig("universe_as_series"):
                     self.setSeries(universe_name, 0)
                     self.story.setMetadata('seriesUrl',universeUrl)
+            else:
+                logger.debug("Do not have a universe")
         except:
             pass
 
