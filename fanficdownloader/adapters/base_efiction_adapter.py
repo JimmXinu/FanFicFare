@@ -281,7 +281,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 self.story.addToList('characters', val)
         elif 'Categories' in key:
             for val in re.split("\s*,\s*", value):
-                self.story.addToList('categories', val)
+                self.story.addToList('category', val)
         elif 'Challenges' in key:
             for val in re.split("\s*,\s*", value):
                 # TODO this should be an official field I guess
