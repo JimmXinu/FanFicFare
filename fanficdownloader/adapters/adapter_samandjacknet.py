@@ -52,11 +52,11 @@ from base_adapter import BaseSiteAdapter,  makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return SheppardWeirComAdapter # XXX
+    return SamAndJackNetAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
+class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -79,16 +79,16 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         self._setURL('http://' + self.getSiteDomain() + '/fanfics/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','swf') # XXX
+        self.story.setMetadata('siteabbrev','sjn') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%B %d, %Y" # XXX
+        self.dateformat = "%b %d, %Y" # XXX
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'sheppardweir.com' # XXX
+        return 'samandjack.net' # XXX
 
     @classmethod
     def getSiteExampleURLs(self):
@@ -140,7 +140,12 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=4" # XXX
+
+            # Furthermore, there's a couple sites now with more than
+            # one warning level for different ratings.  And they're
+            # fussy about it.  midnightwhispers has three: 10, 3 & 5.
+            # we'll try 5 first.
+            addurl = "&ageconsent=ok&warning=5" # XXX
         else:
             addurl=""
 
@@ -157,16 +162,40 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
-
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "Age Consent Required" in data: # XXX 
-            raise exceptions.AdultCheckRequired(self.url)
+            
+        # Since the warning text can change by warning level, let's
+        # look for the warning pass url.  nfacommunity uses
+        # &amp;warning= -- actually, so do other sites.  Must be an
+        # eFiction book.
+            
+        # viewstory.php?sid=1882&amp;warning=4
+        # viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
+        #print data
+        #m = re.search(r"'viewstory.php\?sid=1882(&amp;warning=4)'",data)
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logger.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -181,7 +210,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         ## Title
         a = pagetitle.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+             
         # Find authorid and URL from... author url.
         # (fetch multiple authors)
         alist = soup.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+"))
@@ -189,14 +218,12 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             self.story.addToList('authorId',a['href'].split('=')[1])
             self.story.addToList('authorUrl','http://'+self.host+'/fanfics/'+a['href'])
             self.story.addToList('author',a.string)
-        
-        
+                             
         # Reviews
         reviewdata = soup.find('div', {'id' : 'sort'})
         a = reviewdata.findAll('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
-        self.story.setMetadata('reviews',stripHTML(a))  
-
-
+        self.story.setMetadata('reviews',stripHTML(a))              
+        
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
@@ -214,18 +241,15 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             except:
                 return ""
                 
-        # Summary        
-        summarydata = unicode(soup.find('div',{'class':'content'}))
-        start='<span class="label">Summary: </span>'
-        end='</div>'
-        summarydata = summarydata[summarydata.index(start)+len(start):summarydata.rindex(end)]
-        self.setDescription(url,bs.BeautifulSoup(summarydata)) 
-        
+               
         # <span class="label">Rated:</span> NC-17<br /> etc 
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
-            label = labelspan.string                        
+            label = labelspan.string  
+            
+            if 'Summary' in label:
+                self.setDescription(url,value)                     
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -272,13 +296,14 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                value=value.replace(' - ','')
+                value=value.replace(' | ','')
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
             
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                         
 
         try:
             # Find Series name from series URL.

@@ -135,7 +135,8 @@ import adapter_tolkienfanfiction
 import adapter_themaplebookshelf
 import adapter_fannation
 import adapter_sheppardweircom
-
+import adapter_samandjacknet
+import adapter_csiforensicscom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
