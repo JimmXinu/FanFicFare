@@ -137,6 +137,7 @@ import adapter_fannation
 import adapter_sheppardweircom
 import adapter_samandjacknet
 import adapter_csiforensicscom
+import adapter_lotrfanfictioncom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need

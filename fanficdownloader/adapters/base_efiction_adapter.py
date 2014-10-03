@@ -97,7 +97,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         In many cases, it's '/archive' or '/fanfiction'
         """
-        return "/"
+        return ""
 
     @classmethod
     def getViewStoryPhpName(cls):
