@@ -389,7 +389,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
             ## strip whitespace
             key = key.strip()
-            valueStr = valueStr.strip()
+            valueStr = stripHTML(valueStr)
 
             self.handleMetadataPair(key, valueStr)
 
