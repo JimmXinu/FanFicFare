@@ -30,7 +30,7 @@ class TheLOTRFanFictionSiteAdapter(BaseEfictionAdapter):
 
     @classmethod
     def getDateFormat(self):
-        return "%m/%d/%y"
+        return "%d/%m/%y"
 
 def getClass():
     return TheLOTRFanFictionSiteAdapter
