@@ -85,7 +85,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.cookiejar.set_cookie(cookie)
         
         try:
-            apiResponse = urllib2.urlopen("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId"))).read()
+            apiResponse = self._fetchUrl("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId")))
             apiData = json.loads(apiResponse)
             
             # Unfortunately, we still need to load the story index
@@ -114,7 +114,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             params['password'] = self.password
             data = self._postUrl(self.url,params)
 
-        if "Enter the password the author set for this story to view it." in data:
+        if not (soup.find('form', {'id' : 'password_form'}) == None):
             if self.getConfig('fail_on_password'):
                 raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
             else:
@@ -164,14 +164,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("rating", storyMetadata["content_rating_text"])
 
         ## Warnings aren't included in the API.
-        bottomli = soup.find('li',{'class':'bottom'})
-        if bottomli:
-            bottomspans = bottomli.findAll('span')
-            # the first span in bottom is the rating, obtained above.
-            if bottomspans and len(bottomspans) > 1:
-                for warning in bottomspans[1:]:
-                    self.story.addToList('warnings',warning.string)
-                
+        if soup.find('a',{'class':'story_category story_category_gore'}):
+            self.story.addToList('warnings',"Gore")
+        if soup.find('a',{'class':'story_category story_category_sex'}):
+            self.story.addToList('warnings',"Sex")
         
         for category in storyMetadata["categories"]:
             if storyMetadata["categories"][category]:
@@ -255,13 +251,20 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                     value = unicode(value)
                 self.story.setMetadata(metakey, value)
 
-        ## Groups and sequels code from FaceDeer
-        allGroupLists = soup.findAll('ul', {'id':'story_group_list'})
-        for groupList in allGroupLists:
-            for groupName in groupList.findAll('a', {'href':re.compile('^/group/')}):
+        #groups
+        if soup.find('button', {'id':'button-view-all-groups'}):
+            groupResponse = self._fetchUrl("http://www.fimfiction.net/ajax/groups/story_groups_list.php?story=%s" % (self.story.getMetadata("storyId")))
+            groupData = json.loads(groupResponse)
+            groupList = bs.BeautifulSoup(groupData["content"])
+        else:
+            groupList = soup.find('ul', {'id':'story-groups-list'})
+
+        if not (groupList == None):
+            for groupName in groupList.findAll('a'):
                 self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"]) 
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
 
+        #sequels
         sequelStoryHeader = soup.find('h1', {'class':'header-stories'}, text="Sequels")
         if not sequelStoryHeader == None:
             sequelContainer = sequelStoryHeader.parent.parent
