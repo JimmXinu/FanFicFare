@@ -167,7 +167,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = bs.BeautifulSoup(data)
+        for tag in soup.findAll('div',id='admin-banner'):
+            tag.extract()
         metasoup = bs.BeautifulSoup(meta)
+        for tag in metasoup.findAll('div',id='admin-banner'):
+            tag.extract()
 
         # Now go hunting for all the meta data and the chapter list.
         
