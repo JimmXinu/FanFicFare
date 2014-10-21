@@ -130,7 +130,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', stripHTML(titleh4.a))
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"^/author/\d+"))
+        a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/author/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
