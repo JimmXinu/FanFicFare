@@ -106,9 +106,8 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         loginUrl = 'https://ssl.fanfiktion.de/'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['nickname']))
-        d = self._postUrl(loginUrl,params)
-    
-        if "Login erfolgreich" not in d : #Member Account
+        soup = bs.BeautifulSoup(self._postUrl(loginUrl,params))
+        if not soup.find('a', title='Logout'):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['nickname']))
             raise exceptions.FailedToLogin(url,params['nickname'])
