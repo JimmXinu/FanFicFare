@@ -83,13 +83,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                                rest={'HttpOnly': None},
                                rfc2109=False)
             self.cookiejar.set_cookie(cookie)
-        
+
+        ##---------------------------------------------------------------------------------------------------
+        ## Get the story's title page. Check if it exists.
+
         try:
-            apiResponse = self._fetchUrl("http://www.fimfiction.net/api/story.php?story=%s" % (self.story.getMetadata("storyId")))
-            apiData = json.loads(apiResponse)
-            
-            # Unfortunately, we still need to load the story index
-            # page to parse the characters.  And chapters, now, too.
             data = self.do_fix_blockquotes(self._fetchUrl(self.url))
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
@@ -101,11 +99,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
-        # Can cause problems if a missing story is referenced in a comment.
-        # Shouldn't be needed anyway.
-        # if "/images/missing_story.png" in data:
-        #     raise exceptions.StoryDoesNotExist(self.url)
-        
         if "This story has been marked as having adult content. Please click below to confirm you are of legal age to view adult material in your country." in data:
             raise exceptions.AdultCheckRequired(self.url)
         
@@ -119,88 +112,83 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
             else:
                 raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
-         
-        if "Invalid story id" in apiData.values():
-            raise exceptions.StoryDoesNotExist(self.url)
-        
-        storyMetadata = apiData["story"]    
-            
-        ## Title
-        a = soup.find('a', href=re.compile(r'^/story/'+self.story.getMetadata('storyId')))
-        self.story.setMetadata('title',stripHTML(a))
-        
-        # self.story.setMetadata("title", storyMetadata["title"])
-        # if not storyMetadata["title"]:
-        #     raise exceptions.FailedToDownload("%s doesn't have a title in the API.  This is a known fimfiction.net bug with titles containing ."%self.url)
-        
-        self.story.setMetadata("author", storyMetadata["author"]["name"])
-        self.story.setMetadata("authorId", storyMetadata["author"]["id"])
-        self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), storyMetadata["author"]["name"]))
 
-        # chapters = [{"chapterTitle": chapter["title"], "chapterURL": chapter["link"]} for chapter in storyMetadata["chapters"]]
-        
-        # ## this is bit of a kludge based on the assumption all the
-        # ## 'bad' chapters will be at the end.
-        # ## limit down to the number of chapters reported by chapter_count.
-        # chapters = chapters[:storyMetadata["chapter_count"]] 
-        
-        # for chapter in chapters:
-        #     self.chapterUrls.append((chapter["chapterTitle"], chapter["chapterURL"]))
-        # self.story.setMetadata("numChapters", len(self.chapterUrls))
+        ##----------------------------------------------------------------------------------------------------
+        ## Extract metadata
 
-        for chapter in soup.findAll('a',{'class':'chapter_link'}):
+        storyContentBox = soup.find('div', {'class':'story_content_box'})
+
+        # Title
+        title = storyContentBox.find('a', {'class':re.compile(r'.*\bstory_name\b.*')})
+        self.story.setMetadata('title',stripHTML(title))
+
+        # Author
+        author = storyContentBox.find('span', {'class':'author'})
+        self.story.setMetadata("author", stripHTML(author))
+        #No longer seems to be a way to access Fimfiction's internal author ID
+        self.story.setMetadata("authorId", self.story.getMetadata("author"))
+        self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), stripHTML(author)))
+
+        #Rating text is replaced with full words for historical compatibility after the site changed
+        #on 2014-10-27
+        rating = stripHTML(storyContentBox.find('a', {'class':re.compile(r'.*\bcontent-rating-.*')}))
+        rating = rating.replace("E", "Everyone").replace("T", "Teen").replace("M", "Mature")
+        self.story.setMetadata("rating", rating)
+
+        # Chapters
+        for chapter in storyContentBox.findAll('a',{'class':'chapter_link'}):
             self.chapterUrls.append((stripHTML(chapter), 'http://'+self.host+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-            
-        # In the case of fimfiction.net, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
+
+        # Status
+        # In the case of Fimfiction, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'
         # For the sake of bringing it in line with the other adapters, 'Incomplete' becomes 'In-Progress'
-        # and 'Complete' beomes 'Completed'. 'Cancelled' seems an important enough (not to mention more strictly true) 
-        # status to leave unchanged.
-        # Nov2012 - 'On Hiatus' is now passed, too.  It's easy now for users to change/remove if they want
-        # with replace_metadata
-        status = storyMetadata["status"].replace("Incomplete", "In-Progress").replace("Complete", "Completed")
+        # and 'Complete' becomes 'Completed'. 'Cancelled' and 'On Hiatus' are passed through, it's easy now for users
+        # to change/remove if they want with replace_metadata
+        status = stripHTML(storyContentBox.find('span', {'class':re.compile(r'.*\bcompleted-status-.*')}))
+        status = status.replace("Incomplete", "In-Progress").replace("Complete", "Completed")
         self.story.setMetadata("status", status)
-        self.story.setMetadata("rating", storyMetadata["content_rating_text"])
 
-        ## Warnings aren't included in the API.
-        if soup.find('a',{'class':'story_category story_category_gore'}):
-            self.story.addToList('warnings',"Gore")
-        if soup.find('a',{'class':'story_category story_category_sex'}):
-            self.story.addToList('warnings',"Sex")
-        
-        for category in storyMetadata["categories"]:
-            if storyMetadata["categories"][category]:
-                self.story.addToList("genre", category) 
-
-        self.story.setMetadata("numWords", str(storyMetadata["words"]))
-        
-        # fimfic is the first site with an explicit cover image.
-        if "image" in storyMetadata.keys():
-            if "full_image" in storyMetadata:
-                coverurl = storyMetadata["full_image"]
+        # Genres and Warnings
+        # warnings were folded into general categories in the 2014-10-27 site update
+        categories = storyContentBox.findAll('a', {'class':re.compile(r'.*\bstory_category\b.*')})
+        for category in categories:
+            category = stripHTML(category)
+            if category == "Gore" or category == "Sex":
+                self.story.addToList('warnings', category)
             else:
-                coverurl = storyMetadata["image"]
+                self.story.addToList('genre', category)
+
+        # Word count
+        wordCountText = stripHTML(storyContentBox.find('li', {'class':'bottom'}).find('div', {'class':'word_count'}))
+        self.story.setMetadata("numWords", re.sub(r'[^0-9]', '', wordCountText))
+
+        # Cover image
+        storyImage = storyContentBox.find('div', {'class':'story_image'})
+        if storyImage:
+            coverurl = storyImage.find('a')['href']
             if coverurl.startswith('//'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
-
             if get_cover:
                 self.setCoverImage(self.url,coverurl)
 
+            coverSource = storyImage.find('a', {'class':'source'})
+            if coverSource:
+                self.story.setMetadata('coverSourceUrl', coverSource['href'])
+                #There's no text associated with the cover source link, so just
+                #reuse the URL. Makes it clear it's an external link leading
+                #outside of the fanfic site, at least.
+                self.story.setMetadata('coverSource', coverSource['href'])
+
         # fimf has started including extra stuff inside the description div.
-        descdivstr = u"%s"%soup.find("div", {"class":"description"})
+        descdivstr = u"%s"%storyContentBox.find("div", {"class":"description"})
         hrstr=u"<hr />"
         descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         self.setDescription(self.url,descdivstr)
 
-        # Can't trust dates from API anymore I'm told.
-        # Dates are in Unix time
-        # Take the publish date from the first chapter posted
-        # rawDatePublished = storyMetadata["chapters"][0]["date_modified"]
-        # self.story.setMetadata("datePublished", datetime.fromtimestamp(rawDatePublished))
-        # rawDateUpdated = storyMetadata["date_modified"]
-        # self.story.setMetadata("dateUpdated", datetime.fromtimestamp(rawDateUpdated))
-        
+        # Find the newest and oldest chapter dates
+        storyData = storyContentBox.find('div', {'class':'story_data'})
         oldestChapter = None
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
@@ -208,18 +196,21 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # FiMFiction it's possible for authors to insert new chapters
         # out-of-order or change the dates of earlier ones by editing
         # them--That WILL break epub update.
-        for index, chapterDate in enumerate(soup.findAll('span', {'class':'date'})):
-            date=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",chapterDate.contents[1].strip())
-            chapterDate = makeDate(date,self.dateformat)
+        for index, chapterDate in enumerate(storyData.findAll('span', {'class':'date'})):
+            dateString=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",chapterDate.contents[1].strip())
+            chapterDate = makeDate(dateString,self.dateformat)
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
             if newestChapter == None or chapterDate > newestChapter:
                 newestChapter = chapterDate
                 self.newestChapterNum = index
 
+        # Date updated
         self.story.setMetadata("dateUpdated", newestChapter)
-        
-        pubdatetag = soup.find('span', {'class':'date_approved'})
+
+        # Date published
+        # falls back to oldest chapter date for stories that haven't been officially published yet
+        pubdatetag = storyContentBox.find('span', {'class':'date_approved'})
         if pubdatetag is None:
             self.story.setMetadata("datePublished", oldestChapter)            
         else:
@@ -227,29 +218,33 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             datestripped=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",pubdateraw.strip())
             pubDate = makeDate(datestripped,self.dateformat)
             self.story.setMetadata("datePublished", pubDate)
-            
-        chars = soup.find("div", {"class":"inner_data"})
-        # fimfic stopped putting the char name on or around the char
-        # icon now for some reason.  Pull it from the image name with
-        # some heuristics.
-        for character in [character_icon["src"] for character_icon in chars.findAll("img", {"class":"character_icon"})]:
-            # //static.fimfiction.net/images/characters/twilight_sparkle.png
-            # 5th split /, remove last four, replace _, capitolize every word(title())
-            char = character.split('/')[5][:-4].replace('_',' ').title()
-            if char == 'Oc':
-                char = "OC"
-            if char == 'Cmc':
-                char = "Cutie Mark Crusaders"
-            self.story.addToList("characters", char)
-            
-        # extra site specific metadata
-        extralist = ["likes","dislikes","views","total_views","short_description"]
-        for metakey in extralist:
-            if metakey in storyMetadata:
-                value = storyMetadata[metakey]
-                if not isinstance(value,basestring):
-                    value = unicode(value)
-                self.story.setMetadata(metakey, value)
+
+        # Characters
+        chars = storyContentBox.find("div", {"class":"extra_story_data"})
+        for character in chars.findAll("a", {"class":"character_icon"}):
+            self.story.addToList("characters", character['title'])
+
+        # Likes and dislikes
+        storyToolbar = soup.find('div', {'class':'story-toolbar'})
+        likes = storyToolbar.find('span', {'class':'likes'})
+        if not likes is None:
+            self.story.setMetadata("likes", stripHTML(likes))
+        dislikes = storyToolbar.find('span', {'class':'dislikes'})
+        if not dislikes is None:
+            self.story.setMetadata("dislikes", stripHTML(dislikes))
+
+        # Highest view for a chapter and total views
+        viewSpan = storyToolbar.find('span', {'title':re.compile(r'.*\btotal views\b.*')})
+        self.story.setMetadata("views", re.sub(r'[^0-9]', '', stripHTML(viewSpan)))
+        self.story.setMetadata("total_views", re.sub(r'[^0-9]', '', viewSpan['title']))
+
+        # Comment count
+        commentSpan = storyToolbar.find('span', {'title':re.compile(r'.*\bcomments\b.*')})
+        self.story.setMetadata("comment_count", re.sub(r'[^0-9]', '', stripHTML(commentSpan)))
+
+        # Short description
+        descriptionMeta = soup.find('meta', {'property':'og:description'})
+        self.story.setMetadata("short_description", stripHTML(descriptionMeta['content']))
 
         #groups
         if soup.find('button', {'id':'button-view-all-groups'}):
