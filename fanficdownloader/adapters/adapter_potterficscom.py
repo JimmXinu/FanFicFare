@@ -86,6 +86,40 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             r"(?P<id>\d+)(/capitulo-(?P<ch>\d+))?/?$"
         return p
 
+    def needToLoginCheck(self, data):
+        # partials used to avoid having to figure out what was wrong
+        # with included utf8 higher chars.
+        if 'Para ver esta historia, por favor inicia tu sesi' in data \
+                or '<script>alert("El nombre de usuario o contrase' in data:
+            return True
+        else:
+            return False
+        
+    def performLogin(self,url):
+        params = {}
+
+        if self.password:
+            params['login_usuario'] = self.username
+            params['login_password'] = self.password
+        else:
+            params['login_usuario'] = self.getConfig("username")
+            params['login_password'] = self.getConfig("password")
+        params['login_ck'] = '1'
+
+        loginUrl = 'http://www.potterfics.com/secciones/usuarios/login.php'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['login_usuario']))
+        d = self._postUrl(loginUrl,params)
+
+        #print("d:%s"%d)
+        if '<script>alert("El nombre de usuario o contrase' in d:
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['login_usuario']))
+            raise exceptions.FailedToLogin(url,params['login_usuario'])
+            return False
+        else:
+            return True
+
     def extractChapterUrlsAndMetadata(self):
 
         #this converts '/historias/12345' to 'http://www.potterfics.com/historias/12345'
@@ -123,8 +157,12 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
         #print data
 
-        #deal with adult content warnings - doesn't seem to apply to this site
-
+        #deal with adult content login
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url,usecache=False)
+            
         #set constant meta for this site:
         #Set Language = Spanish
         self.story.setMetadata('language', 'Spanish')
@@ -144,8 +182,8 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #within that, we want the second row, first cell
         cell = table.tr.findNextSibling('tr').td
 
-        #find first metadata block
-        mb = cell.div.findNextSibling('div')
+        #find first metadata block--isn't first if logged in
+        mb = cell.div.findNextSibling('div',{'align':'left'})
         #Get meta...
         self.story.setMetadata('title', stripHTML(mb.b))
         #strip out brackets on rating
