@@ -44,24 +44,27 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         self.is_adult=False
         
         # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])        
         
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/library/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         self.dateformat = "%d %b %Y"
 
             
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['thewriterscoffeeshop.com','twcslibrary.net']
+
     @staticmethod
     def getSiteDomain():
-        return 'www.thewriterscoffeeshop.com'
+        return 'www.twcslibrary.net'
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/library/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/library/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+"(www.)?("+'|'.join(self.getAcceptDomains())+")/(library/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -83,7 +86,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/library/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -141,13 +144,13 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/library/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/library/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -220,7 +223,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/library/'+a['href']
+            series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
