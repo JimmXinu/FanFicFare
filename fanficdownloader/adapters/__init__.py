@@ -39,7 +39,7 @@ import adapter_mediaminerorg
 import adapter_potionsandsnitchesnet
 import adapter_tenhawkpresentscom
 import adapter_adastrafanficcom
-import adapter_thewriterscoffeeshopcom
+import adapter_twcslibrarynet
 import adapter_tthfanficorg
 import adapter_twilightednet
 import adapter_twiwritenet
