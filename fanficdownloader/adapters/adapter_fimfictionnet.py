@@ -308,7 +308,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # fix for img urls missing 'http:'
         images = soup.findAll('img')
         for imagetag in images:
-            if (not imagetag['src'] is None) and (imagetag['src'].startswith('//')):
+            if 'src' in imagetag.attrs and imagetag['src'].startswith('//'):
                 imagetag['src'] = "http:"+imagetag['src']
 
         return self.utf8FromSoup(url,soup)
