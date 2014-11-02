@@ -105,7 +105,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if self.password:
             params = {}
             params['password'] = self.password
-            data = self._postUrl(self.url,params)
+            data = self._postUrl(self.url, params)
+            soup = bs.BeautifulSoup(data)
 
         if not (soup.find('form', {'id' : 'password_form'}) == None):
             if self.getConfig('fail_on_password'):
@@ -300,7 +301,19 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self.do_fix_blockquotes(self._fetchUrl(url))
+        data = self._fetchUrl(url)
+
+        soup = bs.BeautifulSoup(data)
+        if not (soup.find('form', {'id' : 'password_form'}) == None):
+            if self.password:
+                params = {}
+                params['password'] = self.password
+                data = self._postUrl(url, params)
+            else:
+                print("Chapter %s needed password but no password was present" % url)
+
+        data = self.do_fix_blockquotes(data)
+
         soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
