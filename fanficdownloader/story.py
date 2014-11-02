@@ -224,6 +224,12 @@ langs = {
     "Devanagari":"hi",
     }
 
+def re_compile(regex,line):
+    try:
+        return re.compile(regex)
+    except Exception, e: 
+        raise exceptions.RegularExpresssionFailed(e,regex,line)
+
 class InExMatch:
     keys = []
     regex = None
@@ -234,11 +240,11 @@ class InExMatch:
         if "=~" in line:
             (self.keys,self.match) = line.split("=~")
             self.match = self.match.replace(SPACE_REPLACE,' ')
-            self.regex = re.compile(self.match)
+            self.regex = re_compile(self.match,line)
         elif "!~" in line:
             (self.keys,self.match) = line.split("!~")
             self.match = self.match.replace(SPACE_REPLACE,' ')
-            self.regex = re.compile(self.match)
+            self.regex = re_compile(self.match,line)
             self.negate = True
         elif "==" in line:
             (self.keys,self.match) = line.split("==")
@@ -423,9 +429,9 @@ class Story(Configurable):
                     (regexp,replacement)=parts
 
             if regexp:
-                regexp = re.compile(regexp)
+                regexp = re_compile(regexp,line)
                 if condregexp:
-                    condregexp = re.compile(condregexp)
+                    condregexp = re_compile(condregexp,line)
                 # A way to explicitly include spaces in the
                 # replacement string.  The .ini parser eats any
                 # trailing spaces.
@@ -722,7 +728,7 @@ class Story(Configurable):
 
         if not allowunsafefilename:
             values={}
-            pattern = re.compile(self.getConfig("output_filename_safepattern",r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+"))
+            pattern = re_compile(self.getConfig("output_filename_safepattern",r"[^a-zA-Z0-9_\. \[\]\(\)&'-]+"),"output_filename_safepattern")
             for k in origvalues.keys():
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
 
