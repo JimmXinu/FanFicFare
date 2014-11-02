@@ -75,3 +75,12 @@ class FailedToWriteOutput(Exception):
     def __str__(self):
         return self.error
 
+class RegularExpresssionFailed(Exception):
+    def __init__(self,error,regex,line):
+        self.error=error
+        self.regex=regex
+        self.line=line
+
+    def __str__(self):
+        return "Regular Expression Error '%s' in regex '%s' in line '%s'"%(self.error,self.regex,self.line)
+
