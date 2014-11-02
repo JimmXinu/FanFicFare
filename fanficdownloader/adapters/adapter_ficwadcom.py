@@ -103,6 +103,12 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
             
+        # if blocked, attempt login.
+        if soup.find("div",{"class":"blocked"}):
+            if self.performLogin(url): # performLogin raises
+                                       # FailedToLogin if it fails.
+                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False))
+
         divstory = soup.find('div',id='story')
         storya = divstory.find('a',href=re.compile("^/story/\d+$"))
         if storya : # if there's a story link in the divstory header, this is a chapter page.
