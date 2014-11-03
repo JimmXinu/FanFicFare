@@ -387,7 +387,7 @@ class FanfictionDownloader(UserConfigServer):
             adapter = adapters.getAdapter(configuration,url)
             logging.info('Created an adaper: %s' % adapter)
 
-            if len(login) > 1:
+            if login or password:
                 adapter.username=login
                 adapter.password=password
             adapter.is_adult=is_adult
@@ -427,12 +427,14 @@ class FanfictionDownloader(UserConfigServer):
             download.put()
             logging.info(unicode(e))
             is_login= ( isinstance(e, exceptions.FailedToLogin) )
+            is_passwdonly = is_login and e.passwdonly
             template_values = dict(nickname = user.nickname(),
                                    url = url,
                                    format = format,
                                    site = adapter.getConfigSection(),
                                    fic = download,
                                    is_login=is_login,
+                                   is_passwdonly=is_passwdonly
                                    )
             # thewriterscoffeeshop.com can do adult check *and* user required.
             if isinstance(e,exceptions.AdultCheckRequired):
@@ -491,7 +493,7 @@ class FanfictionDownloaderTask(UserConfigServer):
 
             logging.info('Created an adapter: %s' % adapter)
 
-            if len(login) > 1:
+            if login or password:
                 adapter.username=login
                 adapter.password=password
             adapter.is_adult=is_adult

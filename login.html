@@ -50,24 +50,32 @@
 	<div id='logpasswordtable'>
 	  
 	  {% if is_login %}
-	  
-	  <h3>Login and Password</h3>
-	  <div id='logpassword'>
-	    {{ site }} requires a Login/Password for this story.
-	    You need to provide your Login/Password for {{ site }}
-	    to download it.
-	  </div>
-	  <div class='fieldandlabel'>
-	    <div class='label'>Login</div>
-	    <div class='field'><input type='text' name='login' size='50'></div>
-	  </div>
-	  
-	  <div class='fieldandlabel'>
-	    <div class='label'>Password</div>
-	    <div class='field'><input type='password' name='password' size='50'></div>
-	  </div>
-	  
-	  {% else %}
+
+              {% if is_passwdonly %}
+                   <h3>Password</h3>
+                   <div id='logpassword'>
+                     {{ site }} requires a Password for this story.<br>
+                     You need to provide the Password for this story
+                     to download it.
+                   </div>
+              {% else %}
+                   <h3>Login / Password</h3>
+                   <div id='logpassword'>
+                     {{ site }} requires a Login/Password for this story.<br>
+                     You need to provide your Login/Password for {{ site }}
+                     to download it.
+                   </div>
+                   <div class='fieldandlabel'>
+                     <div class='label'>Login</div>
+                     <div class='field'><input type='text' name='login' size='50'></div>
+                   </div>
+              {% endif %}
+          <div class='fieldandlabel'>
+             <div class='label'>Password</div>
+             <div class='field'><input type='password' name='password' size='50'></div>
+          </div>
+         	  
+     	  {% else %}
 
 	  <input type="hidden" name="login" value='{{ login }}'>
 	  <input type="hidden" name="password" value='{{ password }}'>
