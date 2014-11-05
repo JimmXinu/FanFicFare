@@ -92,7 +92,7 @@ class BaseSiteAdapter(Configurable):
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         # self.opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
         ## Specific UA because too many sites are blocking the default python UA.
-        self.opener.addheaders = [('User-agent', self.getConfig('user_agent'))]
+        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent'))]
         self.storyDone = False
         self.metadataDone = False
         self.story = Story(configuration)
@@ -128,6 +128,7 @@ class BaseSiteAdapter(Configurable):
     def set_cookiejar(self,cj):
         self.cookiejar = cj
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent'))]
         
     def load_cookiejar(self,filename):
         '''
