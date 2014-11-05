@@ -57,7 +57,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     
         # this way it uses User-Agent or other special settings.  Only AO3
         # is doing login.
-        data = adapter._fetchUrl(url)
+        data = adapter._fetchUrl(url,usecache=False)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
         opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
