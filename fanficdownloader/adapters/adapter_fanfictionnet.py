@@ -76,14 +76,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
-    def _fetchUrl(self,url,parameters=None,extrasleep=1.0):
-        # time.sleep(1.0) ## ffnet(and, I assume, fpcom) tends to fail
-        #                 ## more if hit too fast.  This is in
-        #                 ## additional to what ever the
-        #                 ## slow_down_sleep_time setting is.
+    def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
+        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
+        ## fast.  This is in additional to what ever the
+        ## slow_down_sleep_time setting is.
         return BaseSiteAdapter._fetchUrl(self,url,
                                          parameters=parameters,
-                                         extrasleep=extrasleep)
+                                         extrasleep=extrasleep,
+                                         usecache=usecache)
 
     def use_pagecache(self):
         '''
