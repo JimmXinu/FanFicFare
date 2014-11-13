@@ -741,7 +741,7 @@ class Story(Configurable):
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
-            return
+            return (None,None)
 
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
@@ -749,7 +749,7 @@ class Story(Configurable):
         # appengine (web version) isn't allowed to do images--just
         # gets too big too fast and breaks things.
         if is_appengine:
-            return
+            return (None,None)
 
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
@@ -782,7 +782,7 @@ class Story(Configurable):
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
         if cover and coverexclusion and re.search(coverexclusion,imgurl):
-            return
+            return (None,None)
 
         prefix='ffdl'
         if imgurl not in self.imgurls:
@@ -812,7 +812,7 @@ class Story(Configurable):
                                                     background="#"+self.getConfig('background_color'))
             except Exception, e:
                 logger.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
-                return "failedtoload"
+                return ("failedtoload","failedtoload")
 
             # explicit cover, make the first image.
             if cover:
@@ -852,7 +852,7 @@ class Story(Configurable):
 
         #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
 
-        return newsrc
+        return (newsrc, imgurl)
 
     def getImgUrls(self):
         retlist = []
