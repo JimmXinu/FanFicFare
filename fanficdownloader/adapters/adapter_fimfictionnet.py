@@ -318,10 +318,4 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        # fix for img urls missing 'http:'
-        images = soup.findAll('img')
-        for imagetag in images:
-            if 'src' in imagetag.attrs and imagetag['src'].startswith('//'):
-                imagetag['src'] = "http:"+imagetag['src']
-
         return self.utf8FromSoup(url,soup)
