@@ -96,7 +96,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
     
-        d = self._fetchUrl(loginUrl, params)
+        d = self._fetchUrl(loginUrl, params,usecache=False)
     
         if "My Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -105,6 +105,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             return False
         else:
             return True
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -129,7 +136,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url+":i")
+            data = self._fetchUrl(url+":i",usecache=False)
         
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
