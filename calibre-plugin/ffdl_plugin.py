@@ -1622,7 +1622,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         coldef = custom_columns[custcol]
                         label = coldef['label']
 
-                    if flag == 'r' or book['added']: # flag 'n' isn't actually needed--*always* set if configured and new book.
+                    if flag == 'r' or (flag == 'n' and book['added']):
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
                             if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
                                 # re-split list, strip commas, convert to floats, sum up.
@@ -1639,12 +1639,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                     val = False
                                 else:
                                     val = None # for tri-state 'booleans'. Yes/No/Null
+                            #print("setting 'r' or 'added':%s"%val)
                             db.set_custom(book_id, val, label=label, commit=False)
 
                     if flag == 'a':
                         vallist = []
                         try:
                             existing=db.get_custom(book_id,label=label,index_is_id=True)
+                            #print("existing:%s"%existing)
                             if isinstance(existing,list):
                                 vallist = existing
                             elif existing:
@@ -1652,6 +1654,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         except:
                             pass
 
+                        #print("vallist:%s"%vallist)
                         if val:
                             vallist.append(val)
                             
