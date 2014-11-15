@@ -168,10 +168,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # surprisingly, the detailed page does not give enough details, so go to author's page
-        skip=0
+        page=0
         i=0
         while i == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+str(skip)))
+            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"/"+str(page)))
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
@@ -179,7 +179,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     i=1
                     break
                 if a[len(a)-1] == lc2:
-                    skip=skip+10
+                    page=page+1
 
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('genre',cat.text)
