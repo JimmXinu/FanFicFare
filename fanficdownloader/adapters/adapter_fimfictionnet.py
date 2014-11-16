@@ -88,7 +88,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         ## Get the story's title page. Check if it exists.
 
         try:
-            data = self.do_fix_blockquotes(self._fetchUrl(self.url))
+            # don't use cache if manual is_adult--should only happen
+            # if it's an adult story and they don't have is_adult in ini.
+            data = self.do_fix_blockquotes(self._fetchUrl(self.url,
+                                                          usecache=(not self.is_adult)))
             soup = bs.BeautifulSoup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
