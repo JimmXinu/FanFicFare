@@ -311,15 +311,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         
         # some ancient stories have body tags inside them that cause
         # soup parsing to discard the content.  For story text we
-        # don't care about anything before "<div class='storytextp"
-        # (there's a space after storytextp, so no close quote(')) and
+        # don't care about anything before "<div role='main'" and
         # this kills any body tags.
         divstr = "<div role='main'"
         if divstr not in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         else:
-            data = data[data.index(divstr):]
-        data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
+            data = data[data.index(divstr):] 
+        data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
         
         soup = bs.BeautifulSoup(data)
 
