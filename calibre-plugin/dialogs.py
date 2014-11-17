@@ -520,7 +520,7 @@ class UserPassDialog(QDialog):
         self.l = QGridLayout()
         self.setLayout(self.l)
 
-        if exception.passwdonly:
+        if exception and exception.passwdonly:
             self.setWindowTitle(_('Password'))
             self.l.addWidget(QLabel(_("Author requires a password for this story(%s).")%exception.url),0,0,1,2)
             # user isn't used, but it's easier to still have it for

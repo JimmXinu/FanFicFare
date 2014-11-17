@@ -128,9 +128,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         # Assign our menu to this action
         self.menu = QMenu(self.gui)
-        self.old_actions_unique_map = {}
-        # menu_actions is just to keep a live reference to the menu
-        # items to prevent GC removing it.
+        # menu_actions is to keep a live reference to the menu items
+        # to prevent GC removing it and so rebuild_menus has a list
         self.menu_actions = []
         self.qaction.setMenu(self.menu)
         self.menus_lock = threading.RLock()
@@ -238,8 +237,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             #self.qaction.setText("FFDL")
             do_user_config = self.interface_action_base_plugin.do_user_config
             self.menu.clear()
-            self.actions_unique_map = {}
+            
+            for action in self.menu_actions:
+                self.gui.keyboard.unregister_shortcut(action.calibre_shortcut_unique_name)
+                # starting in calibre 2.10.0, actions are registers at
+                # the top gui level for OSX' benefit.
+                if calibre_version >= (2,10,0):
+                    self.gui.removeAction(action)
             self.menu_actions = []
+            
             self.add_action = self.create_menu_item_ex(self.menu, _('&Add New from URL(s)'), image='plus.png',
                                                        unique_name='Add New FanFiction Book(s) from URL(s)',
                                                        shortcut_name=_('Add New FanFiction Book(s) from URL(s)'),
@@ -325,11 +331,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                              shortcut_name=_('About FanFictionDownLoader'), 
                                                              triggered=self.about)
             
-            # Before we finalize, make sure we delete any actions for menus that are no longer displayed
-            for menu_id, unique_name in self.old_actions_unique_map.iteritems():
-                if menu_id not in self.actions_unique_map:
-                    self.gui.keyboard.unregister_shortcut(unique_name)
-            self.old_actions_unique_map = self.actions_unique_map
             self.gui.keyboard.finalize()
 
     def about(self):
@@ -352,7 +353,6 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         #print("create_menu_item_ex before %s"%menu_text)
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
                                        shortcut, triggered, is_checked, shortcut_name, unique_name)
-        self.actions_unique_map[ac.calibre_shortcut_unique_name] = ac.calibre_shortcut_unique_name
         self.menu_actions.append(ac)
         #print("create_menu_item_ex after %s"%menu_text)
         return ac
