@@ -284,9 +284,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if 'Sex' in label:
                 self.story.setMetadata('rating', value)
                 
-            if 'Codes' in label:
-                for code in value.split(' '):
-                    self.story.addToList('codes',code)
+            if 'Tags' in label:
+                for code in re.split(r'\s*,\s*', value.strip()):
+                     self.story.addToList('sitetags',code)
                     
             if 'Posted' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
