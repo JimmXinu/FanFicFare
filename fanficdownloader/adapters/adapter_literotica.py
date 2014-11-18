@@ -216,14 +216,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from <%s>' % url)
         data1 = self._fetchUrl(url)
+        # brute force approach to replace the wrapping <p> tag.  If
+        # done by changing tag name, it causes problems with nested
+        # <p> tags.
+        data1 = data1.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
         soup1 = bs.BeautifulSoup(data1)
 
         #strip comments from soup
         [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, bs.Comment))]
 
         # get story text
-        story1 = soup1.find('div', 'b-story-body-x').p
-        story1.name='div'
+        story1 = soup1.find('div', 'b-story-body-x').div
+        #print("story1:%s"%story1)
+        # story1.name='div'
         story1.append('<br />')
         storytext = self.utf8FromSoup(url,story1)
 
@@ -237,10 +242,14 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 logger.debug("fetching page "+str(i))
                 time.sleep(0.5)
                 data2 = self._fetchUrl(url, {'page': i})
+                # brute force approach to replace the wrapping <p> tag.  If
+                # done by changing tag name, it causes problems with nested
+                # <p> tags.
+                data2 = data2.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
                 soup2 = bs.BeautifulSoup(data2)
                 [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, bs.Comment))]
-                story2 = soup2.find('div', 'b-story-body-x').p
-                story2.name='div'
+                story2 = soup2.find('div', 'b-story-body-x').div
+                # story2.name='div'
                 story2.append('<br />')
                 storytext += self.utf8FromSoup(url,story2)
             except urllib2.HTTPError, e:
