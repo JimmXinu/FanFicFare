@@ -201,13 +201,19 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # out-of-order or change the dates of earlier ones by editing
         # them--That WILL break epub update.
         for index, chapterDate in enumerate(storyData.findAll('span', {'class':'date'})):
-            dateString=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",chapterDate.contents[1].strip())
-            chapterDate = makeDate(dateString,self.dateformat)
+            chapterDate = self.ordinal_date_string_to_date(chapterDate.contents[1])
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
             if newestChapter == None or chapterDate > newestChapter:
                 newestChapter = chapterDate
                 self.newestChapterNum = index
+
+        if newestChapter is None:
+            #this will only be true when updating metadata for stories that have 0 chapters
+            #there is a "last modified" date given on the page, extract it and use that.
+            moddatetag = storyContentBox.find('span', {'class':'last_modified'})
+            if not moddatetag is None:
+                newestChapter = self.ordinal_date_string_to_date(moddatetag('span')[1].text)
 
         # Date updated
         self.story.setMetadata("dateUpdated", newestChapter)
@@ -216,11 +222,15 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # falls back to oldest chapter date for stories that haven't been officially published yet
         pubdatetag = storyContentBox.find('span', {'class':'date_approved'})
         if pubdatetag is None:
-            self.story.setMetadata("datePublished", oldestChapter)            
+            if oldestChapter is None:
+                #this will only be true when updating metadata for stories that have 0 chapters
+                #and that have never been officially published - a rare occurrence. Fall back to last
+                #modified date as the publication date, it's all that we've got.
+                self.story.setMetadata("datePublished", newestChapter)
+            else:
+                self.story.setMetadata("datePublished", oldestChapter)
         else:
-            pubdateraw = pubdatetag('span')[1].text
-            datestripped=re.sub(r"(\d+)(st|nd|rd|th)",r"\1",pubdateraw.strip())
-            pubDate = makeDate(datestripped,self.dateformat)
+            pubDate = self.ordinal_date_string_to_date(pubdatetag('span')[1].text)
             self.story.setMetadata("datePublished", pubDate)
 
         # Characters
@@ -285,7 +295,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata("prequel", stripHTML(link))
         except:
             pass
-        
+
+    def ordinal_date_string_to_date(self, datestring):
+        datestripped=re.sub(r"(\d+)(st|nd|rd|th)", r"\1", datestring.strip())
+        return makeDate(datestripped, self.dateformat)
+
     def hookForUpdates(self,chaptercount):
         if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
             print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
