@@ -114,7 +114,7 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
                       action="store_true", dest="debug",
                       help="Show debug output while downloading.", )
 
-    (options, args) = parser.parse_args(argv)
+    options, args = parser.parse_args(argv)
 
     if not options.debug:
         logger = logging.getLogger("fanficdownloader")
@@ -124,10 +124,10 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
         parser.error("incorrect number of arguments")
 
     if options.siteslist:
-        for (site, examples) in adapters.getSiteExamples():
-            print("\n====%s====\n\nExample URLs:" % site)
+        for site, examples in adapters.getSiteExamples():
+            print "\n====%s====\n\nExample URLs:" % site
             for u in examples:
-                print("  * %s" % u)
+                print "  * %s" % u
         return
 
     if options.update and options.format != 'epub':
@@ -138,7 +138,7 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
     output_filename = None
     if options.update:
         try:
-            (url, chaptercount) = get_dcsource_chaptercount(args[0])
+            url, chaptercount = get_dcsource_chaptercount(args[0])
             if not url:
                 print "No story URL found in epub to update."
                 return
@@ -223,7 +223,7 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
             try:
                 writer = writers.getWriter("epub", configuration, adapter)
                 output_filename = writer.getOutputFileName()
-                (noturl, chaptercount) = get_dcsource_chaptercount(output_filename)
+                noturl, chaptercount = get_dcsource_chaptercount(output_filename)
                 print "Updating %s, URL: %s" % (output_filename, url)
             except:
                 options.update = False
@@ -235,12 +235,12 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
                 from calibre.utils.magick import Image
 
                 logging.debug("Using calibre.utils.magick")
-            except:
+            except ImportError:
                 try:
                     import Image
 
                     logging.debug("Using PIL")
-                except:
+                except ImportError:
                     print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
                     if not sys.stdin.readline().strip().lower().startswith('y'):
                         return
@@ -270,27 +270,18 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
             if chaptercount == urlchaptercount and not options.metaonly:
                 print "%s already contains %d chapters." % (output_filename, chaptercount)
             elif chaptercount > urlchaptercount:
-                print "%s contains %d chapters, more than source: %d." % (
-                    output_filename, chaptercount, urlchaptercount)
+                print "%s contains %d chapters, more than source: %d." % (output_filename, chaptercount, urlchaptercount)
             elif chaptercount == 0:
-                print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % (
-                    output_filename)
+                print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
                 # merging epubs.
-                (url,
-                 chaptercount,
-                 adapter.oldchapters,
-                 adapter.oldimgs,
-                 adapter.oldcover,
-                 adapter.calibrebookmark,
-                 adapter.logfile) = get_update_data(output_filename)
+                url, chaptercount, adapter.oldchapters, adapter.oldimgs, adapter.oldcover, adapter.calibrebookmark, adapter.logfile = get_update_data(output_filename)
 
                 print "Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount)
 
-                if not (options.update and chaptercount == urlchaptercount) \
-                        and adapter.getConfig("do_update_hook"):
+                if not options.update and chaptercount == urlchaptercount and adapter.getConfig("do_update_hook"):
                     chaptercount = adapter.hookForUpdates(chaptercount)
 
                 writeStory(configuration, adapter, "epub")
@@ -305,8 +296,7 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
         if not options.metaonly and adapter.getConfig("post_process_cmd"):
             metadata = adapter.story.metadata
             metadata['output_filename'] = output_filename
-            call(string.Template(adapter.getConfig("post_process_cmd"))
-                 .substitute(metadata), shell=True)
+            call(string.Template(adapter.getConfig("post_process_cmd")).substitute(metadata), shell=True)
 
         del adapter
 
@@ -319,7 +309,4 @@ def main(argv, parser=None, passed_defaultsini=None, passed_personalini=None):
 
 
 if __name__ == "__main__":
-    # import time
-    #start = time.time()
     main(sys.argv[1:])
-    #print("Total time seconds:%f"%(time.time()-start))
