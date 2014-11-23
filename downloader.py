@@ -25,6 +25,19 @@ import ConfigParser
 from subprocess import call
 import pprint
 
+def insert_into_python_path():
+    """
+    Inserts this directory into the Python path, making the packages contained
+    within directly importable
+    """
+    path = os.path.dirname(os.path.realpath(__file__))
+
+    # Insert at the beginning of the Python path to give the packages contained
+    # within this directory the highest priority when importing. This is done
+    # to avoid importing potentially existing different versions of the
+    # packages on the Python path
+    sys.path.insert(0, path)
+
 import logging
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
@@ -315,5 +328,6 @@ def main(argv,
 if __name__ == "__main__":
     #import time
     #start = time.time()
+    insert_into_python_path()
     main(sys.argv[1:])
     #print("Total time seconds:%f"%(time.time()-start))

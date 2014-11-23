@@ -1173,6 +1173,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                   ignore_expires=True)
         options['cookiejarfile']=cookiejarfile.name
         del options['cookiejar'] ## can't be pickled.
+
+        # pass the plugin path in for jobs.py to use for 'with:' to
+        # get libs from plugin zip.
+        options['plugin_path'] = self.interface_action_base_plugin.plugin_path
         
         func = 'arbitrary_n'
         cpus = self.gui.job_manager.server.pool_size

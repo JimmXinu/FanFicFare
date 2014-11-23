@@ -23,6 +23,9 @@ import urllib2
 import time
 
 from .. import BeautifulSoup as bs
+import bs4 as bs
+
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -33,7 +36,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tth')
-        self.dateformat = "%d %b %y"
+        self.dateformat = u"%d\u00a0%b\u00a0%y" # &nbsp; becomes \u00a0 with bs4/html5lib.
         self.is_adult=False
         self.username = None
         self.password = None
@@ -100,7 +103,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='text' id='urealname' name='urealname' value=''/>
 # <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
 # <input type='submit' value='Login' name='loginsubmit'/>
-        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl))
+        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl), 'html5lib')
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
         
@@ -129,7 +132,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
-            soup = bs.BeautifulSoup(data)
+            #print("data:%s"%data)
+            soup = bs.BeautifulSoup(data, 'html5lib')
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -152,7 +156,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
                 data = self._fetchUrl(url,usecache=False)
-                soup = bs.BeautifulSoup(data)
+                soup = bs.BeautifulSoup(data, 'html5lib')
 
         if "NOTE: This story is rated FR21 which is above your chosen filter level." in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -170,7 +174,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             logger.debug("**AUTHOR** URL: "+authorurl)
             authordata = self._fetchUrl(authorurl)
             descurl=authorurl
-            authorsoup = bs.BeautifulSoup(authordata)
+            authorsoup = bs.BeautifulSoup(authordata, 'html5lib')
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
                 nextarrow = authorsoup.find('a', {'class':'arrowf'})
@@ -184,7 +188,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 descurl=nextpage
-                authorsoup = bs.BeautifulSoup(authordata)
+                authorsoup = bs.BeautifulSoup(authordata, 'html5lib')
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -203,7 +207,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 infourl = 'http://'+self.host+ainfo['href']
                 logger.debug("**StoryInfo** URL: "+infourl)
                 infodata = self._fetchUrl(infourl)
-                infosoup = bs.BeautifulSoup(infodata)
+                infosoup = bs.BeautifulSoup(infodata, 'html5lib')
 
                 # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
                 #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
@@ -265,7 +269,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-            
+
+        #print("date:%s"%verticaltabletds[8])
         self.story.setMetadata('datePublished',makeDate(stripHTML(verticaltabletds[8].string), self.dateformat))
         self.story.setMetadata('dateUpdated',makeDate(stripHTML(verticaltabletds[9].string), self.dateformat))
 
@@ -289,7 +294,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulSoup(self._fetchUrl(url))
+        soup = bs.BeautifulSoup(self._fetchUrl(url), 'html5lib')
 
         div = soup.find('div', {'id' : 'storyinnerbody'})
         

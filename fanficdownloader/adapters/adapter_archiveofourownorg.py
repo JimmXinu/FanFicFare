@@ -21,7 +21,9 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+#from .. import BeautifulSoup as bs
+import bs4 as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -334,7 +336,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 		
         chapter=bs.BeautifulSoup('<div class="story"></div>').find('div')
         data = self._fetchUrl(url)
-        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr'))
+        soup = bs.BeautifulSoup(data)
 
         exclude_notes=self.getConfigList('exclude_notes')
 
