@@ -15,67 +15,57 @@
 # limitations under the License.
 #
 
-import sys, os
-from os.path import normpath, expanduser, isfile, join
-from StringIO import StringIO
-from optparse import OptionParser      
-import getpass
-import string
-import ConfigParser
+from optparse import OptionParser
+from os.path import expanduser, isfile, join
 from subprocess import call
-import pprint
-
-def insert_into_python_path():
-    """
-    Inserts this directory into the Python path, making the packages contained
-    within directly importable
-    """
-    path = os.path.dirname(os.path.realpath(__file__))
-
-    # Insert at the beginning of the Python path to give the packages contained
-    # within this directory the highest priority when importing. This is done
-    # to avoid importing potentially existing different versions of the
-    # packages on the Python path
-    sys.path.insert(0, path)
-
+import ConfigParser
+import getpass
 import logging
+import pprint
+import string
+import sys
+
+
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
     rootlogger = logging.getLogger()
-    loghandler=logging.NullHandler()
+    loghandler = logging.NullHandler()
     loghandler.setFormatter(logging.Formatter("(=====)(levelname)s:%(message)s"))
     rootlogger.addHandler(loghandler)
 
 try:
-    from calibre.constants import numeric_version as calibre_version
+    import calibre
+    del calibre
     is_calibre = True
-except:
+except ImportError:
     is_calibre = False
 
 # using try/except directly was masking errors during development.
 if is_calibre:
     # running under calibre
-    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters,writers,exceptions
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 else:
-    from fanficdownloader import adapters,writers,exceptions
+    from fanficdownloader import adapters, writers, exceptions
     from fanficdownloader.configurable import Configuration
     from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
     from fanficdownloader.geturls import get_urls_from_page
-    
+
 
 if sys.version_info < (2, 5):
     print "This program requires Python 2.5 or newer."
     sys.exit(1)
 
-def writeStory(config,adapter,writeformat,metaonly=False,outstream=None):
-    writer = writers.getWriter(writeformat,config,adapter)
-    writer.writeStory(outstream=outstream,metaonly=metaonly)
-    output_filename=writer.getOutputFileName()
+
+def writeStory(config, adapter, writeformat, metaonly=False, outstream=None):
+    writer = writers.getWriter(writeformat, config, adapter)
+    writer.writeStory(outstream=outstream, metaonly=metaonly)
+    output_filename = writer.getOutputFileName()
     del writer
     return output_filename
+
 
 def main(argv,
          parser=None,
@@ -328,6 +318,5 @@ def main(argv,
 if __name__ == "__main__":
     #import time
     #start = time.time()
-    insert_into_python_path()
     main(sys.argv[1:])
     #print("Total time seconds:%f"%(time.time()-start))
