@@ -46,8 +46,7 @@ if is_calibre:
     # running under calibre
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
-    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource_chaptercount, \
-        get_update_data
+    from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
     from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page
 else:
     from fanficdownloader import adapters, writers, exceptions
