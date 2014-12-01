@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team
+# Copyright 2014 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,15 +28,6 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
 
-# By virtue of being recent and requiring both is_adult and user/pass,
-# adapter_fanficcastletvnet.py is the best choice for learning to
-# write adapters--especially for sites that use the eFiction system.
-# Most sites that have ".../viewstory.php?sid=123" in the story URL
-# are eFiction.
-
-# For non-eFiction sites, it can be considerably more complex, but
-# this is still a good starting point.
-
 # In general an 'adapter' needs to do these five things:
 
 # - 'Register' correctly with the downloader
@@ -53,11 +44,11 @@ from base_adapter import BaseSiteAdapter,  makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return CastleFansOrgAdapter # XXX
+    return FanficCastleTVNetAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
+class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -77,10 +68,10 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/fanfic/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','cslf') # XXX
+        self.story.setMetadata('siteabbrev','csltv') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
@@ -89,14 +80,14 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'castlefans.org' # XXX
+        return 'fanfic.castletv.net' # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfic/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/fanfic/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -119,7 +110,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
     
-        loginUrl = 'http://' + self.getSiteDomain() + '/fanfic/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
     
@@ -186,13 +177,13 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
         # Find authorid and URL from... author url.
         a = pagetitle.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/fanfic/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfic/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -277,7 +268,7 @@ class CastleFansOrgAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/fanfic/'+a['href']
+            series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
