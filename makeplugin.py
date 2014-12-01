@@ -28,7 +28,7 @@ if __name__=="__main__":
     # from top dir. 'w' for overwrite
     createZipFile(filename,"w",
                   ['plugin-defaults.ini','plugin-example.ini','fanficdownloader',
-                   'downloader.py','defaults.ini','six.py','bs4','html5lib'],
+                   'downloader.py','defaults.ini','six.py','bs4','html5lib','chardet'],
                   exclude=exclude)
     #from calibre-plugin dir. 'a' for append
     os.chdir('calibre-plugin')
