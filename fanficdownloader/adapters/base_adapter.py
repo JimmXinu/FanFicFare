@@ -57,7 +57,7 @@ from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from ..exceptions import InvalidStoryURL
 
 try:
-    from .. import chardet as chardet
+    import chardet
 except ImportError:
     chardet = None
 
