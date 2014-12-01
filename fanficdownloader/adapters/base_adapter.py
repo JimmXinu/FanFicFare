@@ -468,7 +468,9 @@ class BaseSiteAdapter(Configurable):
         #print("\n\nsvalue:\n%s\n"%svalue)
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
-                svalue = bs.BeautifulSoup(svalue,"html5lib")
+                # bs4/html5lib add html, header and body tags.
+                svalue = bs.BeautifulSoup(svalue,"html5lib").body
+                svalue.name='span'
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
             self.story.setMetadata('description',stripHTML(svalue))
