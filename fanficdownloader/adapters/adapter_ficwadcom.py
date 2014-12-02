@@ -23,7 +23,9 @@ import urllib2
 import time
 import httplib, urllib
 
-from .. import BeautifulSoup as bs
+#from .. import BeautifulSoup as bs
+import bs4 as bs
+
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
@@ -96,7 +98,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             # non-existent/removed story urls get thrown to the front page.
             if "<h2>Welcome to FicWad</h2>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
-            soup = bs.BeautifulSoup(data)
+            soup = bs.BeautifulSoup(data, "html5lib")
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -107,7 +109,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if soup.find("div",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False))
+                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False), "html5lib")
 
         divstory = soup.find('div',id='story')
         storya = divstory.find('a',href=re.compile("^/story/\d+$"))
@@ -118,7 +120,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
             try:
-                soup = bs.BeautifulSoup(self._fetchUrl(url))
+                soup = bs.BeautifulSoup(self._fetchUrl(url), "html5lib")
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
@@ -129,7 +131,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if soup.find("div",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False))
+                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False), "html5lib")
 
         # title - first h4 tag will be title.
         titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
@@ -221,8 +223,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = bs.BeautifulSoup(self._fetchUrl(url), "html5lib")
 
         span = soup.find('div', {'id' : 'storytext'})
 

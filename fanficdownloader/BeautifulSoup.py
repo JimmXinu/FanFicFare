@@ -114,6 +114,8 @@ class PageElement(object):
     """Contains the navigational information for some part of the page
     (either a tag or a piece of text)"""
 
+    bs3=True
+
     def setup(self, parent=None, previous=None):
         """Sets up the initial relations between this element and
         other elements."""
