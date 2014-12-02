@@ -286,8 +286,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             self.story.addToList('category','Buffy: The Vampire Slayer')
             
         pseries = soup.find('p', {'style':'margin-top:0px'})
-        m = re.match('This story is No\. (?P<num>\d+) in the series &quot;(?P<series>.+)&quot;\.',
-                     pseries.text)
+        print("pseries:%s"%pseries.get_text())
+        m = re.match('This story is No\. (?P<num>\d+) in the series "(?P<series>.+)"\.',
+                     pseries.get_text())
         if m:
             self.setSeries(m.group('series'),m.group('num'))
             self.story.setMetadata('seriesUrl',"http://"+self.host+pseries.find('a')['href'])

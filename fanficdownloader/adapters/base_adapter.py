@@ -468,7 +468,8 @@ class BaseSiteAdapter(Configurable):
         #print("\n\nsvalue:\n%s\n"%svalue)
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
-                # bs4/html5lib add html, header and body tags.
+                # bs4/html5lib add html, header and body tags, which
+                # we don't want.
                 svalue = bs.BeautifulSoup(svalue,"html5lib").body
                 svalue.name='span'
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
@@ -540,7 +541,7 @@ class BaseSiteAdapter(Configurable):
         except AttributeError, ae:
             print("Error parsing HTML, probably poor input HTML. %s"%ae)
         
-        retval = unicode(soup) #__str__().decode('utf-8')
+        retval = unicode(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
             # if the <img> tag doesn't have a div or a p around it,
