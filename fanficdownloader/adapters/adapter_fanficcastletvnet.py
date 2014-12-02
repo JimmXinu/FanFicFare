@@ -124,7 +124,7 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
         else:
             return True
 
-    ## Getting the chapter list and the meta data, plus 'is adult' checking.
+         ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
         if self.is_adult or self.getConfig("is_adult"):
@@ -132,7 +132,7 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=4" # XXX
+            addurl = "&ageconsent=ok&warning=3"
         else:
             addurl=""
 
@@ -154,11 +154,27 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
             self.performLogin(url)
             data = self._fetchUrl(url)
 
-        # The actual text that is used to announce you need to be an
-        # adult varies from site to site.  Again, print data before
-        # the title search to troubleshoot.
-        if "Age Consent Required" in data: # XXX 
-            raise exceptions.AdultCheckRequired(self.url)
+        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        if m != None:
+            if self.is_adult or self.getConfig("is_adult"):
+                # We tried the default and still got a warning, so
+                # let's pull the warning number from the 'continue'
+                # link and reload data.
+                addurl = m.group(1)
+                # correct stupid &amp; error in url.
+                addurl = addurl.replace("&amp;","&")
+                url = self.url+'&index=1'+addurl
+                logger.debug("URL 2nd try: "+url)
+
+                try:
+                    data = self._fetchUrl(url)
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        raise exceptions.StoryDoesNotExist(self.url)
+                    else:
+                        raise e    
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
             
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -179,6 +195,11 @@ class FanficCastleTVNetAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
+        
+        # Reviews
+        reviewdata = soup.find('div', {'id' : 'sort'})
+        a = reviewdata.findAll('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
+        self.story.setMetadata('reviews',stripHTML(a)) 
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
