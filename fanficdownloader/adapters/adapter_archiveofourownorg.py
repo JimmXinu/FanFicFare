@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team
+# Copyright 2014 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -329,7 +329,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             print("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
             self.oldchapters = self.oldchapters[:self.newestChapterNum]
         return len(self.oldchapters)
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
@@ -340,19 +340,25 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         exclude_notes=self.getConfigList('exclude_notes')
 
+        def append_tag(elem,tag,string):
+            '''bs4 requires tags be added separately.'''
+            new_tag = soup.new_tag(tag)
+            new_tag.string=string
+            elem.append(new_tag)
+    
         if 'authorheadnotes' not in exclude_notes:
             headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
                 if headnotes != None:
-                    chapter.append("<b>Author's Note:</b>")
+                    append_tag(chapter,'b',"Author's Note:")
                     chapter.append(headnotes)
         
         if 'chaptersummary' not in exclude_notes:
             chapsumm = soup.find('div', {'id' : "summary"})
             if chapsumm != None:
                 chapsumm = chapsumm.find('blockquote')
-                chapter.append("<b>Summary for the Chapter:</b>")
+                append_tag(chapter,'b',"Summary for the Chapter:")
                 chapter.append(chapsumm)
                 
         if 'chapterheadnotes' not in exclude_notes:
@@ -360,7 +366,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if chapnotes != None:
                 chapnotes = chapnotes.find('blockquote')
                 if chapnotes != None:
-                    chapter.append("<b>Notes for the Chapter:</b>")
+                    append_tag(chapter,'b',"Notes for the Chapter:")
                     chapter.append(chapnotes)
 		
         text = soup.find('div', {'class' : "userstuff module"})
@@ -373,14 +379,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
-                chapter.append("<b>Notes for the Chapter:</b>")
+                append_tag(chapter,'b',"Notes for the Chapter:")
                 chapter.append(chapfoot)
 		
         if 'authorfootnotes' not in exclude_notes:
             footnotes = soup.find('div', {'id' : "work_endnotes"})
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
-                chapter.append("<b>Author's Note:</b>")
+                append_tag(chapter,'b',"Author's Note:")
                 chapter.append(footnotes)
 			
         if None == soup:
