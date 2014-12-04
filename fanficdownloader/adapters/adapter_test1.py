@@ -20,7 +20,6 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-import bs4 as bs
 from .. import exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
@@ -360,7 +359,7 @@ horizontal rules
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 </div>
 '''
-        soup = bs.BeautifulSoup(text,'html5lib')
+        soup = self.make_soup(text)
         return self.utf8FromSoup(url,soup)
 
 def getClass():

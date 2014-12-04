@@ -26,8 +26,7 @@ import cookielib as cl
 from functools import partial
 import pickle
 
-#from .. import BeautifulSoup as bs
-import bs4 as bs
+import bs4
 
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
@@ -470,7 +469,7 @@ class BaseSiteAdapter(Configurable):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which
                 # we don't want.
-                svalue = bs.BeautifulSoup(svalue,"html5lib").body
+                svalue = bs4.BeautifulSoup(svalue,"html5lib").body
                 svalue.name='span'
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
@@ -566,6 +565,13 @@ class BaseSiteAdapter(Configurable):
 
         return retval
 
+    def make_soup(self,data):
+        '''
+        Convenience method for getting a bs4 soup.  Older and
+        non-updated adapters call the included bs3 library themselves.
+        '''
+        return bs4.BeautifulSoup(data,'html5lib')
+    
 def cachedfetch(realfetch,cache,url):
     if url in cache:
         return cache[url]

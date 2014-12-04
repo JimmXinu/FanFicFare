@@ -23,9 +23,6 @@ import urllib2
 import time
 import httplib, urllib
 
-#from .. import BeautifulSoup as bs
-import bs4 as bs
-
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
@@ -98,7 +95,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             # non-existent/removed story urls get thrown to the front page.
             if "<h2>Welcome to FicWad</h2>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
-            soup = bs.BeautifulSoup(data, "html5lib")
+            soup = self.make_soup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -120,7 +117,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
             try:
-                soup = bs.BeautifulSoup(self._fetchUrl(url), "html5lib")
+                soup = self.make_soup(self._fetchUrl(url))
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
@@ -162,8 +159,8 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         ## perhaps not the most efficient way to parse this, using
         ## regexps for each rather than something more complex, but
         ## IMO, it's more readable and amenable to change.
-        metastr = stripHTML(str(metap)).replace('\n',' ').replace('\t',' ')
-        #print "metap: (%s)"%metastr
+        metastr = stripHTML(str(metap)).replace('\n',' ').replace('\t',' ').replace(u'\u00a0',' ')
+        print "metastr: (%s)"%metastr
 
         m = re.match(r".*?Rating: (.+?) -.*?",metastr)
         if m:
@@ -223,7 +220,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulSoup(self._fetchUrl(url), "html5lib")
+        soup = self.make_soup(self._fetchUrl(url))
 
         span = soup.find('div', {'id' : 'storytext'})
 

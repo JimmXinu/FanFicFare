@@ -22,10 +22,6 @@ import re
 import urllib2
 import time
 
-from .. import BeautifulSoup as bs
-import bs4 as bs
-
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -103,7 +99,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='text' id='urealname' name='urealname' value=''/>
 # <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
 # <input type='submit' value='Login' name='loginsubmit'/>
-        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl), 'html5lib')
+        soup = self.make_soup(self._fetchUrl(loginUrl))
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
         
@@ -133,7 +129,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
             #print("data:%s"%data)
-            soup = bs.BeautifulSoup(data, 'html5lib')
+            soup = self.make_soup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -156,7 +152,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
                 data = self._fetchUrl(url,usecache=False)
-                soup = bs.BeautifulSoup(data, 'html5lib')
+                soup = self.make_soup(data)
 
         if "NOTE: This story is rated FR21 which is above your chosen filter level." in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -174,7 +170,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             logger.debug("**AUTHOR** URL: "+authorurl)
             authordata = self._fetchUrl(authorurl)
             descurl=authorurl
-            authorsoup = bs.BeautifulSoup(authordata, 'html5lib')
+            authorsoup = self.make_soup(authordata)
             # author can have several pages, scan until we find it.
             while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
                 nextarrow = authorsoup.find('a', {'class':'arrowf'})
@@ -188,7 +184,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 descurl=nextpage
-                authorsoup = bs.BeautifulSoup(authordata, 'html5lib')
+                authorsoup = self.make_soup(authordata)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -207,7 +203,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 infourl = 'http://'+self.host+ainfo['href']
                 logger.debug("**StoryInfo** URL: "+infourl)
                 infodata = self._fetchUrl(infourl)
-                infosoup = bs.BeautifulSoup(infodata, 'html5lib')
+                infosoup = self.make_soup(infodata)
 
                 # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
                 #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
@@ -295,7 +291,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = bs.BeautifulSoup(self._fetchUrl(url), 'html5lib')
+        soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'storyinnerbody'})
         
