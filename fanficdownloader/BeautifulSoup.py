@@ -114,6 +114,7 @@ class PageElement(object):
     """Contains the navigational information for some part of the page
     (either a tag or a piece of text)"""
 
+    ## Added for FFDL.
     bs3=True
 
     def setup(self, parent=None, previous=None):
