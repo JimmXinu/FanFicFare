@@ -138,7 +138,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
@@ -161,25 +161,20 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('language','German')
 
-        #find metadata on the story page
-        headtext = stripHTML(head)
-        self.story.setMetadata('datePublished', makeDate(headtext.split('erstellt: ')[1].split('\n')[0], self.dateformat))
-        
-        self.story.setMetadata('dateUpdated', makeDate(headtext.split('aktualisiert: ')[1].split('\n')[0], self.dateformat))
+        self.story.setMetadata('datePublished', makeDate(stripHTML(head.find('span',title='erstellt').parent), self.dateformat))
+        self.story.setMetadata('dateUpdated', makeDate(stripHTML(head.find('span',title='aktualisiert').parent), self.dateformat))
 
         # second colspan=3 td in head.
-        genres=stripHTML(head.findAll('td',{'colspan':'3'})[1])
-        self.story.extendList('genre',genres[:genres.index('(')].split(', '))
-        # for genre in head.text.split('&nbsp;&nbsp;&nbsp;')[3].split('/')[0].split(', '):
-        #     self.story.addToList('genre',genre)
-            
-        if 'fertiggestellt' in headtext:
+        genres=stripHTML(head.find('span',class_='fa-angle-right').next_sibling)
+        self.story.extendList('genre',genres[:genres.index('/')].split(', '))
+        
+        if head.find('span',title='Fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In Progress')
 
         #find metadata on the author's page
-        asoup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
+        asoup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
         tr=asoup.findAll('tr')
         for i in range(1,len(tr)):
             a = tr[i].find('a')
@@ -199,8 +194,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
         time.sleep(0.5) ## ffde has "floodlock" protection
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(self._fetchUrl(url))
         
         div = soup.find('div', {'id' : 'storytext'})
         for a in div.findAll('script'):
