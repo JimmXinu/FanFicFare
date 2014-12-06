@@ -158,10 +158,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('notice',unicode(notice))
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"/a/\w+"))
-        self.story.setMetadata('authorId',a['href'].split('/')[2])
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
-        self.story.setMetadata('author',stripHTML(a).replace("'s Page",""))
+        for a in soup.findAll('a', href=re.compile(r"/a/\w+")):
+            self.story.addToList('authorId',a['href'].split('/')[2])
+            self.story.addToList('authorUrl','http://'+self.host+a['href'])
+            self.story.addToList('author',stripHTML(a).replace("'s Page",""))
 
         # Find the chapters:
         chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+$"))
@@ -178,7 +178,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         page=0
         i=0
         while i == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"/"+str(page)))
+            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+str(page)))
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
@@ -216,7 +216,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.setSeries(series_name, i)
                 desc = lc4.contents[2]
                 # Check if series is in a universe
-                universe_url = self.story.getMetadata('authorUrl')  + "&type=uni"
+                universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
                 universes_soup = bs.BeautifulSoup(self._fetchUrl(universe_url) )
                 logger.debug("Universe url='{0}'".format(universe_url))
                 if universes_soup:
