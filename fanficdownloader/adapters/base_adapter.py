@@ -468,9 +468,8 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which
-                # we don't want.
+                # we don't want.  utf8FromSoup will strip the body tags for us.
                 svalue = bs4.BeautifulSoup(svalue,"html5lib").body
-                svalue.name='span'
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
             self.story.setMetadata('description',stripHTML(svalue))
