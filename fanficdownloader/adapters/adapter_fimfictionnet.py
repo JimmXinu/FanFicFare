@@ -127,7 +127,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(title))
 
         # Author
-        author = storyContentBox.find('span', {'class':'author'})
+        author = storyContentBox.find('div', {'class':'author'}).find('a')
         self.story.setMetadata("author", stripHTML(author))
         #No longer seems to be a way to access Fimfiction's internal author ID
         self.story.setMetadata("authorId", self.story.getMetadata("author"))
