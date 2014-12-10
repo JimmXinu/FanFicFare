@@ -662,7 +662,7 @@ div { margin: 0pt; padding: 0pt; }
                 # The replaces above added tons of extra newlines
                 # during *each* epub update.  The regexp version adds
                 # only one and removes any extra.
-                fullhtml = re.sub(r'(</p>|<br />)\n*',r'\1\n',fullhtml)
+                fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
                 outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
                 del fullhtml

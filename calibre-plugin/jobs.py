@@ -11,25 +11,12 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import time, os, traceback
-
-from StringIO import StringIO
-
+import time, traceback
+    
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 
-# for smarten punc
-from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
-from calibre.utils.logging import Log
-from collections import namedtuple
-
-from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
-    OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
-
-from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
 # ------------------------------------------------------------------------------
 #
 #              Functions to perform downloads using worker jobs
@@ -107,134 +94,151 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     '''
     Child job, to download story when run as a worker job
     '''
-    try:
-        book['comment'] = _('Download started...')
 
-        configuration = get_ffdl_config(book['url'],
-                                        options['fileform'],
-                                        options['personal.ini'])
+    from calibre_plugins.fanfictiondownloader_plugin import FanFictionDownLoaderBase
+    ffdlbase = FanFictionDownLoaderBase(options['plugin_path'])
+    with ffdlbase:
         
-        if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
-            configuration.set("overrides","never_make_cover","true")
-
-        # images only for epub, html, even if the user mistakenly
-        # turned it on else where.
-        if options['fileform'] not in ("epub","html"):
-            configuration.set("overrides","include_images","false")
+        from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
+                OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
+        from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
+        from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
         
-        adapter = adapters.getAdapter(configuration,book['url'])
-        adapter.is_adult = book['is_adult'] 
-        adapter.username = book['username'] 
-        adapter.password = book['password']
-        adapter.setChaptersRange(book['begin'],book['end'])
+        from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
         
-        adapter.load_cookiejar(options['cookiejarfile'])
-        logger.debug("cookiejar:%s"%adapter.cookiejar)
-        adapter.set_pagecache(options['pagecache'])
-        
-        story = adapter.getStoryMetadataOnly()
-        if 'calibre_series' in book:
-            adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
+        try:
+            book['comment'] = _('Download started...')
             
-        # set PI version instead of default.
-        if 'version' in options:
-            story.setMetadata('version',options['version'])
+            configuration = get_ffdl_config(book['url'],
+                                            options['fileform'],
+                                            options['personal.ini'])
             
-        writer = writers.getWriter(options['fileform'],configuration,adapter)
-
-        outfile = book['outfile']
-
-        ## No need to download at all.  Shouldn't ever get down here.
-        if options['collision'] in (CALIBREONLY):
-            logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
-            book['comment'] = 'Metadata collected.'
+            if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
+                configuration.set("overrides","never_make_cover","true")
+    
+            # images only for epub, html, even if the user mistakenly
+            # turned it on else where.
+            if options['fileform'] not in ("epub","html"):
+                configuration.set("overrides","include_images","false")
             
-        ## checks were done earlier, it's new or not dup or newer--just write it.
-        elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
-                ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
-
-            # preserve logfile even on overwrite.
-            if 'epub_for_update' in book:
-                (urlignore,
-                 chaptercountignore,
-                 oldchaptersignore,
-                 oldimgsignore,
-                 oldcoverignore,
-                 calibrebookmarkignore,
-                 # only logfile set in adapter, so others aren't used.
+            adapter = adapters.getAdapter(configuration,book['url'])
+            adapter.is_adult = book['is_adult'] 
+            adapter.username = book['username'] 
+            adapter.password = book['password']
+            adapter.setChaptersRange(book['begin'],book['end'])
+            
+            adapter.load_cookiejar(options['cookiejarfile'])
+            logger.debug("cookiejar:%s"%adapter.cookiejar)
+            adapter.set_pagecache(options['pagecache'])
+            
+            story = adapter.getStoryMetadataOnly()
+            if 'calibre_series' in book:
+                adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
+                
+            # set PI version instead of default.
+            if 'version' in options:
+                story.setMetadata('version',options['version'])
+                
+            writer = writers.getWriter(options['fileform'],configuration,adapter)
+    
+            outfile = book['outfile']
+    
+            ## No need to download at all.  Shouldn't ever get down here.
+            if options['collision'] in (CALIBREONLY):
+                logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
+                book['comment'] = 'Metadata collected.'
+                
+            ## checks were done earlier, it's new or not dup or newer--just write it.
+            elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
+                    ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
+    
+                # preserve logfile even on overwrite.
+                if 'epub_for_update' in book:
+                    (urlignore,
+                     chaptercountignore,
+                     oldchaptersignore,
+                     oldimgsignore,
+                     oldcoverignore,
+                     calibrebookmarkignore,
+                     # only logfile set in adapter, so others aren't used.
+                     adapter.logfile) = get_update_data(book['epub_for_update'])
+    
+                    # change the existing entries id to notid so
+                    # write_epub writes a whole new set to indicate overwrite.
+                    if adapter.logfile:
+                        adapter.logfile = adapter.logfile.replace("span id","span notid")
+                
+                logger.info("write to %s"%outfile)
+                writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
+                
+            ## checks were done earlier, just update it.
+            elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
+    
+                # update now handled by pre-populating the old images and
+                # chapters in the adapter rather than merging epubs.
+                urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
+                (url,
+                 chaptercount,
+                 adapter.oldchapters,
+                 adapter.oldimgs,
+                 adapter.oldcover,
+                 adapter.calibrebookmark,
                  adapter.logfile) = get_update_data(book['epub_for_update'])
-
-                # change the existing entries id to notid so
-                # write_epub writes a whole new set to indicate overwrite.
-                if adapter.logfile:
-                    adapter.logfile = adapter.logfile.replace("span id","span notid")
+    
+                # dup handling from ffdl_plugin needed for anthology updates.
+                if options['collision'] == UPDATE:
+                    if chaptercount == urlchaptercount:
+                        book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
+                        book['outfile'] = book['epub_for_update'] # for anthology merge ops.
+                        return book
+    
+                # dup handling from ffdl_plugin needed for anthology updates.
+                if chaptercount > urlchaptercount:
+                    raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
+    
+                if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
+                        and adapter.getConfig("do_update_hook"):
+                    chaptercount = adapter.hookForUpdates(chaptercount)
+    
+                logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
+                logger.info("write to %s"%outfile)
+    
+                writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                
+                book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
+                    (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
             
-            logger.info("write to %s"%outfile)
-            writer.writeStory(outfilename=outfile, forceOverwrite=True)
-            book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
+            if options['smarten_punctuation'] and options['fileform'] == "epub" \
+                    and calibre_version >= (0, 9, 39):
+                # for smarten punc
+                from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
+                from calibre.utils.logging import Log
+                from collections import namedtuple
+
+                # do smarten_punctuation from calibre's polish feature
+                data = {'smarten_punctuation':True}
+                opts = ALL_OPTS.copy()
+                opts.update(data)
+                O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                opts = O(**opts)
+                
+                log = Log(level=Log.DEBUG)
+                # report = []
+                polish({outfile:outfile}, opts, log, logger.info) # report.append
             
-        ## checks were done earlier, just update it.
-        elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
-
-            # update now handled by pre-populating the old images and
-            # chapters in the adapter rather than merging epubs.
-            urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
-            (url,
-             chaptercount,
-             adapter.oldchapters,
-             adapter.oldimgs,
-             adapter.oldcover,
-             adapter.calibrebookmark,
-             adapter.logfile) = get_update_data(book['epub_for_update'])
-
-            # dup handling from ffdl_plugin needed for anthology updates.
-            if options['collision'] == UPDATE:
-                if chaptercount == urlchaptercount:
-                    book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
-                    book['outfile'] = book['epub_for_update'] # for anthology merge ops.
-                    return book
-
-            # dup handling from ffdl_plugin needed for anthology updates.
-            if chaptercount > urlchaptercount:
-                raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
-
-            if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
-                    and adapter.getConfig("do_update_hook"):
-                chaptercount = adapter.hookForUpdates(chaptercount)
-
-            logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
-            logger.info("write to %s"%outfile)
-
-            writer.writeStory(outfilename=outfile, forceOverwrite=True)
+        except NotGoingToDownload as d:
+            book['good']=False
+            book['comment']=unicode(d)
+            book['icon'] = d.icon
+    
+        except Exception as e:
+            book['good']=False
+            book['comment']=unicode(e)
+            book['icon']='dialog_error.png'
+            book['status'] = 'Error'
+            logger.info("Exception: %s:%s"%(book,unicode(e)))
+            traceback.print_exc()
             
-            book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
-                (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
-        
-        if options['smarten_punctuation'] and options['fileform'] == "epub" \
-                and calibre_version >= (0, 9, 39):
-            # do smarten_punctuation from calibre's polish feature
-            data = {'smarten_punctuation':True}
-            opts = ALL_OPTS.copy()
-            opts.update(data)
-            O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
-            opts = O(**opts)
-            
-            log = Log(level=Log.DEBUG)
-            # report = []
-            polish({outfile:outfile}, opts, log, logger.info) # report.append
-        
-    except NotGoingToDownload as d:
-        book['good']=False
-        book['comment']=unicode(d)
-        book['icon'] = d.icon
-
-    except Exception as e:
-        book['good']=False
-        book['comment']=unicode(e)
-        book['icon']='dialog_error.png'
-        book['status'] = 'Error'
-        logger.info("Exception: %s:%s"%(book,unicode(e)))
-        traceback.print_exc()
-        
-    #time.sleep(10)
+        #time.sleep(10)
     return book

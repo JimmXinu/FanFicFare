@@ -26,7 +26,8 @@ import cookielib as cl
 from functools import partial
 import pickle
 
-from .. import BeautifulSoup as bs
+import bs4
+
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
 
@@ -55,7 +56,7 @@ from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from ..exceptions import InvalidStoryURL
 
 try:
-    from .. import chardet as chardet
+    import chardet
 except ImportError:
     chardet = None
 
@@ -466,7 +467,9 @@ class BaseSiteAdapter(Configurable):
         #print("\n\nsvalue:\n%s\n"%svalue)
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
-                svalue = bs.BeautifulSoup(svalue)
+                # bs4/html5lib add html, header and body tags, which
+                # we don't want.  utf8FromSoup will strip the body tags for us.
+                svalue = bs4.BeautifulSoup(svalue,"html5lib").body
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
             self.story.setMetadata('description',stripHTML(svalue))
@@ -477,6 +480,19 @@ class BaseSiteAdapter(Configurable):
             self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True,
                                  coverexclusion=self.getConfig('cover_exclusion_regexp'))
 
+    # bs3 & bs4 are different here.
+    # will move to a bs3 vs bs4 block if there's lots of changes.
+    def get_attr_keys(self,soup):
+        if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
+            # bs3
+            #print "bs3 attrs:%s"%soup._getAttrMap().keys()
+            return soup._getAttrMap().keys()
+        elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
+            #print "bs4 attrs:%s"%soup.attrs.keys()
+            # bs4
+            return soup.attrs.keys()
+        return []
+        
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
@@ -496,28 +512,34 @@ class BaseSiteAdapter(Configurable):
                     (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
                                                                       coverexclusion=self.getConfig('cover_exclusion_regexp'))
 
-        for attr in soup._getAttrMap().keys():
+        for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
                 del soup[attr] ## strip all tag attributes except href and name
-                
-        for t in soup.findAll(recursive=True):
-            for attr in t._getAttrMap().keys():
-                if attr not in acceptable_attributes:
-                    del t[attr] ## strip all tag attributes except href and name
 
-            # these are not acceptable strict XHTML.  But we do already have 
-	    # CSS classes of the same names defined
-            if t.name in ('u'):
-                t['class']=t.name
-                t.name='span'
-            if t.name in ('center'):
-                t['class']=t.name
-                t.name='div'
-	    # removes paired, but empty non paragraph tags.
-            if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
-                t.extract()
-
-        retval = soup.__str__('utf8').decode('utf-8')
+        try:
+            # as a generator, each tag will be returned even if there's a
+            # mismatch at the end.
+            for t in soup.recursiveChildGenerator(): # findAll(recursive=True):
+                for attr in self.get_attr_keys(t):
+                    if attr not in acceptable_attributes:
+                        del t[attr] ## strip all tag attributes except acceptable_attributes
+    
+                # these are not acceptable strict XHTML.  But we do already have 
+                # CSS classes of the same names defined
+                if t and hasattr(t,'name') and t.name is not None:
+                    if t.name in ('u'):
+                        t['class']=t.name
+                        t.name='span'
+                    if t.name in ('center'):
+                        t['class']=t.name
+                        t.name='div'
+                    # removes paired, but empty non paragraph tags.
+                    if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
+                        t.extract()
+        except AttributeError, ae:
+            print("Error parsing HTML, probably poor input HTML. %s"%ae)
+        
+        retval = unicode(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
             # if the <img> tag doesn't have a div or a p around it,
@@ -542,15 +564,22 @@ class BaseSiteAdapter(Configurable):
 
         return retval
 
+    def make_soup(self,data):
+        '''
+        Convenience method for getting a bs4 soup.  Older and
+        non-updated adapters call the included bs3 library themselves.
+        '''
+        return bs4.BeautifulSoup(data,'html5lib')
+    
 def cachedfetch(realfetch,cache,url):
     if url in cache:
         return cache[url]
     else:
         return realfetch(url)
     
-fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
-           "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
-           "November":"11", "December":"12" }
+fullmon = {u"January":u"01", u"February":u"02", u"March":u"03", u"April":u"04", u"May":u"05",
+           u"June":u"06","July":u"07", u"August":u"08", u"September":u"09", u"October":u"10",
+           u"November":u"11", u"December":u"12" }
 
 def makeDate(string,dateform):
     # Surprise!  Abstracting this turned out to be more useful than
@@ -563,8 +592,8 @@ def makeDate(string,dateform):
     # Russian month names correct everywhere.
     do_abbrev = "%b" in dateform
         
-    if "%B" in dateform or do_abbrev:
-        dateform = dateform.replace("%B","%m").replace("%b","%m")
+    if u"%B" in dateform or do_abbrev:
+        dateform = dateform.replace(u"%B",u"%m").replace(u"%b",u"%m")
         for (name,num) in fullmon.items():
             if do_abbrev:
                 name = name[:3] # first three for abbrev
@@ -572,5 +601,5 @@ def makeDate(string,dateform):
                 string = string.replace(name,num)
                 break
             
-    return datetime.datetime.strptime(string,dateform)
+    return datetime.datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
 

@@ -14,7 +14,7 @@ import re, os, traceback
 from zipfile import ZipFile
 from xml.dom.minidom import parseString
 
-from . import BeautifulSoup as bs
+import bs4 as bs
 
 def get_dcsource(inputio):
     return get_update_data(inputio,getfilecount=False,getsoups=False)[0]
