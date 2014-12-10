@@ -24,7 +24,6 @@ import urllib2
 from urllib import unquote_plus
 import time
 
-from .. import BeautifulSoup as bs
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
@@ -104,7 +103,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
             #logger.debug("\n===================\n%s\n===================\n"%data)
-            soup = bs.BeautifulSoup(data)
+            soup = self.make_soup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
@@ -139,7 +138,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 if "not found. Please check to see you are not using an outdated url." \
                         not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
-                    soup = bs.BeautifulSoup(newdata)
+                    soup = self.make_soup(newdata)
             except:
                 pass
             
@@ -166,7 +165,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
             caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
-            catsoup = bs.BeautifulSoup(self._fetchUrl(caturl))
+            catsoup = self.make_soup(self._fetchUrl(caturl))
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
                 self.story.addToList('category',stripHTML(a))
             else:
@@ -313,19 +312,21 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # soup parsing to discard the content.  For story text we
         # don't care about anything before "<div role='main'" and
         # this kills any body tags.
-        divstr = "<div role='main'"
-        if divstr not in data:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        else:
-            data = data[data.index(divstr):] 
-        data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
+        # XXX needed with new BS? -- No, doesn't look like it
+        # divstr = "<div role='main'"
+        # if divstr not in data:
+        #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        # else:
+        #     data = data[data.index(divstr):] 
+        # data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
         
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Remove the 'share' button.
-        sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
-        if sharediv:
-            sharediv.extract()
+        ## No longer appears in the story text.
+        # sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
+        # if sharediv:
+        #     sharediv.extract()
         
         div = soup.find('div', {'id' : 'storytextp'})
         
