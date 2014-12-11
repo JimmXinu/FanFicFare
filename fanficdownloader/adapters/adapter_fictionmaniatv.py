@@ -2,8 +2,6 @@ import re
 import urllib2
 import urlparse
 
-import bs4
-
 from base_adapter import BaseSiteAdapter, makeDate
 
 
@@ -53,7 +51,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return bs4.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():
