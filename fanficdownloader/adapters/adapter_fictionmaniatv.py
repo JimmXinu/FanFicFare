@@ -2,11 +2,9 @@ import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
-from ..BeautifulSoup import NavigableString
+import bs4
 
 from base_adapter import BaseSiteAdapter, makeDate
-from .. import exceptions
 
 
 def getClass():
@@ -18,10 +16,11 @@ def _get_query_data(url):
     query_data = urlparse.parse_qs(components.query)
     return dict((key, data[0]) for key, data in query_data.items())
 
-# yields Tag _and_ NavigableString siblings from the given tag. The
-# BeautifulSoup findNextSiblings() method for some reasons only returns either
-# NavigableStrings _or_ Tag objects, not both.
+
 def _yield_next_siblings(tag):
+    # yields Tag _and_ NavigableString siblings from the given tag. The
+    # BeautifulSoup findNextSiblings() method for some reasons only returns either
+    # NavigableStrings _or_ Tag objects, not both.
     sibling = tag.nextSibling
     while sibling:
         yield sibling
@@ -64,7 +63,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return bs4.BeautifulSoup(data)
 
     @staticmethod
     def getSiteDomain():
@@ -90,7 +89,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             except AttributeError:
                 value = None
 
-            if key == 'Story Name-Title':
+            if key == 'Title':
                 self.story.setMetadata('title', value)
                 self.chapterUrls.append((value, self.url))
 
@@ -120,7 +119,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             elif key == 'New Name':
                 self.story.setMetadata('newName', value)
 
-            elif key == 'Other Key Names':
+            elif key == 'Other Names':
                 for name in value.split(', '):
                     self.story.addToList('characters', name)
 
@@ -140,7 +139,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 for element in cells[1]('a'):
                     self.story.addToList('keyWords', element.string)
 
-            elif key == 'Main Characters Age':
+            elif key == 'Age':
                 element = cells[1].a
                 self.story.setMetadata('mainCharactersAge', element.string)
 
@@ -154,7 +153,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 if keep_summary_html:
                     self.story.setMetadata('description', unicode(element))
                 else:
-                    self.story.setMetadata('description', ''.join(element(text=True)))
+                    self.story.setMetadata('description', element.get_text(strip=True))
 
             elif key == 'Reads':
                 self.story.setMetadata('readings', value)
