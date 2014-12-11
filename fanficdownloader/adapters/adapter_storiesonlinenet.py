@@ -284,7 +284,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if 'Sex' in label:
                 self.story.setMetadata('rating', value)
                 
-            if 'Tags' in label:
+            if 'Tags' in label or 'Codes' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
                      self.story.addToList('sitetags',code)
                     
