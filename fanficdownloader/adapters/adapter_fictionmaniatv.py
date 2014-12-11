@@ -17,16 +17,6 @@ def _get_query_data(url):
     return dict((key, data[0]) for key, data in query_data.items())
 
 
-def _yield_next_siblings(tag):
-    # yields Tag _and_ NavigableString siblings from the given tag. The
-    # BeautifulSoup findNextSiblings() method for some reasons only returns either
-    # NavigableStrings _or_ Tag objects, not both.
-    sibling = tag.nextSibling
-    while sibling:
-        yield sibling
-        sibling = sibling.nextSibling
-
-
 class FictionManiaTVAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'fmt'
     SITE_DOMAIN = 'fictionmania.tv'
