@@ -103,10 +103,10 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 raise e
             
         # if blocked, attempt login.
-        if soup.find("div",{"class":"blocked"}):
+        if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False), "html5lib")
+                soup = self.make_soup(self._fetchUrl(url,usecache=False))
 
         divstory = soup.find('div',id='story')
         storya = divstory.find('a',href=re.compile("^/story/\d+$"))
@@ -125,10 +125,10 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                     raise e
 
         # if blocked, attempt login.
-        if soup.find("div",{"class":"blocked"}):
+        if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = bs.BeautifulSoup(self._fetchUrl(url,usecache=False), "html5lib")
+                soup = self.make_soup(self._fetchUrl(url,usecache=False))
 
         # title - first h4 tag will be title.
         titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
@@ -160,7 +160,6 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         ## regexps for each rather than something more complex, but
         ## IMO, it's more readable and amenable to change.
         metastr = stripHTML(str(metap)).replace('\n',' ').replace('\t',' ').replace(u'\u00a0',' ')
-        print "metastr: (%s)"%metastr
 
         m = re.match(r".*?Rating: (.+?) -.*?",metastr)
         if m:
