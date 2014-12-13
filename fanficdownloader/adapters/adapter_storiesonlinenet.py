@@ -193,6 +193,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # in lieu of word count.
         self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
+
+        score = lc2.findNext('th', {'class' : 'num'}).text
+        if score != '-':
+            self.story.setMetadata('score', score)        
         
         lc4 = lc2.findNext('td', {'class' : 'lc4'})
         desc = lc4.contents[0]
