@@ -26,13 +26,16 @@ import string
 import sys
 
 
+if sys.version_info < (2, 5):
+    print 'This program requires Python 2.5 or newer.'
+    sys.exit(1)
+
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
     rootlogger = logging.getLogger()
     loghandler = logging.NullHandler()
     loghandler.setFormatter(logging.Formatter('(=====)(levelname)s:%(message)s'))
     rootlogger.addHandler(loghandler)
-
 
 try:
     # running under calibre
@@ -45,11 +48,6 @@ except ImportError:
     from fanficdownloader.configurable import Configuration
     from fanficdownloader.epubutils import get_dcsource_chaptercount, get_update_data
     from fanficdownloader.geturls import get_urls_from_page
-
-
-if sys.version_info < (2, 5):
-    print 'This program requires Python 2.5 or newer.'
-    sys.exit(1)
 
 
 def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
