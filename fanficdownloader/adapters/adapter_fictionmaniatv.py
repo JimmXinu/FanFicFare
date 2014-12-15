@@ -161,5 +161,6 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         content = content.replace('\n', '<br />')
 
         if self.getConfig('non_breaking_spaces'):
-            content = content.replace(' ', '&nbsp;')
+            return content.replace(' ', '&nbsp;')
+
         return content
