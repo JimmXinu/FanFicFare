@@ -152,6 +152,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
+            #print("label:%s value:%s"%(label,value))
 
             if 'Summary' in label:
                 ## Everything until the next span class='label'
@@ -202,7 +203,16 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+
+                # site has started including a tracking script between Updated label and date--sometimes...
+                svalue = ""
+                while value is not None and not defaultGetattr(value,'class') == 'classification':
+                    if '<script' not in unicode(value):
+                        svalue += unicode(value)
+                    value = value.nextSibling
+                    #print("svalue:%s"%svalue)
+                    
+                self.story.setMetadata('dateUpdated', makeDate(stripHTML(svalue), self.dateformat))
 
         try:
             # Find Series name from series URL.
