@@ -64,7 +64,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.hpfanficarchive.com'
+        return 'hpfanficarchive.com'
 
     @classmethod
     def getSiteExampleURLs(cls):
