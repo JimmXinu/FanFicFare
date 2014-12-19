@@ -682,7 +682,7 @@ class Tag(PageElement):
         return self.__str__(encoding)
 
     def __unicode__(self):
-        return self.__str__(None)
+        return str(self).decode(DEFAULT_OUTPUT_ENCODING)
 
     BARE_AMPERSAND_OR_BRACKET = re.compile("([<>]|"
                                            + "&(?!#\d+;|#x[0-9a-fA-F]+;|\w+;)"
