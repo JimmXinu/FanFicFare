@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 import urllib
 import email
 
+from datetime import datetime
+
 try:
     from PyQt5 import QtWidgets as QtGui
     from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -578,14 +580,25 @@ class LoopProgressDialog(QProgressDialog):
         self.finish_function = finish_function
         self.status_prefix = status_prefix
         self.i = 0
-        
+        self.start_time = datetime.now()
+
+        # can't import at file load.
+        from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
+        self.show_est_time = prefs['show_est_time']
+
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
         ## A weird way to do a loop, but that was the example I had.
         QTimer.singleShot(0, self.do_loop)
         self.exec_()
 
     def updateStatus(self):
-        self.setLabelText("%s %d / %d"%(self.status_prefix,self.i+1,len(self.book_list)))
+        remaining_time_string = ''
+        if self.show_est_time and self.i > -1:
+            time_spent = (datetime.now() - self.start_time).total_seconds()
+            estimated_remaining = (time_spent/(self.i+1)) * len(self.book_list) - time_spent
+            remaining_time_string = _(' - %s estimated until done') % ( time_duration_format(estimated_remaining))
+
+        self.setLabelText('%s %d / %d%s' % (self.status_prefix, self.i+1, len(self.book_list), remaining_time_string))
         self.setValue(self.i+1)
         #print(self.labelText())
 
@@ -623,6 +636,37 @@ class LoopProgressDialog(QProgressDialog):
         self.hide()
         # Queues a job to process these books in the background.
         self.finish_function(self.book_list)
+
+def time_duration_format(seconds):
+    """
+    Convert seconds into a string describing the duration in larger time units (seconds, minutes, hours, days)
+    Only returns the two largest time divisions (eg, will drop seconds if there's hours remaining)
+
+    :param seconds: number of seconds
+    :return: string description of the duration
+    """
+    periods = [
+        (_('%d day'),_('%d days'),       60*60*24),
+        (_('%d hour'),_('%d hours'),     60*60),
+        (_('%d minute'),_('%d minutes'), 60),
+        (_('%d second'),_('%d seconds'), 1)
+        ]
+
+    strings = []
+    for period_label, period_plural_label, period_seconds in periods:
+        if seconds > period_seconds:
+            period_value, seconds = divmod(seconds,period_seconds)
+            if period_value == 1:
+                strings.append( period_label % period_value)
+            else:
+                strings.append(period_plural_label % period_value)
+            if len(strings) == 2:
+                break
+
+    if len(strings) == 0:
+        return _('less than 1 second')
+    else:
+        return ', '.join(strings)
 
 class AboutDialog(QDialog):
 
