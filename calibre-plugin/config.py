@@ -231,6 +231,7 @@ class ConfigWidget(QWidget):
         prefs['mark'] = self.basic_tab.mark.isChecked()
         prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
         prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
+        prefs['show_est_time'] = self.basic_tab.show_est_time.isChecked()
         prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
@@ -450,6 +451,11 @@ class BasicTab(QWidget):
         self.autoconvert.setToolTip(_("Automatically call calibre's Convert for new/update books.\nConverts to the current output format as chosen in calibre's\nPreferences->Behavior settings."))
         self.autoconvert.setChecked(prefs['autoconvert'])
         self.l.addWidget(self.autoconvert)
+
+        self.show_est_time = QCheckBox(_("Show estimated time left?"),self)
+        self.show_est_time.setToolTip(_("When a Progress Bar is shown, show a rough estimate of the time left."))
+        self.show_est_time.setChecked(prefs['show_est_time'])
+        self.l.addWidget(self.show_est_time)
 
         gui_gb = groupbox = QGroupBox(_("GUI Options"))
         self.l = QVBoxLayout()

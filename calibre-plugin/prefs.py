@@ -48,6 +48,7 @@ default_prefs['checkforseriesurlid'] = True
 default_prefs['checkforurlchange'] = True
 default_prefs['injectseries'] = False
 default_prefs['smarten_punctuation'] = False
+default_prefs['show_est_time'] = False
 
 default_prefs['send_lists'] = ''
 default_prefs['read_lists'] = ''
