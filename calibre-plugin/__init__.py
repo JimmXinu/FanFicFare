@@ -98,7 +98,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     def load_actual_plugin(self, gui):
         with self: # so the sys.path was modified while loading the
                    # plug impl.
-            return super(FanFictionDownLoaderBase, self).load_actual_plugin(gui)
+            return InterfaceActionBase.load_actual_plugin(self,gui)
 
     def cli_main(self,argv):
 
