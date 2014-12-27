@@ -24,14 +24,14 @@ from datetime import datetime
 try:
     from PyQt5 import QtWidgets as QtGui
     from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
                           QGroupBox, QFrame)
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
                           QGroupBox, QFrame)
@@ -1111,14 +1111,17 @@ class RejectListDialog(SizePersistedDialog):
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
-class EditTextDialog(QDialog):
+class EditTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
-                 rejectreasons=[],reasonslabel=None
+                 rejectreasons=[],reasonslabel=None,
+                 use_find=False,
+                 read_only=False,
+                 save_size_name='ffdl:edit text dialog',
                  ):
-        QDialog.__init__(self, parent)
-        self.resize(600, 500)
+        SizePersistedDialog.__init__(self, parent, save_size_name)
+        #self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel(label)
@@ -1130,8 +1133,49 @@ class EditTextDialog(QDialog):
         
         self.textedit = QTextEdit(self)
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        try:
+            self.textedit.setFont(QFont("Courier",
+                                   parent.font().pointSize()+1))
+        except Exception as e:
+            logger.error("Couldn't get font: %s"%e)
+
+        self.textedit.setReadOnly(read_only)
+
+            
         self.textedit.setText(text)
         self.l.addWidget(self.textedit)
+
+        self.lastStart = 0
+
+        if use_find:
+
+            findtooltip=_('Search for string in edit box.')
+            
+            horz = QHBoxLayout()
+            label = QLabel(_('Find:'))
+
+            label.setToolTip(findtooltip)
+                
+            # Button to search the document for something
+            self.findButton = QtGui.QPushButton(_('Find'),self)
+            self.findButton.clicked.connect(self.find)
+            self.findButton.setToolTip(findtooltip)
+        
+            # The field into which to type the query
+            self.findField = QLineEdit(self)
+            self.findField.setToolTip(findtooltip)
+            self.findField.returnPressed.connect(self.findButton.click)
+            
+            # Case Sensitivity option
+            self.caseSens = QtGui.QCheckBox(_('Case sensitive'),self)
+            self.caseSens.setToolTip(_("Search for case sensitive string; don't treat Harry, HARRY and harry all the same."))
+            
+            horz.addWidget(label)
+            horz.addWidget(self.findField)
+            horz.addWidget(self.findButton)
+            horz.addWidget(self.caseSens)
+            
+            self.l.addLayout(horz)
 
         if tooltip:
             self.label.setToolTip(tooltip)
@@ -1159,7 +1203,12 @@ class EditTextDialog(QDialog):
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
+        # button_box.button(QDialogButtonBox.Ok).setDefault(False)
+        # button_box.button(QDialogButtonBox.Cancel).setDefault(False)
         self.l.addWidget(button_box)
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
 
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
@@ -1167,3 +1216,121 @@ class EditTextDialog(QDialog):
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
     
+    def find(self):
+
+        ## for findField.returnPressed
+        self.findButton.setFocus()
+        
+        # Grab the parent's text
+        text = self.textedit.toPlainText()
+
+        # And the text to find
+        query = self.findField.text()
+
+        if not self.caseSens.isChecked():
+            text = text.lower()
+            query = query.lower()
+
+        # Use normal string search to find the query from the
+        # last starting position
+        self.lastStart = text.find(query,self.lastStart + 1)
+        # If the find() method didn't return -1 (not found)
+        
+        if self.lastStart >= 0:
+            end = self.lastStart + len(query)
+            self.moveCursor(self.lastStart,end)
+        else:
+            # Make the next search start from the begining again
+            self.lastStart = 0
+            self.textedit.moveCursor(self.textedit.textCursor().End)
+        
+        # # If the 'Whole Words' checkbox is checked, we need to append
+        # # and prepend a non-alphanumeric character
+        # # if self.wholeWords.isChecked():
+        # #     query = r'\W' + query + r'\W'
+
+        # # By default regexes are case sensitive but usually a search isn't
+        # # case sensitive by default, so we need to switch this around here
+        # flags = 0 if self.caseSens.isChecked() else re.I
+
+        # # Compile the pattern
+        # pattern = re.compile(query,flags)
+
+        # # If the last match was successful, start at position after the last
+        # # match's start, else at 0
+        # start = self.lastMatch.start() + 1 if self.lastMatch else 0
+
+        # # The actual search
+        # self.lastMatch = pattern.search(text,start)
+
+        # if self.lastMatch:
+
+        #     start = self.lastMatch.start()
+        #     end = self.lastMatch.end()
+
+            # If 'Whole words' is checked, the selection would include the two
+            # non-alphanumeric characters we included in the search, which need
+            # to be removed before marking them.
+            # if self.wholeWords.isChecked():
+            #     start += 1
+            #     end -= 1
+
+        #     self.moveCursor(start,end)
+
+        # else:
+
+        #     # We set the cursor to the end if the search was unsuccessful
+        #     self.textedit.moveCursor(self.textedit.textCursor().End)
+            
+    def moveCursor(self,start,end):
+
+        # We retrieve the QTextCursor object from the parent's QTextEdit
+        cursor = self.textedit.textCursor()
+
+        # Then we set the position to the beginning of the last match
+        cursor.setPosition(start)
+
+        # Next we move the Cursor by over the match and pass the KeepAnchor parameter
+        # which will make the cursor select the the match's text
+        cursor.movePosition(cursor.Right,cursor.KeepAnchor,end - start)
+
+        # And finally we set this new cursor as the parent's
+        self.textedit.setTextCursor(cursor)
+
+def errors_dialog(parent,
+                  title,
+                  html):
+
+    d = ViewLog(title,html,parent)
+
+    return d.exec_() == d.Accepted
+
+        
+class ViewLog(QDialog):
+
+    def __init__(self, title, html, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.tb = QTextBrowser(self)
+        self.tb.setHtml('<pre style="font-family: monospace">%s</pre>' % html)
+        l.addWidget(self.tb)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+                self.bb.ActionRole)
+        self.copy_button.setIcon(QIcon(I('edit-copy.png')))
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        l.addWidget(self.bb)
+        self.setModal(False)
+        self.resize(QSize(700, 500))
+        self.setWindowTitle(title)
+        self.setWindowIcon(QIcon(I('debug.png')))
+        self.show()
+
+    def copy_to_clipboard(self):
+        txt = self.tb.toPlainText()
+        QApplication.clipboard().setText(txt)
