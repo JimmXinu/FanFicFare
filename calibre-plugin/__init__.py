@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2013, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import sys
@@ -42,7 +42,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (2, 1, 0)
+    version             = (2, 1, 1)
     minimum_calibre_version = (1, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
