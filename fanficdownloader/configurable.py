@@ -32,6 +32,8 @@ import ConfigParser, re
 # [overrides]
 # titlepage_entries: category
 
+import adapters
+
 class Configuration(ConfigParser.SafeConfigParser):
 
     def __init__(self, site, fileform):
@@ -162,6 +164,36 @@ class Configuration(ConfigParser.SafeConfigParser):
     def getConfigList(self, key):
         return self.get_config_list(self.sectionslist, key)
 
+
+    def test_config(self):
+        errors=[]
+        
+        sites = adapters.getConfigSections()
+        sitesections = ['defaults','overrides']
+        for section in sites:
+            sitesections.append(section)
+            if section.startswith('www.'):
+                # add w/o www if has www
+                sitesections.append(section[4:])
+            else:
+                # add w/ www if doesn't www
+                sitesections.append('www.%s'%section)
+        
+        allowedsections = []
+        forms=['html','txt','epub','mobi']
+        allowedsections.extend(forms)
+
+        for section in sitesections:
+            allowedsections.append(section)
+            for f in forms:
+                allowedsections.append('%s:%s'%(section,f))
+        
+        for section in self.sections():
+            if section not in allowedsections and 'teststory:' not in section:
+                errors.append(_("BAD section name: [%s]")%section)
+        
+        return errors
+    
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
 
