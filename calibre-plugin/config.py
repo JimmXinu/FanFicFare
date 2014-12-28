@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 import traceback, copy, threading
 from collections import OrderedDict
 
+from ConfigParser import ParsingError
+
 try:
     from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                           QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
@@ -73,7 +75,7 @@ no_trans = { 'pini':'personal.ini',
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-            EditTextDialog, RejectUrlEntry)
+            EditTextDialog, RejectUrlEntry, errors_dialog)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
     import getConfigSections
@@ -656,14 +658,18 @@ class PersonalIniTab(QWidget):
             if d.result() == d.Accepted:
                 self.personalini = unicode(d.get_plain_text())
 
-                configini = get_ffdl_config("test1.com?sid=555",
-                                            personalini=self.personalini)
+                try:
+                    configini = get_ffdl_config("test1.com?sid=555",
+                                                personalini=self.personalini)
 
-                errors = configini.test_config()
+                    errors = configini.test_config()
+                except ParsingError as pe:
+                    errors = pe.errors
 
                 if errors:
-                    error = not question_dialog(self.plugin_action.gui, _('Go back to fix errors?'), '<p>'+'</p><p>'.join(errors)+'</p>',
-                                                show_copy_button=False)
+                    error = not errors_dialog(self.plugin_action.gui,
+                                              _('Go back to fix errors?'),
+                                              '<p>'+'</p><p>'.join([ '%s %s'%e for e in errors ])+'</p>')
                 
 class ReadingListTab(QWidget):
 
