@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -23,18 +23,22 @@ from datetime import datetime
 
 try:
     from PyQt5 import QtWidgets as QtGui
+    from PyQt5 import QtCore
     from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction,
+                          QSyntaxHighlighter, QTextCharFormat, QBrush )
 except ImportError as e:
     from PyQt4 import QtGui
+    from PyQt4 import QtCore
     from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction, QtCore,
+                          QSyntaxHighlighter, QTextCharFormat, QBrush )
 
 try:
     from calibre.gui2 import QVariant
@@ -1121,6 +1125,9 @@ class EditTextDialog(SizePersistedDialog):
                  save_size_name='ffdl:edit text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
+        
+        self.keys=dict()
+        
         #self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -1132,6 +1139,9 @@ class EditTextDialog(SizePersistedDialog):
         self.l.addWidget(self.label)
         
         self.textedit = QTextEdit(self)
+
+        highlighter = IniHighlighter(self.textedit, "Classic")
+        
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
         try:
             self.textedit.setFont(QFont("Courier",
@@ -1141,7 +1151,6 @@ class EditTextDialog(SizePersistedDialog):
 
         self.textedit.setReadOnly(read_only)
 
-            
         self.textedit.setText(text)
         self.l.addWidget(self.textedit)
 
@@ -1164,7 +1173,7 @@ class EditTextDialog(SizePersistedDialog):
             # The field into which to type the query
             self.findField = QLineEdit(self)
             self.findField.setToolTip(findtooltip)
-            self.findField.returnPressed.connect(self.findButton.click)
+            self.findField.returnPressed.connect(self.findButton.setFocus)
             
             # Case Sensitivity option
             self.caseSens = QtGui.QCheckBox(_('Case sensitive'),self)
@@ -1177,6 +1186,9 @@ class EditTextDialog(SizePersistedDialog):
             
             self.l.addLayout(horz)
 
+            self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
+            self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
+        
         if tooltip:
             self.label.setToolTip(tooltip)
             self.textedit.setToolTip(tooltip)
@@ -1210,16 +1222,33 @@ class EditTextDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
+    def addCtrlKeyPress(self,key,func):
+        # print("addKeyPress: key(0x%x)"%key)
+        # print("control: 0x%x"%QtCore.Qt.ControlModifier)
+        self.keys[key]=func
+
+    def keyPressEvent(self, event):
+        # print("event: key(0x%x) modifiers(0x%x)"%(event.key(),event.modifiers()))
+        if (event.modifiers() & QtCore.Qt.ControlModifier) and event.key() in self.keys:
+            func = self.keys[event.key()]
+            return func()
+        else:
+            return SizePersistedDialog.keyPressEvent(self, event)
+    
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
 
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
-    
+
+    def findFocus(self):
+        # print("findFocus called")
+        self.findField.setFocus()
+        self.findField.selectAll()        
+        
     def find(self):
 
-        ## for findField.returnPressed
-        self.findButton.setFocus()
+        print("find self.lastStart:%s"%self.lastStart)
         
         # Grab the parent's text
         text = self.textedit.toPlainText()
@@ -1242,46 +1271,8 @@ class EditTextDialog(SizePersistedDialog):
         else:
             # Make the next search start from the begining again
             self.lastStart = 0
-            self.textedit.moveCursor(self.textedit.textCursor().End)
-        
-        # # If the 'Whole Words' checkbox is checked, we need to append
-        # # and prepend a non-alphanumeric character
-        # # if self.wholeWords.isChecked():
-        # #     query = r'\W' + query + r'\W'
-
-        # # By default regexes are case sensitive but usually a search isn't
-        # # case sensitive by default, so we need to switch this around here
-        # flags = 0 if self.caseSens.isChecked() else re.I
-
-        # # Compile the pattern
-        # pattern = re.compile(query,flags)
-
-        # # If the last match was successful, start at position after the last
-        # # match's start, else at 0
-        # start = self.lastMatch.start() + 1 if self.lastMatch else 0
-
-        # # The actual search
-        # self.lastMatch = pattern.search(text,start)
-
-        # if self.lastMatch:
-
-        #     start = self.lastMatch.start()
-        #     end = self.lastMatch.end()
-
-            # If 'Whole words' is checked, the selection would include the two
-            # non-alphanumeric characters we included in the search, which need
-            # to be removed before marking them.
-            # if self.wholeWords.isChecked():
-            #     start += 1
-            #     end -= 1
-
-        #     self.moveCursor(start,end)
-
-        # else:
-
-        #     # We set the cursor to the end if the search was unsuccessful
-        #     self.textedit.moveCursor(self.textedit.textCursor().End)
-            
+            self.textedit.moveCursor(self.textedit.textCursor().Start)
+                    
     def moveCursor(self,start,end):
 
         # We retrieve the QTextCursor object from the parent's QTextEdit
@@ -1314,23 +1305,140 @@ class ViewLog(QDialog):
         self.setLayout(l)
 
         self.tb = QTextBrowser(self)
-        self.tb.setHtml('<pre style="font-family: monospace">%s</pre>' % html)
+        self.tb.setFont(QFont("Courier",
+                              parent.font().pointSize()+1))
+        self.tb.setHtml(html)
         l.addWidget(self.tb)
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
-        self.copy_button = self.bb.addButton(_('Copy to clipboard'),
-                self.bb.ActionRole)
-        self.copy_button.setIcon(QIcon(I('edit-copy.png')))
-        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        # self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+        #         self.bb.ActionRole)
+        # self.copy_button.setIcon(QIcon(I('edit-copy.png')))
+        # self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
         self.setModal(False)
-        self.resize(QSize(700, 500))
+        self.resize(700, 500)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(I('debug.png')))
-        self.show()
+        #self.show()
 
     def copy_to_clipboard(self):
         txt = self.tb.toPlainText()
         QApplication.clipboard().setText(txt)
+
+class IniHighlighter(QSyntaxHighlighter):
+    
+    def __init__( self, parent, theme ):
+        QSyntaxHighlighter.__init__( self, parent )
+        self.parent = parent
+        keyword = QTextCharFormat()
+        reservedClasses = QTextCharFormat()
+        assignmentOperator = QTextCharFormat()
+        delimiter = QTextCharFormat()
+        specialConstant = QTextCharFormat()
+        boolean = QTextCharFormat()
+        number = QTextCharFormat()
+        comment = QTextCharFormat()
+        string = QTextCharFormat()
+        singleQuotedString = QTextCharFormat()
+        
+        self.highlightingRules = []
+
+        # # keyword
+        # brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
+        # keyword.setForeground( brush )
+        # keyword.setFontWeight( QFont.Bold )
+        # keywords = [ "break", "else", "for", "if", "in", 
+        #              "next", "repeat", "return", "switch", 
+        #              "try", "while" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, keyword )
+        #     self.highlightingRules.append( rule )
+
+        # # reservedClasses
+        # reservedClasses.setForeground( brush )
+        # reservedClasses.setFontWeight( QFont.Bold )
+        # keywords = [ "array", "character", "complex", 
+        #              "data.frame", "double", "factor", 
+        #              "function", "integer", "list", 
+        #              "logical", "matrix", "numeric", 
+        #              "vector" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, reservedClasses )
+        #     self.highlightingRules.append( rule )
+
+        # # assignmentOperator
+        # brush = QBrush( Qt.yellow, Qt.SolidPattern )
+        # pattern =  "(<){1,2}-"
+        # assignmentOperator.setForeground( brush )
+        # assignmentOperator.setFontWeight( QFont.Bold )
+        # rule = HighlightingRule( pattern, assignmentOperator )
+        # self.highlightingRules.append( rule )
+        
+        # section
+        pattern = r"^\[[^\]]+\]"
+        brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
+        delimiter.setForeground( brush )
+        delimiter.setFontWeight( QFont.Bold )
+        rule = HighlightingRule( pattern, delimiter )
+        self.highlightingRules.append( rule )
+
+        # # specialConstant
+        # brush = QBrush( Qt.green, Qt.SolidPattern )
+        # specialConstant.setForeground( brush )
+        # keywords = [ "Inf", "NA", "NaN", "NULL" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, specialConstant )
+        #     self.highlightingRules.append( rule )
+
+        # boolean, case insensitive
+        boolean.setForeground( brush )
+        pattern = r"\b(true|false)\b"
+        rule = HighlightingRule( pattern, boolean )
+        self.highlightingRules.append( rule )
+
+        # # number
+        # pattern = "[-+]?[0-9]*\.?[0-9]+?([eE][-+]?[0-9]+?)?"
+        # number.setForeground( brush )
+        # rule = HighlightingRule( pattern, number )
+        # self.highlightingRules.append( rule )
+
+        # comment
+        brush = QBrush( Qt.darkGray, Qt.SolidPattern )
+        pattern =  "#[^\n]*" 
+        comment.setForeground( brush )
+        rule = HighlightingRule( pattern, comment )
+        self.highlightingRules.append( rule )
+
+        # string
+        brush = QBrush( Qt.red, Qt.SolidPattern )
+        pattern =  "\".*?\"" 
+        string.setForeground( brush )
+        rule = HighlightingRule( pattern, string )
+        self.highlightingRules.append( rule )
+      
+        # singleQuotedString
+        pattern =  "\'.*?\'" 
+        singleQuotedString.setForeground( brush )
+        rule = HighlightingRule( pattern, singleQuotedString )
+        self.highlightingRules.append( rule )
+
+    def highlightBlock( self, text ):
+        for rule in self.highlightingRules:
+            for match in rule.pattern.finditer(text):
+                self.setFormat( match.start(), match.end()-match.start(), rule.format )
+        self.setCurrentBlockState( 0 )
+
+class HighlightingRule():
+    def __init__( self, pattern, format ):
+        if isinstance(pattern,basestring):
+            self.pattern = re.compile(pattern)
+        else:
+            self.pattern=pattern
+        self.format = format
+    
