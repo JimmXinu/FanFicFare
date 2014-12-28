@@ -258,6 +258,20 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 for warning in warningstext:
                     self.story.addToList('warnings',stripHTML(warning))
 
+            if 'Universe' in label:
+                universes = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3')) # XXX
+                universestext = [stripHTML(universe) for universe in universes]
+                self.universe = ', '.join(universestext)
+                for universe in universestext:
+                    self.story.addToList('universe',stripHTML(universe))
+
+            if 'Crossover Fandom' in label:
+                crossoverfandoms = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=4')) # XXX
+                crossoverfandomstext = [stripHTML(crossoverfandom) for crossoverfandom in crossoverfandoms]
+                self.crossoverfandom = ', '.join(crossoverfandomstext)
+                for crossoverfandom in crossoverfandomstext:
+                    self.story.addToList('crossoverfandom',stripHTML(crossoverfandom))
+
             if 'Completed' in label:
                 if 'Yes' in value:
                     self.story.setMetadata('status', 'Completed')
