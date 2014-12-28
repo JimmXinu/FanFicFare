@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -23,18 +23,22 @@ from datetime import datetime
 
 try:
     from PyQt5 import QtWidgets as QtGui
+    from PyQt5 import QtCore
     from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction,
+                          QSyntaxHighlighter, QTextCharFormat, QBrush )
 except ImportError as e:
     from PyQt4 import QtGui
+    from PyQt4 import QtCore
     from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction, QtCore,
+                          QSyntaxHighlighter, QTextCharFormat, QBrush )
 
 try:
     from calibre.gui2 import QVariant
@@ -1111,14 +1115,20 @@ class RejectListDialog(SizePersistedDialog):
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
-class EditTextDialog(QDialog):
+class EditTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
-                 rejectreasons=[],reasonslabel=None
+                 rejectreasons=[],reasonslabel=None,
+                 use_find=False,
+                 read_only=False,
+                 save_size_name='ffdl:edit text dialog',
                  ):
-        QDialog.__init__(self, parent)
-        self.resize(600, 500)
+        SizePersistedDialog.__init__(self, parent, save_size_name)
+        
+        self.keys=dict()
+        
+        #self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel(label)
@@ -1129,10 +1139,56 @@ class EditTextDialog(QDialog):
         self.l.addWidget(self.label)
         
         self.textedit = QTextEdit(self)
+
+        highlighter = IniHighlighter(self.textedit, "Classic")
+        
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        try:
+            self.textedit.setFont(QFont("Courier",
+                                   parent.font().pointSize()+1))
+        except Exception as e:
+            logger.error("Couldn't get font: %s"%e)
+
+        self.textedit.setReadOnly(read_only)
+
         self.textedit.setText(text)
         self.l.addWidget(self.textedit)
 
+        self.lastStart = 0
+
+        if use_find:
+
+            findtooltip=_('Search for string in edit box.')
+            
+            horz = QHBoxLayout()
+            label = QLabel(_('Find:'))
+
+            label.setToolTip(findtooltip)
+                
+            # Button to search the document for something
+            self.findButton = QtGui.QPushButton(_('Find'),self)
+            self.findButton.clicked.connect(self.find)
+            self.findButton.setToolTip(findtooltip)
+        
+            # The field into which to type the query
+            self.findField = QLineEdit(self)
+            self.findField.setToolTip(findtooltip)
+            self.findField.returnPressed.connect(self.findButton.setFocus)
+            
+            # Case Sensitivity option
+            self.caseSens = QtGui.QCheckBox(_('Case sensitive'),self)
+            self.caseSens.setToolTip(_("Search for case sensitive string; don't treat Harry, HARRY and harry all the same."))
+            
+            horz.addWidget(label)
+            horz.addWidget(self.findField)
+            horz.addWidget(self.findButton)
+            horz.addWidget(self.caseSens)
+            
+            self.l.addLayout(horz)
+
+            self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
+            self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
+        
         if tooltip:
             self.label.setToolTip(tooltip)
             self.textedit.setToolTip(tooltip)
@@ -1159,11 +1215,230 @@ class EditTextDialog(QDialog):
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
+        # button_box.button(QDialogButtonBox.Ok).setDefault(False)
+        # button_box.button(QDialogButtonBox.Cancel).setDefault(False)
         self.l.addWidget(button_box)
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
 
+    def addCtrlKeyPress(self,key,func):
+        # print("addKeyPress: key(0x%x)"%key)
+        # print("control: 0x%x"%QtCore.Qt.ControlModifier)
+        self.keys[key]=func
+
+    def keyPressEvent(self, event):
+        # print("event: key(0x%x) modifiers(0x%x)"%(event.key(),event.modifiers()))
+        if (event.modifiers() & QtCore.Qt.ControlModifier) and event.key() in self.keys:
+            func = self.keys[event.key()]
+            return func()
+        else:
+            return SizePersistedDialog.keyPressEvent(self, event)
+    
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
 
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
+
+    def findFocus(self):
+        # print("findFocus called")
+        self.findField.setFocus()
+        self.findField.selectAll()        
+        
+    def find(self):
+
+        print("find self.lastStart:%s"%self.lastStart)
+        
+        # Grab the parent's text
+        text = self.textedit.toPlainText()
+
+        # And the text to find
+        query = self.findField.text()
+
+        if not self.caseSens.isChecked():
+            text = text.lower()
+            query = query.lower()
+
+        # Use normal string search to find the query from the
+        # last starting position
+        self.lastStart = text.find(query,self.lastStart + 1)
+        # If the find() method didn't return -1 (not found)
+        
+        if self.lastStart >= 0:
+            end = self.lastStart + len(query)
+            self.moveCursor(self.lastStart,end)
+        else:
+            # Make the next search start from the begining again
+            self.lastStart = 0
+            self.textedit.moveCursor(self.textedit.textCursor().Start)
+                    
+    def moveCursor(self,start,end):
+
+        # We retrieve the QTextCursor object from the parent's QTextEdit
+        cursor = self.textedit.textCursor()
+
+        # Then we set the position to the beginning of the last match
+        cursor.setPosition(start)
+
+        # Next we move the Cursor by over the match and pass the KeepAnchor parameter
+        # which will make the cursor select the the match's text
+        cursor.movePosition(cursor.Right,cursor.KeepAnchor,end - start)
+
+        # And finally we set this new cursor as the parent's
+        self.textedit.setTextCursor(cursor)
+
+def errors_dialog(parent,
+                  title,
+                  html):
+
+    d = ViewLog(title,html,parent)
+
+    return d.exec_() == d.Accepted
+
+        
+class ViewLog(QDialog):
+
+    def __init__(self, title, html, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.tb = QTextBrowser(self)
+        self.tb.setFont(QFont("Courier",
+                              parent.font().pointSize()+1))
+        self.tb.setHtml(html)
+        l.addWidget(self.tb)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        # self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+        #         self.bb.ActionRole)
+        # self.copy_button.setIcon(QIcon(I('edit-copy.png')))
+        # self.copy_button.clicked.connect(self.copy_to_clipboard)
+        l.addWidget(self.bb)
+        self.setModal(False)
+        self.resize(700, 500)
+        self.setWindowTitle(title)
+        self.setWindowIcon(QIcon(I('debug.png')))
+        #self.show()
+
+    def copy_to_clipboard(self):
+        txt = self.tb.toPlainText()
+        QApplication.clipboard().setText(txt)
+
+class IniHighlighter(QSyntaxHighlighter):
+    
+    def __init__( self, parent, theme ):
+        QSyntaxHighlighter.__init__( self, parent )
+        self.parent = parent
+        keyword = QTextCharFormat()
+        reservedClasses = QTextCharFormat()
+        assignmentOperator = QTextCharFormat()
+        delimiter = QTextCharFormat()
+        specialConstant = QTextCharFormat()
+        boolean = QTextCharFormat()
+        number = QTextCharFormat()
+        comment = QTextCharFormat()
+        string = QTextCharFormat()
+        singleQuotedString = QTextCharFormat()
+        
+        self.highlightingRules = []
+
+        # # keyword
+        # brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
+        # keyword.setForeground( brush )
+        # keyword.setFontWeight( QFont.Bold )
+        # keywords = [ "break", "else", "for", "if", "in", 
+        #              "next", "repeat", "return", "switch", 
+        #              "try", "while" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, keyword )
+        #     self.highlightingRules.append( rule )
+
+        # # reservedClasses
+        # reservedClasses.setForeground( brush )
+        # reservedClasses.setFontWeight( QFont.Bold )
+        # keywords = [ "array", "character", "complex", 
+        #              "data.frame", "double", "factor", 
+        #              "function", "integer", "list", 
+        #              "logical", "matrix", "numeric", 
+        #              "vector" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, reservedClasses )
+        #     self.highlightingRules.append( rule )
+
+        # # assignmentOperator
+        # brush = QBrush( Qt.yellow, Qt.SolidPattern )
+        # pattern =  "(<){1,2}-"
+        # assignmentOperator.setForeground( brush )
+        # assignmentOperator.setFontWeight( QFont.Bold )
+        # rule = HighlightingRule( pattern, assignmentOperator )
+        # self.highlightingRules.append( rule )
+        
+        # section
+        pattern = r"^\[[^\]]+\]"
+        brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
+        delimiter.setForeground( brush )
+        delimiter.setFontWeight( QFont.Bold )
+        rule = HighlightingRule( pattern, delimiter )
+        self.highlightingRules.append( rule )
+
+        # # specialConstant
+        # brush = QBrush( Qt.green, Qt.SolidPattern )
+        # specialConstant.setForeground( brush )
+        # keywords = [ "Inf", "NA", "NaN", "NULL" ]
+        # for word in keywords:
+        #     pattern = "\\b" + word + "\\b"
+        #     rule = HighlightingRule( pattern, specialConstant )
+        #     self.highlightingRules.append( rule )
+
+        # boolean, case insensitive
+        boolean.setForeground( brush )
+        pattern = r"\b(true|false)\b"
+        rule = HighlightingRule( pattern, boolean )
+        self.highlightingRules.append( rule )
+
+        # # number
+        # pattern = "[-+]?[0-9]*\.?[0-9]+?([eE][-+]?[0-9]+?)?"
+        # number.setForeground( brush )
+        # rule = HighlightingRule( pattern, number )
+        # self.highlightingRules.append( rule )
+
+        # comment
+        brush = QBrush( Qt.darkGray, Qt.SolidPattern )
+        pattern =  "#[^\n]*" 
+        comment.setForeground( brush )
+        rule = HighlightingRule( pattern, comment )
+        self.highlightingRules.append( rule )
+
+        # string
+        brush = QBrush( Qt.red, Qt.SolidPattern )
+        pattern =  "\".*?\"" 
+        string.setForeground( brush )
+        rule = HighlightingRule( pattern, string )
+        self.highlightingRules.append( rule )
+      
+        # singleQuotedString
+        pattern =  "\'.*?\'" 
+        singleQuotedString.setForeground( brush )
+        rule = HighlightingRule( pattern, singleQuotedString )
+        self.highlightingRules.append( rule )
+
+    def highlightBlock( self, text ):
+        for rule in self.highlightingRules:
+            for match in rule.pattern.finditer(text):
+                self.setFormat( match.start(), match.end()-match.start(), rule.format )
+        self.setCurrentBlockState( 0 )
+
+class HighlightingRule():
+    def __init__( self, pattern, format ):
+        if isinstance(pattern,basestring):
+            self.pattern = re.compile(pattern)
+        else:
+            self.pattern=pattern
+        self.format = format
     
