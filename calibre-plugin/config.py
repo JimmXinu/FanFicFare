@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 import traceback, copy, threading
 from collections import OrderedDict
 
-from ConfigParser import ParsingError
-
 try:
     from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                           QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
@@ -75,7 +73,7 @@ no_trans = { 'pini':'personal.ini',
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-            EditTextDialog, RejectUrlEntry, errors_dialog)
+            EditTextDialog, IniTextDialog, RejectUrlEntry, errors_dialog)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
     import getConfigSections
@@ -83,7 +81,8 @@ from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
 
-from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_config)
+from calibre_plugins.fanfictiondownloader_plugin.ffdl_util \
+    import (test_config)
 
 from calibre.gui2.complete2 import EditWithComplete  #MultiCompleteLineEdit
 
@@ -566,8 +565,7 @@ class BasicTab(QWidget):
                            title=_("Reject Reasons"),
                            label=_("Customize Reject List Reasons"),
                            tooltip=_("Customize the Reasons presented when Rejecting URLs"),
-                           save_size_name='ffdl:Reject List Reasons',
-                           use_find=True)
+                           save_size_name='ffdl:Reject List Reasons')
         d.exec_()
         if d.result() == d.Accepted:
             prefs['rejectreasons'] = d.get_plain_text()
@@ -632,7 +630,7 @@ class PersonalIniTab(QWidget):
         # let edit box fill the space.
         
     def show_defaults(self):
-        EditTextDialog(self,
+        IniTextDialog(self,
                        get_resources('plugin-defaults.ini'),
                        icon=self.windowIcon(),
                        title=_('Plugin Defaults'),
@@ -643,7 +641,7 @@ class PersonalIniTab(QWidget):
                        save_size_name='ffdl:defaults.ini').exec_()
         
     def add_ini_button(self):
-        d = EditTextDialog(self,
+        d = IniTextDialog(self,
                            self.personalini,
                            icon=self.windowIcon(),
                            title=_("Edit personal.ini"),
@@ -658,13 +656,7 @@ class PersonalIniTab(QWidget):
             if d.result() == d.Accepted:
                 self.personalini = unicode(d.get_plain_text())
 
-                try:
-                    configini = get_ffdl_config("test1.com?sid=555",
-                                                personalini=self.personalini)
-
-                    errors = configini.test_config()
-                except ParsingError as pe:
-                    errors = pe.errors
+                errors = test_config(self.personalini)
 
                 if errors:
                     error = not errors_dialog(self.plugin_action.gui,
