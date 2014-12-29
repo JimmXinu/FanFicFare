@@ -649,19 +649,25 @@ class PersonalIniTab(QWidget):
                            tooltip=_("Edit personal.ini"),
                            use_find=True,
                            save_size_name='ffdl:personal.ini')
-        error=False
-        while not error:
-            error=True
+        retry=True
+        while retry:
             d.exec_()
             if d.result() == d.Accepted:
-                self.personalini = unicode(d.get_plain_text())
-
-                errors = test_config(self.personalini)
+                editini = d.get_plain_text()
+                errors = test_config(editini)
 
                 if errors:
-                    error = not errors_dialog(self.plugin_action.gui,
-                                              _('Go back to fix errors?'),
-                                              '<p>'+'</p><p>'.join([ '%s %s'%e for e in errors ])+'</p>')
+                    retry = errors_dialog(self.plugin_action.gui,
+                                          _('Go back to fix errors?'),
+                                          '<p>'+'</p><p>'.join([ '%s %s'%e for e in errors ])+'</p>')
+                else:
+                    retry = False
+                    
+                if not retry:
+                    self.personalini = unicode(editini)
+            else:
+                # cancelled
+                retry = False
                 
 class ReadingListTab(QWidget):
 

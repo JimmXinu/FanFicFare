@@ -30,6 +30,14 @@ class IniHighlighter(QSyntaxHighlighter):
         
         self.highlightingRules = []
 
+        if entries:
+            # *known* entries
+            reentries = r'('+(r'|'.join(entries))+r')'
+            self.highlightingRules.append( HighlightingRule( r"\b"+reentries+r"\b", Qt.darkGreen ) )
+
+        # true/false -- just to be nice.
+        self.highlightingRules.append( HighlightingRule( r"\b(true|false)\b", Qt.darkGreen ) )
+        
         # *all* keywords -- change known later.
         self.errorRule = HighlightingRule( r"^[^:=\s][^:=]*[:=]", Qt.red )
         self.highlightingRules.append( self.errorRule )
@@ -38,14 +46,7 @@ class IniHighlighter(QSyntaxHighlighter):
         reentrykeywords = r'('+(r'|'.join([ e % r'[a-zA-Z0-9_]+' for e in entry_keywords ]))+r')'
         self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"\s*[:=]", Qt.darkMagenta ) )
 
-        # true/false -- just to be nice.
-        self.highlightingRules.append( HighlightingRule( r"\b(true|false)\b", Qt.darkGreen ) )
-        
-        if entries:
-            # *known* entries
-            reentries = r'('+(r'|'.join(entries))+r')'
-            self.highlightingRules.append( HighlightingRule( r"\b"+reentries+r"\b", Qt.darkGreen ) )
-
+        if entries: # separate from known entries so entry named keyword won't be masked.
             # *known* entry keywords
             reentrykeywords = r'('+(r'|'.join([ e % reentries for e in entry_keywords ]))+r')'
             self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"\s*[:=]", Qt.blue ) )
