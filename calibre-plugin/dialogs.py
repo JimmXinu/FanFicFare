@@ -1260,8 +1260,6 @@ class IniTextDialog(SizePersistedDialog):
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        # button_box.button(QDialogButtonBox.Ok).setDefault(False)
-        # button_box.button(QDialogButtonBox.Cancel).setDefault(False)
         self.l.addWidget(button_box)
         
         # Cause our dialog size to be restored from prefs or created on first usage
@@ -1337,12 +1335,12 @@ def errors_dialog(parent,
     d = ViewLog(title,html,parent)
 
     return d.exec_() == d.Accepted
-
         
-class ViewLog(QDialog):
+class ViewLog(SizePersistedDialog):
 
-    def __init__(self, title, html, parent=None):
-        QDialog.__init__(self, parent)
+    def __init__(self, title, html, parent=None,
+                 save_size_name='ffdl:view log dialog',):
+        SizePersistedDialog.__init__(self, parent,save_size_name)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
 
@@ -1361,10 +1359,12 @@ class ViewLog(QDialog):
         # self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
         self.setModal(False)
-        self.resize(700, 500)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(I('debug.png')))
         #self.show()
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
 
     def copy_to_clipboard(self):
         txt = self.tb.toPlainText()
