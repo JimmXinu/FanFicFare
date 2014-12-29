@@ -7,9 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import logging
-logger = logging.getLogger(__name__)
-
 import traceback, re
 from functools import partial
 
@@ -28,8 +25,7 @@ try:
                           QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction,
-                          QSyntaxHighlighter, QTextCharFormat, QBrush )
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
@@ -37,8 +33,7 @@ except ImportError as e:
                           QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction, QtCore,
-                          QSyntaxHighlighter, QTextCharFormat, QBrush )
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 
 try:
     from calibre.gui2 import QVariant
@@ -71,6 +66,12 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils \
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getNormalStoryURL
+
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable \
+    import (get_valid_sections, get_valid_entries,
+            get_valid_keywords, get_valid_entry_keywords)
+
+from inihighlighter import IniHighlighter
 
 SKIP=_('Skip')
 ADDNEW=_('Add New Book')
@@ -1120,15 +1121,73 @@ class EditTextDialog(SizePersistedDialog):
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
                  rejectreasons=[],reasonslabel=None,
+                 save_size_name='ffdl:edit text dialog',
+                 ):
+        SizePersistedDialog.__init__(self, parent, save_size_name)
+
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.label = QLabel(label)
+        if title:
+            self.setWindowTitle(title)
+        if icon:
+            self.setWindowIcon(icon)
+        self.l.addWidget(self.label)
+        
+        self.textedit = QTextEdit(self)
+        self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        self.textedit.setText(text)
+        self.l.addWidget(self.textedit)
+
+        if tooltip:
+            self.label.setToolTip(tooltip)
+            self.textedit.setToolTip(tooltip)
+
+        if rejectreasons or reasonslabel:
+            self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
+            
+            items = ['']+rejectreasons
+            self.reason_edit.update_items_cache(items)
+            self.reason_edit.show_initial_value('')
+            self.reason_edit.set_separator(None)
+            self.reason_edit.setToolTip(reasonslabel)
+            
+            if reasonslabel:
+                horz = QHBoxLayout()
+                label = QLabel(reasonslabel)
+                label.setToolTip(reasonslabel)
+                horz.addWidget(label)
+                horz.addWidget(self.reason_edit)
+                self.l.addLayout(horz)
+            else:
+                self.l.addWidget(self.reason_edit)
+            
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.l.addWidget(button_box)
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
+
+    def get_plain_text(self):
+        return unicode(self.textedit.toPlainText())
+
+    def get_reason_text(self):
+        return unicode(self.reason_edit.currentText()).strip()
+    
+class IniTextDialog(SizePersistedDialog):
+
+    def __init__(self, parent, text,
+                 icon=None, title=None, label=None, tooltip=None,
                  use_find=False,
                  read_only=False,
-                 save_size_name='ffdl:edit text dialog',
+                 save_size_name='ffdl:ini text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
         
         self.keys=dict()
         
-        #self.resize(600, 500)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel(label)
@@ -1140,7 +1199,12 @@ class EditTextDialog(SizePersistedDialog):
         
         self.textedit = QTextEdit(self)
 
-        highlighter = IniHighlighter(self.textedit, "Classic")
+        highlighter = IniHighlighter(self.textedit,
+                                     sections=get_valid_sections(),
+                                     keywords=get_valid_keywords(),
+                                     entries=get_valid_entries(),
+                                     entry_keywords=get_valid_entry_keywords(),
+                                     )
         
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
         try:
@@ -1193,25 +1257,6 @@ class EditTextDialog(SizePersistedDialog):
             self.label.setToolTip(tooltip)
             self.textedit.setToolTip(tooltip)
 
-        if rejectreasons or reasonslabel:
-            self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
-            
-            items = ['']+rejectreasons
-            self.reason_edit.update_items_cache(items)
-            self.reason_edit.show_initial_value('')
-            self.reason_edit.set_separator(None)
-            self.reason_edit.setToolTip(reasonslabel)
-            
-            if reasonslabel:
-                horz = QHBoxLayout()
-                label = QLabel(reasonslabel)
-                label.setToolTip(reasonslabel)
-                horz.addWidget(label)
-                horz.addWidget(self.reason_edit)
-                self.l.addLayout(horz)
-            else:
-                self.l.addWidget(self.reason_edit)
-            
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -1238,9 +1283,6 @@ class EditTextDialog(SizePersistedDialog):
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
 
-    def get_reason_text(self):
-        return unicode(self.reason_edit.currentText()).strip()
-
     def findFocus(self):
         # print("findFocus called")
         self.findField.setFocus()
@@ -1248,7 +1290,7 @@ class EditTextDialog(SizePersistedDialog):
         
     def find(self):
 
-        print("find self.lastStart:%s"%self.lastStart)
+        #print("find self.lastStart:%s"%self.lastStart)
         
         # Grab the parent's text
         text = self.textedit.toPlainText()
@@ -1328,117 +1370,3 @@ class ViewLog(QDialog):
         txt = self.tb.toPlainText()
         QApplication.clipboard().setText(txt)
 
-class IniHighlighter(QSyntaxHighlighter):
-    
-    def __init__( self, parent, theme ):
-        QSyntaxHighlighter.__init__( self, parent )
-        self.parent = parent
-        keyword = QTextCharFormat()
-        reservedClasses = QTextCharFormat()
-        assignmentOperator = QTextCharFormat()
-        delimiter = QTextCharFormat()
-        specialConstant = QTextCharFormat()
-        boolean = QTextCharFormat()
-        number = QTextCharFormat()
-        comment = QTextCharFormat()
-        string = QTextCharFormat()
-        singleQuotedString = QTextCharFormat()
-        
-        self.highlightingRules = []
-
-        # # keyword
-        # brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
-        # keyword.setForeground( brush )
-        # keyword.setFontWeight( QFont.Bold )
-        # keywords = [ "break", "else", "for", "if", "in", 
-        #              "next", "repeat", "return", "switch", 
-        #              "try", "while" ]
-        # for word in keywords:
-        #     pattern = "\\b" + word + "\\b"
-        #     rule = HighlightingRule( pattern, keyword )
-        #     self.highlightingRules.append( rule )
-
-        # # reservedClasses
-        # reservedClasses.setForeground( brush )
-        # reservedClasses.setFontWeight( QFont.Bold )
-        # keywords = [ "array", "character", "complex", 
-        #              "data.frame", "double", "factor", 
-        #              "function", "integer", "list", 
-        #              "logical", "matrix", "numeric", 
-        #              "vector" ]
-        # for word in keywords:
-        #     pattern = "\\b" + word + "\\b"
-        #     rule = HighlightingRule( pattern, reservedClasses )
-        #     self.highlightingRules.append( rule )
-
-        # # assignmentOperator
-        # brush = QBrush( Qt.yellow, Qt.SolidPattern )
-        # pattern =  "(<){1,2}-"
-        # assignmentOperator.setForeground( brush )
-        # assignmentOperator.setFontWeight( QFont.Bold )
-        # rule = HighlightingRule( pattern, assignmentOperator )
-        # self.highlightingRules.append( rule )
-        
-        # section
-        pattern = r"^\[[^\]]+\]"
-        brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
-        delimiter.setForeground( brush )
-        delimiter.setFontWeight( QFont.Bold )
-        rule = HighlightingRule( pattern, delimiter )
-        self.highlightingRules.append( rule )
-
-        # # specialConstant
-        # brush = QBrush( Qt.green, Qt.SolidPattern )
-        # specialConstant.setForeground( brush )
-        # keywords = [ "Inf", "NA", "NaN", "NULL" ]
-        # for word in keywords:
-        #     pattern = "\\b" + word + "\\b"
-        #     rule = HighlightingRule( pattern, specialConstant )
-        #     self.highlightingRules.append( rule )
-
-        # boolean, case insensitive
-        boolean.setForeground( brush )
-        pattern = r"\b(true|false)\b"
-        rule = HighlightingRule( pattern, boolean )
-        self.highlightingRules.append( rule )
-
-        # # number
-        # pattern = "[-+]?[0-9]*\.?[0-9]+?([eE][-+]?[0-9]+?)?"
-        # number.setForeground( brush )
-        # rule = HighlightingRule( pattern, number )
-        # self.highlightingRules.append( rule )
-
-        # comment
-        brush = QBrush( Qt.darkGray, Qt.SolidPattern )
-        pattern =  "#[^\n]*" 
-        comment.setForeground( brush )
-        rule = HighlightingRule( pattern, comment )
-        self.highlightingRules.append( rule )
-
-        # string
-        brush = QBrush( Qt.red, Qt.SolidPattern )
-        pattern =  "\".*?\"" 
-        string.setForeground( brush )
-        rule = HighlightingRule( pattern, string )
-        self.highlightingRules.append( rule )
-      
-        # singleQuotedString
-        pattern =  "\'.*?\'" 
-        singleQuotedString.setForeground( brush )
-        rule = HighlightingRule( pattern, singleQuotedString )
-        self.highlightingRules.append( rule )
-
-    def highlightBlock( self, text ):
-        for rule in self.highlightingRules:
-            for match in rule.pattern.finditer(text):
-                self.setFormat( match.start(), match.end()-match.start(), rule.format )
-        self.setCurrentBlockState( 0 )
-
-class HighlightingRule():
-    def __init__( self, pattern, format ):
-        if isinstance(pattern,basestring):
-            self.pattern = re.compile(pattern)
-        else:
-            self.pattern=pattern
-        self.format = format
-    

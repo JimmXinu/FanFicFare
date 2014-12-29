@@ -35,31 +35,30 @@ from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
 import adapters
 
-class Configuration(ConfigParser.SafeConfigParser):
-
-    def __init__(self, site, fileform):
-        ConfigParser.SafeConfigParser.__init__(self)
-
-        self.linenos=dict() # key by section or section,key -> lineno
-        
-        self.sectionslist = ['defaults']
-
-        if site.startswith("www."):
-            sitewith = site
-            sitewithout = site.replace("www.","")
+def get_valid_sections():
+    sites = adapters.getConfigSections()
+    sitesections = ['defaults','overrides']
+    for section in sites:
+        sitesections.append(section)
+        if section.startswith('www.'):
+            # add w/o www if has www
+            sitesections.append(section[4:])
         else:
-            sitewith = "www."+site
-            sitewithout = site
-        
-        self.addConfigSection(sitewith)
-        self.addConfigSection(sitewithout)
-        if fileform:
-            self.addConfigSection(fileform)
-            self.addConfigSection(sitewith+":"+fileform)
-            self.addConfigSection(sitewithout+":"+fileform)
-        self.addConfigSection("overrides")
-        
-        self.listTypeEntries = [
+            # add w/ www if doesn't www
+            sitesections.append('www.%s'%section)
+            
+    allowedsections = []
+    forms=['html','txt','epub','mobi']
+    allowedsections.extend(forms)
+
+    for section in sitesections:
+        allowedsections.append(section)
+        for f in forms:
+            allowedsections.append('%s:%s'%(section,f))
+    return allowedsections
+    
+def get_valid_list_entries():
+    return list([
             'category',
             'genre',
             'characters',
@@ -70,9 +69,10 @@ class Configuration(ConfigParser.SafeConfigParser):
             'authorId',
             'authorUrl',
             'lastupdate',
-            ]
-        
-        self.validEntries = self.listTypeEntries + [
+            ])
+
+def get_valid_scalar_entries():
+    return list([
             'series',
             'seriesUrl',
             'language',
@@ -97,7 +97,151 @@ class Configuration(ConfigParser.SafeConfigParser):
             'seriesHTML',
             'langcode',
             'output_css',
-            ]
+            ])
+
+def get_valid_entries():
+    return get_valid_list_entries() + get_valid_scalar_entries()
+
+def get_valid_keywords():
+    return list(['add_chapter_numbers',
+          'add_genre_when_multi_category',
+          'allow_unsafe_filename',
+          'always_overwrite',
+          'anthology_tags',
+          'anthology_title_pattern',
+          'background_color',
+          'bulk_load',
+          'chapter_end',
+          'chapter_start',
+          'chapter_title_add_pattern',
+          'chapter_title_strip_pattern',
+          'check_next_chapter',
+          'collect_series',
+          'connect_timeout',
+          'convert_images_to',
+          'cover_content',
+          'cover_exclusion_regexp',
+          'custom_columns_settings',
+          'dateCreated_format',
+          'datePublished_format',
+          'dateUpdated_format',
+          'default_cover_image',
+          'do_update_hook',
+          'exclude_notes',
+          'extra_logpage_entries',
+          'extra_subject_tags',
+          'extra_titlepage_entries',
+          'extra_valid_entries',
+          'extratags',
+          'extracategories',
+          'extragenres',
+          'extracharacters',
+          'extraships',
+          'extrawarnings',
+          'fail_on_password',
+          'file_end',
+          'file_start',
+          'fileformat',
+          'find_chapters',
+          'fix_fimf_blockquotes',
+          'force_login',
+          'generate_cover_settings',
+          'grayscale_images',
+          'image_max_size',
+          'include_images',
+          'include_logpage',
+          'include_subject_tags',
+          'include_titlepage',
+          'include_tocpage',
+          '(in|ex)clude_metadata_(pre|post)',
+          'is_adult',
+          'join_string_authorHTML',
+          'keep_style_attr',
+          'keep_summary_html',
+          'logpage_end',
+          'logpage_entries',
+          'logpage_entry',
+          'logpage_start',
+          'logpage_update_end',
+          'logpage_update_start',
+          'make_directories',
+          'make_firstimage_cover',
+          'make_linkhtml_entries',
+          'max_fg_sleep',
+          'max_fg_sleep_at_downloads',
+          'min_fg_sleep',
+          'never_make_cover',
+          'no_image_processing',
+          'non_breaking_spaces',
+          'nook_img_fix',
+          'output_css',
+          'output_filename',
+          'output_filename_safepattern',
+          'password',
+          'post_process_cmd',
+          'remove_transparency',
+          'replace_br_with_p',
+          'replace_hr',
+          'replace_metadata',
+          'slow_down_sleep_time',
+          'sort_ships',
+          'strip_chapter_numbers',
+          'strip_chapter_numeral',
+          'strip_text_links',
+          'titlepage_end',
+          'titlepage_entries',
+          'titlepage_entry',
+          'titlepage_no_title_entry',
+          'titlepage_start',
+          'titlepage_use_table',
+          'titlepage_wide_entry',
+          'tocpage_end',
+          'tocpage_entry',
+          'tocpage_start',
+          'tweak_fg_sleep',
+          'universe_as_series',
+          'user_agent',
+          'username',
+          'website_encodings',
+          'wide_titlepage_entries',
+          'windows_eol',
+          'wrap_width',
+          'zip_filename',
+          'zip_output',
+          ])
+
+# *known* entry keywords -- or rather regexps for them.
+def get_valid_entry_keywords():
+    return list(['%s_label',
+                 '(default_value|include_in|join_string|keep_in_order)_%s',])
+
+class Configuration(ConfigParser.SafeConfigParser):
+
+    def __init__(self, site, fileform):
+        ConfigParser.SafeConfigParser.__init__(self)
+
+        self.linenos=dict() # key by section or section,key -> lineno
+        
+        self.sectionslist = ['defaults']
+
+        if site.startswith("www."):
+            sitewith = site
+            sitewithout = site.replace("www.","")
+        else:
+            sitewith = "www."+site
+            sitewithout = site
+        
+        self.addConfigSection(sitewith)
+        self.addConfigSection(sitewithout)
+        if fileform:
+            self.addConfigSection(fileform)
+            self.addConfigSection(sitewith+":"+fileform)
+            self.addConfigSection(sitewithout+":"+fileform)
+        self.addConfigSection("overrides")
+        
+        self.listTypeEntries = get_valid_list_entries()
+        
+        self.validEntries = get_valid_entries()
 
     def addConfigSection(self,section):
         self.sectionslist.insert(0,section)
@@ -168,35 +312,6 @@ class Configuration(ConfigParser.SafeConfigParser):
     def getConfigList(self, key):
         return self.get_config_list(self.sectionslist, key)
 
-
-    def test_config(self):
-        errors=[]
-        
-        sites = adapters.getConfigSections()
-        sitesections = ['defaults','overrides']
-        for section in sites:
-            sitesections.append(section)
-            if section.startswith('www.'):
-                # add w/o www if has www
-                sitesections.append(section[4:])
-            else:
-                # add w/ www if doesn't www
-                sitesections.append('www.%s'%section)
-        
-        allowedsections = []
-        forms=['html','txt','epub','mobi']
-        allowedsections.extend(forms)
-
-        for section in sitesections:
-            allowedsections.append(section)
-            for f in forms:
-                allowedsections.append('%s:%s'%(section,f))
-        
-        for section in self.sections():
-            if section not in allowedsections and 'teststory:' not in section:
-                errors.append((self.get_lineno(section),"Bad Section Name: %s"%section))
-        
-        return errors
 
     def get_lineno(self,section,key=None):
         if key:
@@ -293,7 +408,17 @@ class Configuration(ConfigParser.SafeConfigParser):
         # if any parsing errors occurred, raise an exception
         if e:
             raise e
-    
+
+    def test_config(self):
+        errors=[]
+        
+        allowedsections = get_valid_sections()
+        for section in self.sections():
+            if section not in allowedsections and 'teststory:' not in section:
+                errors.append((self.get_lineno(section),"Bad Section Name: %s"%section))
+        
+        return errors
+
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
 
