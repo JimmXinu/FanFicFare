@@ -288,6 +288,59 @@ class InExMatch:
         else:
             s='='
         return u'InExMatch(%s %s%s %s)'%(self.keys,f,s,self.match)
+    
+## metakey[,metakey]=~pattern
+## metakey[,metakey]==string
+## *for* part lines.  Effect only when trailing conditional key=~regexp matches
+## metakey[,metakey]=~pattern[&&metakey=~regexp]
+## metakey[,metakey]==string[&&metakey=~regexp]
+## metakey[,metakey]=~pattern[&&metakey==string]
+## metakey[,metakey]==string[&&metakey==string]
+def set_in_ex_clude(setting):
+    dest = []
+    # print("set_in_ex_clude:"+setting)
+    for line in setting.splitlines():
+        if line:
+            (match,condmatch)=(None,None)
+            if "&&" in line:
+                (line,conditional) = line.split("&&")
+                condmatch = InExMatch(conditional)
+            match = InExMatch(line)
+            dest.append([match,condmatch])
+    return dest
+              
+## Two or three part lines.  Two part effect everything.
+## Three part effect only those key(s) lists.
+## pattern=>replacement
+## metakey,metakey=>pattern=>replacement
+## *Five* part lines.  Effect only when trailing conditional key=>regexp matches
+## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
+def make_replacements(replace):
+    retval=[]
+    for line in replace.splitlines():
+        # print("replacement line:%s"%line)
+        (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
+        if "&&" in line:
+            (line,conditional) = line.split("&&")
+            (condkey,condregexp) = conditional.split("=>")
+        if "=>" in line:
+            parts = line.split("=>")
+            if len(parts) > 2:
+                metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                (regexp,replacement)=parts[1:]
+            else:
+                (regexp,replacement)=parts
+
+        if regexp:
+            regexp = re_compile(regexp,line)
+            if condregexp:
+                condregexp = re_compile(condregexp,line)
+            # A way to explicitly include spaces in the
+            # replacement string.  The .ini parser eats any
+            # trailing spaces.
+            replacement=replacement.replace(SPACE_REPLACE,' ')
+            retval.append([metakeys,regexp,replacement,condkey,condregexp])
+    return retval
 
 class Story(Configurable):
 
@@ -298,7 +351,6 @@ class Story(Configurable):
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'4.4'}
-        self.replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be tuples of (title,html)
         self.imgurls = []
@@ -318,7 +370,7 @@ class Story(Configurable):
             for val in self.getConfigList(config):
                 self.addToList(metadata,val)
 
-        self.setReplace(self.getConfig('replace_metadata'))
+        self.replacements = make_replacements(self.getConfig('replace_metadata'))
 
         in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
                             'include_metadata_post','exclude_metadata_post']
@@ -327,7 +379,7 @@ class Story(Configurable):
             # print("%s %s"%(ie,ies))
             if ies:
                 iel = []
-                self.in_ex_cludes[ie] = self.set_in_ex_clude(ies)
+                self.in_ex_cludes[ie] = set_in_ex_clude(ies)
 
     def join_list(self, key, vallist):
         return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, vallist))
@@ -357,26 +409,6 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
         
-    ## metakey[,metakey]=~pattern
-    ## metakey[,metakey]==string
-    ## *for* part lines.  Effect only when trailing conditional key=~regexp matches
-    ## metakey[,metakey]=~pattern[&&metakey=~regexp]
-    ## metakey[,metakey]==string[&&metakey=~regexp]
-    ## metakey[,metakey]=~pattern[&&metakey==string]
-    ## metakey[,metakey]==string[&&metakey==string]
-    def set_in_ex_clude(self,setting):
-        dest = []
-        # print("set_in_ex_clude:"+setting)
-        for line in setting.splitlines():
-            if line:
-                (match,condmatch)=(None,None)
-                if "&&" in line:
-                    (line,conditional) = line.split("&&")
-                    condmatch = InExMatch(conditional)
-                match = InExMatch(line)
-                dest.append([match,condmatch])
-        return dest
-              
     def do_in_ex_clude(self,which,value,key):
         if value and which in self.in_ex_cludes:
             include = 'include' in which
@@ -406,37 +438,6 @@ class Story(Configurable):
                 value = None
         return value
         
-
-    ## Two or three part lines.  Two part effect everything.
-    ## Three part effect only those key(s) lists.
-    ## pattern=>replacement
-    ## metakey,metakey=>pattern=>replacement
-    ## *Five* part lines.  Effect only when trailing conditional key=>regexp matches
-    ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
-    def setReplace(self,replace):
-        for line in replace.splitlines():
-            # print("replacement line:%s"%line)
-            (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
-            if "&&" in line:
-                (line,conditional) = line.split("&&")
-                (condkey,condregexp) = conditional.split("=>")
-            if "=>" in line:
-                parts = line.split("=>")
-                if len(parts) > 2:
-                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
-                    (regexp,replacement)=parts[1:]
-                else:
-                    (regexp,replacement)=parts
-
-            if regexp:
-                regexp = re_compile(regexp,line)
-                if condregexp:
-                    condregexp = re_compile(condregexp,line)
-                # A way to explicitly include spaces in the
-                # replacement string.  The .ini parser eats any
-                # trailing spaces.
-                replacement=replacement.replace(SPACE_REPLACE,' ')
-                self.replacements.append([metakeys,regexp,replacement,condkey,condregexp])
 
     def doReplacements(self,value,key,return_list=False,seen_list=[]):
         value = self.do_in_ex_clude('include_metadata_pre',value,key)

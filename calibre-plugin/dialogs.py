@@ -4,11 +4,8 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Jim Miller'
+__copyright__ = '2014, Jim Miller'
 __docformat__ = 'restructuredtext en'
-
-import logging
-logger = logging.getLogger(__name__)
 
 import traceback, re
 from functools import partial
@@ -23,18 +20,20 @@ from datetime import datetime
 
 try:
     from PyQt5 import QtWidgets as QtGui
+    from PyQt5 import QtCore
     from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 except ImportError as e:
     from PyQt4 import QtGui
+    from PyQt4 import QtCore
     from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QLabel, QCheckBox, QIcon, QLineEdit,
+                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
                           QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame)
+                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 
 try:
     from calibre.gui2 import QVariant
@@ -67,6 +66,12 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils \
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getNormalStoryURL
+
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable \
+    import (get_valid_sections, get_valid_entries,
+            get_valid_keywords, get_valid_entry_keywords)
+
+from inihighlighter import IniHighlighter
 
 SKIP=_('Skip')
 ADDNEW=_('Add New Book')
@@ -1111,14 +1116,15 @@ class RejectListDialog(SizePersistedDialog):
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
-class EditTextDialog(QDialog):
+class EditTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
-                 rejectreasons=[],reasonslabel=None
+                 rejectreasons=[],reasonslabel=None,
+                 save_size_name='ffdl:edit text dialog',
                  ):
-        QDialog.__init__(self, parent)
-        self.resize(600, 500)
+        SizePersistedDialog.__init__(self, parent, save_size_name)
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel(label)
@@ -1160,6 +1166,9 @@ class EditTextDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.l.addWidget(button_box)
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
 
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
@@ -1167,3 +1176,204 @@ class EditTextDialog(QDialog):
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
     
+class IniTextDialog(SizePersistedDialog):
+
+    def __init__(self, parent, text,
+                 icon=None, title=None, label=None, tooltip=None,
+                 use_find=False,
+                 read_only=False,
+                 save_size_name='ffdl:ini text dialog',
+                 ):
+        SizePersistedDialog.__init__(self, parent, save_size_name)
+        
+        self.keys=dict()
+        
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.label = QLabel(label)
+        if title:
+            self.setWindowTitle(title)
+        if icon:
+            self.setWindowIcon(icon)
+        self.l.addWidget(self.label)
+        
+        self.textedit = QTextEdit(self)
+
+        highlighter = IniHighlighter(self.textedit,
+                                     sections=get_valid_sections(),
+                                     keywords=get_valid_keywords(),
+                                     entries=get_valid_entries(),
+                                     entry_keywords=get_valid_entry_keywords(),
+                                     )
+        
+        self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        try:
+            self.textedit.setFont(QFont("Courier",
+                                   parent.font().pointSize()+1))
+        except Exception as e:
+            logger.error("Couldn't get font: %s"%e)
+
+        self.textedit.setReadOnly(read_only)
+
+        self.textedit.setText(text)
+        self.l.addWidget(self.textedit)
+
+        self.lastStart = 0
+
+        if use_find:
+
+            findtooltip=_('Search for string in edit box.')
+            
+            horz = QHBoxLayout()
+            label = QLabel(_('Find:'))
+
+            label.setToolTip(findtooltip)
+                
+            # Button to search the document for something
+            self.findButton = QtGui.QPushButton(_('Find'),self)
+            self.findButton.clicked.connect(self.find)
+            self.findButton.setToolTip(findtooltip)
+        
+            # The field into which to type the query
+            self.findField = QLineEdit(self)
+            self.findField.setToolTip(findtooltip)
+            self.findField.returnPressed.connect(self.findButton.setFocus)
+            
+            # Case Sensitivity option
+            self.caseSens = QtGui.QCheckBox(_('Case sensitive'),self)
+            self.caseSens.setToolTip(_("Search for case sensitive string; don't treat Harry, HARRY and harry all the same."))
+            
+            horz.addWidget(label)
+            horz.addWidget(self.findField)
+            horz.addWidget(self.findButton)
+            horz.addWidget(self.caseSens)
+            
+            self.l.addLayout(horz)
+
+            self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
+            self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
+        
+        if tooltip:
+            self.label.setToolTip(tooltip)
+            self.textedit.setToolTip(tooltip)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.l.addWidget(button_box)
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
+
+    def addCtrlKeyPress(self,key,func):
+        # print("addKeyPress: key(0x%x)"%key)
+        # print("control: 0x%x"%QtCore.Qt.ControlModifier)
+        self.keys[key]=func
+
+    def keyPressEvent(self, event):
+        # print("event: key(0x%x) modifiers(0x%x)"%(event.key(),event.modifiers()))
+        if (event.modifiers() & QtCore.Qt.ControlModifier) and event.key() in self.keys:
+            func = self.keys[event.key()]
+            return func()
+        else:
+            return SizePersistedDialog.keyPressEvent(self, event)
+    
+    def get_plain_text(self):
+        return unicode(self.textedit.toPlainText())
+
+    def findFocus(self):
+        # print("findFocus called")
+        self.findField.setFocus()
+        self.findField.selectAll()        
+        
+    def find(self):
+
+        #print("find self.lastStart:%s"%self.lastStart)
+        
+        # Grab the parent's text
+        text = self.textedit.toPlainText()
+
+        # And the text to find
+        query = self.findField.text()
+
+        if not self.caseSens.isChecked():
+            text = text.lower()
+            query = query.lower()
+
+        # Use normal string search to find the query from the
+        # last starting position
+        self.lastStart = text.find(query,self.lastStart + 1)
+        # If the find() method didn't return -1 (not found)
+        
+        if self.lastStart >= 0:
+            end = self.lastStart + len(query)
+            self.moveCursor(self.lastStart,end)
+        else:
+            # Make the next search start from the begining again
+            self.lastStart = 0
+            self.textedit.moveCursor(self.textedit.textCursor().Start)
+                    
+    def moveCursor(self,start,end):
+
+        # We retrieve the QTextCursor object from the parent's QTextEdit
+        cursor = self.textedit.textCursor()
+
+        # Then we set the position to the beginning of the last match
+        cursor.setPosition(start)
+
+        # Next we move the Cursor by over the match and pass the KeepAnchor parameter
+        # which will make the cursor select the the match's text
+        cursor.movePosition(cursor.Right,cursor.KeepAnchor,end - start)
+
+        # And finally we set this new cursor as the parent's
+        self.textedit.setTextCursor(cursor)
+
+def errors_dialog(parent,
+                  title,
+                  html):
+
+    d = ViewLog(title,html,parent)
+
+    return d.exec_() == d.Accepted
+        
+class ViewLog(SizePersistedDialog):
+
+    def __init__(self, title, html, parent=None,
+                 save_size_name='ffdl:view log dialog',):
+        SizePersistedDialog.__init__(self, parent,save_size_name)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        label = QLabel(_('Eventually I intend for errors to be clickable and take you to the error in the file.  For now, use copy and Find.'))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        
+        self.tb = QTextBrowser(self)
+        self.tb.setFont(QFont("Courier",
+                              parent.font().pointSize()+1))
+        self.tb.setHtml(html)
+        l.addWidget(self.tb)
+
+        horz = QHBoxLayout()
+
+        editagain = QPushButton(_('Edit Ini Again'), self)
+        editagain.clicked.connect(self.accept)
+        horz.addWidget(editagain)
+
+        saveanyway = QPushButton(_('Save Ini Anyway'), self)
+        saveanyway.clicked.connect(self.reject)
+        horz.addWidget(saveanyway)
+        
+        l.addLayout(horz)
+        self.setModal(False)
+        self.setWindowTitle(title)
+        self.setWindowIcon(QIcon(I('debug.png')))
+        #self.show()
+        
+        # Cause our dialog size to be restored from prefs or created on first usage
+        self.resize_dialog()
+
+    def copy_to_clipboard(self):
+        txt = self.tb.toPlainText()
+        QApplication.clipboard().setText(txt)
+
