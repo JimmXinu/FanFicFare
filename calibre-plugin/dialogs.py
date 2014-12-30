@@ -1344,20 +1344,27 @@ class ViewLog(SizePersistedDialog):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
 
+        label = QLabel(_('Eventually I intend for errors to be clickable and take you to the error in the file.  For now, use copy and Find.'))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        
         self.tb = QTextBrowser(self)
         self.tb.setFont(QFont("Courier",
                               parent.font().pointSize()+1))
         self.tb.setHtml(html)
         l.addWidget(self.tb)
 
-        self.bb = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
-        self.bb.accepted.connect(self.accept)
-        self.bb.rejected.connect(self.reject)
-        # self.copy_button = self.bb.addButton(_('Copy to clipboard'),
-        #         self.bb.ActionRole)
-        # self.copy_button.setIcon(QIcon(I('edit-copy.png')))
-        # self.copy_button.clicked.connect(self.copy_to_clipboard)
-        l.addWidget(self.bb)
+        horz = QHBoxLayout()
+
+        editagain = QPushButton(_('Edit Ini Again'), self)
+        editagain.clicked.connect(self.accept)
+        horz.addWidget(editagain)
+
+        saveanyway = QPushButton(_('Save Ini Anyway'), self)
+        saveanyway.clicked.connect(self.reject)
+        horz.addWidget(saveanyway)
+        
+        l.addLayout(horz)
         self.setModal(False)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(I('debug.png')))
