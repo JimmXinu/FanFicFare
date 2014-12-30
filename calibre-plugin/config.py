@@ -597,10 +597,14 @@ class PersonalIniTab(QWidget):
         label = QLabel(_('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s for different sites.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
-        self.l.addSpacing(5)
+#        self.l.addSpacing(5)
+
+        label = QLabel(_("<b>New:</b> This experimental version includes find, color coding, and error checking.  Red generally indicates errors.  Not all errors can be found."))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
         
-        self.label = QLabel('personal.ini:')
-        self.l.addWidget(self.label)
+        # self.label = QLabel('personal.ini:')
+        # self.l.addWidget(self.label)
 
         # self.ini = QTextEdit(self)
         # try:
@@ -619,14 +623,16 @@ class PersonalIniTab(QWidget):
         self.ini_button.clicked.connect(self.add_ini_button)
         self.l.addWidget(self.ini_button)
         
-
-        
         self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
         self.defaults.setToolTip(_("View all of the plugin's configurable settings\nand their default settings."))
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
+
+        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FFDL."))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
         
-        # self.l.insertStretch(-1)
+        self.l.insertStretch(-1)
         # let edit box fill the space.
         
     def show_defaults(self):
@@ -659,7 +665,7 @@ class PersonalIniTab(QWidget):
                 if errors:
                     retry = errors_dialog(self.plugin_action.gui,
                                           _('Go back to fix errors?'),
-                                          '<p>'+'</p><p>'.join([ '%s %s'%e for e in errors ])+'</p>')
+                                          '<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>')
                 else:
                     retry = False
                     
