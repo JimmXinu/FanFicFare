@@ -40,7 +40,7 @@ else:
         return x.toPyObject()
 
 from calibre.gui2.ui import get_gui
-from calibre.gui2 import dynamic, info_dialog
+from calibre.gui2 import dynamic, info_dialog, question_dialog
 from calibre.constants import numeric_version as calibre_version
 
 # pulls in translation files for _() strings
@@ -73,13 +73,16 @@ no_trans = { 'pini':'personal.ini',
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-            EditTextDialog, RejectUrlEntry)
+            EditTextDialog, IniTextDialog, RejectUrlEntry, errors_dialog)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
     import getConfigSections
 
 from calibre_plugins.fanfictiondownloader_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
+
+from calibre_plugins.fanfictiondownloader_plugin.ffdl_util \
+    import (test_config)
 
 from calibre.gui2.complete2 import EditWithComplete  #MultiCompleteLineEdit
 
@@ -255,7 +258,7 @@ class ConfigWidget(QWidget):
             prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
 
         # personal.ini
-        ini = unicode(self.personalini_tab.ini.toPlainText())
+        ini = self.personalini_tab.personalini
         if ini:
             prefs['personal.ini'] = ini
         else:
@@ -541,10 +544,6 @@ class BasicTab(QWidget):
         if i > -1:
             self.collision.setCurrentIndex(i)
         
-    def show_defaults(self):
-        text = get_resources('plugin-defaults.ini')
-        ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
-
     def show_rejectlist(self):
         d = RejectListDialog(self,
                              rejecturllist.get_list(),
@@ -565,7 +564,8 @@ class BasicTab(QWidget):
                            icon=self.windowIcon(),
                            title=_("Reject Reasons"),
                            label=_("Customize Reject List Reasons"),
-                           tooltip=_("Customize the Reasons presented when Rejecting URLs"))
+                           tooltip=_("Customize the Reasons presented when Rejecting URLs"),
+                           save_size_name='ffdl:Reject List Reasons')
         d.exec_()
         if d.result() == d.Accepted:
             prefs['rejectreasons'] = d.get_plain_text()
@@ -578,7 +578,8 @@ class BasicTab(QWidget):
                            label=_("Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored."),
                            tooltip=_("One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"),
                            rejectreasons=rejecturllist.get_reject_reasons(),
-                           reasonslabel=_('Add this reason to all URLs added:'))
+                           reasonslabel=_('Add this reason to all URLs added:'),
+                           save_size_name='ffdl:Add Reject List')
         d.exec_()
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
@@ -596,62 +597,84 @@ class PersonalIniTab(QWidget):
         label = QLabel(_('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s for different sites.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
-        self.l.addSpacing(5)
+#        self.l.addSpacing(5)
+
+        label = QLabel(_("<b>New:</b> This experimental version includes find, color coding, and error checking.  Red generally indicates errors.  Not all errors can be found."))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
         
-        self.label = QLabel('personal.ini:')
-        self.l.addWidget(self.label)
+        # self.label = QLabel('personal.ini:')
+        # self.l.addWidget(self.label)
 
-        self.ini = QTextEdit(self)
-        try:
-            self.ini.setFont(QFont("Courier",
-                                   self.plugin_action.gui.font().pointSize()+1))
-        except Exception as e:
-            logger.error("Couldn't get font: %s"%e)
-        self.ini.setLineWrapMode(QTextEdit.NoWrap)
-        self.ini.setText(prefs['personal.ini'])
-        self.l.addWidget(self.ini)
+        # self.ini = QTextEdit(self)
+        # try:
+        #     self.ini.setFont(QFont("Courier",
+        #                            self.plugin_action.gui.font().pointSize()+1))
+        # except Exception as e:
+        #     logger.error("Couldn't get font: %s"%e)
+        # self.ini.setLineWrapMode(QTextEdit.NoWrap)
+        # self.ini.setText(prefs['personal.ini'])
+        # self.l.addWidget(self.ini)
 
+        self.personalini = prefs['personal.ini']
+
+        self.ini_button = QPushButton(_('Edit personal.ini'), self)
+        self.ini_button.setToolTip(_("Edit personal.ini file."))
+        self.ini_button.clicked.connect(self.add_ini_button)
+        self.l.addWidget(self.ini_button)
+        
         self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
         self.defaults.setToolTip(_("View all of the plugin's configurable settings\nand their default settings."))
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
+
+        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FFDL."))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
         
-        # self.l.insertStretch(-1)
+        self.l.insertStretch(-1)
         # let edit box fill the space.
         
     def show_defaults(self):
-        text = get_resources('plugin-defaults.ini')
-        ShowDefaultsIniDialog(self.windowIcon(),text,self).exec_()
+        IniTextDialog(self,
+                       get_resources('plugin-defaults.ini'),
+                       icon=self.windowIcon(),
+                       title=_('Plugin Defaults'),
+                       label=_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini',
+                       tooltip=_("These are all of the plugin's configurable options\nand their default settings."),
+                       use_find=True,
+                       read_only=True,
+                       save_size_name='ffdl:defaults.ini').exec_()
         
-class ShowDefaultsIniDialog(QDialog):
+    def add_ini_button(self):
+        d = IniTextDialog(self,
+                           self.personalini,
+                           icon=self.windowIcon(),
+                           title=_("Edit personal.ini"),
+                           label=_("Edit personal.ini"),
+                           tooltip=_("Edit personal.ini"),
+                           use_find=True,
+                           save_size_name='ffdl:personal.ini')
+        retry=True
+        while retry:
+            d.exec_()
+            if d.result() == d.Accepted:
+                editini = d.get_plain_text()
+                errors = test_config(editini)
 
-    def __init__(self, icon, text, parent=None):
-        QDialog.__init__(self, parent)
-        self.resize(600, 500)
-        self.l = QVBoxLayout()
-        self.setLayout(self.l)
-        self.label = QLabel(_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini')
-        self.label.setToolTip(_("These are all of the plugin's configurable options\nand their default settings."))
-        self.setWindowTitle(_('Plugin Defaults'))
-        self.setWindowIcon(icon)
-        self.l.addWidget(self.label)
-        
-        self.ini = QTextEdit(self)
-        self.ini.setToolTip(_("These are all of the plugin's configurable options\nand their default settings."))
-        try:
-            self.ini.setFont(QFont("Courier",
-                                   get_gui().font().pointSize()+1))
-        except Exception as e:
-            logger.error("Couldn't get font: %s"%e)
-        self.ini.setLineWrapMode(QTextEdit.NoWrap)
-        self.ini.setText(text)
-        self.ini.setReadOnly(True)
-        self.l.addWidget(self.ini)
-        
-        self.ok_button = QPushButton(_('OK'), self)
-        self.ok_button.clicked.connect(self.hide)
-        self.l.addWidget(self.ok_button)
-        
+                if errors:
+                    retry = errors_dialog(self.plugin_action.gui,
+                                          _('Go back to fix errors?'),
+                                          '<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>')
+                else:
+                    retry = False
+                    
+                if not retry:
+                    self.personalini = unicode(editini)
+            else:
+                # cancelled
+                retry = False
+                
 class ReadingListTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
