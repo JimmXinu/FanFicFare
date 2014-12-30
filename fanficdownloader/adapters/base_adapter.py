@@ -500,6 +500,9 @@ class BaseSiteAdapter(Configurable):
         if not fetch:
             fetch=self._fetchUrlRaw
 
+        # re-soup because BS4/html5lib is more forgiving that way.
+        soup = self.make_soup(unicode(soup))
+
         acceptable_attributes = ['href','name','class','id']
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')

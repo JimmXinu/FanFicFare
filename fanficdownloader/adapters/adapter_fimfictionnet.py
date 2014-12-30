@@ -16,6 +16,8 @@
 #
 
 import time
+from datetime import date
+from datetime import timedelta
 import logging
 logger = logging.getLogger(__name__)
 import re
@@ -23,7 +25,6 @@ import urllib2
 import cookielib as cl
 import json
 
-from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -92,7 +93,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             # if it's an adult story and they don't have is_adult in ini.
             data = self.do_fix_blockquotes(self._fetchUrl(self.url,
                                                           usecache=(not self.is_adult)))
-            soup = bs.BeautifulSoup(data)
+            soup = self.make_soup(data)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -109,7 +110,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             params = {}
             params['password'] = self.password
             data = self._postUrl(self.url, params)
-            soup = bs.BeautifulSoup(data)
+            soup = self.make_soup(data)
 
         if not (soup.find('form', {'id' : 'password_form'}) == None):
             if self.getConfig('fail_on_password'):
@@ -140,7 +141,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("rating", rating)
 
         # Chapters
-        for chapter in storyContentBox.findAll('a',{'class':'chapter_link'}):
+        for chapter in storyContentBox.find_all('a',{'class':'chapter_link'}):
             self.chapterUrls.append((stripHTML(chapter), 'http://'+self.host+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
@@ -156,7 +157,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Genres and Warnings
         # warnings were folded into general categories in the 2014-10-27 site update
-        categories = storyContentBox.findAll('a', {'class':re.compile(r'.*\bstory_category\b.*')})
+        categories = storyContentBox.find_all('a', {'class':re.compile(r'.*\bstory_category\b.*')})
         for category in categories:
             category = stripHTML(category)
             if category == "Gore" or category == "Sex":
@@ -187,7 +188,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # fimf has started including extra stuff inside the description div.
         descdivstr = u"%s"%storyContentBox.find("div", {"class":"description"})
-        hrstr=u"<hr />"
+        hrstr=u"<hr/>"
         descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         self.setDescription(self.url,descdivstr)
 
@@ -200,7 +201,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # FiMFiction it's possible for authors to insert new chapters
         # out-of-order or change the dates of earlier ones by editing
         # them--That WILL break epub update.
-        for index, chapterDate in enumerate(storyData.findAll('span', {'class':'date'})):
+        for index, chapterDate in enumerate(storyData.find_all('span', {'class':'date'})):
             chapterDate = self.ordinal_date_string_to_date(chapterDate.contents[1])
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
@@ -235,7 +236,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Characters
         chars = storyContentBox.find("div", {"class":"extra_story_data"})
-        for character in chars.findAll("a", {"class":"character_icon"}):
+        for character in chars.find_all("a", {"class":"character_icon"}):
             self.story.addToList("characters", character['title'])
 
         # Likes and dislikes
@@ -264,12 +265,12 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if soup.find('button', {'id':'button-view-all-groups'}):
             groupResponse = self._fetchUrl("http://www.fimfiction.net/ajax/groups/story_groups_list.php?story=%s" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
-            groupList = bs.BeautifulSoup(groupData["content"])
+            groupList = self.make_soup(groupData["content"])
         else:
             groupList = soup.find('ul', {'id':'story-groups-list'})
 
         if not (groupList == None):
-            for groupName in groupList.findAll('a'):
+            for groupName in groupList.find_all('a'):
                 self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"]) 
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
 
@@ -277,9 +278,26 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         sequelStoryHeader = soup.find('h1', {'class':'header-stories'}, text="Sequels")
         if not sequelStoryHeader == None:
             sequelContainer = sequelStoryHeader.parent.parent
-            for sequel in sequelContainer.findAll('a', {'class':'story_link'}):
+            for sequel in sequelContainer.find_all('a', {'class':'story_link'}):
                 self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
                 self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
+
+        #author last login
+        userPageHeader = soup.find('div', {'class':re.compile(r'\buser-page-header\b')})
+        if not userPageHeader == None:
+            infoContainer = userPageHeader.find('div', {'class':re.compile(r'\binfo-container\b')})
+            listItems = infoContainer.find_all('li')
+            lastLoginString = stripHTML(listItems[1])
+            lastLogin = None
+            if "online" in lastLoginString:
+                lastLogin = date.today()
+            elif "offline" in lastLoginString:
+                #this regex extracts the number of weeks and the number of days from the last login string.
+                #durations under a day are ignored.
+                #group 1 is weeks, group 2 is days
+                durationGroups = re.match(r"(?:[^0-9]*(\d+?)w)?[^0-9]*(?:(\d+?)d)?", lastLoginString)
+                lastLogin = date.today() - timedelta(days=int(durationGroups.group(2) or 0), weeks=int(durationGroups.group(1) or 0))
+            self.story.setMetadata("authorLastLogin", lastLogin)
                 
         #The link to the prequel is embedded in the description text, so erring
         #on the side of caution and wrapping this whole thing in a try block.
@@ -320,7 +338,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         data = self._fetchUrl(url)
 
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         if not (soup.find('form', {'id' : 'password_form'}) == None):
             if self.password:
                 params = {}
@@ -331,7 +349,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         data = self.do_fix_blockquotes(data)
 
-        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr')).find('div', {'class' : 'chapter_content'})
+        soup = self.make_soup(data).find('div', {'class' : 'chapter_content'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
