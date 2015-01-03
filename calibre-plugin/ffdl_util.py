@@ -43,10 +43,9 @@ def get_ffdl_adapter(url,fileform="epub",personalini=None):
     return adapters.getAdapter(get_ffdl_config(url,fileform,personalini),url)
 
 def test_config(initext):
-
-    configini = get_ffdl_config("test1.com?sid=555",
-                                personalini=initext)
     try:
+        configini = get_ffdl_config("test1.com?sid=555",
+                                    personalini=initext)
         errors = configini.test_config()
     except ParsingError as pe:
         errors = pe.errors

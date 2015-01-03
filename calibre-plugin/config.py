@@ -73,7 +73,7 @@ no_trans = { 'pini':'personal.ini',
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs, PREFS_NAMESPACE
 from calibre_plugins.fanfictiondownloader_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-            EditTextDialog, IniTextDialog, RejectUrlEntry, errors_dialog)
+            EditTextDialog, IniTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters \
     import getConfigSections
@@ -655,25 +655,9 @@ class PersonalIniTab(QWidget):
                            tooltip=_("Edit personal.ini"),
                            use_find=True,
                            save_size_name='ffdl:personal.ini')
-        retry=True
-        while retry:
-            d.exec_()
-            if d.result() == d.Accepted:
-                editini = d.get_plain_text()
-                errors = test_config(editini)
-
-                if errors:
-                    retry = errors_dialog(self.plugin_action.gui,
-                                          _('Go back to fix errors?'),
-                                          '<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>')
-                else:
-                    retry = False
-                    
-                if not retry:
-                    self.personalini = unicode(editini)
-            else:
-                # cancelled
-                retry = False
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.personalini = d.get_plain_text()
                 
 class ReadingListTab(QWidget):
 
