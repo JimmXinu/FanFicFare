@@ -1265,6 +1265,30 @@ class IniTextDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
+    def accept(self):
+        from ffdl_util import test_config
+
+        print("in accept")
+        errors = test_config(self.get_plain_text())
+
+        retry = False
+        if errors:
+            d = ViewLog(self,
+                        _('Go back to fix errors?'),
+                        errors)
+            retry = d.exec_() == d.Accepted
+            
+            print("retry:%s"%retry)
+        
+        if retry:
+            lineno=d.get_lineno()
+            if lineno:
+                print("go to lineno (%s) here"%lineno)
+                self.select_line(lineno)
+        else:
+            print("call parent accept")
+            return SizePersistedDialog.accept(self)
+
     def addCtrlKeyPress(self,key,func):
         # print("addKeyPress: key(0x%x)"%key)
         # print("control: 0x%x"%QtCore.Qt.ControlModifier)
@@ -1328,31 +1352,65 @@ class IniTextDialog(SizePersistedDialog):
         # And finally we set this new cursor as the parent's
         self.textedit.setTextCursor(cursor)
 
-def errors_dialog(parent,
-                  title,
-                  html):
-
-    d = ViewLog(title,html,parent)
-
-    return d.exec_() == d.Accepted
+    def select_line(self,lineno):
         
+        # We retrieve the QTextCursor object from the parent's QTextEdit
+        cursor = self.textedit.textCursor()
+
+        # Then we set the position to the beginning of the buffer
+        cursor.setPosition(0)
+
+        # Next we move the Cursor down lineno times
+        cursor.movePosition(cursor.Down,cursor.MoveAnchor,lineno-1)
+
+        # Next we move the Cursor to the end of the line
+        cursor.movePosition(cursor.EndOfLine,cursor.KeepAnchor,1)
+
+        # And finally we set this new cursor as the parent's
+        self.textedit.setTextCursor(cursor)
+
+
 class ViewLog(SizePersistedDialog):
 
-    def __init__(self, title, html, parent=None,
+    def label_clicked(self, event, lineno=None):
+        self.lineno = lineno
+        print("lineno set to: %s"%lineno)
+        self.accept()
+
+    def get_lineno(self):
+        return self.lineno
+        
+    def __init__(self, parent, title, errors, 
                  save_size_name='ffdl:view log dialog',):
         SizePersistedDialog.__init__(self, parent,save_size_name)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
 
-        label = QLabel(_('Eventually I intend for errors to be clickable and take you to the error in the file.  For now, use copy and Find.'))
+        label = QLabel(_('Click an error below to go directly to that line:'))
         label.setWordWrap(True)
         self.l.addWidget(label)
+
+        self.lineno = None
+
+        ## error = (lineno, msg)
+        for (lineno, error_msg) in errors:
+            print('adding label for error:%s: %s'%(lineno, error_msg))
+            label = QLabel('%s: %s'%(lineno, error_msg))
+            label.setWordWrap(True)
+            label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
+            label.setToolTip(_('Click to go to line %s')%lineno)
+            label.mouseReleaseEvent = partial(self.label_clicked, lineno=lineno)
+            self.l.addWidget(label)
         
-        self.tb = QTextBrowser(self)
-        self.tb.setFont(QFont("Courier",
-                              parent.font().pointSize()+1))
-        self.tb.setHtml(html)
-        l.addWidget(self.tb)
+        # html='<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>'
+        
+        # self.tb = QTextBrowser(self)
+        # self.tb.setFont(QFont("Courier",
+        #                       parent.font().pointSize()+1))
+        # self.tb.setHtml(html)
+        # l.addWidget(self.tb)
+
+        self.l.insertStretch(-1)
 
         horz = QHBoxLayout()
 
