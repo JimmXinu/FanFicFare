@@ -1289,10 +1289,11 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 wc_ids = [ y['calibre_id'] for y in filter(
                         lambda x : '' == x['all_metadata'].get('numWords',''), add_list + update_list ) ]                
                 ## not all need word count
-                if wc_ids and len(all_ids) != len(wc_ids):
+                if len(wc_ids) and len(all_ids) != len(wc_ids):
                     cp_plugin.count_statistics(wc_ids,['WordCount'])
-                    ## don't do WordCount below.
-                    while 'WordCount' in countpagesstats: countpagesstats.remove('WordCount')
+
+                ## don't do WordCount below.
+                while 'WordCount' in countpagesstats: countpagesstats.remove('WordCount')
                     
             ## check that there's stuff to do in case wordcount was it.
             if countpagesstats:
