@@ -500,9 +500,6 @@ class BaseSiteAdapter(Configurable):
         if not fetch:
             fetch=self._fetchUrlRaw
 
-        # re-soup because BS4/html5lib is more forgiving that way.
-        soup = self.make_soup(unicode(soup))
-
         acceptable_attributes = ['href','name','class','id']
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')
@@ -572,7 +569,10 @@ class BaseSiteAdapter(Configurable):
         Convenience method for getting a bs4 soup.  Older and
         non-updated adapters call the included bs3 library themselves.
         '''
-        return bs4.BeautifulSoup(data,'html5lib')
+        ## soup and re-soup because BS4/html5lib is more forgiving of
+        ## incorrectly nested tags that way.
+        soup = bs4.BeautifulSoup(data,'html5lib')
+        return bs4.BeautifulSoup(unicode(soup),'html5lib')
     
 def cachedfetch(realfetch,cache,url):
     if url in cache:
