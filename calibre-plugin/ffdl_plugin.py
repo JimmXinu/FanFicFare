@@ -1282,20 +1282,26 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
             countpagesstats = list(prefs['countpagesstats']) # copy because we're changing it.
+            # print("all_ids:%s"%all_ids)
+            # print("countpagesstats:%s"%countpagesstats)
             
             ## If only some of the books need word counting, they'll
             ## have to be launched separately.
-            if prefs['wordcountmissing']:
+            if prefs['wordcountmissing'] and 'WordCount' in countpagesstats:
+                # print("numWords:%s"%[ y['all_metadata']['numWords'] for y in add_list + update_list ])
                 wc_ids = [ y['calibre_id'] for y in filter(
                         lambda x : '' == x['all_metadata'].get('numWords',''), add_list + update_list ) ]                
                 ## not all need word count
-                if len(wc_ids) and len(all_ids) != len(wc_ids):
-                    cp_plugin.count_statistics(wc_ids,['WordCount'])
-
-                ## don't do WordCount below.
-                while 'WordCount' in countpagesstats: countpagesstats.remove('WordCount')
+                # print("wc_ids:%s"%wc_ids)
+                ## if lists don't match
+                if len(wc_ids)!=len(all_ids):
+                    if wc_ids: # because often the lists don't match because 0
+                        cp_plugin.count_statistics(wc_ids,['WordCount'])
+                    ## don't do WordCount below.
+                    while 'WordCount' in countpagesstats: countpagesstats.remove('WordCount')
                     
             ## check that there's stuff to do in case wordcount was it.
+            # print("countpagesstats:%s"%countpagesstats)
             if countpagesstats:
                 cp_plugin.count_statistics(all_ids,countpagesstats)
 
