@@ -292,6 +292,7 @@ class ConfigWidget(QWidget):
             countpagesstats.append('GunningFog')
             
         prefs['countpagesstats'] = countpagesstats
+        prefs['wordcountmissing'] = self.countpages_tab.wordcount.isChecked() and self.countpages_tab.wordcountmissing.isChecked()
         
         # Standard Columns tab
         colsnewonly = {}
@@ -826,11 +827,23 @@ class CountPagesTab(QWidget):
         self.pagecount.setToolTip(tooltip)
         self.pagecount.setChecked('PageCount' in prefs['countpagesstats'])
         self.l.addWidget(self.pagecount)
-            
+
+        horz = QHBoxLayout()
+        
         self.wordcount = QCheckBox('Word Count',self)
         self.wordcount.setToolTip(tooltip+"\n"+_('Will overwrite word count from FFDL metadata if set to update the same custom column.'))
         self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
-        self.l.addWidget(self.wordcount)
+        horz.addWidget(self.wordcount)
+
+        self.wordcountmissing = QCheckBox('Only if Word Count is Missing in FFDL Metadata',self)
+        self.wordcountmissing.setToolTip(_("Only run Count Page's Word Count if checked <i>and</i> FFDL metadata doesn't already have a word count.  If this is used with one of the other Page Counts, the Page Count plugin will be called twice."))
+        self.wordcountmissing.setChecked(prefs['wordcountmissing'])
+        self.wordcountmissing.setEnabled(self.wordcount.isChecked())
+        horz.addWidget(self.wordcountmissing)
+
+        self.wordcount.stateChanged.connect(lambda x : self.wordcountmissing.setEnabled(self.wordcount.isChecked()))
+        
+        self.l.addLayout(horz)
 
         self.fleschreading = QCheckBox('Flesch Reading Ease',self)
         self.fleschreading.setToolTip(tooltip)

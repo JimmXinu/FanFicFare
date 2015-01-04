@@ -62,6 +62,7 @@ default_prefs['allow_gc_from_ini'] = True
 default_prefs['gc_polish_cover'] = False
 
 default_prefs['countpagesstats'] = []
+default_prefs['wordcountmissing'] = False
 
 default_prefs['errorcol'] = ''
 default_prefs['custom_cols'] = {}
