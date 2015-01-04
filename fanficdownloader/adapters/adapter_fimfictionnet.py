@@ -121,7 +121,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         ##----------------------------------------------------------------------------------------------------
         ## Extract metadata
 
-        storyContentBox = soup.find('div', {'class':'story_content_box'})
+        #re-souping because BS4 can apparently get confused by badly-nested tags in the story description,
+        #this ensures the final soup is made from clean HTML
+        storyContentBox = self.make_soup(unicode(soup.find('div', {'class':'story_content_box'})))
 
         # Title
         title = storyContentBox.find('a', {'class':re.compile(r'.*\bstory_name\b.*')})
