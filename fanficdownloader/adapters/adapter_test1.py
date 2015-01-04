@@ -116,7 +116,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.setMetadata('dateUpdated',datetime.datetime.now())
         else:
             self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
-        self.story.setMetadata('numWords','123456')
+
+        if idstr != '674':
+            self.story.setMetadata('numWords','123456')
 
         if idnum % 2 == 1:
             self.story.setMetadata('status','In-Progress')
@@ -322,6 +324,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>http://test1.com?sid=673 - Succeeds, multiple authors, extra categories, genres</p>
+<p>http://test1.com?sid=673 - Succeeds, no numWords set</p>
 <p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p>
 <p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>

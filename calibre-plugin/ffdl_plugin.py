@@ -1281,7 +1281,22 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
-            cp_plugin.count_statistics(all_ids,prefs['countpagesstats'])
+            countpagesstats = list(prefs['countpagesstats']) # copy because we're changing it.
+            
+            ## If only some of the books need word counting, they'll
+            ## have to be launched separately.
+            if prefs['wordcountmissing']:
+                wc_ids = [ y['calibre_id'] for y in filter(
+                        lambda x : '' == x['all_metadata'].get('numWords',''), add_list + update_list ) ]                
+                ## not all need word count
+                if wc_ids and len(all_ids) != len(wc_ids):
+                    cp_plugin.count_statistics(wc_ids,['WordCount'])
+                    ## don't do WordCount below.
+                    while 'WordCount' in countpagesstats: countpagesstats.remove('WordCount')
+                    
+            ## check that there's stuff to do in case wordcount was it.
+            if countpagesstats:
+                cp_plugin.count_statistics(all_ids,countpagesstats)
 
         if prefs['autoconvert'] and options['collision'] != CALIBREONLY:
             self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
