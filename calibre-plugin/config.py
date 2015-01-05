@@ -600,7 +600,7 @@ class PersonalIniTab(QWidget):
         self.l.addWidget(label)
 #        self.l.addSpacing(5)
 
-        label = QLabel(_("<b>New:</b> This experimental version includes find, color coding, and error checking.  Red generally indicates errors.  Not all errors can be found."))
+        label = QLabel(_("<b>New:</b>")+" "+_("FFDL now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         
@@ -620,7 +620,7 @@ class PersonalIniTab(QWidget):
         self.personalini = prefs['personal.ini']
 
         self.ini_button = QPushButton(_('Edit personal.ini'), self)
-        self.ini_button.setToolTip(_("Edit personal.ini file."))
+        #self.ini_button.setToolTip(_("Edit personal.ini file."))
         self.ini_button.clicked.connect(self.add_ini_button)
         self.l.addWidget(self.ini_button)
         
