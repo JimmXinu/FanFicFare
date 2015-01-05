@@ -1268,7 +1268,7 @@ class IniTextDialog(SizePersistedDialog):
     def accept(self):
         from ffdl_util import test_config
 
-        print("in accept")
+        # print("in accept")
         errors = test_config(self.get_plain_text())
 
         retry = False
@@ -1278,15 +1278,15 @@ class IniTextDialog(SizePersistedDialog):
                         errors)
             retry = d.exec_() == d.Accepted
             
-            print("retry:%s"%retry)
+            # print("retry:%s"%retry)
         
         if retry:
             lineno=d.get_lineno()
             if lineno:
-                print("go to lineno (%s) here"%lineno)
+                # print("go to lineno (%s) here"%lineno)
                 self.select_line(lineno)
         else:
-            print("call parent accept")
+            # print("call parent accept")
             return SizePersistedDialog.accept(self)
 
     def addCtrlKeyPress(self,key,func):
@@ -1374,7 +1374,7 @@ class ViewLog(SizePersistedDialog):
 
     def label_clicked(self, event, lineno=None):
         self.lineno = lineno
-        print("lineno set to: %s"%lineno)
+        # print("lineno set to: %s"%lineno)
         self.accept()
 
     def get_lineno(self):
@@ -1386,7 +1386,7 @@ class ViewLog(SizePersistedDialog):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
 
-        label = QLabel(_('Click an error below to go directly to that line:'))
+        label = QLabel(_('Click an error below to return to Editing directly on that line:'))
         label.setWordWrap(True)
         self.l.addWidget(label)
 
@@ -1394,7 +1394,7 @@ class ViewLog(SizePersistedDialog):
 
         ## error = (lineno, msg)
         for (lineno, error_msg) in errors:
-            print('adding label for error:%s: %s'%(lineno, error_msg))
+            # print('adding label for error:%s: %s'%(lineno, error_msg))
             label = QLabel('%s: %s'%(lineno, error_msg))
             label.setWordWrap(True)
             label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
@@ -1414,11 +1414,11 @@ class ViewLog(SizePersistedDialog):
 
         horz = QHBoxLayout()
 
-        editagain = QPushButton(_('Edit Ini Again'), self)
+        editagain = QPushButton(_('Return to Editing'), self)
         editagain.clicked.connect(self.accept)
         horz.addWidget(editagain)
 
-        saveanyway = QPushButton(_('Save Ini Anyway'), self)
+        saveanyway = QPushButton(_('Save Anyway'), self)
         saveanyway.clicked.connect(self.reject)
         horz.addWidget(saveanyway)
         
