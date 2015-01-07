@@ -1201,9 +1201,9 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             label = custom_columns[prefs['errorcol']]['label']
             if not book['good']:
                 logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
-                db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True) # book['comment']
+                self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True) # book['comment']
             else:
-                db.set_custom(book['calibre_id'], '', label=label, commit=True) # book['comment']
+                self.set_custom(db, book['calibre_id'], '(none)', '', label=label, commit=True) # book['comment']
                 
         if not book['good']:
             return # only update errorcol on error.
@@ -1484,7 +1484,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def update_error_column_loop(self,book,db=None,label=None):
         if book['calibre_id'] and label:
             logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-            db.set_custom(book['calibre_id'], book['comment'], label=label, commit=True)
+            self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
@@ -1528,6 +1528,14 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         return book_id
 
+    def set_custom(self,db,book_id,meta,val,label,commit=True):
+        try:
+            db.set_custom(book_id, val, label=label, commit=commit)
+        except Exception as e:
+            errmsg="Trying to set entry (%s) value(%s) to column (#%s) failed (%s)"%(meta,val,label,e)
+            logger.warn(errmsg)
+            raise Exception(errmsg)
+    
     def update_metadata(self, db, book_id, book, mi, options):
         oldmi = db.get_metadata(book_id,index_is_id=True)
         if prefs['keeptags']:
@@ -1607,17 +1615,17 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 continue
             label = coldef['label']
             if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
-                db.set_custom(book_id, book['all_metadata'][meta], label, commit=False)
+                self.set_custom(db, book_id, meta, book['all_metadata'][meta], label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
                 if num != '':
-                    db.set_custom(book_id, num, label=label, commit=False)
+                    self.set_custom(db, book_id, meta, num, label=label, commit=False)
             elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
                 if meta == 'status-C':
                     val = book['all_metadata']['status'] == 'Completed'
                 if meta == 'status-I':
                     val = book['all_metadata']['status'] == 'In-Progress'
-                db.set_custom(book_id, val, label=label, commit=False)
+                self.set_custom(db, book_id, meta, val, label=label, commit=False)
 
         configuration = None
         if prefs['allow_custcol_from_ini']:
@@ -1666,7 +1674,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                 else:
                                     val = None # for tri-state 'booleans'. Yes/No/Null
                             #print("setting 'r' or 'added':%s"%val)
-                            db.set_custom(book_id, val, label=label, commit=False)
+                            self.set_custom(db, book_id, meta, val, label=label, commit=False)
 
                     if flag == 'a':
                         vallist = []
@@ -1684,7 +1692,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         if val:
                             vallist.append(val)
                             
-                        db.set_custom(book_id, ", ".join(vallist), label=label, commit=False)
+                        self.set_custom(db, book_id, meta, ", ".join(vallist), label=label, commit=False)
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         # Moved down so author's already in the DB.
