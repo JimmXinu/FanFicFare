@@ -1512,7 +1512,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         if prefs['deleteotherforms']:
             fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
             for fmt in fmts:
-                if fmt != formmapping[options['fileform']]:
+                if fmt.lower() != formmapping[options['fileform']].lower():
                     logger.debug("deleteotherforms remove f:"+fmt)
                     db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
         elif prefs['autoconvert']:
@@ -1520,7 +1520,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             ## the format is already there.
             fmt = calibre_prefs['output_format']
             # delete if there, but not if the format we just made.
-            if fmt != formmapping[options['fileform']] and \
+            if fmt.lower() != formmapping[options['fileform']].lower() and \
                     db.has_format(book_id,fmt,index_is_id=True):
                 logger.debug("autoconvert remove f:"+fmt)
                 db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
