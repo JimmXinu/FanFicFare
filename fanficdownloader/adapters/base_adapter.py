@@ -299,7 +299,7 @@ class BaseSiteAdapter(Configurable):
         return data
 
     def set_sleep(self,val):
-        print("\n===========\n set sleep time %s\n==========="%val)
+        logger.debug("\n===========\n set sleep time %s\n==========="%val)
         self.override_sleep = val
     
     def do_sleep(self,extrasleep=None):
@@ -329,9 +329,9 @@ class BaseSiteAdapter(Configurable):
                 if he.code == 404:
                     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(he)))
                     break # break out on 404
-            # except Exception, e:
-            #     excpt=e
-            #     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(e)))
+            except Exception, e:
+                excpt=e
+                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
                 
         logger.error("Giving up on %s" %url)
         logger.exception(excpt)
@@ -537,7 +537,7 @@ class BaseSiteAdapter(Configurable):
                     if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
                         t.extract()
         except AttributeError, ae:
-            print("Error parsing HTML, probably poor input HTML. %s"%ae)
+            logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
         
         retval = unicode(soup)
 
