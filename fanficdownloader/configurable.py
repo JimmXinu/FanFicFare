@@ -36,9 +36,12 @@ from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
 import adapters
 
+formatsections = ['html','txt','epub','mobi']
+othersections = ['defaults','overrides']
+
 def get_valid_sections():
     sites = adapters.getConfigSections()
-    sitesections = ['defaults','overrides']
+    sitesections = list(othersections)
     for section in sites:
         sitesections.append(section)
         if section.startswith('www.'):
@@ -49,12 +52,11 @@ def get_valid_sections():
             sitesections.append('www.%s'%section)
             
     allowedsections = []
-    forms=['html','txt','epub','mobi']
-    allowedsections.extend(forms)
+    allowedsections.extend(formatsections)
 
     for section in sitesections:
         allowedsections.append(section)
-        for f in forms:
+        for f in formatsections:
             allowedsections.append('%s:%s'%(section,f))
     return allowedsections
     
@@ -70,6 +72,57 @@ def get_valid_list_entries():
                  'authorUrl',
                  'lastupdate',
                  ])
+
+boollist=['true','false']
+def get_valid_set_options():
+    '''
+    dict() of names of boolean options, but as a tuple with
+    valid sites, valid formats and valid values (None==all)
+    '''
+
+    valdict = {'collect_series':(None,None,boollist),
+               'include_titlepage':(None,None,boollist),
+               'include_tocpage':(None,None,boollist),
+               'is_adult':(None,None,boollist),
+               'keep_style_attr':(None,None,boollist),
+               'make_firstimage_cover':(None,None,boollist),
+               'never_make_cover':(None,None,boollist),
+               'nook_img_fix':(None,None,boollist),
+               'replace_br_with_p':(None,None,boollist),
+               'replace_hr':(None,None,boollist),
+               'sort_ships':(None,None,boollist),
+               'strip_chapter_numbers':(None,None,boollist),
+               'titlepage_use_table':(None,None,boollist),
+               
+               'add_chapter_numbers':(None,None,boollist+['toconly']),
+               
+               'check_next_chapter':(['fanfiction.net'],None,boollist),
+               'tweak_fg_sleep':(['fanfiction.net'],None,boollist),
+               
+               'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
+               'fail_on_password':(['fimfiction.net'],None,boollist),
+               'do_update_hook':(['fimfiction.net'],None,boollist),
+
+               'force_login':(['phoenixsong.net'],None,boollist),
+               'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
+               'universe_as_series':(['storiesonline.net'],None,boollist),
+               'strip_text_links':(['bloodshedverse.com'],None,boollist),
+
+               # eFiction Base
+               'bulk_load':(['fannation.shades-of-moonlight.com',
+                             'fhsarchive.com',
+                             'lotrfanfiction.com',
+                             'themaplebookshelf.com'],None,boollist),
+               
+               'include_logpage':(None,['epub'],boollist+['smart']),
+               
+               'windows_eol':(None,['txt'],boollist),
+               
+               'include_images':(None,['epub','html'],boollist),
+               'grayscale_images':(None,['epub','html'],boollist),
+               'no_image_processing':(None,['epub','html'],boollist),
+               }
+    return dict(valdict)
 
 def get_valid_scalar_entries():
     return list(['series',
@@ -421,11 +474,24 @@ class Configuration(ConfigParser.SafeConfigParser):
         from story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings')
+
+        valdict = get_valid_set_options()
         
         for section in self.sections():
             if section not in allowedsections and not teststory_re.match(section):
-                errors.append((self.get_lineno(section),"Bad Section Name: %s"%section))
+                errors.append((self.get_lineno(section),"Bad Section Name: [%s]"%section))
             else:
+                sitename = section.replace('www.','')
+                if ':' in sitename:
+                    formatname = sitename[sitename.index(':')+1:]
+                    sitename = sitename[:sitename.index(':')]
+                elif sitename in formatsections:
+                    formatname = sitename
+                    sitename = None
+                elif sitename in othersections:
+                    formatname = None
+                    sitename = None
+                    
                 ## check each keyword in section.  Due to precedence
                 ## order of sections, it's possible for bad lines to
                 ## never be used.
@@ -446,6 +512,17 @@ class Configuration(ConfigParser.SafeConfigParser):
                         # themes=>#bcolumn,a
                         # timeline=>#ccolumn,n
                         # "FanFiction"=>#collection
+
+                        def make_sections(x):
+                            return '['+'], ['.join(x)+']'
+                        if keyword in valdict:
+                            (valsites,valformats,vals)=valdict[keyword]
+                            if valsites != None and sitename != None and sitename not in valsites:
+                                errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valsites))))
+                            if valformats != None and formatname != None and formatname not in valformats:
+                                errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valformats))))
+                            if value not in vals:
+                                errors.append((self.get_lineno(section,keyword),"%s not a valid value for %s"%(value,keyword)))
 
                             
                         ## skipping output_filename_safepattern
