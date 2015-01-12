@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2015-01-05 16:09+Central Standard Time\n"
+"POT-Creation-Date: 2015-01-09 13:16+Central Standard Time\n"
 "PO-Revision-Date: 2015-01-06 10:01+0000\n"
 "Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/calibre-plugins/language/pt_BR/)\n"
@@ -1658,59 +1658,59 @@ msgstr "Falha ao adicionar formato por algum motivo..."
 msgid "Error"
 msgstr "Erro"
 
-#: ffdl_plugin.py:1786
+#: ffdl_plugin.py:1794
 msgid ""
 "You configured FanFictionDownLoader to automatically update Reading Lists, "
 "but you don't have the %s plugin installed anymore?"
 msgstr "Você configurou o FanFictionDownLoader para atualizar automaticamente listas de leitura, mas você não tem mais o plugin %s instalado?"
 
-#: ffdl_plugin.py:1798
+#: ffdl_plugin.py:1806
 msgid ""
 "You configured FanFictionDownLoader to automatically update \"To Read\" "
 "Reading Lists, but you don't have any lists set?"
 msgstr "Você configurou o FanFictionDownLoader para atualizar automaticamente listas de leitura \"Para Ler\", mas você não tem nenhuma lista definida?"
 
-#: ffdl_plugin.py:1808 ffdl_plugin.py:1826
+#: ffdl_plugin.py:1816 ffdl_plugin.py:1834
 msgid ""
 "You configured FanFictionDownLoader to automatically update Reading List "
 "'%s', but you don't have a list of that name?"
 msgstr "Você configurou o FanFictionDownLoader para atualizar automaticamente a Lista de Leitura '%s', mas você não tem uma lista com esse nome?"
 
-#: ffdl_plugin.py:1814
+#: ffdl_plugin.py:1822
 msgid ""
 "You configured FanFictionDownLoader to automatically update \"Send to "
 "Device\" Reading Lists, but you don't have any lists set?"
 msgstr "Você configurou o FanFictionDownLoader para atualizar automaticamente listas de leitura \"Enviar para Dispositivo\", mas você não tem nenhuma lista definida?"
 
-#: ffdl_plugin.py:1935
+#: ffdl_plugin.py:1943
 msgid "No story URL found."
 msgstr "Nenhuma URL de história encontrada."
 
-#: ffdl_plugin.py:1938
+#: ffdl_plugin.py:1946
 msgid "Not Found"
 msgstr "Não encontrado"
 
-#: ffdl_plugin.py:1944
+#: ffdl_plugin.py:1952
 msgid "URL is not a valid story URL."
 msgstr "A URL não é uma URL válida de história."
 
-#: ffdl_plugin.py:1947
+#: ffdl_plugin.py:1955
 msgid "Bad URL"
 msgstr "URL ruim:"
 
-#: ffdl_plugin.py:2083 ffdl_plugin.py:2086
+#: ffdl_plugin.py:2091 ffdl_plugin.py:2094
 msgid "Anthology containing:"
 msgstr "Antologia contendo:"
 
-#: ffdl_plugin.py:2084
+#: ffdl_plugin.py:2092
 msgid "%s by %s"
 msgstr "%s por %s"
 
-#: ffdl_plugin.py:2106
+#: ffdl_plugin.py:2114
 msgid " Anthology"
 msgstr "Antologia"
 
-#: ffdl_plugin.py:2143
+#: ffdl_plugin.py:2151
 msgid "(was set, removed for security)"
 msgstr "(foi definido, removido para segurança)"
 
