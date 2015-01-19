@@ -184,7 +184,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
         # description
         description = soup.find("b", text="Description:").parent.nextSibling.nextSibling
-        self.story.setDescription(description)
+        self.setDescription(self.url,description)
         logger.debug("Summary: '%s'" % description)
 
         # characters
