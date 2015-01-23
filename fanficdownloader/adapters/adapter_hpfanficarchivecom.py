@@ -217,8 +217,13 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
         div = soup.find('div', {'id' : 'story'})
-
+        
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return self.utf8FromSoup(url,div)
+
+        # Comments can get garbled later in the process, preventing inport into some readers (specifically seen on Google Books)
+        # This will remove all html comemnts from the text body.
+        body = self.utf8FromSoup(url,div)
+        body = re.sub(r'<!--.+?-->', r'', body)
+
+        return body
