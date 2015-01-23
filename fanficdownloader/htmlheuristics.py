@@ -33,9 +33,12 @@ def replace_br_with_p(body):
     if body.find('>') == -1 or body.rfind('<') == -1:
         return body
 
+    # logger.debug(u'---')
     # logger.debug(u'BODY start.: ' + body[:250])
+    # logger.debug(u'--')
     # logger.debug(u'BODY end...: ' + body[-250:])
     # logger.debug(u'BODY.......: ' + body)
+    # logger.debug(u'---')
 
     # clean breaks (<br />), removing whitespaces between them.
     body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
@@ -43,14 +46,14 @@ def replace_br_with_p(body):
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
-    if is_valid_block(body) and body.find('<div') == 0:
-        body = body[body.index('>')+1:body.rindex('<')]
+    while is_valid_block(body) and body.find('<div') == 0:
+        body = body[body.index('>')+1:body.rindex('<')].strip()
 
     body = soup_up_div(u'<div>' + body + u'</div>')
 
     body = body[body.index('>')+1:body.rindex('<')]
 
-    # Find all bexisting blocks with p, pre and blockquote tags, we need to shields break tags inside those.
+    # Find all existing blocks with p, pre and blockquote tags, we need to shields break tags inside those.
     # This is for "lenient" mode, however it is also used to clear break tags before and after the block elements.
     blocksRegex = re.compile(r'(\s*<br\ />\s*)*\s*<(pre|p|blockquote|table)([^>]*)>(.+?)</\2>\s*(\s*<br\ />\s*)*', re.DOTALL)
     body = blocksRegex.sub(r'\n<\2\3>\4</\2>\n', body)
@@ -89,6 +92,13 @@ def replace_br_with_p(body):
     body = re.sub(r'\s*(<br\ \/>)+\s*<p', r'\n<p></p>\n<p', body)
     # Nuking breaks trailing paragraps that may be in the body. They are eventually treated as <p><br /></p>
     body = re.sub(r'</p>\s*(<br\ \/>)+\s*', r'</p>\n<p></p>\n', body)
+
+    # logger.debug(u'--- 2 ---')
+    # logger.debug(u'BODY start.: ' + body[:250])
+    # logger.debug(u'--')
+    # logger.debug(u'BODY end...: ' + body[-250:])
+    # logger.debug(u'BODY.......: ' + body)
+    # logger.debug(u'--- 2 ---')
 
     # Because a leading or trailing non break tag will break the following code, we have to mess around rather badly for a few lines.
     body = body.replace(u'[',u'&squareBracketStart;')
@@ -149,6 +159,10 @@ def replace_br_with_p(body):
     logger.debug(u'contentLinesSum...: ' + unicode(contentLinesSum))
     logger.debug(u'longestLineLength.: ' + unicode(longestLineLength))
     logger.debug(u'averageLineLength.: ' + unicode(averageLineLength))
+    logger.debug(u'---')
+    logger.debug(u'breaksMaxIndex....: ' + unicode(breaksMaxIndex))
+    logger.debug(u'len(breaksCount)-1: ' + unicode(len(breaksCount)-1))
+    logger.debug(u'breaksMax.........: ' + unicode(breaksMax))
 
     if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
         breaksMaxIndex = 0
