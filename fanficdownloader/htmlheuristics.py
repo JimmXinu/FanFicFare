@@ -46,7 +46,7 @@ def replace_br_with_p(body):
     # change surrounding div to a p and remove attrs Top surrounding
     # tag in all cases now should be div, to just strip the first and
     # last tags.
-    while is_valid_block(body) and body.find('<div') == 0:
+    if is_valid_block(body) and body.find('<div') == 0:
         body = body[body.index('>')+1:body.rindex('<')].strip()
 
     body = soup_up_div(u'<div>' + body + u'</div>')
