@@ -275,12 +275,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
 
         #sequels
-        sequelStoryHeader = soup.find('h1', {'class':'header-stories'}, text="Sequels")
-        if not sequelStoryHeader == None:
-            sequelContainer = sequelStoryHeader.parent.parent
-            for sequel in sequelContainer.find_all('a', {'class':'story_link'}):
-                self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
-                self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
+        for header in soup.find_all('h1', {'class':'header-stories'}):
+            # I don't know why using text=re.compile with find() wouldn't work, but it didn't.
+            if header.text.startswith('Sequels'):
+                sequelContainer = header.parent
+                for sequel in sequelContainer.find_all('a', {'class':'story_link'}):
+                    self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
+                    self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
 
         #author last login
         userPageHeader = soup.find('div', {'class':re.compile(r'\buser-page-header\b')})
