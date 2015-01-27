@@ -212,7 +212,6 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
         
-
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
@@ -221,9 +220,4 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        # Comments can get garbled later in the process, preventing inport into some readers (specifically seen on Google Books)
-        # This will remove all html comemnts from the text body.
-        body = self.utf8FromSoup(url,div)
-        body = re.sub(r'<!--.+?-->', r'', body)
-
-        return body
+        return self.utf8FromSoup(url,div)
