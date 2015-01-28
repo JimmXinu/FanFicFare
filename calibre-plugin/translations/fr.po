@@ -2,13 +2,14 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
+# Franck, 2015
 # Ptitprince <leporello1791@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-01-09 13:16+Central Standard Time\n"
-"PO-Revision-Date: 2015-01-06 10:01+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-01-24 14:20+0000\n"
+"Last-Translator: Franck\n"
 "Language-Team: French (http://www.transifex.com/projects/p/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -381,17 +382,17 @@ msgstr "Ces paramètres donnent un contrôle plus détaillé sur quelles métado
 
 #: config.py:603
 msgid "<b>New:</b>"
-msgstr ""
+msgstr "<b>Nouveau :</b>"
 
 #: config.py:603
 msgid ""
 "FFDL now includes find, color coding, and error checking for personal.ini "
 "editing.  Red generally indicates errors."
-msgstr ""
+msgstr "FFDL inclut maintenant la recherche, le codage des couleurs et la vérification d'erreur pour la modification de personnal.ini. Le rouge indique généralement des erreurs."
 
 #: config.py:622 config.py:654 config.py:655 config.py:656
 msgid "Edit personal.ini"
-msgstr ""
+msgstr "Modifier personal.ini"
 
 #: config.py:627
 msgid "View Defaults"
@@ -405,7 +406,7 @@ msgstr "Affiche tous les paramètres configurables du greffon\net leurs paramèt
 
 #: config.py:632
 msgid "Changes will only be saved if you click 'OK' to leave Customize FFDL."
-msgstr ""
+msgstr "Les modifications ne seront enregistrées que si vous cliquez sur 'OK' pour quitter Personnaliser FFDL."
 
 #: config.py:643
 msgid "Plugin Defaults"
@@ -549,7 +550,7 @@ msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FFDL metadata doesn't"
 " already have a word count.  If this is used with one of the other Page "
 "Counts, the Page Count plugin will be called twice."
-msgstr ""
+msgstr "Exécute le comptage de page uniquement si Seulement exécuté comte de page Word Count si coché <i> et </ i> de métadonnées FFDL ne possède pas déjà un nombre de mots. Se il est utilisé avec l'un des autres chefs de la page, le plugin Nombre de pages sera appelée deux fois."
 
 #: config.py:875
 msgid ""
@@ -1087,45 +1088,45 @@ msgstr "Supprime les livres sélectionnés après les avoir ajoutés à la liste
 
 #: dialogs.py:1225
 msgid "Search for string in edit box."
-msgstr ""
+msgstr "Rechercher la chaîne dans la boîte d'édition."
 
 #: dialogs.py:1228
 msgid "Find:"
-msgstr ""
+msgstr "Trouver :"
 
 #: dialogs.py:1233
 msgid "Find"
-msgstr ""
+msgstr "Trouver"
 
 #: dialogs.py:1243
 msgid "Case sensitive"
-msgstr ""
+msgstr "Sensible à la casse"
 
 #: dialogs.py:1244
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
-msgstr ""
+msgstr "Recherche pour les chaînes sensibles à la casse ; ne traite pas Harry, HARRY et harry de la même façon."
 
 #: dialogs.py:1277
 msgid "Go back to fix errors?"
-msgstr ""
+msgstr "Retour en arrière pour corriger les erreurs ?"
 
 #: dialogs.py:1389
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr ""
+msgstr "Cliquez sur une erreur ci-dessous pour modifier directement sur cette ligne :"
 
 #: dialogs.py:1401
 msgid "Click to go to line %s"
-msgstr ""
+msgstr "Cliquer pour aller à la ligne %s"
 
 #: dialogs.py:1417
 msgid "Return to Editing"
-msgstr ""
+msgstr "Retourner à l'Édition"
 
 #: dialogs.py:1421
 msgid "Save Anyway"
-msgstr ""
+msgstr "Enregistrer quand même"
 
 #: ffdl_plugin.py:90
 msgid "Download FanFiction stories from various web sites"
