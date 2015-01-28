@@ -2,13 +2,13 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Paulo_Neto <layoutbr@lexxa.com.br>, 2014
+# Paulo_Neto <layoutbr@lexxa.com.br>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-01-09 13:16+Central Standard Time\n"
-"PO-Revision-Date: 2015-01-06 10:01+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-01-21 18:01+0000\n"
+"Last-Translator: Paulo_Neto <layoutbr@lexxa.com.br>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -381,17 +381,17 @@ msgstr "Estes ajustes fornecem um controle mais detalhado sobre quais metadados 
 
 #: config.py:603
 msgid "<b>New:</b>"
-msgstr ""
+msgstr "<b>Novo:</b>"
 
 #: config.py:603
 msgid ""
 "FFDL now includes find, color coding, and error checking for personal.ini "
 "editing.  Red generally indicates errors."
-msgstr ""
+msgstr "FFDL agora inclui localizar, codificação de cores, e verificação de erros para edição do arquivo personal.ini.  Vermelho geralmente indica erros."
 
 #: config.py:622 config.py:654 config.py:655 config.py:656
 msgid "Edit personal.ini"
-msgstr ""
+msgstr "Editar personal.ini"
 
 #: config.py:627
 msgid "View Defaults"
@@ -405,7 +405,7 @@ msgstr "Visualiza todos os ajustes configuráveis do plugin\ne seus ajustes padr
 
 #: config.py:632
 msgid "Changes will only be saved if you click 'OK' to leave Customize FFDL."
-msgstr ""
+msgstr "As alterações apenas serão salvas se você clicar em 'OK' para manter o FFDL personalizado."
 
 #: config.py:643
 msgid "Plugin Defaults"
@@ -549,7 +549,7 @@ msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FFDL metadata doesn't"
 " already have a word count.  If this is used with one of the other Page "
 "Counts, the Page Count plugin will be called twice."
-msgstr ""
+msgstr "Executar contagem de páginas e contagem de palavras apenas se marcado <i>e</i> metadados do FFDL já não tiver uma contagem de palavras.  Se for usado com uma das outras contagens de páginas, o plugin Contagem de páginas será chamado duas vezes."
 
 #: config.py:875
 msgid ""
@@ -1087,45 +1087,45 @@ msgstr "Apagar os livros selecionados depois de adicioná-los à lista de URLs R
 
 #: dialogs.py:1225
 msgid "Search for string in edit box."
-msgstr ""
+msgstr "Buscar pela sequência na caixa de edição."
 
 #: dialogs.py:1228
 msgid "Find:"
-msgstr ""
+msgstr "Localizar:"
 
 #: dialogs.py:1233
 msgid "Find"
-msgstr ""
+msgstr "Localizar"
 
 #: dialogs.py:1243
 msgid "Case sensitive"
-msgstr ""
+msgstr "Maiúsculas e minúsculas"
 
 #: dialogs.py:1244
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
-msgstr ""
+msgstr "Buscar sequência por maiúsculas e minúsculas; não tratar Harry, HARRY e harry todas como sendo iguais."
 
 #: dialogs.py:1277
 msgid "Go back to fix errors?"
-msgstr ""
+msgstr "Voltar para corrigir erros?"
 
 #: dialogs.py:1389
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr ""
+msgstr "Clique em um erro abaixo para retornar para edição diretamente naquela linha:"
 
 #: dialogs.py:1401
 msgid "Click to go to line %s"
-msgstr ""
+msgstr "Clique para ir para a linha %s"
 
 #: dialogs.py:1417
 msgid "Return to Editing"
-msgstr ""
+msgstr "Retornar para edição"
 
 #: dialogs.py:1421
 msgid "Save Anyway"
-msgstr ""
+msgstr "Salvar mesmo assim"
 
 #: ffdl_plugin.py:90
 msgid "Download FanFiction stories from various web sites"
