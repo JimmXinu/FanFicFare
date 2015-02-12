@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team
+# Copyright 2015 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@
 import re
 import urlparse
 import urllib2 as u2
+
+import imaplib
+import email
 
 from BeautifulSoup import BeautifulSoup 
 from gziphttp import GZipProcessor
@@ -173,3 +176,55 @@ def form_url(parenturl,url):
                   '','',''))
      return returl
        
+def get_urls_from_imap(srv,user,passwd,folder,markread=True):
+    
+    mail = imaplib.IMAP4_SSL(srv)
+    mail.login(user, passwd)
+    mail.list()
+    # Out: list of "folders" aka labels in gmail.
+    mail.select(folder) # , readonly=True connect to inbox.
+    
+    result, data = mail.uid('search', None, "UNSEEN")
+    
+    #print("result:%s"%result)
+    #print("data:%s"%data)
+    urls=set()
+    
+    #latest_email_uid = data[0].split()[-1]
+    for email_uid in data[0].split():
+
+        result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
+    
+        #print("result:%s"%result)
+        #print("data:%s"%data)
+    
+        raw_email = data[0][1]
+        
+    #raw_email = data[0][1] # here's the body, which is raw text of the whole email
+    # including headers and alternate payloads
+    
+        email_message = email.message_from_string(raw_email)
+     
+        #print "To:%s"%email_message['To']
+        #print "From:%s"%email_message['From']
+        #print "Subject:%s"%email_message['Subject']
+    
+    #    print("payload:%s"%email_message.get_payload())
+
+        urllist=[]
+        for part in email_message.walk():
+            #print("part mime:%s"%part.get_content_type())
+            if part.get_content_type() == 'text/plain':
+                urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+            if part.get_content_type() == 'text/html':
+                urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+        #print "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
+
+        if urllist and markread:
+            #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
+            r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
+            #print("seen result:%s->%s"%(email_uid,r))
+                
+        [ urls.add(x) for x in urllist ]
+    
+    return urls

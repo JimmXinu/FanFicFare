@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback, re
@@ -1435,3 +1435,49 @@ class ViewLog(SizePersistedDialog):
         txt = self.tb.toPlainText()
         QApplication.clipboard().setText(txt)
 
+class EmailPassDialog(QDialog):
+    '''
+    Need to collect Pass for imap.
+    '''
+    def __init__(self, gui, user):
+        QDialog.__init__(self, gui)
+        self.status=False
+
+        self.l = QGridLayout()
+        self.setLayout(self.l)
+
+        self.setWindowTitle(_('Password'))
+        self.l.addWidget(QLabel(_("Enter Email Password for %s:"%user)),0,0,1,2)
+   
+        # self.l.addWidget(QLabel(_("Password:")),1,0)
+        self.passwd = QLineEdit(self)
+        self.passwd.setEchoMode(QLineEdit.Password)
+        self.l.addWidget(self.passwd,1,0,1,2)
+
+        self.ok_button = QPushButton(_('OK'), self)
+        self.ok_button.clicked.connect(self.ok)
+        self.l.addWidget(self.ok_button,2,0)
+
+        self.cancel_button = QPushButton(_('Cancel'), self)
+        self.cancel_button.clicked.connect(self.cancel)
+        self.l.addWidget(self.cancel_button,2,1)
+
+        # set stretch factors the same.
+        self.l.setColumnStretch(0,1)
+        self.l.setColumnStretch(1,1)
+
+        self.resize(self.sizeHint())
+
+    def ok(self):
+        self.status=True
+        self.hide()
+
+    def cancel(self):
+        self.status=False
+        self.hide()
+
+    def get_pass(self):
+        return u"%s"%self.passwd.text()
+
+    def get_remember(self):
+        return self.remember_pass.isChecked()

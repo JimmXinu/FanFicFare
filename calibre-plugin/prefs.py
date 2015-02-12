@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2013, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import copy
@@ -70,6 +70,13 @@ default_prefs['custom_cols_newonly'] = {}
 default_prefs['allow_custcol_from_ini'] = True
 
 default_prefs['std_cols_newonly'] = {}
+
+default_prefs['imapserver'] = ''
+default_prefs['imapuser'] = ''
+default_prefs['imappass'] = ''
+default_prefs['imapsessionpass'] = False
+default_prefs['imapfolder'] = 'INBOX'
+default_prefs['imapmarkread'] = True
 
 # This is where all preferences for this plugin *were* stored
 # Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also

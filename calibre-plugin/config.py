@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -14,15 +14,15 @@ import traceback, copy, threading
 from collections import OrderedDict
 
 try:
-    from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                          QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
+    from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+                          QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
-                          QDialogButtonBox, QGroupBox )
+                          QDialogButtonBox, QGroupBox, Qt )
 except ImportError as e:
-    from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                          QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
+    from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+                          QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
-                          QDialogButtonBox, QGroupBox )
+                          QDialogButtonBox, QGroupBox, Qt )
 try:
     from calibre.gui2 import QVariant
     del QVariant
@@ -216,6 +216,9 @@ class ConfigWidget(QWidget):
         self.cust_columns_tab = CustomColumnsTab(self, plugin_action)
         tab_widget.addTab(self.cust_columns_tab, _('Custom Columns'))
 
+        self.imap_tab = ImapTab(self, plugin_action)
+        tab_widget.addTab(self.imap_tab, _('Email Settings'))
+
         self.other_tab = OtherTab(self, plugin_action)
         tab_widget.addTab(self.other_tab, _('Other'))
 
@@ -319,6 +322,13 @@ class ConfigWidget(QWidget):
         prefs['custom_cols_newonly'] = colsnewonly
         
         prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
+
+        prefs['imapserver'] = unicode(self.imap_tab.imapserver.text())
+        prefs['imapuser'] = unicode(self.imap_tab.imapuser.text())
+        prefs['imappass'] = unicode(self.imap_tab.imappass.text())
+        prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text())
+        prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
+        prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
         
         prefs.save_to_db()
 
@@ -1118,3 +1128,82 @@ class StandardColumnsTab(QWidget):
         
         self.l.insertStretch(-1)
 
+class ImapTab(QWidget):
+
+    def __init__(self, parent_dialog, plugin_action):
+        self.parent_dialog = parent_dialog
+        self.plugin_action = plugin_action
+        QWidget.__init__(self)
+        
+        self.l = QGridLayout()
+        self.setLayout(self.l)
+        row=0
+            
+        label = QLabel(_('These settings will allow FFDL to fetch story URLs from your email account.  It will only look for story URLs in unread emails in the folder specified below.'))
+        label.setWordWrap(True)
+        self.l.addWidget(label,row,0,1,-1)
+        row+=1
+
+        label = QLabel(_('IMAP Server Name'))
+        tooltip = _("Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com")
+        label.setToolTip(tooltip)
+        self.l.addWidget(label,row,0)
+        self.imapserver = QLineEdit(self)
+        self.imapserver.setToolTip(tooltip)
+        self.imapserver.setText(prefs['imapserver'])
+        self.l.addWidget(self.imapserver,row,1)
+        row+=1
+        
+        label = QLabel(_('IMAP User Name'))
+        tooltip = _("Name of IMAP user.  Eg: yourname@gmail.com\nNote that Gmail addresses need to have IMAP enabled in Gmail Settings first.")
+        label.setToolTip(tooltip)
+        self.l.addWidget(label,row,0)        
+        self.imapuser = QLineEdit(self)
+        self.imapuser.setToolTip(tooltip)
+        self.imapuser.setText(prefs['imapuser'])
+        self.l.addWidget(self.imapuser,row,1)
+        row+=1
+        
+        label = QLabel(_('IMAP User Password'))
+        tooltip = _("IMAP password.  If left empty, FFDL will ask you for your password when you .")
+        label.setToolTip(tooltip)
+        self.l.addWidget(label,row,0)        
+        self.imappass = QLineEdit(self)
+        self.imappass.setToolTip(tooltip)
+        self.imappass.setEchoMode(QLineEdit.Password)
+        self.imappass.setText(prefs['imappass'])
+        self.l.addWidget(self.imappass,row,1)
+        row+=1
+
+        self.imapsessionpass = QCheckBox(_('Remember Password for Session (when not entered above)'),self)
+        self.imapsessionpass.setToolTip(_('If checked, and no password is entered above, FFDL will remember your password until you close calibre or change libraries.'))
+        self.imapsessionpass.setChecked(prefs['imapsessionpass'])
+        self.l.addWidget(self.imapsessionpass,row,0,1,-1)
+        row+=1
+        
+        label = QLabel(_('IMAP Folder Name'))
+        tooltip = _("Name of IMAP folder to search for new emails.  The folder (or label) has to already exist.  Use INBOX for your default inbox.")
+        label.setToolTip(tooltip)
+        self.l.addWidget(label,row,0)        
+        self.imapfolder = QLineEdit(self)
+        self.imapfolder.setToolTip(tooltip)
+        self.imapfolder.setText(prefs['imapfolder'])
+        self.l.addWidget(self.imapfolder,row,1)
+        row+=1
+        
+        self.imapmarkread = QCheckBox(_('Mark Emails Read'),self)
+        self.imapmarkread.setToolTip(_('If checked, emails will be marked as having been read if they contain any story URLs.'))
+        self.imapmarkread.setChecked(prefs['imapmarkread'])
+        self.l.addWidget(self.imapmarkread,row,0,1,-1)
+        row+=1
+            
+        label = QLabel(_("<b>It's safest if you create a separate email account that you use only "
+                         "for your story update notices.  FFDL and calibre cannot guarantee that "
+                         "malicious code cannot get your email password once you've entered it. "
+                         "<br>Use this feature at your own risk. </b>"))
+        label.setWordWrap(True)
+        self.l.addWidget(label,row,0,1,-1,Qt.AlignTop)
+        self.l.setRowStretch(row,1)
+        row+=1
+        
+        

@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -53,14 +53,14 @@ from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin
 
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text
+from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
 
 from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
 from calibre_plugins.fanfictiondownloader_plugin.config import (permitted_values, rejecturllist)
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
 from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
-    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog,
+    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog, EmailPassDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload, RejectUrlEntry )
 
@@ -134,6 +134,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         self.qaction.setMenu(self.menu)
         self.menus_lock = threading.RLock()
         self.menu.aboutToShow.connect(self.about_to_show_menu)
+
+        self.imap_pass = None
 
     def initialization_complete(self):
         # otherwise configured hot keys won't work until the menu's
@@ -231,6 +233,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # We need to reset our menus after switching libraries
         self.rebuild_menus()
         rejecturllist.clear_cache()
+        self.imap_pass = None
         
     def rebuild_menus(self):
         with self.menus_lock:
@@ -257,6 +260,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
             if self.get_epubmerge_plugin():
                 self.menu.addSeparator()
+                self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs to Download from Email'), image='view.png',
+                                                                    unique_name='Get Story URLs from IMAP',
+                                                                    triggered=self.get_urls_from_imap_menu)
+                
                 self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs to Download from Web Page'), image='view.png',
                                                                     unique_name='Get Story URLs from Web Page',
                                                                     triggered=self.get_urls_from_page_menu)
@@ -306,6 +313,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                             triggered=self.list_story_urls)
 
             if not self.get_epubmerge_plugin():
+                self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs to Download from Email'), image='view.png',
+                                                                    unique_name='Get Story URLs from IMAP',
+                                                                    triggered=self.get_urls_from_imap_menu)
+                
                 self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'),
                                                                     unique_name='Get Story URLs from Web Page',
                                                                     image='view.png',
@@ -384,6 +395,44 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 return
 
             self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
+
+    def get_urls_from_imap_menu(self):
+
+        if not prefs['imapserver'] or not prefs['imapuser'] or not prefs['imapfolder']:
+            info_dialog(self.gui, _('Email Settings not Configured'),
+                        _('FFDL Email Settings are not configured.'),
+                        show=True,
+                        show_copy_button=False)
+            return
+
+        imap_pass = None
+        if prefs['imappass']:
+            imap_pass = prefs['imappass']
+        elif self.imap_pass is not None:
+            imap_pass = self.imap_pass
+
+        if not imap_pass:
+            d = EmailPassDialog(self.gui,prefs['imapuser'])
+            d.exec_()
+            if not d.status:
+                return
+            imap_pass = d.get_pass()
+            if prefs['imapsessionpass']:
+                self.imap_pass = imap_pass
+
+        url_list = get_urls_from_imap(prefs['imapserver'],
+                                      prefs['imapuser'],
+                                      imap_pass,
+                                      prefs['imapfolder'],
+                                      prefs['imapmarkread'],)
+
+        if url_list:
+            self.add_dialog("\n".join(url_list),merge=False)
+        else:
+            info_dialog(self.gui, _('Get Story URLs from Email'),
+                        _('No Valid Story URLs Found in Unread Emails.'),
+                        show=True,
+                        show_copy_button=False)
 
     def get_urls_from_page_menu(self):
 
