@@ -213,11 +213,14 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
         urllist=[]
         for part in email_message.walk():
+            try:
             #print("part mime:%s"%part.get_content_type())
-            if part.get_content_type() == 'text/plain':
-                urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
-            if part.get_content_type() == 'text/html':
-                urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                if part.get_content_type() == 'text/plain':
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                if part.get_content_type() == 'text/html':
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+            except Exception as e:
+                print("Failed to read email content: %s"%e)
         #print "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
 
         if urllist and markread:

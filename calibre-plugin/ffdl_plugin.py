@@ -399,10 +399,8 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def get_urls_from_imap_menu(self):
 
         if not prefs['imapserver'] or not prefs['imapuser'] or not prefs['imapfolder']:
-            info_dialog(self.gui, _('Email Settings not Configured'),
-                        _('FFDL Email Settings are not configured.'),
-                        show=True,
-                        show_copy_button=False)
+            s=_('FFDL Email Settings are not configured.')
+            info_dialog(self.gui, s, s, show=True, show_copy_button=False)
             return
 
         imap_pass = None

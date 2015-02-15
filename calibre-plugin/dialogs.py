@@ -1447,7 +1447,7 @@ class EmailPassDialog(QDialog):
         self.setLayout(self.l)
 
         self.setWindowTitle(_('Password'))
-        self.l.addWidget(QLabel(_("Enter Email Password for %s:"%user)),0,0,1,2)
+        self.l.addWidget(QLabel(_("Enter Email Password for %s:")%user),0,0,1,2)
    
         # self.l.addWidget(QLabel(_("Password:")),1,0)
         self.passwd = QLineEdit(self)
