@@ -1155,7 +1155,7 @@ class ImapTab(QWidget):
         row+=1
         
         label = QLabel(_('IMAP User Name'))
-        tooltip = _("Name of IMAP user.  Eg: yourname@gmail.com\nNote that Gmail addresses need to have IMAP enabled in Gmail Settings first.")
+        tooltip = _("Name of IMAP user.  Eg: yourname@gmail.com\nNote that Gmail accounts need to have IMAP enabled in Gmail Settings first.")
         label.setToolTip(tooltip)
         self.l.addWidget(label,row,0)        
         self.imapuser = QLineEdit(self)
@@ -1165,7 +1165,7 @@ class ImapTab(QWidget):
         row+=1
         
         label = QLabel(_('IMAP User Password'))
-        tooltip = _("IMAP password.  If left empty, FFDL will ask you for your password when you .")
+        tooltip = _("IMAP password.  If left empty, FFDL will ask you for your password when you use the feature.")
         label.setToolTip(tooltip)
         self.l.addWidget(label,row,0)        
         self.imappass = QLineEdit(self)
@@ -1175,8 +1175,8 @@ class ImapTab(QWidget):
         self.l.addWidget(self.imappass,row,1)
         row+=1
 
-        self.imapsessionpass = QCheckBox(_('Remember Password for Session (when not entered above)'),self)
-        self.imapsessionpass.setToolTip(_('If checked, and no password is entered above, FFDL will remember your password until you close calibre or change libraries.'))
+        self.imapsessionpass = QCheckBox(_('Remember Password for Session (when not saved above)'),self)
+        self.imapsessionpass.setToolTip(_('If checked, and no password is entered above, FFDL will remember your password until you close calibre or change Libraries.'))
         self.imapsessionpass.setChecked(prefs['imapsessionpass'])
         self.l.addWidget(self.imapsessionpass,row,0,1,-1)
         row+=1
