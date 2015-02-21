@@ -29,7 +29,7 @@ from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
 
-class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
+class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -50,18 +50,18 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
             
     @staticmethod
     def getSiteDomain():
-        return 'www.potionsandsnitches.net'
+        return 'www.potionsandsnitches.org'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.potionsandsnitches.net','potionsandsnitches.net']
+        return ['potionsandsnitches.org','potionsandsnitches.net']
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.potionsandsnitches.net/fanfiction/viewstory.php?sid=1234"
+        return "http://www.potionsandsnitches.org/fanfiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?"+re.escape("potionsandsnitches.net/fanfiction/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.)?potionsandsnitches\.(net|org)/fanfiction/viewstory\.php\?sid=\d+$"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -207,5 +207,5 @@ class PotionsAndSnitchesNetSiteAdapter(BaseSiteAdapter):
         return self.utf8FromSoup(url,div)
 
 def getClass():
-    return PotionsAndSnitchesNetSiteAdapter
+    return PotionsAndSnitchesOrgSiteAdapter
 
