@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team
+# Copyright 2015 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,6 +94,8 @@ def get_valid_set_options():
                'strip_chapter_numbers':(None,None,boollist),
                'titlepage_use_table':(None,None,boollist),
                
+               'use_ssl_unverified_context':(None,None,boollist),
+                              
                'add_chapter_numbers':(None,None,boollist+['toconly']),
                
                'check_next_chapter':(['fanfiction.net'],None,boollist),
@@ -253,6 +255,7 @@ def get_valid_keywords():
                  'tocpage_start',
                  'tweak_fg_sleep',
                  'universe_as_series',
+                 'use_ssl_unverified_context',
                  'user_agent',
                  'username',
                  'website_encodings',

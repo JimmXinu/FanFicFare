@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -112,7 +112,15 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             configuration = get_ffdl_config(book['url'],
                                             options['fileform'],
                                             options['personal.ini'])
-            
+
+            if configuration.getConfig('use_ssl_unverified_context'):
+                ## monkey patch to avoid SSL bug.  dupliated from
+                ## ffdl_plugin.py because bg jobs run in own process
+                ## space.
+                import ssl
+                if hasattr(ssl, '_create_unverified_context'):
+                    ssl._create_default_https_context = ssl._create_unverified_context
+    
             if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
                 configuration.set("overrides","never_make_cover","true")
     
