@@ -36,7 +36,7 @@ import adapter_ficwadcom
 import adapter_fimfictionnet
 import adapter_harrypotterfanfictioncom
 import adapter_mediaminerorg
-import adapter_potionsandsnitchesnet
+import adapter_potionsandsnitches
 import adapter_tenhawkpresentscom
 import adapter_adastrafanficcom
 import adapter_twcslibrarynet
