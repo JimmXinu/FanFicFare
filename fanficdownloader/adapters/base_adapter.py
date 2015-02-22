@@ -503,6 +503,8 @@ class BaseSiteAdapter(Configurable):
         acceptable_attributes = ['href','name','class','id']
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')
+        if self.getConfig("keep_title_attr"):
+            acceptable_attributes.append('title')
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
