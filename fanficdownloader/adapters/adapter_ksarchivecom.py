@@ -161,11 +161,12 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a)) # title's inside a <b> tag.
 
-        # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
-        self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',stripHTML(a))
+        # Find authorid and URL from... author urls.
+        pagetitle = soup.find('div',id='pagetitle')
+        for a in pagetitle.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+")):
+            self.story.addToList('authorId',a['href'].split('=')[1])
+            self.story.addToList('authorUrl','http://'+self.host+'/'+a['href'])
+            self.story.addToList('author',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
