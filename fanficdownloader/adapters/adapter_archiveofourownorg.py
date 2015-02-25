@@ -222,6 +222,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if a != None:
             self.story.setMetadata('rating',stripHTML(a.text))
 		
+        d = metasoup.find('dd',{'class':"language"})
+        if d != None:
+            self.story.setMetadata('language',stripHTML(d.text))
+		
         a = metasoup.find('dd',{'class':"fandom tags"})
         fandoms = a.findAll('a',{'class':"tag"})
         for fandom in fandoms:
