@@ -2127,7 +2127,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         # add.
                         book['anthology_meta_list'][k]=True
 
-        print("book['url']:%s"%book['url'])
+        logger.debug("book['url']:%s"%book['url'])
         configuration = get_ffdl_config(book['url'],fileform)
         if existingbook:
             book['title'] = deftitle = existingbook['title']

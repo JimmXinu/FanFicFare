@@ -10,6 +10,9 @@ __docformat__ = 'restructuredtext en'
 from StringIO import StringIO
 from ConfigParser import ParsingError
 
+import logging
+logger = logging.getLogger(__name__)
+
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
 from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
 from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
@@ -32,7 +35,7 @@ def get_ffdl_config(url,fileform="epub",personalini=None):
     try:
         site = adapters.getConfigSectionFor(url)
     except Exception as e:
-        print("Failed trying to get ini config for url(%s): %s, using section [%s] instead"%(url,e,site))
+        logger.debug("Failed trying to get ini config for url(%s): %s, using section [%s] instead"%(url,e,site))
     configuration = Configuration(site,fileform)
     configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
     configuration.readfp(StringIO(personalini))
