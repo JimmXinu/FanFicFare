@@ -70,7 +70,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/chapterlistview.asp?SID=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/chapterlistview.asp?SID=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/chapter")+r"(list|All)"+re.escape("view.asp?SID=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
