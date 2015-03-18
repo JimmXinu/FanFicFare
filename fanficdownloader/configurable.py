@@ -115,7 +115,8 @@ def get_valid_set_options():
                'bulk_load':(['fannation.shades-of-moonlight.com',
                              'fhsarchive.com',
                              'lotrfanfiction.com',
-                             'themaplebookshelf.com'],None,boollist),
+                             'themaplebookshelf.com',
+                             'devianthearts.com'],None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
                
