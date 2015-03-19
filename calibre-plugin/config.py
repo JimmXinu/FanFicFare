@@ -652,7 +652,6 @@ class PersonalIniTab(QWidget):
                        icon=self.windowIcon(),
                        title=_('Plugin Defaults'),
                        label=_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini',
-                       tooltip=_("These are all of the plugin's configurable options\nand their default settings."),
                        use_find=True,
                        read_only=True,
                        save_size_name='ffdl:defaults.ini').exec_()
@@ -663,7 +662,6 @@ class PersonalIniTab(QWidget):
                            icon=self.windowIcon(),
                            title=_("Edit personal.ini"),
                            label=_("Edit personal.ini"),
-                           tooltip=_("Edit personal.ini"),
                            use_find=True,
                            save_size_name='ffdl:personal.ini')
         d.exec_()
