@@ -1179,7 +1179,7 @@ class EditTextDialog(SizePersistedDialog):
 class IniTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
-                 icon=None, title=None, label=None, tooltip=None,
+                 icon=None, title=None, label=None,
                  use_find=False,
                  read_only=False,
                  save_size_name='ffdl:ini text dialog',
@@ -1253,10 +1253,6 @@ class IniTextDialog(SizePersistedDialog):
             self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
             self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
         
-        if tooltip:
-            self.label.setToolTip(tooltip)
-            self.textedit.setToolTip(tooltip)
-
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
