@@ -26,7 +26,7 @@ import urlparse as up
 
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
-from configurable import Configurable
+from configurable import Configurable, re_compile
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -279,11 +279,6 @@ langs = {
     u'中文':'zh',
     u'Bahasa Malaysia':'zsm',
 }
-def re_compile(regex,line):
-    try:
-        return re.compile(regex)
-    except Exception, e: 
-        raise exceptions.RegularExpresssionFailed(e,regex,line)
 
 class InExMatch:
     keys = []
