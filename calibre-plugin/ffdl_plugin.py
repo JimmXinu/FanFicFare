@@ -1777,14 +1777,15 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 # template => regexp to match => GC Setting to use.
                 # generate_cover_settings:
                 # ${category} => Buffy:? the Vampire Slayer => Buffy
-                for line in configuration.getConfig('generate_cover_settings').splitlines():
-                    if "=>" in line:
-                        (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
-                        value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
-                        # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
-                        if re.search(regexp,value):
-                            setting_name = setting
-                            break
+                # for line in configuration.getConfig('generate_cover_settings').splitlines():
+                #     if "=>" in line:
+                #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                for (template,regexp,setting) in configuration.get_generate_cover_settings():
+                    value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
+                    # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
+                    if re.search(regexp,value):
+                        setting_name = setting
+                        break
 
                 if setting_name:
                     logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%line)

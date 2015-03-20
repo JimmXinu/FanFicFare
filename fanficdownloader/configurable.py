@@ -36,6 +36,12 @@ from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
 import adapters
 
+def re_compile(regex,line):
+    try:
+        return re.compile(regex)
+    except Exception, e: 
+        raise exceptions.RegularExpresssionFailed(e,regex,line)
+    
 formatsections = ['html','txt','epub','mobi']
 othersections = ['defaults','overrides']
 
@@ -274,6 +280,21 @@ def get_valid_entry_keywords():
     return list(['%s_label',
                  '(default_value|include_in|join_string|keep_in_order)_%s',])
 
+# Moved here for test_config.
+def make_generate_cover_settings(param):
+    vlist = []
+    for line in param.splitlines():
+        if "=>" in line:
+            try:
+                (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                re_compile(regexp,line)
+                vlist.append((template,regexp,setting))
+            except Exception, e: 
+                raise exceptions.PersonalIniFailed(e,line,param)
+                
+    return vlist
+
+
 class Configuration(ConfigParser.SafeConfigParser):
 
     def __init__(self, site, fileform):
@@ -371,6 +392,9 @@ class Configuration(ConfigParser.SafeConfigParser):
     def getConfigList(self, key):
         return self.get_config_list(self.sectionslist, key)
 
+    # Moved here for test_config.
+    def get_generate_cover_settings(self):
+        return make_generate_cover_settings(self.getConfig('generate_cover_settings'))
 
     def get_lineno(self,section,key=None):
         if key:
@@ -480,6 +504,8 @@ class Configuration(ConfigParser.SafeConfigParser):
         from story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings')
+        
+        generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings')        
 
         valdict = get_valid_set_options()
         
@@ -511,6 +537,9 @@ class Configuration(ConfigParser.SafeConfigParser):
 
                         if replace_metadata_re.match(keyword):
                             make_replacements(value)
+
+                        if generate_cover_settings_re.match(keyword):
+                            make_generate_cover_settings(value)
 
                         # if custom_columns_settings_re.match(keyword):
                         #custom_columns_settings:
