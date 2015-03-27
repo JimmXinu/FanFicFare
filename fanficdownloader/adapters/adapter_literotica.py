@@ -153,7 +153,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front
-        storyLink = soupAuth.find('a', href=self.url[self.url.index(':')+1:])
+        ## site has started putting https back on again.
+        storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:])))
 
         if storyLink is not None:
             urlTr = storyLink.parent.parent
@@ -162,7 +163,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             else:
                 isSingleStory = True
         else:
-            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (url, authorurl))
+            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
 
         if isSingleStory:
             self.story.setMetadata('title', storyLink.text)
@@ -187,7 +188,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             while chapterTr is not None and chapterTr['class'] == 'sl':
                 descriptions.append(chapterTr.findAll("td")[1].text)
                 chapterLink = chapterTr.find("td", "fc").find("a")
-                self.chapterUrls.append((chapterLink.text, "http:" + chapterLink["href"]))
+                if not chapterLink["href"].startswith('http'):
+                    chapterLink["href"] = "http:" + chapterLink["href"] 
+                self.chapterUrls.append((chapterLink.text, chapterLink["href"]))
                 self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
                 dates.append(makeDate(chapterTr.findAll('td')[-1].text, self.dateformat))
                 chapterTr = chapterTr.nextSibling
