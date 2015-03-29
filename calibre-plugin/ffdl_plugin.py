@@ -1788,7 +1788,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         break
 
                 if setting_name:
-                    logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%line)
+                    logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%setting_name)
                     if setting_name not in gc_plugin.get_saved_setting_names():
                         logger.info("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
                         setting_name = None
