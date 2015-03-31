@@ -59,7 +59,7 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%m/%d/%y"
+        self.dateformat = "%m/%d/%Y"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
