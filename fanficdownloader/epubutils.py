@@ -107,7 +107,7 @@ def get_update_data(inputio,
                         pass # corner case I bumped into while testing.
                 if re.match(r'.*/(file|chapter)\d+\.x?html',href):
                     if getsoups:
-                        soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"))
+                        soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"),"html5lib")
                         for img in soup.findAll('img'):
                             newsrc=''
                             longdesc=''
