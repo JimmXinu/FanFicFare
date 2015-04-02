@@ -1,0 +1,16 @@
+#############
+## Python
+#############
+*.py[cod]
+
+# Translations
+*.mo
+
+# Emacs autosave files
+\#*#
+*~
+
+# Windows batch files
+*.bat
+
+cleanup.sh
