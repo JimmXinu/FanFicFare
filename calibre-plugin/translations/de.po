@@ -4,14 +4,14 @@
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
 # ILB, 2014-2015
-# Simon_Schuette <simonschuette@arcor.de>, 2014
+# Simon_Schuette <simonschuette@arcor.de>, 2014-2015
 # Simon S, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-02-15 09:23+Central Standard Time\n"
-"PO-Revision-Date: 2015-02-21 11:02+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2015-03-11 19:13+0000\n"
+"Last-Translator: Simon_Schuette <simonschuette@arcor.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -836,7 +836,7 @@ msgstr "IMAP Benutzername"
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
-msgstr ""
+msgstr "Name des IMAP Nutzers.  z.B.: ihrname@gmail.com\nBeachten Sie, dass Sie für Gmail Accounts erst IMAP in den Gmail Einstellungen aktivieren müssen."
 
 #: config.py:1167
 msgid "IMAP User Password"
@@ -866,7 +866,7 @@ msgstr "IMAP Ordnername"
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
-msgstr ""
+msgstr "Name des IMAP Ordners um nach Mails zu suchen. Der Ordner (oder Label) muss bereits existieren. Verwenden Sie INBOX für Ihren Standard Posteingang."
 
 #: config.py:1194
 msgid "Mark Emails Read"
@@ -884,7 +884,7 @@ msgid ""
 "your story update notices.  FFDL and calibre cannot guarantee that malicious"
 " code cannot get your email password once you've entered it. <br>Use this "
 "feature at your own risk. </b>"
-msgstr ""
+msgstr "<b>Es ist am sichersten, wenn Sie ein separates eMail-Konto anlegen, dass Sie nur für Story-Update-Benachrichtigungen benutzen. FFDL und Calibre können nicht garantieren, dass Ihr eMail-Passwort vor einem Computer-Virus sicher ist, sobald Sie es eingegeben haben. <br>Sie nutzen diese Funktion auf eigene Gefahr!</b>"
 
 #: dialogs.py:76
 msgid "Skip"
