@@ -14,3 +14,6 @@
 *.bat
 
 cleanup.sh
+FanFictionDownLoader.zip
+*.epub
+*Thumbs.db
