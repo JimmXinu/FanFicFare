@@ -2067,7 +2067,10 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # copy list top level
         for b in book_list:
             if b['series']:
-                serieslist.append(b['series'][:b['series'].index(" [")])
+                try:
+                    serieslist.append(b['series'][:b['series'].index(" [")])
+                except ValueError: # substring not found
+                    serieslist.append(b['series'])
                 #print("book series:%s"%serieslist[-1])
 
             if b['publisher']:
