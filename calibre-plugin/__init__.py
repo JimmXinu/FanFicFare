@@ -12,7 +12,7 @@ if sys.version_info >= (2, 7):
     import logging
     logger = logging.getLogger(__name__)
     loghandler=logging.StreamHandler()
-    loghandler.setFormatter(logging.Formatter("FFDL:%(levelname)s:%(filename)s(%(lineno)d):%(message)s"))
+    loghandler.setFormatter(logging.Formatter("FFF:%(levelname)s:%(filename)s(%(lineno)d):%(message)s"))
     logger.addHandler(loghandler)
     loghandler.setLevel(logging.DEBUG)
     logger.setLevel(logging.DEBUG)
@@ -28,7 +28,7 @@ from calibre.customize import InterfaceActionBase
 
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
-class FanFictionDownLoaderBase(InterfaceActionBase):
+class FanFicFareBase(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the
     actual plugin class. The actual interface plugin class is called
@@ -38,7 +38,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
     '''
-    name                = 'FanFictionDownLoader'
+    name                = 'FanFicFare'
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
@@ -48,7 +48,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.fanfictiondownloader_plugin.ffdl_plugin:FanFictionDownLoaderPlugin'
+    actual_plugin       = 'calibre_plugins.fanficfare_plugin.ffdl_plugin:FanFicFarePlugin'
 
     def is_customizable(self):
         '''
@@ -79,7 +79,7 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
         # top of the module as importing the config class will also cause the
         # GUI libraries to be loaded, which we do not want when using calibre
         # from the command line
-        from calibre_plugins.fanfictiondownloader_plugin.config import ConfigWidget
+        from calibre_plugins.fanficfare_plugin.config import ConfigWidget
         return ConfigWidget(self.actual_plugin_)
 
     def save_settings(self, config_widget):
@@ -107,8 +107,8 @@ class FanFictionDownLoaderBase(InterfaceActionBase):
             # CLI--it would load everytime anyway.
             from StringIO import StringIO
             from calibre.library import db
-            from calibre_plugins.fanfictiondownloader_plugin.downloader import main as ffdl_main
-            from calibre_plugins.fanfictiondownloader_plugin.prefs import PrefsFacade
+            from calibre_plugins.fanficfare_plugin.downloader import main as ffdl_main
+            from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser      
     

@@ -13,9 +13,9 @@ from ConfigParser import ParsingError
 import logging
 logger = logging.getLogger(__name__)
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable import Configuration
-from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
+from calibre_plugins.fanficfare_plugin.fff_internals import adapters, exceptions
+from calibre_plugins.fanficfare_plugin.fff_internals.configurable import Configuration
+from calibre_plugins.fanficfare_plugin.prefs import prefs
 
 def get_ffdl_personalini():
     if prefs['includeimages']:

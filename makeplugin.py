@@ -23,17 +23,37 @@ from glob import glob
 from makezip import createZipFile
 
 if __name__=="__main__":
-    filename="FanFictionDownLoader.zip"
-    exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo']
-    # from top dir. 'w' for overwrite
-    createZipFile(filename,"w",
-                  ['plugin-defaults.ini','plugin-example.ini','fanficdownloader',
-                   'downloader.py','defaults.ini','six.py','bs4','html5lib','chardet'],
-                  exclude=exclude)
-    #from calibre-plugin dir. 'a' for append
+    filename="FanFicFare.zip" #"FanFictionDownLoader.zip"
+    exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db']
+    
     os.chdir('calibre-plugin')
-    files=['about.txt','images','translations']
+    files=['plugin-defaults.ini','plugin-example.ini','about.txt',
+           'images','translations']
     files.extend(glob('*.py'))
     files.extend(glob('plugin-import-name-*.txt'))
+    # 'w' for overwrite
+    createZipFile("../"+filename,"w",
+                  files,
+                  exclude=exclude)
+
+    os.chdir('../included_dependencies')
+    # 'a' for append
+    files=['six.py','bs4','html5lib','chardet']
+    #files.extend(glob('*.py'))
     createZipFile("../"+filename,"a",
-                  files,exclude=exclude)
+                  files,
+                  exclude=exclude)
+
+    os.chdir('../cli')
+    # 'a' for append
+    createZipFile("../"+filename,"a",
+                  ['downloader.py','defaults.ini'],
+                  exclude=exclude)
+    
+    os.chdir('..')
+    # 'a' for append
+    files=['fff_internals']
+    createZipFile(filename,"a",
+                  files,
+                  exclude=exclude)
+

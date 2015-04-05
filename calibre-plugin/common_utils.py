@@ -118,7 +118,7 @@ def create_menu_item(ia, parent_menu, menu_text, image=None, tooltip=None,
         if len(shortcut) == 0:
             shortcut = ()
         else:
-            shortcut = _(shortcut)
+            shortcut = shortcut
     ac = ia.create_action(spec=(menu_text, None, tooltip, shortcut),
         attr=menu_text)
     if image:
@@ -155,7 +155,7 @@ def create_menu_action_unique(ia, parent_menu, menu_text, image=None, tooltip=No
                 if len(shortcut) == 0:
                     shortcut = None
                 else:
-                    shortcut = _(shortcut)
+                    shortcut = shortcut
 
     if shortcut_name is None:
         shortcut_name = menu_text.replace('&','')
@@ -393,9 +393,9 @@ class KeyboardConfigDialog(SizePersistedDialog):
     This dialog is used to allow editing of keyboard shortcuts.
     '''
     def __init__(self, gui, group_name):
-        SizePersistedDialog.__init__(self, gui, 'Keyboard shortcut dialog')
+        SizePersistedDialog.__init__(self, gui, 'FanFicFare plugin:Keyboard shortcut dialog')
         self.gui = gui
-        self.setWindowTitle('Keyboard shortcuts')
+        self.setWindowTitle(_('Keyboard shortcuts'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
@@ -461,8 +461,8 @@ class DateDelegate(QStyledItemDelegate):
 class PrefsViewerDialog(SizePersistedDialog):
 
     def __init__(self, gui, namespace):
-        SizePersistedDialog.__init__(self, gui, 'Prefs Viewer dialog')
-        self.setWindowTitle('Preferences for: '+namespace)
+        SizePersistedDialog.__init__(self, gui, _('Prefs Viewer dialog'))
+        self.setWindowTitle(_('Preferences for: ')+namespace)
 
         self.gui = gui
         self.db = gui.current_db
@@ -494,9 +494,9 @@ class PrefsViewerDialog(SizePersistedDialog):
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok)
         button_box.accepted.connect(self.accept)
-        self.clear_button = button_box.addButton('Clear', QDialogButtonBox.ResetRole)
+        self.clear_button = button_box.addButton(_('Clear'), QDialogButtonBox.ResetRole)
         self.clear_button.setIcon(get_icon('trash.png'))
-        self.clear_button.setToolTip('Clear all settings for this plugin')
+        self.clear_button.setToolTip(_('Clear all settings for this plugin'))
         self.clear_button.clicked.connect(self._clear_settings)
         layout.addWidget(button_box)
 
@@ -523,10 +523,9 @@ class PrefsViewerDialog(SizePersistedDialog):
         
     def _clear_settings(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
-        message = '<p>Are you sure you want to clear your settings in this library for this plugin?</p>' \
-                  '<p>Any settings in other libraries or stored in a JSON file in your calibre plugins ' \
-                  'folder will not be touched.</p>' \
-                  '<p>You must restart calibre afterwards.</p>'
+        message = '<p>' + _('Are you sure you want to clear your settings in this library for this plugin?') + '</p>' \
+                  + '<p>' + _('Any settings in other libraries or stored in a JSON file in your calibre plugins folder will not be touched.') + '</p>' \
+                  + '<p>' + _('You must restart calibre afterwards.') + '</p>'
         if not confirm(message, self.namespace+'_clear_settings', self):
             return
         ns_prefix = self._get_ns_prefix()
@@ -535,8 +534,8 @@ class PrefsViewerDialog(SizePersistedDialog):
             del self.db.prefs[k]
         self._populate_settings()
         d = info_dialog(self, 'Settings deleted', 
-                        '<p>All settings for this plugin in this library have been cleared.</p>'
-                        '<p>Please restart calibre now.</p>',
+                        '<p>' + _('All settings for this plugin in this library have been cleared.') + '</p>' \
+                        + '<p>' + _('Please restart calibre now.') + '</p>',
                         show_copy_button=False)
         b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
         b.setIcon(QIcon(I('lt.png')))
