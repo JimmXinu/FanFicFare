@@ -2,22 +2,8 @@
 <html>
   <head>
     <link href="/css/index.css" rel="stylesheet" type="text/css">
-    <title>FanFictionDownLoader - read fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+    <title>FanFicFare - read Fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="google-site-verification" content="kCFc-G4bka_pJN6Rv8CapPBcwmq0hbAUZPkKWqRsAYU" />
-    <script type="text/javascript">
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-12136939-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-
-    </script>
     
     <!-- Place this tag in your head or just before your close body tag -->
     <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
@@ -26,22 +12,9 @@
   <body>
     <div id='main'>
       <h1>
-	<a href="/" style="text-decoration: none; color: black;">FanFictionDownLoader</a> <g:plusone size="medium"></g:plusone>
+	<a href="/" style="text-decoration: none; color: black;">FanFicFare</a> <g:plusone size="medium"></g:plusone>
       </h1>
 
-      <div style="text-align: center">
-        <script type="text/javascript"><!--
-                                           google_ad_client = "ca-pub-0320924304307555";
-                                           /* Standard */
-                                           google_ad_slot = "8974025478";
-                                           google_ad_width = 468;
-                                           google_ad_height = 60;
-                                           //-->
-        </script>
-        <script type="text/javascript"
-                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-        </script>
-      </div>
       <!--			<div id='yourfile'> -->
       {{yourfile}}
       <!--			</div> -->
@@ -50,25 +23,42 @@
       <form action="/fdown" method="post">
 	<div id='urlbox'>
 	  <div id='greeting'>
-	    <p>Hi, {{ nickname }}! This is FanFictionDownLoader, which makes reading stories from various websites
+	    <p>Hi, {{ nickname }}! This is FanFicFare, which makes reading stories from various websites
 	      much easier. </p>
 	  </div>
 
 	  <h3>Changes:</h3>
-	    <ul>
+          <p>
+            This version changes the name of the project from
+            FanFictionDownLoader(FFDL) to FanFicFare(FFF).  Along with
+            the name change, there are changes to the internal
+            structuring of the project code, but not to the functionality.
+          </p>
+          <p>
+            If you had saved configuration (including your
+            username/password for fic sites) in FFDL, you will need to
+            copy it over to FFF.  Visit
+            the <a href="http://fanfictiondownloader.appspot.com/editconfig">FFDL
+            User Config</a> page, copy your settings and then paste
+            them on
+            the <a href="http://fanficfare.appspot.com/editconfig">FFF
+            User Config</a> page.
+          </p>
+	    <!-- ul>
               <li>Add devianthearts.com as a Base eFiction site.</li>
               <li>Allow https URLs for fictionmania.tv.</li>
               <li>Allow storiesofarda.com/chapterAllview.asp?SID=999 urls.</li>
-	    </ul>
+	    </ul -->
 	  <p>
 	    Questions?  Check out our 
-	    <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>.
+	    <a href="https://github.com/JimmXinu/fanficdownloader/wiki/FAQs">FAQs</a>.
 	    </p>
 	  <p>
 	    If you have any problems with this application, please
 	    report them in
-	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
-	    <a href="http://2-1-04.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
+	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFicFare Google Group</a>.  The
+	    <a href="http://fanfictiondownloader.appspot.com">FanFictionDownLoader(FFDL)
+	    Version</a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
 	    {{ error_message }}
@@ -107,8 +97,8 @@
       <div id='urlbox'>
 	<div id='greeting'>
 	  <p>
-	    This is a FanFictionDownLoader, which makes reading stories from various websites much easier. Before you
-	    can start downloading fanfics, you need to login, so FanFictionDownLoader can remember your fanfics and store them.
+	    This is a FanFicFare, which makes reading stories from various websites much easier. Before you
+	    can start downloading fanfics, you need to login, so FanFicFare can remember your fanfics and store them.
 	  </p>
 	  <p><a href="{{ login_url }}">Login using Google account</a></p>
 	</div>
@@ -117,7 +107,7 @@
       
       <div id='typebox'>
 	  <p>
-	    <b>FanFictionDownLoader calibre Plugin</b>
+	    <b>FanFicFare calibre Plugin</b>
 	    <br /><br />
 	    
 	    There's also a version of this downloader that runs inside
@@ -129,7 +119,7 @@
 	    Once you have calibre installed and running, inside
 	    calibre, you can go to 'Get plugins to enhance calibre' or
 	    'Get new plugins' and
-	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>.
+	    install <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFicFare</a>.
 	    
 	  </p>
       </div>
@@ -151,11 +141,6 @@
 	  <li>
 	    First thing to know: We do not use your Google login and password. In fact, all we know about it is your ID &ndash; password
 	    is being verified by Google and is absolutely, totally unknown to anyone but you.
-	  </li>
-	  <li>
-	    
-	    Small <a href="http://www.sigizmund.com/reading-fanfiction-off-line-in-stanza-and-oth">post written by Roman</a>
-	    &mdash; how to read fiction in Stanza or any other ebook reader.
 	  </li>
 	  <li>
 	    You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
@@ -180,23 +165,10 @@
 	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
 	     alt="Powered by Google App Engine" />
 	<br/><br/>
-	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFictionDownLoader</a><br/>
-	Copyright &copy; FanFictionDownLoader team
+	This is a web front-end to <A href="http://code.google.com/p/fanficdownloader/">FanFicFare</a><br/>
+	Copyright &copy; FanFicFare team
       </div>
 
-      <div style="margin-top: 1em; text-align: center">
-        <script type="text/javascript"><!--
-                                           google_ad_client = "pub-2027714004231956";
-                                           /* FFD */
-                                           google_ad_slot = "7330682770";
-                                           google_ad_width = 468;
-                                           google_ad_height = 60;
-                                           //-->
-        </script>
-        <script type="text/javascript"
-                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-        </script>
-      </div>
     </div>
   </body>
 </html>

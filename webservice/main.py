@@ -55,8 +55,8 @@ from google.appengine.runtime import DeadlineExceededError
 
 from ffstorage import *
 
-from fanficdownloader import adapters, writers, exceptions
-from fanficdownloader.configurable import Configuration
+from fff_internals import adapters, writers, exceptions
+from fff_internals.configurable import Configuration
 
 class UserConfigServer(webapp2.RequestHandler):
     
