@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+
+[calibre-plugins.fanfictiondownloader]
+file_filter = translations/<lang>.po
+source_lang = en
+type = PO
+

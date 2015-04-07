@@ -3,12 +3,13 @@
 # 
 # Translators:
 # Paulo_Neto <layoutbr@lexxa.com.br>, 2014-2015
+# Wagner Marques Oliveira <wagnermarques00@hotmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-02-15 09:23+Central Standard Time\n"
-"PO-Revision-Date: 2015-02-20 09:58+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-04-04 21:21+0000\n"
+"Last-Translator: Wagner Marques Oliveira <wagnermarques00@hotmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +50,7 @@ msgstr "Personalizar Colunas"
 
 #: config.py:220
 msgid "Email Settings"
-msgstr ""
+msgstr "Configurações de E-mail"
 
 #: config.py:223
 msgid "Other"
@@ -815,65 +816,65 @@ msgid ""
 "These settings will allow FFDL to fetch story URLs from your email account."
 "  It will only look for story URLs in unread emails in the folder specified "
 "below."
-msgstr ""
+msgstr "Essas configurações iráo permitir o FFDL à buscar URL's de histórias da sua conta de e-mail. Isso só irá procurar URL's de histórias nos e-mails não lidos na pasta especificada abaixo."
 
 #: config.py:1147
 msgid "IMAP Server Name"
-msgstr ""
+msgstr "Nome do Servidor IMAP"
 
 #: config.py:1148
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
-msgstr ""
+msgstr "Nome do servidor IMAP--deve permitir IMAP4 com SSL. Ex: imap.gmail.com"
 
 #: config.py:1157
 msgid "IMAP User Name"
-msgstr ""
+msgstr "Nome de usuário IMAP"
 
 #: config.py:1158
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
-msgstr ""
+msgstr "Nome do usuário IMAP. Ex: yourname@gmail.com\nNote que as contas do Gmail precisam ter o IMAP habilitado nas configurações do Gmail primeiro."
 
 #: config.py:1167
 msgid "IMAP User Password"
-msgstr ""
+msgstr "Senha do usuário IMAP"
 
 #: config.py:1168
 msgid ""
 "IMAP password.  If left empty, FFDL will ask you for your password when you "
 "use the feature."
-msgstr ""
+msgstr "Senha IMAP. Se deixado vazio, FFDL irá perguntar para você a senha quando você utilizar o recurso."
 
 #: config.py:1178
 msgid "Remember Password for Session (when not saved above)"
-msgstr ""
+msgstr "Lembrar senha para a seção (quando não salvo acima)"
 
 #: config.py:1179
 msgid ""
 "If checked, and no password is entered above, FFDL will remember your "
 "password until you close calibre or change Libraries."
-msgstr ""
+msgstr "Se marcado, e a senha não foi inserida acima, FFDL irá lembrar a senha até você fechar o calibre ou mudar as Bibliotecas."
 
 #: config.py:1184
 msgid "IMAP Folder Name"
-msgstr ""
+msgstr "Nome da pasta IMAP"
 
 #: config.py:1185
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
-msgstr ""
+msgstr "Nome da pasta IMAP para pesquisar por novos e-mails. A pasta (ou etiqueta) tem que existir anteriormente. Use INBOX para a sua caixa de entrada padrão."
 
 #: config.py:1194
 msgid "Mark Emails Read"
-msgstr ""
+msgstr "Marca E-mails lidos"
 
 #: config.py:1195
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
-msgstr ""
+msgstr "Se marcado, os e-mails serão marcados como lidos se eles conterem qualquer URL de histórias."
 
 #: config.py:1200
 msgid ""
@@ -881,7 +882,7 @@ msgid ""
 "your story update notices.  FFDL and calibre cannot guarantee that malicious"
 " code cannot get your email password once you've entered it. <br>Use this "
 "feature at your own risk. </b>"
-msgstr ""
+msgstr "<b> É mais seguro criar um e-mail separado para você utilizar somente para suas histórias com notícias atualizadas. FFDL e calibre não garantem que códigos maliciosos não podem pegar a senha de seu e-mail uma vez que você o digitou. <br>Use este recurso pelo próprio risco. </b>"
 
 #: dialogs.py:76
 msgid "Skip"
@@ -1206,7 +1207,7 @@ msgstr "Salvar mesmo assim"
 
 #: dialogs.py:1450
 msgid "Enter Email Password for %s:"
-msgstr ""
+msgstr "Insira o e-mail de senha para %s:"
 
 #: ffdl_plugin.py:90
 msgid "Download FanFiction stories from various web sites"
@@ -1230,7 +1231,7 @@ msgstr "At&ualizar Livro(s) Existente(s) de Ficção"
 
 #: ffdl_plugin.py:263 ffdl_plugin.py:316
 msgid "Get Story URLs to Download from Email"
-msgstr ""
+msgstr "Pegue os URL's de histórias para download do E-mail"
 
 #: ffdl_plugin.py:267
 msgid "Get Story URLs to Download from Web Page"
@@ -1306,15 +1307,15 @@ msgstr "Nenhum livro selecionado para atualizar nas listas de leitura"
 
 #: ffdl_plugin.py:402
 msgid "FFDL Email Settings are not configured."
-msgstr ""
+msgstr "Opções de E-mail do FFDL não estão configuradas."
 
 #: ffdl_plugin.py:430
 msgid "Get Story URLs from Email"
-msgstr ""
+msgstr "Pegue URL's de histórias por E-mail"
 
 #: ffdl_plugin.py:431
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr ""
+msgstr "Sem URL's de histórias válidos encontrados nos e-mails não lidos."
 
 #: ffdl_plugin.py:455 ffdl_plugin.py:507
 msgid "List of Story URLs"
