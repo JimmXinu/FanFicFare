@@ -44,11 +44,11 @@ if __name__=="__main__":
                   files,
                   exclude=exclude)
 
-    os.chdir('../cli')
-    # 'a' for append
-    createZipFile("../"+filename,"a",
-                  ['downloader.py','defaults.ini'],
-                  exclude=exclude)
+    # os.chdir('../cli')
+    # # 'a' for append
+    # createZipFile("../"+filename,"a",
+    #               ['downloader.py','defaults.ini'],
+    #               exclude=exclude)
     
     os.chdir('..')
     # 'a' for append

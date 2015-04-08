@@ -25,7 +25,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version="2.2.0.dev6",
+    version="2.2.0.dev8",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -69,18 +69,21 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='fanfiction download ebook epub',
+    keywords='fanfiction download ebook epub html',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     packages=['fff_internals', 'fff_internals.adapters', 'fff_internals.writers'],
 
+    # for package_data
+    package_dir={'fff_internals': 'fff_internals'},
+
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['beautifulsoup4','chardet','six','html5lib'],
+    install_requires=['beautifulsoup4','chardet','html5lib'], # html5lib requires 'six'.
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -95,8 +98,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'defaults.ini': ['defaults.ini'],
-        'example.ini': ['example.ini'],
+        'fff_internals': ['defaults.ini', 'example.ini'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

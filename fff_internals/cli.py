@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team
+# Copyright 2015 Fanficdownloader team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 #
 
 from optparse import OptionParser
-from os.path import expanduser, isfile, join
+from os.path import expanduser, isfile, join, dirname
 from subprocess import call
 import ConfigParser
 import getpass
@@ -24,7 +24,6 @@ import logging
 import pprint
 import string
 import sys
-
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
@@ -160,6 +159,9 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if passed_defaultsini:
         configuration.readfp(passed_defaultsini)
 
+    if isfile(join(dirname(__file__), 'defaults.ini')):
+        conflist.append(join(dirname(__file__), 'defaults.ini'))
+        
     if isfile(join(homepath, 'defaults.ini')):
         conflist.append(join(homepath, 'defaults.ini'))
     if isfile(join(homepath2, 'defaults.ini')):

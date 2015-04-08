@@ -402,7 +402,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         else:
             return self.linenos.get(section,None)
     
-    ## Copied from Python library so as to make it save linenos too.
+    ## Copied from Python 2.7 library so as to make it save linenos too.
     #
     # Regular expressions for parsing section headers and options.
     #
@@ -461,7 +461,9 @@ class Configuration(ConfigParser.SafeConfigParser):
                     #raise MissingSectionHeaderError(fpname, lineno, line)
                 # an option line?
                 else:
-                    mo = self._optcre.match(line)
+                    mo = self.OPTCRE.match(line) # OPTCRE instead of
+                                                 # _optcre so it works
+                                                 # with python 2.6
                     if mo:
                         optname, vi, optval = mo.group('option', 'vi', 'value')
                         # This check is fine because the OPTCRE cannot
