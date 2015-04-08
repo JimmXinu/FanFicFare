@@ -51,9 +51,9 @@ except NameError:
 from calibre_plugins.fanficfare_plugin.common_utils import (set_plugin_icon_resources, get_icon,
                                                             create_menu_action_unique, get_library_uuid)
 
-from calibre_plugins.fanficfare_plugin.fff_internals import adapters, exceptions
-from calibre_plugins.fanficfare_plugin.fff_internals.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
-from calibre_plugins.fanficfare_plugin.fff_internals.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
+from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
+from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
 
 from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
 from calibre_plugins.fanficfare_plugin.config import (permitted_values, rejecturllist)

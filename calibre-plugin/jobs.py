@@ -101,8 +101,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
         
         from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
                 OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
-        from calibre_plugins.fanficfare_plugin.fff_internals import adapters, writers, exceptions
-        from calibre_plugins.fanficfare_plugin.fff_internals.epubutils import get_update_data
+        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+        from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
         
         from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
         

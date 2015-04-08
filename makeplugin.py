@@ -52,7 +52,7 @@ if __name__=="__main__":
     
     os.chdir('..')
     # 'a' for append
-    files=['fff_internals']
+    files=['fanficfare']
     createZipFile(filename,"a",
                   files,
                   exclude=exclude)

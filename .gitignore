@@ -13,6 +13,9 @@
 # Windows batch files
 *.bat
 
+# usually perl -pi.back -e edits.
+*.back
+
 cleanup.sh
 FanFictionDownLoader.zip
 *.epub

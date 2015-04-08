@@ -55,8 +55,8 @@ from google.appengine.runtime import DeadlineExceededError
 
 from ffstorage import *
 
-from fff_internals import adapters, writers, exceptions
-from fff_internals.configurable import Configuration
+from fanficfare import adapters, writers, exceptions
+from fanficfare.configurable import Configuration
 
 class UserConfigServer(webapp2.RequestHandler):
     
@@ -65,7 +65,7 @@ class UserConfigServer(webapp2.RequestHandler):
         configuration = Configuration(adapters.getConfigSectionFor(url),fileformat)
         
         logging.debug('reading defaults.ini config file')
-        configuration.read('defaults.ini')
+        configuration.read('fanficfare/defaults.ini')
 
         ## Pull user's config record.
         l = UserConfig.all().filter('user =', user).fetch(1)
@@ -158,12 +158,12 @@ class EditConfigServer(UserConfigServer):
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
             else:
-                configfile = open("example.ini","rb")
+                configfile = open("fanficfare/example.ini","rb")
                 config = configfile.read()
                 configfile.close()
             template_values['config'] = config
 
-            configfile = open("defaults.ini","rb")
+            configfile = open("fanficfare/defaults.ini","rb")
             config = configfile.read()
             configfile.close()
             template_values['defaultsini'] = config

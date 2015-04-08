@@ -74,10 +74,10 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    packages=['fff_internals', 'fff_internals.adapters', 'fff_internals.writers'],
+    packages=['fanficfare', 'fanficfare.adapters', 'fanficfare.writers'],
 
     # for package_data
-    package_dir={'fff_internals': 'fff_internals'},
+    package_dir={'fanficfare': 'fanficfare'},
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
@@ -98,7 +98,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'fff_internals': ['defaults.ini', 'example.ini'],
+        'fanficfare': ['defaults.ini', 'example.ini'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
@@ -112,7 +112,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'fanficfare=fff_internals.cli:main',
+            'fanficfare=fanficfare.cli:main',
         ],
     },
 )

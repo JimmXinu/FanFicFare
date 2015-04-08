@@ -13,8 +13,8 @@ from ConfigParser import ParsingError
 import logging
 logger = logging.getLogger(__name__)
 
-from calibre_plugins.fanficfare_plugin.fff_internals import adapters, exceptions
-from calibre_plugins.fanficfare_plugin.fff_internals.configurable import Configuration
+from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
+from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
 
 def get_ffdl_personalini():

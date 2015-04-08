@@ -64,10 +64,10 @@ from calibre_plugins.fanficfare_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
             ImageTitleLayout, get_icon)
 
-from calibre_plugins.fanficfare_plugin.fff_internals.geturls import get_urls_from_html, get_urls_from_text
-from calibre_plugins.fanficfare_plugin.fff_internals.adapters import getNormalStoryURL
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_html, get_urls_from_text
+from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
 
-from calibre_plugins.fanficfare_plugin.fff_internals.configurable \
+from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
     import (get_valid_sections, get_valid_entries,
             get_valid_keywords, get_valid_entry_keywords)
 

@@ -75,7 +75,7 @@ from calibre_plugins.fanficfare_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
             EditTextDialog, IniTextDialog, RejectUrlEntry)
     
-from calibre_plugins.fanficfare_plugin.fff_internals.adapters \
+from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
     import getConfigSections
 
 from calibre_plugins.fanficfare_plugin.common_utils \
