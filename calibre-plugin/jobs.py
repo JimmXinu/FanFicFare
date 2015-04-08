@@ -4,8 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
-__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2015, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -96,26 +95,26 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     '''
 
     from calibre_plugins.fanficfare_plugin import FanFicFareBase
-    ffdlbase = FanFicFareBase(options['plugin_path'])
-    with ffdlbase:
+    fffbase = FanFicFareBase(options['plugin_path'])
+    with fffbase:
         
         from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
                 OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
         from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
         from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
         
-        from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
+        from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config)
         
         try:
             book['comment'] = _('Download started...')
             
-            configuration = get_ffdl_config(book['url'],
+            configuration = get_fff_config(book['url'],
                                             options['fileform'],
                                             options['personal.ini'])
 
             if configuration.getConfig('use_ssl_unverified_context'):
                 ## monkey patch to avoid SSL bug.  dupliated from
-                ## ffdl_plugin.py because bg jobs run in own process
+                ## fff_plugin.py because bg jobs run in own process
                 ## space.
                 import ssl
                 if hasattr(ssl, '_create_unverified_context'):
@@ -194,14 +193,14 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                  adapter.calibrebookmark,
                  adapter.logfile) = get_update_data(book['epub_for_update'])
     
-                # dup handling from ffdl_plugin needed for anthology updates.
+                # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:
                     if chaptercount == urlchaptercount:
                         book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
                         book['outfile'] = book['epub_for_update'] # for anthology merge ops.
                         return book
     
-                # dup handling from ffdl_plugin needed for anthology updates.
+                # dup handling from fff_plugin needed for anthology updates.
                 if chaptercount > urlchaptercount:
                     raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
     

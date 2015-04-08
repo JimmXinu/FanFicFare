@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import sys
@@ -32,7 +32,7 @@ class FanFicFareBase(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the
     actual plugin class. The actual interface plugin class is called
-    InterfacePlugin and is defined in the ffdl_plugin.py file, as
+    InterfacePlugin and is defined in the fff_plugin.py file, as
     specified in the actual_plugin field below.
 
     The reason for having two classes is that it allows the command line
@@ -48,7 +48,7 @@ class FanFicFareBase(InterfaceActionBase):
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.fanficfare_plugin.ffdl_plugin:FanFicFarePlugin'
+    actual_plugin       = 'calibre_plugins.fanficfare_plugin.fff_plugin:FanFicFarePlugin'
 
     def is_customizable(self):
         '''
@@ -107,7 +107,7 @@ class FanFicFareBase(InterfaceActionBase):
             # CLI--it would load everytime anyway.
             from StringIO import StringIO
             from calibre.library import db
-            from calibre_plugins.fanficfare_plugin.downloader import main as ffdl_main
+            from calibre_plugins.fanficfare_plugin.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser      
@@ -122,10 +122,10 @@ class FanFicFareBase(InterfaceActionBase):
                      or not x.startswith('-')]
             opts, args = parser.parse_args(pargs)
     
-            ffdl_prefs = PrefsFacade(db(path=opts.library_path,
+            fff_prefs = PrefsFacade(db(path=opts.library_path,
                                         read_only=True))
 
-            ffdl_main(argv[1:],
+            fff_main(argv[1:],
                       parser=parser,
                       passed_defaultsini=StringIO(get_resources("defaults.ini")),
-                      passed_personalini=StringIO(ffdl_prefs["personal.ini"]))
+                      passed_personalini=StringIO(fff_prefs["personal.ini"]))

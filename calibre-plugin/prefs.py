@@ -7,14 +7,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+import logging
+logger = logging.getLogger(__name__)
+
 import copy
 
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
-from calibre_plugins.fanficfare_plugin.dialogs import OVERWRITE
+from calibre_plugins.fanficfare_plugin.dialogs import UPDATE
 from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
-PREFS_NAMESPACE = 'FanFictionDownLoaderPlugin'
+
+# if don't have any settings for FanFicFarePlugin, copy from
+# predecessor FanFictionDownLoaderPlugin.
+FFDL_PREFS_NAMESPACE = 'FanFictionDownLoaderPlugin'
+PREFS_NAMESPACE = 'FanFicFarePlugin'
 PREFS_KEY_SETTINGS = 'settings'
 
 # Set defaults used by all.  Library specific settings continue to
@@ -39,7 +46,7 @@ default_prefs['autoconvert'] = False
 default_prefs['urlsfromclip'] = True
 default_prefs['updatedefault'] = True
 default_prefs['fileform'] = 'epub'
-default_prefs['collision'] = OVERWRITE
+default_prefs['collision'] = UPDATE
 default_prefs['deleteotherforms'] = False
 default_prefs['adddialogstaysontop'] = False
 default_prefs['includeimages'] = False
@@ -78,13 +85,6 @@ default_prefs['imapsessionpass'] = False
 default_prefs['imapfolder'] = 'INBOX'
 default_prefs['imapmarkread'] = True
 
-# This is where all preferences for this plugin *were* stored
-# Remember that this name (i.e. plugins/fanfictiondownloader_plugin) is also
-# in a global namespace, so make it as unique as possible.
-# You should always prefix your config file name with plugins/,
-# so as to ensure you dont accidentally clobber a calibre config file
-old_prefs = JSONConfig('plugins/fanfictiondownloader_plugin')
-
 def set_library_config(library_config,db):
     db.prefs.set_namespaced(PREFS_NAMESPACE,
                             PREFS_KEY_SETTINGS,
@@ -93,19 +93,23 @@ def set_library_config(library_config,db):
 def get_library_config(db):
     library_id = get_library_uuid(db)
     library_config = None
-    # Check whether this is a configuration needing to be migrated
-    # from json into database.  If so: get it, set it, rename it in json.
-    if library_id in old_prefs:
-        #print("get prefs from old_prefs")
-        library_config = old_prefs[library_id]
-        set_library_config(library_config,db)
-        old_prefs["migrated to library db %s"%library_id] = old_prefs[library_id]
-        del old_prefs[library_id]
 
     if library_config is None:
         #print("get prefs from db")
-        library_config = db.prefs.get_namespaced(PREFS_NAMESPACE, PREFS_KEY_SETTINGS,
-                                                 copy.deepcopy(default_prefs))
+        library_config = db.prefs.get_namespaced(PREFS_NAMESPACE,
+                                                 PREFS_KEY_SETTINGS)
+        
+        # if don't have any settings for FanFicFarePlugin, copy from
+        # predecessor FanFictionDownLoaderPlugin.
+        if library_config is None:
+            logger.info("Attempting to read settings from predecessor--FFDL")
+            library_config = db.prefs.get_namespaced(FFDL_PREFS_NAMESPACE,
+                                                     PREFS_KEY_SETTINGS)
+        if library_config is None:
+            # defaults.
+            logger.info("Using default settings")
+            library_config = copy.deepcopy(default_prefs)
+            
     return library_config
 
 # fake out so I don't have to change the prefs calls anywhere.  The

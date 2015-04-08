@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>, 2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import os

@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2013, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from StringIO import StringIO
@@ -17,7 +17,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
 from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
 
-def get_ffdl_personalini():
+def get_fff_personalini():
     if prefs['includeimages']:
         # this is a cheat to make it easier for users.
         return '''[epub]
@@ -28,9 +28,9 @@ make_firstimage_cover:true
     else:
         return prefs['personal.ini']
 
-def get_ffdl_config(url,fileform="epub",personalini=None):
+def get_fff_config(url,fileform="epub",personalini=None):
     if not personalini:
-        personalini = get_ffdl_personalini()
+        personalini = get_fff_personalini()
     site='unknown'
     try:
         site = adapters.getConfigSectionFor(url)
@@ -42,12 +42,12 @@ def get_ffdl_config(url,fileform="epub",personalini=None):
 
     return configuration
 
-def get_ffdl_adapter(url,fileform="epub",personalini=None):
-    return adapters.getAdapter(get_ffdl_config(url,fileform,personalini),url)
+def get_fff_adapter(url,fileform="epub",personalini=None):
+    return adapters.getAdapter(get_fff_config(url,fileform,personalini),url)
 
 def test_config(initext):
     try:
-        configini = get_ffdl_config("test1.com?sid=555",
+        configini = get_fff_config("test1.com?sid=555",
                                     personalini=initext)
         errors = configini.test_config()
     except ParsingError as pe:

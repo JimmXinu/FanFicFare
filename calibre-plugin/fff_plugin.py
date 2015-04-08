@@ -55,7 +55,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
 
-from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
+from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config, get_fff_personalini)
 from calibre_plugins.fanficfare_plugin.config import (permitted_values, rejecturllist)
 from calibre_plugins.fanficfare_plugin.prefs import prefs
 from calibre_plugins.fanficfare_plugin.dialogs import (
@@ -154,7 +154,7 @@ class FanFicFarePlugin(InterfaceAction):
             return self.macmenuhack
         except:
             file_path = os.path.join(calibre_config_dir,
-                                     *("plugins/fanfictiondownloader_macmenuhack.txt".split('/')))
+                                     *("plugins/fanficfare_macmenuhack.txt".split('/')))
             file_path = os.path.abspath(file_path)
             logger.debug("Plugin %s macmenuhack file_path:%s"%(self.name,file_path))
             self.macmenuhack = os.access(file_path, os.F_OK)
@@ -461,7 +461,7 @@ class FanFicFarePlugin(InterfaceAction):
     def get_urls_from_page(self,url):
         logger.debug("get_urls_from_page URL:%s"%url)
         if 'archiveofourown.org' in url:
-            configuration = get_ffdl_config(url)
+            configuration = get_fff_config(url)
         else:
             configuration = None
         return get_urls_from_page(url,configuration)
@@ -571,7 +571,7 @@ class FanFicFarePlugin(InterfaceAction):
             
         else:
             message="<p>"+_("Rejecting FFF URLs: None of the books selected have FanFiction URLs.")+"</p><p>"+_("Proceed to Remove?")+"</p>"
-            if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
+            if confirm(message,'fff_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
     def add_dialog(self,url_list_text=None,merge=False,anthology_url=None):
@@ -612,7 +612,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.status_bar.show_message(_('Can only Update Epub Anthologies'), 3000)
             return
             
-        tdir = PersistentTemporaryDirectory(prefix='ffdl_anthology_')
+        tdir = PersistentTemporaryDirectory(prefix='fff_anthology_')
         logger.debug("tdir:\n%s"%tdir)
 
         bookepubio = StringIO(db.format(book_id,'EPUB',index_is_id=True))
@@ -744,10 +744,10 @@ class FanFicFarePlugin(InterfaceAction):
         update_books = d.get_books()
 
         #print("update_books:%s"%update_books)
-        #print("options:%s"%d.get_ffdl_options())
+        #print("options:%s"%d.get_fff_options())
         # only if there's some good ones.
         if 0 < len(filter(lambda x : x['good'], update_books)):
-            options = d.get_ffdl_options()
+            options = d.get_fff_options()
             self.prep_downloads( options, update_books )
             
     def get_urls_clip(self,storyurls=True):
@@ -780,13 +780,13 @@ class FanFicFarePlugin(InterfaceAction):
 
         options['version'] = self.version
         logger.debug(self.version)
-        options['personal.ini'] = get_ffdl_personalini()
+        options['personal.ini'] = get_fff_personalini()
         
         #print("prep_downloads:%s"%books)
 
         if 'tdir' not in options: # if merging an anthology, there's alread a tdir.
             # create and pass temp dir.
-            tdir = PersistentTemporaryDirectory(prefix='fanfictiondownloader_')
+            tdir = PersistentTemporaryDirectory(prefix='fanficfare_')
             options['tdir']=tdir
 
         if 0 < len(filter(lambda x : x['good'], books)):
@@ -874,7 +874,7 @@ class FanFicFarePlugin(InterfaceAction):
         
         skip_date_update = False
         
-        adapter = get_ffdl_adapter(url,fileform)
+        adapter = get_fff_adapter(url,fileform)
         ## save and share cookiejar and pagecache between all
         ## downloads.
         if 'pagecache' not in options:
@@ -1237,7 +1237,7 @@ class FanFicFarePlugin(InterfaceAction):
                 description=desc)
         
         self.gui.jobs_pointer.start()
-        self.gui.status_bar.show_message(_('Starting %d FanFictionDownLoads')%len(book_list),3000)
+        self.gui.status_bar.show_message(_('Starting %d FanFicFare Downloads')%len(book_list),3000)
 
     def update_books_loop(self,book,db=None,
                      options={'fileform':'epub',
@@ -1310,11 +1310,11 @@ class FanFicFarePlugin(InterfaceAction):
         if showlist and prefs['mark']: # don't use with anthology
             db = self.gui.current_db
             marked_ids = dict()
-            marked_text = "ffdl_success"
+            marked_text = "fff_success"
             for index, book_id in enumerate(all_ids):
                 marked_ids[book_id] = '%s_%04d' % (marked_text, index)
             for index, book_id in enumerate(failed_ids):
-                marked_ids[book_id] = 'ffdl_failed_%04d' % index
+                marked_ids[book_id] = 'fff_failed_%04d' % index
             # Mark the results in our database
             db.set_marked_ids(marked_ids)
             
@@ -1677,7 +1677,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         configuration = None
         if prefs['allow_custcol_from_ini']:
-            configuration = get_ffdl_config(book['url'],options['fileform'])
+            configuration = get_fff_config(book['url'],options['fileform'])
             # meta => custcol[,a|n|r]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
@@ -1773,7 +1773,7 @@ class FanFicFarePlugin(InterfaceAction):
             setting_name = None
             if prefs['allow_gc_from_ini']:
                 if not configuration: # might already have it from allow_custcol_from_ini
-                    configuration = get_ffdl_config(book['url'],options['fileform'])
+                    configuration = get_fff_config(book['url'],options['fileform'])
 
                 # template => regexp to match => GC Setting to use.
                 # generate_cover_settings:
@@ -1841,7 +1841,7 @@ class FanFicFarePlugin(InterfaceAction):
         except:
             if prefs['addtolists'] or prefs['addtoreadlists']:
                 message="<p>"+_("You configured FanFicFare to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
-                confirm(message,'fanfictiondownloader_no_reading_list_plugin', self.gui)
+                confirm(message,'fff_no_reading_list_plugin', self.gui)
             return
         
         if prefs['addtoreadlists']:
@@ -1853,7 +1853,7 @@ class FanFicFarePlugin(InterfaceAction):
             lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fanfictiondownloader_no_read_lists', self.gui)
+                confirm(message,'fff_no_read_lists', self.gui)
             for l in lists:
                 if l in rl_plugin.get_list_names():
                     #print("add good read l:(%s)"%l)
@@ -1863,13 +1863,13 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui)
                         
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
             lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
+                confirm(message,'fff_no_send_lists', self.gui)
 
             for l in lists:
                 if l in rl_plugin.get_list_names():
@@ -1881,7 +1881,7 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui)
 
     def make_mi_from_book(self,book):
         mi = MetaInformation(book['title'],book['author']) # author is a list.
@@ -2133,7 +2133,7 @@ class FanFicFarePlugin(InterfaceAction):
                         book['anthology_meta_list'][k]=True
 
         logger.debug("book['url']:%s"%book['url'])
-        configuration = get_ffdl_config(book['url'],fileform)
+        configuration = get_fff_config(book['url'],fileform)
         if existingbook:
             book['title'] = deftitle = existingbook['title']
             book['comments'] = existingbook['comments']

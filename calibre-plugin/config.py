@@ -81,7 +81,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
 from calibre_plugins.fanficfare_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
 
-from calibre_plugins.fanficfare_plugin.ffdl_util \
+from calibre_plugins.fanficfare_plugin.fff_util \
     import (test_config)
 
 from calibre.gui2.complete2 import EditWithComplete  #MultiCompleteLineEdit
@@ -176,7 +176,12 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel('<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderSupportedsites">'+_('List of Supported Sites')+'</a> -- <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">'+_('FAQs')+'</a>')
+        label = QLabel('<a href="'\
+                           +'https://github.com/JimmXinu/FanFicFare/wiki/Supportedsites">'\
+                           +_('List of Supported Sites')+'</a> -- <a href="'\
+                           +'https://github.com/JimmXinu/FanFicFare/wiki/FAQs">'\
+                           +_('FAQs')+'</a>')
+        
         label.setOpenExternalLinks(True)
         self.l.addWidget(label)
 
@@ -452,12 +457,12 @@ class BasicTab(QWidget):
         self.l.addWidget(self.lookforurlinhtml)
 
         self.mark = QCheckBox(_("Mark added/updated books when finished?"),self)
-        self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."))
+        self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' is also available, or search 'marked:fff' for both."))
         self.mark.setChecked(prefs['mark'])
         self.l.addWidget(self.mark)
 
         self.showmarked = QCheckBox(_("Show Marked books when finished?"),self)
-        self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:ffdl_success'.\n'marked:ffdl_failed' is also available, or search 'marked:ffdl' for both."))
+        self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' is also available, or search 'marked:fff' for both."))
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
 
@@ -481,7 +486,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.urlsfromclip)
 
         self.updatedefault = QCheckBox(_('Default to Update when books selected?'),self)
-        self.updatedefault.setToolTip(_('The top FanFictionDownLoader plugin button will start Update if\nbooks are selected.  If unchecked, it will always bring up \'Add New\'.'))
+        self.updatedefault.setToolTip(_('The top FanFicFare plugin button will start Update if\nbooks are selected.  If unchecked, it will always bring up \'Add New\'.'))
         self.updatedefault.setChecked(prefs['updatedefault'])
         self.l.addWidget(self.updatedefault)
 
@@ -576,7 +581,7 @@ class BasicTab(QWidget):
                            title=_("Reject Reasons"),
                            label=_("Customize Reject List Reasons"),
                            tooltip=_("Customize the Reasons presented when Rejecting URLs"),
-                           save_size_name='ffdl:Reject List Reasons')
+                           save_size_name='fff:Reject List Reasons')
         d.exec_()
         if d.result() == d.Accepted:
             prefs['rejectreasons'] = d.get_plain_text()
@@ -590,7 +595,7 @@ class BasicTab(QWidget):
                            tooltip=_("One URL per line:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"),
                            rejectreasons=rejecturllist.get_reject_reasons(),
                            reasonslabel=_('Add this reason to all URLs added:'),
-                           save_size_name='ffdl:Add Reject List')
+                           save_size_name='fff:Add Reject List')
         d.exec_()
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
@@ -654,7 +659,7 @@ class PersonalIniTab(QWidget):
                        label=_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini',
                        use_find=True,
                        read_only=True,
-                       save_size_name='ffdl:defaults.ini').exec_()
+                       save_size_name='fff:defaults.ini').exec_()
         
     def add_ini_button(self):
         d = IniTextDialog(self,
@@ -663,7 +668,7 @@ class PersonalIniTab(QWidget):
                            title=_("Edit personal.ini"),
                            label=_("Edit personal.ini"),
                            use_find=True,
-                           save_size_name='ffdl:personal.ini')
+                           save_size_name='fff:personal.ini')
         d.exec_()
         if d.result() == d.Accepted:
             self.personalini = d.get_plain_text()
@@ -880,7 +885,7 @@ class OtherTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel(_("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFictionDownLoader confirmation dialogs back again."))
+        label = QLabel(_("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFicFare confirmation dialogs back again."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -891,7 +896,7 @@ class OtherTab(QWidget):
         self.l.addWidget(keyboard_shortcuts_button)
 
         reset_confirmation_button = QPushButton(_('Reset disabled &confirmation dialogs'), self)
-        reset_confirmation_button.setToolTip(_('Reset all show me again dialogs for the FanFictionDownLoader plugin'))
+        reset_confirmation_button.setToolTip(_('Reset all show me again dialogs for the FanFicFare plugin'))
         reset_confirmation_button.clicked.connect(self.reset_dialogs)
         self.l.addWidget(reset_confirmation_button)
         

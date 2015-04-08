@@ -236,7 +236,7 @@ class AddNewDialog(SizePersistedDialog):
     go_signal = pyqtSignal(object, object, object, object)
 
     def __init__(self, gui, prefs, icon):
-        SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:add new dialog')
+        SizePersistedDialog.__init__(self, gui, 'fff:add new dialog')
         self.prefs = prefs
         
         self.setMinimumWidth(300)
@@ -339,7 +339,7 @@ class AddNewDialog(SizePersistedDialog):
     def ok_clicked(self):
         self.dialog_closing(None) # save persistent size.
         self.hide()
-        self.go_signal.emit( self.get_ffdl_options(),
+        self.go_signal.emit( self.get_fff_options(),
                              self.get_urlstext(),
                              self.merge,
                              self.extrapayload )
@@ -352,7 +352,7 @@ class AddNewDialog(SizePersistedDialog):
                     newmerge=True,
                     extraoptions={},
                     extrapayload=None):
-        # rather than mutex in ffdl_plugin, just bail here if it's
+        # rather than mutex in fff_plugin, just bail here if it's
         # already in use.
         if self.isVisible(): return
 
@@ -434,7 +434,7 @@ class AddNewDialog(SizePersistedDialog):
         if i > -1:
             self.collision.setCurrentIndex(i)
         
-    def get_ffdl_options(self):
+    def get_fff_options(self):
         retval =  {
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
@@ -468,7 +468,7 @@ class CollectURLDialog(SizePersistedDialog):
     Collect single url for get urls.
     '''
     def __init__(self, gui, title, url_text, epubmerge_plugin=None): 
-        SizePersistedDialog.__init__(self, gui, 'FanFictionDownLoader plugin:get story urls')
+        SizePersistedDialog.__init__(self, gui, 'fff:get story urls')
         self.status=False
         self.anthology=False
 
@@ -614,7 +614,7 @@ class LoopProgressDialog(QProgressDialog):
 
         book = self.book_list[self.i]
         try:
-            ## collision spec passed into getadapter by partial from ffdl_plugin
+            ## collision spec passed into getadapter by partial from fff_plugin
             ## no retval only if it exists, but collision is SKIP
             self.foreach_function(book)
             
@@ -716,7 +716,7 @@ class AuthorTableWidgetItem(ReadOnlyTableWidgetItem):
 
 class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
-                 save_size_name='fanfictiondownloader_plugin:update list dialog'):
+                 save_size_name='fff:update list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
 
         self.prefs = prefs
@@ -831,7 +831,7 @@ class UpdateExistingDialog(SizePersistedDialog):
     def get_books(self):
         return self.books_table.get_books()
 
-    def get_ffdl_options(self):
+    def get_fff_options(self):
         return {
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
@@ -921,7 +921,7 @@ class StoryListTableWidget(QTableWidget):
         message = '<p>'+_('Are you sure you want to remove this book from the list?')
         if len(rows) > 1:
             message = '<p>'+_('Are you sure you want to remove the selected %d books from the list?')%len(rows)
-        if not confirm(message,'fanfictiondownloader_delete_item', self):
+        if not confirm(message,'fff_delete_item', self):
             return
         first_sel_row = self.currentRow()
         for selrow in reversed(rows):
@@ -996,7 +996,7 @@ class RejectListTableWidget(QTableWidget):
         message = '<p>'+_('Are you sure you want to remove this URL from the list?')
         if len(rows) > 1:
             message = '<p>'+_('Are you sure you want to remove the %d selected URLs from the list?')%len(rows)
-        if not confirm(message,'ffdl_rejectlist_delete_item_again', self):
+        if not confirm(message,'fff_rejectlist_delete_item_again', self):
             return
         first_sel_row = self.currentRow()
         for selrow in reversed(rows):
@@ -1017,7 +1017,7 @@ class RejectListDialog(SizePersistedDialog):
                  icon='rotate-right.png',
                  show_delete=True,
                  show_all_reasons=True,
-                 save_size_name='ffdl:reject list dialog'):
+                 save_size_name='fff:reject list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
       
         self.setWindowTitle(header)
@@ -1121,7 +1121,7 @@ class EditTextDialog(SizePersistedDialog):
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
                  rejectreasons=[],reasonslabel=None,
-                 save_size_name='ffdl:edit text dialog',
+                 save_size_name='fff:edit text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
 
@@ -1182,7 +1182,7 @@ class IniTextDialog(SizePersistedDialog):
                  icon=None, title=None, label=None,
                  use_find=False,
                  read_only=False,
-                 save_size_name='ffdl:ini text dialog',
+                 save_size_name='fff:ini text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
         
@@ -1262,7 +1262,7 @@ class IniTextDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def accept(self):
-        from ffdl_util import test_config
+        from fff_util import test_config
 
         # print("in accept")
         errors = test_config(self.get_plain_text())
@@ -1377,7 +1377,7 @@ class ViewLog(SizePersistedDialog):
         return self.lineno
         
     def __init__(self, parent, title, errors, 
-                 save_size_name='ffdl:view log dialog',):
+                 save_size_name='fff:view log dialog',):
         SizePersistedDialog.__init__(self, parent,save_size_name)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
