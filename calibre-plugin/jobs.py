@@ -42,7 +42,7 @@ def do_download_worker(book_list, options,
         logger.info("%s"%book['url'])
         if book['good']:
             total += 1
-            args = ['calibre_plugins.fanfictiondownloader_plugin.jobs',
+            args = ['calibre_plugins.fanficfare_plugin.jobs',
                     'do_download_for_worker',
                     (book,options)]
             job = ParallelJob('arbitrary_n',
@@ -95,16 +95,16 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     Child job, to download story when run as a worker job
     '''
 
-    from calibre_plugins.fanfictiondownloader_plugin import FanFictionDownLoaderBase
-    ffdlbase = FanFictionDownLoaderBase(options['plugin_path'])
+    from calibre_plugins.fanficfare_plugin import FanFicFareBase
+    ffdlbase = FanFicFareBase(options['plugin_path'])
     with ffdlbase:
         
-        from calibre_plugins.fanfictiondownloader_plugin.dialogs import (NotGoingToDownload,
+        from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
                 OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY)
-        from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, writers, exceptions
-        from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_update_data
+        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+        from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
         
-        from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
+        from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config)
         
         try:
             book['comment'] = _('Download started...')

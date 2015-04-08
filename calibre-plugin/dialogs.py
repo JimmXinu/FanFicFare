@@ -60,14 +60,14 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
-from calibre_plugins.fanfictiondownloader_plugin.common_utils \
+from calibre_plugins.fanficfare_plugin.common_utils \
     import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
             ImageTitleLayout, get_icon)
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_html, get_urls_from_text
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.adapters import getNormalStoryURL
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_html, get_urls_from_text
+from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.configurable \
+from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
     import (get_valid_sections, get_valid_entries,
             get_valid_keywords, get_valid_entry_keywords)
 
@@ -243,7 +243,7 @@ class AddNewDialog(SizePersistedDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.setWindowTitle(_('FanFictionDownLoader'))
+        self.setWindowTitle('FanFicFare')
         self.setWindowIcon(icon)
 
         self.toplabel=QLabel("Toplabel")
@@ -588,7 +588,7 @@ class LoopProgressDialog(QProgressDialog):
         self.start_time = datetime.now()
 
         # can't import at file load.
-        from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
+        from calibre_plugins.fanficfare_plugin.prefs import prefs
         self.show_est_time = prefs['show_est_time']
 
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
@@ -686,7 +686,7 @@ class AboutDialog(QDialog):
         self.label = QLabel(text)
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
-        self.setWindowTitle(_('About FanFictionDownLoader'))
+        self.setWindowTitle(_('About FanFicFare'))
         self.setWindowIcon(icon)
         self.l.addWidget(self.logo, 0, 0)
         self.l.addWidget(self.label, 0, 1)
@@ -1026,7 +1026,7 @@ class RejectListDialog(SizePersistedDialog):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         title_layout = ImageTitleLayout(self, icon, header,
-                                        '<i></i>'+_('FFDL will remember these URLs and display the note and offer to reject them if you try to download them again later.'))
+                                        '<i></i>'+_('FFF will remember these URLs and display the note and offer to reject them if you try to download them again later.'))
         layout.addLayout(title_layout)
         rejects_layout = QHBoxLayout()
         layout.addLayout(rejects_layout)

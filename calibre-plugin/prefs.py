@@ -12,8 +12,8 @@ import copy
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
-from calibre_plugins.fanfictiondownloader_plugin.dialogs import OVERWRITE
-from calibre_plugins.fanfictiondownloader_plugin.common_utils import get_library_uuid
+from calibre_plugins.fanficfare_plugin.dialogs import OVERWRITE
+from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
 PREFS_NAMESPACE = 'FanFictionDownLoaderPlugin'
 PREFS_KEY_SETTINGS = 'settings'
 

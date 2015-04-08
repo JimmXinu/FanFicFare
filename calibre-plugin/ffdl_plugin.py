@@ -48,17 +48,17 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
-from calibre_plugins.fanfictiondownloader_plugin.common_utils import (set_plugin_icon_resources, get_icon,
-                                         create_menu_action_unique, get_library_uuid)
+from calibre_plugins.fanficfare_plugin.common_utils import (set_plugin_icon_resources, get_icon,
+                                                            create_menu_action_unique, get_library_uuid)
 
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader import adapters, exceptions
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
-from calibre_plugins.fanfictiondownloader_plugin.fanficdownloader.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
+from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
+from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
 
-from calibre_plugins.fanfictiondownloader_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
-from calibre_plugins.fanfictiondownloader_plugin.config import (permitted_values, rejecturllist)
-from calibre_plugins.fanfictiondownloader_plugin.prefs import prefs
-from calibre_plugins.fanfictiondownloader_plugin.dialogs import (
+from calibre_plugins.fanficfare_plugin.ffdl_util import (get_ffdl_adapter, get_ffdl_config, get_ffdl_personalini)
+from calibre_plugins.fanficfare_plugin.config import (permitted_values, rejecturllist)
+from calibre_plugins.fanficfare_plugin.prefs import prefs
+from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog, EmailPassDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
@@ -76,9 +76,9 @@ formmapping = {
 
 PLUGIN_ICONS = ['images/icon.png']
 
-class FanFictionDownLoaderPlugin(InterfaceAction):
+class FanFicFarePlugin(InterfaceAction):
 
-    name = 'FanFictionDownLoader'
+    name = 'FanFicFare'
 
     # Declare the main action associated with this plugin
     # The keyboard shortcut can be None if you dont want to use a keyboard
@@ -86,7 +86,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     # (text, icon_path, tooltip, keyboard shortcut)
     # icon_path isn't in the zip--icon loaded below.
-    action_spec = (_('FanFictionDownLoader'), None,
+    action_spec = (_('FanFicFare'), None,
                    _('Download FanFiction stories from various web sites'), ())
     # None for keyboard shortcut doesn't allow shortcut.  () does, there just isn't one yet
 
@@ -117,7 +117,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         # are not found in the zip file will result in null QIcons.
         icon = get_icon('images/icon.png')
 
-        self.qaction.setText(_('FanFictionDL'))
+        self.qaction.setText(_('FanFicFare'))
         
         # The qaction is automatically created from the action_spec defined
         # above
@@ -237,7 +237,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
     def rebuild_menus(self):
         with self.menus_lock:
-            #self.qaction.setText("FFDL")
+            #self.qaction.setText("FFF")
             do_user_config = self.interface_action_base_plugin.do_user_config
             self.menu.clear()
             
@@ -332,17 +332,18 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.menu.addSeparator()
                 self.config_action = self.create_menu_item_ex(self.menu, _('&Configure Plugin'),
                                                               image= 'config.png',
-                                                              unique_name='Configure FanFictionDownLoader',
-                                                              shortcut_name=_('Configure FanFictionDownLoader'),
+                                                              unique_name='Configure FanFicFare',
+                                                              shortcut_name=_('Configure FanFicFare'),
                                                               triggered=partial(do_user_config,parent=self.gui))
             
                 self.about_action = self.create_menu_item_ex(self.menu, _('About Plugin'),
                                                              image= 'images/icon.png',
-                                                             unique_name='About FanFictionDownLoader', 
-                                                             shortcut_name=_('About FanFictionDownLoader'), 
+                                                             unique_name='About FanFicFare', 
+                                                             shortcut_name=_('About FanFicFare'), 
                                                              triggered=self.about)
             
             self.gui.keyboard.finalize()
+            
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -399,7 +400,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
     def get_urls_from_imap_menu(self):
 
         if not prefs['imapserver'] or not prefs['imapuser'] or not prefs['imapfolder']:
-            s=_('FFDL Email Settings are not configured.')
+            s=_('FFF Email Settings are not configured.')
             info_dialog(self.gui, s, s, show=True, show_copy_button=False)
             return
 
@@ -569,7 +570,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 self.gui.iactions['Remove Books'].do_library_delete(d.get_reject_list_ids())
             
         else:
-            message="<p>"+_("Rejecting FFDL URLs: None of the books selected have FanFiction URLs.")+"</p><p>"+_("Proceed to Remove?")+"</p>"
+            message="<p>"+_("Rejecting FFF URLs: None of the books selected have FanFiction URLs.")+"</p><p>"+_("Proceed to Remove?")+"</p>"
             if confirm(message,'fanfictiondownloader_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
@@ -627,7 +628,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
 
         if not filenames or len(filenames) != len (url_list):
             info_dialog(self.gui, _("Cannot Update Anthology"),
-                        "<p>"+_("Cannot Update Anthology")+"</p><p>"+_("Book isn't an FFDL Anthology or contains book(s) without valid FFDL URLs."),
+                        "<p>"+_("Cannot Update Anthology")+"</p><p>"+_("Book isn't an FFF Anthology or contains book(s) without valid FFF URLs."),
                         show=True,
                         show_copy_button=False)
             remove_dir(tdir)
@@ -1100,7 +1101,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                         elif chaptercount > urlchaptercount:
                             raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
-                            raise NotGoingToDownload(_("FFDL doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
+                            raise NotGoingToDownload(_("FFF doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
         
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
@@ -1209,7 +1210,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             payload = ([], book_list, options)
             self.gui.proceed_question(self.update_error_column,
                                       payload, htmllog,
-                                      _('FFDL log'), _('FFDL download ended'), msg,
+                                      _('FFF log'), _('FFF download ended'), msg,
                                       show_copy_button=False)
             return
 
@@ -1227,7 +1228,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         
         func = 'arbitrary_n'
         cpus = self.gui.job_manager.server.pool_size
-        args = ['calibre_plugins.fanfictiondownloader_plugin.jobs', 'do_download_worker',
+        args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
                 (book_list, options, cpus)]
         desc = _('Download FanFiction Book')
         job = self.gui.job_manager.run_job(
@@ -1270,7 +1271,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 logger.error("Error Updating Metadata:\n%s"%det_msg)
                 error_dialog(self.gui,
                              _("Error Updating Metadata"),
-                             "<p>"+_("An error has occurred while FFDL was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
+                             "<p>"+_("An error has occurred while FFF was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
                              _("The ebook has been updated, but the metadata has not."),
                              det_msg=det_msg,
                              show=True)
@@ -1380,7 +1381,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                             show_copy_button=False)
                 return
 
-            msg = '<p>'+_('FFDL found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list))+'</p>'
+            msg = '<p>'+_('FFF found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list))+'</p>'
             if len(bad_list) > 0:
                 msg = msg + '''
                             <p>%s</p>
@@ -1419,7 +1420,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                   <p>%s</p>
                   <p>%s</p>
                   <p>%s</p>'''%(
-                _('FFDL found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list)),
+                _('FFF found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list)),
                 _('See log for details.'),
                 _('Proceed with updating your library?')
                 )
@@ -1445,7 +1446,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             
         self.gui.proceed_question(do_update_func,
                                   payload, htmllog,
-                                  _('FFDL log'), _('FFDL download complete'), msg,
+                                  _('FFF log'), _('FFF download complete'), msg,
                                   show_copy_button=False)
         
     def do_download_merge_update(self, payload):
@@ -1498,7 +1499,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
         good_list = sorted(good_list,key=lambda x : x['listorder'])
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
 
-        self.gui.status_bar.show_message(_('FFDL Adding/Updating books.'))
+        self.gui.status_bar.show_message(_('FFF Adding/Updating books.'))
 
         if good_list or prefs['mark'] or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in self.gui.library_view.model().custom_columns):
             LoopProgressDialog(self.gui,
@@ -1839,7 +1840,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
             rl_plugin = self.gui.iactions['Reading List']
         except:
             if prefs['addtolists'] or prefs['addtoreadlists']:
-                message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
+                message="<p>"+_("You configured FanFicFare to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
                 confirm(message,'fanfictiondownloader_no_reading_list_plugin', self.gui)
             return
         
@@ -1851,7 +1852,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                 
             lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
-                message="<p>"+_("You configured FanFictionDownLoader to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
+                message="<p>"+_("You configured FanFicFare to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
                 confirm(message,'fanfictiondownloader_no_read_lists', self.gui)
             for l in lists:
                 if l in rl_plugin.get_list_names():
@@ -1861,13 +1862,13 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                   display_warnings=False)
                 else:
                     if l != '':
-                        message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
+                        message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
                         
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
             lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
-                message="<p>"+_("You configured FanFictionDownLoader to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
+                message="<p>"+_("You configured FanFicFare to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
                 confirm(message,'fanfictiondownloader_no_send_lists', self.gui)
 
             for l in lists:
@@ -1879,7 +1880,7 @@ class FanFictionDownLoaderPlugin(InterfaceAction):
                                                 display_warnings=False)
                 else:
                     if l != '':
-                        message="<p>"+_("You configured FanFictionDownLoader to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
+                        message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
                         confirm(message,'fanfictiondownloader_no_reading_list_%s'%l, self.gui)
 
     def make_mi_from_book(self,book):
