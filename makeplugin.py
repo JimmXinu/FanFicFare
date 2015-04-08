@@ -1,9 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# epubmerge.py 1.0
-
-# Copyright 2011, Jim Miller
+# Copyright 2015, Jim Miller
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +21,7 @@ from glob import glob
 from makezip import createZipFile
 
 if __name__=="__main__":
-    filename="FanFicFare.zip" #"FanFictionDownLoader.zip"
+    filename="FanFicFare.zip"
     exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db']
     
     os.chdir('calibre-plugin')
@@ -39,17 +37,10 @@ if __name__=="__main__":
     os.chdir('../included_dependencies')
     # 'a' for append
     files=['six.py','bs4','html5lib','chardet']
-    #files.extend(glob('*.py'))
     createZipFile("../"+filename,"a",
                   files,
                   exclude=exclude)
 
-    # os.chdir('../cli')
-    # # 'a' for append
-    # createZipFile("../"+filename,"a",
-    #               ['downloader.py','defaults.ini'],
-    #               exclude=exclude)
-    
     os.chdir('..')
     # 'a' for append
     files=['fanficfare']
