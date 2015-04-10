@@ -107,7 +107,7 @@ class FanFicFareBase(InterfaceActionBase):
             # CLI--it would load everytime anyway.
             from StringIO import StringIO
             from calibre.library import db
-            from calibre_plugins.fanficfare_plugin.cli import main as fff_main
+            from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser      
@@ -127,5 +127,5 @@ class FanFicFareBase(InterfaceActionBase):
 
             fff_main(argv[1:],
                       parser=parser,
-                      passed_defaultsini=StringIO(get_resources("defaults.ini")),
+                      passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
                       passed_personalini=StringIO(fff_prefs["personal.ini"]))
