@@ -370,7 +370,7 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.setVisible(not(self.merge and self.newmerge))
         
         if self.merge:
-            self.toplabel.setText(_('Story URL(s) for anthology, one per line:'))
+            self.toplabel.setText(_('Story URLs for anthology, one per line:'))
             self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
             self.collisionlabel.setText(_('If Story Already Exists in Anthology?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL in the anthology."))
@@ -382,7 +382,7 @@ class AddNewDialog(SizePersistedDialog):
         else:
             for widget in self.mergehide:
                 widget.setVisible(True)
-            self.toplabel.setText(_('Story URL(s), one per line:'))
+            self.toplabel.setText(_('Story URLs, one per line:'))
             self.url.setToolTip(_('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.'))
             self.collisionlabel.setText(_('If Story Already Exists?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL or title and author."))
@@ -467,38 +467,45 @@ class CollectURLDialog(SizePersistedDialog):
     '''
     Collect single url for get urls.
     '''
-    def __init__(self, gui, title, url_text, epubmerge_plugin=None): 
+    def __init__(self, gui, title, url_text, anthology=False, indiv=True): 
         SizePersistedDialog.__init__(self, gui, 'fff:get story urls')
         self.status=False
         self.anthology=False
 
         self.setMinimumWidth(300)
         
-        self.l = QGridLayout()
+        self.l = QVBoxLayout()
         self.setLayout(self.l)
 
         self.setWindowTitle(title)
-        self.l.addWidget(QLabel(title),0,0,1,3)
-        
-        self.l.addWidget(QLabel("URL:"),1,0)
+        self.l.addWidget(QLabel(title))
+
+        horz = QHBoxLayout()
+        self.l.addLayout(horz)
+
+        horz.addWidget(QLabel("URL:"))
         self.url = QLineEdit(self)
         self.url.setText(url_text)
-        self.l.addWidget(self.url,1,1,1,2)
-   
-        self.indiv_button = QPushButton(_('For Individual Books'), self)
-        self.indiv_button.setToolTip(_('Get URLs and go to dialog for individual story downloads.'))
-        self.indiv_button.clicked.connect(self.indiv)
-        self.l.addWidget(self.indiv_button,2,0)
+        horz.addWidget(self.url)
 
-        self.merge_button = QPushButton(_('For Anthology Epub'), self)
-        self.merge_button.setToolTip(_('Get URLs and go to dialog for Anthology download.\nRequires %s plugin.')%'EpubMerge 1.3.1+')
-        self.merge_button.clicked.connect(self.merge)
-        self.l.addWidget(self.merge_button,2,1)
-        self.merge_button.setEnabled(epubmerge_plugin!=None)
+        horz = QHBoxLayout()
+        self.l.addLayout(horz)
+
+        if indiv:
+            self.indiv_button = QPushButton(_('For Individual Books'), self)
+            self.indiv_button.setToolTip(_('Get URLs and go to dialog for individual story downloads.'))
+            self.indiv_button.clicked.connect(self.indiv)
+            horz.addWidget(self.indiv_button)
+
+        if anthology:
+            self.merge_button = QPushButton(_('For Anthology Epub'), self)
+            self.merge_button.setToolTip(_('Get URLs and go to dialog for Anthology download.\nRequires %s plugin.')%'EpubMerge 1.3.1+')
+            self.merge_button.clicked.connect(self.merge)
+            horz.addWidget(self.merge_button)
 
         self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
-        self.l.addWidget(self.cancel_button,2,2)
+        horz.addWidget(self.cancel_button)
 
         # restore saved size.
         self.resize_dialog()
@@ -677,7 +684,7 @@ class AboutDialog(QDialog):
 
     def __init__(self, parent, icon, text):
         QDialog.__init__(self, parent)
-        self.resize(400, 250)
+        #self.resize(400, 250)
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.logo = QLabel()
@@ -1040,7 +1047,7 @@ class RejectListDialog(SizePersistedDialog):
         button_layout.addItem(spacerItem)
         
         self.remove_button = QtGui.QToolButton(self)
-        self.remove_button.setToolTip(_('Remove selected URL(s) from the list'))
+        self.remove_button.setToolTip(_('Remove selected URLs from the list'))
         self.remove_button.setIcon(get_icon('list_remove.png'))
         self.remove_button.clicked.connect(self.remove_from_list)
         button_layout.addWidget(self.remove_button)
