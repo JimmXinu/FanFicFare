@@ -269,12 +269,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if get_cover:
             # Try the larger image first.
             try:
-                img = soup.find('img',{'class':'lazy cimage'})
-                self.setCoverImage(url,img['data-original'])
+                img = soup.select('img.lazy.cimage')
+                self.setCoverImage(url,img[0]['data-original'])
             except:
-                img = soup.find('img',{'class':'cimage'})
+                img = soup.select('img.cimage')
                 if img:
-                    self.setCoverImage(url,img['src'])
+                    self.setCoverImage(url,img[0]['src'])
             
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
