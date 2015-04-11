@@ -218,20 +218,20 @@ class DramioneOrgAdapter(BaseSiteAdapter):
             except:
                 return ""
 
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
+        listbox = soup.find('div',{'class':'listbox'})
+        # <strong>Rated:</strong> M<br /> etc
+        labels = listbox.findAll('strong')
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
 
             if 'Summary' in label:
-                ## Everything until the next span class='label'
+                ## Everything until the next strong tag.
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while not isinstance(value,bs.Tag) or value.name != 'strong':
                     svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)

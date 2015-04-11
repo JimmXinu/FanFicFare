@@ -173,7 +173,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('category',cat.text)
         
-        self.story.setMetadata('numWords', lc2.findNext('td', {'class' : 'num'}).text)
+        self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
         
         lc4 = lc2.findNext('td', {'class' : 'lc4'})
         

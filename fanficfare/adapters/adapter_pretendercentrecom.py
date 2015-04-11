@@ -246,7 +246,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
         soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        div = soup.findAll('div', {'id' : 'story'})[1]
+        div = soup.find('div', {'id' : 'story1'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

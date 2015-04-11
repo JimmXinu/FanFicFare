@@ -261,6 +261,10 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         
         soup = bs.BeautifulSoup(data)
 
+        # remove ad blocks so they don't become covers.
+        for ns in soup.findAll('noscript'):
+            ns.extract()
+
         #print("soup:%s"%soup)
         tag = soup.find('td', {'class' : 'story'})
         if tag == None and "<center><b>Chapter does not exist!</b></center>" in data:

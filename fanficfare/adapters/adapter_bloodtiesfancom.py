@@ -82,7 +82,7 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%b %d, %Y" # XXX
+        self.dateformat = "%d %b %Y" # XXX
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -233,25 +233,27 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
             except:
                 return ""
 
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
+        listbox = soup.find('div',{'class':'listbox'})
+        # <strong>Rating:</strong> M<br /> etc
+        labels = listbox.findAll('strong')
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
 
             if 'Summary' in label:
-                ## Everything until the next span class='label'
+                ## Everything until the next strong tag.
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while not isinstance(value,bs.Tag) or value.name != 'strong':
                     svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
 
-            if 'Rated' in label:
+            if 'Rating' in label:
                 self.story.setMetadata('rating', value)
 
-            if 'Word count' in label:
+            if 'Words' in label:
+                value=re.sub(r"\|",r"",value)
                 self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
@@ -266,26 +268,6 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
                 for char in charstext:
                     self.story.addToList('characters',char.string)
 
-            ## Not all sites use Genre, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
-            if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
-                genrestext = [genre.string for genre in genres]
-                self.genre = ', '.join(genrestext)
-                for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
-
-            ## Not all sites use Warnings, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
-            if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
-                warningstext = [warning.string for warning in warnings]
-                self.warning = ', '.join(warningstext)
-                for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
-
             if 'Completed' in label:
                 if 'Yes' in value:
                     self.story.setMetadata('status', 'Completed')
@@ -293,13 +275,25 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
+                value=re.sub(r"\|",r"",value)
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
             
             if 'Updated' in label:
-                # there's a stray [ at the end.
-                #value = value[0:-1]
+                value=re.sub(r"\|",r"",value)
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
+        # moved outside because they changed *most*, but not *all* labels to <strong>
+        ships = listbox.findAll('a',href=re.compile(r'browse.php.type=class&(amp;)?type_id=2')) # crappy html: & vs &amp; in url.
+        shipstext = [ship.string for ship in ships]
+        for ship in shipstext:
+            self.story.addToList('ships',ship.string)
+
+        genres = listbox.findAll('a',href=re.compile(r'browse.php\?type=class&(amp;)?type_id=1')) # crappy html: & vs &amp; in url.
+        genrestext = [genre.string for genre in genres]
+        for genre in genrestext:
+            self.story.addToList('genre',genre.string)
+
+                
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
