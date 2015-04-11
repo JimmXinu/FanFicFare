@@ -363,7 +363,7 @@ class BasicTab(QWidget):
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
 
-        tooltip = _("On each download, FFF offers an option to select the output format. <br />This sets what that option will default to.")
+        tooltip = _("On each download, FanFicFare offers an option to select the output format. <br />This sets what that option will default to.")
         horz = QHBoxLayout()
         label = QLabel(_('Default Output &Format:'))
         label.setToolTip(tooltip)
@@ -380,7 +380,7 @@ class BasicTab(QWidget):
         horz.addWidget(self.fileform)
         self.l.addLayout(horz)
 
-        tooltip = _("On each download, FFF offers an option of what happens if that story already exists. <br />This sets what that option will default to.")
+        tooltip = _("On each download, FanFicFare offers an option of what happens if that story already exists. <br />This sets what that option will default to.")
         horz = QHBoxLayout()
         label = QLabel(_('Default If Story Already Exists?'))
         label.setToolTip(tooltip)
@@ -397,12 +397,12 @@ class BasicTab(QWidget):
         self.l.addLayout(horz)
 
         self.updatemeta = QCheckBox(_('Default Update Calibre &Metadata?'),self)
-        self.updatemeta.setToolTip(_("On each download, FFF offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books."))
+        self.updatemeta.setToolTip(_("On each download, FanFicFare offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books."))
         self.updatemeta.setChecked(prefs['updatemeta'])
         self.l.addWidget(self.updatemeta)
 
         self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
-        self.updateepubcover.setToolTip(_("On each download, FFF offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
+        self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         self.l.addWidget(self.updateepubcover)
 
@@ -506,7 +506,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.includeimages)
 
         self.injectseries = QCheckBox(_("Inject calibre Series when none found?"),self)
-        self.injectseries.setToolTip(_("If no series is found, inject the calibre series (if there is one) so it appears on the FFF title page(not cover)."))
+        self.injectseries.setToolTip(_("If no series is found, inject the calibre series (if there is one) so \nit appears on the FanFicFare title page(not cover)."))
         self.injectseries.setChecked(prefs['injectseries'])
         self.l.addWidget(self.injectseries)
 
@@ -515,7 +515,7 @@ class BasicTab(QWidget):
         groupbox.setLayout(self.l)
 
         self.rejectlist = QPushButton(_('Edit Reject URL List'), self)
-        self.rejectlist.setToolTip(_("Edit list of URLs FFF will automatically Reject."))
+        self.rejectlist.setToolTip(_("Edit list of URLs FanFicFare will automatically Reject."))
         self.rejectlist.clicked.connect(self.show_rejectlist)
         self.l.addWidget(self.rejectlist)
         
@@ -615,7 +615,7 @@ class PersonalIniTab(QWidget):
         self.l.addWidget(label)
 #        self.l.addSpacing(5)
 
-        label = QLabel(_("<b>New:</b>")+" "+_("FFF now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
+        label = QLabel(_("FanFicFare now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         
@@ -644,7 +644,7 @@ class PersonalIniTab(QWidget):
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
 
-        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FFF."))
+        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FanFicFare."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         
@@ -749,7 +749,7 @@ class GenerateCoverTab(QWidget):
         except KeyError:
             gc_settings= []
             
-        label = QLabel(_('The %(gc)s plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FFF can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default.')%no_trans)
+        label = QLabel(_('The %(gc)s plugin can create cover images for books using various metadata and configurations.  If you have GC installed, FanFicFare can run GC on new downloads and metadata updates.  Pick a GC setting by site or Default.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -844,12 +844,12 @@ class CountPagesTab(QWidget):
         horz = QHBoxLayout()
         
         self.wordcount = QCheckBox('Word Count',self)
-        self.wordcount.setToolTip(tooltip+"\n"+_('Will overwrite word count from FFF metadata if set to update the same custom column.'))
+        self.wordcount.setToolTip(tooltip+"\n"+_('Will overwrite word count from FanFicFare metadata if set to update the same custom column.'))
         self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
         horz.addWidget(self.wordcount)
 
-        self.wordcountmissing = QCheckBox('Only if Word Count is Missing in FFF Metadata',self)
-        self.wordcountmissing.setToolTip(_("Only run Count Page's Word Count if checked <i>and</i> FFF metadata doesn't already have a word count.  If this is used with one of the other Page Counts, the Page Count plugin will be called twice."))
+        self.wordcountmissing = QCheckBox('Only if Word Count is Missing in FanFicFare Metadata',self)
+        self.wordcountmissing.setToolTip(_("Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata doesn't already have a word count.  If this is used with one of the other Page Counts, the Page Count plugin will be called twice."))
         self.wordcountmissing.setChecked(prefs['wordcountmissing'])
         self.wordcountmissing.setEnabled(self.wordcount.isChecked())
         horz.addWidget(self.wordcountmissing)
@@ -989,7 +989,7 @@ titleLabels = {
     'formatname':_('File Format'),
     'formatext':_('File Extension'),
     'siteabbrev':_('Site Abbrev'),
-    'version':_('FFF Version')
+    'version':_('FanFicFare Version')
     }
 
 class CustomColumnsTab(QWidget):
@@ -1107,7 +1107,7 @@ class StandardColumnsTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        label = QLabel(_("The standard calibre metadata columns are listed below.  You may choose whether FFF will fill each column automatically on updates or only for new books."))
+        label = QLabel(_("The standard calibre metadata columns are listed below.  You may choose whether FanFicFare will fill each column automatically on updates or only for new books."))
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
@@ -1142,7 +1142,7 @@ class ImapTab(QWidget):
         self.setLayout(self.l)
         row=0
             
-        label = QLabel(_('These settings will allow FFF to fetch story URLs from your email account.  It will only look for story URLs in unread emails in the folder specified below.'))
+        label = QLabel(_('These settings will allow FanFicFare to fetch story URLs from your email account.  It will only look for story URLs in unread emails in the folder specified below.'))
         label.setWordWrap(True)
         self.l.addWidget(label,row,0,1,-1)
         row+=1
@@ -1168,7 +1168,7 @@ class ImapTab(QWidget):
         row+=1
         
         label = QLabel(_('IMAP User Password'))
-        tooltip = _("IMAP password.  If left empty, FFF will ask you for your password when you use the feature.")
+        tooltip = _("IMAP password.  If left empty, FanFicFare will ask you for your password when you use the feature.")
         label.setToolTip(tooltip)
         self.l.addWidget(label,row,0)        
         self.imappass = QLineEdit(self)
@@ -1179,7 +1179,7 @@ class ImapTab(QWidget):
         row+=1
 
         self.imapsessionpass = QCheckBox(_('Remember Password for Session (when not saved above)'),self)
-        self.imapsessionpass.setToolTip(_('If checked, and no password is entered above, FFF will remember your password until you close calibre or change Libraries.'))
+        self.imapsessionpass.setToolTip(_('If checked, and no password is entered above, FanFicFare will remember your password until you close calibre or change Libraries.'))
         self.imapsessionpass.setChecked(prefs['imapsessionpass'])
         self.l.addWidget(self.imapsessionpass,row,0,1,-1)
         row+=1
@@ -1201,7 +1201,7 @@ class ImapTab(QWidget):
         row+=1
             
         label = QLabel(_("<b>It's safest if you create a separate email account that you use only "
-                         "for your story update notices.  FFF and calibre cannot guarantee that "
+                         "for your story update notices.  FanFicFare and calibre cannot guarantee that "
                          "malicious code cannot get your email password once you've entered it. "
                          "<br>Use this feature at your own risk. </b>"))
         label.setWordWrap(True)
