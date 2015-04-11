@@ -359,7 +359,7 @@ div { margin: 0pt; padding: 0pt; }
                                             attrs={"opf:role":"aut"},
                                             text=self.getMetadata('author')))
 
-        metadata.appendChild(newTag(contentdom,"dc:contributor",text="fanficfare [https://github.com/JimmXinu/fanficdownloader]",attrs={"opf:role":"bkp"}))
+        metadata.appendChild(newTag(contentdom,"dc:contributor",text="FanFicFare [https://github.com/JimmXinu/FanFicFare]",attrs={"opf:role":"bkp"}))
         metadata.appendChild(newTag(contentdom,"dc:rights",text=""))
         if self.story.getMetadata('langcode'):
             metadata.appendChild(newTag(contentdom,"dc:language",text=self.story.getMetadata('langcode')))

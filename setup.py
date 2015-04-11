@@ -31,7 +31,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/JimmXinu/fanficdownloader',
+    url='https://github.com/JimmXinu/FanFicFare',
 
     # Author details
     author='Jim Miller',
