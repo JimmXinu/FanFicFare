@@ -116,7 +116,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
 
     if options.siteslist:
         for site, examples in adapters.getSiteExamples():
-            print '\n====%s====\n\nExample URLs:' % site
+            print '\n#### %s\nExample URLs:' % site
             for u in examples:
                 print '  * %s' % u
         return

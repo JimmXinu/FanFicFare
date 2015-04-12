@@ -42,7 +42,6 @@ import adapter_adastrafanficcom
 import adapter_twcslibrarynet
 import adapter_tthfanficorg
 import adapter_twilightednet
-import adapter_twiwritenet
 import adapter_whoficcom
 import adapter_siyecouk
 import adapter_archiveofourownorg
@@ -58,7 +57,6 @@ import adapter_archiveskyehawkecom
 import adapter_squidgeorgpeja
 import adapter_libraryofmoriacom
 import adapter_wraithbaitcom
-import adapter_checkmatedcom
 import adapter_chaossycophanthexcom
 import adapter_dramioneorg
 import adapter_erosnsapphosycophanthexcom
@@ -75,7 +73,6 @@ import adapter_storiesofardacom
 import adapter_samdeanarchivenu
 import adapter_destinysgatewaycom
 import adapter_ncisfictionnet
-import adapter_stargateatlantisorg
 import adapter_thealphagatecom
 import adapter_fanfiktionde
 import adapter_ponyfictionarchivenet
@@ -88,7 +85,6 @@ import adapter_darksolaceorg
 import adapter_finestoriescom
 import adapter_hpfanficarchivecom
 import adapter_twilightarchivescom
-import adapter_wizardtalesnet
 import adapter_nhamagicalworldsus
 import adapter_hlfictionnet
 import adapter_grangerenchantedcom
@@ -105,19 +101,15 @@ import adapter_qafficcom
 import adapter_efpfanficnet
 import adapter_potterficscom
 import adapter_efictionestelielde
-import adapter_dotmoonnet
 import adapter_pommedesangcom
 import adapter_restrictedsectionorg
 import adapter_imagineeficcom
 import adapter_buffynfaithnet
 import adapter_psychficcom
-import adapter_hennethannunnet
 import adapter_tokrafandomnetcom
-import adapter_netraptororg
 import adapter_asr3slashzoneorg
 import adapter_nickandgregnet
 import adapter_potterheadsanonymouscom
-import adapter_simplyundeniablecom
 import adapter_scarheadnet
 import adapter_fictionpadcom
 import adapter_storiesonlinenet
