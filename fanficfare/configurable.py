@@ -107,6 +107,7 @@ def get_valid_set_options():
                
                'check_next_chapter':(['fanfiction.net'],None,boollist),
                'tweak_fg_sleep':(['fanfiction.net'],None,boollist),
+               'skip_author_cover':(['fanfiction.net'],None,boollist),
                
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
@@ -122,7 +123,10 @@ def get_valid_set_options():
                              'fhsarchive.com',
                              'lotrfanfiction.com',
                              'themaplebookshelf.com',
-                             'devianthearts.com'],None,boollist),
+                             'devianthearts.com',
+                             'thehookupzone.net',
+                             'libraryofmoria.com',
+                             ],None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
                
@@ -180,6 +184,7 @@ def get_valid_keywords():
                  'chapter_title_add_pattern',
                  'chapter_title_strip_pattern',
                  'check_next_chapter',
+                 'skip_author_cover',
                  'collect_series',
                  'connect_timeout',
                  'convert_images_to',

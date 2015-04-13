@@ -268,14 +268,49 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         if get_cover:
             # Try the larger image first.
+            cover_url = ""
             try:
                 img = soup.select('img.lazy.cimage')
-                self.setCoverImage(url,img[0]['data-original'])
+                cover_url=img[0]['data-original']
             except:
                 img = soup.select('img.cimage')
                 if img:
-                    self.setCoverImage(url,img[0]['src'])
+                    cover_url=img[0]['src']
+            logger.debug("cover_url:%s"%cover_url)
+
+            authimg_url = ""
+            if cover_url and self.getConfig('skip_author_cover'):
+                authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+                try:
+                    img = authsoup.select('img.lazy.cimage')
+                    authimg_url=img[0]['data-original']
+                except:
+                    img = authsoup.select('img.cimage')
+                    if img:
+                        authimg_url=img[0]['src']
+
+                logger.debug("authimg_url:%s"%authimg_url)
             
+                ## ffnet uses different sizes on auth & story pages, but same id.
+                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
+                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
+                try:
+                    cover_id = cover_url.split('/')[4]
+                except:
+                    cover_id = None
+                try:
+                    authimg_id = authimg_url.split('/')[4]
+                except:
+                    authimg_id = None
+
+                ## don't use cover if it matches the auth image.
+                if cover_id and authimg_id and cover_id == authimg_id:
+                    cover_url = None
+                    
+            if cover_url:
+                self.setCoverImage(url,cover_url)
+
+                    
         # Find the chapter selector 
         select = soup.find('select', { 'name' : 'chapter' } )
     	 
