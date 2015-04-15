@@ -17,6 +17,7 @@
 
 from optparse import OptionParser
 from os.path import expanduser, isfile, join, dirname
+from os import access, R_OK
 from subprocess import call
 import ConfigParser
 import getpass
@@ -92,6 +93,10 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     parser.add_option('--force',
                       action='store_true', dest='force',
                       help='Force overwrite of an existing epub, download and overwrite all chapters.', )
+    parser.add_option('-i', '--infile',
+                      help='Give a filename to read for URLs (and/or existing EPUB files with -u for updates).',
+                      dest='infile', default=None,
+                      metavar='INFILE')
     parser.add_option('-l', '--list',
                       action='store_true', dest='list',
                       help='Get list of valid story URLs from page given.', )
@@ -111,7 +116,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
         logger = logging.getLogger('fanficfare')
         logger.setLevel(logging.INFO)
 
-    if not options.siteslist and len(args) != 1:
+    if not (options.siteslist or options.infile) and len(args) != 1:
         parser.error('incorrect number of arguments')
 
     if options.siteslist:
@@ -124,24 +129,54 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if options.update and options.format != 'epub':
         parser.error('-u/--update-epub only works with epub')
 
+    # for passing in a file list
+    if options.infile:
+        urls=[]
+        with open(options.infile,"r") as infile:
+            print "File exists and is readable"
+          
+            #fileurls = [line.strip() for line in infile]
+            for url in infile:
+                url = url[:url.find('#')].strip()
+                if len(url) > 0:
+                    print "URL: (%s)"%url
+                    urls.append(url)
+    else:
+        urls = args
+
+    for url in urls:
+        try:
+            do_download(url,
+                        options,
+                        passed_defaultsini,
+                        passed_personalini)
+        except Exception, e:
+            print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+
+# make rest a function and loop on it.
+def do_download(arg,
+                options,
+                passed_defaultsini,
+                passed_personalini):
+                
     # Attempt to update an existing epub.
     chaptercount = None
     output_filename = None
     if options.update:
         try:
-            url, chaptercount = get_dcsource_chaptercount(args[0])
+            url, chaptercount = get_dcsource_chaptercount(arg)
             if not url:
                 print 'No story URL found in epub to update.'
                 return
-            print 'Updating %s, URL: %s' % (args[0], url)
-            output_filename = args[0]
+            print 'Updating %s, URL: %s' % (arg, url)
+            output_filename = arg
         except Exception:
             # if there's an error reading the update file, maybe it's a URL?
             # we'll look for an existing outputfile down below.
-            url = args[0]
+            url = arg
     else:
-        url = args[0]
-
+        url = arg
+        
     try:
         configuration = Configuration(adapters.getConfigSectionFor(url), options.format)
     except exceptions.UnknownSite, e:
@@ -210,7 +245,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
             configuration.set('overrides', var, val)
 
     if options.list or options.normalize:
-        retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
+        retlist = get_urls_from_page(arg, configuration, normalize=options.normalize)
         print '\n'.join(retlist)
         return
 
