@@ -2,7 +2,7 @@
 <html>
   <head>
     <link href="/css/index.css" rel="stylesheet" type="text/css">
-    <title>FanFicFare - read Fanfiction from twilighted.net, fanfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza</title>
+    <title>FanFicFare - read Fanfiction from fanfiction.net, archiveofourown.org, fimfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org and many others on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza, etc</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <!-- Place this tag in your head or just before your close body tag -->
@@ -27,28 +27,40 @@
 	      much easier. </p>
 	  </div>
 
-	  <h3>Changes:</h3>
+	  <h3>New Name and URL</h3>
           <p>
             This version changes the name of the project from
-            FanFictionDownLoader(FFDL) to FanFicFare(FFF).  Along with
+            FanFictionDownLoader(FFDL) to FanFicFare.  Along with
             the name change, there are changes to the internal
             structuring of the project code, but not to the functionality.
           </p>
           <p>
             If you had saved configuration (including your
             username/password for fic sites) in FFDL, you will need to
-            copy it over to FFF.  Visit
+            copy it over to FanFicFare.  Visit
             the <a href="http://fanfictiondownloader.appspot.com/editconfig">FFDL
             User Config</a> page, copy your settings and then paste
             them on
-            the <a href="http://fanficfare.appspot.com/editconfig">FFF
+            the <a href="http://fanficfare.appspot.com/editconfig">FanFicFare
             User Config</a> page.
           </p>
-	    <!-- ul>
-              <li>Add devianthearts.com as a Base eFiction site.</li>
-              <li>Allow https URLs for fictionmania.tv.</li>
-              <li>Allow storiesofarda.com/chapterAllview.asp?SID=999 urls.</li>
-	    </ul -->
+	  <h3>Changes:</h3>
+	  <ul>
+            <li>Change the name to FanFicFare.</li>
+            <li>Change the FanFicFare icon to green so it's visibly distinct from FFDL.</li>
+            <li>Fixes for literotica changes.</li>
+            <li>Fix error in debug output that uses wrong variable.</li>
+            <li>Change date format for onedirectionfanfiction.com.</li>
+            <li>Explicit html parse for BS4 when reading in existing epub.  For cal1.48.</li>
+            <li>Fix for PI - eFiction Base adapter Anthology Series string.</li>
+            <li>Update translations.</li>
+            <li>Change some menu & gui details to be clearer.</li>
+            <li>Fix for ffnet's latest change to story/cover image.</li>
+            <li>Fix problems found during trawl through all sites -- thehookupzone.net and libraryofmoria.com now use eFiction Base.</li>
+            <li>Remove defunct sites - netraptor.org www.simplyundeniable.com www.wizardtales.net www.checkmated.com stargate-atlantis.org www.henneth-annun.net www.twiwrite.net www.dotmoon.net</li>
+            <li>Add option to check ffnet auth img vs cover img and not use author images as book covers.  Defaults to on, add [B]skip_author_cover:false[/B] to [B][fanfiction.net][/B] section if you like author image covers.</li>
+            <li>Add site tgstorytime.com as an eFiction Base Adapter.</li>
+	  </ul>
 	  <p>
 	    Questions?  Check out our 
 	    <a href="https://github.com/JimmXinu/FanFicFare/wiki/FAQs">FAQs</a>.
