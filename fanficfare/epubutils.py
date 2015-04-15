@@ -94,7 +94,7 @@ def get_update_data(inputio,
     if getfilecount:
         # spin through the manifest--only place there are item tags.
         for item in contentdom.getElementsByTagName("item"):
-            # First, count the 'chapter' files.  FFDL uses file0000.xhtml,
+            # First, count the 'chapter' files.  FFF uses file0000.xhtml,
             # but can also update epubs downloaded from Twisting the
             # Hellmouth, which uses chapter0.html.
             if( item.getAttribute("media-type") == "application/xhtml+xml" ):
@@ -175,7 +175,7 @@ def get_story_url_from_html(inputio,_is_good_url=None):
             
     # spin through the manifest--only place there are item tags.
     for item in contentdom.getElementsByTagName("item"):
-        # First, count the 'chapter' files.  FFDL uses file0000.xhtml,
+        # First, count the 'chapter' files.  FFF uses file0000.xhtml,
         # but can also update epubs downloaded from Twisting the
         # Hellmouth, which uses chapter0.html.
         #print("---- item:%s"%item)

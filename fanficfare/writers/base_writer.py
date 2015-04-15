@@ -73,7 +73,7 @@ class BaseStoryWriter(Configurable):
             'formatname':'File Format',
             'formatext':'File Extension',
             'siteabbrev':'Site Abbrev',
-            'version':'FFDL Version'
+            'version':'Downloader Version'
             }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
