@@ -32,21 +32,6 @@ class DeviantHeartsAdapter(BaseEfictionAdapter):
     @classmethod
     def getDateFormat(self):
         return "%m/%d/%y" 
-   
-    # def handleMetadataPair(self, key, value):
-    #     if key == 'Warnings':
-    #         for val in re.split("\s*,\s*", value):
-    #             if value == 'None':
-    #                 return
-    #             else:
-    #                 # toss numbers only.
-    #                 self.story.addToList('warnings', filter(lambda x : not x.isdigit() , val))
-     
-    # #     elif 'Categories' in key:
-    # #         for val in re.split("\s*>\s*", value):
-    # #             self.story.addToList('category', val)
-    #     else:
-    #         super(FHSArchiveComAdapter, self).handleMetadataPair(key, value) 
                            
 def getClass():
     return DeviantHeartsAdapter
