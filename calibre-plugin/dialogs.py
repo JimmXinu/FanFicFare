@@ -398,6 +398,9 @@ class AddNewDialog(SizePersistedDialog):
 
         if not self.merge:
             self.fileform.setCurrentIndex(self.fileform.findText(self.prefs['fileform']))
+        else:
+            # always epub on self.merge (anthology)
+            self.fileform.setCurrentIndex(self.fileform.findText('epub'))
 
         # add collision options
         self.set_collisions()
