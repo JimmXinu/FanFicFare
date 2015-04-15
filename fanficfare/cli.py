@@ -133,13 +133,13 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if options.infile:
         urls=[]
         with open(options.infile,"r") as infile:
-            print "File exists and is readable"
+            #print "File exists and is readable"
           
             #fileurls = [line.strip() for line in infile]
             for url in infile:
                 url = url[:url.find('#')].strip()
                 if len(url) > 0:
-                    print "URL: (%s)"%url
+                    #print "URL: (%s)"%url
                     urls.append(url)
     else:
         urls = args
