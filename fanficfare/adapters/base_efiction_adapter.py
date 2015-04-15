@@ -325,6 +325,8 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         ## Handle warnings and login checks
         errorDiv = soup.find("div", "errortext")
+        if errorDiv is None:
+            errorDiv = soup.find("div", "errormsg") # sometimes different class.
         while errorDiv is not None:
             if self.getMessageRegisteredUsersOnly() in errorDiv.prettify():
                 if not self.triedLoggingIn:

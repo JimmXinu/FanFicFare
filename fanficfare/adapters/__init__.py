@@ -133,6 +133,7 @@ import adapter_lotrfanfictioncom
 import adapter_fhsarchivecom
 import adapter_fanfictionjunkiesde
 import adapter_devianthearts
+import adapter_tgstorytimecom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
