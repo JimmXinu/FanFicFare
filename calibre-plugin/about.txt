@@ -8,7 +8,7 @@ plugins.</p>
 
 <p>
 Calibre officially distributes plugins from the mobileread.com forum site.
-The official distro channel for this plugin is there: <a href="http://www.mobileread.com/forums/showthread.php?t=163261">FanFictionDownLoader</a>
+The official distro channel for this plugin is there: <a href="http://www.mobileread.com/forums/showthread.php?t=259221">FanFictionDownLoader</a>
 </p>
 
 <p> I also monitor the
