@@ -126,6 +126,7 @@ def get_valid_set_options():
                              'devianthearts.com',
                              'thehookupzone.net',
                              'libraryofmoria.com',
+                             'tgstorytime.com',
                              ],None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
