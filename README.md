@@ -10,8 +10,10 @@ FFDL, AKA fanficdownloader) project previously hosted as a
 This program is available as a calibre plugin, a command-line
 interface, and a web service.
 
-*Currently, the project is the middle of being moved from code.google
-to GitHub and being renamed.  For now, continue to use
-FanFictionDownLoader(FFDL).*
+FanFicFare has now been launched.  New versions, features and updates
+will all be in FanFicFare.
+
+There's additional info in the project [wiki] pages.
 
 [code.google project]: https://code.google.com/p/fanficdownloader/
+[wiki]: https://github.com/JimmXinu/FanFicFare/wiki
