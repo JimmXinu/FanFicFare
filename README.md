@@ -16,4 +16,4 @@ will all be in FanFicFare.
 There's additional info in the project [wiki] pages.
 
 [code.google project]: https://code.google.com/p/fanficdownloader/
-[wiki]: wiki
+[wiki]: https://github.com/JimmXinu/FanFicFare/wiki
