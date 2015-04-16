@@ -46,6 +46,33 @@
       {{yourfile}}
       <!--			</div> -->
 
+      <h3>Important Notice</h3>
+      <p>
+        Google recently decided to 
+        <a href="http://google-opensource.blogspot.com/2015/03/farewell-to-google-code.html">phase out code.google</a>,
+        which is where FanFictionDownLoader kept it's source code.
+      </p>
+      <p>
+        Since the FanFictionDownLoader project had to move anyway,
+        this seemed like a good time to also change the name of the
+        project.  (There was occasional confusion with others, like
+        the similiarly named fanfictiondownloader.net.)
+      </p>
+      <p>
+        The project is now called <b>FanFicFare</b> and
+        its <a href="https://github.com/JimmXinu/FanFicFare">source
+        hosted on GitHub</a>.
+      </p>
+      <p>
+        The URL of this web interface is also changed to
+        <a href="http://fanficfare.appspot.com/">http://fanficfare.appspot.com/</a>.
+      </p>
+      <p>
+        This site will be left up in case there are problems with the
+        new site, but all future features and fixes will be
+        on <a href="http://fanficfare.appspot.com/">FanFicFare</a>.
+      </p>
+          
       {% if authorized %}
       <form action="/fdown" method="post">
 	<div id='urlbox'>
@@ -54,22 +81,6 @@
 	      much easier. </p>
 	  </div>
 
-	  <h3>Changes:</h3>
-	    <ul>
-              <li>Add devianthearts.com as a Base eFiction site.</li>
-              <li>Allow https URLs for fictionmania.tv.</li>
-              <li>Allow storiesofarda.com/chapterAllview.asp?SID=999 urls.</li>
-	    </ul>
-	  <p>
-	    Questions?  Check out our 
-	    <a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownloaderFAQs">FAQs</a>.
-	    </p>
-	  <p>
-	    If you have any problems with this application, please
-	    report them in
-	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFictionDownLoader Google Group</a>.  The
-	    <a href="http://2-1-04.fanfictiondownloader.appspot.com">Previous Version</a> is also available for you to use if necessary.
-	  </p>
 	  <div id='error'>
 	    {{ error_message }}
 	  </div>
