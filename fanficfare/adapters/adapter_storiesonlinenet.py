@@ -321,7 +321,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        div = soup.find('div', {'id' : 'story'})
+        div = soup.find('article', {'id' : 'story'})
         
         # some big chapters are split over several pages
         pager = div.find('span', {'class' : 'pager'})
@@ -343,7 +343,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-                div1 = soup.find('div', {'id' : 'story'})
+                div1 = soup.find('article', {'id' : 'story'})
                 
                 # Find the "Continues" marker on the current page and remove everything after that. 
                 continues = div.find('span', {'class' : 'conTag'})
