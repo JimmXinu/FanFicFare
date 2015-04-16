@@ -25,7 +25,7 @@ if __name__=="__main__":
     exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db']
     
     os.chdir('calibre-plugin')
-    files=['plugin-defaults.ini','plugin-example.ini','about.txt',
+    files=['plugin-defaults.ini','plugin-example.ini','about.html',
            'images','translations']
     files.extend(glob('*.py'))
     files.extend(glob('plugin-import-name-*.txt'))
