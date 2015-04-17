@@ -134,6 +134,7 @@ import adapter_fhsarchivecom
 import adapter_fanfictionjunkiesde
 import adapter_devianthearts
 import adapter_tgstorytimecom
+import adapter_itcouldhappennet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -195,6 +196,12 @@ def getAdapter(config,url,anyurl=False):
 
 def getConfigSections():
     return [cls.getConfigSection() for cls in __class_list]
+
+def get_bulk_load_sites():
+    # for now, all eFiction Base adapters are assumed to allow bulk_load.
+    return [cls.getConfigSection().replace('www.','') for cls in
+            filter( lambda x : issubclass(x,base_efiction_adapter.BaseEfictionAdapter),
+                    __class_list)]
 
 def getSiteExamples():
     l=[]

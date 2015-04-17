@@ -118,16 +118,10 @@ def get_valid_set_options():
                'universe_as_series':(['storiesonline.net'],None,boollist),
                'strip_text_links':(['bloodshedverse.com'],None,boollist),
 
-               # eFiction Base
-               'bulk_load':(['fannation.shades-of-moonlight.com',
-                             'fhsarchive.com',
-                             'lotrfanfiction.com',
-                             'themaplebookshelf.com',
-                             'devianthearts.com',
-                             'thehookupzone.net',
-                             'libraryofmoria.com',
-                             'tgstorytime.com',
-                             ],None,boollist),
+               # eFiction Base adapters allow bulk_load
+               # kept forgetting to add them, so now it's automatic.
+               'bulk_load':(adapters.get_bulk_load_sites(),
+                            None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
                
@@ -137,6 +131,7 @@ def get_valid_set_options():
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
                }
+
     return dict(valdict)
 
 def get_valid_scalar_entries():

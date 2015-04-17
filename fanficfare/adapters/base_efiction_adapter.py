@@ -89,7 +89,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         return ["Windows-1252", "utf8"]
 
-
     @classmethod
     def getPathToArchive(cls):
         """
