@@ -321,7 +321,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         soup = bs.BeautifulSoup(self._fetchUrl(url),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-        div = soup.find('article', {'id' : 'story'})
+        div = soup.find('div', {'id' : 'story'})
+        if not div:
+            logger.debug("div id=story not found, try article")
+            div = soup.find('article', {'id' : 'story'})
         
         # some big chapters are split over several pages
         pager = div.find('span', {'class' : 'pager'})
@@ -343,7 +346,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
                                      selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
         
-                div1 = soup.find('article', {'id' : 'story'})
+                div1 = soup.find('div', {'id' : 'story'})
+                if not div1:
+                    logger.debug("div id=story not found, try article")
+                    div1 = soup.find('article', {'id' : 'story'})
                 
                 # Find the "Continues" marker on the current page and remove everything after that. 
                 continues = div.find('span', {'class' : 'conTag'})
@@ -403,12 +409,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         a = div.find('div', {'id' : 'vote-form'})
         if a != None:
             a.extract()
+        a = div.find('div', {'id' : 'top-header'})
+        if a != None:
+            a.extract()
         a = div.find('div', {'id' : 'b-man-div'})
         if a != None:
             a.extract()
 
-        # Kill the "The End" header and everything after it.
-        a = div.find(['h2', 'h3'], {'class' : 'end'})
+        # Kill the vote form and everything after it.
+        a = div.find('div', {'class' : 'vform'})
         logger.debug("Chapter end= '{0}'".format(a))
         while a != None:
             b = a.nextSibling
