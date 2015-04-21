@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+#from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -144,7 +144,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         #print data
 
         # Now go hunting for all the meta data and the chapter list.
@@ -178,7 +178,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         page=0
         i=0
         while i == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+str(page)))
+            asoup = self.make_soup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+str(page)))
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
@@ -212,7 +212,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('seriesUrl',seriesUrl)
                 series_name = stripHTML(a)
                 logger.debug("Series name= %s" % series_name)
-                series_soup = bs.BeautifulSoup(self._fetchUrl(seriesUrl))
+                series_soup = self.make_soup(self._fetchUrl(seriesUrl))
                 if series_soup:
                     logger.debug("Retrieving Series - looking for name")
                     series_name = series_soup.find('span', {'id' : 'ptitle'}).text.partition(' — ')[0]
@@ -221,7 +221,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 desc = lc4.contents[2]
                 # Check if series is in a universe
                 universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
-                universes_soup = bs.BeautifulSoup(self._fetchUrl(universe_url) )
+                universes_soup = self.make_soup(self._fetchUrl(universe_url) )
                 logger.debug("Universe url='{0}'".format(universe_url))
                 if universes_soup:
                     universes = universes_soup.findAll('div', {'class' : 'ser-box'})
@@ -255,7 +255,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 universe_name = stripHTML(a)
                 universeUrl = 'http://'+self.host+a['href']
                 logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
-                universe_soup = bs.BeautifulSoup(self._fetchUrl(universeUrl))
+                universe_soup = self.make_soup(self._fetchUrl(universeUrl))
                 logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
@@ -318,8 +318,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(self._fetchUrl(url))
         
         div = soup.find('div', {'id' : 'story'})
         if not div:
@@ -343,8 +342,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 #            logger.debug(div)
                         
             for ur in urls:
-                soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+                soup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']))
         
                 div1 = soup.find('div', {'id' : 'story'})
                 if not div1:
@@ -374,7 +372,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if endPager != None:
                     b = endPager.nextSibling
                     while endPager != None:
-                        logger.debug("removing end: {0}".format(endPager))
+#                        logger.debug("removing end: {0}".format(endPager))
                         b = endPager.nextSibling
                         endPager.extract()
                         endPager = b
@@ -418,13 +416,24 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # Kill the vote form and everything after it.
         a = div.find('div', {'class' : 'vform'})
-        logger.debug("Chapter end= '{0}'".format(a))
+#        logger.debug("Chapter end= '{0}'".format(a))
         while a != None:
             b = a.nextSibling
             a.extract()
             a=b
 
+        # Kill the vote form and everything after it.
+        a = div.find('h3', {'class' : 'end'})
+#        logger.debug("Chapter end= '{0}'".format(a))
+        while a != None:
+            b = a.nextSibling
+            a.extract()
+            a=b
 
+        foot = div.find('footer')
+        if foot != None:
+            foot.extract()
+            
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
     
