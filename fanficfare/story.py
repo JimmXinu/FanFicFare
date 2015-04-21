@@ -874,6 +874,7 @@ class Story(Configurable):
                 self.imgurls.insert(0,imgurl)
                 newsrc = "images/cover.%s"%ext
                 self.cover=newsrc
+                self.setMetadata('cover_image','specific')
                 self.imgtuples.insert(0,{'newsrc':newsrc,'mime':mime,'data':data})
             else:
                 self.imgurls.append(imgurl)
@@ -888,6 +889,7 @@ class Story(Configurable):
                         not (coverexclusion and re.search(coverexclusion,imgurl)):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
+                    self.setMetadata('cover_image','first')
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                     self.imgurls.append(imgurl)
 

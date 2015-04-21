@@ -379,10 +379,12 @@ class BaseSiteAdapter(Configurable):
                                                                self.getConfig('allow_unsafe_filename')),
                                      self._fetchUrlRaw,
                                      cover=True)
+                self.story.setMetadata('cover_image','default')
 
             # no new cover, set old cover, if there is one.
             if not self.story.cover and self.oldcover:
                 self.story.oldcover = self.oldcover
+                self.story.setMetadata('cover_image','old')
                 
             # cheesy way to carry calibre bookmark file forward across update.
             if self.calibrebookmark:

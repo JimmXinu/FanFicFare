@@ -159,6 +159,7 @@ def get_valid_scalar_entries():
                  'seriesHTML',
                  'langcode',
                  'output_css',
+                 'cover_image',
                  ])
 
 def get_valid_entries():
