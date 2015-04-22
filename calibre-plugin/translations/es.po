@@ -5,12 +5,13 @@
 # Adolfo Jayme Barrientos, 2014
 # dario hereñu <magallania@gmail.com>, 2015
 # Jellby <jellby@yahoo.com>, 2014-2015
+# JimmXinu <retiefjimm@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-04-11 11:17+Central Daylight Time\n"
-"PO-Revision-Date: 2015-04-17 13:02+0000\n"
-"Last-Translator: Jellby <jellby@yahoo.com>\n"
+"PO-Revision-Date: 2015-04-22 22:08+0000\n"
+"Last-Translator: JimmXinu <retiefjimm@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -558,7 +559,7 @@ msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a GC setting based on "
 "metadata rather than site, but it's much more complex.<br \\>%(gcset)s is "
 "ignored when this is off."
-msgstr "El parámetro %(gcset)s de %(pini) le permite elegir una configuración de GC según los metadatos en vez del sitio, pero es mucho más complejo.<br>%(gcset)s no se tiene en cuenta si esta opción está desactivada."
+msgstr "El parámetro %(gcset)s de %(pini)s le permite elegir una configuración de GC según los metadatos en vez del sitio, pero es mucho más complejo.<br>%(gcset)s no se tiene en cuenta si esta opción está desactivada."
 
 #: config.py:811
 msgid "Use calibre's Polish feature to inject/update the cover"
@@ -794,7 +795,7 @@ msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
-msgstr "El parámetro %(ccset)s de %(pini) le permite asignar a las columnas personalizadas valores específicos para cada sitio.<br>%(ccset)s no se tiene en cuenta si esta opción está desactivada."
+msgstr "El parámetro %(ccset)s de %(pini)s le permite asignar a las columnas personalizadas valores específicos para cada sitio.<br>%(ccset)s no se tiene en cuenta si esta opción está desactivada."
 
 #: config.py:1065
 msgid "Special column:"
