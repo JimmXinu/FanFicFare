@@ -24,6 +24,13 @@ class FailedToDownload(Exception):
     def __str__(self):
         return self.error
 
+class RejectImage(Exception):
+    def __init__(self,error):
+        self.error=error
+
+    def __str__(self):
+        return self.error
+
 class InvalidStoryURL(Exception):
     def __init__(self,url,domain,example):
         self.url=url
