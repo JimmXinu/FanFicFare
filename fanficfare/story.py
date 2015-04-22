@@ -51,7 +51,7 @@ try:
         export = False
         img = Image()
         img.load(data)
-    
+
         owidth, oheight = img.size
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
