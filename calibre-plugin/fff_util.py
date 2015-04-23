@@ -18,15 +18,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configurat
 from calibre_plugins.fanficfare_plugin.prefs import prefs
 
 def get_fff_personalini():
-    if prefs['includeimages']:
-        # this is a cheat to make it easier for users.
-        return '''[epub]
-include_images:true
-keep_summary_html:true
-make_firstimage_cover:true
-''' + prefs['personal.ini']
-    else:
-        return prefs['personal.ini']
+    return prefs['personal.ini']
 
 def get_fff_config(url,fileform="epub",personalini=None):
     if not personalini:

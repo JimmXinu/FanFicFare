@@ -60,7 +60,6 @@ except NameError:
 # out of the _() strings.
 # I'm tempted to override _() to include them...
 no_trans = { 'pini':'personal.ini',
-             'imgset':'\n\n[epub]\ninclude_images:true\nkeep_summary_html:true\nmake_firstimage_cover:true\n\n',
              'gcset':'generate_cover_settings',
              'ccset':'custom_columns_settings',
              'gc':'Generate Cover',
@@ -251,7 +250,6 @@ class ConfigWidget(QWidget):
         prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
         prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
-        prefs['includeimages'] = self.basic_tab.includeimages.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
@@ -504,12 +502,6 @@ class BasicTab(QWidget):
         misc_gb = groupbox = QGroupBox(_("Misc Options"))
         self.l = QVBoxLayout()
         groupbox.setLayout(self.l)
-
-        # this is a cheat to make it easier for users to realize there's a new include_images features.
-        self.includeimages = QCheckBox(_("Include images in EPUBs?"),self)
-        self.includeimages.setToolTip(_("Download and include images in EPUB stories.  This is equivalent to adding:%(imgset)s ...to the top of %(pini)s.  Your settings in %(pini)s will override this.")%no_trans)
-        self.includeimages.setChecked(prefs['includeimages'])
-        self.l.addWidget(self.includeimages)
 
         self.injectseries = QCheckBox(_("Inject calibre Series when none found?"),self)
         self.injectseries.setToolTip(_("If no series is found, inject the calibre series (if there is one) so \nit appears on the FanFicFare title page(not cover)."))

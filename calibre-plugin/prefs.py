@@ -71,7 +71,6 @@ default_prefs['fileform'] = 'epub'
 default_prefs['collision'] = SAVE_UPDATE
 default_prefs['deleteotherforms'] = False
 default_prefs['adddialogstaysontop'] = False
-default_prefs['includeimages'] = True
 default_prefs['lookforurlinhtml'] = False
 default_prefs['checkforseriesurlid'] = True
 default_prefs['checkforurlchange'] = True
