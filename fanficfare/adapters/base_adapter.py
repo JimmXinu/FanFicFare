@@ -481,8 +481,10 @@ class BaseSiteAdapter(Configurable):
 
     def setCoverImage(self,storyurl,imgurl):
         if self.getConfig('include_images'):
-            self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True,
-                                 coverexclusion=self.getConfig('cover_exclusion_regexp'))
+            return self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True,
+                                        coverexclusion=self.getConfig('cover_exclusion_regexp'))
+        else:
+            return (None,None)
 
     # bs3 & bs4 are different here.
     # will move to a bs3 vs bs4 block if there's lots of changes.

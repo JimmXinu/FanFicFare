@@ -144,14 +144,20 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     else:
         urls = args
 
-    for url in urls:
-        try:
-            do_download(url,
-                        options,
-                        passed_defaultsini,
-                        passed_personalini)
-        except Exception, e:
-            print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+    if len(urls) > 1:
+        for url in urls:
+            try:
+                do_download(url,
+                            options,
+                            passed_defaultsini,
+                            passed_personalini)
+            except Exception, e:
+                print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+    else:
+        do_download(urls[0],
+                    options,
+                    passed_defaultsini,
+                    passed_personalini)
 
 # make rest a function and loop on it.
 def do_download(arg,

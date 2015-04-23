@@ -176,7 +176,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if coverurl.startswith('//'): # fix for img urls missing 'http:'
                 coverurl = "http:"+coverurl
             if get_cover:
-                self.setCoverImage(self.url,coverurl)
+                # try setting from href, if fails, try using the img src
+                if self.setCoverImage(self.url,coverurl)[0] == "failedtoload":
+                    coverurl = storyImage.find('img')['src']
+                    self.setCoverImage(self.url,coverurl)
 
             coverSource = storyImage.find('a', {'class':'source'})
             if coverSource:

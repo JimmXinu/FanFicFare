@@ -44,6 +44,8 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
+    from StringIO import StringIO
+    from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
@@ -55,6 +57,10 @@ try:
         owidth, oheight = img.size
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+
+        if normalize_format_name(img.format)=="gif" and GifInfo(StringIO(data),CHECK_IS_ANIMATED).frameCount > 1:
+            raise exceptions.RejectImage("Animated gifs come out purely--not going to use it.")
+
         if scaled:
             img.size = (nwidth, nheight)
             export = True
@@ -224,7 +230,7 @@ langs = {
     "Devanagari":"hi",
 
     ## These are from/for AO3:
-    
+
     u'العربية':'ar',
     u'беларуская':'be',
     u'Български език':'bg',
@@ -325,7 +331,7 @@ class InExMatch:
         else:
             retval = self.match == value
             #print(">>>>>>>>>>>>>%s==%s r: %s,%s=%s"%(self.match,value,self.negate,retval, self.negate != retval))
-            
+
         return self.negate != retval
 
     def __str__(self):
@@ -338,7 +344,7 @@ class InExMatch:
         else:
             s='='
         return u'InExMatch(%s %s%s %s)'%(self.keys,f,s,self.match)
-    
+
 ## metakey[,metakey]=~pattern
 ## metakey[,metakey]==string
 ## *for* part lines.  Effect only when trailing conditional key=~regexp matches
@@ -358,7 +364,7 @@ def set_in_ex_clude(setting):
             match = InExMatch(line)
             dest.append([match,condmatch])
     return dest
-              
+
 ## Two or three part lines.  Two part effect everything.
 ## Three part effect only those key(s) lists.
 ## pattern=>replacement
@@ -433,7 +439,7 @@ class Story(Configurable):
 
     def join_list(self, key, vallist):
         return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, vallist))
-                
+
     def setMetadata(self, key, value, condremoveentities=True):
 
         # keep as list type, but set as only value.
@@ -445,20 +451,20 @@ class Story(Configurable):
                 self.metadata[key]=conditionalRemoveEntities(value)
             else:
                 self.metadata[key]=value
-                
+
         if key == "language":
             try:
                 # getMetadata not just self.metadata[] to do replace_metadata.
                 self.setMetadata('langcode',langs[self.getMetadata(key)])
             except:
                 self.setMetadata('langcode','en')
-                
+
         if key == 'dateUpdated' and value:
             # Last Update tags for Bill.
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
-        
+
     def do_in_ex_clude(self,which,value,key):
         if value and which in self.in_ex_cludes:
             include = 'include' in which
@@ -487,7 +493,7 @@ class Story(Configurable):
             if include and keyfound and not found:
                 value = None
         return value
-        
+
 
     def doReplacements(self,value,key,return_list=False,seen_list=[]):
         value = self.do_in_ex_clude('include_metadata_pre',value,key)
@@ -526,7 +532,7 @@ class Story(Configurable):
                         # print("replacement,value:%s,%s->%s"%(replacement,value,regexp.sub(replacement,value)))
                         value = regexp.sub(replacement,value)
                         retlist = [value]
-                    
+
         for val in retlist:
             retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
             retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
@@ -610,7 +616,7 @@ class Story(Configurable):
                                                     self.getMetadata('author', removeallentities, doreplacements)))
 
         self.extendList("extratags",self.getConfigList("extratags"))
-            
+
         if self.getMetadataRaw('seriesUrl'):
             self.setMetadata('seriesHTML',linkhtml%('series',self.getMetadata('seriesUrl', removeallentities, doreplacements),
                                                     self.getMetadata('series', removeallentities, doreplacements)))
@@ -703,10 +709,10 @@ class Story(Configurable):
                 for val in retlist:
                     newretlist.extend(self.doReplacements(val,listname,return_list=True))
                 retlist = newretlist
-                
+
             if removeallentities:
                 retlist = map(removeAllEntities,retlist)
-                
+
             retlist = filter( lambda x : x!=None and x!='' ,retlist)
 
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
