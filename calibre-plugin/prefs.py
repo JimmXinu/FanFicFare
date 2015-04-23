@@ -15,8 +15,31 @@ import copy
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
-from calibre_plugins.fanficfare_plugin.dialogs import UPDATE
+from calibre_plugins.fanficfare_plugin.dialogs import SAVE_UPDATE
 from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
+
+# Show translated strings, but save the same string in prefs so your
+# prefs are the same in different languages.
+YES=_('Yes, Always')
+SAVE_YES='Yes'
+YES_IF_IMG=_('Yes, if FanFicFare found a cover image')
+SAVE_YES_IF_IMG='Yes, if img'
+YES_UNLESS_IMG=_('Yes, unless FanFicFare found a cover image')
+SAVE_YES_UNLESS_IMG='Yes, unless img'
+NO=_('No')
+SAVE_NO='No'
+calcover_save_options = {
+    YES:SAVE_YES,
+    SAVE_YES:YES,
+    YES_IF_IMG:SAVE_YES_IF_IMG,
+    SAVE_YES_IF_IMG:YES_IF_IMG,
+    YES_UNLESS_IMG:SAVE_YES_UNLESS_IMG,
+    SAVE_YES_UNLESS_IMG:YES_UNLESS_IMG,
+    NO:SAVE_NO,
+    SAVE_NO:NO,
+    }
+updatecalcover_order=[YES,YES_IF_IMG,NO]
+gencalcover_order=[YES,YES_UNLESS_IMG,NO]
 
 # if don't have any settings for FanFicFarePlugin, copy from
 # predecessor FanFictionDownLoaderPlugin.
@@ -35,7 +58,6 @@ Dup from another site'''
 default_prefs['reject_always'] = False
 
 default_prefs['updatemeta'] = True
-default_prefs['updatecover'] = False
 default_prefs['updateepubcover'] = False
 default_prefs['keeptags'] = False
 default_prefs['suppressauthorsort'] = False
@@ -46,10 +68,10 @@ default_prefs['autoconvert'] = False
 default_prefs['urlsfromclip'] = True
 default_prefs['updatedefault'] = True
 default_prefs['fileform'] = 'epub'
-default_prefs['collision'] = UPDATE
+default_prefs['collision'] = SAVE_UPDATE
 default_prefs['deleteotherforms'] = False
 default_prefs['adddialogstaysontop'] = False
-default_prefs['includeimages'] = False
+default_prefs['includeimages'] = True
 default_prefs['lookforurlinhtml'] = False
 default_prefs['checkforseriesurlid'] = True
 default_prefs['checkforurlchange'] = True
@@ -63,6 +85,11 @@ default_prefs['addtolists'] = False
 default_prefs['addtoreadlists'] = False
 default_prefs['addtolistsonread'] = False
 
+default_prefs['updatecalcover'] = None
+default_prefs['gencalcover'] = SAVE_YES
+default_prefs['updatecover'] = False
+default_prefs['calibre_gen_cover'] = False
+default_prefs['plugin_gen_cover'] = True
 default_prefs['gcnewonly'] = False
 default_prefs['gc_site_settings'] = {}
 default_prefs['allow_gc_from_ini'] = True
