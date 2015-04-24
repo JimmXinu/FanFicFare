@@ -122,7 +122,7 @@ gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-botto
 
 class RejectUrlEntry:
 
-    matchpat=re.compile(r"^(?P<url>[^,]+)(,(?P<fullnote>(((?P<title>.+) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
+    matchpat=re.compile(r"^(?P<url>[^,]+?)(,(?P<fullnote>(((?P<title>.+?) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
     
     def __init__(self,url_or_line,note=None,title=None,auth=None,
                  addreasontext=None,fromline=False,book_id=None):
@@ -997,6 +997,7 @@ class RejectListTableWidget(QTableWidget):
         note_cell.set_separator(None)
         note_cell.setToolTip(_('Select or Edit Reject Note.'))
         self.setCellWidget(row, 3, note_cell)
+        note_cell.setCursorPosition(0)
         
     def remove_selected_rows(self):
         self.setFocus()
@@ -1072,6 +1073,7 @@ class RejectListDialog(SizePersistedDialog):
             label.setToolTip(_("This will be added to whatever note you've set for each URL above."))
             horz.addWidget(label)
             horz.addWidget(self.reason_edit)
+            self.reason_edit.setCursorPosition(0)
             horz.insertStretch(-1)
             layout.addLayout(horz)
                     
@@ -1171,6 +1173,7 @@ class EditTextDialog(SizePersistedDialog):
                 self.l.addLayout(horz)
             else:
                 self.l.addWidget(self.reason_edit)
+            self.reason_edit.setCursorPosition(0)
             
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)

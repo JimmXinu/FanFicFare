@@ -706,6 +706,7 @@ class ReadingListTab(QWidget):
         self.send_lists_box.update_items_cache(reading_lists)
         self.send_lists_box.setText(prefs['send_lists'])
         horz.addWidget(self.send_lists_box)
+        self.send_lists_box.setCursorPosition(0)
         self.l.addLayout(horz)
         
         self.addtoreadlists = QCheckBox(_('Add new/updated stories to "To Read" Reading List(s).'),self)
@@ -722,6 +723,7 @@ class ReadingListTab(QWidget):
         self.read_lists_box.update_items_cache(reading_lists)
         self.read_lists_box.setText(prefs['read_lists'])
         horz.addWidget(self.read_lists_box)
+        self.read_lists_box.setCursorPosition(0)
         self.l.addLayout(horz)
         
         self.addtolistsonread = QCheckBox(_('Add stories back to "Send to Device" Reading List(s) when marked "Read".'),self)
