@@ -40,22 +40,22 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
         if 'storyInfo' in self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','strol')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -78,7 +78,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 or "Access to unlinked chapters requires" in data:
             self.needToLogin = True
         return self.needToLogin
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -91,13 +91,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['rememberMe'] = '1'
         params['page'] = 'http://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
-    
+
         d = self._fetchUrl(loginUrl, params,usecache=False)
-    
+
         if "My Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
@@ -137,22 +137,22 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url+":i",usecache=False)
-        
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         #print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
-        
+
         notice = soup.find('div', {'class' : 'notice'})
         if notice:
             self.story.setMetadata('notice',unicode(notice))
@@ -196,8 +196,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         score = lc2.findNext('th', {'class' : 'num'}).text
         if score != '-':
-            self.story.setMetadata('score', score)        
-        
+            self.story.setMetadata('score', score)
+
         lc4 = lc2.findNext('td', {'class' : 'lc4'})
         desc = lc4.contents[0]
 
@@ -274,7 +274,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             pass
 
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
-            
+
         for b in lc4.findAll('b'):
             #logger.debug('Getting metadata: "%s"' % b)
             label = b.text
@@ -284,24 +284,24 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             else:
                 value = b.nextSibling
             #logger.debug('label: "%s", value: "%s"' % (label, value))
-            
+
             if 'Sex' in label:
                 self.story.setMetadata('rating', value)
-                
+
             if 'Tags' in label or 'Codes' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
                      self.story.addToList('sitetags',code)
-                    
+
             if 'Posted' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-                
+
             if 'Concluded' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-                
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-#                
+#
         status = lc4.find('span', {'class' : 'ab'})
         if  status != None:
             self.story.setMetadata('status', 'In-Progress')
@@ -312,129 +312,146 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'Completed')
 
-            
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
         soup = self.make_soup(self._fetchUrl(url))
-        
-        div = soup.find('div', {'id' : 'story'})
-        if not div:
+
+        chaptertag = soup.find('div', {'id' : 'story'})
+        if not chaptertag:
             logger.debug("div id=story not found, try article")
-            div = soup.find('article', {'id' : 'story'})
-        
+            chaptertag = soup.find('article', {'id' : 'story'})
+
         # some big chapters are split over several pages
-        pager = div.find('span', {'class' : 'pager'})
+        pager = chaptertag.find('span', {'class' : 'pager'})
+
+        self.cleanPage(chaptertag)
+
         if pager != None:
-            a = pager.previousSibling
-            while a != None:
-                logger.debug("before pager: {0}".format(a))
-                b = a.previousSibling
-                a.extract()
-                a = b
 
             urls=pager.findAll('a')
             urls=urls[:len(urls)-1]
+            logger.debug("pager urls:%s"%urls)
             pager.extract()
-            div.contents = div.contents[2:]
-#            logger.debug(div)
-                        
+            chaptertag.contents = chaptertag.contents[2:]
+
             for ur in urls:
                 soup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']))
-        
-                div1 = soup.find('div', {'id' : 'story'})
-                if not div1:
+
+                pagetag = soup.find('div', {'id' : 'story'})
+                if not pagetag:
                     logger.debug("div id=story not found, try article")
-                    div1 = soup.find('article', {'id' : 'story'})
-                
-                # Find the "Continues" marker on the current page and remove everything after that. 
-                continues = div.find('span', {'class' : 'conTag'})
-                if continues != None:
-                    while continues != None:
-#                        logger.debug("removing end: {0}".format(continues))
-                        b = continues.nextSibling
-                        continues.extract()
-                        continues = b
+                    pagetag = soup.find('article', {'id' : 'story'})
 
-                # Find the "Continued" marker and delete everything before that
-                continued = div1.find('span', {'class' : 'conTag'})
-                if continued != None:
-                    a = continued.previousSibling
-                    while a != None:
-#                        logger.debug("before conTag: {0}".format(a))
-                        b = a.previousSibling
-                        a.extract()
-                        a = b
-                # Remove the pager from the end if this is the last page
-                endPager = div1.find('span', {'class' : 'pager'})
-                if endPager != None:
-                    b = endPager.nextSibling
-                    while endPager != None:
-#                        logger.debug("removing end: {0}".format(endPager))
-                        b = endPager.nextSibling
-                        endPager.extract()
-                        endPager = b
-                    div1.contents = div1.contents[:len(div1) - 2]
-#                logger.debug("after removing pager: {0}".format(div1))
-                for tag in div1.contents[2:]:
-                    div.append(tag)
+                self.cleanPage(pagetag)
 
-        # If it is a chapter, there are dates at the start for when it was posted or modified. These plus 
-        # everything before them can be discarded. 
-        postedDates = div.findAll('div', {'class' : 'date'})
+                for tag in pagetag.contents[2:]:
+                    chaptertag.append(tag)
+
+
+        if None == chaptertag:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+        return self.utf8FromSoup(url,chaptertag)
+
+    def cleanPage(self,pagetag):
+        "Consolidate 'page' clean up code so it can be called."
+
+        # some big chapters are split over several pages
+        # remove FIRST pager and everything before it.
+        tag = pagetag.find('span', {'class' : 'pager'})
+        while tag != None:
+            # logger.debug("remove before pager: {0}".format(tag))
+            prev = tag.previousSibling
+            tag.extract()
+            tag = prev
+
+        # Find the "Continues" marker on the current page and
+        # remove everything after that.  This is actually
+        # effecting the *previous* 'page'.  EXCEPT!--they are
+        # putting a 'conTag' at the *top* now, too.  So this
+        # was nuking every page but the first and last.  Now
+        # only if 'Continues'
+        for contag in pagetag.findAll('span', {'class' : 'conTag'}):
+            # remove everything after continues...
+            if 'Continuation' in contag.text:
+                tag = contag
+                while tag != None:
+                    # logger.debug("remove before Continuation: {0}".format(tag))
+                    prev = tag.previousSibling
+                    tag.extract()
+                    tag = prev
+            elif 'Continues' in contag.text:
+                tag = contag
+                while tag != None:
+                    # logger.debug("remove after Continues: {0}".format(tag))
+                    nxt = tag.nextSibling
+                    tag.extract()
+                    tag = nxt
+
+        # some big chapters are split over several pages
+        # remove LAST pager and everything before it.
+        # Only needed on last page.
+        tag = pagetag.find('span', {'class' : 'pager'})
+        while tag != None:
+            # logger.debug("remove after pager: {0}".format(tag))
+            nxt = tag.nextSibling
+            tag.extract()
+            tag = nxt
+
+        # If it is a chapter, there are dates at the start for when it was posted or modified. These plus
+        # everything before them can be discarded.
+        postedDates = pagetag.findAll('div', {'class' : 'date'})
         if postedDates:
             a = postedDates[0].previousSibling
             while a != None:
-#                logger.debug("before dates: {0}".format(a))
+                # logger.debug("before dates: {0}".format(a))
                 b = a.previousSibling
                 a.extract()
                 a = b
-            for a in div.findAll('div', {'class' : 'date'}):
+            for a in pagetag.findAll('div', {'class' : 'date'}):
                 a.extract()
 
         # For single chapter stories, there is a copyright statement. Remove this and everything
         # before it.
-        copy = div.find('h4', {'class': 'copy'})
+        copy = pagetag.find('h4', {'class': 'copy'})
         while copy != None:
-#            logger.debug("before copyright: {0}".format(copy))
+            # logger.debug("before copyright: {0}".format(copy))
             b = copy.previousSibling
             copy.extract()
             copy = b
 
         # For a story or the last chapter, remove voting form and the in library box
-        a = div.find('div', {'id' : 'vote-form'})
+        a = pagetag.find('div', {'id' : 'vote-form'})
         if a != None:
             a.extract()
-        a = div.find('div', {'id' : 'top-header'})
+        a = pagetag.find('div', {'id' : 'top-header'})
         if a != None:
             a.extract()
-        a = div.find('div', {'id' : 'b-man-div'})
+        a = pagetag.find('div', {'id' : 'b-man-div'})
         if a != None:
             a.extract()
 
         # Kill the vote form and everything after it.
-        a = div.find('div', {'class' : 'vform'})
-#        logger.debug("Chapter end= '{0}'".format(a))
+        a = pagetag.find('div', {'class' : 'vform'})
+        # logger.debug("Chapter end= '{0}'".format(a))
         while a != None:
             b = a.nextSibling
             a.extract()
             a=b
 
         # Kill the vote form and everything after it.
-        a = div.find('h3', {'class' : 'end'})
-#        logger.debug("Chapter end= '{0}'".format(a))
+        a = pagetag.find('h3', {'class' : 'end'})
+        # logger.debug("Chapter end= '{0}'".format(a))
         while a != None:
             b = a.nextSibling
             a.extract()
             a=b
 
-        foot = div.find('footer')
+        foot = pagetag.find('footer')
         if foot != None:
             foot.extract()
-            
-        if None == div:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
-        return self.utf8FromSoup(url,div)
+
+
