@@ -22,7 +22,7 @@ from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
 # prefs are the same in different languages.
 YES=_('Yes, Always')
 SAVE_YES='Yes'
-YES_IF_IMG=_('Yes, if FanFicFare found a cover image')
+YES_IF_IMG=_('Yes, if EPUB has a cover image')
 SAVE_YES_IF_IMG='Yes, if img'
 YES_UNLESS_IMG=_('Yes, unless FanFicFare found a cover image')
 SAVE_YES_UNLESS_IMG='Yes, unless img'

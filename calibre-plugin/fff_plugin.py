@@ -48,6 +48,13 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
+try:
+    # should be present from cal2.3.0 on.
+    from calibre.ebooks.covers import generate_cover as cal_generate_cover
+    HAS_CALGC=True
+except:
+    HAS_CALGC=False
+
 from calibre_plugins.fanficfare_plugin.common_utils import (set_plugin_icon_resources, get_icon,
                                                             create_menu_action_unique, get_library_uuid)
 
@@ -57,7 +64,8 @@ from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_p
 
 from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config, get_fff_personalini)
 from calibre_plugins.fanficfare_plugin.config import (permitted_values, rejecturllist)
-from calibre_plugins.fanficfare_plugin.prefs import prefs
+from calibre_plugins.fanficfare_plugin.prefs import (prefs, SAVE_YES, SAVE_NO,
+                                                     SAVE_YES_IF_IMG, SAVE_YES_UNLESS_IMG)
 from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog, EmailPassDialog,
@@ -1609,15 +1617,6 @@ class FanFicFarePlugin(InterfaceAction):
             if not oldmi.languages:
                 mi.languages=['en']
 
-        if options['fileform'] == 'epub' and prefs['updatecover']:
-            existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
-            epubmi = get_metadata(existingepub,'EPUB')
-            if epubmi.cover_data[1] is not None:
-                try:
-                    db.set_cover(book_id, epubmi.cover_data[1])
-                except:
-                    logger.info("Failed to set_cover, skipping")
-
         # implement 'newonly' flags here by setting to the current
         # value again.
         if not book['added']:
@@ -1757,73 +1756,105 @@ class FanFicFarePlugin(InterfaceAction):
 
         db.commit()
 
-        if 'Generate Cover' in self.gui.iactions and (book['added'] or not prefs['gcnewonly']):
+        # updating calibre cover from book.
+        if options['fileform'] == 'epub' and (
+            (prefs['updatecover'] and not prefs['updatecalcover']) ## backward compat
+            or prefs['updatecalcover'] == SAVE_YES ## yes, always
+            or (prefs['updatecalcover'] == SAVE_YES_IF_IMG ## yes, if image.
+                and book['all_metadata']['cover_image'] )): # in ('specific','first','default','old')
+            existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
+            epubmi = get_metadata(existingepub,'EPUB')
+            if epubmi.cover_data[1] is not None:
+                try:
+                    db.set_cover(book_id, epubmi.cover_data[1])
+                except:
+                    logger.info("Failed to set_cover, skipping")
 
-            #logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
-
-            # force a refresh if generating cover so complex composite
-            # custom columns are current and correct
-            db.refresh_ids([book_id])
-
-            gc_plugin = self.gui.iactions['Generate Cover']
-            setting_name = None
-            if prefs['allow_gc_from_ini']:
-                if not configuration: # might already have it from allow_custcol_from_ini
-                    configuration = get_fff_config(book['url'],options['fileform'])
-
-                # template => regexp to match => GC Setting to use.
-                # generate_cover_settings:
-                # ${category} => Buffy:? the Vampire Slayer => Buffy
-                # for line in configuration.getConfig('generate_cover_settings').splitlines():
-                #     if "=>" in line:
-                #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
-                for (template,regexp,setting) in configuration.get_generate_cover_settings():
-                    value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
-                    # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
-                    if re.search(regexp,value):
-                        setting_name = setting
-                        break
-
+        # First, should cover generation happen at all?
+        if (book['added'] or not prefs['gcnewonly']) and ( # skip if not new book and gcnewonly is True
+            prefs['gencalcover'] == SAVE_YES ## yes, always
+            or (prefs['gencalcover'] == SAVE_YES_UNLESS_IMG ## yes, unless image.
+                and book['all_metadata']['cover_image'] not in ('specific','first','default')) ):
+        
+            cover_generated = False # flag for polish below.
+            # Yes, should do gencov.  Which?
+            if prefs['calibre_gen_cover'] and HAS_CALGC:
+                # calibre's builtin, if available.
+                cdata = cal_generate_cover(mi)
+                db.set_cover(book_id, cdata)
+                cover_generated = True
+            elif prefs['plugin_gen_cover'] and 'Generate Cover' in self.gui.iactions:
+                # plugin, if available.
+    
+                #logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
+    
+                # force a refresh if generating cover so complex composite
+                # custom columns are current and correct
+                db.refresh_ids([book_id])
+    
+                gc_plugin = self.gui.iactions['Generate Cover']
+                setting_name = None
+                if prefs['allow_gc_from_ini']:
+                    if not configuration: # might already have it from allow_custcol_from_ini
+                        configuration = get_fff_config(book['url'],options['fileform'])
+    
+                    # template => regexp to match => GC Setting to use.
+                    # generate_cover_settings:
+                    # ${category} => Buffy:? the Vampire Slayer => Buffy
+                    # for line in configuration.getConfig('generate_cover_settings').splitlines():
+                    #     if "=>" in line:
+                    #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                    for (template,regexp,setting) in configuration.get_generate_cover_settings():
+                        value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
+                        print("%s(%s) => %s => %s"%(template,value,regexp,setting))
+                        if re.search(regexp,value):
+                            setting_name = setting
+                            break
+    
+                    if setting_name:
+                        logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%setting_name)
+                        if setting_name not in gc_plugin.get_saved_setting_names():
+                            logger.info("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
+                            setting_name = None
+    
+                if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
+                    setting_name =  prefs['gc_site_settings'][book['all_metadata']['site']]
+                    logger.debug("Generate Cover Setting from site(%s)"%setting_name)
+    
+                if not setting_name and 'Default' in prefs['gc_site_settings']:
+                    setting_name =  prefs['gc_site_settings']['Default']
+                    logger.debug("Generate Cover Setting from Default(%s)"%setting_name)
+    
                 if setting_name:
-                    logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%setting_name)
-                    if setting_name not in gc_plugin.get_saved_setting_names():
-                        logger.info("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
-                        setting_name = None
-
-            if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
-                setting_name =  prefs['gc_site_settings'][book['all_metadata']['site']]
-                logger.debug("Generate Cover Setting from site(%s)"%setting_name)
-
-            if not setting_name and 'Default' in prefs['gc_site_settings']:
-                setting_name =  prefs['gc_site_settings']['Default']
-                logger.debug("Generate Cover Setting from Default(%s)"%setting_name)
-
-            if setting_name:
-                logger.debug("Running Generate Cover with settings %s."%setting_name)
-                realmi = db.get_metadata(book_id, index_is_id=True)
-                gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
-
-                if prefs['gc_polish_cover'] and \
-                        options['fileform'] == "epub":
-                    # set cover inside epub from calibre's polish feature
-                    from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
-                    from calibre.utils.logging import Log
-                    from collections import namedtuple
-
-                    # Couldn't find a better way to get the cover path.
-                    cover_path = os.path.join(db.library_path, db.path(book_id, index_is_id=True), 'cover.jpg')
-                    data = {'cover':cover_path}
-                    #print("cover_path:%s"%cover_path)
-                    opts = ALL_OPTS.copy()
-                    opts.update(data)
-                    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
-                    opts = O(**opts)
-
-                    log = Log(level=Log.DEBUG)
-                    outfile = db.format_abspath(book_id, formmapping[options['fileform']], index_is_id=True)
-                    #print("polish cover outfile:%s"%outfile)
-                    polish({outfile:outfile}, opts, log, logger.info)
-
+                    logger.debug("Running Generate Cover with settings %s."%setting_name)
+                    realmi = db.get_metadata(book_id, index_is_id=True)
+                    gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
+                    cover_generated = True
+    
+            if cover_generated and prefs['gc_polish_cover'] and \
+                    options['fileform'] == "epub":
+                # set cover inside epub from calibre's polish feature
+                from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
+                from calibre.utils.logging import Log
+                from collections import namedtuple
+    
+                # Couldn't find a better way to get the cover path.
+                cover_path = os.path.join(db.library_path,
+                                          db.path(book_id, index_is_id=True),
+                                          'cover.jpg')
+                data = {'cover':cover_path}
+                #print("cover_path:%s"%cover_path)
+                opts = ALL_OPTS.copy()
+                opts.update(data)
+                O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                opts = O(**opts)
+    
+                log = Log(level=Log.DEBUG)
+                outfile = db.format_abspath(book_id,
+                                            formmapping[options['fileform']],
+                                            index_is_id=True)
+                #print("polish cover outfile:%s"%outfile)
+                polish({outfile:outfile}, opts, log, logger.info)
 
     def get_clean_reading_lists(self,lists):
         if lists == None or lists.strip() == "" :

@@ -763,7 +763,8 @@ class CalibreCoverTab(QWidget):
         
         tooltip = _("Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
                     "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
-                    "Cover in EPUB could be from site or previously injected into the EPUB.")
+                    "Cover in EPUB could be from site or previously injected into the EPUB.\n"
+                    "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to.")%no_trans
         horz = QHBoxLayout()
         label = QLabel(_('Update Calibre Cover (from EPUB):'))
         label.setToolTip(tooltip)
