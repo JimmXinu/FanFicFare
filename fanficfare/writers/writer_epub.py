@@ -22,6 +22,8 @@ import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import urllib
 import re
+import json
+import datetime
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -46,7 +48,7 @@ class EpubWriter(BaseStoryWriter):
         BaseStoryWriter.__init__(self, config, story)
 
         self.EPUB_CSS = string.Template('''${output_css}''')
-        
+
         self.EPUB_TITLE_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -120,7 +122,7 @@ ${value}<br />
         self.EPUB_TOC_ENTRY = string.Template('''
 <a href="file${index}.xhtml">${chapter}</a><br />
 ''')
-                          
+
         self.EPUB_TOC_PAGE_END = string.Template('''
 </div>
 </body>
@@ -157,15 +159,15 @@ ${value}<br />
         self.EPUB_LOG_UPDATE_START = string.Template('''
 <p class='log_entry'>
 ''')
-                          
+
         self.EPUB_LOG_ENTRY = string.Template('''
 <b>${label}:</b> <span id="${id}">${value}</span>
 ''')
-                          
+
         self.EPUB_LOG_UPDATE_END = string.Template('''
 </p><hr />
 ''')
-                          
+
         self.EPUB_LOG_PAGE_END = string.Template('''
 </body>
 </html>
@@ -185,7 +187,7 @@ div { margin: 0pt; padding: 0pt; }
 <img src="${coverimg}" alt="cover"/>
 </div></body></html>
 ''')
-        
+
     def writeLogPage(self, out):
         """
         Write the log page, but only include entries that there's
@@ -202,7 +204,7 @@ div { margin: 0pt; padding: 0pt; }
             END = string.Template(self.getConfig("logpage_end"))
         else:
             END = self.EPUB_LOG_PAGE_END
-        
+
         # if there's a self.story.logfile, there's an existing log
         # to add to.
         if self.story.logfile:
@@ -235,7 +237,7 @@ div { margin: 0pt; padding: 0pt; }
                 pass
 
         return values
-        
+
     def _makeLogEntry(self, oldvalues={}):
         if self.hasConfig("logpage_update_start"):
             START = string.Template(self.getConfig("logpage_update_start"))
@@ -275,14 +277,14 @@ div { margin: 0pt; padding: 0pt; }
                 # mostly it makes it easy to tell when you get the
                 # keyword wrong.
                 retval = retval + entry
-                
+
         retval = retval + END.substitute(self.story.getAllMetadata())
-        
+
         if self.getConfig('replace_hr'):
             retval = retval.replace("<hr />","<div class='center'>* * *</div>")
-            
+
         return retval
-                
+
     def writeStoryImpl(self, out):
 
         ## Python 2.5 ZipFile is rather more primative than later
@@ -303,7 +305,7 @@ div { margin: 0pt; padding: 0pt; }
         ## Re-open file for content.
         outputepub = ZipFile(zipio, 'a', compression=ZIP_DEFLATED)
         outputepub.debug=3
-        
+
         ## Create META-INF/container.xml file.  The only thing it does is
         ## point to content.opf
         containerdom = getDOMImplementation().createDocument(None, "container", None)
@@ -330,7 +332,7 @@ div { margin: 0pt; padding: 0pt; }
             self.getMetadata('site'),
             self.story.getList('authorId')[0],
             self.getMetadata('storyId'))
-        
+
         contentdom = getDOMImplementation().createDocument(None, "package", None)
         package = contentdom.documentElement
         package.setAttribute("version","2.0")
@@ -372,12 +374,12 @@ div { margin: 0pt; padding: 0pt; }
             metadata.appendChild(newTag(contentdom,"dc:date",
                                         attrs={"opf:event":"publication"},
                                         text=self.story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")))
-        
+
         if self.story.getMetadataRaw('dateCreated'):
             metadata.appendChild(newTag(contentdom,"dc:date",
                                         attrs={"opf:event":"creation"},
                                         text=self.story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")))
-        
+
         if self.story.getMetadataRaw('dateUpdated'):
             metadata.appendChild(newTag(contentdom,"dc:date",
                                         attrs={"opf:event":"modification"},
@@ -385,7 +387,7 @@ div { margin: 0pt; padding: 0pt; }
             metadata.appendChild(newTag(contentdom,"meta",
                                         attrs={"name":"calibre:timestamp",
                                                "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
-        
+
         if self.getMetadata('description'):
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
@@ -393,11 +395,11 @@ div { margin: 0pt; padding: 0pt; }
         for subject in self.story.getSubjectTags():
             metadata.appendChild(newTag(contentdom,"dc:subject",text=subject))
 
-                    
+
         if self.getMetadata('site'):
             metadata.appendChild(newTag(contentdom,"dc:publisher",
                                         text=self.getMetadata('site')))
-        
+
         if self.getMetadata('storyUrl'):
             metadata.appendChild(newTag(contentdom,"dc:identifier",
                                         attrs={"opf:scheme":"URL"},
@@ -413,7 +415,7 @@ div { margin: 0pt; padding: 0pt; }
 
         guide = None
         coverIO = None
-                
+
         coverimgid = "image0000"
         if not self.story.cover and self.story.oldcover:
             logger.debug("writer_epub: no new cover, has old cover, write image.")
@@ -425,7 +427,7 @@ div { margin: 0pt; padding: 0pt; }
              oldcoverimgdata) = self.story.oldcover
             outputepub.writestr(oldcoverhtmlhref,oldcoverhtmldata)
             outputepub.writestr(oldcoverimghref,oldcoverimgdata)
-            
+
             coverimgid = "image0"
             items.append((coverimgid,
                           oldcoverimghref,
@@ -439,8 +441,8 @@ div { margin: 0pt; padding: 0pt; }
             guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
                                                                    "title":"Cover",
                                                                    "href":oldcoverhtmlhref}))
-            
-            
+
+
 
         if self.getConfig('include_images'):
             imgcount=0
@@ -457,7 +459,7 @@ div { margin: 0pt; padding: 0pt; }
                     # just the first image.
                     coverimgid = items[-1][0]
 
-        
+
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
 
         if self.story.cover:
@@ -465,7 +467,7 @@ div { margin: 0pt; padding: 0pt; }
             # for it to work on Nook.
             items.append(("cover","OEBPS/cover.xhtml","application/xhtml+xml",None))
             itemrefs.append("cover")
-            # 
+            #
             # <meta name="cover" content="cover.jpg"/>
             metadata.appendChild(newTag(contentdom,"meta",{"content":coverimgid,
                                                            "name":"cover"}))
@@ -478,14 +480,22 @@ div { margin: 0pt; padding: 0pt; }
             guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
                                                        "title":"Cover",
                                                        "href":"OEBPS/cover.xhtml"}))
-            
+
             if self.hasConfig("cover_content"):
                 COVER = string.Template(self.getConfig("cover_content"))
             else:
                 COVER = self.EPUB_COVER
             coverIO = StringIO.StringIO()
             coverIO.write(COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
-            
+
+        ## For reasons unknown, this code has to be after the cover or
+        ## it interferes with calibre's ability to correctly find the
+        ## cover image in the epub...
+        ## save a copy of *all*raw* metadata for future use
+        metadata.appendChild(newTag(contentdom,"meta",
+                                    attrs={"name":"fanficfare:story_metadata",
+                                           "content":jsondumps(self.story.metadata)}))
+
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
@@ -500,7 +510,7 @@ div { margin: 0pt; padding: 0pt; }
         if dologpage:
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
-            
+
         for index, (url,title,html) in enumerate(self.story.getChapters(fortoc=True)):
             if html:
                 i=index+1
@@ -518,7 +528,7 @@ div { margin: 0pt; padding: 0pt; }
                                         attrs={'id':id,
                                                'href':href,
                                                'media-type':type}))
-        
+
         spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
         package.appendChild(spine)
         for itemref in itemrefs:
@@ -528,10 +538,10 @@ div { margin: 0pt; padding: 0pt; }
         # guide only exists if there's a cover.
         if guide:
             package.appendChild(guide)
-            
+
         # write content.opf to zip.
         contentxml = contentdom.toxml(encoding='utf-8')
-        
+
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
         contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
                                         '<meta name="cover" content="%s"/>'%coverimgid)
@@ -555,11 +565,11 @@ div { margin: 0pt; padding: 0pt; }
                                 attrs={"name":"dtb:totalPageCount", "content":"0"}))
         head.appendChild(newTag(tocncxdom,"meta",
                                 attrs={"name":"dtb:maxPageNumber", "content":"0"}))
-        
+
         docTitle = tocncxdom.createElement("docTitle")
         docTitle.appendChild(newTag(tocncxdom,"text",text=self.getMetadata('title')))
         ncx.appendChild(docTitle)
-    
+
         tocnavMap = tocncxdom.createElement("navMap")
         ncx.appendChild(tocnavMap)
 
@@ -584,14 +594,14 @@ div { margin: 0pt; padding: 0pt; }
                 navLabel.appendChild(newTag(tocncxdom,"text",text=stripHTML(title)))
                 navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
                 index=index+1
-        
+
         # write toc.ncx to zip file
         outputepub.writestr("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
         tocncxdom.unlink()
         del tocncxdom
 
         # write stylesheet.css file.
-        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata())) 
+        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))
 
         # write title page.
         if self.getConfig("titlepage_use_table"):
@@ -610,7 +620,7 @@ div { margin: 0pt; padding: 0pt; }
         if coverIO:
             outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
-            
+
         titlepageIO = StringIO.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
@@ -622,7 +632,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/title_page.xhtml",titlepageIO.getvalue())
         titlepageIO.close()
 
-        # write toc page.  
+        # write toc page.
         tocpageIO = StringIO.StringIO()
         self.writeTOCPage(tocpageIO,
                           self.EPUB_TOC_PAGE_START,
@@ -643,12 +653,12 @@ div { margin: 0pt; padding: 0pt; }
             CHAPTER_START = string.Template(self.getConfig("chapter_start"))
         else:
             CHAPTER_START = self.EPUB_CHAPTER_START
-        
+
         if self.hasConfig('chapter_end'):
             CHAPTER_END = string.Template(self.getConfig("chapter_end"))
         else:
             CHAPTER_END = self.EPUB_CHAPTER_END
-        
+
         for index, (url,title,html) in enumerate(self.story.getChapters()):
             if html:
                 logger.debug('Writing chapter text for: %s' % title)
@@ -688,3 +698,11 @@ def newTag(dom,name,attrs=None,text=None):
         tag.appendChild(dom.createTextNode(text))
     return tag
 
+## why json doesn't define a date/time format is beyond me...
+## Also need to decode when reading back in.
+def datetime_encoder(o):
+    if isinstance(o, (datetime.date, datetime.datetime, datetime.time)):
+        return o.isoformat()
+
+def jsondumps(o):
+    return json.dumps(o, default=datetime_encoder)

@@ -404,6 +404,12 @@ class BaseSiteAdapter(Configurable):
             self.metadataDone = True
         return self.story
 
+    def setStoryMetadata(self,metadata):
+        self.story.metadata = metadata
+        self.metadataDone = True
+        if not self.story.getMetadataRaw('dateUpdated'):
+            self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+    
     def hookForUpdates(self,chaptercount):
         "Usually not needed."
         return chaptercount

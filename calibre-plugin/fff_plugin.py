@@ -30,7 +30,7 @@ from calibre.constants import numeric_version as calibre_version
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.meta import get_metadata as calibre_get_metadata
 from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -55,20 +55,34 @@ try:
 except:
     HAS_CALGC=False
 
-from calibre_plugins.fanficfare_plugin.common_utils import (set_plugin_icon_resources, get_icon,
-                                                            create_menu_action_unique, get_library_uuid)
+from calibre_plugins.fanficfare_plugin.common_utils import (
+    set_plugin_icon_resources, get_icon, create_menu_action_unique,
+    get_library_uuid)
 
-from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
-from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_dcsource, get_dcsource_chaptercount, get_story_url_from_html
-from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_html, get_urls_from_text, get_urls_from_imap
+from calibre_plugins.fanficfare_plugin.fanficfare import (
+    adapters, exceptions)
 
-from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config, get_fff_personalini)
-from calibre_plugins.fanficfare_plugin.config import (permitted_values, rejecturllist)
-from calibre_plugins.fanficfare_plugin.prefs import (prefs, SAVE_YES, SAVE_NO,
-                                                     SAVE_YES_IF_IMG, SAVE_YES_UNLESS_IMG)
+from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
+    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
+    get_epub_metadata)
+
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
+    get_urls_from_page, get_urls_from_html,get_urls_from_text,
+    get_urls_from_imap)
+
+from calibre_plugins.fanficfare_plugin.fff_util import (
+    get_fff_adapter, get_fff_config, get_fff_personalini)
+
+from calibre_plugins.fanficfare_plugin.config import (
+    permitted_values, rejecturllist)
+
+from calibre_plugins.fanficfare_plugin.prefs import (
+    prefs, SAVE_YES, SAVE_NO, SAVE_YES_IF_IMG, SAVE_YES_UNLESS_IMG)
+
 from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
-    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog, RejectListDialog, EmailPassDialog,
+    LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
+    RejectListDialog, EmailPassDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
     NotGoingToDownload, RejectUrlEntry )
 
@@ -876,8 +890,6 @@ class FanFicFarePlugin(InterfaceAction):
             # book has already been flagged bad for whatever reason.
             return
 
-        skip_date_update = False
-
         adapter = get_fff_adapter(url,fileform)
         ## save and share cookiejar and pagecache between all
         ## downloads.
@@ -888,67 +900,88 @@ class FanFicFarePlugin(InterfaceAction):
             options['cookiejar'] = adapter.get_empty_cookiejar()
         adapter.set_cookiejar(options['cookiejar'])
 
-        # reduce foreground sleep time for ffnet when few books.
-        if 'ffnetcount' in options and \
-                adapter.getConfig('tweak_fg_sleep') and \
-                adapter.getSiteDomain() == 'www.fanfiction.net':
-            minslp = float(adapter.getConfig('min_fg_sleep'))
-            maxslp = float(adapter.getConfig('max_fg_sleep'))
-            dwnlds = float(adapter.getConfig('max_fg_sleep_at_downloads'))
-            m = (maxslp-minslp) / (dwnlds-1)
-            b = minslp - m
-            slp = min(maxslp,m*float(options['ffnetcount'])+b)
-            #print("m:%s b:%s = %s"%(m,b,slp))
-            adapter.set_sleep(slp)
+        ## XXX get_epub_metadata works, but how to use it?
+        if 1==0 and collision in (CALIBREONLY) and \
+                fileform == 'epub' and \
+                db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
+            adapter.setStoryMetadata(get_epub_metadata(StringIO(db.format(book['calibre_id'],'EPUB',
+                                                                          index_is_id=True))))
+            # let other exceptions percolate up.
+            story = adapter.getStoryMetadataOnly(get_cover=False)
+        else:
+            # reduce foreground sleep time for ffnet when few books.
+            if 'ffnetcount' in options and \
+                    adapter.getConfig('tweak_fg_sleep') and \
+                    adapter.getSiteDomain() == 'www.fanfiction.net':
+                minslp = float(adapter.getConfig('min_fg_sleep'))
+                maxslp = float(adapter.getConfig('max_fg_sleep'))
+                dwnlds = float(adapter.getConfig('max_fg_sleep_at_downloads'))
+                m = (maxslp-minslp) / (dwnlds-1)
+                b = minslp - m
+                slp = min(maxslp,m*float(options['ffnetcount'])+b)
+                #print("m:%s b:%s = %s"%(m,b,slp))
+                adapter.set_sleep(slp)
+    
+            ## three tries, that's enough if both user/pass & is_adult needed,
+            ## or a couple tries of one or the other
+            for x in range(0,2):
+                try:
+                    adapter.getStoryMetadataOnly(get_cover=False)
+                except exceptions.FailedToLogin, f:
+                    logger.warn("Login Failed, Need Username/Password.")
+                    userpass = UserPassDialog(self.gui,url,f)
+                    userpass.exec_() # exec_ will make it act modal
+                    if userpass.status:
+                        adapter.username = userpass.user.text()
+                        adapter.password = userpass.passwd.text()
+    
+                except exceptions.AdultCheckRequired:
+                    if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
+                                       _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
+                                       show_copy_button=False):
+                        adapter.is_adult=True
+    
+            # let other exceptions percolate up.
+            story = adapter.getStoryMetadataOnly(get_cover=False)
+    
+            series = story.getMetadata('series')
+            if not merge and series and prefs['checkforseriesurlid']:
+                # try to find *series anthology* by *seriesUrl* identifier url or uri first.
+                searchstr = self.make_id_searchstr(story.getMetadata('seriesUrl'))
+                identicalbooks = db.search_getting_ids(searchstr, None)
+                # print("searchstr:%s"%searchstr)
+                # print("identicalbooks:%s"%identicalbooks)
+                if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
+                                                                  <h3>%s</h3>
+                                                                  <p>%s</p>
+                                                                  <p>%s</p>
+                                                                  <p>%s</p>
+                                                               '''%(
+                                                               _('Skip Anthology Story?'),
+                                                               _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                               _("Click '<b>Yes</b>' to Skip."),
+                                                               _("Click '<b>No</b>' to download anyway.")),
+                                                               show_copy_button=False):
+                    book['comment'] = _("Story in Series Anthology(%s).")%series
+                    book['title'] = story.getMetadata('title')
+                    book['author'] = [story.getMetadata('author')]
+                    book['good']=False
+                    book['icon']='rotate-right.png'
+                    book['status'] = _('Skipped')
+                    return
 
-        ## three tries, that's enough if both user/pass & is_adult needed,
-        ## or a couple tries of one or the other
-        for x in range(0,2):
-            try:
-                adapter.getStoryMetadataOnly(get_cover=False)
-            except exceptions.FailedToLogin, f:
-                logger.warn("Login Failed, Need Username/Password.")
-                userpass = UserPassDialog(self.gui,url,f)
-                userpass.exec_() # exec_ will make it act modal
-                if userpass.status:
-                    adapter.username = userpass.user.text()
-                    adapter.password = userpass.passwd.text()
-
-            except exceptions.AdultCheckRequired:
-                if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
-                                   _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
-                                   show_copy_button=False):
-                    adapter.is_adult=True
-
-        # let other exceptions percolate up.
-        story = adapter.getStoryMetadataOnly(get_cover=False)
-
-        series = story.getMetadata('series')
-        if not merge and series and prefs['checkforseriesurlid']:
-            # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-            searchstr = self.make_id_searchstr(story.getMetadata('seriesUrl'))
-            identicalbooks = db.search_getting_ids(searchstr, None)
-            # print("searchstr:%s"%searchstr)
-            # print("identicalbooks:%s"%identicalbooks)
-            if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
-                                                              <h3>%s</h3>
-                                                              <p>%s</p>
-                                                              <p>%s</p>
-                                                              <p>%s</p>
-                                                           '''%(
-                                                           _('Skip Anthology Story?'),
-                                                           _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
-                                                           _("Click '<b>Yes</b>' to Skip."),
-                                                           _("Click '<b>No</b>' to download anyway.")),
-                                                           show_copy_button=False):
-                book['comment'] = _("Story in Series Anthology(%s).")%series
-                book['title'] = story.getMetadata('title')
-                book['author'] = [story.getMetadata('author')]
-                book['good']=False
-                book['icon']='rotate-right.png'
-                book['status'] = _('Skipped')
-                return
-
+        ## if existing book, populate existing custom column values in
+        ## metadata.
+        if 'calibre_id' in book:
+            book['calibre_columns']={}
+            for key, column in self.gui.library_view.model().custom_columns.iteritems():
+                val = db.get_custom(book['calibre_id'],
+                                    label=column['label'],
+                                    index_is_id=True)
+                if val:
+                    #print("(%s)->(%s)"%('calibre.'+key,val))
+                    # name: calibre.cust.namewithouthash
+                    book['calibre_columns']['calibre_cust_'+key[1:]]={'val':val,'label':column['name']}
 
         ################################################################################################################################################33
 
@@ -1099,9 +1132,6 @@ class FanFicFarePlugin(InterfaceAction):
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
                                 raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
-                            else:
-                                # UPDATEALWAYS
-                                skip_date_update = True
                         elif chaptercount > urlchaptercount:
                             raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
@@ -1150,17 +1180,6 @@ class FanFicFarePlugin(InterfaceAction):
             logger.debug("title:"+book['title'])
             logger.debug("outfile:"+tmp.name)
             book['outfile'] = tmp.name
-
-            # cookiejar = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
-            #                                     suffix='.cookiejar',
-            #                                     dir=options['tdir'])
-            # adapter.save_cookiejar(cookiejar.name)
-            # book['cookiejar'] = cookiejar.name
-            # pagecache = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
-            #                                     suffix='.pagecache',
-            #                                     dir=options['tdir'])
-            # adapter.save_pagecache(pagecache.name)
-            # book['pagecache'] = pagecache.name
 
         return
 
@@ -1763,7 +1782,7 @@ class FanFicFarePlugin(InterfaceAction):
             or (prefs['updatecalcover'] == SAVE_YES_IF_IMG ## yes, if image.
                 and book['all_metadata']['cover_image'] )): # in ('specific','first','default','old')
             existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
-            epubmi = get_metadata(existingepub,'EPUB')
+            epubmi = calibre_get_metadata(existingepub,'EPUB')
             if epubmi.cover_data[1] is not None:
                 try:
                     db.set_cover(book_id, epubmi.cover_data[1])
@@ -1834,9 +1853,9 @@ class FanFicFarePlugin(InterfaceAction):
             if cover_generated and prefs['gc_polish_cover'] and \
                     options['fileform'] == "epub":
                 # set cover inside epub from calibre's polish feature
+                from collections import namedtuple
                 from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                 from calibre.utils.logging import Log
-                from collections import namedtuple
     
                 # Couldn't find a better way to get the cover path.
                 cover_path = os.path.join(db.library_path,
@@ -2049,7 +2068,7 @@ class FanFicFarePlugin(InterfaceAction):
             existingepub = None
             if path == None and db.has_format(book_id,'EPUB',index_is_id=True):
                 existingepub = db.format(book_id,'EPUB',index_is_id=True, as_file=True)
-                mi = get_metadata(existingepub,'EPUB')
+                mi = calibre_get_metadata(existingepub,'EPUB')
                 identifiers = mi.get_identifiers()
                 if 'url' in identifiers:
                     # print("url from get_metadata:%s"%identifiers['url'].replace('|',':'))

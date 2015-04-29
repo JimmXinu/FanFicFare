@@ -304,7 +304,8 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.linenos=dict() # key by section or section,key -> lineno
         
-        self.sectionslist = ['defaults']
+        ## [injected] section has even less priority than [defaults]
+        self.sectionslist = ['defaults','injected']
 
         if site.startswith("www."):
             sitewith = site

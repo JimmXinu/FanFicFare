@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import time, traceback
+from StringIO import StringIO
     
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -162,14 +163,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     
                 # preserve logfile even on overwrite.
                 if 'epub_for_update' in book:
-                    (urlignore,
-                     chaptercountignore,
-                     oldchaptersignore,
-                     oldimgsignore,
-                     oldcoverignore,
-                     calibrebookmarkignore,
-                     # only logfile set in adapter, so others aren't used.
-                     adapter.logfile) = get_update_data(book['epub_for_update'])
+                    adapter.logfile = get_update_data(book['epub_for_update']).logfile
     
                     # change the existing entries id to notid so
                     # write_epub writes a whole new set to indicate overwrite.
@@ -177,6 +171,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                         adapter.logfile = adapter.logfile.replace("span id","span notid")
                 
                 logger.info("write to %s"%outfile)
+                inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
                 book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
@@ -193,7 +188,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                  adapter.oldimgs,
                  adapter.oldcover,
                  adapter.calibrebookmark,
-                 adapter.logfile) = get_update_data(book['epub_for_update'])
+                 adapter.logfile) = get_update_data(book['epub_for_update'])[0:7]
     
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:
@@ -214,6 +209,7 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
                 logger.info("write to %s"%outfile)
     
+                inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
                 
                 book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
@@ -253,3 +249,22 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             
         #time.sleep(10)
     return book
+
+## calibre's columns for an existing book are pased in and injected
+## into the story's metadata.  For convenience, we also add labels and
+## valid_entries for them in a special [injected] section that has
+## even less precedence than [defaults]
+def inject_cal_cols(book,story,configuration):
+    configuration.remove_section('injected')
+    if 'calibre_columns' in book:
+        injectini = ['[injected]']
+        extra_valid = []
+        for k, v in book['calibre_columns'].iteritems():
+            story.setMetadata(k,v['val'])
+            injectini.append('%s_label:%s'%(k,v['label']))
+            extra_valid.append(k)
+        if extra_valid: # if empty, there's nothing to add.
+            injectini.append("add_to_extra_valid_entries:,"+','.join(extra_valid))
+            configuration.readfp(StringIO('\n'.join(injectini)))
+            #print("added:\n%s\n"%('\n'.join(injectini)))
+    

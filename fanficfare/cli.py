@@ -318,7 +318,13 @@ def do_download(arg,
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
                 # merging epubs.
-                url, chaptercount, adapter.oldchapters, adapter.oldimgs, adapter.oldcover, adapter.calibrebookmark, adapter.logfile = get_update_data(output_filename)
+                (url,
+                 chaptercount,
+                 adapter.oldchapters,
+                 adapter.oldimgs,
+                 adapter.oldcover,
+                 adapter.calibrebookmark,
+                 adapter.logfile) = (get_update_data(output_filename))[0:7]
 
                 print 'Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount)
 
