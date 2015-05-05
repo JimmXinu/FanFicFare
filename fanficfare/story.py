@@ -548,15 +548,17 @@ class Story(Configurable):
 
     # for saving a string-ified copy of metadata.
     def dumps_metadata(self):
-        md = {}
-        for k,v in self.metadata.iteritems():
-            if not k.startswith('calibre_'): # don't include items passed in for calibre cols.
-                md[k]=v
-        return json.dumps(md, default=datetime_encoder)
+        # md = {}
+        # for k,v in self.metadata.iteritems():
+        #     if not k.startswith('calibre_'): # don't include items passed in for calibre cols.
+        #         md[k]=v
+        # return json.dumps(md, default=datetime_encoder)
+        pass
 
     # for loading a string-ified copy of metadata.
     def loads_metadata(self,s):
-        self.metadata = json.loads(s, object_hook=datetime_decoder)
+        # self.metadata = json.loads(s, object_hook=datetime_decoder)
+        pass
         
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
@@ -943,40 +945,3 @@ def commaGroups(s):
         groups.append(s[-3:])
         s = s[:-3]
     return s + ','.join(reversed(groups))
-
-## why json doesn't define a date/time format is beyond me...
-## Also need to decode when reading back in.
-def datetime_encoder(o):
-    if isinstance(o, (datetime.date, datetime.datetime, datetime.time)):
-        return o.isoformat()
-
-## why json doesn't define a date/time format is beyond me...
-def datetime_decoder(d):
-    if isinstance(d, list):
-        pairs = enumerate(d)
-    elif isinstance(d, dict):
-        pairs = d.items()
-    result = []
-    for k,v in pairs:
-        if isinstance(v, basestring):
-            try:
-                # The %f format code is only supported in Python >= 2.6.
-                # For Python <= 2.5 strip off microseconds
-                # v = datetime.datetime.strptime(v.rsplit('.', 1)[0],
-                #     '%Y-%m-%dT%H:%M:%S')
-                v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f')
-            except ValueError:
-                try:
-                    v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
-                except ValueError:
-                    try:
-                        v = datetime.datetime.strptime(v, '%Y-%m-%d')
-                    except ValueError:
-                        pass
-        elif isinstance(v, (dict, list)):
-            v = datetime_decoder(v)
-        result.append((k, v))
-    if isinstance(d, list):
-        return [x[1] for x in result]
-    elif isinstance(d, dict):
-        return dict(result)

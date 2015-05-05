@@ -66,8 +66,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
     adapters, exceptions)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
-    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
-    get_epub_metadatas)
+    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -907,8 +906,8 @@ class FanFicFarePlugin(InterfaceAction):
         if 1==0 and collision in (CALIBREONLY) and \
                 fileform == 'epub' and \
                 db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
-            adapter.setStoryMetadata(get_epub_metadatas(StringIO(db.format(book['calibre_id'],'EPUB',
-                                                                           index_is_id=True))))
+            # adapter.setStoryMetadata(get_epub_metadatas(StringIO(db.format(book['calibre_id'],'EPUB',
+            #                                                                index_is_id=True))))
             # let other exceptions percolate up.
             story = adapter.getStoryMetadataOnly(get_cover=False)
         else:
@@ -1878,9 +1877,9 @@ class FanFicFarePlugin(InterfaceAction):
             if cover_generated and prefs['gc_polish_cover'] and \
                     options['fileform'] == "epub":
                 # set cover inside epub from calibre's polish feature
-                from collections import namedtuple
                 from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                 from calibre.utils.logging import Log
+                from collections import namedtuple
     
                 # Couldn't find a better way to get the cover path.
                 cover_path = os.path.join(db.library_path,

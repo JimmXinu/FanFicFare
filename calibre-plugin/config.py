@@ -640,15 +640,15 @@ class PersonalIniTab(QWidget):
         self.ini_button.clicked.connect(self.add_ini_button)
         self.l.addWidget(self.ini_button)
         
+        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FanFicFare."))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        
         self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
         self.defaults.setToolTip(_("View all of the plugin's configurable settings\nand their default settings."))
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
 
-        label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FanFicFare."))
-        label.setWordWrap(True)
-        self.l.addWidget(label)
-        
         self.showcalcols = QPushButton(_('Show Calibre Column Names'), self)
         self.showcalcols.setToolTip(_("FanFicFare passes the Calibre columns into the download/update process.  This will show you the columns available by name."))
         self.showcalcols.clicked.connect(self.show_showcalcols)
@@ -680,7 +680,7 @@ class PersonalIniTab(QWidget):
             self.personalini = d.get_plain_text()
                 
     def show_showcalcols(self):
-        lines=[]
+        lines=[('calibre_std_user_categories',_('User Categories'))]
         for k,f in field_metadata.iteritems():
             if f['name']: # only if it has a human readable name.
                 lines.append(('calibre_std_'+k,f['name']))

@@ -10,27 +10,17 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-from collections import namedtuple
-
-import re, os, traceback, json, datetime
+import re, os, traceback
 from zipfile import ZipFile
 from xml.dom.minidom import parseString
 
 import bs4 as bs
 
-UpdateData = namedtuple('UpdateData',
-                        'source filecount soups images oldcover '
-                        'calibrebookmark logfile metadatas')
-
 def get_dcsource(inputio):
-    return get_update_data(inputio,getfilecount=False,getsoups=False).source
+    return get_update_data(inputio,getfilecount=False,getsoups=False)[0]
 
 def get_dcsource_chaptercount(inputio):
-    nt = get_update_data(inputio,getfilecount=True,getsoups=False)
-    return (nt.source,nt.filecount)
-
-def get_epub_metadatas(inputio):
-    return get_update_data(inputio,getfilecount=False,getsoups=False).metadatas
+    return get_update_data(inputio,getfilecount=True,getsoups=False)[:2] # (source,filecount)
 
 def get_update_data(inputio,
                     getfilecount=True,
@@ -52,7 +42,7 @@ def get_update_data(inputio,
 
     ## Save the path to the .opf file--hrefs inside it are relative to it.
     relpath = get_path_part(rootfilename)
-
+            
     oldcover = None
     calibrebookmark = None
     logfile = None
@@ -146,32 +136,19 @@ def get_update_data(inputio,
 
                         for skip in soup.findAll(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
-
+                            
                         soups.append(soup)
-
+                        
                     filecount+=1
 
     try:
         calibrebookmark = epub.read("META-INF/calibre_bookmarks.txt")
     except:
         pass
-
-    metadatas = None
-    try:
-        for meta in firstmetadom.getElementsByTagName("meta"):
-            if meta.getAttribute("name")=="fanficfare:story_metadata":
-                #print("meta.getAttribute(content):%s"%meta.getAttribute("content"))
-                metadatas=meta.getAttribute("content")
-    except Exception as e:
-        pass
-        # logger.info("metadata %s not found")
-        # logger.info("Exception: %s"%(unicode(e)))
-        # traceback.print_exc()
-
+                    
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    return UpdateData(source,filecount,soups,images,oldcover,
-                      calibrebookmark,logfile,metadatas)
+    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)
@@ -195,7 +172,7 @@ def get_story_url_from_html(inputio,_is_good_url=None):
 
     ## Save the path to the .opf file--hrefs inside it are relative to it.
     relpath = get_path_part(rootfilename)
-
+            
     # spin through the manifest--only place there are item tags.
     for item in contentdom.getElementsByTagName("item"):
         # First, count the 'chapter' files.  FFF uses file0000.xhtml,
@@ -215,4 +192,3 @@ def get_story_url_from_html(inputio,_is_good_url=None):
                 if _is_good_url == None or _is_good_url(ahref):
                     return ahref
     return None
-
