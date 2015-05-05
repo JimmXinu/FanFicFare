@@ -22,8 +22,6 @@ import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import urllib
 import re
-import json
-import datetime
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -494,7 +492,7 @@ div { margin: 0pt; padding: 0pt; }
         ## save a copy of *all*raw* metadata for future use
         metadata.appendChild(newTag(contentdom,"meta",
                                     attrs={"name":"fanficfare:story_metadata",
-                                           "content":jsondumps(self.story.metadata)}))
+                                           "content":self.story.dumps_metadata()}))
 
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
@@ -697,12 +695,3 @@ def newTag(dom,name,attrs=None,text=None):
     if( text is not None ):
         tag.appendChild(dom.createTextNode(text))
     return tag
-
-## why json doesn't define a date/time format is beyond me...
-## Also need to decode when reading back in.
-def datetime_encoder(o):
-    if isinstance(o, (datetime.date, datetime.datetime, datetime.time)):
-        return o.isoformat()
-
-def jsondumps(o):
-    return json.dumps(o, default=datetime_encoder)

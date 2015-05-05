@@ -55,6 +55,9 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
+from calibre.library.field_metadata import FieldMetadata
+field_metadata = FieldMetadata()
+
 # There are a number of things used several times that shouldn't be
 # translated.  This is just a way to make that easier by keeping them
 # out of the _() strings.
@@ -646,6 +649,11 @@ class PersonalIniTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         
+        self.showcalcols = QPushButton(_('Show Calibre Column Names'), self)
+        self.showcalcols.setToolTip(_("FanFicFare passes the Calibre columns into the download/update process.  This will show you the columns available by name."))
+        self.showcalcols.clicked.connect(self.show_showcalcols)
+        self.l.addWidget(self.showcalcols)
+
         self.l.insertStretch(-1)
         # let edit box fill the space.
         
@@ -671,6 +679,26 @@ class PersonalIniTab(QWidget):
         if d.result() == d.Accepted:
             self.personalini = d.get_plain_text()
                 
+    def show_showcalcols(self):
+        lines=[]
+        for k,f in field_metadata.iteritems():
+            if f['name']: # only if it has a human readable name.
+                lines.append(('calibre_std_'+k,f['name']))
+            
+        for k, column in self.plugin_action.gui.library_view.model().custom_columns.iteritems():
+            # custom always have name.
+            lines.append(('calibre_cust_'+k[1:],column['name']))
+
+        lines.sort() # sort by key.
+
+        EditTextDialog(self,
+                       '\n'.join(['%s (%s)'%(l,k) for (k,l) in lines]),
+                       icon=self.windowIcon(),
+                       title=_('Calibre Column Entry Names'),
+                       label=_('Label (entry_name)'),
+                       read_only=True,
+                       save_size_name='fff:showcalcols').exec_()
+        
 class ReadingListTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):

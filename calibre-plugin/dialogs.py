@@ -1132,6 +1132,7 @@ class EditTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
                  icon=None, title=None, label=None, tooltip=None,
+                 read_only=False,
                  rejectreasons=[],reasonslabel=None,
                  save_size_name='fff:edit text dialog',
                  ):
@@ -1148,6 +1149,7 @@ class EditTextDialog(SizePersistedDialog):
         
         self.textedit = QTextEdit(self)
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        self.textedit.setReadOnly(read_only)
         self.textedit.setText(text)
         self.l.addWidget(self.textedit)
 

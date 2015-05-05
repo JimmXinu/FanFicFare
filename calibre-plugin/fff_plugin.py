@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 import time, os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
-from datetime import datetime, time
+from datetime import datetime, time, date
 from string import Template
 import urllib
 import email
@@ -55,6 +55,9 @@ try:
 except:
     HAS_CALGC=False
 
+from calibre.library.field_metadata import FieldMetadata
+field_metadata = FieldMetadata()
+    
 from calibre_plugins.fanficfare_plugin.common_utils import (
     set_plugin_icon_resources, get_icon, create_menu_action_unique,
     get_library_uuid)
@@ -64,7 +67,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
-    get_epub_metadata)
+    get_epub_metadatas)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -904,8 +907,8 @@ class FanFicFarePlugin(InterfaceAction):
         if 1==0 and collision in (CALIBREONLY) and \
                 fileform == 'epub' and \
                 db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
-            adapter.setStoryMetadata(get_epub_metadata(StringIO(db.format(book['calibre_id'],'EPUB',
-                                                                          index_is_id=True))))
+            adapter.setStoryMetadata(get_epub_metadatas(StringIO(db.format(book['calibre_id'],'EPUB',
+                                                                           index_is_id=True))))
             # let other exceptions percolate up.
             story = adapter.getStoryMetadataOnly(get_cover=False)
         else:
@@ -970,18 +973,40 @@ class FanFicFarePlugin(InterfaceAction):
                     book['status'] = _('Skipped')
                     return
 
-        ## if existing book, populate existing custom column values in
+        ## if existing book, populate existing calibre column values in
         ## metadata.
         if 'calibre_id' in book:
             book['calibre_columns']={}
-            for key, column in self.gui.library_view.model().custom_columns.iteritems():
-                val = db.get_custom(book['calibre_id'],
+            # std columns
+            mi = db.get_metadata(book['calibre_id'],index_is_id=True)
+            # book['calibre_columns']['calibre_std_identifiers']=\
+            #     {'val':', '.join(["%s:%s"%(k,v) for (k,v) in mi.get_identifiers().iteritems()]),
+            #                      'label':_('Ids')}
+            for k in mi.standard_field_keys():
+            # for k in mi:
+                (label,value,v,fmd) = mi.format_field_extended(k)
+                if not label and k in field_metadata:
+                    label=field_metadata[k]['name']
+                key='calibre_std_'+k
+                
+                if k == 'user_categories':
+                    value=u', '.join(mi.get(k))
+                    label=_('User Categories')
+
+                if label: # only if it has a human readable name.
+                    book['calibre_columns'][key]={'val':value,'label':label}
+                    logger.debug("%s(%s): %s"%(label,key,value))
+
+            # custom columns
+            for k, column in self.gui.library_view.model().custom_columns.iteritems():
+                key='calibre_cust_'+k[1:]
+                label=column['name']
+                value=db.get_custom(book['calibre_id'],
                                     label=column['label'],
                                     index_is_id=True)
-                if val:
-                    #print("(%s)->(%s)"%('calibre.'+key,val))
-                    # name: calibre.cust.namewithouthash
-                    book['calibre_columns']['calibre_cust_'+key[1:]]={'val':val,'label':column['name']}
+                # custom always have name.
+                book['calibre_columns'][key]={'val':value,'label':label}
+                logger.debug("%s(%s): %s"%(label,key,value))
 
         ################################################################################################################################################33
 

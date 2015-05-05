@@ -20,7 +20,7 @@ import bs4 as bs
 
 UpdateData = namedtuple('UpdateData',
                         'source filecount soups images oldcover '
-                        'calibrebookmark logfile metadata')
+                        'calibrebookmark logfile metadatas')
 
 def get_dcsource(inputio):
     return get_update_data(inputio,getfilecount=False,getsoups=False).source
@@ -29,8 +29,8 @@ def get_dcsource_chaptercount(inputio):
     nt = get_update_data(inputio,getfilecount=True,getsoups=False)
     return (nt.source,nt.filecount)
 
-def get_epub_metadata(inputio):
-    return get_update_data(inputio,getfilecount=False,getsoups=False).metadata
+def get_epub_metadatas(inputio):
+    return get_update_data(inputio,getfilecount=False,getsoups=False).metadatas
 
 def get_update_data(inputio,
                     getfilecount=True,
@@ -156,13 +156,12 @@ def get_update_data(inputio,
     except:
         pass
 
-
-    metadata = {}
+    metadatas = None
     try:
         for meta in firstmetadom.getElementsByTagName("meta"):
             if meta.getAttribute("name")=="fanficfare:story_metadata":
                 #print("meta.getAttribute(content):%s"%meta.getAttribute("content"))
-                metadata=jsonloads(meta.getAttribute("content"))
+                metadatas=meta.getAttribute("content")
     except Exception as e:
         pass
         # logger.info("metadata %s not found")
@@ -172,7 +171,7 @@ def get_update_data(inputio,
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
     return UpdateData(source,filecount,soups,images,oldcover,
-                      calibrebookmark,logfile,metadata)
+                      calibrebookmark,logfile,metadatas)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)
@@ -217,36 +216,3 @@ def get_story_url_from_html(inputio,_is_good_url=None):
                     return ahref
     return None
 
-## why json doesn't define a date/time format is beyond me...
-def datetime_decoder(d):
-    if isinstance(d, list):
-        pairs = enumerate(d)
-    elif isinstance(d, dict):
-        pairs = d.items()
-    result = []
-    for k,v in pairs:
-        if isinstance(v, basestring):
-            try:
-                # The %f format code is only supported in Python >= 2.6.
-                # For Python <= 2.5 strip off microseconds
-                # v = datetime.datetime.strptime(v.rsplit('.', 1)[0],
-                #     '%Y-%m-%dT%H:%M:%S')
-                v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f')
-            except ValueError:
-                try:
-                    v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
-                except ValueError:
-                    try:
-                        v = datetime.datetime.strptime(v, '%Y-%m-%d')
-                    except ValueError:
-                        pass
-        elif isinstance(v, (dict, list)):
-            v = datetime_decoder(v)
-        result.append((k, v))
-    if isinstance(d, list):
-        return [x[1] for x in result]
-    elif isinstance(d, dict):
-        return dict(result)
-
-def jsonloads(obj):
-    return json.loads(obj, object_hook=datetime_decoder)
