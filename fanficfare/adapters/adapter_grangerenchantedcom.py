@@ -176,7 +176,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
             
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
@@ -217,11 +217,10 @@ class GrangerEnchantedCom(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
+                while value and not defaultGetattr(value,'class') == 'label' and '<span class="label">' not in unicode(value):
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
@@ -271,7 +270,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+self.section+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -300,8 +299,7 @@ class GrangerEnchantedCom(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(self._fetchUrl(url))
         
         div = soup.find('div', {'id' : 'story1'})
 
