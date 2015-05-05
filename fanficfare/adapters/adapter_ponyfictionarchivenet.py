@@ -171,7 +171,8 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
             self.story.addToList('warnings',warning.string)
         
         status = soup.find('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
-        self.story.setMetadata('status',status.string)
+        if status: # apparently this site can have stories with neither In-Progress or Complete.
+            self.story.setMetadata('status',status.string)
         
         section = soup.findAll('span', {'class' : 'General'})[1]            
         
