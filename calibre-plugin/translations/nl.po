@@ -4,12 +4,13 @@
 # Translators:
 # Nathan Follens, 2015
 # Rodolfo_Jadon, 2014-2015
+# W.P.M.E. Hofland <wpme.hofland@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-04-27 11:35+Central Daylight Time\n"
-"PO-Revision-Date: 2015-04-28 08:32+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-05-06 09:01+0000\n"
+"Last-Translator: W.P.M.E. Hofland <wpme.hofland@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,11 +31,11 @@ msgstr "Pad naar de calibre-bibliotheek. Standaard wordt het pad gebruikt dat in
 
 #: common_utils.py:398
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Sneltoetsen"
 
 #: common_utils.py:444
 msgid "Undefined"
-msgstr ""
+msgstr "Niet gedefinieerd"
 
 #: common_utils.py:464
 msgid "Prefs Viewer dialog"
@@ -42,11 +43,11 @@ msgstr ""
 
 #: common_utils.py:465
 msgid "Preferences for: "
-msgstr ""
+msgstr "Voorkeuren voor:"
 
 #: common_utils.py:497
 msgid "Clear"
-msgstr ""
+msgstr "Wis"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
@@ -66,7 +67,7 @@ msgstr ""
 
 #: common_utils.py:528
 msgid "You must restart calibre afterwards."
-msgstr ""
+msgstr "U dient calibre achteraf te herstarten."
 
 #: common_utils.py:537
 msgid "All settings for this plugin in this library have been cleared."
@@ -78,7 +79,7 @@ msgstr ""
 
 #: common_utils.py:540
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Calibre nu herstarten"
 
 #: config.py:187
 msgid "List of Supported Sites"
@@ -94,7 +95,7 @@ msgstr "Basis"
 
 #: config.py:215
 msgid "Calibre Cover"
-msgstr ""
+msgstr "Calibre omslag"
 
 #: config.py:223
 msgid "Standard Columns"
@@ -167,7 +168,7 @@ msgstr ""
 
 #: config.py:419
 msgid "Updating Calibre Options"
-msgstr ""
+msgstr "Calibre opties bijwerken"
 
 #: config.py:423
 msgid "Delete other existing formats?"
@@ -193,7 +194,7 @@ msgstr ""
 
 #: config.py:433
 msgid "Force Author into Author Sort?"
-msgstr ""
+msgstr "Forceer auteur naar auteursortering?"
 
 #: config.py:434
 msgid ""
@@ -203,7 +204,7 @@ msgstr ""
 
 #: config.py:438
 msgid "Force Title into Title Sort?"
-msgstr ""
+msgstr "Forceer titel naar titelsortering?"
 
 #: config.py:439
 msgid ""
@@ -276,7 +277,7 @@ msgstr ""
 
 #: config.py:473
 msgid "Automatically Convert new/update books?"
-msgstr ""
+msgstr "Nieuw/bijgewerkte boeken automatisch omzetten?"
 
 #: config.py:474
 msgid ""
@@ -431,7 +432,7 @@ msgstr "Bewerk personal.ini"
 
 #: config.py:640
 msgid "View Defaults"
-msgstr ""
+msgstr "Toon standaarden"
 
 #: config.py:641
 msgid ""
@@ -704,7 +705,7 @@ msgstr "Status:%(inprog)s"
 
 #: config.py:1097 config.py:1231
 msgid "Series"
-msgstr "Series"
+msgstr "Reeks"
 
 #: config.py:1098
 msgid "Characters"
@@ -903,7 +904,7 @@ msgstr ""
 
 #: config.py:1277
 msgid "IMAP Server Name"
-msgstr ""
+msgstr "IMAP server naam"
 
 #: config.py:1278
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
@@ -911,7 +912,7 @@ msgstr ""
 
 #: config.py:1287
 msgid "IMAP User Name"
-msgstr ""
+msgstr "IMAP gebruikersnaam"
 
 #: config.py:1288
 msgid ""
@@ -921,7 +922,7 @@ msgstr ""
 
 #: config.py:1297
 msgid "IMAP User Password"
-msgstr ""
+msgstr "IMAP gebruikerswachtwoord"
 
 #: config.py:1298
 msgid ""
@@ -1071,7 +1072,7 @@ msgstr ""
 
 #: dialogs.py:498
 msgid "For Individual Books"
-msgstr ""
+msgstr "Voor individuele boeken"
 
 #: dialogs.py:499
 msgid "Get URLs and go to dialog for individual story downloads."
@@ -1487,7 +1488,7 @@ msgstr ""
 
 #: fff_plugin.py:696
 msgid "Update anyway?"
-msgstr ""
+msgstr "Toch bijwerken?"
 
 #: fff_plugin.py:697
 msgid "Stories Removed"
@@ -1539,7 +1540,7 @@ msgstr ""
 
 #: fff_plugin.py:843
 msgid "Rejected"
-msgstr ""
+msgstr "Afgewezen"
 
 #: fff_plugin.py:846
 msgid "Remove Reject URL?"
@@ -1563,7 +1564,7 @@ msgstr ""
 
 #: fff_plugin.py:918
 msgid "Are You an Adult?"
-msgstr ""
+msgstr "Bent u een volwassene?"
 
 #: fff_plugin.py:919
 msgid ""
@@ -1739,7 +1740,7 @@ msgstr "Verhaaldetails:"
 
 #: fff_plugin.py:1277
 msgid "Error Updating Metadata"
-msgstr ""
+msgstr "Fout tijdens metadata bijwerken"
 
 #: fff_plugin.py:1278
 msgid ""
@@ -1803,7 +1804,7 @@ msgstr ""
 
 #: fff_plugin.py:1466
 msgid "Merging %s books."
-msgstr ""
+msgstr "%s boeken samenvoegen."
 
 #: fff_plugin.py:1506
 msgid "FanFicFare Adding/Updating books."
@@ -1891,7 +1892,7 @@ msgstr "Antologie"
 
 #: fff_plugin.py:2230
 msgid "(was set, removed for security)"
-msgstr ""
+msgstr "(was ingesteld, voor veiligheid verwijderd)"
 
 #: jobs.py:59
 msgid "Downloading FanFiction Stories"
