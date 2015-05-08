@@ -41,7 +41,38 @@ def re_compile(regex,line):
         return re.compile(regex)
     except Exception, e: 
         raise exceptions.RegularExpresssionFailed(e,regex,line)
-    
+
+# fall back labels.
+titleLabels = {
+    'category':'Category',
+    'genre':'Genre',
+    'language':'Language',
+    'status':'Status',
+    'series':'Series',
+    'characters':'Characters',
+    'ships':'Relationships',
+    'datePublished':'Published',
+    'dateUpdated':'Updated',
+    'dateCreated':'Packaged',
+    'rating':'Rating',
+    'warnings':'Warnings',
+    'numChapters':'Chapters',
+    'numWords':'Words',
+    'site':'Site',
+    'storyId':'Story ID',
+    'authorId':'Author ID',
+    'extratags':'Extra Tags',
+    'title':'Title',
+    'storyUrl':'Story URL',
+    'description':'Summary',
+    'author':'Author',
+    'authorUrl':'Author URL',
+    'formatname':'File Format',
+    'formatext':'File Extension',
+    'siteabbrev':'Site Abbrev',
+    'version':'Downloader Version'
+    }
+
 formatsections = ['html','txt','epub','mobi']
 othersections = ['defaults','overrides']
 
@@ -607,3 +638,13 @@ class Configurable(object):
 
     def get_config_list(self, sections, key):
         return self.configuration.get_config_list(sections,key)
+
+    def get_label(self, entry):
+        if self.hasConfig(entry+"_label"):
+            label=self.getConfig(entry+"_label")
+        elif entry in titleLabels:
+            label=titleLabels[entry]
+        else:
+            label=entry.title()
+        return label
+

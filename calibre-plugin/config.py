@@ -323,6 +323,9 @@ class ConfigWidget(QWidget):
         # error column
         prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
 
+        # metadata column
+        prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
+
         # cust cols tab
         colsmap = {}
         for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
@@ -680,14 +683,15 @@ class PersonalIniTab(QWidget):
             self.personalini = d.get_plain_text()
                 
     def show_showcalcols(self):
-        lines=[('calibre_std_user_categories',_('User Categories'))]
+        lines=[]#[('calibre_std_user_categories',_('User Categories'))]
         for k,f in field_metadata.iteritems():
             if f['name']: # only if it has a human readable name.
                 lines.append(('calibre_std_'+k,f['name']))
             
         for k, column in self.plugin_action.gui.library_view.model().custom_columns.iteritems():
-            # custom always have name.
-            lines.append(('calibre_cust_'+k[1:],column['name']))
+            if k != prefs['savemetacol']:
+                # custom always have name.
+                lines.append(('calibre_cust_'+k[1:],column['name']))
 
         lines.sort() # sort by key.
 
@@ -1234,6 +1238,21 @@ class CustomColumnsTab(QWidget):
                 self.errorcol.addItem(column['name'],key)
         self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
         horz.addWidget(self.errorcol)
+        self.l.addLayout(horz)
+        
+        horz = QHBoxLayout()
+        label = QLabel(_("Saved Metadata Column:"))
+        tooltip=_("If set, FanFicFare will save a copy of all its metadata in this column when the book is downloaded or updated.<br/>The metadata from this column can later be used to update custom columns without having to request the metadata from the server again.<br/>(Long Text columns only.)")
+        label.setToolTip(tooltip)
+        horz.addWidget(label)
+        self.savemetacol = QComboBox(self)
+        self.savemetacol.setToolTip(tooltip)
+        self.savemetacol.addItem('','none')
+        for key, column in custom_columns.iteritems():
+            if column['datatype'] in ('comments'):
+                self.savemetacol.addItem(column['name'],key)
+        self.savemetacol.setCurrentIndex(self.savemetacol.findData(prefs['savemetacol']))
+        horz.addWidget(self.savemetacol)
         self.l.addLayout(horz)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])

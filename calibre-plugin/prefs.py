@@ -98,6 +98,7 @@ default_prefs['countpagesstats'] = []
 default_prefs['wordcountmissing'] = False
 
 default_prefs['errorcol'] = ''
+default_prefs['savemetacol'] = ''
 default_prefs['custom_cols'] = {}
 default_prefs['custom_cols_newonly'] = {}
 default_prefs['allow_custcol_from_ini'] = True

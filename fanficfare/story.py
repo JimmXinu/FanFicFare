@@ -26,6 +26,8 @@ import logging
 logger = logging.getLogger(__name__)
 import urlparse as up
 
+import bs4
+
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
@@ -546,19 +548,61 @@ class Story(Configurable):
         else:
             return self.join_list(key,retlist)
 
-    # for saving a string-ified copy of metadata.
-    def dumps_metadata(self):
-        # md = {}
-        # for k,v in self.metadata.iteritems():
-        #     if not k.startswith('calibre_'): # don't include items passed in for calibre cols.
-        #         md[k]=v
-        # return json.dumps(md, default=datetime_encoder)
-        pass
+    # for saving an html-ified copy of metadata.
+    def dump_html_metadata(self):
+        lines=[]
+        for k,v in sorted(self.metadata.iteritems()):
+            classes=['metadata']
+            if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
+                classes.append("datetime")
+                val = v.isoformat()
+            elif isinstance(v,list):
+                classes.append("list")
+                val = "<ul>\n<li>%s</li>\n</ul>"%"</li>\n<li>".join(v)
+            elif isinstance(v, (int)):
+                classes.append("int")
+                val = v
+            else:
+                val = v
 
-    # for loading a string-ified copy of metadata.
-    def loads_metadata(self,s):
+            if not k.startswith('calibre_'): # don't include items passed in for calibre cols.
+                lines.append("<p><span class='label'>%s</span>: <div class='%s' id='%s'>%s</div><p>\n"%(
+                        self.get_label(k),
+                        " ".join(classes),
+                        k,val))
+        return "\n".join(lines)
+
+    # for loading an html-ified copy of metadata.
+    def load_html_metadata(self,data):
+        soup = bs4.BeautifulSoup(data,'html5lib')
+        for tag in soup.find_all('div','metadata'):
+            val = None
+            if 'datetime' in tag['class']:
+                v = tag.string
+                try:
+                    val = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f')
+                except ValueError:
+                    try:
+                        val = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
+                    except ValueError:
+                        try:
+                            val = datetime.datetime.strptime(v, '%Y-%m-%d')
+                        except ValueError:
+                            pass
+            elif 'list' in tag['class']:
+                val = []
+                for i in tag.find_all('li'):
+                    val.append(i.string)
+            elif 'int' in tag['class']:
+                val = int(tag.string)
+            else:
+                val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
+                
+            logger.debug("tag['id'](%s)=val(%s)"%(tag['id'],val))
+            if val:
+                self.metadata[tag['id']]=val
+                
         # self.metadata = json.loads(s, object_hook=datetime_decoder)
-        pass
         
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):

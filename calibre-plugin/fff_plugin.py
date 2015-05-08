@@ -86,6 +86,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
+    CALIBREONLYSAVECOL,
     NotGoingToDownload, RejectUrlEntry )
 
 # because calibre immediately transforms html into zip and don't want
@@ -902,12 +903,21 @@ class FanFicFarePlugin(InterfaceAction):
             options['cookiejar'] = adapter.get_empty_cookiejar()
         adapter.set_cookiejar(options['cookiejar'])
 
-        ## XXX get_epub_metadata works, but how to use it?
-        if 1==0 and collision in (CALIBREONLY) and \
-                fileform == 'epub' and \
-                db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
-            # adapter.setStoryMetadata(get_epub_metadatas(StringIO(db.format(book['calibre_id'],'EPUB',
-            #                                                                index_is_id=True))))
+        ## XXX  1==0 and 
+        if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
+            custom_columns = self.gui.library_view.model().custom_columns
+            if ( collision in (CALIBREONLYSAVECOL) and
+                 book['calibre_id'] and
+                 prefs['savemetacol'] != '' and 
+                 prefs['savemetacol'] in custom_columns ):
+                label = custom_columns[prefs['savemetacol']]['label']
+                savedmetadata = db.get_custom(book['calibre_id'], label=label, index_is_id=True)
+            else:
+                savedmetadata = None
+                
+            if savedmetadata:
+                adapter.setStoryMetadata(savedmetadata)
+                
             # let other exceptions percolate up.
             story = adapter.getStoryMetadataOnly(get_cover=False)
         else:
@@ -988,9 +998,9 @@ class FanFicFarePlugin(InterfaceAction):
                     label=field_metadata[k]['name']
                 key='calibre_std_'+k
                 
-                if k == 'user_categories':
-                    value=u', '.join(mi.get(k))
-                    label=_('User Categories')
+                # if k == 'user_categories':
+                #     value=u', '.join(mi.get(k))
+                #     label=_('User Categories')
 
                 if label: # only if it has a human readable name.
                     book['calibre_columns'][key]={'val':value,'label':label}
@@ -998,15 +1008,16 @@ class FanFicFarePlugin(InterfaceAction):
 
             # custom columns
             for k, column in self.gui.library_view.model().custom_columns.iteritems():
-                key='calibre_cust_'+k[1:]
-                label=column['name']
-                value=db.get_custom(book['calibre_id'],
-                                    label=column['label'],
-                                    index_is_id=True)
-                # custom always have name.
-                book['calibre_columns'][key]={'val':value,'label':label}
-                logger.debug("%s(%s): %s"%(label,key,value))
-
+                if k != prefs['savemetacol']:
+                    key='calibre_cust_'+k[1:]
+                    label=column['name']
+                    value=db.get_custom(book['calibre_id'],
+                                        label=column['label'],
+                                        index_is_id=True)
+                    # custom always have name.
+                    book['calibre_columns'][key]={'val':value,'label':label}
+                    # logger.debug("%s(%s): %s"%(label,key,value))
+    
         ################################################################################################################################################33
 
         # set PI version instead of default.
@@ -1015,7 +1026,8 @@ class FanFicFarePlugin(InterfaceAction):
 
         # all_metadata duplicates some data, but also includes extra_entries, etc.
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-
+        book['savemetacol'] = story.dump_html_metadata()
+        
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
@@ -1042,7 +1054,7 @@ class FanFicFarePlugin(InterfaceAction):
             book['timestamp'] = None # need *something* there for calibre.
 
         if not merge:# skip all the collision code when d/ling for merging.
-            if collision in (CALIBREONLY):
+            if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
                 book['icon'] = 'metadata.png'
                 book['status'] = _('Meta')
 
@@ -1083,7 +1095,7 @@ class FanFicFarePlugin(InterfaceAction):
                     raise NotGoingToDownload(_("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite."),"minusminus.png")
 
                 ## changed: add new book when CALIBREONLY if none found.
-                if collision == CALIBREONLY and not identicalbooks:
+                if collision in (CALIBREONLY, CALIBREONLYSAVECOL) and not identicalbooks:
                     collision = ADDNEW
                     options['collision'] = ADDNEW
 
@@ -1138,7 +1150,7 @@ class FanFicFarePlugin(InterfaceAction):
                                 return
 
             if book_id != None and collision != ADDNEW:
-                if collision in (CALIBREONLY):
+                if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
                     book['comment'] = _('Metadata collected.')
                     # don't need temp file created below.
                     return
@@ -1221,7 +1233,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         ## No need to BG process when CALIBREONLY!  Fake it.
         #print("options:%s"%options)
-        if options['collision'] == CALIBREONLY:
+        if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
             class NotJob(object):
                 def __init__(self,result):
                     self.failed=False
@@ -1306,10 +1318,10 @@ class FanFicFarePlugin(InterfaceAction):
         logger.debug("add/update %s %s"%(book['title'],book['url']))
         mi = self.make_mi_from_book(book)
 
-        if options['collision'] != CALIBREONLY:
+        if options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
             self.add_book_or_update_format(book,options,prefs,mi)
 
-        if options['collision'] == CALIBREONLY or \
+        if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
             try:
                 self.update_metadata(db, book['calibre_id'], book, mi, options)
@@ -1336,7 +1348,7 @@ class FanFicFarePlugin(InterfaceAction):
         failed_list = filter(lambda x : not x['good'] , book_list)
         failed_ids = [ x['calibre_id'] for x in failed_list ]
 
-        if options['collision'] != CALIBREONLY and \
+        if options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL) and \
                 (prefs['addtolists'] or prefs['addtoreadlists']):
             self.update_reading_lists(all_ids,add=True)
 
@@ -1400,7 +1412,7 @@ class FanFicFarePlugin(InterfaceAction):
             if countpagesstats:
                 cp_plugin.count_statistics(all_ids,countpagesstats)
 
-        if prefs['autoconvert'] and options['collision'] != CALIBREONLY:
+        if prefs['autoconvert'] and options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
             self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
             self.gui.iactions['Convert Books'].auto_convert_auto_add(all_ids)
 
@@ -1681,6 +1693,10 @@ class FanFicFarePlugin(InterfaceAction):
         # do configured column updates here.
         #print("all_metadata: %s"%book['all_metadata'])
         custom_columns = self.gui.library_view.model().custom_columns
+
+        if 'savemetacol' in book and prefs['savemetacol'] != '' and prefs['savemetacol'] in custom_columns:
+            label = custom_columns[prefs['savemetacol']]['label']
+            self.set_custom(db, book_id, 'comment', book['savemetacol'], label=label, commit=True) # book['comment'] book['savemetacol'] = story.dump_html_metadata()
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
         for col, meta in prefs['custom_cols'].iteritems():

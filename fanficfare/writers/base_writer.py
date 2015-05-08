@@ -45,36 +45,6 @@ class BaseStoryWriter(Configurable):
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
         
-        # fall back labels.
-        self.titleLabels = {
-            'category':'Category',
-            'genre':'Genre',
-            'language':'Language',
-            'status':'Status',
-            'series':'Series',
-            'characters':'Characters',
-            'ships':'Relationships',
-            'datePublished':'Published',
-            'dateUpdated':'Updated',
-            'dateCreated':'Packaged',
-            'rating':'Rating',
-            'warnings':'Warnings',
-            'numChapters':'Chapters',
-            'numWords':'Words',
-            'site':'Site',
-            'storyId':'Story ID',
-            'authorId':'Author ID',
-            'extratags':'Extra Tags',
-            'title':'Title',
-            'storyUrl':'Story URL',
-            'description':'Summary',
-            'author':'Author',
-            'authorUrl':'Author URL',
-            'formatname':'File Format',
-            'formatext':'File Extension',
-            'siteabbrev':'Site Abbrev',
-            'version':'Downloader Version'
-            }
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
 
@@ -135,15 +105,16 @@ class BaseStoryWriter(Configurable):
                             TEMPLATE=WIDE_ENTRY
                         else:
                             TEMPLATE=ENTRY
-                            
-                        if self.hasConfig(entry+"_label"):
-                            label=self.getConfig(entry+"_label")
-                        elif entry in self.titleLabels:
-                            logger.debug("Using fallback label for %s_label"%entry)
-                            label=self.titleLabels[entry]
-                        else:
-                            label="%s"%entry.title()
-                            logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
+
+                        label=self.get_label(entry)
+                        # if self.hasConfig(entry+"_label"):
+                        #     label=self.getConfig(entry+"_label")
+                        # elif entry in self.titleLabels:
+                        #     logger.debug("Using fallback label for %s_label"%entry)
+                        #     label=self.titleLabels[entry]
+                        # else:
+                        #     label="%s"%entry.title()
+                        #     logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                         # If the label for the title entry is empty, use the
                         # 'no title' option if there is one.

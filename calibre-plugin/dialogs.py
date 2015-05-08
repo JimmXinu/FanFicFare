@@ -79,14 +79,16 @@ UPDATE=_('Update EPUB if New Chapters')
 UPDATEALWAYS=_('Update EPUB Always')
 OVERWRITE=_('Overwrite if Newer')
 OVERWRITEALWAYS=_('Overwrite Always')
-CALIBREONLY=_('Update Calibre Metadata Only')
+CALIBREONLY=_('Update Calibre Metadata from Web Site')
+CALIBREONLYSAVECOL=_('Update Calibre Metadata from Saved Metadata Column')
 collision_order=[SKIP,
                  ADDNEW,
                  UPDATE,
                  UPDATEALWAYS,
                  OVERWRITE,
                  OVERWRITEALWAYS,
-                 CALIBREONLY,]
+                 CALIBREONLY,
+                 CALIBREONLYSAVECOL,]
 
 # best idea I've had for how to deal with config/pref saving the
 # collision name in english.
@@ -97,6 +99,7 @@ SAVE_UPDATEALWAYS='Update EPUB Always'
 SAVE_OVERWRITE='Overwrite if Newer'
 SAVE_OVERWRITEALWAYS='Overwrite Always'
 SAVE_CALIBREONLY='Update Calibre Metadata Only'
+SAVE_CALIBREONLYSAVECOL='Update Calibre Metadata Only(Saved Column)'
 save_collisions={
     SKIP:SAVE_SKIP,
     ADDNEW:SAVE_ADDNEW,
@@ -112,6 +115,7 @@ save_collisions={
     SAVE_OVERWRITE:OVERWRITE,
     SAVE_OVERWRITEALWAYS:OVERWRITEALWAYS,
     SAVE_CALIBREONLY:CALIBREONLY,
+    SAVE_CALIBREONLYSAVECOL:CALIBREONLYSAVECOL,
     }
     
 anthology_collision_order=[UPDATE,

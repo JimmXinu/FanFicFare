@@ -258,14 +258,15 @@ div { margin: 0pt; padding: 0pt; }
             if self.isValidMetaEntry(entry):
                 val = self.story.getMetadata(entry)
                 if val and ( entry not in oldvalues or val != oldvalues[entry] ):
-                    if self.hasConfig(entry+"_label"):
-                        label=self.getConfig(entry+"_label")
-                    elif entry in self.titleLabels:
-                        logger.debug("Using fallback label for %s_label"%entry)
-                        label=self.titleLabels[entry]
-                    else:
-                        label="%s"%entry.title()
-                        logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
+                    label=self.get_label(entry)
+                    # if self.hasConfig(entry+"_label"):
+                    #     label=self.getConfig(entry+"_label")
+                    # elif entry in self.titleLabels:
+                    #     logger.debug("Using fallback label for %s_label"%entry)
+                    #     label=self.titleLabels[entry]
+                    # else:
+                    #     label="%s"%entry.title()
+                    #     logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                     retval = retval + ENTRY.substitute({'id':entry,
                                                         'label':label,
