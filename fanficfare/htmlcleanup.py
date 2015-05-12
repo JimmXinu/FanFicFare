@@ -81,10 +81,10 @@ def removeEntities(text):
     
     try:
         t = text.decode('utf-8')
-    except UnicodeEncodeError, e:
+    except (UnicodeEncodeError,UnicodeDecodeError), e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 
-        except UnicodeEncodeError, e:
+        except (UnicodeEncodeError,UnicodeDecodeError), e:
             t = text
     text = t 
     # replace numeric versions of [&<>] with named versions,
