@@ -1004,7 +1004,7 @@ class FanFicFarePlugin(InterfaceAction):
 
                 if label: # only if it has a human readable name.
                     book['calibre_columns'][key]={'val':value,'label':label}
-                    logger.debug("%s(%s): %s"%(label,key,value))
+                    #logger.debug("%s(%s): %s"%(label,key,value))
 
             # custom columns
             for k, column in self.gui.library_view.model().custom_columns.iteritems():
@@ -1015,6 +1015,8 @@ class FanFicFarePlugin(InterfaceAction):
                                         label=column['label'],
                                         index_is_id=True)
                     # custom always have name.
+                    if value is None:
+                        value=''
                     book['calibre_columns'][key]={'val':value,'label':label}
                     # logger.debug("%s(%s): %s"%(label,key,value))
     
