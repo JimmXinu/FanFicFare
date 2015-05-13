@@ -558,6 +558,11 @@ class Story(Configurable):
                 val = v.isoformat()
             elif isinstance(v,list):
                 classes.append("list")
+                if '' in v:
+                    v.remove('')
+                if None in v:
+                    v.remove(None)
+                #logger.debug("k:%s v:%s"%(k,v))
                 val = "<ul>\n<li>%s</li>\n</ul>"%"</li>\n<li>".join(v)
             elif isinstance(v, (int)):
                 classes.append("int")

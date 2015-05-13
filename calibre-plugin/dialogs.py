@@ -307,7 +307,7 @@ class AddNewDialog(SizePersistedDialog):
         self.collision.setToolTip("CollisionToolTip")
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(save_collisions[prefs['collision']])
+        i = self.collision.findText(save_collisions[self.prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
         self.collisionlabel.setBuddy(self.collision)
@@ -321,14 +321,14 @@ class AddNewDialog(SizePersistedDialog):
         horz = QHBoxLayout()
         self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
         self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
-        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.updatemeta.setChecked(self.prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
         self.mergehide.append(self.updatemeta)
         self.mergeupdateshow.append(self.updatemeta)
 
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
         self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        self.updateepubcover.setChecked(self.prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
         self.mergehide.append(self.updateepubcover)
         
@@ -431,12 +431,19 @@ class AddNewDialog(SizePersistedDialog):
         prev=self.collision.currentText()
         self.collision.clear()
         if self.merge:
-            order = anthology_collision_order
+            order = list(anthology_collision_order)
         else:
-            order = collision_order
+            order = list(collision_order)
+            ## Remove options that aren't valid.
+            if self.fileform.currentText() != 'epub':
+                order.remove(UPDATE)
+                order.remove(UPDATEALWAYS)
+            if self.prefs['savemetacol'] == '':
+                order.remove(CALIBREONLYSAVECOL)
+
         for o in order:
-            if self.merge or self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]:
-                self.collision.addItem(o)
+            self.collision.addItem(o)
+            
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)
@@ -787,7 +794,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.addItem('mobi')
         self.fileform.addItem('html')
         self.fileform.addItem('txt')
-        self.fileform.setCurrentIndex(self.fileform.findText(prefs['fileform']))
+        self.fileform.setCurrentIndex(self.fileform.findText(self.prefs['fileform']))
         self.fileform.setToolTip(_('Choose output format to create.  May set default from plugin configuration.'))
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
@@ -799,7 +806,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.collision.setToolTip(_("What sort of update to perform.  May set default from plugin configuration."))
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(save_collisions[prefs['collision']])
+        i = self.collision.findText(save_collisions[self.prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
         label.setBuddy(self.collision)
@@ -807,12 +814,12 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
         self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
-        self.updatemeta.setChecked(prefs['updatemeta'])
+        self.updatemeta.setChecked(self.prefs['updatemeta'])
         gbl.addWidget(self.updatemeta)
                 
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
         self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        self.updateepubcover.setChecked(self.prefs['updateepubcover'])
         gbl.addWidget(self.updateepubcover)
 
 
@@ -831,10 +838,18 @@ class UpdateExistingDialog(SizePersistedDialog):
     def set_collisions(self):
         prev=self.collision.currentText()
         self.collision.clear()
-        for o in collision_order:
-            if o not in [ADDNEW,SKIP] and \
-                    (self.fileform.currentText() == 'epub' or o not in [UPDATE,UPDATEALWAYS]):
-                self.collision.addItem(o)        
+        order = list(collision_order)
+        order.remove(ADDNEW)
+        order.remove(SKIP)
+        if self.fileform.currentText() != 'epub':
+            order.remove(UPDATE)
+            order.remove(UPDATEALWAYS)
+        if self.prefs['savemetacol'] == '':
+            order.remove(CALIBREONLYSAVECOL)
+            
+        for o in order:
+            self.collision.addItem(o)
+            
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)

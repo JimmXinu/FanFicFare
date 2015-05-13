@@ -1247,7 +1247,7 @@ class CustomColumnsTab(QWidget):
         horz.addWidget(label)
         self.savemetacol = QComboBox(self)
         self.savemetacol.setToolTip(tooltip)
-        self.savemetacol.addItem('','none')
+        self.savemetacol.addItem('','')
         for key, column in custom_columns.iteritems():
             if column['datatype'] in ('comments'):
                 self.savemetacol.addItem(column['name'],key)
