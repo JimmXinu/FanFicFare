@@ -674,6 +674,9 @@ class FanFicFarePlugin(InterfaceAction):
             remove_dir(tdir)
             return
 
+        self.busy_cursor()
+        self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
+        
         # get list from identifiers:url/uri if present, but only if
         # it's *not* a valid story URL.
         mergeurl = self.get_story_url(db,book_id)
@@ -682,6 +685,9 @@ class FanFicFarePlugin(InterfaceAction):
 
         url_list_text = "\n".join(url_list)
 
+        self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
+        self.restore_cursor()
+        
         #print("urlmapfile:%s"%urlmapfile)
 
         # AddNewDialog collects URLs, format and presents buttons.
