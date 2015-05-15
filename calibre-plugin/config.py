@@ -342,6 +342,7 @@ class ConfigWidget(QWidget):
         prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text())
         prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
         prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
+        prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
         
         prefs.save_to_db()
 
@@ -1327,6 +1328,12 @@ class ImapTab(QWidget):
         self.l.addWidget(self.imapmarkread,row,0,1,-1)
         row+=1
             
+        self.auto_reject_from_email = QCheckBox(_('Discard URLs on Reject List'),self)
+        self.auto_reject_from_email.setToolTip(_('If checked, FanFicFare will silently discard story URLs from emails that are on your Reject URL List.<br>Otherwise they will appear and you will see the normal Reject URL dialog.<br>The Emails will still be marked Read if configured to.'))
+        self.auto_reject_from_email.setChecked(prefs['auto_reject_from_email'])
+        self.l.addWidget(self.auto_reject_from_email,row,0,1,-1)
+        row+=1
+        
         label = QLabel(_("<b>It's safest if you create a separate email account that you use only "
                          "for your story update notices.  FanFicFare and calibre cannot guarantee that "
                          "malicious code cannot get your email password once you've entered it. "

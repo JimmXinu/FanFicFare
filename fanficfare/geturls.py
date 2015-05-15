@@ -216,9 +216,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
             #print("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),normalize=True))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),normalize=True))
             except Exception as e:
                 print("Failed to read email content: %s"%e)
         #print "urls:%s"%get_urls_from_text(get_first_text_block(email_message))

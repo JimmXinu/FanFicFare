@@ -20,10 +20,10 @@ import email
 import traceback
 
 try:
-    from PyQt5.Qt import (QApplication, QMenu, QTimer)
+    from PyQt5.Qt import (QApplication, QMenu, QTimer, QCursor, Qt)
     from PyQt5.QtCore import QBuffer
 except ImportError as e:
-    from PyQt4.Qt import (QApplication, QMenu, QTimer)
+    from PyQt4.Qt import (QApplication, QMenu, QTimer, QCursor, Qt)
     from PyQt4.QtCore import QBuffer
 
 from calibre.constants import numeric_version as calibre_version
@@ -421,17 +421,30 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['imapsessionpass']:
                 self.imap_pass = imap_pass
 
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
         url_list = get_urls_from_imap(prefs['imapserver'],
                                       prefs['imapuser'],
                                       imap_pass,
                                       prefs['imapfolder'],
                                       prefs['imapmarkread'],)
+        reject_list=[]
+        if prefs['auto_reject_from_email']:
+            reject_list = set([x for x in url_list if rejecturllist.check(x)])
+        url_list = url_list - reject_list
 
+        self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
+        QApplication.restoreOverrideCursor()
+        
         if url_list:
             self.add_dialog("\n".join(url_list),merge=False)
         else:
+            
+            msg = _('No Valid Story URLs Found in Unread Emails.')
+            if reject_list:
+                msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
             info_dialog(self.gui, _('Get Story URLs from Email'),
-                        _('No Valid Story URLs Found in Unread Emails.'),
+                        msg,
                         show=True,
                         show_copy_button=False)
 
