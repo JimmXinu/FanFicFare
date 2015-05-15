@@ -78,6 +78,8 @@ no_trans = { 'pini':'personal.ini',
              'p':'password',
              }
 
+STD_COLS_SKIP = ['size','cover','news','ondevice','path','series_sort','sort']
+
 from calibre_plugins.fanficfare_plugin.prefs \
     import (prefs, PREFS_NAMESPACE, updatecalcover_order, calcover_save_options,
             gencalcover_order, SAVE_YES, SAVE_NO)
@@ -686,7 +688,7 @@ class PersonalIniTab(QWidget):
     def show_showcalcols(self):
         lines=[]#[('calibre_std_user_categories',_('User Categories'))]
         for k,f in field_metadata.iteritems():
-            if f['name']: # only if it has a human readable name.
+            if f['name'] and k not in STD_COLS_SKIP: # only if it has a human readable name.
                 lines.append(('calibre_std_'+k,f['name']))
             
         for k, column in self.plugin_action.gui.library_view.model().custom_columns.iteritems():

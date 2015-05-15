@@ -570,7 +570,8 @@ class Story(Configurable):
             else:
                 val = v
 
-            if not k.startswith('calibre_'): # don't include items passed in for calibre cols.
+            # don't include items passed in for calibre cols, etc.
+            if not k.startswith('calibre_') and k not in ['output_css']:
                 lines.append("<p><span class='label'>%s</span>: <div class='%s' id='%s'>%s</div><p>\n"%(
                         self.get_label(k),
                         " ".join(classes),
@@ -603,7 +604,7 @@ class Story(Configurable):
             else:
                 val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
                 
-            logger.debug("tag['id'](%s)=val(%s)"%(tag['id'],val))
+            #logger.debug("key(%s)=val(%s)"%(tag['id'],val))
             if val:
                 self.metadata[tag['id']]=val
                 
