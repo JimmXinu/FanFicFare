@@ -354,7 +354,10 @@ class AddNewDialog(SizePersistedDialog):
                     extrapayload=None):
         # rather than mutex in fff_plugin, just bail here if it's
         # already in use.
-        if self.isVisible(): return
+        if self.isVisible():
+            if url_list_text: # add to open box.
+               self.url.setText( '\n'.join([self.get_urlstext(), url_list_text]) )
+            return
 
         try:
             self.go_signal.disconnect()
