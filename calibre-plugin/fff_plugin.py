@@ -438,7 +438,7 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['imapsessionpass']:
                 self.imap_pass = imap_pass
 
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.busy_cursor()
         self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
         url_list = get_urls_from_imap(prefs['imapserver'],
                                       prefs['imapuser'],
@@ -451,7 +451,7 @@ class FanFicFarePlugin(InterfaceAction):
         url_list = url_list - reject_list
 
         self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
-        QApplication.restoreOverrideCursor()
+        self.restore_cursor()
         
         if url_list:
             self.add_dialog("\n".join(url_list),merge=False)
@@ -482,8 +482,14 @@ class FanFicFarePlugin(InterfaceAction):
             return
         url = u"%s"%d.url.text()
 
+        self.busy_cursor()
+        self.gui.status_bar.show_message(_('Fetching Story URLs from Page...'))
+
         url_list = self.get_urls_from_page(url)
 
+        self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
+        self.restore_cursor()
+        
         if url_list:
             self.add_dialog("\n".join(url_list),merge=d.anthology,anthology_url=url)
         else:
@@ -2277,6 +2283,12 @@ class FanFicFarePlugin(InterfaceAction):
 
         return book
 
+    def busy_cursor(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def restore_cursor(self):
+        QApplication.restoreOverrideCursor()
+    
 def split_text_to_urls(urls):
     # remove dups while preserving order.
     dups=set()
