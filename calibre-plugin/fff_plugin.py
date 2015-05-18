@@ -428,7 +428,7 @@ class FanFicFarePlugin(InterfaceAction):
                                       imap_pass,
                                       prefs['imapfolder'],
                                       prefs['imapmarkread'],)
-        reject_list=[]
+        reject_list=set()
         if prefs['auto_reject_from_email']:
             reject_list = set([x for x in url_list if rejecturllist.check(x)])
         url_list = url_list - reject_list
