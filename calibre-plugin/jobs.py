@@ -164,8 +164,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     
                 # preserve logfile even on overwrite.
                 if 'epub_for_update' in book:
-                    adapter.logfile = get_update_data(book['epub_for_update']).logfile
-    
+                    
+                    adapter.logfile = get_update_data(book['epub_for_update'])[6]
                     # change the existing entries id to notid so
                     # write_epub writes a whole new set to indicate overwrite.
                     if adapter.logfile:
