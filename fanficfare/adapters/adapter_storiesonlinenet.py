@@ -259,7 +259,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
-                    universe_name = universe_soup.find('h1', {'id' : 'ptitle'}).text.partition(' &mdash;')[0]
+                    universe_name = universe_soup.find('h1', {'id' : 'ptitle'}).text.partition('—')[0]
                     logger.debug("Universes name: '{0}'".format(universe_name))
 
                 self.story.setMetadata('universeUrl',universeUrl)
