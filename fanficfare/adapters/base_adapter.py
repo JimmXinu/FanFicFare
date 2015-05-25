@@ -279,6 +279,16 @@ class BaseSiteAdapter(Configurable):
                      parameters=None,
                      extrasleep=None,
                      usecache=True):
+        
+        return self._fetchUrlRawOpened(url,
+                                       parameters,
+                                       extrasleep,
+                                       usecache)[0]
+        
+    def _fetchUrlRawOpened(self, url,
+                           parameters=None,
+                           extrasleep=None,
+                           usecache=True):
         '''
         When should cache be cleared or not used? logins...
         
@@ -289,16 +299,24 @@ class BaseSiteAdapter(Configurable):
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache HIT: %s"%cachekey)
-            return self._get_from_pagecache(cachekey)
+            data = self._get_from_pagecache(cachekey)
+            class FakeOpened:
+                def __init__(self,data,url):
+                    self.data=data
+                    self.url=url
+                def geturl(self): return self.url
+                def read(self): return self.data
+            return (data,FakeOpened(data,cachekey))
         
         logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
         if parameters != None:
-            data = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
+            opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
         else:
-            data = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0))).read()
+            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+        data = opened.read()
         self._set_to_pagecache(cachekey,data)
-        return data
+        return (data,opened)
 
     def set_sleep(self,val):
         logger.debug("\n===========\n set sleep time %s\n==========="%val)
@@ -312,20 +330,30 @@ class BaseSiteAdapter(Configurable):
         elif self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
         
-    # parameters is a dict()
     def _fetchUrl(self, url,
                   parameters=None,
                   usecache=True,
                   extrasleep=None):
+        return self._fetchUrlOpened(url,
+                                    parameters,
+                                    usecache,
+                                    extrasleep)[0]
+
+    # parameters is a dict()
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=None):
 
         excpt=None
         for sleeptime in [0, 0.5, 4, 9]:
             time.sleep(sleeptime)	
             try:
-                return self._decode(self._fetchUrlRaw(url,
+                (data,opened)=self._fetchUrlRawOpened(url,
                                                       parameters=parameters,
                                                       usecache=usecache,
-                                                      extrasleep=extrasleep))
+                                                      extrasleep=extrasleep)
+                return (self._decode(data),opened)
             except u2.HTTPError, he:
                 excpt=he
                 if he.code == 404:
@@ -399,7 +427,10 @@ class BaseSiteAdapter(Configurable):
             self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
             
             if not self.story.getMetadataRaw('dateUpdated'):
-                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                if self.story.getMetadataRaw('datePublished'):
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                else:
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
 
             self.metadataDone = True
         return self.story
@@ -409,7 +440,10 @@ class BaseSiteAdapter(Configurable):
             self.story.load_html_metadata(metahtml)
             self.metadataDone = True
             if not self.story.getMetadataRaw('dateUpdated'):
-                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                if self.story.getMetadataRaw('datePublished'):
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                else:
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
     
     def hookForUpdates(self,chaptercount):
         "Usually not needed."
