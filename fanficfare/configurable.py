@@ -142,7 +142,8 @@ def get_valid_set_options():
                
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
-               'do_update_hook':(['fimfiction.net'],None,boollist),
+               'do_update_hook':(['fimfiction.net',
+                                  'archiveofourown.org'],None,boollist),
 
                'force_login':(['phoenixsong.net'],None,boollist),
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
