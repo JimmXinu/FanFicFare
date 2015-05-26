@@ -230,7 +230,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         fandoms = a.findAll('a',{'class':"tag"})
         for fandom in fandoms:
             self.story.addToList('fandoms',fandom.string)
-            self.story.addToList('category',fandom.string)
 		
         a = metasoup.find('dd',{'class':"warning tags"})
         if a != None:
@@ -243,7 +242,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             genres = a.findAll('a',{'class':"tag"})
             for genre in genres:
                 self.story.addToList('freeformtags',genre.string)
-                self.story.addToList('genre',genre.string)
                 
         a = metasoup.find('dd',{'class':"category tags"})
         if a != None:
@@ -251,7 +249,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             for genre in genres:
                 if genre != "Gen":
                     self.story.addToList('ao3categories',genre.string)
-                    self.story.addToList('genre',genre.string)
 		
         a = metasoup.find('dd',{'class':"character tags"})
         if a != None:
