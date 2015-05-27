@@ -737,9 +737,6 @@ class Story(Configurable):
         if not value in self.metadata[listname]:
             self.metadata[listname].append(value)
 
-        if listname == 'category' and self.getConfig('add_genre_when_multi_category') and len(self.metadata[listname]) > 1:
-            self.addToList('genre',self.getConfig('add_genre_when_multi_category'))
-
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
         return self.isListType(listname) or \
@@ -780,6 +777,9 @@ class Story(Configurable):
                 retlist = map(removeAllEntities,retlist)
 
             retlist = filter( lambda x : x!=None and x!='' ,retlist)
+
+        if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category')) > 1:
+            retlist.append(self.getConfig('add_genre_when_multi_category'))
 
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
         # use replace_metadata to change separator first if needed.
