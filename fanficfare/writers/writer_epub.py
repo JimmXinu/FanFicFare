@@ -654,7 +654,9 @@ div { margin: 0pt; padding: 0pt; }
             if html:
                 logger.debug('Writing chapter text for: %s' % title)
                 vals={'url':url, 'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
-                fullhtml = CHAPTER_START.substitute(vals) + html + CHAPTER_END.substitute(vals)
+                fullhtml = CHAPTER_START.substitute(vals) + \
+                    '<a href="'+url+'" class="chapterurl"></a>' + \
+                    html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big

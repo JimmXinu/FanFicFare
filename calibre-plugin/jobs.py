@@ -190,7 +190,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                  adapter.oldimgs,
                  adapter.oldcover,
                  adapter.calibrebookmark,
-                 adapter.logfile) = get_update_data(book['epub_for_update'])[0:7]
+                 adapter.logfile,
+                 adapter.oldchaptersmap) = get_update_data(book['epub_for_update'])[0:8]
     
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:

@@ -90,6 +90,7 @@ def get_update_data(inputio,
 
     filecount = 0
     soups = [] # list of xhmtl blocks
+    urlsoups = {} # map of xhtml blocks by url
     images = {} # dict() longdesc->data
     if getfilecount:
         # spin through the manifest--only place there are item tags.
@@ -136,6 +137,11 @@ def get_update_data(inputio,
 
                         for skip in soup.findAll(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
+
+                        chapa = soup.find('a',{'class':'chapterurl'})
+                        if chapa:
+                            urlsoups[chapa['href']] = soup
+                            chapa.extract()
                             
                         soups.append(soup)
                         
@@ -148,7 +154,7 @@ def get_update_data(inputio,
                     
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile)
+    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)

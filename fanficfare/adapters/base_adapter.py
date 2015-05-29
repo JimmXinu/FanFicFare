@@ -104,6 +104,7 @@ class BaseSiteAdapter(Configurable):
         self.chapterFirst = None
         self.chapterLast = None
         self.oldchapters = None
+        self.oldchaptersmap = None
         self.oldimgs = None
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
@@ -386,11 +387,17 @@ class BaseSiteAdapter(Configurable):
                                           removeEntities(title),
                                           None)
                 else:
-                    if self.oldchapters and index < len(self.oldchapters):
+                    data = None
+                    if self.oldchaptersmap:
+                        if url in self.oldchaptersmap:
+                            data = self.utf8FromSoup(None,
+                                                     self.oldchaptersmap[url],
+                                                     partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                    elif self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
                                                  self.oldchapters[index],
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
-                    else:
+                    if not data:
                         data = self.getChapterText(url)
                     self.story.addChapter(url,
                                           removeEntities(title),
