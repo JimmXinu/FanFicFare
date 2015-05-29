@@ -114,7 +114,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
-    def extractChapterUrlsAndMetadata(self):
+    def doExtractChapterUrlsAndMetadata(self, get_cover=True):
 
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
@@ -301,7 +301,21 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-#
+
+        # Some books have a cover in the index page.
+        # Samples are:
+        #     http://storiesonline.net/s/11999
+        #     http://storiesonline.net/s/10823
+        if get_cover:
+            logger.debug("Looking for the cover image...")
+            cover_url = ""
+            img = soup.find('img')
+            if img:
+                cover_url=img['src']
+            logger.debug("cover_url: %s"%cover_url)
+            if cover_url:
+                self.setCoverImage(url,cover_url)
+
         status = lc4.find('span', {'class' : 'ab'})
         if  status != None:
             self.story.setMetadata('status', 'In-Progress')
