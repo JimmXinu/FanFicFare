@@ -563,7 +563,8 @@ class Story(Configurable):
                 if None in v:
                     v.remove(None)
                 #logger.debug("k:%s v:%s"%(k,v))
-                val = "<ul>\n<li>%s</li>\n</ul>"%"</li>\n<li>".join(v)
+                # force ints/floats to strings.
+                val = "<ul>\n<li>%s</li>\n</ul>" % "</li>\n<li>".join([ "%s"%x for x in v ])
             elif isinstance(v, (int)):
                 classes.append("int")
                 val = v
