@@ -765,6 +765,8 @@ class Story(Configurable):
                                             doreplacements=doreplacements)]
             else:
                 retlist = self.getMetadataRaw(listname)
+                if retlist is None:
+                    retlist = []
 
         if retlist:
             if doreplacements:
