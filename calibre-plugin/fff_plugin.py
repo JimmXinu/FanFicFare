@@ -447,7 +447,8 @@ class FanFicFarePlugin(InterfaceAction):
                                       prefs['imapmarkread'],)
         reject_list=set()
         if prefs['auto_reject_from_email']:
-            reject_list = set([x for x in url_list if rejecturllist.check(x)])
+            # need to normalize for reject list.
+            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURLSite(x)[0])])
         url_list = url_list - reject_list
 
         self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
