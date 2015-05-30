@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-import re
-import urlparse
-import urllib2 as u2
-
-import imaplib
+import collections
 import email
+import imaplib
+import re
+import urllib2 as u2
+import urlparse
 
 from BeautifulSoup import BeautifulSoup 
 from gziphttp import GZipProcessor
@@ -74,10 +74,8 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
 
 def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None):
+    urls = collections.defaultdict(list)
 
-    normalized = [] # normalized url
-    retlist = [] # orig urls.
-    
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
 
@@ -93,7 +91,6 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
             #print("1 urlhref:%s"%href)
             # this (should) catch normal story links, some javascript
             # 'are you old enough' links, and 'Report This' links.
-            # The 'normalized' set prevents duplicates.
             if 'story.php' in a['href']:
                 #print("trying:%s"%a['href'])
                 m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
@@ -106,31 +103,26 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                 #print("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
                 #print("found adapter")
-                if adapter.story.getMetadata('storyUrl') not in normalized:
-                    normalized.append(adapter.story.getMetadata('storyUrl'))
-                    retlist.append(href)
+                urls[adapter.story.getMetadata('storyUrl')].append(href)
             except Exception, e:
                 #print e
                 pass
 
-    if normalize:
-        return normalized
-    else:
-        return retlist
+    # Simply return the longest URL with the assumption that it contains the
+    # most user readable metadata, if not normalized
+    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+
 
 def get_urls_from_text(data,configuration=None,normalize=False):
-
-    normalized = [] # normalized url
-    retlist = [] # orig urls.
+    urls = collections.defaultdict(list)
     data=unicode(data)
-    
+
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
     
     for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
         # this (should) catch normal story links, some javascript
         # 'are you old enough' links, and 'Report This' links.
-        # The 'normalized' set prevents duplicates.
         if 'story.php' in href:
             m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
             if m != None:
@@ -138,16 +130,14 @@ def get_urls_from_text(data,configuration=None,normalize=False):
         try:
             href = href.replace('&index=1','')
             adapter = adapters.getAdapter(configuration,href)
-            if adapter.story.getMetadata('storyUrl') not in normalized:
-                normalized.append(adapter.story.getMetadata('storyUrl'))
-                retlist.append(href)
+            urls[adapter.story.getMetadata('storyUrl')].append(href)
         except:
             pass
 
-    if normalize:
-        return normalized
-    else:
-        return retlist
+    # Simply return the longest URL with the assumption that it contains the
+    # most user readable metadata, if not normalized
+    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+
 
 def form_url(parenturl,url):
      url = url.strip() # ran across an image with a space in the
@@ -216,9 +206,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
             #print("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),normalize=True))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),normalize=True))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
             except Exception as e:
                 print("Failed to read email content: %s"%e)
         #print "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
