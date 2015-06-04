@@ -136,6 +136,7 @@ import adapter_devianthearts
 import adapter_tgstorytimecom
 import adapter_itcouldhappennet
 import adapter_forumsspacebattlescom
+import adapter_forumssufficientvelocitycom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need

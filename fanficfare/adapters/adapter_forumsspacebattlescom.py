@@ -53,7 +53,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
             
             # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/threads/'+self.story.getMetadata('storyId')+'/')
+            self._setURL(self.getURLPrefix() + '/threads/'+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -72,12 +72,15 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         return 'forums.spacebattles.com'
 
     @classmethod
+    def getURLPrefix(cls):
+        # The site domain.  Does have www here, if it uses it.
+        return 'https://' + cls.getSiteDomain() 
+
+    @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/threads/some-story-name.123456/"
+        return cls.getURLPrefix()+"/threads/some-story-name.123456/"
 
     def getSiteURLPattern(self):
-        # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
-        # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
         return r"https?://"+re.escape(self.getSiteDomain())+r"/threads/(.+\.)?(?P<id>\d+)/"
         
     def use_pagecache(self):
@@ -106,7 +109,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
 
         a = soup.find('h3',{'class':'userText'}).find('a')
         self.story.addToList('authorId',a['href'].split('/')[1])
-        self.story.addToList('authorUrl','https://'+self.getSiteDomain()+'/'+a['href'])
+        self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
         self.story.addToList('author',a.text)
 
         self.story.addToList('genre','ForumFic')
@@ -120,11 +123,11 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         # try threadmarks first, require at least 2.
         threadmarksa = soup.find('a',{'class':'threadmarksTrigger'})
         if threadmarksa:
-            soupmarks = self.make_soup(self._fetchUrl('https://'+self.getSiteDomain()+'/'+threadmarksa['href']))
+            soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
             markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
             if len(markas) > 1:
                 for (url,name) in [ (x['href'],stripHTML(x)) for x in markas ]:
-                    self.chapterUrls.append((name,'https://'+self.getSiteDomain()+'/'+url))
+                    self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
         # otherwise, use first post links--include first post since that's 
         if not self.chapterUrls:
@@ -132,9 +135,11 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
             self.chapterUrls.append(("First Post",self.url))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in firstpost.find_all('a') ]:
                 if not url.startswith('http'):
-                    url = 'https://'+self.getSiteDomain()+'/'+url
+                    url = self.getURLPrefix()+'/'+url
     
-                if (url.startswith('https://'+self.getSiteDomain()) or url.startswith('http://'+self.getSiteDomain())) and ('/posts/' in url or '/threads/' in url):
+                if (url.startswith(self.getURLPrefix()) or url.startswith('http://'+self.getSiteDomain())) and ('/posts/' in url or '/threads/' in url):
+                    # brute force way to deal with SB's http->https change when hardcoded http urls.
+                    url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
                     self.chapterUrls.append((name,url))
                     
         self.story.setMetadata('numChapters',len(self.chapterUrls))
