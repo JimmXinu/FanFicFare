@@ -134,12 +134,14 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
             #logger.debug("len(firstpost):%s"%len(unicode(firstpost)))
             self.chapterUrls.append(("First Post",self.url))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in firstpost.find_all('a') ]:
+                logger.debug("found chapurl:%s"%url)
                 if not url.startswith('http'):
                     url = self.getURLPrefix()+'/'+url
     
                 if (url.startswith(self.getURLPrefix()) or url.startswith('http://'+self.getSiteDomain())) and ('/posts/' in url or '/threads/' in url):
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
-                    url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+                    url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+                    logger.debug("used chapurl:%s"%url)
                     self.chapterUrls.append((name,url))
                     
         self.story.setMetadata('numChapters',len(self.chapterUrls))
