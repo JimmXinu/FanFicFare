@@ -139,7 +139,7 @@ def get_update_data(inputio,
                             skip.extract()
 
                         chapa = soup.find('a',{'class':'chapterurl'})
-                        if chapa:
+                        if chapa and chapa['href'] not in urlsoups: # keep first found if more than one.
                             urlsoups[chapa['href']] = soup
                             chapa.extract()
                             

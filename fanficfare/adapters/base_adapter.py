@@ -141,28 +141,6 @@ class BaseSiteAdapter(Configurable):
         '''
         self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
         
-    # def save_cookiejar(self,filename):
-    #     '''
-    #     Assumed to be a FileCookieJar if self.cookiejar set.
-    #     Takes file *name*.
-    #     '''
-    #     self.get_cookiejar().save(filename, ignore_discard=True, ignore_expires=True)
-
-    # def save_pagecache(self,filename):
-    #     '''
-    #     Writes pickle of pagecache to file *name*
-    #     '''
-    #     with open(filename, 'wb') as f:
-    #         pickle.dump(self.get_pagecache(),
-    #                     f,protocol=pickle.HIGHEST_PROTOCOL)
-        
-    # def load_pagecache(self,filename):
-    #     '''
-    #     Reads pickle of pagecache from file *name*
-    #     '''
-    #     with open(filename, 'rb') as f:
-    #         self.set_pagecache(pickle.load(f))
-
     def get_pagecache(self):
         return self.pagecache
     
@@ -186,9 +164,9 @@ class BaseSiteAdapter(Configurable):
         else:
             return None
 
-    def _set_to_pagecache(self,cachekey,data):
+    def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache():
-            self.get_pagecache()[cachekey] = data
+            self.get_pagecache()[cachekey] = (data,redirectedurl)
 
     def use_pagecache(self):
         '''
@@ -258,7 +236,8 @@ class BaseSiteAdapter(Configurable):
         cachekey=self._get_cachekey(url, parameters, headers)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache HIT: %s"%cachekey)
-            return self._get_from_pagecache(cachekey)
+            data,redirecturl = self._get_from_pagecache(cachekey)
+            return data
         
         logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
@@ -273,7 +252,7 @@ class BaseSiteAdapter(Configurable):
                          data=urllib.urlencode(parameters),
                          headers=headers)
         data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
-        self._set_to_pagecache(cachekey,data)
+        self._set_to_pagecache(cachekey,data,url)
         return data
 
     def _fetchUrlRaw(self, url,
@@ -300,14 +279,14 @@ class BaseSiteAdapter(Configurable):
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache HIT: %s"%cachekey)
-            data = self._get_from_pagecache(cachekey)
+            data,redirecturl = self._get_from_pagecache(cachekey)
             class FakeOpened:
                 def __init__(self,data,url):
                     self.data=data
                     self.url=url
                 def geturl(self): return self.url
                 def read(self): return self.data
-            return (data,FakeOpened(data,cachekey))
+            return (data,FakeOpened(data,redirecturl))
         
         logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
@@ -316,7 +295,8 @@ class BaseSiteAdapter(Configurable):
         else:
             opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
         data = opened.read()
-        self._set_to_pagecache(cachekey,data)
+        self._set_to_pagecache(cachekey,data,opened.url)
+        
         return (data,opened)
 
     def set_sleep(self,val):
