@@ -163,4 +163,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
 
         bq.name='div'
 
+        for iframe in bq.find_all('iframe'):
+            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+
         return self.utf8FromSoup(url,bq)
