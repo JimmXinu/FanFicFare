@@ -117,7 +117,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 
 
 def get_urls_from_text(data,configuration=None,normalize=False):
-    urls = collections.OrderedDict(list)
+    urls = collections.OrderedDict()
     data=unicode(data)
 
     if not configuration:
