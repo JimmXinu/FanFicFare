@@ -74,7 +74,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
 
 def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None):
-    urls = collections.defaultdict(list)
+    urls = collections.OrderedDict()
 
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
@@ -103,7 +103,10 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                 #print("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
                 #print("found adapter")
-                urls[adapter.story.getMetadata('storyUrl')].append(href)
+                if adapter.story.getMetadata('storyUrl') not in urls:
+                    urls[adapter.story.getMetadata('storyUrl')] = [href]
+                else:
+                    urls[adapter.story.getMetadata('storyUrl')].append(href)
             except Exception, e:
                 #print e
                 pass
@@ -114,7 +117,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 
 
 def get_urls_from_text(data,configuration=None,normalize=False):
-    urls = collections.defaultdict(list)
+    urls = collections.OrderedDict(list)
     data=unicode(data)
 
     if not configuration:
@@ -130,7 +133,10 @@ def get_urls_from_text(data,configuration=None,normalize=False):
         try:
             href = href.replace('&index=1','')
             adapter = adapters.getAdapter(configuration,href)
-            urls[adapter.story.getMetadata('storyUrl')].append(href)
+            if adapter.story.getMetadata('storyUrl') not in urls:
+                urls[adapter.story.getMetadata('storyUrl')] = [href]
+            else:
+                urls[adapter.story.getMetadata('storyUrl')].append(href)
         except:
             pass
 
