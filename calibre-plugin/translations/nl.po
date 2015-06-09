@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-05-21 10:12+Central Daylight Time\n"
-"PO-Revision-Date: 2015-05-22 08:36+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-05-30 12:20+0000\n"
+"Last-Translator: W.P.M.E. Hofland <wpme.hofland@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -51,7 +51,7 @@ msgstr "Wis"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
-msgstr ""
+msgstr "Wis alle instellingen van deze plugin"
 
 #: common_utils.py:526
 msgid ""
@@ -71,11 +71,11 @@ msgstr "U dient calibre achteraf te herstarten."
 
 #: common_utils.py:537
 msgid "All settings for this plugin in this library have been cleared."
-msgstr ""
+msgstr "Alle instellingen voor de plugin in deze bibliotheek zijn gewist."
 
 #: common_utils.py:538
 msgid "Please restart calibre now."
-msgstr ""
+msgstr "Herstart calibre nu alstublieft."
 
 #: common_utils.py:540
 msgid "Restart calibre now"
@@ -131,7 +131,7 @@ msgstr ""
 
 #: config.py:385
 msgid "Default Output &Format:"
-msgstr ""
+msgstr "Standaard uitvoer &formaat:"
 
 #: config.py:400
 msgid ""
@@ -172,7 +172,7 @@ msgstr "Calibre opties bijwerken"
 
 #: config.py:432
 msgid "Delete other existing formats?"
-msgstr ""
+msgstr "Wis andere aanwezige formaten?"
 
 #: config.py:433
 msgid ""
@@ -256,7 +256,7 @@ msgstr ""
 
 #: config.py:472
 msgid "Show Marked books when finished?"
-msgstr ""
+msgstr "Gemarkeerde boeken achteraf tonen?"
 
 #: config.py:473
 msgid ""
@@ -288,7 +288,7 @@ msgstr ""
 
 #: config.py:487
 msgid "GUI Options"
-msgstr ""
+msgstr "GUI instellingen"
 
 #: config.py:491
 msgid "Take URLs from Clipboard?"
@@ -320,15 +320,15 @@ msgstr ""
 
 #: config.py:506
 msgid "Show estimated time left?"
-msgstr ""
+msgstr "Toon verwachte resterende tijd?"
 
 #: config.py:507
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr ""
+msgstr "Als een voortgangsbalk wordt getoond, geef een ruw geschatte resterende tijd weer."
 
 #: config.py:511
 msgid "Misc Options"
-msgstr ""
+msgstr "Diverse opties"
 
 #: config.py:515
 msgid "Inject calibre Series when none found?"
@@ -342,11 +342,11 @@ msgstr ""
 
 #: config.py:520
 msgid "Reject List"
-msgstr ""
+msgstr "Afgewezen lijst"
 
 #: config.py:524
 msgid "Edit Reject URL List"
-msgstr ""
+msgstr "Bewerk afgewezen URL lijst"
 
 #: config.py:525
 msgid "Edit list of URLs FanFicFare will automatically Reject."
@@ -354,7 +354,7 @@ msgstr ""
 
 #: config.py:529 config.py:600
 msgid "Add Reject URLs"
-msgstr ""
+msgstr "Voeg afgewezen URL's toe"
 
 #: config.py:530
 msgid "Add additional URLs to Reject as text."
@@ -362,7 +362,7 @@ msgstr ""
 
 #: config.py:534
 msgid "Edit Reject Reasons List"
-msgstr ""
+msgstr "Bewerk afwijs-redenen lijst"
 
 #: config.py:535 config.py:590
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -370,7 +370,7 @@ msgstr ""
 
 #: config.py:539
 msgid "Reject Without Confirmation?"
-msgstr ""
+msgstr "Afwijzen zonder bevestiging?"
 
 #: config.py:540
 msgid "Always reject URLs on the Reject List without stopping and asking."
@@ -378,23 +378,23 @@ msgstr ""
 
 #: config.py:574
 msgid "Edit Reject URLs List"
-msgstr ""
+msgstr "Bewerk afgewezen URL's lijst"
 
 #: config.py:588
 msgid "Reject Reasons"
-msgstr ""
+msgstr "Redenen afwijzing"
 
 #: config.py:589
 msgid "Customize Reject List Reasons"
-msgstr ""
+msgstr "Lijst met afwijs-redenen personaliseren"
 
 #: config.py:598
 msgid "Reason why I rejected it"
-msgstr ""
+msgstr "Reden waarom ik dit heb afgewezen"
 
 #: config.py:598
 msgid "Title by Author"
-msgstr ""
+msgstr "Titel door auteur"
 
 #: config.py:601
 msgid ""
@@ -447,7 +447,7 @@ msgstr ""
 
 #: config.py:658
 msgid "Show Calibre Column Names"
-msgstr ""
+msgstr "Toon calibre kolomnamen"
 
 #: config.py:659
 msgid ""
@@ -457,7 +457,7 @@ msgstr ""
 
 #: config.py:670
 msgid "Plugin Defaults"
-msgstr ""
+msgstr "Plugin standaarden"
 
 #: config.py:671
 msgid "Plugin Defaults (%s) (Read-Only)"
@@ -538,7 +538,7 @@ msgstr ""
 
 #: config.py:806
 msgid "Update Calibre Cover (from EPUB):"
-msgstr ""
+msgstr "Calibre omslag bijwerken (uit EPUB):"
 
 #: config.py:824
 msgid ""
@@ -549,7 +549,7 @@ msgstr ""
 
 #: config.py:828
 msgid "Generate Calibre Cover:"
-msgstr ""
+msgstr "Genereer calibre omslag:"
 
 #: config.py:855
 msgid "Plugin %(gc)s"
@@ -671,11 +671,11 @@ msgstr "Sneltoetsen..."
 
 #: config.py:1056
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr ""
+msgstr "Bewerk de sneltoetsen voor deze plugin"
 
 #: config.py:1060
 msgid "Reset disabled &confirmation dialogs"
-msgstr ""
+msgstr "Uitgeschakelde &bevestigins-meldingen weer tonen"
 
 #: config.py:1061
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
@@ -813,7 +813,7 @@ msgstr "Site-afkorting"
 
 #: config.py:1154
 msgid "FanFicFare Version"
-msgstr ""
+msgstr "FanFicFare versie"
 
 #: config.py:1169
 msgid ""
@@ -1020,23 +1020,23 @@ msgstr "Nieuw boek toevoegen"
 
 #: dialogs.py:78
 msgid "Update EPUB if New Chapters"
-msgstr ""
+msgstr "EPUB bijwerken bij nieuwe hoofdstukken"
 
 #: dialogs.py:79
 msgid "Update EPUB Always"
-msgstr ""
+msgstr "EPUB altijd bijwerken"
 
 #: dialogs.py:80
 msgid "Overwrite if Newer"
-msgstr ""
+msgstr "Overschrijven indien nieuwer"
 
 #: dialogs.py:81
 msgid "Overwrite Always"
-msgstr ""
+msgstr "Altijd overschrijven"
 
 #: dialogs.py:82
 msgid "Update Calibre Metadata from Web Site"
-msgstr ""
+msgstr "Calibre metadata bijwerken vanaf website"
 
 #: dialogs.py:83
 msgid "Update Calibre Metadata from Saved Metadata Column"
@@ -1048,7 +1048,7 @@ msgstr "Downloadopties weergeven"
 
 #: dialogs.py:286 dialogs.py:793
 msgid "Output &Format:"
-msgstr ""
+msgstr "Uitvoer &Formaat:"
 
 #: dialogs.py:294 dialogs.py:801
 msgid ""
@@ -1057,7 +1057,7 @@ msgstr ""
 
 #: dialogs.py:322 dialogs.py:818
 msgid "Update Calibre &Metadata?"
-msgstr ""
+msgstr "Calibre &Metadata bijwerken?"
 
 #: dialogs.py:323 dialogs.py:819
 msgid ""
@@ -1180,7 +1180,7 @@ msgstr "Metadata opgehaald voor"
 
 #: dialogs.py:628
 msgid " - %s estimated until done"
-msgstr ""
+msgstr " - %s geschat tot einde"
 
 #: dialogs.py:678
 msgid "%d day"
@@ -1220,7 +1220,7 @@ msgstr "minder dan 1 seconde"
 
 #: dialogs.py:713 fff_plugin.py:358 fff_plugin.py:361
 msgid "About FanFicFare"
-msgstr ""
+msgstr "Over FanFicFare"
 
 #: dialogs.py:767
 msgid "Remove selected books from the list"
@@ -1265,7 +1265,7 @@ msgstr ""
 
 #: dialogs.py:1049
 msgid "List of Books to Reject"
-msgstr ""
+msgstr "Lijst met boeken om af te wijzen"
 
 #: dialogs.py:1062
 msgid ""
@@ -1313,7 +1313,7 @@ msgstr ""
 
 #: dialogs.py:1310
 msgid "Go back to fix errors?"
-msgstr ""
+msgstr "Terug gaan om fouten te herstellen?"
 
 #: dialogs.py:1422
 msgid "Click an error below to return to Editing directly on that line:"
@@ -1321,11 +1321,11 @@ msgstr ""
 
 #: dialogs.py:1434
 msgid "Click to go to line %s"
-msgstr ""
+msgstr "Klik om naar lijn %s te gaan"
 
 #: dialogs.py:1450
 msgid "Return to Editing"
-msgstr ""
+msgstr "Terug naar bewerken"
 
 #: dialogs.py:1454
 msgid "Save Anyway"
@@ -1333,11 +1333,11 @@ msgstr "Toch opslaan"
 
 #: dialogs.py:1483
 msgid "Enter Email Password for %s:"
-msgstr ""
+msgstr "Voer E-mail wachtwoord in voor %s:"
 
 #: fff_plugin.py:114 fff_plugin.py:145
 msgid "FanFicFare"
-msgstr ""
+msgstr "FanFicFare"
 
 #: fff_plugin.py:115
 msgid "Download FanFiction stories from various web sites"
@@ -1413,15 +1413,15 @@ msgstr ""
 
 #: fff_plugin.py:344
 msgid "Reject Selected Books"
-msgstr ""
+msgstr "Geselecteerde boeken afwijzen"
 
 #: fff_plugin.py:352
 msgid "&Configure FanFicFare"
-msgstr ""
+msgstr "FanFicFare &instellen"
 
 #: fff_plugin.py:355
 msgid "Configure FanFicFare"
-msgstr ""
+msgstr "FanFicFare instellen"
 
 #: fff_plugin.py:410
 msgid "Cannot Update Reading Lists from Device View"
@@ -1465,7 +1465,7 @@ msgstr ""
 
 #: fff_plugin.py:496 fff_plugin.py:548
 msgid "List of Story URLs"
-msgstr ""
+msgstr "Lijst van verhaal-URL's"
 
 #: fff_plugin.py:497
 msgid "No Valid Story URLs found on given page."
@@ -1481,7 +1481,7 @@ msgstr "Bezig met verzamelen van URL's voor verhalen..."
 
 #: fff_plugin.py:531
 msgid "Get URLs for stories"
-msgstr ""
+msgstr "Verzamel URL's voor verhalen"
 
 #: fff_plugin.py:532 fff_plugin.py:579 fff_plugin.py:772
 msgid "URL retrieved"
@@ -1509,7 +1509,7 @@ msgstr ""
 
 #: fff_plugin.py:613
 msgid "Proceed to Remove?"
-msgstr ""
+msgstr "Doorgaan met verwijderen?"
 
 #: fff_plugin.py:613
 msgid ""
@@ -1566,11 +1566,11 @@ msgstr "Toch bijwerken?"
 
 #: fff_plugin.py:739
 msgid "Stories Removed"
-msgstr ""
+msgstr "Verhalen verwijderd"
 
 #: fff_plugin.py:756
 msgid "No Selected Books to Update"
-msgstr ""
+msgstr "Geen boeken geselecteerd om bij te werken"
 
 #: fff_plugin.py:770
 msgid "Collecting stories for update..."
@@ -1582,7 +1582,7 @@ msgstr ""
 
 #: fff_plugin.py:781
 msgid "Update Existing List"
-msgstr ""
+msgstr "Bestaande lijst bijwerken"
 
 #: fff_plugin.py:839
 msgid "Started fetching metadata for %s stories."
@@ -1594,7 +1594,7 @@ msgstr ""
 
 #: fff_plugin.py:870 fff_plugin.py:876
 msgid "Reject URL?"
-msgstr ""
+msgstr "URL afwijzen?"
 
 #: fff_plugin.py:877 fff_plugin.py:895
 msgid "<b>%s</b> is on your Reject URL list:"
@@ -1618,7 +1618,7 @@ msgstr "Afgewezen"
 
 #: fff_plugin.py:888
 msgid "Remove Reject URL?"
-msgstr ""
+msgstr "Verwijder afgewezen URL?"
 
 #: fff_plugin.py:894
 msgid "Remove URL from Reject List?"
@@ -1648,7 +1648,7 @@ msgstr ""
 
 #: fff_plugin.py:998
 msgid "Skip Story?"
-msgstr ""
+msgstr "Verhaal overslaan?"
 
 #: fff_plugin.py:1004
 msgid "Skip Anthology Story?"
@@ -1798,7 +1798,7 @@ msgstr ""
 
 #: fff_plugin.py:1312 fff_plugin.py:1548
 msgid "FanFicFare log"
-msgstr ""
+msgstr "FanFicFare logboek"
 
 #: fff_plugin.py:1332
 msgid "Download FanFiction Book"
@@ -1874,7 +1874,7 @@ msgstr ""
 
 #: fff_plugin.py:1548
 msgid "FanFicFare download complete"
-msgstr ""
+msgstr "FanFicFare download compleet"
 
 #: fff_plugin.py:1561
 msgid "Merging %s books."
@@ -1954,7 +1954,7 @@ msgstr "Slechte URL"
 
 #: fff_plugin.py:2270 fff_plugin.py:2273
 msgid "Anthology containing:"
-msgstr ""
+msgstr "Bloemlezing bevat:"
 
 #: fff_plugin.py:2271
 msgid "%s by %s"
@@ -1970,7 +1970,7 @@ msgstr "(was ingesteld, voor veiligheid verwijderd)"
 
 #: jobs.py:60
 msgid "Downloading FanFiction Stories"
-msgstr ""
+msgstr "FanFiction verhalen downloaden"
 
 #: jobs.py:82
 msgid "Successful:"
