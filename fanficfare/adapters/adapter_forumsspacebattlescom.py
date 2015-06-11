@@ -51,9 +51,9 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
-            self._setURL(self.getURLPrefix() + '/threads/'+self.story.getMetadata('storyId')+'/')
+            self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -81,7 +81,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         return cls.getURLPrefix()+"/threads/some-story-name.123456/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/threads/(.+\.)?(?P<id>\d+)/"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/"
         
     def use_pagecache(self):
         '''
@@ -97,7 +97,9 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         logger.info("url: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            (data,opened) = self._fetchUrlOpened(url)
+            url = opened.geturl()
+            logger.info("use url: "+url)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -117,17 +119,21 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         h1 = soup.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
 
+        if '#' in url:
+            anchorid = url.split('#')[1]
+            soup = soup.find('li',id=anchorid)
+        else:
+            # try threadmarks if no '#' in , require at least 2.
+            threadmarksa = soup.find('a',{'class':'threadmarksTrigger'})
+            if threadmarksa:
+                soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
+                markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
+                if len(markas) > 1:
+                    for (url,name) in [ (x['href'],stripHTML(x)) for x in markas ]:
+                        self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
+                
         # Now go hunting for the 'chapter list'.
         firstpost = soup.find('blockquote') # assume first posting contains TOC urls.
-
-        # try threadmarks first, require at least 2.
-        threadmarksa = soup.find('a',{'class':'threadmarksTrigger'})
-        if threadmarksa:
-            soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
-            markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
-            if len(markas) > 1:
-                for (url,name) in [ (x['href'],stripHTML(x)) for x in markas ]:
-                    self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
         # otherwise, use first post links--include first post since that's 
         if not self.chapterUrls:
