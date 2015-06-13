@@ -280,6 +280,8 @@ class ConfigWidget(QWidget):
             # if they've removed everything, reset to default.
             prefs['personal.ini'] = get_resources('plugin-example.ini')
 
+        prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
+            
         # Covers tab
         prefs['updatecalcover'] = calcover_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
         # for backward compatibility:
@@ -655,8 +657,13 @@ class PersonalIniTab(QWidget):
         self.defaults.clicked.connect(self.show_defaults)
         self.l.addWidget(self.defaults)
 
+        self.cal_cols_pass_in = QCheckBox(_('Pass Calibre Columns into FanFicFare on Update/Overwrite')%no_trans,self)
+        self.cal_cols_pass_in.setToolTip(_("If checked, when updating/overwriting an existing book, FanFicFare will have the Calibre Columns available to use in replace_metadata, title_page, etc.<br>Click the button below to see the Calibre Column namess.")%no_trans)
+        self.cal_cols_pass_in.setChecked(prefs['cal_cols_pass_in'])
+        self.l.addWidget(self.cal_cols_pass_in)
+        
         self.showcalcols = QPushButton(_('Show Calibre Column Names'), self)
-        self.showcalcols.setToolTip(_("FanFicFare passes the Calibre columns into the download/update process.  This will show you the columns available by name."))
+        self.showcalcols.setToolTip(_("FanFicFare can pass the Calibre Columns into the download/update process.<br>This will show you the columns available by name."))
         self.showcalcols.clicked.connect(self.show_showcalcols)
         self.l.addWidget(self.showcalcols)
 
@@ -1223,7 +1230,6 @@ class CustomColumnsTab(QWidget):
         self.allow_custcol_from_ini.setChecked(prefs['allow_custcol_from_ini'])
         self.l.addWidget(self.allow_custcol_from_ini)
         
-        self.l.addSpacing(5)
         label = QLabel(_("Special column:"))
         label.setWordWrap(True)
         self.l.addWidget(label)

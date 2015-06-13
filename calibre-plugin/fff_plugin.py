@@ -828,6 +828,7 @@ class FanFicFarePlugin(InterfaceAction):
         options['version'] = self.version
         logger.debug(self.version)
         options['personal.ini'] = get_fff_personalini()
+        options['savemetacol'] = prefs['savemetacol']
 
         #print("prep_downloads:%s"%books)
 
@@ -1023,8 +1024,9 @@ class FanFicFarePlugin(InterfaceAction):
 
         # all_metadata duplicates some data, but also includes extra_entries, etc.
         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-        # get metadata to save in configured column.
-        book['savemetacol'] = story.dump_html_metadata()
+        if prefs['savemetacol'] != '':
+            # get metadata to save in configured column.
+            book['savemetacol'] = story.dump_html_metadata()
         
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
@@ -1202,51 +1204,52 @@ class FanFicFarePlugin(InterfaceAction):
                     #print("calibre_series:%s [%s]"%book['calibre_series'])
 
         if book['good']: # there shouldn't be any !'good' books at this point.
-            
+
             ## Filling calibre_std_* and calibre_cust_* metadata
             book['calibre_columns']={}
-            # std columns
-            mi = db.get_metadata(book['calibre_id'],index_is_id=True)
-            # book['calibre_columns']['calibre_std_identifiers']=\
-            #     {'val':', '.join(["%s:%s"%(k,v) for (k,v) in mi.get_identifiers().iteritems()]),
-            #                      'label':_('Ids')}
-            for k in mi.standard_field_keys():
-            # for k in mi:
-                if k in STD_COLS_SKIP:
-                    continue
-                (label,value,v,fmd) = mi.format_field_extended(k)
-                if not label and k in field_metadata:
-                    label=field_metadata[k]['name']
-                key='calibre_std_'+k
-                
-                # if k == 'user_categories':
-                #     value=u', '.join(mi.get(k))
-                #     label=_('User Categories')
-    
-                if label: # only if it has a human readable name.
-                    if value is None or not book['calibre_id']:
-                        ## if existing book, populate existing calibre column
-                        ## values in metadata, else '' to hide.
-                        value=''                    
-                    book['calibre_columns'][key]={'val':value,'label':label}
-                    #logger.debug("%s(%s): %s"%(label,key,value))
-    
-            # custom columns
-            for k, column in self.gui.library_view.model().custom_columns.iteritems():
-                if k != prefs['savemetacol']:
-                    key='calibre_cust_'+k[1:]
-                    label=column['name']
-                    value=db.get_custom(book['calibre_id'],
-                                        label=column['label'],
-                                        index_is_id=True)
-                    # custom always have name.
-                    if value is None or not book['calibre_id']:
-                        ## if existing book, populate existing calibre column
-                        ## values in metadata, else '' to hide.
-                        value=''
-                    book['calibre_columns'][key]={'val':value,'label':label}
-                    # logger.debug("%s(%s): %s"%(label,key,value))
+            if prefs['cal_cols_pass_in']:
+                # std columns
+                mi = db.get_metadata(book['calibre_id'],index_is_id=True)
+                # book['calibre_columns']['calibre_std_identifiers']=\
+                #     {'val':', '.join(["%s:%s"%(k,v) for (k,v) in mi.get_identifiers().iteritems()]),
+                #                      'label':_('Ids')}
+                for k in mi.standard_field_keys():
+                # for k in mi:
+                    if k in STD_COLS_SKIP:
+                        continue
+                    (label,value,v,fmd) = mi.format_field_extended(k)
+                    if not label and k in field_metadata:
+                        label=field_metadata[k]['name']
+                    key='calibre_std_'+k
+                    
+                    # if k == 'user_categories':
+                    #     value=u', '.join(mi.get(k))
+                    #     label=_('User Categories')
         
+                    if label: # only if it has a human readable name.
+                        if value is None or not book['calibre_id']:
+                            ## if existing book, populate existing calibre column
+                            ## values in metadata, else '' to hide.
+                            value=''                    
+                        book['calibre_columns'][key]={'val':value,'label':label}
+                        #logger.debug("%s(%s): %s"%(label,key,value))
+        
+                # custom columns
+                for k, column in self.gui.library_view.model().custom_columns.iteritems():
+                    if k != prefs['savemetacol']:
+                        key='calibre_cust_'+k[1:]
+                        label=column['name']
+                        value=db.get_custom(book['calibre_id'],
+                                            label=column['label'],
+                                            index_is_id=True)
+                        # custom always have name.
+                        if value is None or not book['calibre_id']:
+                            ## if existing book, populate existing calibre column
+                            ## values in metadata, else '' to hide.
+                            value=''
+                        book['calibre_columns'][key]={'val':value,'label':label}
+                        # logger.debug("%s(%s): %s"%(label,key,value))
+            
             # if still 'good', make a temp file to write the output to.
             # For HTML format users, make the filename inside the zip something reasonable.
             # For crazy long titles/authors, limit it to 200chars.
@@ -1738,7 +1741,7 @@ class FanFicFarePlugin(InterfaceAction):
         # save metadata to configured column
         if 'savemetacol' in book and prefs['savemetacol'] != '' and prefs['savemetacol'] in custom_columns:
             label = custom_columns[prefs['savemetacol']]['label']
-            self.set_custom(db, book_id, 'comment', book['savemetacol'], label=label, commit=True) # book['comment'] book['savemetacol'] = story.dump_html_metadata()
+            self.set_custom(db, book_id, 'comment', book['savemetacol'], label=label, commit=True)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
         for col, meta in prefs['custom_cols'].iteritems():

@@ -156,7 +156,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
                 book['comment'] = 'Metadata collected.'
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                book['savemetacol'] = story.dump_html_metadata()
+                if options['savemetacol'] != '':
+                    book['savemetacol'] = story.dump_html_metadata()
                 
             ## checks were done earlier, it's new or not dup or newer--just write it.
             elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
@@ -176,7 +177,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
                 book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                book['savemetacol'] = story.dump_html_metadata()
+                if options['savemetacol'] != '':
+                    book['savemetacol'] = story.dump_html_metadata()
                 
             ## checks were done earlier, just update it.
             elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
@@ -197,7 +199,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                     if chaptercount == urlchaptercount:
                         book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
                         book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                        book['savemetacol'] = story.dump_html_metadata()
+                        if options['savemetacol'] != '':
+                            book['savemetacol'] = story.dump_html_metadata()
                         book['outfile'] = book['epub_for_update'] # for anthology merge ops.
                         return book
     
@@ -218,8 +221,9 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
                     (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                book['savemetacol'] = story.dump_html_metadata()
-            
+                if options['savemetacol'] != '':
+                    book['savemetacol'] = story.dump_html_metadata()
+
             if options['smarten_punctuation'] and options['fileform'] == "epub" \
                     and calibre_version >= (0, 9, 39):
                 # for smarten punc

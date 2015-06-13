@@ -51,6 +51,7 @@ PREFS_KEY_SETTINGS = 'settings'
 # take from here.
 default_prefs = {}
 default_prefs['personal.ini'] = get_resources('plugin-example.ini')
+default_prefs['cal_cols_pass_in'] = False
 default_prefs['rejecturls'] = ''
 default_prefs['rejectreasons'] = '''Sucked
 Boring
