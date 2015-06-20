@@ -264,7 +264,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 else:
                     super(NameOfMyAdapter, self).handleMetadata(key, value)
         """
-        # logger.debug("metadata: '%s' == '%s'" % (key, value))
         if value == 'None':
             return
         elif key == 'Summary':
@@ -287,7 +286,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 self.story.addToList('challenge', val)
         elif key == 'Chapters':
             self.story.setMetadata('numChapters', int(value))
-        elif key == 'Rating':
+        elif key == 'Rating' or key == 'Rated':
             self.story.setMetadata('rating', value)
         elif key == 'Word count':
             self.story.setMetadata('numWords', value)
