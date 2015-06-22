@@ -781,7 +781,11 @@ class Story(Configurable):
 
             retlist = filter( lambda x : x!=None and x!='' ,retlist)
 
-        if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category')) > 1:
+        if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
+                                                                                                        removeallentities=False,
+                                                                                                        # to avoid inf loops if genre/cat substs
+                                                                                                        doreplacements=False
+                                                                                                        )) > 1:
             retlist.append(self.getConfig('add_genre_when_multi_category'))
 
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
