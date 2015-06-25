@@ -128,18 +128,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                 markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
                 if len(markas) > 1:
                     for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
-                        datestr=None
-                        datetag = atag.find_next_sibling('div',{'class':'extra'}).find('span',{'class':'DateTime'})
-                        if datetag:
-                            datestr = datetag['title']
-                        else:
-                            datetag = atag.find_next_sibling('div',{'class':'extra'}).find('abbr',{'class':'DateTime'})
-                            if datetag:
-                                datestr="%s at %s"%(datetag['data-datestring'],datetag['data-timestring'])
-                            # Apr 24, 2015 at 4:39 AM
-                            # May 1, 2015 at 5:47 AM
-                        datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
-                        date = makeDate(datestr, self.dateformat)
+                        date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
                             self.story.setMetadata('datePublished', date)
                         if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
@@ -149,6 +138,8 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                             name = '%s %s'%(name,date)
                             
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
+                        
+            soup = soup.find('li') # limit first post for date stuff below. ('#' posts above)
                 
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
@@ -177,9 +168,39 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                         # remove "First Post" if included in list.
                         logger.debug("delete dup chapter: %s %s"%self.chapterUrls[0])
                         del self.chapterUrls[0]
-                    
+                        
+            # Didn't use threadmarks, so take created/updated dates
+            # from the 'first' posting created and updated.
+            date = self.make_date(soup.find('a',{'class':'datePermalink'}))
+            if date:
+                self.story.setMetadata('datePublished', date)
+                self.story.setMetadata('dateUpdated', date) # updated overwritten below if found.
+        
+            date = self.make_date(soup.find('div',{'class':'editDate'}))
+            if date:
+                self.story.setMetadata('dateUpdated', date) 
+            
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
+    def make_date(self,parenttag): # forums use a BS thing where dates
+                                  # can appear different if recent.
+        datestr=None
+        try:
+            datetag = parenttag.find('span',{'class':'DateTime'})
+            if datetag:
+                datestr = datetag['title']
+            else:
+                datetag = parenttag.find('abbr',{'class':'DateTime'})
+                if datetag:
+                    datestr="%s at %s"%(datetag['data-datestring'],datetag['data-timestring'])
+            # Apr 24, 2015 at 4:39 AM
+            # May 1, 2015 at 5:47 AM
+            datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
+            return makeDate(datestr, self.dateformat)
+        except:
+            logger.debug('No date found in %s'%parenttag)
+            return None
+        
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
