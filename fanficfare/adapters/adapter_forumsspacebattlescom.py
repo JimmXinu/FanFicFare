@@ -64,7 +64,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        #self.dateformat = "%Y-%b-%d"
+        self.dateformat = "%b %d, %Y at %I:%M %p"
             
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -93,13 +93,13 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
-        url = self.url
-        logger.info("url: "+url)
+        useurl = self.url
+        logger.info("url: "+useurl)
 
         try:
-            (data,opened) = self._fetchUrlOpened(url)
-            url = opened.geturl()
-            logger.info("use url: "+url)
+            (data,opened) = self._fetchUrlOpened(useurl)
+            useurl = opened.geturl()
+            logger.info("use useurl: "+useurl)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -114,13 +114,11 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
         self.story.addToList('author',a.text)
 
-        self.story.addToList('genre','ForumFic')
-
         h1 = soup.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
-
-        if '#' in url:
-            anchorid = url.split('#')[1]
+        
+        if '#' in useurl:
+            anchorid = useurl.split('#')[1]
             soup = soup.find('li',id=anchorid)
         else:
             # try threadmarks if no '#' in , require at least 2.
@@ -129,17 +127,43 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
                 markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
                 if len(markas) > 1:
-                    for (url,name) in [ (x['href'],stripHTML(x)) for x in markas ]:
+                    for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
+                        datestr=None
+                        datetag = atag.find_next_sibling('div',{'class':'extra'}).find('span',{'class':'DateTime'})
+                        if datetag:
+                            datestr = datetag['title']
+                        else:
+                            datetag = atag.find_next_sibling('div',{'class':'extra'}).find('abbr',{'class':'DateTime'})
+                            if datetag:
+                                datestr="%s at %s"%(datetag['data-datestring'],datetag['data-timestring'])
+                            # Apr 24, 2015 at 4:39 AM
+                            # May 1, 2015 at 5:47 AM
+                        datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
+                        date = makeDate(datestr, self.dateformat)
+                        if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
+                            self.story.setMetadata('datePublished', date)
+                        if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
+                            self.story.setMetadata('dateUpdated', date)
+
+                        if self.getConfig('add_chapter_dates') in ['true','threadmarksonly']:
+                            name = '%s %s'%(name,date)
+                            
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
                 
         # Now go hunting for the 'chapter list'.
-        firstpost = soup.find('blockquote') # assume first posting contains TOC urls.
+        bq = soup.find('blockquote') # assume first posting contains TOC urls.
+        
+        bq.name='div'
+
+        for iframe in bq.find_all('iframe'):
+            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+
+        self.setDescription(useurl,bq)
 
         # otherwise, use first post links--include first post since that's 
         if not self.chapterUrls:
-            #logger.debug("len(firstpost):%s"%len(unicode(firstpost)))
-            self.chapterUrls.append(("First Post",self.url))
-            for (url,name) in [ (x['href'],stripHTML(x)) for x in firstpost.find_all('a') ]:
+            self.chapterUrls.append(("First Post",useurl))
+            for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
                 logger.debug("found chapurl:%s"%url)
                 if not url.startswith('http'):
                     url = self.getURLPrefix()+'/'+url
@@ -147,8 +171,12 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                 if (url.startswith(self.getURLPrefix()) or url.startswith('http://'+self.getSiteDomain())) and ('/posts/' in url or '/threads/' in url):
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
-                    logger.debug("used chapurl:%s"%url)
+                    logger.debug("used chapurl:%s"%(url))
                     self.chapterUrls.append((name,url))
+                    if url == useurl and 'First Post' == self.chapterUrls[0][0]:
+                        # remove "First Post" if included in list.
+                        logger.debug("delete dup chapter: %s %s"%self.chapterUrls[0])
+                        del self.chapterUrls[0]
                     
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 

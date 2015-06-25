@@ -465,7 +465,7 @@ class Story(Configurable):
 
         if key == 'dateUpdated' and value:
             # Last Update tags for Bill.
-            self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
+            self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"),clear=True)
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
 
@@ -757,8 +757,12 @@ class Story(Configurable):
         # includelist prevents infinite recursion of include_in_'s
         if self.hasConfig("include_in_"+listname) and listname not in includelist:
             for k in self.getConfigList("include_in_"+listname):
+                ldorepl = doreplacements
+                if k.endswith('.NOREPL'):
+                    k = k[:-len('.NOREPL')]
+                    ldorepl = False
                 retlist.extend(self.getList(k,removeallentities=False,
-                                            doreplacements=doreplacements,includelist=includelist+[listname]))
+                                            doreplacements=ldorepl,includelist=includelist+[listname]))
         else:
 
             if not self.isList(listname):
@@ -813,7 +817,16 @@ class Story(Configurable):
 
         # metadata all go into dc:subject tags, but only if they are configured.
         for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
-            if name in tags_list:
+            if name+'.SPLIT' in tags_list:
+                flist=[]
+                if isinstance(value,list):
+                    for tag in value:
+                        flist.extend(tag.split(','))
+                else:
+                    flist.extend(value)
+                for tag in flist:
+                    subjectset.add(tag)
+            elif name in tags_list:
                 if isinstance(value,list):
                     for tag in value:
                         subjectset.add(tag)
@@ -911,6 +924,7 @@ class Story(Configurable):
                 #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
+        #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
         if cover and coverexclusion and re.search(coverexclusion,imgurl):
             return (None,None)
 

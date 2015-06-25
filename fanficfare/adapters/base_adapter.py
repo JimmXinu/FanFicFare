@@ -497,6 +497,13 @@ class BaseSiteAdapter(Configurable):
 
     def setDescription(self,url,svalue):
         #print("\n\nsvalue:\n%s\n"%svalue)
+        strval = u"%s"%svalue # works for either soup or string
+        if self.hasConfig('description_limit'):
+            limit = int(self.getConfig('description_limit'))
+            if limit and len(strval) > limit:
+                svalue = strval[:limit]
+
+        #print(u"[[[[[\n\n%s\n\n]]]]]]]]"%svalue) # works for either soup or string
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which
