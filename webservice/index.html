@@ -46,7 +46,9 @@
           </p>
 	  <h3>Changes:</h3>
 	  <ul>
-            <li>Fix add_genre_when_multi_category when genre is empty.</li>
+            <li>Update adapter_nhamagicalworldsus, make a Base eFiction adapter.</li>
+            <li>Default bulk_load true for all (eFiction Base) adapters.</li>
+            <li>Exclude doReplacements on add_genre_when_multi_category call to getList('category').  Prevents a possible infinite recursion.</li>
 	  </ul>
 	  <p>
 	    Questions?  Check out our 
@@ -56,7 +58,7 @@
 	    If you have any problems with this application, please
 	    report them in
 	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFicFare Google Group</a>.  The
-	    <a href="http://2-2-6.fanficfare.appspot.com">previous version
+	    <a href="http://2-2-8.fanficfare.appspot.com">previous version
 	    </a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
