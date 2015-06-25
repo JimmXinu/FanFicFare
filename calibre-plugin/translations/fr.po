@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-06-12 19:37+Central Daylight Time\n"
-"PO-Revision-Date: 2015-06-17 08:43+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2015-06-25 13:19+0000\n"
+"Last-Translator: Ptitprince <leporello1791@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1048,11 +1048,11 @@ msgstr "Ecraser toujours"
 
 #: dialogs.py:82
 msgid "Update Calibre Metadata from Web Site"
-msgstr "Mettre à Jour les Métadonnées de calibre à Partir d'un Site Web"
+msgstr "Mettre à Jour les Métadonnées de calibre à partir d'un Site Web"
 
 #: dialogs.py:83
 msgid "Update Calibre Metadata from Saved Metadata Column"
-msgstr "Mettre à Jour les Métadonnées de calibre à Partir d'une Colonne de Métadonnées"
+msgstr "Mettre à Jour les Métadonnées de calibre à partir d'une Colonne de Métadonnées Sauvegardée"
 
 #: dialogs.py:267 dialogs.py:776
 msgid "Show Download Options"
