@@ -323,6 +323,8 @@ class ConfigWidget(QWidget):
             colsnewonly[col] = checkbox.isChecked()
         prefs['std_cols_newonly'] = colsnewonly
 
+        prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
+
         # Custom Columns tab
         # error column
         prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
@@ -1311,6 +1313,17 @@ class StandardColumnsTab(QWidget):
             horz.addWidget(newonlycheck)
             
             self.l.addLayout(horz)
+            
+        self.l.addSpacing(5)
+        label = QLabel(_("Other Standard Column Options"))
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+        self.l.addSpacing(5)
+
+        self.set_author_url = QCheckBox(_('Set Calibre Author URL'),self)
+        self.set_author_url.setToolTip(_("Set Calibre Author URL to Author's URL on story site."))
+        self.set_author_url.setChecked(prefs['set_author_url'])
+        self.l.addWidget(self.set_author_url)
         
         self.l.insertStretch(-1)
 

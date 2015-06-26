@@ -1843,7 +1843,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         # Moved down so author's already in the DB.
-        if 'authorUrl' in book['all_metadata']:
+        if 'authorUrl' in book['all_metadata'] and prefs['set_author_url']:
             authurls = book['all_metadata']['authorUrl'].split(", ")
             authorlist = [ a.replace('&',';') for a in book['author'] ]
             authorids = db.new_api.get_item_ids('authors',authorlist)
