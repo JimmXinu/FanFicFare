@@ -133,13 +133,10 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                             self.story.setMetadata('datePublished', date)
                         if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
                             self.story.setMetadata('dateUpdated', date)
-
-                        if self.getConfig('add_chapter_dates') in ['true','threadmarksonly']:
-                            name = '%s %s'%(name,date)
                             
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
                         
-            soup = soup.find('li') # limit first post for date stuff below. ('#' posts above)
+            soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
                 
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
