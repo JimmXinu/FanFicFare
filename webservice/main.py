@@ -62,7 +62,7 @@ class UserConfigServer(webapp2.RequestHandler):
     
     def getUserConfig(self,user,url,fileformat):
 
-        configuration = Configuration(adapters.getConfigSectionFor(url),fileformat)
+        configuration = Configuration(adapters.getConfigSectionsFor(url),fileformat)
         
         logging.debug('reading defaults.ini config file')
         configuration.read('fanficfare/defaults.ini')

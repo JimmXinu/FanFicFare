@@ -453,6 +453,11 @@ class BaseSiteAdapter(Configurable):
         return cls.getSiteDomain()
     
     @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return [cls.getConfigSection()]
+    
+    @classmethod
     def stripURLParameters(cls,url):
         "Only needs to be overriden if URL contains more than one parameter"
         ## remove any trailing '&' parameters--?sid=999 will be left.

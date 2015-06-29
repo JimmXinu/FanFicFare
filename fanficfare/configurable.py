@@ -77,10 +77,12 @@ formatsections = ['html','txt','epub','mobi']
 othersections = ['defaults','overrides']
 
 def get_valid_sections():
-    sites = adapters.getConfigSections()
+    sites = adapters.getConfigSections() 
     sitesections = list(othersections)
     for section in sites:
         sitesections.append(section)
+        # also allows [www.base_efiction] and [www.base_forum]. Not
+        # likely to matter.
         if section.startswith('www.'):
             # add w/o www if has www
             sitesections.append(section[4:])
@@ -130,6 +132,7 @@ def get_valid_set_options():
                'replace_hr':(None,None,boollist),
                'sort_ships':(None,None,boollist),
                'strip_chapter_numbers':(None,None,boollist),
+               'mark_new_chapters':(None,None,boollist),
                'titlepage_use_table':(None,None,boollist),
                
                'use_ssl_unverified_context':(None,None,boollist),
@@ -212,6 +215,7 @@ def get_valid_keywords():
                  'chapter_start',
                  'chapter_title_add_pattern',
                  'chapter_title_strip_pattern',
+                 'mark_new_chapters',
                  'check_next_chapter',
                  'skip_author_cover',
                  'collect_series',
@@ -224,6 +228,7 @@ def get_valid_keywords():
                  'datePublished_format',
                  'dateUpdated_format',
                  'default_cover_image',
+                 'description_limit',
                  'do_update_hook',
                  'exclude_notes',
                  'extra_logpage_entries',
@@ -331,7 +336,8 @@ def make_generate_cover_settings(param):
 
 class Configuration(ConfigParser.SafeConfigParser):
 
-    def __init__(self, site, fileform):
+    def __init__(self, sections, fileform):
+        site = sections[-1] # first section is site DN.
         ConfigParser.SafeConfigParser.__init__(self)
 
         self.linenos=dict() # key by section or section,key -> lineno
@@ -339,6 +345,11 @@ class Configuration(ConfigParser.SafeConfigParser):
         ## [injected] section has even less priority than [defaults]
         self.sectionslist = ['defaults','injected']
 
+        ## add other sections (not including site DN) after defaults,
+        ## but before site-specific.
+        for section in sections[:-1]:
+            self.addConfigSection(section)
+        
         if site.startswith("www."):
             sitewith = site
             sitewithout = site.replace("www.","")
@@ -348,8 +359,13 @@ class Configuration(ConfigParser.SafeConfigParser):
         
         self.addConfigSection(sitewith)
         self.addConfigSection(sitewithout)
+        
         if fileform:
             self.addConfigSection(fileform)
+            ## add other sections:fileform (not including site DN)
+            ## after fileform, but before site-specific:fileform.
+            for section in sections[:-1]:
+                self.addConfigSection(section+":"+fileform)
             self.addConfigSection(sitewith+":"+fileform)
             self.addConfigSection(sitewithout+":"+fileform)
         self.addConfigSection("overrides")

@@ -89,7 +89,7 @@ from calibre_plugins.fanficfare_plugin.dialogs \
             EditTextDialog, IniTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
-    import getConfigSections
+    import getSiteSections
 
 from calibre_plugins.fanficfare_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
@@ -922,7 +922,7 @@ class CalibreCoverTab(QWidget):
         
         self.gc_dropdowns = {}
 
-        sitelist = getConfigSections()
+        sitelist = getSiteSections()
         sitelist.sort()
         sitelist.insert(0,_("Default"))
         for site in sitelist:

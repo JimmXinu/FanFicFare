@@ -184,7 +184,7 @@ def do_download(arg,
         url = arg
         
     try:
-        configuration = Configuration(adapters.getConfigSectionFor(url), options.format)
+        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
     except exceptions.UnknownSite, e:
         if options.list or options.normalize:
             # list for page doesn't have to be a supported site.

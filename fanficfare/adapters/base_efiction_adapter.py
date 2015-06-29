@@ -71,6 +71,11 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
 
     @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['base_efiction',cls.getConfigSection()]
+    
+    @classmethod
     def getAcceptDomains(cls):
         return [cls.getSiteDomain(),'www.' + cls.getSiteDomain()]
 

@@ -15,15 +15,15 @@
 # limitations under the License.
 #
 
-from adapter_forumsspacebattlescom import ForumsSpacebattlesComAdapter
+from base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 def getClass():
     return ForumsSufficientVelocityComAdapter
 
-class ForumsSufficientVelocityComAdapter(ForumsSpacebattlesComAdapter):
+class ForumsSufficientVelocityComAdapter(BaseXenForoForumAdapter):
 
     def __init__(self, config, url):
-        ForumsSpacebattlesComAdapter.__init__(self, config, url)
+        BaseXenForoForumAdapter.__init__(self, config, url)
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fsv')
@@ -35,5 +35,4 @@ class ForumsSufficientVelocityComAdapter(ForumsSpacebattlesComAdapter):
 
     @classmethod
     def getURLPrefix(cls):
-        # The site domain.  Does have www here, if it uses it.
         return 'http://' + cls.getSiteDomain()

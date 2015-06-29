@@ -412,7 +412,7 @@ class Story(Configurable):
         except:
             self.metadata = {'version':'4.4'}
         self.in_ex_cludes = {}
-        self.chapters = [] # chapters will be tuples of (title,html)
+        self.chapters = [] # chapters will be tuples of (url,title,html)
         self.imgurls = []
         self.imgtuples = []
 
