@@ -348,10 +348,10 @@ class ConfigWidget(QWidget):
         
         prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
 
-        prefs['imapserver'] = unicode(self.imap_tab.imapserver.text())
-        prefs['imapuser'] = unicode(self.imap_tab.imapuser.text())
-        prefs['imappass'] = unicode(self.imap_tab.imappass.text())
-        prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text())
+        prefs['imapserver'] = unicode(self.imap_tab.imapserver.text()).strip()
+        prefs['imapuser'] = unicode(self.imap_tab.imapuser.text()).strip()
+        prefs['imappass'] = unicode(self.imap_tab.imappass.text()).strip()
+        prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text()).strip()
         prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
         prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
         prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
