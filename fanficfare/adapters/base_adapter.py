@@ -361,6 +361,7 @@ class BaseSiteAdapter(Configurable):
             self.getStoryMetadataOnly(get_cover=True)
 
             for index, (title,url) in enumerate(self.chapterUrls):
+                marknewchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(url,
@@ -379,9 +380,12 @@ class BaseSiteAdapter(Configurable):
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
                     if not data:
                         data = self.getChapterText(url)
+                        # if configured and has existing chapters
+                        marknewchap = (self.getConfig('mark_new_chapters')=='true' and self.oldchapters or self.oldchaptersmap)
                     self.story.addChapter(url,
                                           removeEntities(title),
-                                          removeEntities(data))
+                                          removeEntities(data),
+                                          marknewchap)
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.

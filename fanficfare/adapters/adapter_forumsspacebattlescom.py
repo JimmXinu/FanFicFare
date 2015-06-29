@@ -146,6 +146,9 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
         for iframe in bq.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
+        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+            
         self.setDescription(useurl,bq)
 
         # otherwise, use first post links--include first post since that's 
@@ -163,7 +166,7 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
                     self.chapterUrls.append((name,url))
                     if url == useurl and 'First Post' == self.chapterUrls[0][0]:
                         # remove "First Post" if included in list.
-                        logger.debug("delete dup chapter: %s %s"%self.chapterUrls[0])
+                        logger.debug("delete dup 'First Post' chapter: %s %s"%self.chapterUrls[0])
                         del self.chapterUrls[0]
                         
             # Didn't use threadmarks, so take created/updated dates
@@ -217,5 +220,8 @@ class ForumsSpacebattlesComAdapter(BaseSiteAdapter):
 
         for iframe in bq.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+
+        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
         return self.utf8FromSoup(url,bq)

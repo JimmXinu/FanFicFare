@@ -840,10 +840,12 @@ class Story(Configurable):
 
         return list(subjectset | set(self.getConfigList("extratags")))
 
-    def addChapter(self, url, title, html):
+    def addChapter(self, url, title, html, marknewchap=False):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
+        if marknewchap:
+            title=u'(new) %s'%title
         self.chapters.append( (url,title,html) )
 
     def getChapters(self,fortoc=False):
