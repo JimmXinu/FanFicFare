@@ -22,6 +22,9 @@ import re
 import urllib2 as u2
 import urlparse
 
+import logging
+logger = logging.getLogger(__name__)
+
 from BeautifulSoup import BeautifulSoup 
 from gziphttp import GZipProcessor
 
@@ -82,17 +85,17 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     soup = BeautifulSoup(data)
     if restrictsearch:
         soup = soup.find(*restrictsearch)
-        #print("restrict search:%s"%soup)
+        #logger.debug("restrict search:%s"%soup)
     
     for a in soup.findAll('a'):
         if a.has_key('href'):
-            #print("a['href']:%s"%a['href'])
+            #logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
-            #print("1 urlhref:%s"%href)
+            #logger.debug("1 urlhref:%s"%href)
             # this (should) catch normal story links, some javascript
             # 'are you old enough' links, and 'Report This' links.
             if 'story.php' in a['href']:
-                #print("trying:%s"%a['href'])
+                #logger.debug("trying:%s"%a['href'])
                 m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
                 if m != None:
                     href = form_url(a['href'] if '//' in a['href'] else url,
@@ -100,15 +103,15 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                     
             try:
                 href = href.replace('&index=1','')
-                #print("2 urlhref:%s"%href)
+                #logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
-                #print("found adapter")
+                #logger.debug("found adapter")
                 if adapter.story.getMetadata('storyUrl') not in urls:
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
             except Exception, e:
-                #print e
+                #logger.debug e
                 pass
 
     # Simply return the longest URL with the assumption that it contains the
@@ -173,7 +176,8 @@ def form_url(parenturl,url):
      return returl
        
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
-    
+
+    logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
     mail.login(user, passwd)
     mail.list()
@@ -182,8 +186,8 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     
     result, data = mail.uid('search', None, "UNSEEN")
     
-    #print("result:%s"%result)
-    #print("data:%s"%data)
+    #logger.debug("result:%s"%result)
+    #logger.debug("data:%s"%data)
     urls=set()
     
     #latest_email_uid = data[0].split()[-1]
@@ -191,8 +195,8 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
         result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
     
-        #print("result:%s"%result)
-        #print("data:%s"%data)
+        #logger.debug("result:%s"%result)
+        #logger.debug("data:%s"%data)
     
         raw_email = data[0][1]
         
@@ -201,28 +205,28 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     
         email_message = email.message_from_string(raw_email)
      
-        #print "To:%s"%email_message['To']
-        #print "From:%s"%email_message['From']
-        #print "Subject:%s"%email_message['Subject']
+        #logger.debug "To:%s"%email_message['To']
+        #logger.debug "From:%s"%email_message['From']
+        #logger.debug "Subject:%s"%email_message['Subject']
     
-    #    print("payload:%s"%email_message.get_payload())
+    #    logger.debug("payload:%s"%email_message.get_payload())
 
         urllist=[]
         for part in email_message.walk():
             try:
-            #print("part mime:%s"%part.get_content_type())
+            #logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
                     urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
                 if part.get_content_type() == 'text/html':
                     urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
             except Exception as e:
-                print("Failed to read email content: %s"%e)
-        #print "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
+                logger.error("Failed to read email content: %s"%e)
+        #logger.debug "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
 
         if urllist and markread:
             #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
             r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
-            #print("seen result:%s->%s"%(email_uid,r))
+            #logger.debug("seen result:%s->%s"%(email_uid,r))
                 
         [ urls.add(x) for x in urllist ]
     
