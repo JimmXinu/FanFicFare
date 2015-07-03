@@ -28,7 +28,7 @@ import re
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 from base_writer import *
-from ..htmlcleanup import stripHTML
+from ..htmlcleanup import stripHTML,removeEntities
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +133,9 @@ ${value}<br />
 <head>
 <title>${chapter}</title>
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
+<meta name="chapterurl" content="${url}"></meta>
+<meta name="chapterorigtitle" content="${origchapter}"></meta>
+<meta name="chaptertitle" content="${chapter}"></meta>
 </head>
 <body>
 <h3>${chapter}</h3>
@@ -502,13 +505,13 @@ div { margin: 0pt; padding: 0pt; }
             items.append(("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.append("log_page")
             
-        for index, (url,title,html) in enumerate(self.story.getChapters(fortoc=True)):
-            if html:
+        for index, chap in enumerate(self.story.getChapters(fortoc=True)):
+            if chap.html:
                 i=index+1
                 items.append(("file%04d"%i,
                               "OEBPS/file%04d.xhtml"%i,
                               "application/xhtml+xml",
-                              title))
+                              chap.title))
                 itemrefs.append("file%04d"%i)
 
         manifest = contentdom.createElement("manifest")
@@ -650,13 +653,16 @@ div { margin: 0pt; padding: 0pt; }
         else:
             CHAPTER_END = self.EPUB_CHAPTER_END
         
-        for index, (url,title,html) in enumerate(self.story.getChapters()):
-            if html:
-                logger.debug('Writing chapter text for: %s' % title)
-                vals={'url':url, 'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+        for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
+            if chap.html:
+                logger.debug('Writing chapter text for: %s' % chap.title)
+                vals={'url':removeEntities(chap.url),
+                      'chapter':chap.title,
+                      'origchapter':chap.origtitle,
+                      'index':"%04d"%(index+1),
+                      'number':index+1}
                 fullhtml = CHAPTER_START.substitute(vals) + \
-                    '<a href="'+url+'" class="chapterurl"></a>' + \
-                    html + CHAPTER_END.substitute(vals)
+                    chap.html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big

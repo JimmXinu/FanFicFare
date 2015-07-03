@@ -16,6 +16,7 @@
 #
 
 import os, re
+from collections import namedtuple
 import urlparse
 import string
 import json
@@ -31,6 +32,8 @@ import bs4
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
+
+Chapter = namedtuple('Chapter', 'url title html origtitle')
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -412,7 +415,7 @@ class Story(Configurable):
         except:
             self.metadata = {'version':'4.4'}
         self.in_ex_cludes = {}
-        self.chapters = [] # chapters will be tuples of (url,title,html)
+        self.chapters = [] # chapters will be namedtuple of Chapter(url,title,html,etc)
         self.imgurls = []
         self.imgtuples = []
 
@@ -844,22 +847,24 @@ class Story(Configurable):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
+        newtitle=title
         if marknewchap:
-            title=u'(new) %s'%title
-        self.chapters.append( (url,title,html) )
+            newtitle=u'(new) %s'%title
+        self.chapters.append( Chapter(url,newtitle,html,title) )
 
     def getChapters(self,fortoc=False):
-        "Chapters will be tuples of (title,html)"
+        "Chapters will be Chapter namedtuples of (url,title,html,new)"
         retval = []
         ## only add numbers if more than one chapter.
         if len(self.chapters) > 1 and \
                 (self.getConfig('add_chapter_numbers') == "true" \
                      or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
                      and self.getConfig('chapter_title_add_pattern'):
-            for index, (url,title,html) in enumerate(self.chapters):
-                retval.append( (url,
-                                string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),
-                                html) )
+            for index, chap in enumerate(self.chapters):
+                retval.append( Chapter(chap.url,
+                                       string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':chap.title}),
+                                       chap.html,
+                                       string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':chap.origtitle})) )
         else:
             retval = self.chapters
 

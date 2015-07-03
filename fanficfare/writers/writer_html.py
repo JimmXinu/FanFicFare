@@ -128,12 +128,12 @@ ${output_css}
         else:
             CHAPTER_END = self.HTML_CHAPTER_END
         
-        for index, (url,title,html) in enumerate(self.story.getChapters()):
-            if html:
-                logging.debug('Writing chapter text for: %s' % title)
-                vals={'url':url, 'chapter':title, 'index':"%04d"%(index+1), 'number':index+1}
+        for index, chap in enumerate(self.story.getChapters()):
+            if chap.html:
+                logging.debug('Writing chapter text for: %s' % chap.title)
+                vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
                 self._write(out,CHAPTER_START.substitute(vals))
-                self._write(out,html)
+                self._write(out,chap.html)
                 self._write(out,CHAPTER_END.substitute(vals))
 
         self._write(out,FILE_END.substitute(self.story.getAllMetadata()))
