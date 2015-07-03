@@ -155,7 +155,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if not url.startswith('http'):
                     url = self.getURLPrefix()+'/'+url
     
-                if (url.startswith(self.getURLPrefix()) or url.startswith('http://'+self.getSiteDomain())) and ('/posts/' in url or '/threads/' in url):
+                if ( url.startswith(self.getURLPrefix()) or
+                     url.startswith('http://'+self.getSiteDomain()) or
+                     url.startswith('https://'+self.getSiteDomain()) ) and ('/posts/' in url or '/threads/' in url):
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
                     logger.debug("used chapurl:%s"%(url))
