@@ -259,6 +259,7 @@ class ConfigWidget(QWidget):
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
+        prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
         prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
         prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
 
@@ -520,6 +521,11 @@ class BasicTab(QWidget):
         self.injectseries.setToolTip(_("If no series is found, inject the calibre series (if there is one) so \nit appears on the FanFicFare title page(not cover)."))
         self.injectseries.setChecked(prefs['injectseries'])
         self.l.addWidget(self.injectseries)
+
+        self.matchtitleauth = QCheckBox(_("Search by Title/Author(s) for If Story Already Exists?"),self)
+        self.matchtitleauth.setToolTip(_("When checking <i>If Story Already Exists</i> FanFicFare will first match by URL Identifier.  But if not found, it can also search existing books by Title and Author(s)."))
+        self.matchtitleauth.setChecked(prefs['matchtitleauth'])
+        self.l.addWidget(self.matchtitleauth)
 
         rej_gb = groupbox = QGroupBox(_("Reject List"))
         self.l = QVBoxLayout()

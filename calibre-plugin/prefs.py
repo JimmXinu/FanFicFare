@@ -76,6 +76,7 @@ default_prefs['lookforurlinhtml'] = False
 default_prefs['checkforseriesurlid'] = True
 default_prefs['checkforurlchange'] = True
 default_prefs['injectseries'] = False
+default_prefs['matchtitleauth'] = True
 default_prefs['smarten_punctuation'] = False
 default_prefs['show_est_time'] = False
 

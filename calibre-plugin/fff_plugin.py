@@ -1074,7 +1074,7 @@ class FanFicFarePlugin(InterfaceAction):
                 # try to find by identifier url or uri first.
                 identicalbooks = self.do_id_search(url)
                 # print("identicalbooks:%s"%identicalbooks)
-                if len(identicalbooks) < 1:
+                if len(identicalbooks) < 1 and prefs['matchtitleauth']:
                     # find dups
                     authlist = story.getList("author", removeallentities=True)
                     mi = MetaInformation(story.getMetadata("title", removeallentities=True),
