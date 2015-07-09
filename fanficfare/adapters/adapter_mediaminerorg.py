@@ -22,7 +22,6 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -42,7 +41,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
-            self.story.setMetadata('storyId',m.group('id'))
+            if m.group('id'):
+                self.story.setMetadata('storyId',m.group('id'))
+            elif m.group('id2'):
+                self.story.setMetadata('storyId',m.group('id2'))
             
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/fanfic/view_st.php/'+self.story.getMetadata('storyId'))
@@ -62,8 +64,15 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         ##  http://www.mediaminer.org/fanfic/view_st.php/76882
         ##  http://www.mediaminer.org/fanfic/view_ch.php/167618/594087#fic_c
+        ##  http://www.mediaminer.org/fanfic/view_ch.php?submit=View+Chapter&id=105816&cid=357151
         return re.escape("http://"+self.getSiteDomain())+\
-            "/fanfic/view_(st|ch)\.php/"+r"(?P<id>\d+)(/\d+(#fic_c)?)?$"
+            r"(/fanfic/view_(st|ch)\.php/(?P<id>\d+)(/\d+(#fic_c)?)?/?|"+\
+            r"/fanfic/view_ch\.php\?(submit=View(\+| )Chapter&)?id=(?P<id2>\d+)(&cid=\d+)?)$"
+
+    # Override stripURLParameters so the id parameter won't get stripped
+    @classmethod
+    def stripURLParameters(cls, url):
+        return url
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -71,7 +80,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self._fetchUrl(url+'/') # trailing / gets 'chapter list' page even for one-shots.
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -79,7 +88,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # [ A - All Readers ], strip '[' ']'
         ## Above title because we remove the smtxt font to get title.
@@ -106,18 +115,12 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         title = soup.find('td',{'class':'ffh'})
         for font in title.findAll('font'):
             font.extract() # removes 'font' tags from inside the td.        
-        if title.has_key('colspan'):
+        if title.has_attr('colspan'):
             titlet = stripHTML(title)
         else:
             ## No colspan, it's part chapter title--even if it's a one-shot.
             titlet = ':'.join(stripHTML(title).split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
         self.story.setMetadata('title',titlet)
-        ## The story title is difficult to reliably parse from the
-        ## story pages.  Getting it from the author page is, but costs
-        ## another fetch.
-        # authsoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-        # titlea = authsoup.find('a',{'href':'/fanfic/view_st.php/'+self.story.getMetadata('storyId')})
-        # self.story.setMetadata('title',titlea.text)
 
         # save date from first for later.
         firstdate=None
@@ -137,7 +140,9 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 # save date from first for later.
                 if not firstdate:
                     firstdate = m.group(3)
-                self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php/'+self.story.getMetadata('storyId')+'/'+option['value']))
+                # http://www.mediaminer.org/fanfic/view_ch.php?cid=376587&submit=View+Chapter&id=105816
+                # self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php/'+self.story.getMetadata('storyId')+'/'+option['value']))
+                self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php?submit=View Chapter&id='+self.story.getMetadata('storyId')+'&cid='+option['value']))
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # category
@@ -193,27 +198,26 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         data=self._fetchUrl(url)
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(data)
 
-        anchor = soup.find('a',{'name':'fic_c'})
+        header = soup.find('div',{'class':'post-meta clearfix '})
+        # print("data:%s"%data)
 
-        if None == anchor:
+        chapter=self.make_soup('<div class="story"></div>').find('div')
+
+        if None == header:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         ## find divs with align=left, those are paragraphs in newer stories.
-        divlist = anchor.findAllNext('div',{'align':'left'})
+        divlist = header.findAllNext('div',{'align':'left'})
         if divlist:
             for div in divlist:
                 div.name='p' # convert to <p> mediaminer uses div with
                              # a margin for paragraphs.
-                anchor.append(div) # cheat!  stuff all the content
-                                   # divs into anchor just as a
-                                   # holder.
+                chapter.append(div)
                 del div['style']
                 del div['align']
-            anchor.name='div'
-            return self.utf8FromSoup(url,anchor)
+            return self.utf8FromSoup(url,chapter)
         
         else:
             logger.debug('Using kludgey text find for older mediaminer story.')
@@ -221,8 +225,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
             ## Story stuff falls between:
             data = "<div id='HERE'>" + data[data.find('<a name="fic_c">'):] +"</div>"
-            soup = bs.BeautifulStoneSoup(data,
-                                         selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+            soup = self.make_soup(data)
             for tag in soup.findAll('td',{'class':'ffh'}) + \
                     soup.findAll('div',{'class':'acl'}) + \
                     soup.findAll('div',{'class':'footer smtxt'}) + \
