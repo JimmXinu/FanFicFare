@@ -69,8 +69,9 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ##  http://www.mediaminer.org/fanfic/view_ch.php?submit=View+Chapter&id=105816&cid=357151
         ##  http://www.mediaminer.org/fanfic/view_ch.php?cid=612153&submit=View+Chapter&id=171668
         return re.escape("http://"+self.getSiteDomain())+\
-            r"(/fanfic/view_(st|ch)\.php/(?P<id>\d+)(/\d+(#fic_c)?)?/?|"+\
-            r"/fanfic/view_ch\.php\?((submit=View(\+| )Chapter|id=(?P<id2>\d+)|cid=\d+)&?)+)"
+            r"/fanfic/view_(st|ch)\.php"+\
+            r"(/(?P<id>\d+)(/\d+(#fic_c)?)?/?|"+\
+            r"\?((submit=View(\+| )Chapter|id=(?P<id2>\d+)|cid=\d+)&?)+)"
 
     # Override stripURLParameters so the id parameter won't get stripped
     @classmethod
