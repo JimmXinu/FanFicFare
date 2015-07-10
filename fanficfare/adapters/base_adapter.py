@@ -379,16 +379,18 @@ class BaseSiteAdapter(Configurable):
                         data = self.utf8FromSoup(None,
                                                  self.oldchapters[index],
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
-                        
-                    newchap = (self.oldchaptersdata and
+
+                    # if already marked new -- ie, origtitle and title don't match
+                    # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
+                    newchap = (self.oldchaptersdata is not None and
                                url in self.oldchaptersdata and (
-                                  self.oldchaptersdata[url]['chapterorigtitle'] !=
-                                  self.oldchaptersdata[url]['chaptertitle']) )
+                            self.oldchaptersdata[url]['chapterorigtitle'] !=
+                            self.oldchaptersdata[url]['chaptertitle']) )
                     
                     if not data:
                         data = self.getChapterText(url)
-                        # if configured and has existing chapters
-                        newchap = (self.oldchapters or self.oldchaptersmap)
+                        # if had to fetch and has existing chapters
+                        newchap = bool(self.oldchapters or self.oldchaptersmap)
                         
                     self.story.addChapter(url,
                                           removeEntities(title),

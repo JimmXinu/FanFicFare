@@ -135,6 +135,7 @@ ${value}<br />
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 <meta name="chapterurl" content="${url}"></meta>
 <meta name="chapterorigtitle" content="${origchapter}"></meta>
+<meta name="chaptertoctitle" content="${tocchapter}"></meta>
 <meta name="chaptertitle" content="${chapter}"></meta>
 </head>
 <body>
@@ -659,6 +660,7 @@ div { margin: 0pt; padding: 0pt; }
                 vals={'url':removeEntities(chap.url),
                       'chapter':chap.title,
                       'origchapter':chap.origtitle,
+                      'tocchapter':chap.toctitle,
                       'index':"%04d"%(index+1),
                       'number':index+1}
                 fullhtml = CHAPTER_START.substitute(vals) + \

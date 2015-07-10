@@ -241,10 +241,11 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     changed = False
     
-    tocncx = inputepub.read('toc.ncx').decode('utf-8')
+    tocncxdom = parseString(inputepub.read('toc.ncx'))
     ## spin through file contents.
     for zf in inputepub.namelist():
         if zf not in ['mimetype','toc.ncx'] :
+            entrychanged = False
             data = inputepub.read(zf)
             # if isinstance(data,unicode):
             #     logger.debug("\n\n\ndata is unicode\n\n\n")
@@ -256,6 +257,14 @@ def reset_orig_chapters_epub(inputio,outfile):
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
                 if tag:
                     chapterorigtitle = tag['content']
+
+                # toctitle is separate for add_chapter_numbers:toconly users.
+                chaptertoctitle = None
+                tag = soup.find('meta',{'name':'chaptertoctitle'})
+                if tag:
+                    chaptertoctitle = tag['content']
+                elif chapterorigtitle:
+                    chaptertoctitle = chapterorigtitle
                     
                 chaptertitle = None
                 tag = soup.find('meta',{'name':'chaptertitle'})
@@ -264,28 +273,44 @@ def reset_orig_chapters_epub(inputio,outfile):
 
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
                     origdata = data
-                    origtocncx = tocncx
                     # print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
-                    # changed = True
                     data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
                                         u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
                     data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
                     data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
-                    tocncx = tocncx.replace(u'<text>'+chaptertitle+u'</text>',u'<text>'+chapterorigtitle+u'</text>')
-                    changed = ( origdata != data or origtocncx != tocncx )
+
+                    entrychanged = ( origdata != data )
+                    changed = changed or entrychanged
+                    
+                    if entrychanged:
+                        ## go after the TOC entry, too.
+                        # <navPoint id="file0005" playOrder="6">
+                        #   <navLabel>
+                        #     <text>5. (new) Chapter 4</text>
+                        #   </navLabel>
+                        #   <content src="OEBPS/file0005.xhtml"/>
+                        # </navPoint>
+                        for contenttag in tocncxdom.getElementsByTagName("content"):
+                            if contenttag.getAttribute('src') == zf:
+                                texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
+                                texttag.childNodes[0].replaceWholeText(chaptertoctitle)
+                                # logger.debug("text label:%s"%texttag.toxml())
+                                continue
+                    
                 outputepub.writestr(zf,data.encode('utf-8'))
             else:
+                # possibly binary data, thus no .encode().
                 outputepub.writestr(zf,data)
 
-    # only write if changed.
+    outputepub.writestr('toc.ncx',tocncxdom.toxml(encoding='utf-8'))
+    outputepub.close()
+    # declares all the files created by Windows.  otherwise, when
+    # it runs in appengine, windows unzips the files as 000 perms.
+    for zf in outputepub.filelist:
+        zf.create_system = 0
+        
+    # only *actually* write if changed.
     if changed:
-        outputepub.writestr('toc.ncx',tocncx.encode('utf-8'))
-    
-        # declares all the files created by Windows.  otherwise, when
-        # it runs in appengine, windows unzips the files as 000 perms.
-        for zf in outputepub.filelist:
-            zf.create_system = 0
-        outputepub.close()
         if isinstance(outfile,basestring):
             with open(outfile,"wb") as outputio:
                 outputio.write(zipio.getvalue())
