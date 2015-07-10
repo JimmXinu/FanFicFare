@@ -105,6 +105,7 @@ class BaseSiteAdapter(Configurable):
         self.chapterLast = None
         self.oldchapters = None
         self.oldchaptersmap = None
+        self.oldchaptersdata = None
         self.oldimgs = None
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
@@ -361,7 +362,7 @@ class BaseSiteAdapter(Configurable):
             self.getStoryMetadataOnly(get_cover=True)
 
             for index, (title,url) in enumerate(self.chapterUrls):
-                marknewchap = False
+                newchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(url,
@@ -378,14 +379,21 @@ class BaseSiteAdapter(Configurable):
                         data = self.utf8FromSoup(None,
                                                  self.oldchapters[index],
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                        
+                    newchap = (self.oldchaptersdata and
+                               url in self.oldchaptersdata and (
+                                  self.oldchaptersdata[url]['chapterorigtitle'] !=
+                                  self.oldchaptersdata[url]['chaptertitle']) )
+                    
                     if not data:
                         data = self.getChapterText(url)
                         # if configured and has existing chapters
-                        marknewchap = (self.getConfig('mark_new_chapters')=='true' and self.oldchapters or self.oldchaptersmap)
+                        newchap = (self.oldchapters or self.oldchaptersmap)
+                        
                     self.story.addChapter(url,
                                           removeEntities(title),
                                           removeEntities(data),
-                                          marknewchap)
+                                          newchap)
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.

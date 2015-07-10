@@ -193,7 +193,8 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                  adapter.oldcover,
                  adapter.calibrebookmark,
                  adapter.logfile,
-                 adapter.oldchaptersmap) = get_update_data(book['epub_for_update'])[0:8]
+                 adapter.oldchaptersmap,
+                 adapter.oldchaptersdata) = get_update_data(book['epub_for_update'])[0:9]
     
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:

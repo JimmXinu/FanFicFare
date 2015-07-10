@@ -33,7 +33,7 @@ import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
 
-Chapter = namedtuple('Chapter', 'url title html origtitle')
+Chapter = namedtuple('Chapter', 'url title html origtitle new')
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -843,19 +843,19 @@ class Story(Configurable):
 
         return list(subjectset | set(self.getConfigList("extratags")))
 
-    def addChapter(self, url, title, html, marknewchap=False):
+    def addChapter(self, url, title, html, newchap=False):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
         newtitle=title
-        if marknewchap:
+        if newchap and self.getConfig('mark_new_chapters')=='true':
             newtitle=u'(new) %s'%title
-        self.chapters.append( Chapter(url,newtitle,html,title) )
+        self.chapters.append( Chapter(url,newtitle,html,title,newchap) )
 
     def getChapters(self,fortoc=False):
-        "Chapters will be Chapter namedtuples of (url,title,html,new)"
+        "Chapters will be Chapter namedtuples"
         retval = []
-        ## only add numbers if more than one chapter.
+        ## only add numbers if more than one chapter.  Ditto (new) marks.
         if len(self.chapters) > 1 and \
                 (self.getConfig('add_chapter_numbers') == "true" \
                      or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
@@ -864,7 +864,8 @@ class Story(Configurable):
                 retval.append( Chapter(chap.url,
                                        string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':chap.title}),
                                        chap.html,
-                                       string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':chap.origtitle})) )
+                                       string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':chap.origtitle}),
+                                       chap.new) )
         else:
             retval = self.chapters
 

@@ -267,8 +267,8 @@ def reset_orig_chapters_epub(inputio,outfile):
                     origtocncx = tocncx
                     # print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
                     # changed = True
-                    # data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
-                    #                     u'<meta name="chaptertitle" content="">'+chapterorigtitle+u'</meta>')
+                    data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
+                                        u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
                     data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
                     data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
                     tocncx = tocncx.replace(u'<text>'+chaptertitle+u'</text>',u'<text>'+chapterorigtitle+u'</text>')

@@ -339,7 +339,8 @@ def do_download(arg,
                  adapter.oldcover,
                  adapter.calibrebookmark,
                  adapter.logfile,
-                 adapter.oldchaptersmap) = (get_update_data(output_filename))[0:8]
+                 adapter.oldchaptersmap,
+                 adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
                 print 'Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount)
 
