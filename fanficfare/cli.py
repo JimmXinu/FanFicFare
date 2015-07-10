@@ -135,7 +135,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
         parser.error('-u/--update-epub only works with epub')
 
     if options.unnew and options.format != 'epub':
-        parser.error('--unnew-epub only works with epub')
+        parser.error('--unnew only works with epub')
 
     # for passing in a file list
     if options.infile:
