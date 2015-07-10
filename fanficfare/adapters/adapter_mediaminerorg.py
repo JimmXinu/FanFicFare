@@ -45,6 +45,8 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('storyId',m.group('id'))
             elif m.group('id2'):
                 self.story.setMetadata('storyId',m.group('id2'))
+            elif m.group('id3'):
+                self.story.setMetadata('storyId',m.group('id2'))
             
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/fanfic/view_st.php/'+self.story.getMetadata('storyId'))
@@ -65,9 +67,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ##  http://www.mediaminer.org/fanfic/view_st.php/76882
         ##  http://www.mediaminer.org/fanfic/view_ch.php/167618/594087#fic_c
         ##  http://www.mediaminer.org/fanfic/view_ch.php?submit=View+Chapter&id=105816&cid=357151
+        ##  http://www.mediaminer.org/fanfic/view_ch.php?cid=612153&submit=View+Chapter&id=171668
         return re.escape("http://"+self.getSiteDomain())+\
             r"(/fanfic/view_(st|ch)\.php/(?P<id>\d+)(/\d+(#fic_c)?)?/?|"+\
-            r"/fanfic/view_ch\.php\?(submit=View(\+| )Chapter&)?id=(?P<id2>\d+)(&cid=\d+)?)$"
+            r"/fanfic/view_ch\.php\?((submit=View(\+| )Chapter|id=(?P<id2>\d+)|cid=\d+)&?)+)"
 
     # Override stripURLParameters so the id parameter won't get stripped
     @classmethod
