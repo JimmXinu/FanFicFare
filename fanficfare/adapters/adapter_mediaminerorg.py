@@ -228,10 +228,11 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             ## Some older mediaminer stories are unparsable with BeautifulSoup.
             ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
             ## Story stuff falls between:
-            data = "<div id='HERE'>" + data[data.find('<a name="fic_c">'):] +"</div>"
+            data = "<div id='HERE'>" + data[data.find('<div class="adWrap">'):data.find('<div class="addthis_sharing_toolbox">')] +"</div>"
             soup = self.make_soup(data)
             for tag in soup.findAll('td',{'class':'ffh'}) + \
                     soup.findAll('div',{'class':'acl'}) + \
+                    soup.findAll('div',{'class':'adWrap'}) + \
                     soup.findAll('div',{'class':'footer smtxt'}) + \
                     soup.findAll('table',{'class':'tbbrdr'}):
                 tag.extract() # remove tag from soup.
