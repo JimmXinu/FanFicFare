@@ -337,9 +337,9 @@ class FanFicFarePlugin(InterfaceAction):
                                                                       triggered=partial(self.update_lists,add=False))
 
             self.menu.addSeparator()
-            self.get_list_action = self.create_menu_item_ex(self.menu, _('UnNew Selected books'),
-                                                            unique_name='Get URLs from Selected Books',
-                                                            image='rotate-right.png',
+            self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
+                                                            unique_name='Remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.',
+                                                            image='edit-undo.png',
                                                             triggered=self.unnew_books)
 
             self.menu.addSeparator()
@@ -422,7 +422,8 @@ class FanFicFarePlugin(InterfaceAction):
                 return
 
             self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
-            self.unnew_books()
+            if not add and prefs['autounnew']:
+                self.unnew_books()
 
     def get_urls_from_imap_menu(self):
 

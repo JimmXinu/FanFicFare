@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # -*- coding: utf-8 -*-
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
+# from __future__ import (unicode_literals, division, absolute_import,
+#                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -15,6 +14,7 @@ import re, os, traceback
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
+from StringIO import StringIO
 
 import bs4 as bs
 
@@ -177,7 +177,7 @@ def get_update_data(inputio,
                     
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    print("datamaps:%s"%datamaps)
+    # print("datamaps:%s"%datamaps)
     return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups,datamaps)
 
 def get_path_part(n):
@@ -223,20 +223,23 @@ def get_story_url_from_html(inputio,_is_good_url=None):
                     return ahref
     return None
 
-def reset_orig_chapters_epub(inputio,outputio):
+def reset_orig_chapters_epub(inputio,outfile):
     inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
 
+    ## build zip in memory in case updating in place(CLI).
+    zipio = StringIO()
+    
     ## Write mimetype file, must be first and uncompressed.
     ## Older versions of python(2.4/5) don't allow you to specify
     ## compression by individual file.
     ## Overwrite if existing output file.
-    outputepub = ZipFile(outputio, 'w', compression=ZIP_STORED)
+    outputepub = ZipFile(zipio, 'w', compression=ZIP_STORED)
     outputepub.debug = 3
     outputepub.writestr("mimetype", "application/epub+zip")
     outputepub.close()
 
     ## Re-open file for content.
-    outputepub = ZipFile(outputio, "a", compression=ZIP_DEFLATED)
+    outputepub = ZipFile(zipio, "a", compression=ZIP_DEFLATED)
     outputepub.debug = 3
 
     changed = False
@@ -246,8 +249,8 @@ def reset_orig_chapters_epub(inputio,outputio):
     for zf in inputepub.namelist():
         if zf not in ['mimetype','toc.ncx'] :
             data = inputepub.read(zf)
-            if isinstance(data,unicode):
-                print("\n\n\ndata is unicode\n\n\n")
+            # if isinstance(data,unicode):
+            #     logger.debug("\n\n\ndata is unicode\n\n\n")
             if re.match(r'.*/file\d+\.xhtml',zf):
                 data = data.decode('utf-8')
                 soup = bs.BeautifulSoup(data,"html5lib")
@@ -265,7 +268,7 @@ def reset_orig_chapters_epub(inputio,outputio):
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
                     origdata = data
                     origtocncx = tocncx
-                    print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
+                    # print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
                     # changed = True
                     # data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
                     #                     u'<meta name="chaptertitle" content="">'+chapterorigtitle+u'</meta>')
@@ -277,6 +280,22 @@ def reset_orig_chapters_epub(inputio,outputio):
             else:
                 outputepub.writestr(zf,data)
 
-    outputepub.writestr('toc.ncx',tocncx.encode('utf-8'))
+    # only write if changed.
+    if changed:
+        outputepub.writestr('toc.ncx',tocncx.encode('utf-8'))
+    
+        # declares all the files created by Windows.  otherwise, when
+        # it runs in appengine, windows unzips the files as 000 perms.
+        for zf in outputepub.filelist:
+            zf.create_system = 0
+        outputepub.close()
+        if isinstance(outfile,basestring):
+            with open(outfile,"wb") as outputio:
+                outputio.write(zipio.getvalue())
+        else:
+            outfile.write(zipio.getvalue())
+
+    inputepub.close()
+    zipio.close()
             
     return changed

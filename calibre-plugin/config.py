@@ -272,6 +272,7 @@ class ConfigWidget(QWidget):
             prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
             prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
             prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
+            prefs['autounnew'] = self.readinglist_tab.autounnew.isChecked()
 
         # personal.ini
         ini = self.personalini_tab.personalini
@@ -780,6 +781,11 @@ class ReadingListTab(QWidget):
         self.addtolistsonread.setToolTip(_('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)'))
         self.addtolistsonread.setChecked(prefs['addtolistsonread'])
         self.l.addWidget(self.addtolistsonread)
+            
+        self.autounnew = QCheckBox(_('Automatically run Remove "New" Chapter Marks when marking books "Read".'),self)
+        self.autounnew.setToolTip(_('Menu option to remove from "To Read" lists will also remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.'))
+        self.autounnew.setChecked(prefs['autounnew'])
+        self.l.addWidget(self.autounnew)
             
         self.l.insertStretch(-1)
         

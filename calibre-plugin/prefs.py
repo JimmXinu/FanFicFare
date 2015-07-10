@@ -85,6 +85,7 @@ default_prefs['read_lists'] = ''
 default_prefs['addtolists'] = False
 default_prefs['addtoreadlists'] = False
 default_prefs['addtolistsonread'] = False
+default_prefs['autounnew'] = False
 
 default_prefs['updatecalcover'] = None
 default_prefs['gencalcover'] = SAVE_YES
