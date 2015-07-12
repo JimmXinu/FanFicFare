@@ -147,7 +147,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             
         self.setDescription(useurl,bq)
 
-        # otherwise, use first post links--include first post since that's 
+        # otherwise, use first post links--include first post since
+        # that's often also the first chapter.
         if not self.chapterUrls:
             self.chapterUrls.append(("First Post",useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
