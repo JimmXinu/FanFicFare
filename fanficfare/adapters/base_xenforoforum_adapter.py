@@ -204,8 +204,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
+        origurl = url
         (data,opened) = self._fetchUrlOpened(url)
         url = opened.geturl()
+        if '#' in origurl and '#' not in url:
+            url = url + origurl[origurl.index('#'):]
         logger.debug("chapter URL redirected to: %s"%url)
 
         soup = self.make_soup(data)
