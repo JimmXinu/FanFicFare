@@ -1,6 +1,6 @@
-# ffd-retief-hrd fanfictiondownloader fanficfare
+# ffd-retief-hrd fanficfare
 application: fanficfare
-version: 2-2-10
+version: 2-2-10a
 runtime: python27
 api_version: 1
 threadsafe: true
