@@ -445,7 +445,7 @@ class Story(Configurable):
                 self.in_ex_cludes[ie] = set_in_ex_clude(ies)
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, vallist))
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
 
     def setMetadata(self, key, value, condremoveentities=True):
 
