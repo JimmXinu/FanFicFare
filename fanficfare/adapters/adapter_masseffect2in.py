@@ -99,6 +99,8 @@ class MassEffect2InAdapter(BaseSiteAdapter):
          ''',
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
 
+    SITE_LANGUAGE = u'Russian'
+
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
@@ -225,6 +227,9 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             'numWords', str(self._transient_metadata['numWords']))
         self.story.setMetadata(
             'numChapters', self._transient_metadata['numChapters'])
+        # Site-specific metadata.
+        self.story.setMetadata(
+            'language', self.SITE_LANGUAGE)
 
     def getChapterText(self, url):
         """Grabs the text for an individual chapter."""
