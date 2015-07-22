@@ -43,6 +43,9 @@ class ParsingError(Exception):
         Exception.__init__(self)
         self.message = message
 
+    def __str__(self):
+        return self.message
+
 
 class MassEffect2InAdapter(BaseSiteAdapter):
     """Provides support for masseffect2.in site as story source.
@@ -53,77 +56,21 @@ class MassEffect2InAdapter(BaseSiteAdapter):
            and some affiliated sites."""
 
     WORD_PATTERN = re.compile(u'\w+', re.UNICODE)
-
     DOCUMENT_ID_PATTERN = re.compile(u'\d+-\d+-\d+-\d+')
-
-    # Various `et cetera' and `et al' forms in Russian texts.
-    # Intended to be used with whole strings!
-    ETC_PATTERN = re.compile(
-        u'''[и&]\s(?:
-              (?:т\.?\s?[пд]\.?)|
-              (?:др(?:угие|\.)?)|
-              (?:пр(?:очие|\.)?)|
-              # Note: identically looking letters `K' and `o'
-              # below are from Latin and Cyrillic alphabets.
-              (?:ко(?:мпания)?|[KК][oо°])
-            )$
-        ''',
-        re.IGNORECASE + re.UNICODE + re.VERBOSE)
-
-    CHAPTER_NUMBER_PATTERN = re.compile(
-        u'''[\.:\s]*
-            (?:глава)?  # `Chapter' in Russian.
-            \s
-            (?P<chapterIndex>\d+)
-            (?:
-              (?:
-                # For `X.Y' and `X-Y' numbering styles:
-                [\-\.]|
-                # For `Chapter X (part Y)' and similar numbering styles:
-                [\.,]?\s
-                (?P<brace>\()?
-                (?:часть)?      # `Part' in Russian.
-                \s
-              )
-              (?P<partIndex>\d+)
-              (?(brace)\))
-            )?
-            [\.:\s]*
-         ''',
-        re.IGNORECASE + re.UNICODE + re.VERBOSE)
-
-    PROLOGUE_EPILOGUE_PATTERN = re.compile(
-        u'''[\.:\s]*         # Optional separators.
-            (пролог|эпилог)  # `Prologue' or `epilogue' in Russian.
-            [\.:\s]*         # Optional separators.
-         ''',
-        re.IGNORECASE + re.UNICODE + re.VERBOSE)
-
     SITE_LANGUAGE = u'Russian'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["utf8"]
-        self.dateformat = "%d.%m.%Y"
 
         self.story.setMetadata('siteabbrev', 'me2in')
+        self.story.setMetadata('storyId', self._getDocumentId(self.url))
 
-        self.story.setMetadata('storyId', self._extractDocumentId(self.url))
+        self._setURL(self._makeDocumentUrl(self.story.getMetadata('storyId')))
 
-        self._setURL(self._makeUrl(self.story.getMetadata('storyId')))
-
-        self._transient_metadata = {}
-
-        # Memory cache of document HTML parsing results.  Increases performance
-        # drastically, because all downloaded pages are parsed at least twice.
-        # FIXME: Can be simplified when BS is updated to 4.4 with cloning.
-        self._parsing_cache = {}
-
-    @classmethod
-    def _makeUrl(cls, chapterId):
-        """Makes a chapter URL given a chapter ID."""
-        return 'http://%s/publ/%s' % (cls.getSiteDomain(), chapterId)
+        self._chapters = {}
+        self._parsingConfiguration = None
 
     # Must be @staticmethod, not @classmethod!
     @staticmethod
@@ -132,11 +79,11 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return u' '.join([cls._makeUrl('19-1-0-1234'),
-                          cls._makeUrl('24-1-0-4321')])
+        return u' '.join([cls._makeDocumentUrl('19-1-0-1234'),
+                          cls._makeDocumentUrl('24-1-0-4321')])
 
     def getSiteURLPattern(self):
-        return re.escape(self._makeUrl('')) + self.DOCUMENT_ID_PATTERN.pattern
+        return re.escape(self._makeDocumentUrl('')) + self.DOCUMENT_ID_PATTERN.pattern
 
     def use_pagecache(self):
         """Allows use of downloaded page cache.  It is essential for this
@@ -149,345 +96,197 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         chapters, which is not exactly right, but necessary due to technical
         limitations of the site."""
 
-        def followLinks(document, selector):
-            """Downloads chapters one by one by locating and following links
-            specified by a selector.  Returns chapters' URLs in order they
-            were found."""
-            block = document\
-                .find('td', {'class': 'eDetails1'})\
-                .find('div', selector)
-            if not block:
-                return
-            link = block.find('a')
-            if not link:
-                return
-            chapterId = self._extractDocumentId(link['href'])
-            url = self._makeUrl(chapterId)
-            try:
-                chapter = self._loadDocument(url)
-            except urllib2.HTTPError, error:
-                if error.code == 404:
-                    raise exceptions.FailedToDownload(
-                        u'Error downloading chapter: %s!' % url)
-                raise
-            yield url
-            for url in followLinks(chapter, selector):
-                yield url
-
-        def followPreviousLinks(document):
-            """Downloads chapters following `Previous chapter' links.
-            Returns a list of chapters' URLs."""
-            urls = list(followLinks(document, {'class': 'fl tal'}))
-            return list(reversed(urls))
-
-        def followNextLinks(document):
-            """Downloads chapters following `Next chapter' links.
-            Returns a list of chapters' URLs."""
-            return list(followLinks(document, {'class': 'tar fr'}))
+        def followChapters(starting, forward=True):
+            if forward:
+                url = starting.getNextChapterUrl()
+            else:
+                url = starting.getPreviousChapterUrl()
+            if url:
+                url = self._makeDocumentUrl(self._getDocumentId(url))
+                following = self._makeChapter(url)
+                if forward:
+                    yield following
+                for chapter in followChapters(following, forward):
+                    yield chapter
+                if not forward:
+                    yield following
 
         try:
-            document = self._loadDocument(self.url)
+            startingChapter = self._makeChapter(self.url)
         except urllib2.HTTPError, error:
             if error.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             raise
-        # There is no convenient mechanism to obtain URLs of all chapters
-        # other than navigating to previous and next chapters using links
-        # located on each chapter page.
+
+        try:
+            self.story.setMetadata('title', startingChapter.getStoryTitle())
+            self.story.setMetadata('author', startingChapter.getAuthorName())
+            authorId = startingChapter.getAuthorId()
+            authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
+            self.story.setMetadata('authorId', authorId)
+            self.story.setMetadata('authorUrl', authorUrl)
+            self.story.setMetadata('rating', startingChapter.getRatingTitle())
+        except ParsingError, error:
+            raise exceptions.FailedToDownload(
+                u"Failed to parse story metadata for `%s': %s" % (self.url, error))
+
+        # We only have one date for each chapter and assume the oldest one
+        # to be publication date and the most recent one to be update date.
+        datePublished = datetime.datetime.max
+        dateUpdated = datetime.datetime.min
+        wordCount = 0
+        # We aim at counting chapters, not chapter parts.
+        chapterCount = 0
+        storyInProgress = False
+
         chapters = \
-            followPreviousLinks(document) + \
-            [self.url] + \
-            followNextLinks(document)
+            list(followChapters(startingChapter, forward=False)) + \
+            [startingChapter] + \
+            list(followChapters(startingChapter, forward=True))
 
-        # Transient metadata is updated when parsing each chapter,
-        # then converted and saved to story metadata.
-        self._transient_metadata = {
-            # We only have one date for each chapter and assume the oldest one
-            # to be publication date and the most recent one to be update date.
-            'datePublished': datetime.datetime.max,
-            'dateUpdated': datetime.datetime.min,
+        try:
+            for chapter in chapters:
+                url = chapter.getUrl()
+                self._chapters[url] = chapter
+                _logger.debug(u"Processing chapter `%s'.", url)
 
-            'numWords': 0,
+                datePublished = min(datePublished, chapter.getDate())
+                dateUpdated = max(dateUpdated, chapter.getDate())
 
-            # We aim at counting chapters, not chapter parts.
-            'numChapters': 0
-        }
+                self.story.extendList('genre', chapter.getGenres())
+                self.story.extendList('characters', chapter.getCharacters())
 
-        for url in chapters:
-            chapter = self._loadDocument(url)
-            _logger.debug(u"Parsing chapter `%s'", url)
-            self._parseChapterMetadata(url, chapter)
+                wordCount += self._getWordCount(chapter.getTextElement())
 
-        # Attributes are handled separately due to format conversions.
+                index = chapter.getIndex()
+                if index:
+                    chapterCount = max(chapterCount, index)
+                else:
+                    chapterCount += 1
+
+                # Story is in progress if any chapter is in progress.
+                # Some chapters may have no status attribute.
+                chapterInProgress = chapter.isInProgress()
+                if chapterInProgress is not None:
+                    storyInProgress |= chapterInProgress
+
+                # If any chapter is adult, consider the whole story adult.
+                if chapter.isRatingAdult():
+                    self.story.setMetadata('is_adult', True)
+
+            titles = [chapter.getTitle() for chapter in chapters]
+            hasNumbering = any([chapter.getIndex() is not None for chapter in chapters])
+            if not hasNumbering:
+                # There are stories without chapter numbering, but under single title,
+                # which is heading prefix (such stories are not series).  We identify
+                # common prefix for all chapters and use it as story title, trimming
+                # chapter titles the length of this prefix.
+                largestCommonPrefix = _getLargestCommonPrefix(*titles)
+                prefixLength = len(largestCommonPrefix)
+                storyTitle = re.sub(u'[:\.\s]*$', u'', largestCommonPrefix, re.UNICODE)
+                self.story.setMetadata('title', storyTitle)
+                for chapter in chapters:
+                    self.chapterUrls.append(
+                        (chapter.getTitle()[prefixLength:], chapter.getUrl()))
+            else:
+                # Simple processing for common cases.
+                for chapter in chapters:
+                    self.chapterUrls.append(
+                        (chapter.getTitle(), chapter.getUrl()))
+
+        except ParsingError, error:
+                raise exceptions.FailedToDownload(
+                    u"Failed to download chapter `%s': %s" % (url, error))
+
+        # Some metadata are handled separately due to format conversions.
         self.story.setMetadata(
-            'datePublished', self._transient_metadata['datePublished'])
-        self.story.setMetadata(
-            'dateUpdated', self._transient_metadata['dateUpdated'])
-        self.story.setMetadata(
-            'numWords', str(self._transient_metadata['numWords']))
-        self.story.setMetadata(
-            'numChapters', self._transient_metadata['numChapters'])
+            'status', 'In Progress' if storyInProgress else 'Completed')
+        self.story.setMetadata('datePublished', datePublished)
+        self.story.setMetadata('dateUpdated', dateUpdated)
+        self.story.setMetadata('numWords', str(wordCount))
+        self.story.setMetadata('numChapters', chapterCount)
+
         # Site-specific metadata.
-        self.story.setMetadata(
-            'language', self.SITE_LANGUAGE)
+        self.story.setMetadata('language', self.SITE_LANGUAGE)
 
     def getChapterText(self, url):
         """Grabs the text for an individual chapter."""
-        element = self._getChapterTextElement(url)
-        return self.utf8FromSoup(url, element)
+        if url not in self._chapters:
+            raise exceptions.FailedToDownload(u"No chapter `%s' present!" % url)
+        chapter = self._chapters[url]
+        return self.utf8FromSoup(url, chapter.getTextElement())
 
-    def _parseChapterMetadata(self, url, document):
-        try:
-            self._parseTitle(url, document)
-            infoBar = document.find('td', {'class': 'eDetails2'})
-            if not infoBar:
-                raise ParsingError(u'No informational bar found.')
-            if not self.story.getMetadata('authorId'):
-                self._parseAuthor(infoBar)
-            self._parseDates(infoBar)
-            self._parseTextForWordCount(url)
-            self._parseAttributes(document)
-        except ParsingError, error:
-            raise exceptions.FailedToDownload(
-                u"Error parsing `%s'.  %s" % (url, error.message))
+    def _makeChapter(self, url):
+        """Creates a chapter object given a URL."""
+        document = self._loadDocument(url)
+        chapter = Chapter(self._getParsingConfiguration(), url, document)
+        return chapter
 
-    def _parseAttributes(self, document):
-        try:
-            elements = document \
-                .find('div', {'class': 'comm-div'}) \
-                .findNextSibling('div', {'class': 'cb'}) \
-                .nextGenerator()
-            attributesText = u''
-            for element in elements:
-                if not element:
-                    _logger.warning(u'Attribute block not terminated!')
-                    break
-                if isinstance(element, bs.Tag):
-                    # Although deprecated, `has_key()' is required here.
-                    if element.name == 'div' and \
-                            element.has_key('class') and \
-                            element['class'] == 'cb':
-                        break
-                    elif element.name == 'img':
-                        self._parseRatingFromImage(element)
-                else:
-                    attributesText += stripHTML(element)
-        except AttributeError or TypeError:
-            raise ParsingError(u'Failed to locate and collect attributes.')
-
-        for record in re.split(u';|\.', attributesText):
-            parts = record.split(u':', 1)
-            if len(parts) < 2:
-                continue
-            key = parts[0].strip().lower()
-            value = parts[1].strip().strip(u'.')
-            self._parseAttribute(key, value)
-
-    def _parseRatingFromImage(self, element):
-        """Given an image element, tries to parse story rating from it."""
-        # FIXME: This should probably be made adjustable via settings.
-        ratings = {
-            'E': u'Exempt (18+)',
-            'R': u'Restricted (16+)',
-            'A': u'Иная история',
-            'T': u'To every',
-            'I': u'Art house',
-            'Nn': u'Новый мир',
-            'G': u'О, господи!',
-        }
-        ratings['IN'] = ratings['A']
-
-        # Although deprecated, `has_key()' is required here.
-        if not element.has_key('src'):
-            return
-        source = element['src']
-        if 'REITiNG' not in source:
-            return
-        match = re.search(u'/(?P<rating>[ERATINnG]+)\.png$', source)
-        if not match:
-            return
-        symbol = match.group('rating')
-        if symbol == 'IN':
-            symbol = 'A'
-        if symbol in ratings:
-            rating = ratings[symbol]
-            self.story.setMetadata('rating', rating)
-            if symbol in ('R', 'E'):
-                self.is_adult = True
-
-    def _parseAttribute(self, key, value):
-        """Parses a single known attribute value for chapter metadata."""
-
-        def refineCharacter(name):
-            """Refines character name from stop-words and distortions."""
-            strippedName = name.strip()
-            nameOnly = re.sub(self.ETC_PATTERN, u'', strippedName)
-            # TODO: extract canonical name (even ME-specific?).
-            canonicalName = nameOnly
-            return canonicalName
-
-        if key == u'жанр':
-            definitions = value.split(u',')
-            if len(definitions) > 4:
-                _logger.warning(u'Possibly incorrect genre detection!')
-            for definition in definitions:
-                genres = definition.split(u'/')
-                self.story.extendList('genre', genres)
-        elif key == u'статус':
-            status = 'In-Progress' if value == u'в процессе' else 'Completed'
-            self.story.setMetadata('status', status)
-        elif key == u'персонажи':
-            characters = [refineCharacter(name) for name in value.split(u',')]
-            self.story.extendList('characters', characters)
-        else:
-            _logger.debug(u"Unrecognized attribute `%s'.", key)
-
-    def _parseTextForWordCount(self, url):
-        element = self._getChapterTextElement(url)
+    def _getWordCount(self, element):
+        """Returns word count in plain text extracted from chapter body."""
         text = stripHTML(element)
         count = len(re.findall(self.WORD_PATTERN, text))
-        self._transient_metadata['numWords'] += count
-        pass
+        return count
 
-    def _parseDates(self, infoBar):
-        try:
-            dateText = infoBar \
-                .find('i', {'class': 'icon-eye'}) \
-                .findPreviousSibling(text=True) \
-                .strip(u'| \n')
-        except AttributeError:
-            raise ParsingError(u'Failed to locate date.')
-        date = makeDate(dateText, self.dateformat)
-        if date > self._transient_metadata['dateUpdated']:
-            self._transient_metadata['dateUpdated'] = date
-        if date < self._transient_metadata['datePublished']:
-            self._transient_metadata['datePublished'] = date
+    def _getParsingConfiguration(self):
+        if not self._parsingConfiguration:
+            self._parsingConfiguration = {}
 
-    def _parseAuthor(self, strip):
-        try:
-            authorLink = strip \
-                .find('i', {'class': 'icon-user'}) \
-                .findNextSibling('a')
-        except AttributeError:
-            raise ParsingError(u'Failed to locate author link.')
-        match = re.search(u'(8-\d+)', authorLink['onclick'])
-        if not match:
-            raise ParsingError(u'Failed to extract author ID.')
-        authorId = match.group(0)
-        authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
-        authorName = stripHTML(authorLink.text)
-        self.story.setMetadata('authorId', authorId)
-        self.story.setMetadata('authorUrl', authorUrl)
-        self.story.setMetadata('author', authorName)
+            adultRatings = self.getConfigList('adult_ratings')
+            if not adultRatings:
+                raise exceptions.PersonalIniFailed(
+                    u"Missing `adult_ratings' setting", u"MassEffect2.in", u"?")
+            adultRatings = set(adultRatings)
+            self._parsingConfiguration['adultRatings'] = adultRatings
 
-    def _parseTitle(self, url, document):
-        try:
-            fullTitle = stripHTML(
-                document.find('div', {'class': 'eTitle'}).string)
-        except AttributeError:
-            raise ParsingError(u'Failed to locate title.')
-        parsedHeading = self._parseHeading(fullTitle)
-        if not self.story.getMetadata('title'):
-            self.story.setMetadata('title', parsedHeading['storyTitle'])
-        if 'chapterIndex' in parsedHeading:
-            self._transient_metadata['numChapters'] = max(
-                self._transient_metadata['numChapters'],
-                parsedHeading['chapterIndex'])
-        else:
-            self._transient_metadata['numChapters'] += 1
-        self.chapterUrls.append((parsedHeading['chapterTitle'], url))
-
-    def _parseHeading(self, fullTitle):
-        """Extracts meaningful parts from full chapter heading with.
-        Returns a dictionary containing `storyTitle', `chapterTitle'
-        (including numbering if allowed by settings, may be the same as
-        `storyTitle' for short stories), `chapterIndex' (optional, may be
-        zero), and `partIndex' (optional, chapter part, may be zero).
-        When no dedicated chapter title is present, generates one based on
-        chapter and part indices.  Correctly handles `prologue' and `epilogue'
-        cases."""
-        match = re.search(self.CHAPTER_NUMBER_PATTERN, fullTitle)
-        if match:
-            chapterIndex = int(match.group('chapterIndex'))
-            # There are cases with zero chapter or part number (e. g.:
-            # numbered prologue, not to be confused with just `Prologue').
-            if match.group('partIndex'):
-                partIndex = int(match.group('partIndex'))
-            else:
-                partIndex = None
-            chapterTitle = fullTitle[match.end():].strip()
-            if chapterTitle:
-                if self.getConfig('strip_chapter_numbers', False) \
-                        and not self.getConfig('add_chapter_numbers', False):
-                    if partIndex is not None:
-                        title = u'%d.%d %s' % \
-                                (chapterIndex, partIndex, chapterTitle)
-                    else:
-                        title = u'%d. %s' % (chapterIndex, chapterTitle)
-                else:
-                    title = chapterTitle
-            else:
-                title = u'Глава %d' % chapterIndex
-                if partIndex:
-                    title += u' (часть %d)' % partIndex
-
-            # For seldom found cases like `Story: prologue and chapter 1'.
-            storyTitle = fullTitle[:match.start()]
-            match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, storyTitle)
-            if match:
-                matches = list(
-                    re.finditer(u'[:\.]', storyTitle))
-                if matches:
-                    realStoryTitleEnd = matches[-1].start()
-                    if realStoryTitleEnd >= 0:
-                        storyTitle = storyTitle[:realStoryTitleEnd]
-                    else:
+            ratingTitleDescriptions = self.getConfigList('rating_titles')
+            if ratingTitleDescriptions:
+                ratingTitles = {}
+                for ratingDescription in ratingTitleDescriptions:
+                    parts = ratingDescription.split(u'=')
+                    if len(parts) < 2:
                         _logger.warning(
-                            u"Title contains `%s', suspected to be part of "
-                            u"numbering, but no period (`.') before it.  "
-                            u"Full title is preserved." % storyTitle)
-
-            result = {
-                'storyTitle': storyTitle,
-                'chapterTitle': title,
-                'chapterIndex': chapterIndex
-            }
-            if partIndex is not None:
-                result['partIndex'] = partIndex
-            return result
-
-        match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, fullTitle)
-        if match:
-            storyTitle = fullTitle[:match.start()]
-            chapterTitle = fullTitle[match.end():].strip()
-            matchedText = fullTitle[match.start():match.end()]
-            if chapterTitle:
-                title = u'%s. %s' % (matchedText, chapterTitle)
+                            u"Invalid `rating_titles' setting, missing `=' in `%s'."
+                            % ratingDescription)
+                        continue
+                    labels = parts[:-1]
+                    title = parts[-1]
+                    for label in labels:
+                        ratingTitles[label] = title
+                        # Duplicate label aliasing in adult rating set.
+                        if label in adultRatings:
+                            adultRatings.add(*labels)
+                self._parsingConfiguration['adultRatings'] = list(adultRatings)
+                self._parsingConfiguration['ratingTitles'] = ratingTitles
             else:
-                title = matchedText
-            return {
-                'storyTitle': storyTitle,
-                'chapterTitle': title
-            }
+                raise exceptions.PersonalIniFailed(
+                    u"Missing `rating_titles' setting", u"MassEffect2.in", u"?")
 
-        return {
-            'storyTitle': fullTitle,
-            'chapterTitle': fullTitle
-        }
+            self._parsingConfiguration['needsChapterNumbering'] = \
+                self.getConfig('strip_chapter_numbers', False) \
+                and not self.getConfig('add_chapter_numbers', False)
+
+
+        return self._parsingConfiguration
+
+    def _getDocumentId(self, url):
+        """Extracts document ID from MassEffect2.in URL."""
+        match = re.search(self.DOCUMENT_ID_PATTERN, url)
+        if not match:
+            raise ValueError(u"Failed to extract document ID from `'" % url)
+        documentId = url[match.start():match.end()]
+        return documentId
+
+    @classmethod
+    def _makeDocumentUrl(cls, documentId):
+        """Makes a chapter URL given a chapter ID."""
+        return 'http://%s/publ/%s' % (cls.getSiteDomain(), documentId)
 
     def _loadDocument(self, url):
         """Fetches URL content and returns its element tree
         with parsing settings tuned for MassEffect2.in."""
-        documentId = self._extractDocumentId(url)
-        if documentId in self._parsing_cache:
-            _logger.debug(u"Memory cache HIT for parsed `%s'", url)
-            return self._parsing_cache[documentId]['document']
-        else:
-            _logger.debug(u"Memory cache MISS for parsed `%s'", url)
-            document = bs.BeautifulStoneSoup(
-                self._fetchUrl(url), selfClosingTags=('br', 'hr', 'img'))
-            self._parsing_cache[documentId] = {'document': document}
-            return document
+        return bs.BeautifulStoneSoup(
+            self._fetchUrl(url), selfClosingTags=('br', 'hr', 'img'))
 
     def _fetchUrl(self, url,
                   parameters=None,
@@ -498,7 +297,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         from calibre.constants import DEBUG
         if DEBUG:
             import os
-            documentId = self._extractDocumentId(url)
+            documentId = self._getDocumentId(url)
             path = u'./cache/%s' % documentId
             if os.path.isfile(path) and os.access(path, os.R_OK):
                 _logger.debug(u"On-disk cache HIT for `%s'.", url)
@@ -519,31 +318,380 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
         return content
 
-    def _extractDocumentId(self, url):
-        """Extracts document ID from MassEffect2.in URL."""
-        match = re.search(self.DOCUMENT_ID_PATTERN, url)
-        if not match:
-            raise ValueError(u"Failed to extract document ID from `'" % url)
-        documentId = url[match.start():match.end()]
-        return documentId
 
-    def _getChapterTextElement(self, url):
-        """Fetches URL content and extracts an element containing text body.
-        Shall be used instead of `__collectTextElements'."""
-        documentId = self._extractDocumentId(url)
-        document = self._loadDocument(url)
-        cache = self._parsing_cache[documentId]
-        if 'body' in cache:
-            return cache['body']
+class Chapter(object):
+    """Represents a lazily-parsed chapter of a story."""
+    def __init__(self, configuration, url, document):
+        self._configuration = configuration
+        self._url = url
+        self._document = document
+        # Lazy-loaded:
+        self._parsedHeading = None
+        self._date = None
+        self._author = None
+        self._attributes = None
+        self._textElement = None
+        self._infoBar = None
+
+    def getIndex(self):
+        parsedHeading = self._getHeading()
+        if 'chapterIndex' in parsedHeading:
+            return parsedHeading['chapterIndex']
+
+    def getPartIndex(self):
+        parsedHeading = self._getHeading()
+        if 'partIndex' in parsedHeading:
+            return parsedHeading['partIndex']
+
+    def getStoryTitle(self):
+        return self._getHeading()['storyTitle']
+
+    def getTitle(self):
+        return self._getHeading()['chapterTitle']
+
+    def getAuthorId(self):
+        return self._getAuthor()['id']
+
+    def getAuthorName(self):
+        return self._getAuthor()['name']
+
+    def getDate(self):
+        return self._getDate()
+
+    def getRatingTitle(self):
+        return self._getAttributes()['rating']['title']
+
+    def isRatingAdult(self):
+        return self._getAttributes()['rating']['isAdult']
+
+    def getCharacters(self):
+        attributes = self._getAttributes()
+        if 'characters' in attributes:
+            return attributes['characters']
+        return []
+
+    def getGenres(self):
+        attributes = self._getAttributes()
+        if 'genres' in attributes:
+            return attributes['genres']
+        return []
+
+    def isInProgress(self):
+        attributes = self._getAttributes()
+        if 'isInProgress' in attributes:
+            return attributes['isInProgress']
+
+    def getUrl(self):
+        return self._url
+
+    def getTextElement(self):
+        return self._getTextElement()
+
+    def getPreviousChapterUrl(self):
+        """Downloads chapters following `Previous chapter' links.
+        Returns a list of chapters' URLs."""
+        return self._getSiblingChapterUrl({'class': 'fl tal'})
+
+    def getNextChapterUrl(self):
+        """Downloads chapters following `Next chapter' links.
+        Returns a list of chapters' URLs."""
+        return self._getSiblingChapterUrl({'class': 'tar fr'})
+
         else:
-            body = self.__collectTextElements(document)
-            cache['body'] = body
-            return body
+            return storyTitle != thisStoryTitle
 
-    def __collectTextElements(self, document):
+    CHAPTER_NUMBER_PATTERN = re.compile(
+        u'''[\.:\s]*
+            (?:глава)?  # `Chapter' in Russian.
+            \s
+            (?:(?P<chapterIndex>\d{1,3})(?=\D|$))
+            (?:
+              (?:
+                # For `X.Y' and `X-Y' numbering styles:
+                [\-\.]|
+                # For `Chapter X (part Y)' and similar numbering styles:
+                [\.,]?\s
+                (?P<brace>\()?
+                (?:часть)?      # `Part' in Russian.
+                \s
+              )
+              (?P<partIndex>\d{1,3})
+              (?(brace)\))
+            )?
+            [\.:\s]*
+         ''',
+        re.IGNORECASE + re.UNICODE + re.VERBOSE)
+
+    PROLOGUE_EPILOGUE_PATTERN = re.compile(
+        u'''[\.:\s]*         # Optional separators.
+            (пролог|эпилог)  # `Prologue' or `epilogue' in Russian.
+            [\.:\s]*         # Optional separators.
+         ''',
+        re.IGNORECASE + re.UNICODE + re.VERBOSE)
+
+    def _getHeading(self):
+        if not self._parsedHeading:
+            self._parsedHeading = self._parseHeading()
+        return self._parsedHeading
+
+    def _parseHeading(self):
+        """Extracts meaningful parts from full chapter heading with.
+        Returns a dictionary containing `storyTitle', `chapterTitle'
+        (including numbering if allowed by settings, may be the same as
+        `storyTitle' for short stories), `chapterIndex' (optional, may be
+        zero), and `partIndex' (optional, chapter part, may be zero).
+        When no dedicated chapter title is present, generates one based on
+        chapter and part indices.  Correctly handles `prologue' and `epilogue'
+        cases."""
+        try:
+            heading = stripHTML(
+                self._document.find('div', {'class': 'eTitle'}).string)
+        except AttributeError:
+            raise ParsingError(u'Failed to locate title.')
+
+        match = re.search(self.CHAPTER_NUMBER_PATTERN, heading)
+        if match:
+            chapterIndex = int(match.group('chapterIndex'))
+            # There are cases with zero chapter or part number (e. g.:
+            # numbered prologue, not to be confused with just `Prologue').
+            if match.group('partIndex'):
+                partIndex = int(match.group('partIndex'))
+            else:
+                partIndex = None
+            chapterTitle = heading[match.end():].strip()
+            if chapterTitle:
+                if self._configuration['needsChapterNumbering']:
+                    if partIndex is not None:
+                        title = u'%d.%d. %s' % \
+                                (chapterIndex, partIndex, chapterTitle)
+                    else:
+                        title = u'%d. %s' % (chapterIndex, chapterTitle)
+                else:
+                    title = chapterTitle
+            else:
+                title = u'Глава %d' % chapterIndex
+                if partIndex:
+                    title += u' (часть %d)' % partIndex
+
+            # For seldom found cases like `Story: prologue and chapter 1'.
+            storyTitle = heading[:match.start()]
+            match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, storyTitle)
+            if match:
+                matches = list(
+                    re.finditer(u'[:\.]', storyTitle))
+                if matches:
+                    realStoryTitleEnd = matches[-1].start()
+                    if realStoryTitleEnd >= 0:
+                        storyTitle = storyTitle[:realStoryTitleEnd]
+                    else:
+                        _logger.warning(
+                            u"Title contains `%s', suspected to be part of "
+                            u"numbering, but no period (`.') before it.  "
+                            u"Full title is preserved." % storyTitle)
+
+            self._parsedHeading = {
+                'storyTitle': unicode(storyTitle),
+                'chapterTitle': unicode(title),
+                'chapterIndex': chapterIndex
+            }
+            if partIndex is not None:
+                self._parsedHeading['partIndex'] = partIndex
+            return self._parsedHeading
+
+        match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, heading)
+        if match:
+            storyTitle = heading[:match.start()]
+            chapterTitle = heading[match.end():].strip()
+            matchedText = heading[match.start():match.end()]
+            if chapterTitle:
+                title = u'%s. %s' % (matchedText, chapterTitle)
+            else:
+                title = matchedText
+            self._parsedHeading = {
+                'storyTitle': unicode(storyTitle),
+                'chapterTitle': unicode(title)
+            }
+            return self._parsedHeading
+
+        self._parsedHeading = {
+            'storyTitle': unicode(heading),
+            'chapterTitle': unicode(heading)
+        }
+        return self._parsedHeading
+
+    def _getAuthor(self):
+        if not self._author:
+            self._author = self._parseAuthor()
+        return self._author
+
+    def _parseAuthor(self):
+        try:
+            authorLink = self._getInfoBarElement() \
+                .find('i', {'class': 'icon-user'}) \
+                .findNextSibling('a')
+        except AttributeError:
+            raise ParsingError(u'Failed to locate author link.')
+        match = re.search(u'(8-\d+)', authorLink['onclick'])
+        if not match:
+            raise ParsingError(u'Failed to extract author ID.')
+        authorId = match.group(0)
+        authorName = stripHTML(authorLink.text)
+        return {
+            'id': authorId,
+            'name': authorName
+        }
+
+    def _getDate(self):
+        if not self._date:
+            self._date = self._parseDate()
+        return self._date
+
+    def _parseDate(self):
+        try:
+            dateText = self._getInfoBarElement() \
+                .find('i', {'class': 'icon-eye'}) \
+                .findPreviousSibling(text=True) \
+                .strip(u'| \n')
+        except AttributeError:
+            raise ParsingError(u'Failed to locate date.')
+        date = makeDate(dateText, '%d.%m.%Y')
+        return date
+
+    def _getInfoBarElement(self):
+        if not self._infoBar:
+            self._infoBar = self._document.find('td', {'class': 'eDetails2'})
+            if not self._infoBar:
+                raise ParsingError(u'No informational bar found.')
+        return self._infoBar
+
+    def _getAttributes(self):
+        if not self._attributes:
+            self._attributes = self._parseAttributes()
+        return self._attributes
+
+    def _parseAttributes(self):
+        attributes = {}
+        try:
+            elements = self._document \
+                .find('div', {'class': 'comm-div'}) \
+                .findNextSibling('div', {'class': 'cb'}) \
+                .nextGenerator()
+            attributesText = u''
+            for element in elements:
+                if not element:
+                    _logger.warning(u'Attribute block not terminated!')
+                    break
+                if isinstance(element, bs.Tag):
+                    # Although deprecated, `has_key()' is required here.
+                    if element.name == 'div' and \
+                            element.has_key('class') and \
+                            element['class'] == 'cb':
+                        break
+                    elif element.name == 'img':
+                        rating = self._parseRatingFromImage(element)
+                        if rating:
+                            attributes['rating'] = rating
+                else:
+                    attributesText += stripHTML(element)
+        except AttributeError or TypeError:
+            raise ParsingError(u'Failed to locate and collect attributes.')
+
+        for record in re.split(u';|\.', attributesText):
+            parts = record.split(u':', 1)
+            if len(parts) < 2:
+                continue
+            key = parts[0].strip().lower()
+            value = parts[1].strip().strip(u'.')
+            parsed = self._parseAttribute(key, value)
+            if parsed:
+                attributes[parsed[0]] = parsed[1]
+
+        if 'rating' not in attributes:
+            raise ParsingError(u'Failed to locate or recognize rating!')
+
+        return attributes
+
+    RATING_LABEL_PATTERN = re.compile(u'/(?P<rating>[ERATINnG]+)\.png$')
+
+    def _parseRatingFromImage(self, element):
+        """Given an image element, tries to parse story rating from it."""
+        # Although deprecated, `has_key()' is required here.
+        if not element.has_key('src'):
+            return
+        source = element['src']
+        if 'REITiNG' in source:
+            match = re.search(self.RATING_LABEL_PATTERN, source)
+            if not match:
+                return
+            label = match.group('rating')
+            if label in self._configuration['ratingTitles']:
+                return {
+                    'label': label,
+                    'title': self._configuration['ratingTitles'][label],
+                    'isAdult': label in self._configuration['adultRatings']
+                }
+            else:
+                _logger.warning(u"No title found for rating label `%s'!" % label)
+        # FIXME: It seems, rating has to be optional due to such URLs.
+        elif source == 'http://www.masseffect2.in/_fr/10/1360399.png':
+            label = 'Nn'
+            return {
+                'label': 'Nn',
+                'title': self._configuration['ratingTitles'][label],
+                'isAdult': label in self._configuration['adultRatings']
+            }
+
+    # Various `et cetera' and `et al' forms in Russian texts.
+    # Intended to be used with whole strings!
+    ETC_PATTERN = re.compile(
+        u'''[и&]\s(?:
+              (?:т\.?\s?[пд]\.?)|
+              (?:др(?:угие|\.)?)|
+              (?:пр(?:очие|\.)?)|
+              # Note: identically looking letters `K' and `o'
+              # below are from Latin and Cyrillic alphabets.
+              (?:ко(?:мпания)?|[KК][oо°])
+            )$
+        ''',
+        re.IGNORECASE + re.UNICODE + re.VERBOSE)
+
+    def _parseAttribute(self, key, value):
+        """Parses a single known attribute value for chapter metadata."""
+
+        def refineCharacter(name):
+            """Refines character name from stop-words and distortions."""
+            strippedName = name.strip()
+            nameOnly = re.sub(self.ETC_PATTERN, u'', strippedName)
+            # TODO: extract canonical name (even ME-specific?).
+            canonicalName = nameOnly
+            return canonicalName
+
+        if re.match(u'жанры?', key, re.UNICODE):
+            definitions = value.split(u',')
+            if len(definitions) > 4:
+                _logger.warning(u'Possibly incorrect genre detection!')
+            genres = []
+            for definition in definitions:
+                genres += definition.split(u'/')
+            return 'genres', genres
+        elif key == u'статус':
+            isInProgress = value == u'в процессе'
+            return 'isInProgress', isInProgress
+        elif key == u'персонажи':
+            characters = [refineCharacter(name) for name in value.split(u',')]
+            return 'characters', characters
+        else:
+            _logger.debug(u"Unrecognized attribute `%s' ignored.", key)
+
+    def _getTextElement(self):
+        if not self._textElement:
+            self._textElement = self.__collectTextElements()
+        return self._textElement
+
+    def __collectTextElements(self):
         """Returns all elements containing parts of chapter text (which may be
         <p>aragraphs, <div>isions or plain text nodes) under a single root."""
-        starter = document.find('div', {'id': u'article'})
+        starter = self._document.find('div', {'id': u'article'})
         if starter is None:
             # FIXME: This will occur if the method is called more than once.
             # The reason is elements appended to `root' are removed from
@@ -558,7 +706,30 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             if isinstance(element, bs.Tag) and element.name == 'tr':
                 break
             collection.append(element)
-        root = bs.Tag(document, 'td')
+        root = bs.Tag(self._document, 'td')
         for element in collection:
             root.append(element)
         return root
+
+    def _getSiblingChapterUrl(self, selector):
+        """Downloads chapters one by one by locating and following links
+        specified by a selector.  Returns chapters' URLs in order they
+        were found."""
+        block = self._document\
+            .find('td', {'class': 'eDetails1'})\
+            .find('div', selector)
+        if not block:
+            return
+        link = block.find('a')
+        if not link:
+            return
+        return link['href']
+
+
+def _getLargestCommonPrefix(*args):
+    """Returns largest common prefix of all unicode(!) arguments.
+    :rtype : unicode
+    """
+    from itertools import takewhile, izip
+    allSame = lambda xs: len(set(xs)) == 1
+    return u''.join([i[0] for i in takewhile(allSame, izip(*args))])
