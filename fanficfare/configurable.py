@@ -235,6 +235,7 @@ def get_valid_keywords():
                  'description_limit',
                  'do_update_hook',
                  'exclude_notes',
+                 'exclude_editor_signature',
                  'extra_logpage_entries',
                  'extra_subject_tags',
                  'extra_titlepage_entries',

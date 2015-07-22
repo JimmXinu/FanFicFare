@@ -266,6 +266,8 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 self.getConfig('strip_chapter_numbers', False) \
                 and not self.getConfig('add_chapter_numbers', False)
 
+            self._parsingConfiguration['excludeEditorSignature'] = \
+                self.getConfig('exclude_editor_signature', False)
 
         return self._parsingConfiguration
 
@@ -709,6 +711,10 @@ class Chapter(object):
         root = bs.Tag(self._document, 'td')
         for element in collection:
             root.append(element)
+
+        if self._configuration['excludeEditorSignature']:
+            root = self._excludeEditorSignature(root)
+
         return root
 
     def _getSiblingChapterUrl(self, selector):
@@ -724,6 +730,24 @@ class Chapter(object):
         if not link:
             return
         return link['href']
+
+    SIGNED_PATTERN = re.compile(u'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
+
+    def _excludeEditorSignature(self, root):
+        for textNode in root.findAll(text=True):
+            if re.match(self.SIGNED_PATTERN, textNode.string):
+                editorLink = textNode.findNext('a')
+                if editorLink:
+                    editorLink.extract()
+                # Seldom editor link has inner formatting, which is sibling DOM-wise.
+                editorName = textNode.findNext('i')
+                if editorName:
+                    editorName.extract()
+                textNode.extract()
+                # We could try removing container element, but there is a risk
+                # of removing text ending with it.  Better play safe here.
+                break
+        return root
 
 
 def _getLargestCommonPrefix(*args):
