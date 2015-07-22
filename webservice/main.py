@@ -62,7 +62,7 @@ class UserConfigServer(webapp2.RequestHandler):
     
     def getUserConfig(self,user,url,fileformat):
 
-        configuration = Configuration(adapters.getConfigSectionFor(url),fileformat)
+        configuration = Configuration(adapters.getConfigSectionsFor(url),fileformat)
         
         logging.debug('reading defaults.ini config file')
         configuration.read('fanficfare/defaults.ini')
@@ -366,6 +366,16 @@ class FanfictionDownloader(UserConfigServer):
             self.redirect('/')
             return
 
+        # Allow chapter range with URL.
+        # test1.com?sid=5[4-6]
+        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>[,-])?(?P<end>\d+)?\])?$",url)
+        #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
+        url = mc.group('url')
+        ch_begin = mc.group('begin')
+        ch_end = mc.group('end')
+        if ch_begin and not mc.group('comma'):
+            ch_end = ch_begin
+        
         logging.info("Queuing Download: %s" % url)
         login = self.request.get('login')
         password = self.request.get('password')
@@ -408,6 +418,8 @@ class FanfictionDownloader(UserConfigServer):
             download.title = story.getMetadata('title')
             download.author = story.getMetadata('author')
             download.url = story.getMetadata('storyUrl')
+            download.ch_begin = ch_begin
+            download.ch_end = ch_end
             download.put()
 
             taskqueue.add(url='/fdowntask',
@@ -490,6 +502,7 @@ class FanfictionDownloaderTask(UserConfigServer):
         try:
             configuration = self.getUserConfig(user,url,format)
             adapter = adapters.getAdapter(configuration,url)
+            adapter.setChaptersRange(download.ch_begin,download.ch_end)
 
             logging.info('Created an adapter: %s' % adapter)
 

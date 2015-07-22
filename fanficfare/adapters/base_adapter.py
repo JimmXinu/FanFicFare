@@ -104,6 +104,8 @@ class BaseSiteAdapter(Configurable):
         self.chapterFirst = None
         self.chapterLast = None
         self.oldchapters = None
+        self.oldchaptersmap = None
+        self.oldchaptersdata = None
         self.oldimgs = None
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
@@ -140,28 +142,6 @@ class BaseSiteAdapter(Configurable):
         '''
         self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
         
-    # def save_cookiejar(self,filename):
-    #     '''
-    #     Assumed to be a FileCookieJar if self.cookiejar set.
-    #     Takes file *name*.
-    #     '''
-    #     self.get_cookiejar().save(filename, ignore_discard=True, ignore_expires=True)
-
-    # def save_pagecache(self,filename):
-    #     '''
-    #     Writes pickle of pagecache to file *name*
-    #     '''
-    #     with open(filename, 'wb') as f:
-    #         pickle.dump(self.get_pagecache(),
-    #                     f,protocol=pickle.HIGHEST_PROTOCOL)
-        
-    # def load_pagecache(self,filename):
-    #     '''
-    #     Reads pickle of pagecache from file *name*
-    #     '''
-    #     with open(filename, 'rb') as f:
-    #         self.set_pagecache(pickle.load(f))
-
     def get_pagecache(self):
         return self.pagecache
     
@@ -185,9 +165,9 @@ class BaseSiteAdapter(Configurable):
         else:
             return None
 
-    def _set_to_pagecache(self,cachekey,data):
+    def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache():
-            self.get_pagecache()[cachekey] = data
+            self.get_pagecache()[cachekey] = (data,redirectedurl)
 
     def use_pagecache(self):
         '''
@@ -257,7 +237,8 @@ class BaseSiteAdapter(Configurable):
         cachekey=self._get_cachekey(url, parameters, headers)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache HIT: %s"%cachekey)
-            return self._get_from_pagecache(cachekey)
+            data,redirecturl = self._get_from_pagecache(cachekey)
+            return data
         
         logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
@@ -272,13 +253,23 @@ class BaseSiteAdapter(Configurable):
                          data=urllib.urlencode(parameters),
                          headers=headers)
         data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
-        self._set_to_pagecache(cachekey,data)
+        self._set_to_pagecache(cachekey,data,url)
         return data
 
     def _fetchUrlRaw(self, url,
                      parameters=None,
                      extrasleep=None,
                      usecache=True):
+        
+        return self._fetchUrlRawOpened(url,
+                                       parameters,
+                                       extrasleep,
+                                       usecache)[0]
+        
+    def _fetchUrlRawOpened(self, url,
+                           parameters=None,
+                           extrasleep=None,
+                           usecache=True):
         '''
         When should cache be cleared or not used? logins...
         
@@ -289,16 +280,25 @@ class BaseSiteAdapter(Configurable):
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache HIT: %s"%cachekey)
-            return self._get_from_pagecache(cachekey)
+            data,redirecturl = self._get_from_pagecache(cachekey)
+            class FakeOpened:
+                def __init__(self,data,url):
+                    self.data=data
+                    self.url=url
+                def geturl(self): return self.url
+                def read(self): return self.data
+            return (data,FakeOpened(data,redirecturl))
         
         logger.debug("#####################################\npagecache MISS: %s"%cachekey)
         self.do_sleep(extrasleep)
         if parameters != None:
-            data = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0))).read()
+            opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
         else:
-            data = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0))).read()
-        self._set_to_pagecache(cachekey,data)
-        return data
+            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+        data = opened.read()
+        self._set_to_pagecache(cachekey,data,opened.url)
+        
+        return (data,opened)
 
     def set_sleep(self,val):
         logger.debug("\n===========\n set sleep time %s\n==========="%val)
@@ -312,20 +312,30 @@ class BaseSiteAdapter(Configurable):
         elif self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
         
-    # parameters is a dict()
     def _fetchUrl(self, url,
                   parameters=None,
                   usecache=True,
                   extrasleep=None):
+        return self._fetchUrlOpened(url,
+                                    parameters,
+                                    usecache,
+                                    extrasleep)[0]
+
+    # parameters is a dict()
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=None):
 
         excpt=None
         for sleeptime in [0, 0.5, 4, 9]:
             time.sleep(sleeptime)	
             try:
-                return self._decode(self._fetchUrlRaw(url,
+                (data,opened)=self._fetchUrlRawOpened(url,
                                                       parameters=parameters,
                                                       usecache=usecache,
-                                                      extrasleep=extrasleep))
+                                                      extrasleep=extrasleep)
+                return (self._decode(data),opened)
             except u2.HTTPError, he:
                 excpt=he
                 if he.code == 404:
@@ -352,21 +362,40 @@ class BaseSiteAdapter(Configurable):
             self.getStoryMetadataOnly(get_cover=True)
 
             for index, (title,url) in enumerate(self.chapterUrls):
+                newchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
                     self.story.addChapter(url,
                                           removeEntities(title),
                                           None)
                 else:
-                    if self.oldchapters and index < len(self.oldchapters):
+                    data = None
+                    if self.oldchaptersmap:
+                        if url in self.oldchaptersmap:
+                            data = self.utf8FromSoup(None,
+                                                     self.oldchaptersmap[url],
+                                                     partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                    elif self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
                                                  self.oldchapters[index],
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
-                    else:
+
+                    # if already marked new -- ie, origtitle and title don't match
+                    # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
+                    newchap = (self.oldchaptersdata is not None and
+                               url in self.oldchaptersdata and (
+                            self.oldchaptersdata[url]['chapterorigtitle'] !=
+                            self.oldchaptersdata[url]['chaptertitle']) )
+                    
+                    if not data:
                         data = self.getChapterText(url)
+                        # if had to fetch and has existing chapters
+                        newchap = bool(self.oldchapters or self.oldchaptersmap)
+                        
                     self.story.addChapter(url,
                                           removeEntities(title),
-                                          removeEntities(data))
+                                          removeEntities(data),
+                                          newchap)
             self.storyDone = True
             
             # include image, but no cover from story, add default_cover_image cover.
@@ -399,7 +428,10 @@ class BaseSiteAdapter(Configurable):
             self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
             
             if not self.story.getMetadataRaw('dateUpdated'):
-                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                if self.story.getMetadataRaw('datePublished'):
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                else:
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
 
             self.metadataDone = True
         return self.story
@@ -409,7 +441,10 @@ class BaseSiteAdapter(Configurable):
             self.story.load_html_metadata(metahtml)
             self.metadataDone = True
             if not self.story.getMetadataRaw('dateUpdated'):
-                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                if self.story.getMetadataRaw('datePublished'):
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
+                else:
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
     
     def hookForUpdates(self,chaptercount):
         "Usually not needed."
@@ -426,6 +461,11 @@ class BaseSiteAdapter(Configurable):
     def getConfigSection(cls):
         "Only needs to be overriden if != site domain."
         return cls.getSiteDomain()
+    
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return [cls.getConfigSection()]
     
     @classmethod
     def stripURLParameters(cls,url):
@@ -476,6 +516,13 @@ class BaseSiteAdapter(Configurable):
 
     def setDescription(self,url,svalue):
         #print("\n\nsvalue:\n%s\n"%svalue)
+        strval = u"%s"%svalue # works for either soup or string
+        if self.hasConfig('description_limit'):
+            limit = int(self.getConfig('description_limit'))
+            if limit and len(strval) > limit:
+                svalue = strval[:limit]
+
+        #print(u"[[[[[\n\n%s\n\n]]]]]]]]"%svalue) # works for either soup or string
         if self.getConfig('keep_summary_html'):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which

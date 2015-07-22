@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -66,7 +66,8 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
     adapters, exceptions)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
-    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html)
+    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
+    reset_orig_chapters_epub)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -336,6 +337,12 @@ class FanFicFarePlugin(InterfaceAction):
                                                                       triggered=partial(self.update_lists,add=False))
 
             self.menu.addSeparator()
+            self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
+                                                            unique_name='Remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.',
+                                                            image='edit-undo.png',
+                                                            triggered=self.unnew_books)
+
+            self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Selected Books'),
                                                             unique_name='Get URLs from Selected Books',
                                                             image='bookmarks.png',
@@ -415,6 +422,8 @@ class FanFicFarePlugin(InterfaceAction):
                 return
 
             self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
+            if not add and prefs['autounnew']:
+                self.unnew_books()
 
     def get_urls_from_imap_menu(self):
 
@@ -554,6 +563,70 @@ class FanFicFarePlugin(InterfaceAction):
                         _('No Story URLs found in selected books.'),
                         show=True,
                         show_copy_button=False)
+
+    def unnew_books(self):
+        '''Get list of URLs from existing books.'''
+        if not self.is_library_view():
+            self.gui.status_bar.show_message(_('Can only UnNew books in library'),
+                                             3000)
+            return
+        
+        if not self.gui.current_view().selectionModel().selectedRows() :
+            self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
+                                             3000)
+            return
+
+        book_list = map( partial(self.make_book_id_only),
+                         self.gui.library_view.get_selected_ids() )
+
+        tdir = PersistentTemporaryDirectory(prefix='fanficfare_')
+        LoopProgressDialog(self.gui,
+                           book_list,
+                           partial(self.get_unnew_books_loop, db=self.gui.current_db, tdir=tdir),
+                           partial(self.get_unnew_books_finish, tdir=tdir),
+                           init_label=_("UnNewing books..."),
+                           win_title=_("UnNew Books"),
+                           status_prefix=_("Books UnNewed"))
+
+    def get_unnew_books_loop(self,book,db=None,tdir=None):
+        
+        if book['calibre_id'] and db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
+            tmp = PersistentTemporaryFile(prefix='%s-'%book['calibre_id'],
+                                          suffix='.epub',
+                                          dir=tdir)
+            db.copy_format_to(book['calibre_id'],'EPUB',tmp,index_is_id=True)
+            
+            unnewtmp = PersistentTemporaryFile(prefix='unnew-%s-'%book['calibre_id'],
+                                               suffix='.epub',
+                                               dir=tdir)
+            book['changed']=reset_orig_chapters_epub(tmp,unnewtmp)
+            if book['changed']:
+                db.add_format_with_hooks(book['calibre_id'],
+                                         'EPUB',
+                                         unnewtmp,
+                                         index_is_id=True)
+                if prefs['deleteotherforms']:
+                    fmts = db.formats(book['calibre_id'], index_is_id=True).split(',')
+                    for fmt in fmts:
+                        if fmt.lower() != formmapping['epub'].lower():
+                            logger.debug("deleteotherforms remove f:"+fmt)
+                            db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+                elif prefs['autoconvert']:
+                    ## 'Convert Book'.auto_convert_auto_add doesn't convert if
+                    ## the format is already there.
+                    fmt = calibre_prefs['output_format']
+                    # delete if there, but not if the format we just made.
+                    if fmt.lower() != 'epub' and db.has_format(book['calibre_id'],fmt,index_is_id=True):
+                        logger.debug("autoconvert remove f:"+fmt)
+                        db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
+                
+    def get_unnew_books_finish(self, book_list, tdir=None):
+        remove_dir(tdir)
+        if prefs['autoconvert']:
+            changed_ids = [ x['calibre_id'] for x in book_list if x['changed'] ]
+            if changed_ids:
+                self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(changed_ids)), 3000)
+                self.gui.iactions['Convert Books'].auto_convert_auto_add(changed_ids)
 
     def reject_list_urls(self):
         if self.is_library_view():

@@ -41,12 +41,14 @@ try:
     # running under calibre
     from calibre_plugins.fanfictiondownloader_plugin.fanficfare import adapters, writers, exceptions
     from calibre_plugins.fanfictiondownloader_plugin.fanficfare.configurable import Configuration
-    from calibre_plugins.fanfictiondownloader_plugin.fanficfare.epubutils import get_dcsource_chaptercount, get_update_data
+    from calibre_plugins.fanfictiondownloader_plugin.fanficfare.epubutils import (
+        get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanfictiondownloader_plugin.fanficfare.geturls import get_urls_from_page
 except ImportError:
     from fanficfare import adapters, writers, exceptions
     from fanficfare.configurable import Configuration
-    from fanficfare.epubutils import get_dcsource_chaptercount, get_update_data
+    from fanficfare.epubutils import (
+        get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from fanficfare.geturls import get_urls_from_page
 
 
@@ -87,6 +89,9 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub with new chapters, give epub filename instead of storyurl.', )
+    parser.add_option('--unnew',
+                      action='store_true', dest='unnew',
+                      help='Remove (new) chapter marks left by mark_new_chapters setting.', )
     parser.add_option('--update-cover',
                       action='store_true', dest='updatecover',
                       help='Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.', )
@@ -129,6 +134,9 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if options.update and options.format != 'epub':
         parser.error('-u/--update-epub only works with epub')
 
+    if options.unnew and options.format != 'epub':
+        parser.error('--unnew only works with epub')
+
     # for passing in a file list
     if options.infile:
         urls=[]
@@ -168,6 +176,12 @@ def do_download(arg,
     # Attempt to update an existing epub.
     chaptercount = None
     output_filename = None
+
+    if options.unnew:
+        # remove mark_new_chapters marks
+        reset_orig_chapters_epub(arg,arg)
+        return
+    
     if options.update:
         try:
             url, chaptercount = get_dcsource_chaptercount(arg)
@@ -184,7 +198,7 @@ def do_download(arg,
         url = arg
         
     try:
-        configuration = Configuration(adapters.getConfigSectionFor(url), options.format)
+        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
     except exceptions.UnknownSite, e:
         if options.list or options.normalize:
             # list for page doesn't have to be a supported site.
@@ -324,7 +338,9 @@ def do_download(arg,
                  adapter.oldimgs,
                  adapter.oldcover,
                  adapter.calibrebookmark,
-                 adapter.logfile) = (get_update_data(output_filename))[0:7]
+                 adapter.logfile,
+                 adapter.oldchaptersmap,
+                 adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
                 print 'Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount)
 

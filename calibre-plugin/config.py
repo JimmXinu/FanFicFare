@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -89,7 +89,7 @@ from calibre_plugins.fanficfare_plugin.dialogs \
             EditTextDialog, IniTextDialog, RejectUrlEntry)
     
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
-    import getConfigSections
+    import getSiteSections
 
 from calibre_plugins.fanficfare_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog )
@@ -272,6 +272,7 @@ class ConfigWidget(QWidget):
             prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
             prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
             prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
+            prefs['autounnew'] = self.readinglist_tab.autounnew.isChecked()
 
         # personal.ini
         ini = self.personalini_tab.personalini
@@ -781,6 +782,11 @@ class ReadingListTab(QWidget):
         self.addtolistsonread.setChecked(prefs['addtolistsonread'])
         self.l.addWidget(self.addtolistsonread)
             
+        self.autounnew = QCheckBox(_('Automatically run Remove "New" Chapter Marks when marking books "Read".'),self)
+        self.autounnew.setToolTip(_('Menu option to remove from "To Read" lists will also remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.'))
+        self.autounnew.setChecked(prefs['autounnew'])
+        self.l.addWidget(self.autounnew)
+            
         self.l.insertStretch(-1)
         
 class CalibreCoverTab(QWidget):
@@ -928,7 +934,7 @@ class CalibreCoverTab(QWidget):
         
         self.gc_dropdowns = {}
 
-        sitelist = getConfigSections()
+        sitelist = getSiteSections()
         sitelist.sort()
         sitelist.insert(0,_("Default"))
         for site in sitelist:

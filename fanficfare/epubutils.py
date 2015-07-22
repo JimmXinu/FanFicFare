@@ -1,18 +1,17 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Jim Miller'
+__copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
 logger = logging.getLogger(__name__)
 
 import re, os, traceback
-from zipfile import ZipFile
+from collections import defaultdict
+from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
+from StringIO import StringIO
 
 import bs4 as bs
 
@@ -90,7 +89,9 @@ def get_update_data(inputio,
 
     filecount = 0
     soups = [] # list of xhmtl blocks
+    urlsoups = {} # map of xhtml blocks by url
     images = {} # dict() longdesc->data
+    datamaps = defaultdict(dict) # map of data maps by url
     if getfilecount:
         # spin through the manifest--only place there are item tags.
         for item in contentdom.getElementsByTagName("item"):
@@ -124,20 +125,45 @@ def get_update_data(inputio,
                                 logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
                                 logger.warn("Exception: %s"%(unicode(e)))
                                 traceback.print_exc()
-                        soup = soup.find('body')
+                        bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
-                        h3 = soup.find('h3')
+                        h3 = bodysoup.find('h3')
                         if h3:
                             h3.extract()
                         # TtH epubs have chapter title h2
-                        h2 = soup.find('h2')
+                        h2 = bodysoup.find('h2')
                         if h2:
                             h2.extract()
 
-                        for skip in soup.findAll(attrs={'class':'skip_on_ffdl_update'}):
+                        for skip in bodysoup.findAll(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
+
+                        ## <meta name="chapterurl" content="${url}"></meta>
+                        #print("look for meta chapurl")
+                        currenturl = None
+                        chapurl = soup.find('meta',{'name':'chapterurl'})
+                        if chapurl:
+                            if chapurl['content'] not in urlsoups: # keep first found if more than one.
+                            #print("Found chapurl['content']:%s"%chapurl['content'])
+                                currenturl = chapurl['content']
+                                urlsoups[chapurl['content']] = bodysoup
+                        else:
+                            # for older pre-meta.  Only temp.
+                            chapa = bodysoup.find('a',{'class':'chapterurl'})
+                            if chapa and chapa['href'] not in urlsoups: # keep first found if more than one.
+                                urlsoups[chapa['href']] = bodysoup
+                                currenturl = chapa['href']
+                                chapa.extract()
+
+                        chapterorigtitle = soup.find('meta',{'name':'chapterorigtitle'})
+                        if chapterorigtitle:
+                            datamaps[currenturl]['chapterorigtitle'] = chapterorigtitle['content']
                             
-                        soups.append(soup)
+                        chaptertitle = soup.find('meta',{'name':'chaptertitle'})
+                        if chaptertitle:
+                            datamaps[currenturl]['chaptertitle'] = chaptertitle['content']
+                            
+                        soups.append(bodysoup)
                         
                     filecount+=1
 
@@ -148,7 +174,8 @@ def get_update_data(inputio,
                     
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile)
+    # print("datamaps:%s"%datamaps)
+    return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups,datamaps)
 
 def get_path_part(n):
     relpath = os.path.dirname(n)
@@ -192,3 +219,105 @@ def get_story_url_from_html(inputio,_is_good_url=None):
                 if _is_good_url == None or _is_good_url(ahref):
                     return ahref
     return None
+
+def reset_orig_chapters_epub(inputio,outfile):
+    inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
+
+    ## build zip in memory in case updating in place(CLI).
+    zipio = StringIO()
+    
+    ## Write mimetype file, must be first and uncompressed.
+    ## Older versions of python(2.4/5) don't allow you to specify
+    ## compression by individual file.
+    ## Overwrite if existing output file.
+    outputepub = ZipFile(zipio, 'w', compression=ZIP_STORED)
+    outputepub.debug = 3
+    outputepub.writestr("mimetype", "application/epub+zip")
+    outputepub.close()
+
+    ## Re-open file for content.
+    outputepub = ZipFile(zipio, "a", compression=ZIP_DEFLATED)
+    outputepub.debug = 3
+
+    changed = False
+    
+    tocncxdom = parseString(inputepub.read('toc.ncx'))
+    ## spin through file contents.
+    for zf in inputepub.namelist():
+        if zf not in ['mimetype','toc.ncx'] :
+            entrychanged = False
+            data = inputepub.read(zf)
+            # if isinstance(data,unicode):
+            #     logger.debug("\n\n\ndata is unicode\n\n\n")
+            if re.match(r'.*/file\d+\.xhtml',zf):
+                data = data.decode('utf-8')
+                soup = bs.BeautifulSoup(data,"html5lib")
+                
+                chapterorigtitle = None
+                tag = soup.find('meta',{'name':'chapterorigtitle'})
+                if tag:
+                    chapterorigtitle = tag['content']
+
+                # toctitle is separate for add_chapter_numbers:toconly users.
+                chaptertoctitle = None
+                tag = soup.find('meta',{'name':'chaptertoctitle'})
+                if tag:
+                    chaptertoctitle = tag['content']
+                elif chapterorigtitle:
+                    chaptertoctitle = chapterorigtitle
+                    
+                chaptertitle = None
+                tag = soup.find('meta',{'name':'chaptertitle'})
+                if tag:
+                    chaptertitle = tag['content']
+
+                if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
+                    origdata = data
+                    # print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
+                    data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
+                                        u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
+                    data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
+                    data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
+
+                    entrychanged = ( origdata != data )
+                    changed = changed or entrychanged
+                    
+                    if entrychanged:
+                        ## go after the TOC entry, too.
+                        # <navPoint id="file0005" playOrder="6">
+                        #   <navLabel>
+                        #     <text>5. (new) Chapter 4</text>
+                        #   </navLabel>
+                        #   <content src="OEBPS/file0005.xhtml"/>
+                        # </navPoint>
+                        for contenttag in tocncxdom.getElementsByTagName("content"):
+                            if contenttag.getAttribute('src') == zf:
+                                texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
+                                texttag.childNodes[0].replaceWholeText(chaptertoctitle)
+                                # logger.debug("text label:%s"%texttag.toxml())
+                                continue
+                    
+                outputepub.writestr(zf,data.encode('utf-8'))
+            else:
+                # possibly binary data, thus no .encode().
+                outputepub.writestr(zf,data)
+
+    outputepub.writestr('toc.ncx',tocncxdom.toxml(encoding='utf-8'))
+    outputepub.close()
+    # declares all the files created by Windows.  otherwise, when
+    # it runs in appengine, windows unzips the files as 000 perms.
+    for zf in outputepub.filelist:
+        zf.create_system = 0
+        
+    # only *actually* write if changed.
+    if changed:
+        if isinstance(outfile,basestring):
+            with open(outfile,"wb") as outputio:
+                outputio.write(zipio.getvalue())
+        else:
+            outfile.write(zipio.getvalue())
+
+    inputepub.close()
+    zipio.close()
+            
+    return changed

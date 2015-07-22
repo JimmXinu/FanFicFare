@@ -106,7 +106,9 @@ class SpikeluverComAdapter(BaseSiteAdapter):
 
         listbox_tag = soup.find('div', {'class': 'listbox'})
         for span_tag in listbox_tag('span'):
-            key = span_tag.string.strip(' :')
+            key = span_tag.string
+            if key:
+                key = key.strip(' :')
             try:
                 value = stripHTML(span_tag.nextSibling)
             # This can happen with some fancy markup in the summary. Just
@@ -135,8 +137,10 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                         contents.append(sibling)
 
                 # Remove the preceding break line tag and other crud
-                contents.pop()
-                contents.pop()
+                if contents:
+                    contents.pop()
+                if contents:
+                    contents.pop()
                 self.story.setMetadata('description', ''.join(contents))
 
             elif key == 'Rated':

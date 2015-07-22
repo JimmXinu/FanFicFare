@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -23,12 +23,12 @@ def get_fff_personalini():
 def get_fff_config(url,fileform="epub",personalini=None):
     if not personalini:
         personalini = get_fff_personalini()
-    site='unknown'
+    sections=['unknown']
     try:
-        site = adapters.getConfigSectionFor(url)
+        sections = adapters.getConfigSectionsFor(url)
     except Exception as e:
-        logger.debug("Failed trying to get ini config for url(%s): %s, using section [%s] instead"%(url,e,site))
-    configuration = Configuration(site,fileform)
+        logger.debug("Failed trying to get ini config for url(%s): %s, using section %s instead"%(url,e,sections))
+    configuration = Configuration(sections,fileform)
     configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
     configuration.readfp(StringIO(personalini))
 

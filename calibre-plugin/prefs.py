@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -85,6 +85,7 @@ default_prefs['read_lists'] = ''
 default_prefs['addtolists'] = False
 default_prefs['addtoreadlists'] = False
 default_prefs['addtolistsonread'] = False
+default_prefs['autounnew'] = False
 
 default_prefs['updatecalcover'] = None
 default_prefs['gencalcover'] = SAVE_YES

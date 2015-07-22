@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -192,7 +192,9 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                  adapter.oldimgs,
                  adapter.oldcover,
                  adapter.calibrebookmark,
-                 adapter.logfile) = get_update_data(book['epub_for_update'])[0:7]
+                 adapter.logfile,
+                 adapter.oldchaptersmap,
+                 adapter.oldchaptersdata) = get_update_data(book['epub_for_update'])[0:9]
     
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:

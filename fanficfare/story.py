@@ -16,6 +16,7 @@
 #
 
 import os, re
+from collections import namedtuple
 import urlparse
 import string
 import json
@@ -31,6 +32,8 @@ import bs4
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
+
+Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -412,7 +415,7 @@ class Story(Configurable):
         except:
             self.metadata = {'version':'4.4'}
         self.in_ex_cludes = {}
-        self.chapters = [] # chapters will be tuples of (title,html)
+        self.chapters = [] # chapters will be namedtuple of Chapter(url,title,html,etc)
         self.imgurls = []
         self.imgtuples = []
 
@@ -442,7 +445,7 @@ class Story(Configurable):
                 self.in_ex_cludes[ie] = set_in_ex_clude(ies)
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, vallist))
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
 
     def setMetadata(self, key, value, condremoveentities=True):
 
@@ -465,7 +468,7 @@ class Story(Configurable):
 
         if key == 'dateUpdated' and value:
             # Last Update tags for Bill.
-            self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"))
+            self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"),clear=True)
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
 
@@ -757,8 +760,12 @@ class Story(Configurable):
         # includelist prevents infinite recursion of include_in_'s
         if self.hasConfig("include_in_"+listname) and listname not in includelist:
             for k in self.getConfigList("include_in_"+listname):
+                ldorepl = doreplacements
+                if k.endswith('.NOREPL'):
+                    k = k[:-len('.NOREPL')]
+                    ldorepl = False
                 retlist.extend(self.getList(k,removeallentities=False,
-                                            doreplacements=doreplacements,includelist=includelist+[listname]))
+                                            doreplacements=ldorepl,includelist=includelist+[listname]))
         else:
 
             if not self.isList(listname):
@@ -813,7 +820,16 @@ class Story(Configurable):
 
         # metadata all go into dc:subject tags, but only if they are configured.
         for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
-            if name in tags_list:
+            if name+'.SPLIT' in tags_list:
+                flist=[]
+                if isinstance(value,list):
+                    for tag in value:
+                        flist.extend(tag.split(','))
+                else:
+                    flist.extend(value)
+                for tag in flist:
+                    subjectset.add(tag)
+            elif name in tags_list:
                 if isinstance(value,list):
                     for tag in value:
                         subjectset.add(tag)
@@ -827,24 +843,63 @@ class Story(Configurable):
 
         return list(subjectset | set(self.getConfigList("extratags")))
 
-    def addChapter(self, url, title, html):
+    def addChapter(self, url, title, html, newchap=False):
+        # logger.debug("addChapter(%s,%s)"%(url,newchap))
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
-        self.chapters.append( (url,title,html) )
+        self.chapters.append( Chapter(url,title,html,title,title,newchap) )
 
     def getChapters(self,fortoc=False):
-        "Chapters will be tuples of (title,html)"
+        "Chapters will be Chapter namedtuples"
         retval = []
-        ## only add numbers if more than one chapter.
-        if len(self.chapters) > 1 and \
-                (self.getConfig('add_chapter_numbers') == "true" \
-                     or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc)) \
-                     and self.getConfig('chapter_title_add_pattern'):
-            for index, (url,title,html) in enumerate(self.chapters):
-                retval.append( (url,
-                                string.Template(self.getConfig('chapter_title_add_pattern')).substitute({'index':index+1,'title':title}),
-                                html) )
+
+        ## only add numbers if more than one chapter.  Ditto (new) marks.
+        if len(self.chapters) > 1:
+            addnums = ( self.getConfig('add_chapter_numbers') == "true" 
+                        or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc) )
+            
+            marknew = self.getConfig('mark_new_chapters')=='true'
+
+            defpattern = self.getConfig('chapter_title_def_pattern','${title}') # default val in case of missing defaults.ini
+            if addnums and marknew:
+                pattern = self.getConfig('chapter_title_add_pattern')
+                newpattern = self.getConfig('chapter_title_addnew_pattern')
+            elif addnums:
+                pattern = self.getConfig('chapter_title_add_pattern')
+                newpattern = pattern
+            elif marknew:
+                pattern = defpattern
+                newpattern = self.getConfig('chapter_title_new_pattern')
+            else:
+                pattern = defpattern
+                newpattern = pattern
+
+            if self.getConfig('add_chapter_numbers') in ["true","toconly"]:
+                tocpattern = self.getConfig('chapter_title_add_pattern')
+            else:
+                tocpattern = defpattern
+
+            # logger.debug("Patterns: (%s)(%s)"%(pattern,newpattern))
+            templ = string.Template(pattern)
+            newtempl = string.Template(newpattern)
+            toctempl = string.Template(tocpattern)            
+            
+            for index, chap in enumerate(self.chapters):
+                if chap.new:
+                    usetempl = newtempl
+                else:
+                    usetempl = templ
+                # logger.debug("chap.url, chap.new: (%s)(%s)"%(chap.url,chap.new))
+                retval.append( Chapter(chap.url,
+                                       # 'new'
+                                       usetempl.substitute({'index':index+1,'title':chap.title}),
+                                       chap.html,
+                                       # 'orig'
+                                       templ.substitute({'index':index+1,'title':chap.title}),
+                                       # 'toc'
+                                       toctempl.substitute({'index':index+1,'title':chap.title}),
+                                       chap.new) )
         else:
             retval = self.chapters
 
@@ -911,6 +966,7 @@ class Story(Configurable):
                 #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
+        #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
         if cover and coverexclusion and re.search(coverexclusion,imgurl):
             return (None,None)
 

@@ -135,6 +135,9 @@ import adapter_fanfictionjunkiesde
 import adapter_devianthearts
 import adapter_tgstorytimecom
 import adapter_itcouldhappennet
+import adapter_forumsspacebattlescom
+import adapter_forumssufficientvelocitycom
+import adapter_ninelivesdarksolaceorg
 import adapter_masseffect2in
 
 ## This bit of complexity allows adapters to be added by just adding
@@ -195,14 +198,24 @@ def getAdapter(config,url,anyurl=False):
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
-def getConfigSections():
+def getSiteSections():
+    # doesn't include base sections. Sections rather than site DNS because of squidge/peja
     return [cls.getConfigSection() for cls in __class_list]
+
+def getConfigSections():
+    # does include base sections.
+    sections = set()
+    for cls in __class_list:
+        sections.update(cls.getConfigSections())
+    return sections
 
 def get_bulk_load_sites():
     # for now, all eFiction Base adapters are assumed to allow bulk_load.
-    return [cls.getConfigSection().replace('www.','') for cls in
-            filter( lambda x : issubclass(x,base_efiction_adapter.BaseEfictionAdapter),
-                    __class_list)]
+    sections = set()
+    for cls in filter( lambda x : issubclass(x,base_efiction_adapter.BaseEfictionAdapter),
+                       __class_list):
+        sections.update( [ x.replace('www.','') for x in cls.getConfigSections() ] )
+    return sections
 
 def getSiteExamples():
     l=[]
@@ -210,10 +223,10 @@ def getSiteExamples():
         l.append((cls.getConfigSection(),cls.getSiteExampleURLs().split()))
     return l
 
-def getConfigSectionFor(url):
+def getConfigSectionsFor(url):
     (cls,fixedurl) = getClassFor(url)
     if cls:
-        return cls.getConfigSection()
+        return cls.getConfigSections()
 
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
