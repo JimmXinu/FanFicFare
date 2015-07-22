@@ -104,6 +104,10 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             if url:
                 url = self._makeDocumentUrl(self._getDocumentId(url))
                 following = self._makeChapter(url)
+                # Do not follow links to related, but different stories (prequels or sequels).
+                startingStoryTitle = self.story.getMetadata('title')
+                if not following.isFromStory(startingStoryTitle):
+                    return
                 if forward:
                     yield following
                 for chapter in followChapters(following, forward):
@@ -399,6 +403,26 @@ class Chapter(object):
         Returns a list of chapters' URLs."""
         return self._getSiblingChapterUrl({'class': 'tar fr'})
 
+    def isFromStory(self, storyTitle, prefixThreshold=-1):
+        """Checks if this chapter is from a story different from the given one.
+        Prefix threshold specifies how long common story title prefix shall be
+        for chapters from one story: negative value means implementation-defined
+        optimum, zero inhibits the check, and positive value adjusts threshold."""
+
+        def getFirstWord(string):
+            match = re.search(u'^\s*\w+', string, re.UNICODE)
+            return string[match.start():match.end()]
+
+        thisStoryTitle = self.getStoryTitle()
+        if prefixThreshold != 0:
+            if prefixThreshold < 0:
+                prefixThreshold = min(
+                    len(getFirstWord(storyTitle)), len(getFirstWord(thisStoryTitle)))
+            else:
+                prefixThreshold = min(
+                    prefixThreshold, len(storyTitle), len(thisStoryTitle))
+            result = len(_getLargestCommonPrefix(storyTitle, thisStoryTitle)) >= prefixThreshold
+            return result
         else:
             return storyTitle != thisStoryTitle
 
