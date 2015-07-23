@@ -460,21 +460,29 @@ class FanFicFarePlugin(InterfaceAction):
             reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURLSite(x)[0])])
         url_list = url_list - reject_list
 
-        self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
+        self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
         self.restore_cursor()
-        
-        if url_list:
-            self.add_dialog("\n".join(url_list),merge=False)
-        else:
-            
-            msg = _('No Valid Story URLs Found in Unread Emails.')
-            if reject_list:
-                msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
-            info_dialog(self.gui, _('Get Story URLs from Email'),
-                        msg,
-                        show=True,
-                        show_copy_button=False)
 
+        if prefs['download_from_email_immediately']:
+            ## do imap fetch w/o GUI elements
+            if url_list:
+                self.prep_downloads(self.add_new_dialog.get_fff_options(),
+                                    "\n".join(url_list))
+            else:
+                self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
+                
+        else:
+            if url_list:
+                self.add_dialog("\n".join(url_list),merge=False)
+            else:            
+                msg = _('No Valid Story URLs Found in Unread Emails.')
+                if reject_list:
+                    msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
+                info_dialog(self.gui, _('Get Story URLs from Email'),
+                            msg,
+                            show=True,
+                            show_copy_button=False)
+    
     def get_urls_from_page_menu(self,anthology=False):
 
         urltxt = ""

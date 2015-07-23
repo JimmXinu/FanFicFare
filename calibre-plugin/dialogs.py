@@ -258,6 +258,7 @@ class AddNewDialog(SizePersistedDialog):
         self.l.addWidget(self.url)
 
         self.merge = self.newmerge = False
+        self.extraoptions = {}
         
         # elements to hide when doing merge.
         self.mergehide = []
