@@ -340,20 +340,20 @@ class Chapter(object):
         self._infoBar = None
 
     def getIndex(self):
-        parsedHeading = self._getHeading()
+        parsedHeading = self.__getHeading()
         if 'chapterIndex' in parsedHeading:
             return parsedHeading['chapterIndex']
 
     def getPartIndex(self):
-        parsedHeading = self._getHeading()
+        parsedHeading = self.__getHeading()
         if 'partIndex' in parsedHeading:
             return parsedHeading['partIndex']
 
     def getStoryTitle(self):
-        return self._getHeading()['storyTitle']
+        return self.__getHeading()['storyTitle']
 
     def getTitle(self):
-        return self._getHeading()['chapterTitle']
+        return self.__getHeading()['chapterTitle']
 
     def getAuthorId(self):
         return self._getAuthor()['id']
@@ -426,124 +426,153 @@ class Chapter(object):
         else:
             return storyTitle != thisStoryTitle
 
-    CHAPTER_NUMBER_PATTERN = re.compile(
+    def _extractHeading(self):
+        """Extracts header text from the document."""
+        return stripHTML(
+            self._document.find('div', {'class': 'eTitle'}).string)
+
+    def __getHeading(self):
+        if not self._parsedHeading:
+            self._parsedHeading = self.__parseHeading()
+        return self._parsedHeading
+
+    NUMBERING_TITLE_PATTERN = re.compile(
+        u'''(?P<brace>\()?
+            (?P<essence>начало|продолжение|окончание|
+            часть\s(?:первая|вторая|третья|четвертая|пятая|шестая|седьмая|восьмая|девятая|десятая))
+            (?(brace)\)|\.)?
+        ''',
+        re.IGNORECASE | re.UNICODE | re.VERBOSE)
+
+    def __parseHeading(self):
+        """Locates chapter heading and extracts meaningful parts from it.
+        Returns a dictionary containing `storyTitle', `chapterTitle' (including numbering if allowed by settings,
+        may be the same as `storyTitle' for short stories, or generated from indices), `chapterIndex' (optional,
+        may be zero), and `partIndex' (optional, chapter part, may be zero)."""
+        try:
+            heading = self._extractHeading()
+        except Exception, error:
+            raise ParsingError(u'Failed to locate title: %s.' % error)
+
+        chapterIndex, partIndex, storyTitle, chapterTitle = self.__splitHeading(heading)
+        if chapterTitle:
+            match = re.search(self.NUMBERING_TITLE_PATTERN, chapterTitle)
+            if match:
+                chapterTitle = u'Глава %d. %s' % (chapterIndex, match.group('essence').capitalize())
+            elif self._configuration['needsChapterNumbering']:
+                if partIndex is not None:
+                    chapterTitle = u'%d.%d. %s' % (chapterIndex, partIndex, chapterTitle)
+                else:
+                    chapterTitle = u'%d. %s' % (chapterIndex, chapterTitle)
+        else:
+            chapterTitle = u'Глава %d' % chapterIndex
+            if partIndex is not None:
+                chapterTitle += u' (часть %d)' % partIndex
+
+        self._parsedHeading = {
+            'storyTitle': storyTitle,
+            'chapterTitle': chapterTitle
+        }
+        if chapterIndex is not None:
+            self._parsedHeading['chapterIndex'] = chapterIndex
+        if partIndex is not None:
+            self._parsedHeading['partIndex'] = partIndex
+            return self._parsedHeading
+        return self._parsedHeading
+
+    # Patterns below start end end with the same optional separator characters (to filter them)
+    # and allow only freestanding groups of 1--3 digits (ti filter long numbers in titles).
+
+    OUTLINE_PATTERN = re.compile(
         u'''[\.:\s]*
-            (?:глава)?  # `Chapter' in Russian.
-            \s
-            (?:(?P<chapterIndex>\d{1,3})(?=\D|$))
-            (?:
-              (?:
-                # For `X.Y' and `X-Y' numbering styles:
-                [\-\.]|
-                # For `Chapter X (part Y)' and similar numbering styles:
-                [\.,]?\s
-                (?P<brace>\()?
-                (?:часть)?      # `Part' in Russian.
-                \s
-              )
-              (?P<partIndex>\d{1,3})
-              (?(brace)\))
-            )?
+            (?:глава\s)?
+            (?:(?<!\d)(?P<chapterIndex>\d{1,3})(?=\D))
+            [\.-]
+            (?:(?P<partIndex>\d{1,3})(?=\D|$))
+            [\.:\s]*
+        ''',
+        re.IGNORECASE | re.UNICODE | re.VERBOSE)
+
+    CHAPTER_PATTERN = re.compile(
+        u'''[\.:\s]*
+            (?:глава\s)?(?:(?<!\d)(?P<chapterIndex>\d{1,3})(?=\D|$))
+            [\.:\s]*
+        ''',
+        re.IGNORECASE | re.UNICODE | re.VERBOSE)
+
+    PART_PATTERN = re.compile(
+        u'''[\.:\s]*
+            (?:[\.,]?\s)?
+            (?P<brace>\()?
+            (?:часть\s)?
+            (?:(?<!\d)(?P<partIndex>\d{1,3})(?=\D|$))
+            (?(brace)\))
+            [\.:\s]*
+        ''',
+        re.IGNORECASE | re.UNICODE | re.VERBOSE)
+
+    PROLOGUE_EPILOGUE_PATTERN = re.compile(
+        u'''[\.:\s]*
+            (?P<keyword>пролог|эпилог)  # `Prologue' or `epilogue' in Russian.
             [\.:\s]*
          ''',
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
 
-    PROLOGUE_EPILOGUE_PATTERN = re.compile(
-        u'''[\.:\s]*         # Optional separators.
-            (пролог|эпилог)  # `Prologue' or `epilogue' in Russian.
-            [\.:\s]*         # Optional separators.
-         ''',
-        re.IGNORECASE + re.UNICODE + re.VERBOSE)
-
-    def _getHeading(self):
-        if not self._parsedHeading:
-            self._parsedHeading = self._parseHeading()
-        return self._parsedHeading
-
-    def _parseHeading(self):
-        """Extracts meaningful parts from full chapter heading with.
-        Returns a dictionary containing `storyTitle', `chapterTitle'
-        (including numbering if allowed by settings, may be the same as
-        `storyTitle' for short stories), `chapterIndex' (optional, may be
-        zero), and `partIndex' (optional, chapter part, may be zero).
-        When no dedicated chapter title is present, generates one based on
-        chapter and part indices.  Correctly handles `prologue' and `epilogue'
-        cases."""
-        try:
-            heading = stripHTML(
-                self._document.find('div', {'class': 'eTitle'}).string)
-        except AttributeError:
-            raise ParsingError(u'Failed to locate title.')
-
-        match = re.search(self.CHAPTER_NUMBER_PATTERN, heading)
-        if match:
-            chapterIndex = int(match.group('chapterIndex'))
-            # There are cases with zero chapter or part number (e. g.:
-            # numbered prologue, not to be confused with just `Prologue').
-            if match.group('partIndex'):
-                partIndex = int(match.group('partIndex'))
-            else:
-                partIndex = None
-            chapterTitle = heading[match.end():].strip()
-            if chapterTitle:
-                if self._configuration['needsChapterNumbering']:
-                    if partIndex is not None:
-                        title = u'%d.%d. %s' % \
-                                (chapterIndex, partIndex, chapterTitle)
-                    else:
-                        title = u'%d. %s' % (chapterIndex, chapterTitle)
-                else:
-                    title = chapterTitle
-            else:
-                title = u'Глава %d' % chapterIndex
-                if partIndex:
-                    title += u' (часть %d)' % partIndex
-
-            # For seldom found cases like `Story: prologue and chapter 1'.
-            storyTitle = heading[:match.start()]
-            match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, storyTitle)
+    def __splitHeading(self, heading):
+        """Parses chapter heading text into meaningful parts.
+        Returns a tuple(chapter index, part index, story title, chapter title).
+        Any or both of the indices may be None if absent, chapter title may be empty (only if chapter index is None)."""
+        def filterPrologueOrEpilogue(title):
+            match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, title)
             if match:
-                matches = list(
-                    re.finditer(u'[:\.]', storyTitle))
+                matches = list(re.finditer(u'[:\.]', title))
                 if matches:
                     realStoryTitleEnd = matches[-1].start()
-                    if realStoryTitleEnd >= 0:
-                        storyTitle = storyTitle[:realStoryTitleEnd]
+                    return title[:realStoryTitleEnd]
+                else:
+                    _logger.warning(
+                        u"Title contains `%s', suspected to be part of numbering, but no period (`.') before it.  "
+                        u"Full title is preserved." % title)
+            return title
+
+        outline_match = re.search(self.OUTLINE_PATTERN, heading)
+        if outline_match:
+            chapter_index = int(outline_match.group('chapterIndex'))
+            part_index = int(outline_match.group('partIndex'))
+            story = heading[:outline_match.start()]
+            story = filterPrologueOrEpilogue(story)
+            chapter = heading[outline_match.end():]
+            return chapter_index, part_index, story, chapter
+        else:
+            chapter_match = re.search(self.CHAPTER_PATTERN, heading)
+            if chapter_match:
+                chapter_index = int(chapter_match.group('chapterIndex'))
+                story = heading[:chapter_match.start()]
+                story = filterPrologueOrEpilogue(story)
+                suffix = heading[chapter_match.end():]
+                part_match = re.search(self.PART_PATTERN, suffix)
+                if part_match:
+                    part_index = int(part_match.group('partIndex'))
+                    if part_match.start() == 0:
+                        chapter = suffix[part_match.end():]
                     else:
-                        _logger.warning(
-                            u"Title contains `%s', suspected to be part of "
-                            u"numbering, but no period (`.') before it.  "
-                            u"Full title is preserved." % storyTitle)
-
-            self._parsedHeading = {
-                'storyTitle': unicode(storyTitle),
-                'chapterTitle': unicode(title),
-                'chapterIndex': chapterIndex
-            }
-            if partIndex is not None:
-                self._parsedHeading['partIndex'] = partIndex
-            return self._parsedHeading
-
-        match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, heading)
-        if match:
-            storyTitle = heading[:match.start()]
-            chapterTitle = heading[match.end():].strip()
-            matchedText = heading[match.start():match.end()]
-            if chapterTitle:
-                title = u'%s. %s' % (matchedText, chapterTitle)
+                        chapter = suffix[:part_match.start()]
+                    return chapter_index, part_index, story, chapter
+                else:
+                    chapter = heading[chapter_match.end():]
+                    return chapter_index, None, story, chapter
             else:
-                title = matchedText
-            self._parsedHeading = {
-                'storyTitle': unicode(storyTitle),
-                'chapterTitle': unicode(title)
-            }
-            return self._parsedHeading
-
-        self._parsedHeading = {
-            'storyTitle': unicode(heading),
-            'chapterTitle': unicode(heading)
-        }
-        return self._parsedHeading
+                match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, heading)
+                if match:
+                    story = heading[:match.start()]
+                    chapter = heading[match.end():]
+                    keyword = match.group('keyword')
+                    if chapter:
+                        chapter = u"%s. %s" % (keyword.title(), chapter)
+                    else:
+                        chapter = keyword
+                    return None, None, story, chapter
+        return None, None, heading, heading
 
     def _getAuthor(self):
         if not self._author:
