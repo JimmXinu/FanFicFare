@@ -700,7 +700,7 @@ class Chapter(object):
     # Intended to be used with whole strings!
     ETC_PATTERN = re.compile(
         u'''[и&]\s(?:
-              (?:т\.?\s?[пд]\.?)|
+              (?:т\.?\s?[пд]?\.?)|
               (?:др(?:угие|\.)?)|
               (?:пр(?:очие|\.)?)|
               # Note: identically looking letters `K' and `o'
