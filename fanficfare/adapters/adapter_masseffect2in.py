@@ -105,8 +105,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 url = self._makeDocumentUrl(self._getDocumentId(url))
                 following = self._makeChapter(url)
                 # Do not follow links to related, but different stories (prequels or sequels).
-                startingStoryTitle = self.story.getMetadata('title')
-                if not following.isFromStory(startingStoryTitle):
+                if not following.isFromStory(starting.getHeading()):
                     return
                 if forward:
                     yield following
@@ -123,7 +122,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             raise
 
         try:
-            self.story.setMetadata('title', startingChapter.getStoryTitle())
             self.story.setMetadata('author', startingChapter.getAuthorName())
             authorId = startingChapter.getAuthorId()
             authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
@@ -148,12 +146,28 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             [startingChapter] + \
             list(followChapters(startingChapter, forward=True))
 
-        try:
-            for chapter in chapters:
-                url = chapter.getUrl()
-                self._chapters[url] = chapter
-                _logger.debug(u"Processing chapter `%s'.", url)
+        headings = [chapter.getHeading() for chapter in chapters]
+        largestCommonPrefix = _getLargestCommonPrefix(*headings)
+        prefixLength = len(largestCommonPrefix)
+        storyTitleEnd, chapterTitleStart = prefixLength, prefixLength
+        match = re.search(u'[:\.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
+        if match:
+            storyTitleEnd -= len(match.group())
+            label = match.group('chapter')
+            if label:
+                chapterTitleStart -= len(label)
+        storyTitle = largestCommonPrefix[:storyTitleEnd]
+        self.story.setMetadata('title', storyTitle)
 
+        garbagePattern = re.compile(u'(?P<start>^)?[:\.\s]*(?(start)|$)', re.UNICODE)
+        indexPattern = re.compile(u'(?:глава\s)?(?:(?<!\d)(?P<index>\d{1,3})(?=\D|$))', re.IGNORECASE | re.UNICODE)
+
+        for chapter in chapters:
+            url = chapter.getUrl()
+            self._chapters[url] = chapter
+            _logger.debug(u"Processing chapter `%s'.", url)
+
+            try:
                 datePublished = min(datePublished, chapter.getDate())
                 dateUpdated = max(dateUpdated, chapter.getDate())
 
@@ -162,14 +176,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 wordCount += self._getWordCount(chapter.getTextElement())
 
-                index = chapter.getIndex()
-                if index:
-                    chapterCount = max(chapterCount, index)
-                else:
-                    chapterCount += 1
-
-                # Story is in progress if any chapter is in progress.
-                # Some chapters may have no status attribute.
+                # Story is in progress if any chapter is in progress. Some chapters may have no status attribute.
                 chapterInProgress = chapter.isInProgress()
                 if chapterInProgress is not None:
                     storyInProgress |= chapterInProgress
@@ -178,29 +185,18 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 if chapter.isRatingAdult():
                     self.story.setMetadata('is_adult', True)
 
-            titles = [chapter.getTitle() for chapter in chapters]
-            hasNumbering = any([chapter.getIndex() is not None for chapter in chapters])
-            if not hasNumbering:
-                # There are stories without chapter numbering, but under single title,
-                # which is heading prefix (such stories are not series).  We identify
-                # common prefix for all chapters and use it as story title, trimming
-                # chapter titles the length of this prefix.
-                largestCommonPrefix = _getLargestCommonPrefix(*titles)
-                prefixLength = len(largestCommonPrefix)
-                storyTitle = re.sub(u'[:\.\s]*$', u'', largestCommonPrefix, re.UNICODE)
-                self.story.setMetadata('title', storyTitle)
-                for chapter in chapters:
-                    self.chapterUrls.append(
-                        (chapter.getTitle()[prefixLength:], chapter.getUrl()))
-            else:
-                # Simple processing for common cases.
-                for chapter in chapters:
-                    self.chapterUrls.append(
-                        (chapter.getTitle(), chapter.getUrl()))
+                chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
 
-        except ParsingError, error:
-                raise exceptions.FailedToDownload(
-                    u"Failed to download chapter `%s': %s" % (url, error))
+                match = re.search(indexPattern, chapterTitle)
+                if match:
+                    index = int(match.group('index'))
+                    chapterCount = max(chapterCount, index)
+                else:
+                    chapterCount += 1
+
+                self.chapterUrls.append((chapterTitle, url))
+            except ParsingError, error:
+                    raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
         self.story.setMetadata(
@@ -266,10 +262,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 raise exceptions.PersonalIniFailed(
                     u"Missing `rating_titles' setting", u"MassEffect2.in", u"?")
 
-            self._parsingConfiguration['needsChapterNumbering'] = \
-                self.getConfig('strip_chapter_numbers', False) \
-                and not self.getConfig('add_chapter_numbers', False)
-
             self._parsingConfiguration['excludeEditorSignature'] = \
                 self.getConfig('exclude_editor_signature', False)
 
@@ -332,28 +324,15 @@ class Chapter(object):
         self._url = url
         self._document = document
         # Lazy-loaded:
-        self._parsedHeading = None
+        self._heading = None
         self._date = None
         self._author = None
         self._attributes = None
         self._textElement = None
         self._infoBar = None
 
-    def getIndex(self):
-        parsedHeading = self.__getHeading()
-        if 'chapterIndex' in parsedHeading:
-            return parsedHeading['chapterIndex']
-
-    def getPartIndex(self):
-        parsedHeading = self.__getHeading()
-        if 'partIndex' in parsedHeading:
-            return parsedHeading['partIndex']
-
-    def getStoryTitle(self):
-        return self.__getHeading()['storyTitle']
-
-    def getTitle(self):
-        return self.__getHeading()['chapterTitle']
+    def getHeading(self):
+        return self._extractHeading()
 
     def getAuthorId(self):
         return self._getAuthor()['id']
@@ -413,7 +392,7 @@ class Chapter(object):
             match = re.search(u'^\s*\w+', string, re.UNICODE)
             return string[match.start():match.end()]
 
-        thisStoryTitle = self.getStoryTitle()
+        thisStoryTitle = self.getHeading()
         if prefixThreshold != 0:
             if prefixThreshold < 0:
                 prefixThreshold = min(
@@ -432,147 +411,9 @@ class Chapter(object):
             self._document.find('div', {'class': 'eTitle'}).string)
 
     def __getHeading(self):
-        if not self._parsedHeading:
-            self._parsedHeading = self.__parseHeading()
-        return self._parsedHeading
-
-    NUMBERING_TITLE_PATTERN = re.compile(
-        u'''(?P<brace>\()?
-            (?P<essence>начало|продолжение|окончание|
-            часть\s(?:первая|вторая|третья|четвертая|пятая|шестая|седьмая|восьмая|девятая|десятая))
-            (?(brace)\)|\.)?
-        ''',
-        re.IGNORECASE | re.UNICODE | re.VERBOSE)
-
-    def __parseHeading(self):
-        """Locates chapter heading and extracts meaningful parts from it.
-        Returns a dictionary containing `storyTitle', `chapterTitle' (including numbering if allowed by settings,
-        may be the same as `storyTitle' for short stories, or generated from indices), `chapterIndex' (optional,
-        may be zero), and `partIndex' (optional, chapter part, may be zero)."""
-        try:
-            heading = self._extractHeading()
-        except Exception, error:
-            raise ParsingError(u'Failed to locate title: %s.' % error)
-
-        chapterIndex, partIndex, storyTitle, chapterTitle = self.__splitHeading(heading)
-        if chapterTitle:
-            match = re.search(self.NUMBERING_TITLE_PATTERN, chapterTitle)
-            if match:
-                chapterTitle = u'Глава %d. %s' % (chapterIndex, match.group('essence').capitalize())
-            elif self._configuration['needsChapterNumbering']:
-                if partIndex is not None:
-                    chapterTitle = u'%d.%d. %s' % (chapterIndex, partIndex, chapterTitle)
-                else:
-                    chapterTitle = u'%d. %s' % (chapterIndex, chapterTitle)
-        else:
-            chapterTitle = u'Глава %d' % chapterIndex
-            if partIndex is not None:
-                chapterTitle += u' (часть %d)' % partIndex
-
-        self._parsedHeading = {
-            'storyTitle': storyTitle,
-            'chapterTitle': chapterTitle
-        }
-        if chapterIndex is not None:
-            self._parsedHeading['chapterIndex'] = chapterIndex
-        if partIndex is not None:
-            self._parsedHeading['partIndex'] = partIndex
-            return self._parsedHeading
-        return self._parsedHeading
-
-    # Patterns below start end end with the same optional separator characters (to filter them)
-    # and allow only freestanding groups of 1--3 digits (ti filter long numbers in titles).
-
-    OUTLINE_PATTERN = re.compile(
-        u'''[\.:\s]*
-            (?:глава\s)?
-            (?:(?<!\d)(?P<chapterIndex>\d{1,3})(?=\D))
-            [\.-]
-            (?:(?P<partIndex>\d{1,3})(?=\D|$))
-            [\.:\s]*
-        ''',
-        re.IGNORECASE | re.UNICODE | re.VERBOSE)
-
-    CHAPTER_PATTERN = re.compile(
-        u'''[\.:\s]*
-            (?:глава\s)?(?:(?<!\d)(?P<chapterIndex>\d{1,3})(?=\D|$))
-            [\.:\s]*
-        ''',
-        re.IGNORECASE | re.UNICODE | re.VERBOSE)
-
-    PART_PATTERN = re.compile(
-        u'''[\.:\s]*
-            (?:[\.,]?\s)?
-            (?P<brace>\()?
-            (?:часть\s)?
-            (?:(?<!\d)(?P<partIndex>\d{1,3})(?=\D|$))
-            (?(brace)\))
-            [\.:\s]*
-        ''',
-        re.IGNORECASE | re.UNICODE | re.VERBOSE)
-
-    PROLOGUE_EPILOGUE_PATTERN = re.compile(
-        u'''[\.:\s]*
-            (?P<keyword>пролог|эпилог)  # `Prologue' or `epilogue' in Russian.
-            [\.:\s]*
-         ''',
-        re.IGNORECASE + re.UNICODE + re.VERBOSE)
-
-    def __splitHeading(self, heading):
-        """Parses chapter heading text into meaningful parts.
-        Returns a tuple(chapter index, part index, story title, chapter title).
-        Any or both of the indices may be None if absent, chapter title may be empty (only if chapter index is None)."""
-        def filterPrologueOrEpilogue(title):
-            match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, title)
-            if match:
-                matches = list(re.finditer(u'[:\.]', title))
-                if matches:
-                    realStoryTitleEnd = matches[-1].start()
-                    return title[:realStoryTitleEnd]
-                else:
-                    _logger.warning(
-                        u"Title contains `%s', suspected to be part of numbering, but no period (`.') before it.  "
-                        u"Full title is preserved." % title)
-            return title
-
-        outline_match = re.search(self.OUTLINE_PATTERN, heading)
-        if outline_match:
-            chapter_index = int(outline_match.group('chapterIndex'))
-            part_index = int(outline_match.group('partIndex'))
-            story = heading[:outline_match.start()]
-            story = filterPrologueOrEpilogue(story)
-            chapter = heading[outline_match.end():]
-            return chapter_index, part_index, story, chapter
-        else:
-            chapter_match = re.search(self.CHAPTER_PATTERN, heading)
-            if chapter_match:
-                chapter_index = int(chapter_match.group('chapterIndex'))
-                story = heading[:chapter_match.start()]
-                story = filterPrologueOrEpilogue(story)
-                suffix = heading[chapter_match.end():]
-                part_match = re.search(self.PART_PATTERN, suffix)
-                if part_match:
-                    part_index = int(part_match.group('partIndex'))
-                    if part_match.start() == 0:
-                        chapter = suffix[part_match.end():]
-                    else:
-                        chapter = suffix[:part_match.start()]
-                    return chapter_index, part_index, story, chapter
-                else:
-                    chapter = heading[chapter_match.end():]
-                    return chapter_index, None, story, chapter
-            else:
-                match = re.search(self.PROLOGUE_EPILOGUE_PATTERN, heading)
-                if match:
-                    story = heading[:match.start()]
-                    chapter = heading[match.end():]
-                    keyword = match.group('keyword')
-                    if chapter:
-                        chapter = u"%s. %s" % (keyword.title(), chapter)
-                    else:
-                        chapter = keyword
-                    return None, None, story, chapter
-        return None, None, heading, heading
+        if not self._heading:
+            self._heading = self._extractHeading()
+        return self._heading
 
     def _getAuthor(self):
         if not self._author:
@@ -804,9 +645,10 @@ class Chapter(object):
 
 
 def _getLargestCommonPrefix(*args):
-    """Returns largest common prefix of all unicode(!) arguments.
+    """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
     from itertools import takewhile, izip
-    allSame = lambda xs: len(set(xs)) == 1
+    toLower = lambda xs: map(lambda x: x.lower(), xs)
+    allSame = lambda xs: len(set(toLower(xs))) == 1
     return u''.join([i[0] for i in takewhile(allSame, izip(*args))])
