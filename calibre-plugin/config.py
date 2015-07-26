@@ -357,6 +357,7 @@ class ConfigWidget(QWidget):
         prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
         prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
         prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
+        prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
         
         prefs.save_to_db()
 
@@ -1412,6 +1413,12 @@ class ImapTab(QWidget):
         self.auto_reject_from_email.setToolTip(_('If checked, FanFicFare will silently discard story URLs from emails that are on your Reject URL List.<br>Otherwise they will appear and you will see the normal Reject URL dialog.<br>The Emails will still be marked Read if configured to.'))
         self.auto_reject_from_email.setChecked(prefs['auto_reject_from_email'])
         self.l.addWidget(self.auto_reject_from_email,row,0,1,-1)
+        row+=1
+        
+        self.download_from_email_immediately = QCheckBox(_('Download from Email Immediately'),self)
+        self.download_from_email_immediately.setToolTip(_('If checked, FanFicFare will start downloading story URLs from emails immediately.<br>Otherwise the usual Download from URLs dialog will appear.'))
+        self.download_from_email_immediately.setChecked(prefs['download_from_email_immediately'])
+        self.l.addWidget(self.download_from_email_immediately,row,0,1,-1)
         row+=1
         
         label = QLabel(_("<b>It's safest if you create a separate email account that you use only "
