@@ -24,7 +24,7 @@ import urllib2
 import codecs
 
 from .. import BeautifulSoup as bs
-from ..htmlcleanup import stripHTML
+from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter, makeDate
 
@@ -173,6 +173,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 self.story.extendList('genre', chapter.getGenres())
                 self.story.extendList('characters', chapter.getCharacters())
+                self.story.extendList('ships', chapter.getPairings())
 
                 wordCount += self._getWordCount(chapter.getTextElement())
 
@@ -350,16 +351,13 @@ class Chapter(object):
         return self._getAttributes()['rating']['isAdult']
 
     def getCharacters(self):
-        attributes = self._getAttributes()
-        if 'characters' in attributes:
-            return attributes['characters']
-        return []
+        return self._getListAttribute('characters')
+
+    def getPairings(self):
+        return self._getListAttribute('pairings')
 
     def getGenres(self):
-        attributes = self._getAttributes()
-        if 'genres' in attributes:
-            return attributes['genres']
-        return []
+        return self._getListAttribute('genres')
 
     def isInProgress(self):
         attributes = self._getAttributes()
@@ -404,6 +402,13 @@ class Chapter(object):
             return result
         else:
             return storyTitle != thisStoryTitle
+
+    def _getListAttribute(self, name):
+        """Return an attribute value as a list or an empty list if the attribute is absent."""
+        attributes = self._getAttributes()
+        if name in attributes:
+            return attributes[name]
+        return []
 
     def _extractHeading(self):
         """Extracts header text from the document."""
@@ -466,41 +471,66 @@ class Chapter(object):
         return self._attributes
 
     def _parseAttributes(self):
+        """Parse chapter attribute block and return it as a dictionary with standard entries."""
+
         attributes = {}
+        attributesText = u''
         try:
-            elements = self._document \
+            starter = self._document \
                 .find('div', {'class': 'comm-div'}) \
-                .findNextSibling('div', {'class': 'cb'}) \
-                .nextGenerator()
-            attributesText = u''
-            for element in elements:
-                if not element:
-                    _logger.warning(u'Attribute block not terminated!')
-                    break
+                .findNextSibling('div', {'class': 'cb'})
+            bound = starter.findNextSibling('div', {'class': 'cb'})
+
+            def processElement(element):
+                """Return textual representation an *inline* element of chapter attribute block."""
+                result = u''
                 if isinstance(element, bs.Tag):
-                    # Although deprecated, `has_key()' is required here.
-                    if element.name == 'div' and \
-                            element.has_key('class') and \
-                            element['class'] == 'cb':
+                    if element.name in ('b', 'strong', 'font', 'br'):
+                        result += u"\n"
+                    if element.name == 's':
+                        result += u"<s>%s</s>" % stripHTML(element)
+                    else:
+                        result += stripHTML(element)
+                else:
+                    result += removeEntities(element)
+                return result
+
+            elements = starter.nextSiblingGenerator()
+            for element in elements:
+                if isinstance(element, bs.Tag):
+                    if element == bound:
+                        break
+                    else:
+                        if element.name in ('div', 'p'):
+                            attributesText += u"\n"
+                            for child in element.childGenerator():
+                                attributesText += processElement(child)
+                            continue
+                attributesText += processElement(element)
+
+            elements = starter.nextGenerator()
+            for element in elements:
+                if isinstance(element, bs.Tag):
+                    if element == bound:
                         break
                     elif element.name == 'img':
                         rating = self._parseRatingFromImage(element)
                         if rating:
                             attributes['rating'] = rating
-                else:
-                    attributesText += stripHTML(element)
+                            break
         except AttributeError or TypeError:
             raise ParsingError(u'Failed to locate and collect attributes.')
 
-        for record in re.split(u';|\.', attributesText):
-            parts = record.split(u':', 1)
-            if len(parts) < 2:
+        separators = u"\r\n :;."
+        for line in attributesText.split(u'\n'):
+            if line.count(u':') != 1:
                 continue
-            key = parts[0].strip().lower()
-            value = parts[1].strip().strip(u'.')
+            key, value = line.split(u':', 1)
+            key = key.strip(separators).lower()
+            value = value.strip().strip(separators)
             parsed = self._parseAttribute(key, value)
-            if parsed:
-                attributes[parsed[0]] = parsed[1]
+            for parsedKey, parsedValue in parsed.iteritems():
+                attributes[parsedKey] = parsedValue
 
         if 'rating' not in attributes:
             raise ParsingError(u'Failed to locate or recognize rating!')
@@ -552,7 +582,10 @@ class Chapter(object):
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
 
     def _parseAttribute(self, key, value):
-        """Parses a single known attribute value for chapter metadata."""
+        """
+        Parse a single a single record in chapter attributes for chapter metadata.
+        Return a dictionary of canonical attributes and values (i. e. multiple attributes may be discovered).
+        """
 
         def refineCharacter(name):
             """Refines character name from stop-words and distortions."""
@@ -563,21 +596,27 @@ class Chapter(object):
             return canonicalName
 
         if re.match(u'жанры?', key, re.UNICODE):
-            definitions = value.split(u',')
-            if len(definitions) > 4:
-                _logger.warning(u'Possibly incorrect genre detection!')
-            genres = []
-            for definition in definitions:
-                genres += definition.split(u'/')
-            return 'genres', genres
+            genres = filter(bool, map(unicode.strip, re.split(u'[,;/]', value)))
+            return {'genres': genres}
         elif key == u'статус':
             isInProgress = value == u'в процессе'
-            return 'isInProgress', isInProgress
+            return {'isInProgress': isInProgress}
         elif key == u'персонажи':
-            characters = [refineCharacter(name) for name in value.split(u',')]
-            return 'characters', characters
+            participants = map(refineCharacter, re.split(u'[,;]', value))
+            characters = []
+            pairings = []
+            for participant in participants:
+                if u'/' in participant:
+                    pairings.append(participant)
+                else:
+                    characters.append(participant)
+            return {
+                'characters': characters,
+                'pairings': pairings
+            }
         else:
             _logger.debug(u"Unrecognized attribute `%s' ignored.", key)
+            return {}
 
     def _getTextElement(self):
         if not self._textElement:
