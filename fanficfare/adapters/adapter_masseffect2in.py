@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team,
-#           2015 FanFicFare team,
-#           2015 Dmitry Kozliuk
+# Copyright 2015 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +19,6 @@ import datetime
 import logging
 import re
 import urllib2
-import codecs
 
 from .. import BeautifulSoup as bs
 from ..htmlcleanup import removeEntities, stripHTML
@@ -48,12 +45,15 @@ class ParsingError(Exception):
 
 
 class MassEffect2InAdapter(BaseSiteAdapter):
-    """Provides support for masseffect2.in site as story source.
-    Can be used as a template for sites build upon Ucoz.com engine.
+    """
+    Provides support for MassEffect2.in site as story source.
+    Can be used as a template for sites build upon Ucoz.com engine (until no base class extracted).
     Specializations:
         1) Russian content (date format, genre names, etc.);
-        2) original `R.A.T.I.N.G.' rating scale, used by masseffect2.in
-           and some affiliated sites."""
+        2) original `E.R.A.T.I.N.G.' rating scale, used by masseffect2.in
+           and some affiliated sites, denoted with images;
+        3) editor signatures an an option to remove them.
+    """
 
     WORD_PATTERN = re.compile(u'\w+', re.UNICODE)
     DOCUMENT_ID_PATTERN = re.compile(u'\d+-\d+-\d+-\d+')
@@ -296,36 +296,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         """Fetch URL content and return its element tree with parsing settings tuned for MassEffect2.in."""
         return bs.BeautifulStoneSoup(
             self._fetchUrl(url), selfClosingTags=('br', 'hr', 'img'))
-
-    def _fetchUrl(self, url,
-                  parameters=None,
-                  usecache=True,
-                  extrasleep=None):
-        """Fetch URL contents, see BaseSiteAdapter for details.
-        Overridden to support on-disk cache when debugging Calibre."""
-        from calibre.constants import DEBUG
-        if DEBUG:
-            import os
-            documentId = self._getDocumentId(url)
-            path = u'./cache/%s' % documentId
-            if os.path.isfile(path) and os.access(path, os.R_OK):
-                _logger.debug(u"On-disk cache HIT for `%s'.", url)
-                with codecs.open(path, encoding='utf-8') as input:
-                    return input.read()
-            else:
-                _logger.debug(u"On-disk cache MISS for `%s'.", url)
-
-        content = BaseSiteAdapter._fetchUrl(
-            self, url, parameters, usecache, extrasleep)
-
-        if DEBUG:
-            import os
-            if os.path.isdir(os.path.dirname(path)):
-                _logger.debug(u"Caching `%s' content on disk.", url)
-                with codecs.open(path, mode='w', encoding='utf-8') as output:
-                    output.write(content)
-
-        return content
 
 
 class Chapter(object):
@@ -666,7 +636,7 @@ class Chapter(object):
             value = value[:1].upper() + value[1:]
             return {'summary': value}
         else:
-            _logger.debug(u"Unrecognized attribute `%s' ignored.", key)
+            _logger.info(u"Unrecognized attribute `%s' ignored.", key)
             return {}
 
     def _getTextElement(self):
