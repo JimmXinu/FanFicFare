@@ -121,17 +121,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             raise
 
-        try:
-            self.story.setMetadata('author', startingChapter.getAuthorName())
-            authorId = startingChapter.getAuthorId()
-            authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
-            self.story.setMetadata('authorId', authorId)
-            self.story.setMetadata('authorUrl', authorUrl)
-            self.story.setMetadata('rating', startingChapter.getRatingTitle())
-        except ParsingError, error:
-            raise exceptions.FailedToDownload(
-                u"Failed to parse story metadata for `%s': %s" % (self.url, error))
-
         # We only have one date for each chapter and assume the oldest one
         # to be publication date and the most recent one to be update date.
         datePublished = datetime.datetime.max
@@ -168,6 +157,28 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             _logger.debug(u"Processing chapter `%s'.", url)
 
             try:
+                authorName = chapter.getAuthorName()
+                if authorName:
+                    self.story.extendList('author', [authorName])
+                    authorId = chapter.getAuthorId()
+                    if authorId:
+                        authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
+                    else:
+                        authorId = u''
+                        authorUrl = u''
+                    self.story.extendList('authorId', [authorId])
+                    self.story.extendList('authorUrl', [authorUrl])
+
+                if not self.story.getMetadata('rating'):
+                    ratingTitle = chapter.getRatingTitle()
+                    if ratingTitle:
+                        self.story.setMetadata('rating', ratingTitle)
+
+                if not self.story.getMetadata('description'):
+                    summary = chapter.getSummary()
+                    if summary:
+                        self.story.setMetadata('description', summary)
+
                 datePublished = min(datePublished, chapter.getDate())
                 dateUpdated = max(dateUpdated, chapter.getDate())
 
@@ -184,7 +195,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                     storyInProgress = chapterInProgress
 
                 # If any chapter is adult, consider the whole story adult.
-                if chapter.isRatingAdult():
+                if chapter.isAdult():
                     self.story.setMetadata('is_adult', True)
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
@@ -198,7 +209,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 self.chapterUrls.append((chapterTitle, url))
             except ParsingError, error:
-                    raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
+                raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
         self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
@@ -335,20 +346,36 @@ class Chapter(object):
     def getHeading(self):
         return self._extractHeading()
 
+    def getSummary(self):
+        attributes = self._getAttributes()
+        if 'summary' in attributes:
+            return attributes['summary']
+
     def getAuthorId(self):
-        return self._getAuthor()['id']
+        author = self._getAuthor()
+        if author:
+            return author['id']
 
     def getAuthorName(self):
-        return self._getAuthor()['name']
+        author = self._getAuthor()
+        if author:
+            return author['name']
 
     def getDate(self):
         return self._getDate()
 
     def getRatingTitle(self):
-        return self._getAttributes()['rating']['title']
+        attributes = self._getAttributes()
+        if 'rating' in attributes:
+            return attributes['rating']['title']
 
-    def isRatingAdult(self):
-        return self._getAttributes()['rating']['isAdult']
+    def isAdult(self):
+        attributes = self._getAttributes()
+        if 'rating' in attributes and attributes['rating']['isAdult']:
+            return True
+        if 'warning' in attributes:
+            return True
+        return False
 
     def getCharacters(self):
         return self._getListAttribute('characters')
@@ -522,8 +549,10 @@ class Chapter(object):
             raise ParsingError(u'Failed to locate and collect attributes.')
 
         separators = u"\r\n :;."
+        freestandingText = u''
         for line in attributesText.split(u'\n'):
             if line.count(u':') != 1:
+                freestandingText += line
                 continue
             key, value = line.split(u':', 1)
             key = key.strip(separators).lower()
@@ -532,15 +561,20 @@ class Chapter(object):
             for parsedKey, parsedValue in parsed.iteritems():
                 attributes[parsedKey] = parsedValue
 
+        freestandingText = freestandingText.strip()
+        if 'summary' not in attributes and freestandingText:
+            attributes['summary'] = freestandingText
+
         if 'rating' not in attributes:
-            raise ParsingError(u'Failed to locate or recognize rating!')
+            _logger.warning(u"Failed to locate or recognize rating for `%s'!", self.getUrl())
 
         return attributes
 
+    # Most, but not all, URLs of rating icons match this.
     RATING_LABEL_PATTERN = re.compile(u'/(?P<rating>[ERATINnG]+)\.png$')
 
     def _parseRatingFromImage(self, element):
-        """Given an image element, tries to parse story rating from it."""
+        """Given an image element, try to parse story rating from it."""
         # Although deprecated, `has_key()' is required here.
         if not element.has_key('src'):
             return
@@ -558,7 +592,7 @@ class Chapter(object):
                 }
             else:
                 _logger.warning(u"No title found for rating label `%s'!" % label)
-        # FIXME: It seems, rating has to be optional due to such URLs.
+        # TODO: conduct a research on such abnormal URLs.
         elif source == 'http://www.masseffect2.in/_fr/10/1360399.png':
             label = 'Nn'
             return {
@@ -580,6 +614,9 @@ class Chapter(object):
             )$
         ''',
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
+
+    # `Author's Notes' and its variants in Russian.
+    ANNOTATION_PATTERN = re.compile(u'аннотация|описание|(?:(?:за|при)мечание\s)?(?:от\s)?автора', re.UNICODE)
 
     def _parseAttribute(self, key, value):
         """
@@ -614,6 +651,14 @@ class Chapter(object):
                 'characters': characters,
                 'pairings': pairings
             }
+        elif key == u'предупреждение':
+            return {'warning': value}
+        elif re.match(self.ANNOTATION_PATTERN, key):
+            if not value.endswith(u'.'):
+                value += u'.'
+            # Capitalize would make value[1:] lowercase, which we don't want.
+            value = value[:1].upper() + value[1:]
+            return {'summary': value}
         else:
             _logger.debug(u"Unrecognized attribute `%s' ignored.", key)
             return {}
