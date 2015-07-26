@@ -177,10 +177,11 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 wordCount += self._getWordCount(chapter.getTextElement())
 
-                # Story is in progress if any chapter is in progress. Some chapters may have no status attribute.
+                # Chapter status usually represents the story status, so we want the last chapter status.
+                # Some chapters may have no status attribute.
                 chapterInProgress = chapter.isInProgress()
                 if chapterInProgress is not None:
-                    storyInProgress |= chapterInProgress
+                    storyInProgress = chapterInProgress
 
                 # If any chapter is adult, consider the whole story adult.
                 if chapter.isRatingAdult():
@@ -200,8 +201,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                     raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
-        self.story.setMetadata(
-            'status', 'In Progress' if storyInProgress else 'Completed')
+        self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
         self.story.setMetadata('numWords', str(wordCount))
