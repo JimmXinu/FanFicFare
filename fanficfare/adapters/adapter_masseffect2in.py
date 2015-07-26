@@ -280,7 +280,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         return self._parsingConfiguration
 
     def _getDocumentId(self, url):
-        """Extracts document ID from MassEffect2.in URL."""
+        """Extract document ID from MassEffect2.in URL."""
         match = re.search(self.DOCUMENT_ID_PATTERN, url)
         if not match:
             raise ValueError(u"Failed to extract document ID from `'" % url)
@@ -289,12 +289,11 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     @classmethod
     def _makeDocumentUrl(cls, documentId):
-        """Makes a chapter URL given a chapter ID."""
+        """Make a chapter URL given a document ID."""
         return 'http://%s/publ/%s' % (cls.getSiteDomain(), documentId)
 
     def _loadDocument(self, url):
-        """Fetches URL content and returns its element tree
-        with parsing settings tuned for MassEffect2.in."""
+        """Fetch URL content and return its element tree with parsing settings tuned for MassEffect2.in."""
         return bs.BeautifulStoneSoup(
             self._fetchUrl(url), selfClosingTags=('br', 'hr', 'img'))
 
@@ -302,7 +301,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                   parameters=None,
                   usecache=True,
                   extrasleep=None):
-        """Fetches URL contents, see BaseSiteAdapter for details.
+        """Fetch URL contents, see BaseSiteAdapter for details.
         Overridden to support on-disk cache when debugging Calibre."""
         from calibre.constants import DEBUG
         if DEBUG:
@@ -347,7 +346,7 @@ class Chapter(object):
         return self._extractHeading()
 
     def getSummary(self):
-        attributes = self._getAttributes()
+        attributes = self.__getAttributes()
         if 'summary' in attributes:
             return attributes['summary']
 
@@ -362,15 +361,15 @@ class Chapter(object):
             return author['name']
 
     def getDate(self):
-        return self._getDate()
+        return self.__getDate()
 
     def getRatingTitle(self):
-        attributes = self._getAttributes()
+        attributes = self.__getAttributes()
         if 'rating' in attributes:
             return attributes['rating']['title']
 
     def isAdult(self):
-        attributes = self._getAttributes()
+        attributes = self.__getAttributes()
         if 'rating' in attributes and attributes['rating']['isAdult']:
             return True
         if 'warning' in attributes:
@@ -387,7 +386,7 @@ class Chapter(object):
         return self._getListAttribute('genres')
 
     def isInProgress(self):
-        attributes = self._getAttributes()
+        attributes = self.__getAttributes()
         if 'isInProgress' in attributes:
             return attributes['isInProgress']
 
@@ -398,17 +397,17 @@ class Chapter(object):
         return self._getTextElement()
 
     def getPreviousChapterUrl(self):
-        """Downloads chapters following `Previous chapter' links.
+        """Download chapters following `Previous chapter' links.
         Returns a list of chapters' URLs."""
         return self._getSiblingChapterUrl({'class': 'fl tal'})
 
     def getNextChapterUrl(self):
-        """Downloads chapters following `Next chapter' links.
+        """Download chapters following `Next chapter' links.
         Returns a list of chapters' URLs."""
         return self._getSiblingChapterUrl({'class': 'tar fr'})
 
     def isFromStory(self, storyTitle, prefixThreshold=-1):
-        """Checks if this chapter is from a story different from the given one.
+        """Check if this chapter is from a story different from the given one.
         Prefix threshold specifies how long common story title prefix shall be
         for chapters from one story: negative value means implementation-defined
         optimum, zero inhibits the check, and positive value adjusts threshold."""
@@ -432,27 +431,30 @@ class Chapter(object):
 
     def _getListAttribute(self, name):
         """Return an attribute value as a list or an empty list if the attribute is absent."""
-        attributes = self._getAttributes()
+        attributes = self.__getAttributes()
         if name in attributes:
             return attributes[name]
         return []
 
     def _extractHeading(self):
-        """Extracts header text from the document."""
+        """Extract header text from the document."""
         return stripHTML(
             self._document.find('div', {'class': 'eTitle'}).string)
 
     def __getHeading(self):
+        """Lazily parse and return heading."""
         if not self._heading:
             self._heading = self._extractHeading()
         return self._heading
 
     def _getAuthor(self):
+        """Lazily parse and return author's information."""
         if not self._author:
             self._author = self._parseAuthor()
         return self._author
 
     def _parseAuthor(self):
+        """Locate and parse chapter author's information to a dictionary with author's `id' and `name'."""
         try:
             authorLink = self._getInfoBarElement() \
                 .find('i', {'class': 'icon-user'}) \
@@ -469,12 +471,14 @@ class Chapter(object):
             'name': authorName
         }
 
-    def _getDate(self):
+    def __getDate(self):
+        """Lazily parse chapter date."""
         if not self._date:
             self._date = self._parseDate()
         return self._date
 
     def _parseDate(self):
+        """Locate and parse chapter date."""
         try:
             dateText = self._getInfoBarElement() \
                 .find('i', {'class': 'icon-eye'}) \
@@ -486,13 +490,15 @@ class Chapter(object):
         return date
 
     def _getInfoBarElement(self):
+        """Locate informational bar element, containing chapter date and author, on the page."""
         if not self._infoBar:
             self._infoBar = self._document.find('td', {'class': 'eDetails2'})
             if not self._infoBar:
                 raise ParsingError(u'No informational bar found.')
         return self._infoBar
 
-    def _getAttributes(self):
+    def __getAttributes(self):
+        """Lazily parse attributes."""
         if not self._attributes:
             self._attributes = self._parseAttributes()
         return self._attributes
@@ -664,12 +670,13 @@ class Chapter(object):
             return {}
 
     def _getTextElement(self):
+        """Locate chapter body text element on the page."""
         if not self._textElement:
             self._textElement = self.__collectTextElements()
         return self._textElement
 
     def __collectTextElements(self):
-        """Returns all elements containing parts of chapter text (which may be
+        """Return all elements containing parts of chapter text (which may be
         <p>aragraphs, <div>isions or plain text nodes) under a single root."""
         starter = self._document.find('div', {'id': u'article'})
         if starter is None:
@@ -696,11 +703,9 @@ class Chapter(object):
         return root
 
     def _getSiblingChapterUrl(self, selector):
-        """Downloads chapters one by one by locating and following links
-        specified by a selector.  Returns chapters' URLs in order they
-        were found."""
-        block = self._document\
-            .find('td', {'class': 'eDetails1'})\
+        """Locate a link to a sibling chapter, either previous or next one, and return its URL."""
+        block = self._document \
+            .find('td', {'class': 'eDetails1'}) \
             .find('div', selector)
         if not block:
             return
@@ -709,9 +714,11 @@ class Chapter(object):
             return
         return link['href']
 
+    # Editor signature always starts with something like this.
     SIGNED_PATTERN = re.compile(u'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
 
     def _excludeEditorSignature(self, root):
+        """Exclude editor signature from within `root' element."""
         for textNode in root.findAll(text=True):
             if re.match(self.SIGNED_PATTERN, textNode.string):
                 editorLink = textNode.findNext('a')
