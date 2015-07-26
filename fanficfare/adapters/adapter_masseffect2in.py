@@ -197,6 +197,9 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 # If any chapter is adult, consider the whole story adult.
                 if chapter.isAdult():
                     self.story.setMetadata('is_adult', True)
+                    warning = chapter.getWarning()
+                    if warning:
+                        self.story.extendList('warnings', [warning])
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
 
@@ -345,6 +348,11 @@ class Chapter(object):
         if 'warning' in attributes:
             return True
         return False
+
+    def getWarning(self):
+        attributes = self.__getAttributes()
+        if 'warning' in attributes:
+            return attributes['warning']
 
     def getCharacters(self):
         return self._getListAttribute('characters')
