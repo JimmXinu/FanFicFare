@@ -138,6 +138,7 @@ import adapter_itcouldhappennet
 import adapter_forumsspacebattlescom
 import adapter_forumssufficientvelocitycom
 import adapter_ninelivesdarksolaceorg
+import adapter_masseffect2in
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
