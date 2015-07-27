@@ -16,7 +16,7 @@
 #
 
 from optparse import OptionParser
-from os.path import expanduser, isfile, join, dirname
+from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
 import ConfigParser
@@ -214,25 +214,18 @@ def do_download(arg,
     if passed_defaultsini:
         configuration.readfp(passed_defaultsini)
 
-    if isfile(join(dirname(__file__), 'defaults.ini')):
-        conflist.append(join(dirname(__file__), 'defaults.ini'))
-        
-    if isfile(join(homepath, 'defaults.ini')):
-        conflist.append(join(homepath, 'defaults.ini'))
-    if isfile(join(homepath2, 'defaults.ini')):
-        conflist.append(join(homepath2, 'defaults.ini'))
-    if isfile('defaults.ini'):
-        conflist.append('defaults.ini')
+    # don't need to check existance for our selves.
+    conflist.append(join(dirname(__file__), 'defaults.ini'))
+    conflist.append(join(homepath, 'defaults.ini'))
+    conflist.append(join(homepath2, 'defaults.ini'))
+    conflist.append('defaults.ini')
 
     if passed_personalini:
         configuration.readfp(passed_personalini)
 
-    if isfile(join(homepath, 'personal.ini')):
-        conflist.append(join(homepath, 'personal.ini'))
-    if isfile(join(homepath2, 'personal.ini')):
-        conflist.append(join(homepath2, 'personal.ini'))
-    if isfile('personal.ini'):
-        conflist.append('personal.ini')
+    conflist.append(join(homepath, 'personal.ini'))
+    conflist.append(join(homepath2, 'personal.ini'))
+    conflist.append('personal.ini')
 
     if options.configfile:
         conflist.extend(options.configfile)
