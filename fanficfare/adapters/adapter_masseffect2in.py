@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
+import bs4
 import datetime
 import logging
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
 from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter, makeDate
@@ -233,7 +233,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     def _makeChapter(self, url):
         """Creates a chapter object given a URL."""
-        document = self._loadDocument(url)
+        document = self.make_soup(self._fetchUrl(url))
         chapter = Chapter(self._getParsingConfiguration(), url, document)
         return chapter
 
@@ -294,11 +294,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
     def _makeDocumentUrl(cls, documentId):
         """Make a chapter URL given a document ID."""
         return 'http://%s/publ/%s' % (cls.getSiteDomain(), documentId)
-
-    def _loadDocument(self, url):
-        """Fetch URL content and return its element tree with parsing settings tuned for MassEffect2.in."""
-        return bs.BeautifulStoneSoup(
-            self._fetchUrl(url), selfClosingTags=('br', 'hr', 'img'))
 
 
 class Chapter(object):
@@ -495,7 +490,7 @@ class Chapter(object):
             def processElement(element):
                 """Return textual representation an *inline* element of chapter attribute block."""
                 result = u''
-                if isinstance(element, bs.Tag):
+                if isinstance(element, bs4.Tag):
                     if element.name in ('b', 'strong', 'font', 'br'):
                         result += u"\n"
                     if element.name == 's':
@@ -508,7 +503,7 @@ class Chapter(object):
 
             elements = starter.nextSiblingGenerator()
             for element in elements:
-                if isinstance(element, bs.Tag):
+                if isinstance(element, bs4.Tag):
                     if element == bound:
                         break
                     else:
@@ -521,7 +516,7 @@ class Chapter(object):
 
             elements = starter.nextGenerator()
             for element in elements:
-                if isinstance(element, bs.Tag):
+                if isinstance(element, bs4.Tag):
                     if element == bound:
                         break
                     elif element.name == 'img':
@@ -560,7 +555,7 @@ class Chapter(object):
     def _parseRatingFromImage(self, element):
         """Given an image element, try to parse story rating from it."""
         # Although deprecated, `has_key()' is required here.
-        if not element.has_key('src'):
+        if not element.has_attr('src'):
             return
         source = element['src']
         if 'REITiNG' in source:
@@ -659,19 +654,20 @@ class Chapter(object):
         starter = self._document.find('div', {'id': u'article'})
         if starter is None:
             # FIXME: This will occur if the method is called more than once.
-            # The reason is elements appended to `root' are removed from
-            # the document. BS 4.4 implements cloning via `copy.copy()',
-            # but supporting it for earlier versions is error-prone
-            # (due to relying on BS internals).
+            # The reason is elements appended to `root' are removed from the document.
+            # BS 4.4 implements cloning via `copy.copy()', but supporting it for BS 4.3
+            # would be error-prone (due to relying on BS internals) and is not needed.
+            if self._textElement:
+                _logger.debug(u"You may not call this function more than once!")
             raise ParsingError(u'Failed to locate text.')
         collection = [starter]
         for element in starter.nextSiblingGenerator():
             if element is None:
                 break
-            if isinstance(element, bs.Tag) and element.name == 'tr':
+            if isinstance(element, bs4.Tag) and element.name == 'tr':
                 break
             collection.append(element)
-        root = bs.Tag(self._document, 'td')
+        root = bs4.Tag(name='td')
         for element in collection:
             root.append(element)
 
