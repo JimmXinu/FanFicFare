@@ -416,6 +416,8 @@ class Story(Configurable):
             self.metadata = {'version':'4.4'}
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be namedtuple of Chapter(url,title,html,etc)
+        self.chapter_first = None
+        self.chapter_last = None
         self.imgurls = []
         self.imgtuples = []
 
@@ -444,6 +446,10 @@ class Story(Configurable):
                 iel = []
                 self.in_ex_cludes[ie] = set_in_ex_clude(ies)
 
+    def set_chapters_range(self,first=None,last=None):
+        self.chapter_first=first
+        self.chapter_last=last
+                
     def join_list(self, key, vallist):
         return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
 
@@ -643,6 +649,14 @@ class Story(Configurable):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
                 if key in ("datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
+
+                if key == "title" and (self.chapter_first or self.chapter_last) and self.getConfig("title_chapter_range_pattern"):
+                    first = self.chapter_first or "1"
+                    last = self.chapter_last or self.getMetadata("numChapters")
+                    templ = string.Template(self.getConfig("title_chapter_range_pattern"))
+                    value = templ.substitute({'title':value,
+                                              'first':commaGroups(first),
+                                              'last':commaGroups(last)})
 
             if doreplacements:
                 value=self.doReplacements(value,key)

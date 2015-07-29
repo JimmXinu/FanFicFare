@@ -1002,6 +1002,8 @@ class FanFicFarePlugin(InterfaceAction):
             return
 
         adapter = get_fff_adapter(url,fileform)
+        ## chapter range for title_chapter_range_pattern
+        adapter.setChaptersRange(book['begin'],book['end'])
         ## save and share cookiejar and pagecache between all
         ## downloads.
         if 'pagecache' not in options:

@@ -395,6 +395,7 @@ class FanfictionDownloader(UserConfigServer):
                 return
 
             adapter = adapters.getAdapter(configuration,url)
+            adapter.setChaptersRange(ch_begin,ch_end)
             logging.info('Created an adaper: %s' % adapter)
 
             if login or password:

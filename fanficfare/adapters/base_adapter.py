@@ -355,6 +355,7 @@ class BaseSiteAdapter(Configurable):
             self.chapterFirst=int(first)-1
         if last:
             self.chapterLast=int(last)-1
+        self.story.set_chapters_range(first,last)
     
     # Does the download the first time it's called.
     def getStory(self):
