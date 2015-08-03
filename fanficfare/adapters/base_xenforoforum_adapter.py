@@ -77,7 +77,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return cls.getURLPrefix()+"/threads/some-story-name.123456/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?"
         
     def use_pagecache(self):
         '''
