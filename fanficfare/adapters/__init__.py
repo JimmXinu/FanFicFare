@@ -137,6 +137,7 @@ import adapter_tgstorytimecom
 import adapter_itcouldhappennet
 import adapter_forumsspacebattlescom
 import adapter_forumssufficientvelocitycom
+import adapter_questionablequestingcom
 import adapter_ninelivesdarksolaceorg
 import adapter_masseffect2in
 

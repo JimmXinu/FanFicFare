@@ -32,7 +32,3 @@ class ForumsSufficientVelocityComAdapter(BaseXenForoForumAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'forums.sufficientvelocity.com'
-
-    @classmethod
-    def getURLPrefix(cls):
-        return 'http://' + cls.getSiteDomain()
