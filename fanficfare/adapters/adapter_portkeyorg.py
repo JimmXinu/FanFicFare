@@ -258,6 +258,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         data = self._fetchUrl(url)
 
         data = data.replace("HTML>","div>")
+        data = data.replace("html>","div>")
         
         soup = bs.BeautifulSoup(data)
 
