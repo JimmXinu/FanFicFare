@@ -104,7 +104,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #logger.debug("\n===================\n%s\n===================\n"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -135,11 +135,15 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                                 chapcount+1)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
                 newdata = self._fetchUrl(tryurl)
-                if "not found. Please check to see you are not using an outdated url." \
-                        not in newdata:
+                if "not found. Please check to see you are not using an outdated url." not in newdata \
+                        and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
-            except:
+            except urllib2.HTTPError as e:
+                if e.code == 503:
+                    raise e
+            except e:
+                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
                 pass
             
         # Find authorid and URL from... author url.
