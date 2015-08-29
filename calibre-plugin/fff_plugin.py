@@ -2134,6 +2134,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['site'] = ''
         book['added'] = False
         book['pubdate'] = None
+        book['publisher'] = None
         return book
 
     def convert_urls_to_books(self, urls):
