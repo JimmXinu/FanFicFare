@@ -220,6 +220,7 @@ def get_valid_keywords():
                  'chapter_title_add_pattern',
                  'chapter_title_new_pattern',
                  'chapter_title_addnew_pattern',
+                 'title_chapter_range_pattern',
                  'mark_new_chapters',
                  'check_next_chapter',
                  'skip_author_cover',
