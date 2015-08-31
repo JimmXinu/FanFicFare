@@ -204,6 +204,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
+        ## there's some history of stories with links to the wrong
+        ## page.  This changes page#post URLs to perma-link URLs.
+        ## Which will be redirected back to page#posts, but the
+        ## *correct* ones.
+        # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/page-4#post-39915
+        # https://forums.sufficientvelocity.com/posts/39915/
+        if '#post-' in url:
+            url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
+        
         origurl = url
         (data,opened) = self._fetchUrlOpened(url)
         url = opened.geturl()
@@ -216,6 +225,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if '#' in url:
             anchorid = url.split('#')[1]
             soup = soup.find('li',id=anchorid)
+                
         bq = soup.find('blockquote')
 
         bq.name='div'
