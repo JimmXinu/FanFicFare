@@ -41,7 +41,7 @@ def get_update_data(inputio,
 
     ## Save the path to the .opf file--hrefs inside it are relative to it.
     relpath = get_path_part(rootfilename)
-            
+
     oldcover = None
     calibrebookmark = None
     logfile = None
@@ -158,20 +158,20 @@ def get_update_data(inputio,
                         chapterorigtitle = soup.find('meta',{'name':'chapterorigtitle'})
                         if chapterorigtitle:
                             datamaps[currenturl]['chapterorigtitle'] = chapterorigtitle['content']
-                            
+
                         chaptertitle = soup.find('meta',{'name':'chaptertitle'})
                         if chaptertitle:
                             datamaps[currenturl]['chaptertitle'] = chaptertitle['content']
-                            
+
                         soups.append(bodysoup)
-                        
+
                     filecount+=1
 
     try:
         calibrebookmark = epub.read("META-INF/calibre_bookmarks.txt")
     except:
         pass
-                    
+
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
     # print("datamaps:%s"%datamaps)
@@ -199,7 +199,7 @@ def get_story_url_from_html(inputio,_is_good_url=None):
 
     ## Save the path to the .opf file--hrefs inside it are relative to it.
     relpath = get_path_part(rootfilename)
-            
+
     # spin through the manifest--only place there are item tags.
     for item in contentdom.getElementsByTagName("item"):
         # First, count the 'chapter' files.  FFF uses file0000.xhtml,
@@ -225,7 +225,7 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     ## build zip in memory in case updating in place(CLI).
     zipio = StringIO()
-    
+
     ## Write mimetype file, must be first and uncompressed.
     ## Older versions of python(2.4/5) don't allow you to specify
     ## compression by individual file.
@@ -240,19 +240,28 @@ def reset_orig_chapters_epub(inputio,outfile):
     outputepub.debug = 3
 
     changed = False
-    
+
+    unmerge_tocncxdoms = {}
+    ## spin through file contents, saving any unmerge toc.ncx files.
+    for zf in inputepub.namelist():
+        ## logger.debug("zf:%s"%zf)
+        if zf.endswith('/toc.ncx'):
+            ## logger.debug("toc.ncx zf:%s"%zf)
+            unmerge_tocncxdoms[zf] = parseString(inputepub.read(zf))
+
     tocncxdom = parseString(inputepub.read('toc.ncx'))
     ## spin through file contents.
     for zf in inputepub.namelist():
-        if zf not in ['mimetype','toc.ncx'] :
+        if zf not in ['mimetype','toc.ncx'] and not zf.endswith('/toc.ncx'):
             entrychanged = False
             data = inputepub.read(zf)
             # if isinstance(data,unicode):
             #     logger.debug("\n\n\ndata is unicode\n\n\n")
             if re.match(r'.*/file\d+\.xhtml',zf):
+                logger.debug("zf:%s"%zf)
                 data = data.decode('utf-8')
                 soup = bs.BeautifulSoup(data,"html5lib")
-                
+
                 chapterorigtitle = None
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
                 if tag:
@@ -265,7 +274,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                     chaptertoctitle = tag['content']
                 elif chapterorigtitle:
                     chaptertoctitle = chapterorigtitle
-                    
+
                 chaptertitle = None
                 tag = soup.find('meta',{'name':'chaptertitle'})
                 if tag:
@@ -281,26 +290,25 @@ def reset_orig_chapters_epub(inputio,outfile):
 
                     entrychanged = ( origdata != data )
                     changed = changed or entrychanged
-                    
+
                     if entrychanged:
-                        ## go after the TOC entry, too.
-                        # <navPoint id="file0005" playOrder="6">
-                        #   <navLabel>
-                        #     <text>5. (new) Chapter 4</text>
-                        #   </navLabel>
-                        #   <content src="OEBPS/file0005.xhtml"/>
-                        # </navPoint>
-                        for contenttag in tocncxdom.getElementsByTagName("content"):
-                            if contenttag.getAttribute('src') == zf:
-                                texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
-                                texttag.childNodes[0].replaceWholeText(chaptertoctitle)
-                                # logger.debug("text label:%s"%texttag.toxml())
-                                continue
-                    
+                        _replace_tocncx(tocncxdom,zf,chaptertoctitle)
+                        ## Also look for and update individual
+                        ## book toc.ncx files for anthology in case
+                        ## it's unmerged.
+                        zf_toc = zf[:zf.rfind('/OEBPS/')]+'/toc.ncx'
+                        mergedprefix_len = len(zf[:zf.rfind('/OEBPS/')])+1
+
+                        if zf_toc in unmerge_tocncxdoms:
+                            _replace_tocncx(unmerge_tocncxdoms[zf_toc],zf[mergedprefix_len:],chaptertoctitle)
+
                 outputepub.writestr(zf,data.encode('utf-8'))
             else:
                 # possibly binary data, thus no .encode().
                 outputepub.writestr(zf,data)
+
+    for tocnm, tocdom in unmerge_tocncxdoms.items():
+        outputepub.writestr(tocnm,tocdom.toxml(encoding='utf-8'))
 
     outputepub.writestr('toc.ncx',tocncxdom.toxml(encoding='utf-8'))
     outputepub.close()
@@ -308,7 +316,7 @@ def reset_orig_chapters_epub(inputio,outfile):
     # it runs in appengine, windows unzips the files as 000 perms.
     for zf in outputepub.filelist:
         zf.create_system = 0
-        
+
     # only *actually* write if changed.
     if changed:
         if isinstance(outfile,basestring):
@@ -319,5 +327,21 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     inputepub.close()
     zipio.close()
-            
+
     return changed
+
+
+def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
+    ## go after the TOC entry, too.
+    # <navPoint id="file0005" playOrder="6">
+    #   <navLabel>
+    #     <text>5. (new) Chapter 4</text>
+    #   </navLabel>
+    #   <content src="OEBPS/file0005.xhtml"/>
+    # </navPoint>
+    for contenttag in tocncxdom.getElementsByTagName("content"):
+        if contenttag.getAttribute('src') == zf:
+            texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
+            texttag.childNodes[0].replaceWholeText(chaptertoctitle)
+            logger.debug("text label:%s"%texttag.toxml())
+            continue
