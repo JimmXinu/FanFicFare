@@ -140,6 +140,7 @@ import adapter_forumssufficientvelocitycom
 import adapter_questionablequestingcom
 import adapter_ninelivesdarksolaceorg
 import adapter_masseffect2in
+import adapter_quotevcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
