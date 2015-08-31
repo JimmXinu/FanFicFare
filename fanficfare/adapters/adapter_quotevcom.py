@@ -18,7 +18,6 @@ def get_url_path_segments(url):
     return tuple(filter(None, url.split('/')[3:]))
 
 
-# TODO: Possibly add pages/readers/reads/favorites
 class QuotevComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -64,7 +63,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', element.get_text())
         self.story.setMetadata('authorId', get_url_path_segments(element['href'])[0])
         self.story.setMetadata('authorUrl', urlparse.urljoin(self.url, element['href']))
-        self.setDescription(self.url, self.utf8FromSoup(self.url, soup.find('div', id='qdesct')))
+        self.setDescription(self.url, soup.find('div', id='qdesct'))
         self.setCoverImage(self.url, urlparse.urljoin(self.url, soup.find('img', {'class': 'logo'})['src']))
 
         for a in soup.find('div', {'class': 'tag'})('a'):
@@ -72,12 +71,6 @@ class QuotevComAdapter(BaseSiteAdapter):
                 continue
 
             self.story.addToList('category', a.get_text())
-
-        self.story.setMetadata(
-            'status', 'Completed' if 'completed' in
-            soup.find('div', {'class': 't'})('div', recursive=False)[1].div.get_text()
-            else 'In-Progress'
-        )
 
         elements = soup('span', {'class': 'q_time'})
         self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(float(elements[0]['ts'])))
@@ -87,6 +80,22 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
+
+        element = soup.find('div', {'class': 't'})('div', recursive=False)[1].div
+        data = filter(None, (x.strip() for x in element('span')[1].next_sibling.split(u'\xb7')))
+
+        if 'completed' in data:
+            self.story.setMetadata('status', 'Completed')
+            data.remove('completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
+
+        for datum in data:
+            value, key = datum.split()
+            self.story.setMetadata(key, value.replace(',', '').replace('.', ''))
+
+        self.story.setMetadata('favorites', soup.find('div', id='favqn').get_text())
+        self.story.setMetadata('comments', soup.find('a', id='comment_btn').span.get_text())
 
     def getChapterText(self, url):
         data = self._fetchUrl(url)
