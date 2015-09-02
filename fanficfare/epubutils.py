@@ -258,7 +258,7 @@ def reset_orig_chapters_epub(inputio,outfile):
             # if isinstance(data,unicode):
             #     logger.debug("\n\n\ndata is unicode\n\n\n")
             if re.match(r'.*/file\d+\.xhtml',zf):
-                logger.debug("zf:%s"%zf)
+                #logger.debug("zf:%s"%zf)
                 data = data.decode('utf-8')
                 soup = bs.BeautifulSoup(data,"html5lib")
 
@@ -343,5 +343,5 @@ def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
         if contenttag.getAttribute('src') == zf:
             texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
             texttag.childNodes[0].replaceWholeText(chaptertoctitle)
-            logger.debug("text label:%s"%texttag.toxml())
+            #logger.debug("text label:%s"%texttag.toxml())
             continue
