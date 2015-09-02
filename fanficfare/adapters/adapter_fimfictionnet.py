@@ -178,8 +178,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if get_cover:
                 # try setting from href, if fails, try using the img src
                 if self.setCoverImage(self.url,coverurl)[0] == "failedtoload":
-                    coverurl = storyImage.find('img')['src']
-                    self.setCoverImage(self.url,coverurl)
+                    img = storyImage.find('img')
+                    # try src, then data-src, then leave None.
+                    coverurl = img.get('src',img.get('data-src',None))
+                    if coverurl:
+                        self.setCoverImage(self.url,coverurl)
 
             coverSource = storyImage.find('a', {'class':'source'})
             if coverSource:
