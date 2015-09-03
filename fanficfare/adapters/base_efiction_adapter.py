@@ -148,7 +148,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         Get the URL to a user page on this site.
         """
-        return "%s?sid=%s" % (self.getUrlForPhp(self.getViewUserPhpName()), userId)
+        return "%s?uid=%s" % (self.getUrlForPhp(self.getViewUserPhpName()), userId)
 
     @classmethod
     def getLoginUrl(self):
