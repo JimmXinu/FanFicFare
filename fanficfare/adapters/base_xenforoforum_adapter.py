@@ -131,7 +131,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                             self.story.setMetadata('dateUpdated', date)
                             
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
-                        
+
+                    ## only use tags if threadmarks for chapters.
+                    ##  a bit arbitrary, but likely.
+                    for tag in soup.findAll('a',{'class':'tag'}):
+                        self.story.addToList('forumtags',stripHTML(tag))
+
             soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
                 
         # Now go hunting for the 'chapter list'.
