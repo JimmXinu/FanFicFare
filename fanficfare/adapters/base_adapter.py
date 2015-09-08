@@ -600,7 +600,8 @@ class BaseSiteAdapter(Configurable):
                     if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
                         t.extract()
         except AttributeError, ae:
-            logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
+            if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
+                logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
         
         retval = unicode(soup)
 
