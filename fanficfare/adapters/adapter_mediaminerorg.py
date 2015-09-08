@@ -55,6 +55,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
             
+        # The date format will vary from site to site.
+        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        self.dateformat = "%B %d, %Y %H:%M"
+            
     @staticmethod
     def getSiteDomain():
         return 'www.mediaminer.org'
@@ -84,9 +88,10 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url+'/') # trailing / gets 'chapter list' page even for one-shots.
+            data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
         except urllib2.HTTPError, e:
             if e.code == 404:
+                logger.error("404 on %s"%url)
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
@@ -96,11 +101,13 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # [ A - All Readers ], strip '[' ']'
         ## Above title because we remove the smtxt font to get title.
-        smtxt = soup.find("font",{"class":"smtxt"})
+        smtxt = soup.find("h3",{"id":"post-rating"})
         if not smtxt:
+            logger.error("can't find rating")
             raise exceptions.StoryDoesNotExist(self.url)
-        rating = smtxt.string[1:-1]
-        self.story.setMetadata('rating',rating)
+        else:
+            rating = smtxt.string[1:-1]
+            self.story.setMetadata('rating',rating)
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/fanfic/src.php/u/\d+"))
@@ -116,37 +123,24 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ## <td class="ffh">The Kraut, The Bartender, and The Drunkard: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
         ## <td class="ffh">Betrayal and Justice: A Cold Heart</b> <font size="-1">( Chapter 1 )</font> <font class="smtxt">[ A - All Readers ]</font></td>
         ## <td class="ffh">Question and Answer: Question and Answer</b> <font size="-1">( One-Shot )</font> <font class="smtxt">[ A - All Readers ]</font></td>
-        title = soup.find('td',{'class':'ffh'})
-        for font in title.findAll('font'):
-            font.extract() # removes 'font' tags from inside the td.        
-        if title.has_attr('colspan'):
-            titlet = stripHTML(title)
-        else:
-            ## No colspan, it's part chapter title--even if it's a one-shot.
-            titlet = ':'.join(stripHTML(title).split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
-        self.story.setMetadata('title',titlet)
+        # title = soup.find('td',{'class':'ffh'})
+        # for font in title.findAll('font'):
+        #     font.extract() # removes 'font' tags from inside the td.        
+        # if title.has_attr('colspan'):
+        #     titlet = stripHTML(title)
+        # else:
+        #     ## No colspan, it's part chapter title--even if it's a one-shot.
+        #     titlet = ':'.join(stripHTML(title).split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
+        self.story.setMetadata('title',stripHTML(soup.find('h1',{'id':'post-title'})))
 
         # save date from first for later.
         firstdate=None
         
-        # Find the chapters
-        select = soup.find('select',{'name':'cid'})
-        if not select:
-            self.chapterUrls.append(( self.story.getMetadata('title'),self.url))
-        else:
-            for option in select.findAll("option"):
-                chapter = stripHTML(option.string)
-                ## chapter can be: Chapter 7 [Jan 23, 2011]
-                ##             or: Vigilant Moonlight ( Chapter 1 ) [Jan 30, 2004]
-                ##        or even: Prologue ( Prologue ) [Jul 31, 2010]
-                m = re.match(r'^(.*?) (\( .*? \) )?\[(.*?)\]$',chapter)
-                chapter = m.group(1)
-                # save date from first for later.
-                if not firstdate:
-                    firstdate = m.group(3)
-                # http://www.mediaminer.org/fanfic/view_ch.php?cid=376587&submit=View+Chapter&id=105816
-                # self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php/'+self.story.getMetadata('storyId')+'/'+option['value']))
-                self.chapterUrls.append((chapter,'http://'+self.host+'/fanfic/view_ch.php?submit=View Chapter&id='+self.story.getMetadata('storyId')+'&cid='+option['value']))
+        # Find the chapters - one-shot now have chapter list, too.
+        chap_p = soup.find('p',{'style':'margin-left:10px;'})
+        for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
+            self.chapterUrls.append((name,'http://'+self.host+'/'+aurl))
+            
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # category
@@ -155,27 +149,20 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             self.story.addToList('category',a.string)
         
         # genre
-        # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>
+        # <a href="/fanfic/src.php/g/567">Ranma 1/2</a>
         for a in soup.findAll('a',href=re.compile(r"^/fanfic/src.php/g/")):
             self.story.addToList('genre',a.string)
 
-        # if firstdate, then the block below will only have last updated.
-        if firstdate:
-            self.story.setMetadata('datePublished', makeDate(firstdate, "%b %d, %Y"))
-        # Everything else is in <tr bgcolor="#EEEED4">
-
-        metastr = stripHTML(soup.find("tr",{"bgcolor":"#EEEED4"})).replace('\n',' ').replace('\r',' ').replace('\t',' ')
-        # Latest Revision: August 03, 2010
-        m = re.match(r".*?(?:Latest Revision|Uploaded On): ([a-zA-Z]+ \d\d, \d\d\d\d)",metastr)
+        metastr = stripHTML(soup.find("div",{"class":"post-meta"}))
+        
+        # Latest Revision: February 07, 2015 15:21 PST
+        m = re.match(r".*?(?:Latest Revision|Uploaded On): ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",metastr)
         if m:
-            self.story.setMetadata('dateUpdated', makeDate(m.group(1), "%B %d, %Y"))
-            if not firstdate:
-                self.story.setMetadata('datePublished',
-                                       self.story.getMetadataRaw('dateUpdated'))
-                
-        else:
-            self.story.setMetadata('dateUpdated',
-                                   self.story.getMetadataRaw('datePublished'))
+            self.story.setMetadata('dateUpdated', makeDate(m.group(1), self.dateformat))
+            # site doesn't give date published on index page.
+            # set to updated, change in chapters below.
+            # self.story.setMetadata('datePublished',
+            #                        self.story.getMetadataRaw('dateUpdated'))
 
         # Words: 123456
         m = re.match(r".*?\| Words: (\d+) \|",metastr)
@@ -201,43 +188,54 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data=self._fetchUrl(url)
+        data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        header = soup.find('div',{'class':'post-meta clearfix '})
+        headerstr = stripHTML(soup.find('div',{'class':'post-meta clearfix '}))
         # print("data:%s"%data)
+        #header.extract()
 
-        chapter=self.make_soup('<div class="story"></div>').find('div')
-
-        if None == header:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        ## find divs with align=left, those are paragraphs in newer stories.
-        divlist = header.findAllNext('div',{'align':'left'})
-        if divlist:
-            for div in divlist:
-                div.name='p' # convert to <p> mediaminer uses div with
-                             # a margin for paragraphs.
-                chapter.append(div)
-                del div['style']
-                del div['align']
-            return self.utf8FromSoup(url,chapter)
-        
-        else:
-            logger.debug('Using kludgey text find for older mediaminer story.')
-            ## Some older mediaminer stories are unparsable with BeautifulSoup.
-            ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
-            ## Story stuff falls between:
-            data = "<div id='HERE'>" + data[data.find('<div class="adWrap">'):data.find('<div class="addthis_sharing_toolbox">')] +"</div>"
-            soup = self.make_soup(data)
-            for tag in soup.findAll('td',{'class':'ffh'}) + \
-                    soup.findAll('div',{'class':'acl'}) + \
-                    soup.findAll('div',{'class':'adWrap'}) + \
-                    soup.findAll('div',{'class':'footer smtxt'}) + \
-                    soup.findAll('table',{'class':'tbbrdr'}):
-                tag.extract() # remove tag from soup.
+        m = re.match(r".*?Uploaded On: ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",headerstr)
+        if m:
+            date = makeDate(m.group(1), self.dateformat)
+            if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
+                self.story.setMetadata('datePublished', date)
                 
-            return self.utf8FromSoup(url,soup)
+        chapter = soup.find('div',{'id':'fanfic-text'})
+        
+        return self.utf8FromSoup(url,chapter)
+    
+        # chapter=self.make_soup('<div class="story"></div>').find('div')
+
+        # if None == header:
+        #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+        # ## find divs with align=left, those are paragraphs in newer stories.
+        # divlist = header.findAllNext('div',{'align':'left'})
+        # if divlist:
+        #     for div in divlist:
+        #         div.name='p' # convert to <p> mediaminer uses div with
+        #                      # a margin for paragraphs.
+        #         chapter.append(div)
+        #         del div['style']
+        #         del div['align']
+        #     return self.utf8FromSoup(url,chapter)
+        
+        # else:
+        #     logger.debug('Using kludgey text find for older mediaminer story.')
+        #     ## Some older mediaminer stories are unparsable with BeautifulSoup.
+        #     ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
+        #     ## Story stuff falls between:
+        #     data = "<div id='HERE'>" + data[data.find('<div class="adWrap">'):data.find('<div class="addthis_sharing_toolbox">')] +"</div>"
+        #     soup = self.make_soup(data)
+        #     for tag in soup.findAll('td',{'class':'ffh'}) + \
+        #             soup.findAll('div',{'class':'acl'}) + \
+        #             soup.findAll('div',{'class':'adWrap'}) + \
+        #             soup.findAll('div',{'class':'footer smtxt'}) + \
+        #             soup.findAll('table',{'class':'tbbrdr'}):
+        #         tag.extract() # remove tag from soup.
+                
+        #     return self.utf8FromSoup(url,soup)
         
 
 def getClass():
