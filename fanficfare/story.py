@@ -929,7 +929,10 @@ class Story(Configurable):
             values={}
             pattern = re_compile(self.getConfig("output_filename_safepattern",r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),"output_filename_safepattern")
             for k in origvalues.keys():
-                values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
+                if k == 'formatext': # don't do file extension--we set it anyway.
+                    values[k]=self.getMetadata(k)
+                else:
+                    values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
 
         return string.Template(template).substitute(values).encode('utf8')
 
