@@ -117,7 +117,7 @@ save_collisions={
     SAVE_CALIBREONLY:CALIBREONLY,
     SAVE_CALIBREONLYSAVECOL:CALIBREONLYSAVECOL,
     }
-    
+
 anthology_collision_order=[UPDATE,
                            UPDATEALWAYS,
                            OVERWRITEALWAYS]
@@ -127,7 +127,7 @@ gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-botto
 class RejectUrlEntry:
 
     matchpat=re.compile(r"^(?P<url>[^,]+?)(,(?P<fullnote>(((?P<title>.+?) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
-    
+
     def __init__(self,url_or_line,note=None,title=None,auth=None,
                  addreasontext=None,fromline=False,book_id=None):
 
@@ -151,7 +151,7 @@ class RejectUrlEntry:
                 self.note=note
                 self.title=title
                 self.auth=auth
-        
+
         if not self.note:
             if addreasontext:
                 self.note = addreasontext
@@ -160,14 +160,14 @@ class RejectUrlEntry:
         else:
             if addreasontext:
                 self.note = self.note + ' - ' + addreasontext
-                
+
         self.url = getNormalStoryURL(self.url)
         self.valid = self.url != None
-                
+
     def to_line(self):
         # always 'url,'
         return self.url+","+self.fullnote()
-        
+
     def fullnote(self):
         retval = ""
         if self.title and self.auth:
@@ -175,10 +175,10 @@ class RejectUrlEntry:
             retval = retval + "%s by %s"%(self.title,self.auth)
             if self.note:
                 retval = retval + " - "
-                
+
         if self.note:
             retval = retval + self.note
-            
+
         return retval
 
 class NotGoingToDownload(Exception):
@@ -222,7 +222,7 @@ class DroppableQTextEdit(QTextEdit):
             self.append("\n".join(urllist))
             return None
         return QTextEdit.dropEvent(self,event)
-        
+
     def canInsertFromMimeData(self, source):
         if source.hasUrls():
             return True
@@ -234,7 +234,7 @@ class DroppableQTextEdit(QTextEdit):
             self.append(source.text())
         else:
             return QTextEdit.insertFromMimeData(self, source)
-                            
+
 class AddNewDialog(SizePersistedDialog):
 
     go_signal = pyqtSignal(object, object, object, object)
@@ -242,7 +242,7 @@ class AddNewDialog(SizePersistedDialog):
     def __init__(self, gui, prefs, icon):
         SizePersistedDialog.__init__(self, gui, 'fff:add new dialog')
         self.prefs = prefs
-        
+
         self.setMinimumWidth(300)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -259,7 +259,7 @@ class AddNewDialog(SizePersistedDialog):
 
         self.merge = self.newmerge = False
         self.extraoptions = {}
-        
+
         # elements to hide when doing merge.
         self.mergehide = []
         # elements to show again when doing *update* merge
@@ -282,11 +282,11 @@ class AddNewDialog(SizePersistedDialog):
 
         self.gbf.setVisible(False)
         self.groupbox.toggled.connect(self.gbf.setVisible)
-        
+
         horz = QHBoxLayout()
         label = QLabel(_('Output &Format:'))
         self.mergehide.append(label)
-        
+
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
         self.fileform.addItem('mobi')
@@ -294,7 +294,7 @@ class AddNewDialog(SizePersistedDialog):
         self.fileform.addItem('txt')
         self.fileform.setToolTip(_('Choose output format to create.  May set default from plugin configuration.'))
         self.fileform.activated.connect(self.set_collisions)
-        
+
         horz.addWidget(label)
         label.setBuddy(self.fileform)
         horz.addWidget(self.fileform)
@@ -332,7 +332,7 @@ class AddNewDialog(SizePersistedDialog):
         self.updateepubcover.setChecked(self.prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
         self.mergehide.append(self.updateepubcover)
-        
+
         self.gbl.addLayout(horz)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -340,7 +340,7 @@ class AddNewDialog(SizePersistedDialog):
         self.button_box.rejected.connect(self.reject)
         self.l.addWidget(self.button_box)
 
-    # invoke the 
+    # invoke the
     def ok_clicked(self):
         self.dialog_closing(None) # save persistent size.
         self.hide()
@@ -376,7 +376,7 @@ class AddNewDialog(SizePersistedDialog):
         self.extrapayload = extrapayload
 
         self.groupbox.setVisible(not(self.merge and self.newmerge))
-        
+
         if self.merge:
             self.toplabel.setText(_('Story URLs for anthology, one per line:'))
             self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
@@ -398,7 +398,7 @@ class AddNewDialog(SizePersistedDialog):
         # Need to re-able after hiding/showing
         self.setAcceptDrops(True)
         self.url.setFocus()
-            
+
         if self.prefs['adddialogstaysontop']:
             QDialog.setWindowFlags ( self, Qt.Dialog | Qt.WindowStaysOnTopHint )
         else:
@@ -415,18 +415,18 @@ class AddNewDialog(SizePersistedDialog):
         i = self.collision.findText(save_collisions[self.prefs['collision']])
         if i > -1:
             self.collision.setCurrentIndex(i)
-            
+
         self.updatemeta.setChecked(self.prefs['updatemeta'])
-            
+
         if not self.merge:
             self.updateepubcover.setChecked(self.prefs['updateepubcover'])
-                
+
         self.url.setText(url_list_text)
         if url_list_text:
             self.button_box.button(QDialogButtonBox.Ok).setFocus()
         # restore saved size.
         self.resize_dialog()
-        
+
         if show: # so anthology update can be modal still.
             self.show()
         #self.resize(self.sizeHint())
@@ -447,11 +447,11 @@ class AddNewDialog(SizePersistedDialog):
 
         for o in order:
             self.collision.addItem(o)
-            
+
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)
-        
+
     def get_fff_options(self):
         retval =  {
             'fileform': unicode(self.fileform.currentText()),
@@ -460,14 +460,14 @@ class AddNewDialog(SizePersistedDialog):
             'updateepubcover': self.updateepubcover.isChecked(),
             'smarten_punctuation':self.prefs['smarten_punctuation']
                 }
-        
+
         if self.merge:
             retval['fileform']=='epub'
             retval['updateepubcover']=True
             if self.newmerge:
                 retval['updatemeta']=True
                 retval['collision']=ADDNEW
-            
+
         return dict(retval.items() + self.extraoptions.items() )
 
     def get_urlstext(self):
@@ -477,21 +477,21 @@ class AddNewDialog(SizePersistedDialog):
 class FakeLineEdit():
     def __init__(self):
         pass
-    
+
     def text(self):
         pass
-    
+
 class CollectURLDialog(SizePersistedDialog):
     '''
     Collect single url for get urls.
     '''
-    def __init__(self, gui, title, url_text, anthology=False, indiv=True): 
+    def __init__(self, gui, title, url_text, anthology=False, indiv=True):
         SizePersistedDialog.__init__(self, gui, 'fff:get story urls')
         self.status=False
         self.anthology=False
 
         self.setMinimumWidth(300)
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -561,16 +561,16 @@ class UserPassDialog(QDialog):
         else:
             self.setWindowTitle(_('User/Password'))
             self.l.addWidget(QLabel(_("%s requires you to login to download this story.")%site),0,0,1,2)
-        
+
             self.l.addWidget(QLabel(_("User:")),1,0)
             self.user = QLineEdit(self)
             self.l.addWidget(self.user,1,1)
-   
+
         self.l.addWidget(QLabel(_("Password:")),2,0)
         self.passwd = QLineEdit(self)
         self.passwd.setEchoMode(QLineEdit.Password)
         self.l.addWidget(self.passwd,2,1)
-   
+
         self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.ok)
         self.l.addWidget(self.ok_button,3,0)
@@ -616,6 +616,9 @@ class LoopProgressDialog(QProgressDialog):
         from calibre_plugins.fanficfare_plugin.prefs import prefs
         self.show_est_time = prefs['show_est_time']
 
+        self.setLabelText('%s %d / %d' % (self.status_prefix, self.i, len(self.book_list)))
+        self.setValue(self.i)
+
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
         ## A weird way to do a loop, but that was the example I had.
         QTimer.singleShot(0, self.do_loop)
@@ -642,7 +645,7 @@ class LoopProgressDialog(QProgressDialog):
             ## collision spec passed into getadapter by partial from fff_plugin
             ## no retval only if it exists, but collision is SKIP
             self.foreach_function(book)
-            
+
         except NotGoingToDownload as d:
             book['good']=False
             book['comment']=unicode(d)
@@ -653,10 +656,10 @@ class LoopProgressDialog(QProgressDialog):
             book['comment']=unicode(e)
             logger.error("Exception: %s:%s"%(book,unicode(e)))
             traceback.print_exc()
-            
+
         self.updateStatus()
         self.i += 1
-            
+
         if self.i >= len(self.book_list) or self.wasCanceled():
             return self.do_when_finished()
         else:
@@ -747,7 +750,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.prefs = prefs
         self.setWindowTitle(header)
         self.setWindowIcon(icon)
-        
+
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         title_layout = ImageTitleLayout(self, 'images/icon.png',
@@ -790,7 +793,7 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         gbf.setVisible(False)
         groupbox.toggled.connect(gbf.setVisible)
-        
+
         label = QLabel(_('Output &Format:'))
         gbl.addWidget(label)
         self.fileform = QComboBox(self)
@@ -803,7 +806,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
         gbl.addWidget(self.fileform)
-        
+
         label = QLabel(_('Update Mode:'))
         gbl.addWidget(label)
         self.collision = QComboBox(self)
@@ -820,21 +823,21 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
         self.updatemeta.setChecked(self.prefs['updatemeta'])
         gbl.addWidget(self.updatemeta)
-                
+
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
         self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
         self.updateepubcover.setChecked(self.prefs['updateepubcover'])
         gbl.addWidget(self.updateepubcover)
 
 
-        
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         options_layout.addWidget(button_box)
-        
+
         layout.addLayout(options_layout)
-        
+
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
         self.books_table.populate_table(books)
@@ -850,14 +853,14 @@ class UpdateExistingDialog(SizePersistedDialog):
             order.remove(UPDATEALWAYS)
         if self.prefs['savemetacol'] == '':
             order.remove(CALIBREONLYSAVECOL)
-            
+
         for o in order:
             self.collision.addItem(o)
-            
+
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)
-        
+
     def remove_from_list(self):
         self.books_table.remove_selected_rows()
 
@@ -924,16 +927,16 @@ class StoryListTableWidget(QTableWidget):
         status_cell = IconWidgetItem(None,icon,val)
         status_cell.setData(Qt.UserRole, val)
         self.setItem(row, 0, status_cell)
-        
+
         title_cell = ReadOnlyTableWidgetItem(book['title'])
         title_cell.setData(Qt.UserRole, row)
         self.setItem(row, 1, title_cell)
-        
+
         self.setItem(row, 2, AuthorTableWidgetItem(", ".join(book['author']), ", ".join(book['author_sort'])))
-        
+
         url_cell = ReadOnlyTableWidgetItem(book['url'])
         self.setItem(row, 3, url_cell)
-        
+
         comment_cell = ReadOnlyTableWidgetItem(book['comment'])
         self.setItem(row, 4, comment_cell)
 
@@ -1011,9 +1014,9 @@ class RejectListTableWidget(QTableWidget):
         self.setItem(row, 0, url_cell)
         self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
         self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
-        
+
         note_cell = EditWithComplete(self,sort_func=lambda x:1)
-        
+
         items = [rej.note]+self.rejectreasons
         note_cell.update_items_cache(items)
         note_cell.show_initial_value(rej.note)
@@ -1021,7 +1024,7 @@ class RejectListTableWidget(QTableWidget):
         note_cell.setToolTip(_('Select or Edit Reject Note.'))
         self.setCellWidget(row, 3, note_cell)
         note_cell.setCursorPosition(0)
-        
+
     def remove_selected_rows(self):
         self.setFocus()
         rows = self.selectionModel().selectedRows()
@@ -1053,10 +1056,10 @@ class RejectListDialog(SizePersistedDialog):
                  show_all_reasons=True,
                  save_size_name='fff:reject list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
-      
+
         self.setWindowTitle(header)
         self.setWindowIcon(get_icon(icon))
-      
+
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         title_layout = ImageTitleLayout(self, icon, header,
@@ -1072,7 +1075,7 @@ class RejectListDialog(SizePersistedDialog):
         rejects_layout.addLayout(button_layout)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         button_layout.addItem(spacerItem)
-        
+
         self.remove_button = QtGui.QToolButton(self)
         self.remove_button.setToolTip(_('Remove selected URLs from the list'))
         self.remove_button.setIcon(get_icon('list_remove.png'))
@@ -1084,13 +1087,13 @@ class RejectListDialog(SizePersistedDialog):
 
         if show_all_reasons:
             self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
-            
+
             items = ['']+rejectreasons
             self.reason_edit.update_items_cache(items)
             self.reason_edit.show_initial_value('')
             self.reason_edit.set_separator(None)
             self.reason_edit.setToolTip(_("This will be added to whatever note you've set for each URL above."))
-            
+
             horz = QHBoxLayout()
             label = QLabel(_("Add this reason to all URLs added:"))
             label.setToolTip(_("This will be added to whatever note you've set for each URL above."))
@@ -1099,7 +1102,7 @@ class RejectListDialog(SizePersistedDialog):
             self.reason_edit.setCursorPosition(0)
             horz.insertStretch(-1)
             layout.addLayout(horz)
-                    
+
         options_layout = QHBoxLayout()
 
         if show_delete:
@@ -1107,14 +1110,14 @@ class RejectListDialog(SizePersistedDialog):
             self.deletebooks.setToolTip(_("Delete the selected books after adding them to the Rejected URLs list."))
             self.deletebooks.setChecked(True)
             options_layout.addWidget(self.deletebooks)
-        
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         options_layout.addWidget(button_box)
-      
+
         layout.addLayout(options_layout)
-      
+
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
         self.rejects_table.populate_table(reject_list)
@@ -1147,7 +1150,7 @@ class RejectListDialog(SizePersistedDialog):
         except:
             # doesn't have self.reason_edit when editing existing list.
             return None
-    
+
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
@@ -1169,7 +1172,7 @@ class EditTextDialog(SizePersistedDialog):
         if icon:
             self.setWindowIcon(icon)
         self.l.addWidget(self.label)
-        
+
         self.textedit = QTextEdit(self)
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
         self.textedit.setReadOnly(read_only)
@@ -1182,13 +1185,13 @@ class EditTextDialog(SizePersistedDialog):
 
         if rejectreasons or reasonslabel:
             self.reason_edit = EditWithComplete(self,sort_func=lambda x:1)
-            
+
             items = ['']+rejectreasons
             self.reason_edit.update_items_cache(items)
             self.reason_edit.show_initial_value('')
             self.reason_edit.set_separator(None)
             self.reason_edit.setToolTip(reasonslabel)
-            
+
             if reasonslabel:
                 horz = QHBoxLayout()
                 label = QLabel(reasonslabel)
@@ -1199,12 +1202,12 @@ class EditTextDialog(SizePersistedDialog):
             else:
                 self.l.addWidget(self.reason_edit)
             self.reason_edit.setCursorPosition(0)
-            
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.l.addWidget(button_box)
-        
+
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
@@ -1213,7 +1216,7 @@ class EditTextDialog(SizePersistedDialog):
 
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
-    
+
 class IniTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
@@ -1223,9 +1226,9 @@ class IniTextDialog(SizePersistedDialog):
                  save_size_name='fff:ini text dialog',
                  ):
         SizePersistedDialog.__init__(self, parent, save_size_name)
-        
+
         self.keys=dict()
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.label = QLabel(label)
@@ -1234,7 +1237,7 @@ class IniTextDialog(SizePersistedDialog):
         if icon:
             self.setWindowIcon(icon)
         self.l.addWidget(self.label)
-        
+
         self.textedit = QTextEdit(self)
 
         highlighter = IniHighlighter(self.textedit,
@@ -1243,7 +1246,7 @@ class IniTextDialog(SizePersistedDialog):
                                      entries=get_valid_entries(),
                                      entry_keywords=get_valid_entry_keywords(),
                                      )
-        
+
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
         try:
             self.textedit.setFont(QFont("Courier",
@@ -1261,41 +1264,41 @@ class IniTextDialog(SizePersistedDialog):
         if use_find:
 
             findtooltip=_('Search for string in edit box.')
-            
+
             horz = QHBoxLayout()
             label = QLabel(_('Find:'))
 
             label.setToolTip(findtooltip)
-                
+
             # Button to search the document for something
             self.findButton = QtGui.QPushButton(_('Find'),self)
             self.findButton.clicked.connect(self.find)
             self.findButton.setToolTip(findtooltip)
-        
+
             # The field into which to type the query
             self.findField = QLineEdit(self)
             self.findField.setToolTip(findtooltip)
             self.findField.returnPressed.connect(self.findButton.setFocus)
-            
+
             # Case Sensitivity option
             self.caseSens = QtGui.QCheckBox(_('Case sensitive'),self)
             self.caseSens.setToolTip(_("Search for case sensitive string; don't treat Harry, HARRY and harry all the same."))
-            
+
             horz.addWidget(label)
             horz.addWidget(self.findField)
             horz.addWidget(self.findButton)
             horz.addWidget(self.caseSens)
-            
+
             self.l.addLayout(horz)
 
             self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
             self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
-        
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.l.addWidget(button_box)
-        
+
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
@@ -1311,9 +1314,9 @@ class IniTextDialog(SizePersistedDialog):
                         _('Go back to fix errors?'),
                         errors)
             retry = d.exec_() == d.Accepted
-            
+
             # print("retry:%s"%retry)
-        
+
         if retry:
             lineno=d.get_lineno()
             if lineno:
@@ -1335,19 +1338,19 @@ class IniTextDialog(SizePersistedDialog):
             return func()
         else:
             return SizePersistedDialog.keyPressEvent(self, event)
-    
+
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
 
     def findFocus(self):
         # print("findFocus called")
         self.findField.setFocus()
-        self.findField.selectAll()        
-        
+        self.findField.selectAll()
+
     def find(self):
 
         #print("find self.lastStart:%s"%self.lastStart)
-        
+
         # Grab the parent's text
         text = self.textedit.toPlainText()
 
@@ -1362,7 +1365,7 @@ class IniTextDialog(SizePersistedDialog):
         # last starting position
         self.lastStart = text.find(query,self.lastStart + 1)
         # If the find() method didn't return -1 (not found)
-        
+
         if self.lastStart >= 0:
             end = self.lastStart + len(query)
             self.moveCursor(self.lastStart,end)
@@ -1370,7 +1373,7 @@ class IniTextDialog(SizePersistedDialog):
             # Make the next search start from the begining again
             self.lastStart = 0
             self.textedit.moveCursor(self.textedit.textCursor().Start)
-                    
+
     def moveCursor(self,start,end):
 
         # We retrieve the QTextCursor object from the parent's QTextEdit
@@ -1387,7 +1390,7 @@ class IniTextDialog(SizePersistedDialog):
         self.textedit.setTextCursor(cursor)
 
     def select_line(self,lineno):
-        
+
         # We retrieve the QTextCursor object from the parent's QTextEdit
         cursor = self.textedit.textCursor()
 
@@ -1413,8 +1416,8 @@ class ViewLog(SizePersistedDialog):
 
     def get_lineno(self):
         return self.lineno
-        
-    def __init__(self, parent, title, errors, 
+
+    def __init__(self, parent, title, errors,
                  save_size_name='fff:view log dialog',):
         SizePersistedDialog.__init__(self, parent,save_size_name)
         self.l = l = QVBoxLayout()
@@ -1435,9 +1438,9 @@ class ViewLog(SizePersistedDialog):
             label.setToolTip(_('Click to go to line %s')%lineno)
             label.mouseReleaseEvent = partial(self.label_clicked, lineno=lineno)
             self.l.addWidget(label)
-        
+
         # html='<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>'
-        
+
         # self.tb = QTextBrowser(self)
         # self.tb.setFont(QFont("Courier",
         #                       parent.font().pointSize()+1))
@@ -1455,13 +1458,13 @@ class ViewLog(SizePersistedDialog):
         saveanyway = QPushButton(_('Save Anyway'), self)
         saveanyway.clicked.connect(self.reject)
         horz.addWidget(saveanyway)
-        
+
         l.addLayout(horz)
         self.setModal(False)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(I('debug.png')))
         #self.show()
-        
+
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
@@ -1482,7 +1485,7 @@ class EmailPassDialog(QDialog):
 
         self.setWindowTitle(_('Password'))
         self.l.addWidget(QLabel(_("Enter Email Password for %s:")%user),0,0,1,2)
-   
+
         # self.l.addWidget(QLabel(_("Password:")),1,0)
         self.passwd = QLineEdit(self)
         self.passwd.setEchoMode(QLineEdit.Password)
