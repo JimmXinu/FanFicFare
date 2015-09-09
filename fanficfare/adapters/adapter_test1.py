@@ -81,6 +81,12 @@ class TestSiteAdapter(BaseSiteAdapter):
             
             return
 
+        if idnum >= 700 and idnum <= 710:
+            self._setURL('http://test1.com?sid=%s'%(idnum+100))
+            self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+            idstr = self.story.getMetadata('storyId')
+            idnum = int(idstr)
+
         if idstr == '665' and not (self.is_adult or self.getConfig("is_adult")):
             logger.warn("self.is_adult:%s"%self.is_adult)
             raise exceptions.AdultCheckRequired(self.url)
