@@ -454,6 +454,10 @@ class FanFicFarePlugin(InterfaceAction):
                                       imap_pass,
                                       prefs['imapfolder'],
                                       prefs['imapmarkread'],)
+
+        ## reject will now be redundant with reject check inside
+        ## prep_downloads because of change-able story URLs.
+        ## Keeping here to because it's the far more common case.
         reject_list=set()
         if prefs['auto_reject_from_email']:
             # need to normalize for reject list.
@@ -931,6 +935,43 @@ class FanFicFarePlugin(InterfaceAction):
         # LoopProgressDialog calls start_download_job at the end which goes
         # into the BG, or shows list if no 'good' books.
 
+    def reject_url(self,merge,book):
+        url = book['url']
+        if not merge and rejecturllist.check(url): # skip reject list when merging.
+            rejnote = rejecturllist.get_full_note(url)
+            if prefs['reject_always'] or question_dialog(self.gui, _('Reject URL?'),'''
+                      <h3>%s</h3>
+                      <p>%s</p>
+                      <p>"<b>%s</b>"</p>
+                      <p>%s</p>
+                      <p>%s</p>'''%(
+                    _('Reject URL?'),
+                    _('<b>%s</b> is on your Reject URL list:')%url,
+                    rejnote,
+                    _("Click '<b>Yes</b>' to Reject."),
+                    _("Click '<b>No</b>' to download anyway.")),
+                               show_copy_button=False):
+                book['comment'] = _("Story on Reject URLs list (%s).")%rejnote
+                book['good']=False
+                book['icon']='rotate-right.png'
+                book['status'] = _('Rejected')
+                return True
+            else:
+                if question_dialog(self.gui, _('Remove Reject URL?'),'''
+                          <h3>%s</h3>
+                          <p>%s</p>
+                          <p>"<b>%s</b>"</p>
+                          <p>%s</p>
+                          <p>%s</p>'''%(
+                        _("Remove URL from Reject List?"),
+                        _('<b>%s</b> is on your Reject URL list:')%url,
+                        rejnote,
+                        _("Click '<b>Yes</b>' to remove it from the list,"),
+                        _("Click '<b>No</b>' to leave it on the list.")),
+                                   show_copy_button=False):
+                    rejecturllist.remove(url)
+        return False
+            
     def prep_download_loop(self,book,
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
@@ -947,40 +988,11 @@ class FanFicFarePlugin(InterfaceAction):
         logger.debug("url:%s"%url)
         mi = None
 
-        if not merge: # skip reject list when merging.
-            if rejecturllist.check(url):
-                rejnote = rejecturllist.get_full_note(url)
-                if prefs['reject_always'] or question_dialog(self.gui, _('Reject URL?'),'''
-                          <h3>%s</h3>
-                          <p>%s</p>
-                          <p>"<b>%s</b>"</p>
-                          <p>%s</p>
-                          <p>%s</p>'''%(
-                        _('Reject URL?'),
-                        _('<b>%s</b> is on your Reject URL list:')%url,
-                        rejnote,
-                        _("Click '<b>Yes</b>' to Reject."),
-                        _("Click '<b>No</b>' to download anyway.")),
-                                   show_copy_button=False):
-                    book['comment'] = _("Story on Reject URLs list (%s).")%rejnote
-                    book['good']=False
-                    book['icon']='rotate-right.png'
-                    book['status'] = _('Rejected')
-                    return
-                else:
-                    if question_dialog(self.gui, _('Remove Reject URL?'),'''
-                              <h3>%s</h3>
-                              <p>%s</p>
-                              <p>"<b>%s</b>"</p>
-                              <p>%s</p>
-                              <p>%s</p>'''%(
-                            _("Remove URL from Reject List?"),
-                            _('<b>%s</b> is on your Reject URL list:')%url,
-                            rejnote,
-                            _("Click '<b>Yes</b>' to remove it from the list,"),
-                            _("Click '<b>No</b>' to leave it on the list.")),
-                                       show_copy_button=False):
-                        rejecturllist.remove(url)
+        ## Check reject list.  Redundant with below for when story URL
+        ## changes, but also kept here to avoid network hit in most
+        ## common case where given url is story url.
+        if self.reject_url(merge,book):
+            return
 
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
@@ -1074,7 +1086,16 @@ class FanFicFarePlugin(InterfaceAction):
     
             # let other exceptions percolate up.
             story = adapter.getStoryMetadataOnly(get_cover=False)
+            book['title'] = story.getMetadata('title')
+            book['author'] = [story.getMetadata('author')]
+            book['url'] = story.getMetadata('storyUrl')
     
+            ## Check reject list.  Redundant with below for when story
+            ## URL changes, but also kept here to avoid network hit in
+            ## most common case where given url is story url.
+            if self.reject_url(merge,book):
+                return
+
             series = story.getMetadata('series')
             if not merge and series and prefs['checkforseriesurlid']:
                 # try to find *series anthology* by *seriesUrl* identifier url or uri first.
@@ -1094,6 +1115,7 @@ class FanFicFarePlugin(InterfaceAction):
                     book['comment'] = _("Story in Series Anthology(%s).")%series
                     book['title'] = story.getMetadata('title')
                     book['author'] = [story.getMetadata('author')]
+                    book['url'] = story.getMetadata('storyUrl')
                     book['good']=False
                     book['icon']='rotate-right.png'
                     book['status'] = _('Skipped')
@@ -1114,6 +1136,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['title'] = story.getMetadata("title", removeallentities=True)
         book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
         book['publisher'] = story.getMetadata("site")
+        book['url'] = story.getMetadata("storyUrl")
         book['tags'] = story.getSubjectTags(removeallentities=True)
         if story.getMetadata("description"):
             book['comments'] = sanitize_comments_html(story.getMetadata("description"))
