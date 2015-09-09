@@ -98,6 +98,26 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
 
         # Now go hunting for all the meta data and the chapter list.
         
+        # set first URL
+        a = soup.find('a', href=re.compile(r"viewstory.php\?sid=\d+"))
+        self._setURL('http://' + self.getSiteDomain() + '/eff/'+a['href'])
+        if self.parsedUrl.query.split('=',)[1] != self.story.getMetadata('storyId'):
+            self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+            url = self.url
+            logger.debug("reset URL: "+url)
+            try:
+                data = self._fetchUrl(url)
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    raise exceptions.StoryDoesNotExist(self.url)
+                else:
+                    raise e
+
+            # use BeautifulSoup HTML parser to make everything easier to find.
+            soup = bs.BeautifulSoup(data)
+            
+#        self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(a).group('storyId'))
+        
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
