@@ -40,16 +40,23 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
+        urltitle='urltitle'
         if m:
-            if m.group('id'):
-                self.story.setMetadata('storyId',m.group('id'))
+            if m.group('id1'):
+                self.story.setMetadata('storyId',m.group('id1'))
+                urltitle=m.group('urltitle1')
             elif m.group('id2'):
                 self.story.setMetadata('storyId',m.group('id2'))
+                urltitle=m.group('urltitle2')
             elif m.group('id3'):
-                self.story.setMetadata('storyId',m.group('id2'))
+                self.story.setMetadata('storyId',m.group('id3'))
+            else:
+                raise InvalidStoryURL(url,
+                                      self.getSiteDomain(),
+                                      self.getSiteExampleURLs())
             
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/fanfic/view_st.php/'+self.story.getMetadata('storyId'))
+            self._setURL('http://' + self.getSiteDomain() + '/fanfic/s/'+urltitle+'/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -65,18 +72,21 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfic/view_st.php/123456 http://"+cls.getSiteDomain()+"/fanfic/view_ch.php/1234123/123444#fic_c"
+        return "http://"+cls.getSiteDomain()+"/fanfic/s/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/1234123/123444#fic_c"
 
     def getSiteURLPattern(self):
-        ##  http://www.mediaminer.org/fanfic/view_st.php/76882
-        ##  http://www.mediaminer.org/fanfic/view_ch.php/167618/594087#fic_c
-        ##  http://www.mediaminer.org/fanfic/view_ch.php?submit=View+Chapter&id=105816&cid=357151
-        ##  http://www.mediaminer.org/fanfic/view_ch.php?cid=612153&submit=View+Chapter&id=171668
-        return re.escape("http://"+self.getSiteDomain())+\
-            r"/fanfic/view_(st|ch)\.php"+\
-            r"(/(?P<id>\d+)(/\d+(#fic_c)?)?/?|"+\
-            r"\?((submit=View(\+| )Chapter|id=(?P<id2>\d+)|cid=\d+)&?)+)"
-
+        ## old urls
+        ## http://www.mediaminer.org/fanfic/view_st.php/76882
+        ## new urls
+        ## http://www.mediaminer.org/fanfic/s/ghosts-from-the-past/72
+        ## http://www.mediaminer.org/fanfic/c/ghosts-from-the-past/chapter-2/72/174
+        ## http://www.mediaminer.org/fanfic/s/robtech-final-missions/61553
+        ## http://www.mediaminer.org/fanfic/c/robtech-final-missions/robotech-final-missions-oneshot/61553/189830
+        return re.escape("http://"+self.getSiteDomain())+r"/fanfic/"+\
+            r"((s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
+            r"((c/(?P<urltitle2>[^/]+)/[^/]+/(?P<id2>\d+))/\d+)|"+\
+            r"(view_st\.php/(?P<id3>\d+)))"
+            
     # Override stripURLParameters so the id parameter won't get stripped
     @classmethod
     def stripURLParameters(cls, url):
@@ -139,7 +149,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Find the chapters - one-shot now have chapter list, too.
         chap_p = soup.find('p',{'style':'margin-left:10px;'})
         for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
-            self.chapterUrls.append((name,'http://'+self.host+'/'+aurl))
+            self.chapterUrls.append((name,'http://'+self.host+aurl))
             
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
