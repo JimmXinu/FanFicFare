@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Dex <dexteritymaster@gmail.com>, 2014-2015
+# Andrii <dexteritymaster@gmail.com>, 2014-2015
 # Yuri Chornoivan <yurchor@ukr.net>, 2014
 msgid ""
 msgstr ""
