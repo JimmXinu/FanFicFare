@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 
 from base_xenforoforum_adapter import BaseXenForoForumAdapter
 
@@ -33,3 +34,15 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'questionablequesting.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ["forum."+cls.getSiteDomain(),cls.getSiteDomain()]
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['base_xenforoforum','forum.'+cls.getSiteDomain(),cls.getSiteDomain()]
+    
+    def getSiteURLPattern(self):
+        return r'https?://(forum.)?'+re.escape(self.getSiteDomain())+r'/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?'
+        
