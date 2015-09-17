@@ -72,7 +72,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfic/s/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/1234123/123444#fic_c"
+        return "http://"+cls.getSiteDomain()+"/fanfic/s/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/story-title/chapter-title/123456/987612"
 
     def getSiteURLPattern(self):
         ## old urls
