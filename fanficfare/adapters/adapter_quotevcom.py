@@ -95,7 +95,8 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata(key, value.replace(',', '').replace('.', ''))
 
         self.story.setMetadata('favorites', soup.find('div', id='favqn').get_text())
-        self.story.setMetadata('comments', soup.find('a', id='comment_btn').span.get_text())
+        element = soup.find('a', id='comment_btn').span
+        self.story.setMetadata('comments', element.get_text() if element else 0)
 
     def getChapterText(self, url):
         data = self._fetchUrl(url)
