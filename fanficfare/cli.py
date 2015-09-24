@@ -159,6 +159,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                             options,
                             passed_defaultsini,
                             passed_personalini)
+                print("pagecache:%s"%options.pagecache.keys())
             except Exception, e:
                 print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
     else:
@@ -264,6 +265,14 @@ def do_download(arg,
 
     try:
         adapter = adapters.getAdapter(configuration, url)
+
+        if not hasattr(options,'pagecache'):
+            options.pagecache = adapter.get_empty_pagecache()
+            options.cookiejar = adapter.get_empty_cookiejar()
+        
+        adapter.set_pagecache(options.pagecache)
+        adapter.set_cookiejar(options.cookiejar)
+        
         adapter.setChaptersRange(options.begin, options.end)
 
         # check for updating from URL (vs from file)
