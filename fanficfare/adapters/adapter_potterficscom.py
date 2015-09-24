@@ -155,7 +155,10 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        #print data
+        if "Esta historia no existe. Probablemente ha sido eliminada." in data:
+            raise exceptions.StoryDoesNotExist(self.url)
+        
+        print data
 
         #deal with adult content login
         if self.needToLoginCheck(data):
