@@ -166,6 +166,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                      url.startswith('https://'+self.getSiteDomain()) ) and ('/posts/' in url or '/threads/' in url):
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+                    url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
                     logger.debug("used chapurl:%s"%(url))
                     self.chapterUrls.append((name,url))
                     if url == useurl and 'First Post' == self.chapterUrls[0][0]:
