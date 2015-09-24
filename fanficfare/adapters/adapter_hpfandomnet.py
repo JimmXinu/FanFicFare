@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -93,14 +92,16 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
         
         # set first URL
         a = soup.find('a', href=re.compile(r"viewstory.php\?sid=\d+"))
-        self._setURL('http://' + self.getSiteDomain() + '/eff/'+a['href'])
+        ## href = "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree  as well as graphic violent situations.  ')) location = 'viewstory.php?sid=49111&i=1'"
+        m = re.match(r'.*?(viewstory.php\?sid=\d+)&i=\d+.*?',a['href'])
+        self._setURL('http://'+self.host+'/eff/'+m.group(1))
         if self.parsedUrl.query.split('=',)[1] != self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
             url = self.url
@@ -114,7 +115,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
                     raise e
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            soup = bs.BeautifulSoup(data)
+            soup = self.make_soup(data)
             
 #        self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(a).group('storyId'))
         
@@ -129,14 +130,13 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         # fix a typo in the site HTML so I can find the Characters list.
         authdata = authdata.replace('<td width=10%">','<td width="10%">')
 
-        # hpfandom.net only seems to indicate adult-only by javascript on the story/chapter links.
-        if "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree and some violence. ')) location = 'viewstory.php?sid=%s'"%self.story.getMetadata('storyId') in authdata \
+        if "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree  as well as graphic violent situations.  ')) location = 'viewstory.php?sid=%s&i=1'"%self.story.getMetadata('storyId') in authdata \
                 and not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
         
-        authsoup = bs.BeautifulSoup(authdata)
+        authsoup = self.make_soup(authdata)
 
-        reviewsa = authsoup.find('a', href="reviews.php?sid="+self.story.getMetadata('storyId')+"&a=")
+        reviewsa = authsoup.find('a', href=re.compile(r"reviews\.php\?sid="+self.story.getMetadata('storyId')+r".*"))
         # <table><tr><td><p><b><a ...>
         metablock = reviewsa.findParent("table")
         #print("metablock:%s"%metablock)
@@ -243,7 +243,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         data = re.sub(r'<table width="100%">.*?</table>','</div>',
                       data,count=1,flags=re.DOTALL)
         
-        soup = bs.BeautifulStoneSoup(data,selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(data)
 
         div = soup.find("div",{'name':'storybody'})
         #print("\n\ndiv:%s\n\n"%div)
