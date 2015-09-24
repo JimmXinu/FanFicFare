@@ -49,7 +49,6 @@ import adapter_ficbooknet
 import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
-import adapter_thequidditchpitchorg
 import adapter_nfacommunitycom
 import adapter_midnightwhispersca
 import adapter_ksarchivecom
