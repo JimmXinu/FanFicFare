@@ -331,6 +331,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>http://test1.com?sid=673 - Succeeds, multiple authors, extra categories, genres</p>
 <p>http://test1.com?sid=673 - Succeeds, no numWords set</p>
+<p>http://test1.com?sid=700 - 710 - Succeeds, changes sid to 80X</p>
 <p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p>
 <p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
 </div>
