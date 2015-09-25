@@ -19,12 +19,29 @@
 import re
 from base_efiction_adapter import BaseEfictionAdapter
 
-class NineLivesDarkSolaceAdapter(BaseEfictionAdapter):
+class NineLivesAdapter(BaseEfictionAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'ninelives.dark-solace.org'
+        return 'ninelivesarchive.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['ninelivesarchive.com','ninelives.dark-solace.org']
+
+    @classmethod
+    def getSiteExampleURLs(cls):
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+ 
+    @classmethod
+    def getSiteURLPattern(self):
+        return "http://("+self.getSiteDomain()+"|ninelives.dark-solace.org)"+re.escape("/viewstory.php?sid=")+r"(?P<storyId>\d+)$"
+     
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['base_efiction','ninelives.dark-solace.org',cls.getSiteDomain()]
+    
     @classmethod
     def getSiteAbbrev(self):
         return '9lvs'
@@ -32,7 +49,7 @@ class NineLivesDarkSolaceAdapter(BaseEfictionAdapter):
     @classmethod
     def getDateFormat(self):
         return "%B %d, %Y" 
-                           
+                            
 def getClass():
-    return NineLivesDarkSolaceAdapter
+    return NineLivesAdapter
     

@@ -137,7 +137,7 @@ import adapter_itcouldhappennet
 import adapter_forumsspacebattlescom
 import adapter_forumssufficientvelocitycom
 import adapter_questionablequestingcom
-import adapter_ninelivesdarksolaceorg
+import adapter_ninelivesarchivecom
 import adapter_masseffect2in
 import adapter_quotevcom
 
