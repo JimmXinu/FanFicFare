@@ -59,10 +59,25 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('title', element.find('span', recursive=False).get_text())
 
-        element = soup.find('div', {'class': 'desc_creator'})('a')[1]
-        self.story.setMetadata('author', element.get_text())
-        self.story.setMetadata('authorId', get_url_path_segments(element['href'])[0])
-        self.story.setMetadata('authorUrl', urlparse.urljoin(self.url, element['href']))
+        element = soup.find('div', {'class': 'desc_creator'})
+        if element:
+            a = element('a')[1]
+            self.story.setMetadata('author', a.get_text())
+            self.story.setMetadata('authorId', get_url_path_segments(a['href'])[0])
+            self.story.setMetadata('authorUrl', urlparse.urljoin(self.url, a['href']))
+
+        # Multiple authors
+        else:
+            element = soup.find('div', id='qheadx')
+            for a in element('div', recursive=False)[1]('a'):
+                author = a.get_text()
+                if not a.get_text():
+                    continue
+
+                self.story.addToList('author', author)
+                self.story.addToList('authorId', get_url_path_segments(a['href'])[0])
+                self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
+
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         self.setCoverImage(self.url, urlparse.urljoin(self.url, soup.find('img', {'class': 'logo'})['src']))
 
@@ -74,7 +89,8 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         elements = soup('span', {'class': 'q_time'})
         self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(float(elements[0]['ts'])))
-        self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
+        if len(elements) > 1:
+            self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
 
         for a in soup.find('div', id='rselect')('a'):
             self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
@@ -82,8 +98,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         element = soup.find('div', {'class': 't'})('div', recursive=False)[1].div
-        data = filter(None, (x.strip() for x in element('span')[1].next_sibling.split(u'\xb7')))
-
+        data = filter(None, (x.strip() for x in element.get_text().split(u'\xb7')))
         if 'completed' in data:
             self.story.setMetadata('status', 'Completed')
             data.remove('completed')
@@ -91,7 +106,12 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         for datum in data:
-            value, key = datum.split()
+            parts = datum.split()
+            # Not a valid metadatum
+            if not len(parts) == 2:
+                continue
+
+            key, value = parts
             self.story.setMetadata(key, value.replace(',', '').replace('.', ''))
 
         self.story.setMetadata('favorites', soup.find('div', id='favqn').get_text())
