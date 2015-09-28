@@ -326,6 +326,7 @@ def get_valid_keywords():
                  'wrap_width',
                  'zip_filename',
                  'zip_output',
+                 'continue_on_chapter_error',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
