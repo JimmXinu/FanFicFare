@@ -17,6 +17,7 @@
 
 import time
 import logging
+import traceback
 logger = logging.getLogger(__name__)
 import re
 import urllib2
@@ -38,11 +39,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-							   
-							   
+
+
         # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])        
-        
+        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
@@ -54,23 +55,23 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fsb')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y at %I:%M %p"
-            
+
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
         return ['base_xenforoforum',cls.getConfigSection()]
-    
+
     @classmethod
     def getURLPrefix(cls):
         # The site domain.  Does have www here, if it uses it.
-        return 'https://' + cls.getSiteDomain() 
+        return 'https://' + cls.getSiteDomain()
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -78,7 +79,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?"
-        
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -112,7 +113,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         h1 = soup.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
-        
+
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
             soup = soup.find('li',id=anchorid)
@@ -129,7 +130,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                             self.story.setMetadata('datePublished', date)
                         if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
                             self.story.setMetadata('dateUpdated', date)
-                            
+
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
                     ## only use tags if threadmarks for chapters.
@@ -138,10 +139,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                         self.story.addToList('forumtags',stripHTML(tag))
 
             soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
-                
+
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
-        
+
         bq.name='div'
 
         for iframe in bq.find_all('iframe'):
@@ -149,7 +150,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
             qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-            
+
         self.setDescription(useurl,bq)
 
         # otherwise, use first post links--include first post since
@@ -160,31 +161,34 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 logger.debug("found chapurl:%s"%url)
                 if not url.startswith('http'):
                     url = self.getURLPrefix()+'/'+url
-    
+
                 if ( url.startswith(self.getURLPrefix()) or
                      url.startswith('http://'+self.getSiteDomain()) or
                      url.startswith('https://'+self.getSiteDomain()) ) and ('/posts/' in url or '/threads/' in url):
+
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+
                     url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
-                    logger.debug("used chapurl:%s"%(url))
+
+                    logger.debug("(ch:%s)used chapurl:%s"%(len(self.chapterUrls)+1,url))
                     self.chapterUrls.append((name,url))
                     if url == useurl and 'First Post' == self.chapterUrls[0][0]:
                         # remove "First Post" if included in list.
                         logger.debug("delete dup 'First Post' chapter: %s %s"%self.chapterUrls[0])
                         del self.chapterUrls[0]
-                        
+
             # Didn't use threadmarks, so take created/updated dates
             # from the 'first' posting created and updated.
             date = self.make_date(soup.find('a',{'class':'datePermalink'}))
             if date:
                 self.story.setMetadata('datePublished', date)
                 self.story.setMetadata('dateUpdated', date) # updated overwritten below if found.
-        
+
             date = self.make_date(soup.find('div',{'class':'editDate'}))
             if date:
-                self.story.setMetadata('dateUpdated', date) 
-            
+                self.story.setMetadata('dateUpdated', date)
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
     def make_date(self,parenttag): # forums use a BS thing where dates
@@ -205,7 +209,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         except:
             logger.debug('No date found in %s'%parenttag)
             return None
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
@@ -218,28 +222,48 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # https://forums.sufficientvelocity.com/posts/39915/
         if '#post-' in url:
             url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
-        
-        origurl = url
-        (data,opened) = self._fetchUrlOpened(url)
-        url = opened.geturl()
-        if '#' in origurl and '#' not in url:
-            url = url + origurl[origurl.index('#'):]
-        logger.debug("chapter URL redirected to: %s"%url)
 
-        soup = self.make_soup(data)
+        ## Same as above except for for case where author mistakenly
+        ## used the reply link instead of normal link to post.
+        # "http://forums.spacebattles.com/threads/manager-worm-story-thread-iv.301602/reply?quote=15962513"
+        # https://forums.spacebattles.com/posts/
+        if 'reply?quote=' in url:
+            url = self.getURLPrefix()+'/posts/'+url.split('reply?quote=')[1]+'/'
 
-        if '#' in url:
-            anchorid = url.split('#')[1]
-            soup = soup.find('li',id=anchorid)
-                
-        bq = soup.find('blockquote')
-
-        bq.name='div'
-
-        for iframe in bq.find_all('iframe'):
-            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-
-        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
-            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-
+        try:
+            origurl = url
+            (data,opened) = self._fetchUrlOpened(url)
+            url = opened.geturl()
+            if '#' in origurl and '#' not in url:
+                url = url + origurl[origurl.index('#'):]
+            logger.debug("chapter URL redirected to: %s"%url)
+            
+            soup = self.make_soup(data)
+    
+            if '#' in url:
+                anchorid = url.split('#')[1]
+                soup = soup.find('li',id=anchorid)
+    
+            bq = soup.find('blockquote')
+    
+            bq.name='div'
+    
+            for iframe in bq.find_all('iframe'):
+                iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+    
+            for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+                qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+    
+        except Exception as e:
+            if self.getConfig('continue_on_chapter_error'):
+                bq = self.make_soup("""<div>
+<p><b>Error</b></p>
+<p>FanFicFare failed to download this chapter.  Because you have
+<b>continue_on_chapter_error</b> set to <b>true</b> in your personal.ini, the download continued.</p>
+<p>Chapter URL:<br>%s</p>
+<p>Error:<br><pre>%s</pre></p>
+</div>"""%(url,traceback.format_exc()))
+            else:
+                raise
+            
         return self.utf8FromSoup(url,bq)

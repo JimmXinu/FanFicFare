@@ -82,7 +82,7 @@ def get_valid_sections():
     sitesections = list(othersections)
     for section in sites:
         sitesections.append(section)
-        # also allows [www.base_efiction] and [www.base_forum]. Not
+        # also allows [www.base_efiction] and [www.base_xenforoforum]. Not
         # likely to matter.
         if section.startswith('www.'):
             # add w/o www if has www
@@ -166,6 +166,12 @@ def get_valid_set_options():
                'include_images':(None,['epub','html'],boollist),
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
+
+               'continue_on_chapter_error':(['base_xenforoforum',
+                                             'forums.spacebattles.com',
+                                             'forums.sufficientvelocity.com',
+                                             'questionablequesting.com',
+                                             ],None,boollist),
                }
 
     return dict(valdict)
