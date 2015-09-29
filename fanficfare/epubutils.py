@@ -265,20 +265,20 @@ def reset_orig_chapters_epub(inputio,outfile):
                 chapterorigtitle = None
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
                 if tag:
-                    chapterorigtitle = tag['content']
+                    chapterorigtitle = tag['content'].replace('"','&quot;')
 
                 # toctitle is separate for add_chapter_numbers:toconly users.
                 chaptertoctitle = None
                 tag = soup.find('meta',{'name':'chaptertoctitle'})
                 if tag:
-                    chaptertoctitle = tag['content']
+                    chaptertoctitle = tag['content'].replace('"','&quot;')
                 elif chapterorigtitle:
                     chaptertoctitle = chapterorigtitle
 
                 chaptertitle = None
                 tag = soup.find('meta',{'name':'chaptertitle'})
                 if tag:
-                    chaptertitle = tag['content']
+                    chaptertitle = tag['content'].replace('"','&quot;')
 
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
                     origdata = data

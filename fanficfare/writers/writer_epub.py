@@ -658,11 +658,14 @@ div { margin: 0pt; padding: 0pt; }
             if chap.html:
                 logger.debug('Writing chapter text for: %s' % chap.title)
                 vals={'url':removeEntities(chap.url),
-                      'chapter':chap.title,
-                      'origchapter':chap.origtitle,
-                      'tocchapter':chap.toctitle,
+                      'chapter':removeEntities(chap.title),
+                      'origchapter':removeEntities(chap.origtitle),
+                      'tocchapter':removeEntities(chap.toctitle),
                       'index':"%04d"%(index+1),
                       'number':index+1}
+                # escape double quotes in all vals.
+                for k,v in vals.items():
+                    if isinstance(v,basestring): vals[k]=v.replace('"','&quot;')
                 fullhtml = CHAPTER_START.substitute(vals) + \
                     chap.html + CHAPTER_END.substitute(vals)
                 # ffnet(& maybe others) gives the whole chapter text
