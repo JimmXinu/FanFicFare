@@ -87,6 +87,42 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         '''
         return True
 
+    def performLogin(self):
+        params = {}
+
+        if self.password:
+            params['login'] = self.username
+            params['password'] = self.password
+        else:
+            params['login'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['register'] = '0'
+        params['cookie_check'] = '1'
+        params['_xfToken'] = ''
+        params['redirect'] = 'https://' + self.getSiteDomain() + '/'
+
+        if not params['password']:
+            return
+
+        ## https://forum.questionablequesting.com/login/login
+        loginUrl = 'https://' + self.getSiteDomain() + '/login/login'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['login']))
+
+        # soup = self.make_soup(self._fetchUrl(loginUrl))
+        # params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
+        # params[soup.find('input', {'id':'password'})['name']] = params['password']
+
+        d = self._fetchUrl(loginUrl, params)
+    
+        if "Log Out" not in d :
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                             params['login']))
+            raise exceptions.FailedToLogin(self.url,params['login'])
+            return False
+        else:
+            return True
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -100,8 +136,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
+            elif e.code == 403:
+                self.performLogin()
+                (data,opened) = self._fetchUrlOpened(useurl)
+                useurl = opened.geturl()
+                logger.info("use useurl: "+useurl)
             else:
-                raise e
+                raise
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
