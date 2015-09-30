@@ -59,6 +59,7 @@ Dup from another site'''
 default_prefs['reject_always'] = False
 
 default_prefs['updatemeta'] = True
+default_prefs['bgmeta'] = False
 default_prefs['updateepubcover'] = False
 default_prefs['keeptags'] = False
 default_prefs['suppressauthorsort'] = False

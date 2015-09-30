@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import time, os, copy, threading, re, platform, sys
+import os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
 from datetime import datetime, time, date
@@ -923,11 +923,25 @@ class FanFicFarePlugin(InterfaceAction):
             options['tdir']=tdir
 
         if 0 < len(filter(lambda x : x['good'], books)):
-            self.gui.status_bar.show_message(_('Started fetching metadata for %s stories.')%len(books), 3000)
+            if options['bgmeta']:
+                status_bar=_('Start queuing downloading for %s stories.')%len(books)
+                init_label=_("Queuing download for stories...")
+                win_title=_("Queuing download for stories")
+                status_prefix=_("Queued download for")
+            else:
+                status_bar=_('Started fetching metadata for %s stories.')%len(books)
+                init_label=_("Fetching metadata for stories...")
+                win_title=_("Downloading metadata for stories")
+                status_prefix=_("Fetched metadata for")
+                
+            self.gui.status_bar.show_message(status_bar, 3000)
             LoopProgressDialog(self.gui,
                                books,
                                partial(self.prep_download_loop, options = options, merge=merge),
-                               partial(self.start_download_job, options = options, merge=merge))
+                               partial(self.start_download_job, options = options, merge=merge),
+                               init_label=init_label,
+                               win_title=win_title,
+                               status_prefix=status_prefix)
         else:
             self.gui.status_bar.show_message(_('No valid story URLs entered.'), 3000)
         # LoopProgressDialog calls prep_download_loop for each 'good' story,
@@ -976,6 +990,7 @@ class FanFicFarePlugin(InterfaceAction):
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
                                     'updatemeta':True,
+                                    'bgmeta':False,
                                     'updateepubcover':True},
                            merge=False):
         '''
@@ -1003,6 +1018,7 @@ class FanFicFarePlugin(InterfaceAction):
         fileform  = options['fileform']
         collision = options['collision']
         updatemeta= options['updatemeta']
+        bgmeta= options['bgmeta']
         updateepubcover= options['updateepubcover']
 
         # Dialogs should prevent this case now.
@@ -1048,9 +1064,11 @@ class FanFicFarePlugin(InterfaceAction):
                 if savedmetadata:
                     # sets flag inside story so getStoryMetadataOnly won't hit server.
                     adapter.setStoryMetadata(savedmetadata)
-                
+
             # let other exceptions percolate up.
+            # bgmeta doesn't work with CALIBREONLY.
             story = adapter.getStoryMetadataOnly(get_cover=False)
+            bgmeta = False
         else:
             # reduce foreground sleep time for ffnet when few books.
             if 'ffnetcount' in options and \
@@ -1064,85 +1082,66 @@ class FanFicFarePlugin(InterfaceAction):
                 slp = min(maxslp,m*float(options['ffnetcount'])+b)
                 #print("m:%s b:%s = %s"%(m,b,slp))
                 adapter.set_sleep(slp)
-    
-            ## three tries, that's enough if both user/pass & is_adult needed,
-            ## or a couple tries of one or the other
-            for x in range(0,2):
-                try:
-                    adapter.getStoryMetadataOnly(get_cover=False)
-                except exceptions.FailedToLogin, f:
-                    logger.warn("Login Failed, Need Username/Password.")
-                    userpass = UserPassDialog(self.gui,url,f)
-                    userpass.exec_() # exec_ will make it act modal
-                    if userpass.status:
-                        adapter.username = userpass.user.text()
-                        adapter.password = userpass.passwd.text()
-    
-                except exceptions.AdultCheckRequired:
-                    if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
-                                       _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
-                                       show_copy_button=False):
-                        adapter.is_adult=True
-    
-            # let other exceptions percolate up.
-            story = adapter.getStoryMetadataOnly(get_cover=False)
-            book['title'] = story.getMetadata('title')
-            book['author'] = [story.getMetadata('author')]
-            book['url'] = story.getMetadata('storyUrl')
-    
+
+            if not bgmeta:
+                ## three tries, that's enough if both user/pass & is_adult needed,
+                ## or a couple tries of one or the other
+                for x in range(0,2):
+                    try:
+                        adapter.getStoryMetadataOnly(get_cover=False)
+                    except exceptions.FailedToLogin, f:
+                        logger.warn("Login Failed, Need Username/Password.")
+                        userpass = UserPassDialog(self.gui,url,f)
+                        userpass.exec_() # exec_ will make it act modal
+                        if userpass.status:
+                            adapter.username = userpass.user.text()
+                            adapter.password = userpass.passwd.text()
+        
+                    except exceptions.AdultCheckRequired:
+                        if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
+                                           _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
+                                           show_copy_button=False):
+                            adapter.is_adult=True
+        
+                # let other exceptions percolate up.
+                story = adapter.getStoryMetadataOnly(get_cover=False)
+                book['title'] = story.getMetadata('title')
+                book['author'] = [story.getMetadata('author')]
+                book['url'] = story.getMetadata('storyUrl')
+        
             ## Check reject list.  Redundant with below for when story
             ## URL changes, but also kept here to avoid network hit in
             ## most common case where given url is story url.
             if self.reject_url(merge,book):
                 return
 
-            series = story.getMetadata('series')
-            if not merge and series and prefs['checkforseriesurlid']:
-                # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-                identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
-                # print("identicalbooks:%s"%identicalbooks)
-                if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
-                                                                  <h3>%s</h3>
-                                                                  <p>%s</p>
-                                                                  <p>%s</p>
-                                                                  <p>%s</p>
-                                                               '''%(
-                                                               _('Skip Anthology Story?'),
-                                                               _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
-                                                               _("Click '<b>Yes</b>' to Skip."),
-                                                               _("Click '<b>No</b>' to download anyway.")),
-                                                               show_copy_button=False):
-                    book['comment'] = _("Story in Series Anthology(%s).")%series
-                    book['title'] = story.getMetadata('title')
-                    book['author'] = [story.getMetadata('author')]
-                    book['url'] = story.getMetadata('storyUrl')
-                    book['good']=False
-                    book['icon']='rotate-right.png'
-                    book['status'] = _('Skipped')
-                    return
-
+            if not bgmeta:
+                series = story.getMetadata('series')
+                if not merge and series and prefs['checkforseriesurlid']:
+                    # try to find *series anthology* by *seriesUrl* identifier url or uri first.
+                    identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
+                    # print("identicalbooks:%s"%identicalbooks)
+                    if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
+                                                                      <h3>%s</h3>
+                                                                      <p>%s</p>
+                                                                      <p>%s</p>
+                                                                      <p>%s</p>
+                                                                   '''%(
+                                                                   _('Skip Anthology Story?'),
+                                                                   _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                                   _("Click '<b>Yes</b>' to Skip."),
+                                                                   _("Click '<b>No</b>' to download anyway.")),
+                                                                   show_copy_button=False):
+                        book['comment'] = _("Story in Series Anthology(%s).")%series
+                        book['title'] = story.getMetadata('title')
+                        book['author'] = [story.getMetadata('author')]
+                        book['url'] = story.getMetadata('storyUrl')
+                        book['good']=False
+                        book['icon']='rotate-right.png'
+                        book['status'] = _('Skipped')
+                        return
+    
         ################################################################################################################################################33
-
-        # set PI version instead of default.
-        if 'version' in options:
-            story.setMetadata('version',options['version'])
-
-        # all_metadata duplicates some data, but also includes extra_entries, etc.
-        book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-        if prefs['savemetacol'] != '':
-            # get metadata to save in configured column.
-            book['savemetacol'] = story.dump_html_metadata()
-        
-        book['title'] = story.getMetadata("title", removeallentities=True)
-        book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
-        book['publisher'] = story.getMetadata("site")
-        book['url'] = story.getMetadata("storyUrl")
-        book['tags'] = story.getSubjectTags(removeallentities=True)
-        if story.getMetadata("description"):
-            book['comments'] = sanitize_comments_html(story.getMetadata("description"))
-        else:
-            book['comments']=''
-        book['series'] = story.getMetadata("series", removeallentities=True)
 
         book['is_adult'] = adapter.is_adult
         book['username'] = adapter.username
@@ -1150,15 +1149,38 @@ class FanFicFarePlugin(InterfaceAction):
 
         book['icon'] = 'plus.png'
         book['status'] = _('Add')
-        if story.getMetadataRaw('datePublished'):
-            book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
-        if story.getMetadataRaw('dateUpdated'):
-            book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
-        if story.getMetadataRaw('dateCreated'):
-            book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
-        else:
-            book['timestamp'] = None # need *something* there for calibre.
+        
+        if not bgmeta:
+            # set PI version instead of default.
+            if 'version' in options:
+                story.setMetadata('version',options['version'])
 
+            # all_metadata duplicates some data, but also includes extra_entries, etc.
+            book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+            if prefs['savemetacol'] != '':
+                # get metadata to save in configured column.
+                book['savemetacol'] = story.dump_html_metadata()
+            
+            book['title'] = story.getMetadata("title", removeallentities=True)
+            book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
+            book['publisher'] = story.getMetadata("site")
+            book['url'] = story.getMetadata("storyUrl")
+            book['tags'] = story.getSubjectTags(removeallentities=True)
+            if story.getMetadata("description"):
+                book['comments'] = sanitize_comments_html(story.getMetadata("description"))
+            else:
+                book['comments']=''
+            book['series'] = story.getMetadata("series", removeallentities=True)
+    
+            if story.getMetadataRaw('datePublished'):
+                book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateUpdated'):
+                book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateCreated'):
+                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+            else:
+                book['timestamp'] = None # need *something* there for calibre.
+    
         if not merge:# skip all the collision code when d/ling for merging.
             if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
                 book['icon'] = 'metadata.png'
@@ -1182,9 +1204,7 @@ class FanFicFarePlugin(InterfaceAction):
                 # print("identicalbooks:%s"%identicalbooks)
                 if len(identicalbooks) < 1 and prefs['matchtitleauth']:
                     # find dups
-                    authlist = story.getList("author", removeallentities=True)
-                    mi = MetaInformation(story.getMetadata("title", removeallentities=True),
-                                         authlist)
+                    mi = MetaInformation(book['title'],book['author'])
                     identicalbooks = db.find_identical_books(mi)
                     if len(identicalbooks) > 0:
                         logger.debug("existing found by title/author(s)")
@@ -1261,7 +1281,7 @@ class FanFicFarePlugin(InterfaceAction):
 
                 ## newer/chaptercount checks are the same for both:
                 # Update epub, but only if more chapters.
-                if collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
+                if not bgmeta and collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
                     # 'book' can exist without epub.  If there's no existing epub,
                     # let it go and it will download it.
                     if db.has_format(book_id,fileform,index_is_id=True):
@@ -1279,17 +1299,17 @@ class FanFicFarePlugin(InterfaceAction):
 
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
-                    # check make sure incoming is newer.
-                    lastupdated=story.getMetadataRaw('dateUpdated')
                     fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8])
-
-                    # updated doesn't have time (or is midnight), use dates only.
-                    # updated does have time, use full timestamps.
-                    if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
-                            (lastupdated.time() != time.min and fileupdated > lastupdated):
-                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
-
-
+                    book['fileupdated']=fileupdated
+                    if not bgmeta:
+                        # check make sure incoming is newer.
+                        lastupdated=story.getMetadataRaw('dateUpdated')
+    
+                        # updated doesn't have time (or is midnight), use dates only.
+                        # updated does have time, use full timestamps.
+                        if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
+                                (lastupdated.time() != time.min and fileupdated > lastupdated):
+                            raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
 
                 # For update, provide a tmp file copy of the existing epub so
                 # it can't change underneath us.  Now also overwrite for logpage preserve.
@@ -1360,7 +1380,11 @@ class FanFicFarePlugin(InterfaceAction):
             # For HTML format users, make the filename inside the zip something reasonable.
             # For crazy long titles/authors, limit it to 200chars.
             # For weird/OS-unsafe characters, use file safe only.
-            tmp = PersistentTemporaryFile(prefix=story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100],
+            try:
+                prefix = story.formatFileName("${title}-${author}-",allowunsafefilename=False)[:100]
+            except NameError:
+                prefix = "bgmeta-"
+            tmp = PersistentTemporaryFile(prefix=prefix,
                                           suffix='.'+options['fileform'],
                                           dir=options['tdir'])
             logger.debug("title:"+book['title'])
@@ -1373,6 +1397,7 @@ class FanFicFarePlugin(InterfaceAction):
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
+                                     'bgmeta':False,
                                      'updateepubcover':True},
                             merge=False):
         '''
@@ -1438,7 +1463,7 @@ class FanFicFarePlugin(InterfaceAction):
         func = 'arbitrary_n'
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
-                (book_list, options, cpus)]
+                (book_list, options, cpus, merge)]
         desc = _('Download FanFiction Book')
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
@@ -1452,6 +1477,7 @@ class FanFicFarePlugin(InterfaceAction):
                      options={'fileform':'epub',
                               'collision':ADDNEW,
                               'updatemeta':True,
+                              'bgmeta':False,
                               'updateepubcover':True}):
         custom_columns = self.gui.library_view.model().custom_columns
         if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
@@ -2155,6 +2181,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['comment'] = '' # note this is a comment on the d/l or update.
         book['url'] = ''
         book['site'] = ''
+        book['series'] = ''
         book['added'] = False
         book['pubdate'] = None
         book['publisher'] = None

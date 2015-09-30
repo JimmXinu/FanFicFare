@@ -243,6 +243,7 @@ class ConfigWidget(QWidget):
         prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
         prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
         prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
+        prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
         prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
         prefs['suppressauthorsort'] = self.basic_tab.suppressauthorsort.isChecked()
@@ -430,6 +431,12 @@ class BasicTab(QWidget):
         self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
+        
+        self.bgmeta = QCheckBox(_('Default Background Metadata?'),self)
+        self.bgmeta.setToolTip(_("On each download, FanFicFare offers an option to Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail.<br />Only available for Update/Overwrite of existing books in case URL given isn't canonical or matches to existing book by Title/Author."))
+        self.bgmeta.setChecked(prefs['bgmeta'])
+        horz.addWidget(self.bgmeta)
+
         self.l.addLayout(horz)
 
         cali_gb = groupbox = QGroupBox(_("Updating Calibre Options"))
@@ -457,7 +464,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.suppresstitlesort)
 
         self.checkforseriesurlid = QCheckBox(_("Check for existing Series Anthology books?"),self)
-        self.checkforseriesurlid.setToolTip(_("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found."))
+        self.checkforseriesurlid.setToolTip(_("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
         self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
         self.l.addWidget(self.checkforseriesurlid)
 

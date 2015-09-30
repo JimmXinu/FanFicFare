@@ -335,6 +335,18 @@ class AddNewDialog(SizePersistedDialog):
 
         self.gbl.addLayout(horz)
 
+        ## bgmeta not used with Add New because of stories that change
+        ## story URL and for title/author collision matching.
+        # horz = QHBoxLayout()
+        # self.bgmeta = QCheckBox(_('Background Metadata?'),self)
+        # self.bgmeta.setToolTip(_("Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail."))
+        # self.bgmeta.setChecked(self.prefs['bgmeta'])
+        # horz.addWidget(self.bgmeta)
+        # self.mergehide.append(self.bgmeta)
+        # self.mergeupdateshow.append(self.bgmeta)
+
+        # self.gbl.addLayout(horz)
+
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.ok_clicked)
         self.button_box.rejected.connect(self.reject)
@@ -417,6 +429,7 @@ class AddNewDialog(SizePersistedDialog):
             self.collision.setCurrentIndex(i)
 
         self.updatemeta.setChecked(self.prefs['updatemeta'])
+        # self.bgmeta.setChecked(self.prefs['bgmeta'])
 
         if not self.merge:
             self.updateepubcover.setChecked(self.prefs['updateepubcover'])
@@ -457,6 +470,7 @@ class AddNewDialog(SizePersistedDialog):
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
+            'bgmeta': False, # self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
             'smarten_punctuation':self.prefs['smarten_punctuation']
                 }
@@ -787,15 +801,18 @@ class UpdateExistingDialog(SizePersistedDialog):
         gbl = QVBoxLayout()
         gbl.addWidget(gbf)
         groupbox.setLayout(gbl)
-        gbl = QHBoxLayout()
+        gbl = QVBoxLayout()
         gbf.setLayout(gbl)
         options_layout.addWidget(groupbox)
 
         gbf.setVisible(False)
         groupbox.toggled.connect(gbf.setVisible)
 
+        horz = QHBoxLayout()
+        gbl.addLayout(horz)
+        
         label = QLabel(_('Output &Format:'))
-        gbl.addWidget(label)
+        horz.addWidget(label)
         self.fileform = QComboBox(self)
         self.fileform.addItem('epub')
         self.fileform.addItem('mobi')
@@ -805,10 +822,10 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.fileform.setToolTip(_('Choose output format to create.  May set default from plugin configuration.'))
         self.fileform.activated.connect(self.set_collisions)
         label.setBuddy(self.fileform)
-        gbl.addWidget(self.fileform)
+        horz.addWidget(self.fileform)
 
         label = QLabel(_('Update Mode:'))
-        gbl.addWidget(label)
+        horz.addWidget(label)
         self.collision = QComboBox(self)
         self.collision.setToolTip(_("What sort of update to perform.  May set default from plugin configuration."))
         # add collision options
@@ -817,19 +834,25 @@ class UpdateExistingDialog(SizePersistedDialog):
         if i > -1:
             self.collision.setCurrentIndex(i)
         label.setBuddy(self.collision)
-        gbl.addWidget(self.collision)
+        horz.addWidget(self.collision)
 
+        horz = QHBoxLayout()
+        gbl.addLayout(horz)
+        
         self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
         self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
         self.updatemeta.setChecked(self.prefs['updatemeta'])
-        gbl.addWidget(self.updatemeta)
+        horz.addWidget(self.updatemeta)
 
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
         self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
         self.updateepubcover.setChecked(self.prefs['updateepubcover'])
-        gbl.addWidget(self.updateepubcover)
+        horz.addWidget(self.updateepubcover)
 
-
+        self.bgmeta = QCheckBox(_('Background Metadata?'),self)
+        self.bgmeta.setToolTip(_("Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail."))
+        self.bgmeta.setChecked(self.prefs['bgmeta'])
+        horz.addWidget(self.bgmeta)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
@@ -872,6 +895,7 @@ class UpdateExistingDialog(SizePersistedDialog):
             'fileform': unicode(self.fileform.currentText()),
             'collision': unicode(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
+            'bgmeta': self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
             'smarten_punctuation':self.prefs['smarten_punctuation']
             }

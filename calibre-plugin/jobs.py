@@ -10,12 +10,15 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import time, traceback
+import traceback
+from datetime import time
 from StringIO import StringIO
     
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
+from calibre.utils.date import local_tz
+from calibre.library.comments import sanitize_comments_html
 
 # ------------------------------------------------------------------------------
 #
@@ -23,8 +26,11 @@ from calibre.constants import numeric_version as calibre_version
 #
 # ------------------------------------------------------------------------------
 
-def do_download_worker(book_list, options,
-                       cpus, notification=lambda x,y:x):
+def do_download_worker(book_list,
+                       options,
+                       cpus,
+                       merge=False,
+                       notification=lambda x,y:x):
     '''
     Master job, to launch child jobs to extract ISBN for a set of books
     This is run as a worker job in the background to keep the UI more
@@ -44,7 +50,7 @@ def do_download_worker(book_list, options,
             total += 1
             args = ['calibre_plugins.fanficfare_plugin.jobs',
                     'do_download_for_worker',
-                    (book,options)]
+                    (book,options,merge)]
             job = ParallelJob('arbitrary_n',
                               "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
                               done=None,
@@ -90,7 +96,7 @@ def do_download_worker(book_list, options,
     # return the book list as the job result
     return book_list
 
-def do_download_for_worker(book,options,notification=lambda x,y:x):
+def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     '''
     Child job, to download story when run as a worker job
     '''
@@ -147,6 +153,26 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
             if 'version' in options:
                 story.setMetadata('version',options['version'])
                 
+            book['title'] = story.getMetadata("title", removeallentities=True)
+            book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
+            book['publisher'] = story.getMetadata("site")
+            book['url'] = story.getMetadata("storyUrl")
+            book['tags'] = story.getSubjectTags(removeallentities=True)
+            if story.getMetadata("description"):
+                book['comments'] = sanitize_comments_html(story.getMetadata("description"))
+            else:
+                book['comments']=''
+            book['series'] = story.getMetadata("series", removeallentities=True)
+    
+            if story.getMetadataRaw('datePublished'):
+                book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateUpdated'):
+                book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateCreated'):
+                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+            else:
+                book['timestamp'] = None # need *something* there for calibre.
+                
             writer = writers.getWriter(options['fileform'],configuration,adapter)
     
             outfile = book['outfile']
@@ -165,12 +191,22 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
     
                 # preserve logfile even on overwrite.
                 if 'epub_for_update' in book:
-                    
                     adapter.logfile = get_update_data(book['epub_for_update'])[6]
                     # change the existing entries id to notid so
                     # write_epub writes a whole new set to indicate overwrite.
                     if adapter.logfile:
                         adapter.logfile = adapter.logfile.replace("span id","span notid")
+
+                if options['collision'] == OVERWRITE:
+                    lastupdated=story.getMetadataRaw('dateUpdated')
+                    fileupdated=book['fileupdated']
+
+                    # updated doesn't have time (or is midnight), use dates only.
+                    # updated does have time, use full timestamps.
+                    if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
+                            (lastupdated.time() != time.min and fileupdated > lastupdated):
+                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+
                 
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
@@ -199,17 +235,20 @@ def do_download_for_worker(book,options,notification=lambda x,y:x):
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:
                     if chaptercount == urlchaptercount:
-                        book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
-                        book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                        if options['savemetacol'] != '':
-                            book['savemetacol'] = story.dump_html_metadata()
-                        book['outfile'] = book['epub_for_update'] # for anthology merge ops.
-                        return book
-    
-                # dup handling from fff_plugin needed for anthology updates.
-                if chaptercount > urlchaptercount:
-                    raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
-    
+                        if merge:
+                            book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
+                            book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                            if options['savemetacol'] != '':
+                                book['savemetacol'] = story.dump_html_metadata()
+                            book['outfile'] = book['epub_for_update'] # for anthology merge ops.
+                            return book
+                        else: # not merge,
+                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
+                    elif chaptercount > urlchaptercount:
+                        raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
+                    elif chaptercount == 0:
+                        raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
+                    
                 if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
                         and adapter.getConfig("do_update_hook"):
                     chaptercount = adapter.hookForUpdates(chaptercount)
