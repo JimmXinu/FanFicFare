@@ -131,7 +131,6 @@ import adapter_csiforensicscom
 import adapter_lotrfanfictioncom
 import adapter_fhsarchivecom
 import adapter_fanfictionjunkiesde
-import adapter_devianthearts
 import adapter_tgstorytimecom
 import adapter_itcouldhappennet
 import adapter_forumsspacebattlescom
