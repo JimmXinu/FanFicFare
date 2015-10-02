@@ -62,7 +62,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         return cls.READ_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.BASE_URL + 'stories.php?go=') + r'(read|chapters)\&no=\d+$'
+        return re.escape(self.BASE_URL + 'stories.php?go=') + r'(read|chapters)\&(amp;)?no=\d+$'
 
     # Override stripURLParameters so the "no" parameter won't get stripped
     @classmethod
