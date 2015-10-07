@@ -7,12 +7,13 @@
 # Sebastian Keller <Haggard@gmx.de>, 2015
 # Simon_Schuette <simonschuette@arcor.de>, 2014-2015
 # Simon S, 2015
+# Valsu <valsu@hylia.de>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-09-30 10:40+Central Daylight Time\n"
-"PO-Revision-Date: 2015-10-02 20:02+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2015-10-07 09:47+0000\n"
+"Last-Translator: Valsu <valsu@hylia.de>\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1524,7 +1525,7 @@ msgstr ""
 
 #: fff_plugin.py:451
 msgid "Fetching Story URLs from Email..."
-msgstr ""
+msgstr "Hole Story-URLs aus E-Mails..."
 
 #: fff_plugin.py:467 fff_plugin.py:482
 msgid "No Valid Story URLs Found in Unread Emails."
@@ -1544,11 +1545,11 @@ msgstr "Story-URLs aus eMails holen"
 
 #: fff_plugin.py:508
 msgid "Fetching Story URLs from Page..."
-msgstr ""
+msgstr "Hole Story-URLs von der Webseite..."
 
 #: fff_plugin.py:512
 msgid "Finished Fetching Story URLs from Page."
-msgstr ""
+msgstr "Holen der Story-URLs von der Webseite abgeschlossen."
 
 #: fff_plugin.py:518 fff_plugin.py:570
 msgid "List of Story URLs"
@@ -1651,11 +1652,11 @@ msgstr "Das Buch ist kein FanFicFare-Sammelband oder enthält ein Buch (mehrere 
 
 #: fff_plugin.py:764
 msgid "Fetching Story URLs for Series..."
-msgstr ""
+msgstr "Hole Story-URLs für Serien..."
 
 #: fff_plugin.py:774
 msgid "Finished Fetching Story URLs for Series."
-msgstr ""
+msgstr "Holen der Story-URLs für Serien abgeschlossen."
 
 #: fff_plugin.py:821
 msgid ""
@@ -2001,7 +2002,7 @@ msgstr "Zusammenführung von %s Büchern."
 
 #: fff_plugin.py:1737
 msgid "FanFicFare Adding/Updating books."
-msgstr ""
+msgstr "FanFicFare Hinzufügen/Aktualisieren der Bücher."
 
 #: fff_plugin.py:1744
 msgid "Updating calibre for FanFiction stories..."
