@@ -197,7 +197,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     if adapter.logfile:
                         adapter.logfile = adapter.logfile.replace("span id","span notid")
 
-                if options['collision'] == OVERWRITE:
+                if options['collision'] == OVERWRITE and 'fileupdated' in book:
                     lastupdated=story.getMetadataRaw('dateUpdated')
                     fileupdated=book['fileupdated']
 
