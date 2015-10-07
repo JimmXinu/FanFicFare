@@ -177,7 +177,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     ## only use tags if threadmarks for chapters.
                     ##  a bit arbitrary, but likely.
                     for tag in soup.findAll('a',{'class':'tag'}):
-                        self.story.addToList('forumtags',stripHTML(tag))
+                        tstr = stripHTML(tag)
+                        if self.getConfig('capitalize_forumtags'):
+                            tstr = tstr.title()
+                        self.story.addToList('forumtags',tstr)
 
             soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
