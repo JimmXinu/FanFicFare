@@ -314,5 +314,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 </div>"""%(url,traceback.format_exc()))
             else:
                 raise
-            
-        return self.utf8FromSoup(url,bq)
+
+        # XenForo uses <base href="https://forums.spacebattles.com/" />
+        return self.utf8FromSoup(self.getURLPrefix()+'/',bq)
