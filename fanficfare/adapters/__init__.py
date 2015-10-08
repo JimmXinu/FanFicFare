@@ -238,8 +238,11 @@ def getClassFor(url):
         fixedurl = "http:%s"%url
     if not fixedurl.startswith("http"):
         fixedurl = "http://%s"%url
-    ## remove any trailing '#' locations.
-    fixedurl = re.sub(r"#.*$","",fixedurl)
+        
+    ## remove any trailing '#' locations, except for #post-12345 for
+    ## XenForo
+    if not "#post-" in fixedurl:
+        fixedurl = re.sub(r"#.*$","",fixedurl)
 
     parsedUrl = up.urlparse(fixedurl)
     domain = parsedUrl.netloc.lower()

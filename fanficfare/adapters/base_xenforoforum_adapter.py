@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
+        logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["utf8",
@@ -47,10 +48,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
-            self.story.setMetadata('storyId',m.group('id'))
-
-            # normalized story URL.
-            self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+self.story.getMetadata('storyId')+'/')
+            logger.debug("groupdict:%s"%m.groupdict())
+            if m.group('post'):
+                self.story.setMetadata('storyId',m.group('post'))
+                self._setURL(self.getURLPrefix() + '/posts/'+m.group('post')+'/')
+            else:
+                self.story.setMetadata('storyId',m.group('id'))
+                # normalized story URL.
+                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -75,10 +80,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return cls.getURLPrefix()+"/threads/some-story-name.123456/"
+        return cls.getURLPrefix()+"/threads/some-story-name.123456/ "+cls.getURLPrefix()+"/posts/123456/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<post>\d+))?$"
 
     def use_pagecache(self):
         '''
