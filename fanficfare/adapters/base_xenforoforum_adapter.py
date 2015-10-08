@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
-        logger.info("init url: "+url)
+        #logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["utf8",
@@ -48,7 +48,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
-            logger.debug("groupdict:%s"%m.groupdict())
+            #logger.debug("groupdict:%s"%m.groupdict())
             if m.group('post'):
                 self.story.setMetadata('storyId',m.group('post'))
                 self._setURL(self.getURLPrefix() + '/posts/'+m.group('post')+'/')
@@ -207,7 +207,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if not self.chapterUrls:
             self.chapterUrls.append(("First Post",useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
-                logger.debug("found chapurl:%s"%url)
+                #logger.debug("found chapurl:%s"%url)
                 if not url.startswith('http'):
                     url = self.getURLPrefix()+'/'+url
 
