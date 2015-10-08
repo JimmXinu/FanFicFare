@@ -682,7 +682,10 @@ class Story(Configurable):
         if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
             for i, v in enumerate(self.getList('author')):
-                aurl = self.getList('authorUrl')[i]
+                if len(self.getList('authorUrl')) <= i:
+                    aurl = "no_author_link"
+                else:
+                    aurl = self.getList('authorUrl')[i]
                 auth = v
                 # make sure doreplacements & removeallentities are honored.
                 if doreplacements:
