@@ -683,7 +683,7 @@ class Story(Configurable):
             htmllist=[]
             for i, v in enumerate(self.getList('author')):
                 if len(self.getList('authorUrl')) <= i:
-                    aurl = "no_author_link"
+                    aurl = None
                 else:
                     aurl = self.getList('authorUrl')[i]
                 auth = v

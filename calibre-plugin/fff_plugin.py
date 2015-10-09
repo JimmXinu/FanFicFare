@@ -1985,7 +1985,8 @@ class FanFicFarePlugin(InterfaceAction):
 
             author_id_to_link_map = dict()
             for i, author in enumerate(authorlist):
-                author_id_to_link_map[authorids[author]] = authurls[i]
+                if len(authurls) > i:
+                    author_id_to_link_map[authorids[author]] = authurls[i]
 
             # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
             db.new_api.set_link_for_authors(author_id_to_link_map)
