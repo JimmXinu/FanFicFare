@@ -72,8 +72,13 @@ class TestSiteAdapter(BaseSiteAdapter):
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
             self.chapterUrls = []
-            for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
-                self.chapterUrls.append( (chap,self.url+"&chapter=%d"%j) )
+            if self.has_config(sections,'chapter_urls'):
+                for l in self.get_config(sections,'chapter_urls').splitlines() :
+                    if l:
+                        self.chapterUrls.append( (l[1+l.index(','):],l[:l.index(',')]) )                    
+            else:
+                for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
+                    self.chapterUrls.append( (chap,self.url+"&chapter=%d"%j) )
             # self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
             #                 ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
             #                 ]
@@ -213,7 +218,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('category','SG-1')
             self.story.addToList('genre','Porn')
             self.story.addToList('genre','Drama')
-        else:
+        elif idnum < 1000:
             self.story.setMetadata('authorId','98765')
             self.story.setMetadata('authorUrl','http://author/url')
 
@@ -330,7 +335,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>http://test1.com?sid=671 - Succeeds, but sleeps 2sec metadata only</p>
 <p>http://test1.com?sid=672 - Succeeds, quick meta, sleeps 2sec chapters only</p>
 <p>http://test1.com?sid=673 - Succeeds, multiple authors, extra categories, genres</p>
-<p>http://test1.com?sid=673 - Succeeds, no numWords set</p>
+<p>http://test1.com?sid=674 - Succeeds, no numWords set</p>
 <p>http://test1.com?sid=700 - 710 - Succeeds, changes sid to 80X</p>
 <p>http://test1.com?sid=0 - Succeeds, generates some text specifically for testing hyphenation problems with Nook STR/STRwG</p>
 <p>Odd sid's will be In-Progress, evens complete.  sid&lt;10 will be assigned one of four languages and included in a series.</p>
@@ -348,13 +353,55 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <br />
 </div>
 '''
+        elif self.story.getMetadata('storyId') == '667':
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
+        elif 'test1.com' not in url:
+            ## for chapter_urls setting.
+            logger.debug('Getting chapter text from: %s' % url)
+    
+            try:
+                origurl = url
+                (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
+                url = opened.geturl()
+                if '#' in origurl and '#' not in url:
+                    url = url + origurl[origurl.index('#'):]
+                logger.debug("chapter URL redirected to: %s"%url)
+                
+                soup = self.make_soup(data)
+        
+                if '#' in url:
+                    anchorid = url.split('#')[1]
+                    soup = soup.find('li',id=anchorid)
+        
+                bq = soup.find('blockquote')
+        
+                bq.name='div'
+        
+                for iframe in bq.find_all('iframe'):
+                    iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+        
+                for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+                    qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+        
+            except Exception as e:
+                if self.getConfig('continue_on_chapter_error'):
+                    bq = self.make_soup("""<div>
+<p><b>Error</b></p>
+<p>FanFicFare failed to download this chapter.  Because you have
+<b>continue_on_chapter_error</b> set to <b>true</b> in your personal.ini, the download continued.</p>
+<p>Chapter URL:<br>%s</p>
+<p>Error:<br><pre>%s</pre></p>
+</div>"""%(url,traceback.format_exc()))
+                else:
+                    raise
+                
+            return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
+                
         else:
-            if self.story.getMetadata('storyId') == '667':
-                raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
-
             text=u'''
 <div>
 <h3 extra="value">Chapter title from site</h3>
+<p>chapter URL:'''+url+'''</p>
 <p>Timestamp:'''+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'''</p>
 <p>Lorem '''+self.crazystring+u''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
