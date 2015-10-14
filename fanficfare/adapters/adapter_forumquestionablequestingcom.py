@@ -32,17 +32,5 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'questionablequesting.com'
+        return 'forum.questionablequesting.com'
 
-    @classmethod
-    def getAcceptDomains(cls):
-        return ["forum."+cls.getSiteDomain(),cls.getSiteDomain()]
-
-    @classmethod
-    def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
-        return ['base_xenforoforum','forum.'+cls.getSiteDomain(),cls.getSiteDomain()]
-    
-    def getSiteURLPattern(self):
-        return r'https?://(forum.)?'+re.escape(self.getSiteDomain())+r'/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?'
-        
