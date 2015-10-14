@@ -33,9 +33,8 @@ class HTMLWriter(BaseStoryWriter):
     def __init__(self, config, story):
         BaseStoryWriter.__init__(self, config, story)
         
-        self.HTML_FILE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+        self.HTML_FILE_START = string.Template('''<!DOCTYPE html>
+<html>
 <head>
 <title>${title} by ${author}</title>
 <style type="text/css">
@@ -87,7 +86,6 @@ ${output_css}
 
 
     def writeStoryImpl(self, out):
-
         if self.hasConfig("cover_content"):
             COVER = string.Template(self.getConfig("cover_content"))
         else:
