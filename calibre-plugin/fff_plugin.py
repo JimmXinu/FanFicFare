@@ -470,8 +470,14 @@ class FanFicFarePlugin(InterfaceAction):
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
             if url_list:
-                self.prep_downloads(self.add_new_dialog.get_fff_options(),
-                                    "\n".join(url_list))
+                self.prep_downloads({
+                        'fileform': prefs['fileform'],
+                        'collision': prefs['collision'],
+                        'updatemeta': prefs['updatemeta'],
+                        'bgmeta': False,
+                        'updateepubcover': prefs['updateepubcover'],
+                        'smarten_punctuation':prefs['smarten_punctuation']
+                        },"\n".join(url_list))
             else:
                 self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
                 
