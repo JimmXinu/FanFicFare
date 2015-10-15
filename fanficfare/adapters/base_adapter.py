@@ -624,7 +624,7 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the
             # soup is more difficult than it first appears.  So cheat.
-            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
+            retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
 
         return retval
 

@@ -279,7 +279,9 @@ div { margin: 0pt; padding: 0pt; }
         retval = retval + END.substitute(self.story.getAllMetadata())
         
         if self.getConfig('replace_hr'):
-            retval = retval.replace("<hr />","<div class='center'>* * *</div>")
+            # replacing a self-closing tag with a container tag in the
+            # soup is more difficult than it first appears.  So cheat.
+            retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
             
         return retval
                 
