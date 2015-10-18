@@ -29,15 +29,23 @@
 
 	  <h3>Changes:</h3>
 	  <ul>
-            <li>New site: <a href="http://www.quotev.com/">quotev.com</a>, thanks cryzed!</li>
-            <li>Convert dark-solace.org(Elysium fields) to eFiction Base adapter to correct for site changes.</li>
-            <li>Fix eFiction Base Author URLs.</li>
-            <li>Switch chapter #post-12345 chapter URLs to permalinks for XenForoForum Base adapters.</li>
-            <li>Record forum thread tags in XenForoForum Base adapters. Appears on title page by default, but not calibre tags.</li>
-            <li>Change output_filename_safepattern to replace leading '.' for benefit of *nix OSes.</li>
-            <li>Fix mediaminer.org for site changes.</li>
-            <li>Fix to hpfandom.net change story URL when given chapter URL instead of story start URL.</li>
-            <li>Allow forum.questionablequesting.com for questionablequesting.com.</li>
+            <li>Remove site thequidditchpitch.org, domain is parked.</li>
+            <li>Remove site devianthearts.com, server not found for a week.</li>
+            <li>Change site www.nickandgreg.net to www.nickngreg.nl while still accepting old URLs.</li>
+            <li>Change site ninelives.dark-solace.org to new domain ninelivesarchive.com.</li>
+            <li>Change site questionablequesting.com to forum.questionablequesting.com only.  Supporting both caused problems.</li>
+            <li>Fixes for hpfandom.net changes.</li>
+            <li>Fix for bloodshedverse.com.</li>
+            <li>Fixes for quotev.com (thanks, cryzed)</li>
+            <li>Fixes for base_xenforoforum adapters.</li>
+            <li>Add continue_on_chapter_error feature for base_xenforoforum adapters.</li>
+            <li>Add user/pass login for NSFW forums on forum.questionablequesting.com.</li>
+            <li>Add capitalize_forumtags feature to base_xenforoforum and include forumtags by default.</li>
+            <li>Account for base href in base_xenforoforum so emoticon images work.</li>
+            <li>Correct cover_exclusion_regexp for base_xenforoforum.</li>
+            <li>Change default HTML output to HTML5 header.</li>
+            <li>Update html tag header at beginning of each epub file.  Prompted by failure of old header on latest tolino ereader.</li>
+            <li>Fix replace_hr feature.</li>
 	  </ul>
 	  <p>
 	    Questions?  Check out our 
@@ -47,7 +55,7 @@
 	    If you have any problems with this application, please
 	    report them in
 	    the <a href="http://groups.google.com/group/fanfic-downloader">FanFicFare Google Group</a>.  The
-	    <a href="http://2-2-12.fanficfare.appspot.com">previous version
+	    <a href="http://2-2-13.fanficfare.appspot.com">previous version
 	    </a> is also available for you to use if necessary.
 	  </p>
 	  <div id='error'>
