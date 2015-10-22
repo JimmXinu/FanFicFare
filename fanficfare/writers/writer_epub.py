@@ -653,7 +653,7 @@ div { margin: 0pt; padding: 0pt; }
         
         for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
             if chap.html:
-                logger.debug('Writing chapter text for: %s' % chap.title)
+                #logger.debug('Writing chapter text for: %s' % chap.title)
                 vals={'url':removeEntities(chap.url),
                       'chapter':removeEntities(chap.title),
                       'origchapter':removeEntities(chap.origtitle),
