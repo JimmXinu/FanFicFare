@@ -57,7 +57,7 @@ def get_update_data(inputio,
                 if( relpath+item.getAttribute("href") == oldcoverhtmlhref ):
                     oldcoverhtmltype = item.getAttribute("media-type")
                     break
-            soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"))
+            soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"),"html5lib")
             src = None
             # first img or image tag.
             imgs = soup.findAll('img')
@@ -208,7 +208,7 @@ def get_story_url_from_html(inputio,_is_good_url=None):
         #print("---- item:%s"%item)
         if( item.getAttribute("media-type") == "application/xhtml+xml" ):
             filehref=relpath+item.getAttribute("href")
-            soup = bs.BeautifulSoup(epub.read(filehref).decode("utf-8"))
+            soup = bs.BeautifulSoup(epub.read(filehref).decode("utf-8"),"html5lib")
             for link in soup.findAll('a',href=re.compile(r'^http.*')):
                 ahref=link['href']
                 #print("href:(%s)"%ahref)

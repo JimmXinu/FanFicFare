@@ -25,7 +25,7 @@ import urlparse
 import logging
 logger = logging.getLogger(__name__)
 
-from BeautifulSoup import BeautifulSoup 
+from bs4 import BeautifulSoup 
 from gziphttp import GZipProcessor
 
 import adapters
@@ -82,7 +82,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     if not configuration:
         configuration = Configuration("test1.com","EPUB")
 
-    soup = BeautifulSoup(data)
+    soup = BeautifulSoup(data,"html5lib")
     if restrictsearch:
         soup = soup.find(*restrictsearch)
         #logger.debug("restrict search:%s"%soup)
