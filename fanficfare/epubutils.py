@@ -265,34 +265,44 @@ def reset_orig_chapters_epub(inputio,outfile):
                 chapterorigtitle = None
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
                 if tag:
-                    chapterorigtitle = tag['content'].replace('&','&amp;').replace('"','&quot;')
+                    chapterorigtitle = tag['content']
 
                 # toctitle is separate for add_chapter_numbers:toconly users.
                 chaptertoctitle = None
                 tag = soup.find('meta',{'name':'chaptertoctitle'})
                 if tag:
-                    chaptertoctitle = tag['content'].replace('&','&amp;').replace('"','&quot;')
-                elif chapterorigtitle:
+                    chaptertoctitle = tag['content']
                     chaptertoctitle = chapterorigtitle
 
                 chaptertitle = None
                 tag = soup.find('meta',{'name':'chaptertitle'})
                 if tag:
-                    chaptertitle = tag['content'].replace('&','&amp;').replace('"','&quot;')
+                    chaptertitle = tag['content']
+                    chaptertitle_tag = tag
 
-                # logger.debug("chaptertitle:(%s) chapterorigtitle:(%s)"%(chaptertitle, chapterorigtitle))
+                #logger.debug("chaptertitle:(%s) chapterorigtitle:(%s)"%(chaptertitle, chapterorigtitle))
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
                     origdata = data
-                    # print("\n%s\n%s\n"%(chapterorigtitle,chaptertitle))
-                    data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
-                                        u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
-                    data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
-                    data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
+                    # data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
+                    #                     u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
+                    # data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
+                    # data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
+                    chaptertitle_tag['content'] = chapterorigtitle
+                    title_tag = soup.find('title')
+                    if title_tag and title_tag.string == chaptertitle:
+                        title_tag.string.replace_with(chapterorigtitle)
+
+                    h3_tag = soup.find('h3')
+                    if h3_tag and h3_tag.string == chaptertitle:
+                        h3_tag.string.replace_with(chapterorigtitle)
+
+                    data = unicode(soup)
 
                     entrychanged = ( origdata != data )
                     changed = changed or entrychanged
 
                     if entrychanged:
+                        logger.debug("\nentrychanged:%s\n"%zf)
                         _replace_tocncx(tocncxdom,zf,chaptertoctitle)
                         ## Also look for and update individual
                         ## book toc.ncx files for anthology in case
@@ -330,7 +340,6 @@ def reset_orig_chapters_epub(inputio,outfile):
     zipio.close()
 
     return changed
-
 
 def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
     ## go after the TOC entry, too.
