@@ -557,7 +557,7 @@ class BaseSiteAdapter(Configurable):
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
-    def utf8FromSoup(self,url,soup,fetch=None):
+    def utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
             fetch=self._fetchUrlRaw
 
@@ -616,7 +616,7 @@ class BaseSiteAdapter(Configurable):
         # This is primarily for epub updates.
         retval = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",retval)
         
-        if self.getConfig("replace_br_with_p"):
+        if self.getConfig("replace_br_with_p") and allow_replace_br_with_p:
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
             retval = replace_br_with_p(retval)

@@ -124,7 +124,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # link instead to find the appropriate metadata.
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
-        metadatachunks = self.utf8FromSoup(None,metadata).split('<br />')
+        metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br />')
         # process metadata for this story.
         self.setDescription(url,metadatachunks[1])
         #self.story.setMetadata('description', metadatachunks[1])
