@@ -793,6 +793,33 @@ class Story(Configurable):
                 if retlist is None:
                     retlist = []
 
+        # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
+        # use replace_metadata to change separator first if needed.
+        # ships=>[ ]*(/|&amp;|&)[ ]*=>/
+        if listname == 'ships' and self.getConfig('sort_ships') and retlist:
+            # retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
+            ## empty default of /=>/
+            sort_ships_splits = self.getConfig('sort_ships_splits',"/=>/")
+
+            for line in sort_ships_splits.splitlines():
+                if line:
+                    logger.debug("sort_ships_splits:%s"%line)
+                    logger.debug(retlist)
+                    (splitre,splitmerge) = line.split("=>")
+                    splitmerge = splitmerge.replace(SPACE_REPLACE,' ')
+                    newretlist = []
+                    for x in retlist:
+                        curlist = []
+                        for y in re.split(splitre,x):
+                            ## for SPLIT_META(\,)
+                            if doreplacements:
+                                y = self.doReplacements(y,'ships_CHARS',return_list=True)
+                            curlist.extend(y)
+                        newretlist.append( splitmerge.join(sorted(curlist)) )
+        
+                    retlist = newretlist
+                    logger.debug(retlist)
+        
         if retlist:
             if doreplacements:
                 newretlist = []
@@ -811,12 +838,6 @@ class Story(Configurable):
                                                                                                         doreplacements=False
                                                                                                         )) > 1:
             retlist.append(self.getConfig('add_genre_when_multi_category'))
-
-        # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
-        # use replace_metadata to change separator first if needed.
-        # ships=>[ ]*(/|&amp;|&)[ ]*=>/
-        if listname == 'ships' and self.getConfig('sort_ships') and retlist:
-            retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
 
         if retlist:
             if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):

@@ -302,6 +302,7 @@ def get_valid_keywords():
                  'replace_metadata',
                  'slow_down_sleep_time',
                  'sort_ships',
+                 'sort_ships_splits',
                  'strip_chapter_numbers',
                  'strip_chapter_numeral',
                  'strip_text_links',
