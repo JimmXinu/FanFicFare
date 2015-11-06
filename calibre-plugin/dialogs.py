@@ -1457,6 +1457,8 @@ class ViewLog(SizePersistedDialog):
         ## error = (lineno, msg)
         for (lineno, error_msg) in errors:
             # print('adding label for error:%s: %s'%(lineno, error_msg))
+            if len(error_msg) > 200:
+                error_msg=error_msg[:200]+" ..."
             label = QLabel('%s: %s'%(lineno, error_msg))
             label.setWordWrap(True)
             label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
