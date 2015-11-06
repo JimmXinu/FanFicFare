@@ -380,29 +380,34 @@ def set_in_ex_clude(setting):
 ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
 def make_replacements(replace):
     retval=[]
-    for line in replace.splitlines():
-        # print("replacement line:%s"%line)
-        (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
-        if "&&" in line:
-            (line,conditional) = line.split("&&")
-            (condkey,condregexp) = conditional.split("=>")
-        if "=>" in line:
-            parts = line.split("=>")
-            if len(parts) > 2:
-                metakeys = map( lambda x: x.strip(), parts[0].split(",") )
-                (regexp,replacement)=parts[1:]
-            else:
-                (regexp,replacement)=parts
-
-        if regexp:
-            regexp = re_compile(regexp,line)
-            if condregexp:
-                condregexp = re_compile(condregexp,line)
-            # A way to explicitly include spaces in the
-            # replacement string.  The .ini parser eats any
-            # trailing spaces.
-            replacement=replacement.replace(SPACE_REPLACE,' ')
-            retval.append([metakeys,regexp,replacement,condkey,condregexp])
+    for fullline in replace.splitlines():
+        line=fullline
+        try:
+            (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
+            if "&&" in line:
+                (line,conditional) = line.split("&&")
+                (condkey,condregexp) = conditional.split("=>")
+            if "=>" in line:
+                parts = line.split("=>")
+                if len(parts) > 2:
+                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    (regexp,replacement)=parts[1:]
+                else:
+                    (regexp,replacement)=parts
+    
+            if regexp:
+                regexp = re_compile(regexp,line)
+                if condregexp:
+                    condregexp = re_compile(condregexp,line)
+                # A way to explicitly include spaces in the
+                # replacement string.  The .ini parser eats any
+                # trailing spaces.
+                replacement=replacement.replace(SPACE_REPLACE,' ')
+                retval.append([metakeys,regexp,replacement,condkey,condregexp])
+        except Exception as e:
+            logger.error("Problem with Replacement Line:%s"%fullline)
+            raise exceptions.PersonalIniFailed(e,'replace_metadata unpacking failed',fullline)
+#            raise
     return retval
 
 class Story(Configurable):
