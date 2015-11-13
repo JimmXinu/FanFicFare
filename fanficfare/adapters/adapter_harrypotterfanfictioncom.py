@@ -113,7 +113,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             tdstr = tr.findAll('td')[2].string
             if tdstr and tdstr.isdigit():
                 words+=int(tdstr)
-        self.story.setMetadata('numWords',str(words))
+        self.story.setMetadata('numWords',unicode(words))
         
         # Find the chapters:
         tablelist = soup.find('table',{'class':'text'})
@@ -135,7 +135,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         #for center in soup.findAll('center'):
         table = soup.find('table',{'class':'storymaininfo'})
         if table:
-            metastr = stripHTML(str(table)).replace('\n',' ').replace('\t',' ')
+            metastr = stripHTML(unicode(table)).replace('\n',' ').replace('\t',' ')
             # Rating: 12+ Story Reviews: 3
             # Chapters: 3
             # Characters: Andromeda, Ted, Bellatrix, R. Lestrange, Lucius, Narcissa, OC

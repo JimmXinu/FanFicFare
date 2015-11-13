@@ -178,7 +178,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         page=0
         i=0
         while i == 0:
-            asoup = self.make_soup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+str(page)))
+            asoup = self.make_soup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page)))
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:

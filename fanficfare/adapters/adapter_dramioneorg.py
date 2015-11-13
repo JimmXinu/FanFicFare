@@ -230,7 +230,7 @@ class DramioneOrgAdapter(BaseSiteAdapter):
                 ## Everything until the next strong tag.
                 svalue = ""
                 while not isinstance(value,bs.Tag) or value.name != 'strong':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
 

@@ -194,7 +194,7 @@ class OneDirectionFanfictionComAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ""
                 while value and not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
 

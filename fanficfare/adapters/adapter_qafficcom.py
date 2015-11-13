@@ -179,7 +179,7 @@ class QafFicComAdapter(BaseSiteAdapter):
                 svalue = ""
                 while not defaultGetattr(value,'class') == 'classification' and value != None:
                     if "Featured Stories" not in value:
-                        svalue += str(value)
+                        svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

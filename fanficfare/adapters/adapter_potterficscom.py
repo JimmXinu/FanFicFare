@@ -245,7 +245,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         chnum = 0
         for li in list:
             chnum += 1
-            chTitle = str(chnum) + '. ' + li.a.b.string.strip()
+            chTitle = unicode(chnum) + '. ' + li.a.b.string.strip()
             chURL = makeAbsoluteURL(li.a['href'])
             chapters.append((chTitle,chURL))
             #Get reviews, add to total
@@ -263,7 +263,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         mb = list.parent
         #get the div before that, will either be the description, or the google ad bar
         mb = mb.findPreviousSibling('div')
-        if 'google_ad_client' in str(mb):
+        if 'google_ad_client' in unicode(mb):
             #couldn't find description, leaving it blank
             pass
         else:

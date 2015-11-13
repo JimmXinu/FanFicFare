@@ -131,8 +131,8 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
         while value != None:
             val = value
             value = value.previousSibling
-        while "Categories" not in str(val):
-            svalue += str(val)
+        while "Categories" not in unicode(val):
+            svalue += unicode(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
         

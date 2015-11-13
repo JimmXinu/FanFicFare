@@ -147,8 +147,8 @@ class EfictionEstelielDeAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while 'Rating' not in str(value):
-                    svalue += str(value)
+                while 'Rating' not in unicode(value):
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

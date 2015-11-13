@@ -338,7 +338,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                     errorDiv = soup.find("div", "errortext")
                     self.triedLoggingIn = True
                 else:
-                    raise exceptions.FailedToLogin(self.url, str(errorDiv))
+                    raise exceptions.FailedToLogin(self.url, unicode(errorDiv))
             else:
                 warningLink = errorDiv.find("a")
                 if warningLink is not None and ( \
@@ -354,9 +354,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                         errorDiv = soup.find("div", "errortext")
                         self.triedAcceptWarnings = True
                     else:
-                        raise exception.FailedToDownload(self.url, str(errorDiv))
+                        raise exception.FailedToDownload(self.url, unicode(errorDiv))
                 else:
-                    raise exception.FailedToDownload(self.url, str(errorDiv))
+                    raise exception.FailedToDownload(self.url, unicode(errorDiv))
 
         # title and author
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
@@ -382,7 +382,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 if (type(nextEl) is bs.Tag):
                     valueStr += nextEl.prettify()
                 else:
-                    valueStr += str(nextEl)
+                    valueStr += unicode(nextEl)
                 nextEl = nextEl.nextSibling
             key = labelSpan.text.strip()
 

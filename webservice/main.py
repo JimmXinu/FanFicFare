@@ -153,7 +153,7 @@ class EditConfigServer(UserConfigServer):
                 self.redirect("/?error=configsaved")
             except Exception, e:
                 logging.info("Saved Config Failed:%s"%e)
-                self.redirect("/?error=custom&errtext=%s"%urlEscape(str(e)))
+                self.redirect("/?error=custom&errtext=%s"%urlEscape(unicode(e)))
         else: # not update, assume display for edit
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
@@ -309,7 +309,7 @@ class RecentFilesServer(webapp2.RequestHandler):
 
         for fic in fics:
             if fic.completed and fic.format == 'epub':
-                fic.escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+str(fic.key())+"&fake=file."+fic.format)
+                fic.escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+unicode(fic.key())+"&fake=file."+fic.format)
 
         template_values = dict(fics = fics, nickname = user.nickname())
         path = os.path.join(os.path.dirname(__file__), 'recent.html')
@@ -391,7 +391,7 @@ class FanfictionDownloader(UserConfigServer):
             try:
                 configuration = self.getUserConfig(user,url,format)
             except Exception, e:
-                self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+str(e)))
+                self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+unicode(e)))
                 return
 
             adapter = adapters.getAdapter(configuration,url)
@@ -425,7 +425,7 @@ class FanfictionDownloader(UserConfigServer):
 
             taskqueue.add(url='/fdowntask',
                       queue_name="download",
-                          params={'id':str(download.key()),
+                          params={'id':unicode(download.key()),
                                   'format':format,
                                   'url':download.url,
                                   'login':login,
@@ -433,7 +433,7 @@ class FanfictionDownloader(UserConfigServer):
                                   'user':user.email(),
                                   'is_adult':is_adult})
 
-            logging.info("enqueued download key: " + str(download.key()))
+            logging.info("enqueued download key: " + unicode(download.key()))
 
         except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
             download.failure = unicode(e)
@@ -467,7 +467,7 @@ class FanfictionDownloader(UserConfigServer):
             download.failure = unicode(e)
             download.put()
 
-        self.redirect('/status?id='+str(download.key()))
+        self.redirect('/status?id='+unicode(download.key()))
 
         return
 

@@ -172,7 +172,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
             val = value
             value = value.previousSibling
         while not defaultGetattr(val,'class') == 'label':
-            svalue += str(val)
+            svalue += unicode(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
 		

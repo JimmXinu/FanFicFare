@@ -202,7 +202,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                 svalue = ""
                 value = labelspan.nextSibling
                 while not defaultGetattr(value,'class') == 'dark-small-bold':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                     
                 for genre in svalue.split("/"):

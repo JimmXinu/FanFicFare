@@ -137,7 +137,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ''
                 while value and not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                 # sometimes poorly formated desc (<p> w/o </p>) leads
                 # to all labels being included.

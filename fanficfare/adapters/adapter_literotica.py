@@ -237,12 +237,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # find num pages
         pgs = int(soup1.find("span", "b-pager-caption-t r-d45").string.split(' ')[0])
-        logger.debug("pages: "+str(pgs))
+        logger.debug("pages: "+unicode(pgs))
 
         # get all the pages
         for i in xrange(2, pgs+1):
             try:
-                logger.debug("fetching page "+str(i))
+                logger.debug("fetching page "+unicode(i))
                 time.sleep(0.5)
                 data2 = self._fetchUrl(url, {'page': i})
                 # brute force approach to replace the wrapping <p> tag.  If

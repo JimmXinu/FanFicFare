@@ -69,7 +69,7 @@ class HtmlProcessor:
     '''Replace <pre> tags with HTML-ified text.'''
     pres = self._soup.findAll('pre')
     for pre in pres:
-      pre.replaceWith(self._FixPreContents(str(pre.contents[0])))
+      pre.replaceWith(self._FixPreContents(unicode(pre.contents[0])))
 
   def _FixPreContents(self, text):
     if self.unfill:

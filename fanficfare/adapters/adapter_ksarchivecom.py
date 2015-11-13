@@ -195,7 +195,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 ## Everything until the next span class='label'
                 svalue = ""
                 while not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     # poor HTML(unclosed <p> for one) can cause run on
                     # over the next label.
                     if '<span class="label">' in svalue:

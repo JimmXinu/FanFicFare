@@ -1,4 +1,4 @@
-﻿#-*-coding:utf-8-*-
+#-*-coding:utf-8-*-
 # Code taken from http://python.su/forum/viewtopic.php?pid=66946
 import unicodedata
 def is_syllable(letter):
@@ -10,11 +10,11 @@ def is_consonant(letter):
     return not is_syllable(letter)
 def romanize(letter):
     try:
-        str(letter)
+        unicode(letter)
     except UnicodeEncodeError:
         pass
     else:
-        return str(letter)
+        return unicode(letter)
     unid = unicodedata.name(letter)
     exceptions = {"NUMERO SIGN": "No", "LEFT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "DASH": "-"}
     for name_contains in exceptions:

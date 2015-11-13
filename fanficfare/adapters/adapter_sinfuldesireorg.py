@@ -166,7 +166,7 @@ class SinfulDesireOrgAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ""
                 while not defaultGetattr(value,'class') == 'label':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

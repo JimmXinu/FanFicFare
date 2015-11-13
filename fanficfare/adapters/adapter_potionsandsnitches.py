@@ -123,7 +123,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
                 ## Everything until the next div class='listbox'
                 svalue = ""
                 while not defaultGetattr(value,'class') == 'listbox':
-                    svalue += str(value)
+                    svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

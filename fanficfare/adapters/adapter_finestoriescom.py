@@ -160,7 +160,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         skip=0
         i=0
         while i == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+str(skip)))
+            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+unicode(skip)))
         
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:

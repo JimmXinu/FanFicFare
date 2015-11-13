@@ -578,7 +578,7 @@ div { margin: 0pt; padding: 0pt; }
             if title :
                 navPoint = newTag(tocncxdom,"navPoint",
                                   attrs={'id':id,
-                                         'playOrder':str(index)})
+                                         'playOrder':unicode(index)})
                 tocnavMap.appendChild(navPoint)
                 navLabel = newTag(tocncxdom,"navLabel")
                 navPoint.appendChild(navLabel)

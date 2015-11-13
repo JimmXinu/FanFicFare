@@ -251,10 +251,10 @@ class ScarHeadNetAdapter(BaseSiteAdapter):
         svalue = ""
         while i == 0:
             try:
-                b = str(a)
+                b = unicode(a)
                 svalue += b.split('Summary: ')[1]
             except:
-                svalue += str(a)
+                svalue += unicode(a)
             if a.nextSibling != None:
                 a = a.nextSibling
             else:

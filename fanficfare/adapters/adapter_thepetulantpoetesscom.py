@@ -161,7 +161,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         index = 1
         found = 0
         while found == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&page="+str(index)))
+            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&page="+unicode(index)))
         
             for info in asoup.findAll('td', {'class' : 'highlightcolor1'}):
                 a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))

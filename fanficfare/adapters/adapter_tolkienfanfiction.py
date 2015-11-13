@@ -193,7 +193,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             self.story.addToList('characters', character)
         logger.debug("Characters: %s" % self.story.getMetadata('characters'))
 
-        logger.debug('Title as `str`: ' + str(title))
+        logger.debug('Title as `str`: ' + unicode(title))
         # For publication date we need to search
         try:
             queryString = urllib.urlencode((

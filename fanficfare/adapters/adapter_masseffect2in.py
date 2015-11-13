@@ -218,7 +218,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
-        self.story.setMetadata('numWords', str(wordCount))
+        self.story.setMetadata('numWords', unicode(wordCount))
         self.story.setMetadata('numChapters', chapterCount)
 
         # Site-specific metadata.

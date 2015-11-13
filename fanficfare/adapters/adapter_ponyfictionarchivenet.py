@@ -181,7 +181,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         value = section.nextSibling
         svalue = ""
         while not defaultGetattr(value,'class') == 'label':
-            svalue += str(value)
+            svalue += unicode(value)
             value = value.nextSibling
         self.setDescription(url,svalue)
         

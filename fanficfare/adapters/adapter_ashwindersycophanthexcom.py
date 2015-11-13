@@ -194,7 +194,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             val = val.nextSibling
         val = val.nextSibling
         while not defaultGetattr(val) == 'table':
-            svalue += str(val)
+            svalue += unicode(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
 

@@ -165,7 +165,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         i=0
         for part in pr:
             i=i+len(stripHTML(part).split(' '))
-        self.story.setMetadata('numWords', str(i))
+        self.story.setMetadata('numWords', unicode(i))
 		
         i=0
         fandoms = table.findAll('a', href=re.compile(r'/fanfiction/\w+'))

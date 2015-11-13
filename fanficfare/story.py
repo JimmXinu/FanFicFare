@@ -77,7 +77,7 @@ try:
 
         if removetrans and img.has_transparent_pixels():
             canvas = Image()
-            canvas.create_canvas(int(img.size[0]), int(img.size[1]), str(background))
+            canvas.create_canvas(int(img.size[0]), int(img.size[1]), unicode(background))
             canvas.compose(img)
             img = canvas
             export = True
@@ -1096,7 +1096,7 @@ class Story(Configurable):
         return retlist
 
     def __str__(self):
-        return "Metadata: " +str(self.metadata)
+        return "Metadata: " +unicode(self.metadata)
 
 def commaGroups(s):
     groups = []

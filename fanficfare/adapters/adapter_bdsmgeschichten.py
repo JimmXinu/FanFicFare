@@ -265,7 +265,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                     nextLinkMatch = _REGEX_TRAILING_DIGIT.match(nextLink)
                     if nextLinkMatch is not None:
                         curChap = nextLinkMatch.group(1)
-                        nextLink = re.sub(_REGEX_TRAILING_DIGIT, str(int(curChap) + 1), nextLink)
+                        nextLink = re.sub(_REGEX_TRAILING_DIGIT, unicode(int(curChap) + 1), nextLink)
                     else:
                         break
             try:
@@ -289,7 +289,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
         curMax = self.maxChapter + step
         lastHit = True
         while True:
-            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, str(curMax), self.url) 
+            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, unicode(curMax), self.url) 
             if nextChapterUrl == self.url:
                 logger.debug("Unable to guess next chapter because URL doesn't end in numbers")
                 break;
@@ -316,8 +316,8 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             logger.debug(curMax)
 
         for i in xrange(1, self.maxChapter):
-            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, str(i), self.url)
-            nextChapterTitle = re.sub("1", str(i), title1)
+            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, unicode(i), self.url)
+            nextChapterTitle = re.sub("1", unicode(i), title1)
             self.chapterUrls.append((nextChapterTitle, nextChapterUrl))
 
     def getChapterText(self, url):
