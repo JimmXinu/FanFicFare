@@ -159,7 +159,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                             options,
                             passed_defaultsini,
                             passed_personalini)
-                print("pagecache:%s"%options.pagecache.keys())
+                #print("pagecache:%s"%options.pagecache.keys())
             except Exception, e:
                 print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
     else:
