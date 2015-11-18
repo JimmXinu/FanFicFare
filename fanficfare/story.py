@@ -801,7 +801,7 @@ class Story(Configurable):
         # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
         # use replace_metadata to change separator first if needed.
         # ships=>[ ]*(/|&amp;|&)[ ]*=>/
-        if listname == 'ships' and self.getConfig('sort_ships') and retlist:
+        if listname == 'ships' and self.getConfig('sort_ships') and doreplacements and retlist:
             # retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
             ## empty default of /=>/
             sort_ships_splits = self.getConfig('sort_ships_splits',"/=>/")
