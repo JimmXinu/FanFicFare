@@ -41,6 +41,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         urltitle='urltitle'
+        cattitle='cattitle'
         if m:
             if m.group('id1'):
                 self.story.setMetadata('storyId',m.group('id1'))
@@ -50,13 +51,21 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 urltitle=m.group('urltitle2')
             elif m.group('id3'):
                 self.story.setMetadata('storyId',m.group('id3'))
+            elif m.group('id4'):
+                self.story.setMetadata('storyId',m.group('id4'))
+                cattitle=m.group('cattitle4')
+                urltitle=m.group('urltitle4')
+            elif m.group('id5'):
+                self.story.setMetadata('storyId',m.group('id5'))
+                cattitle=m.group('cattitle5')
+                urltitle=m.group('urltitle5')
             else:
                 raise InvalidStoryURL(url,
                                       self.getSiteDomain(),
                                       self.getSiteExampleURLs())
             
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/fanfic/s/'+urltitle+'/'+self.story.getMetadata('storyId'))
+            self._setURL('http://' + self.getSiteDomain() + '/fanfic/s/'+cattitle+'/'+urltitle+'/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -72,7 +81,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfic/s/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/story-title/chapter-title/123456/987612"
+        return "http://"+cls.getSiteDomain()+"/fanfic/s/category-name/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/category-name/story-title/123456/987612"
 
     def getSiteURLPattern(self):
         ## old urls
@@ -82,8 +91,13 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ## http://www.mediaminer.org/fanfic/c/ghosts-from-the-past/chapter-2/72/174
         ## http://www.mediaminer.org/fanfic/s/robtech-final-missions/61553
         ## http://www.mediaminer.org/fanfic/c/robtech-final-missions/robotech-final-missions-oneshot/61553/189830
+        ## even newer urls
+        ## http://www.mediaminer.org/fanfic/s/gundam-wing-fan-fiction/the-preventer-operatives/171000
+        ## http://www.mediaminer.org/fanfic/c/gundam-wing-fan-fiction/the-preventer-operatives/171000/608822
         return re.escape("http://"+self.getSiteDomain())+r"/fanfic/"+\
-            r"((s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
+            r"((s/(?P<cattitle4>[^/]+)/(?P<urltitle4>[^/]+)/(?P<id4>\d+))|"+\
+            r"((c/(?P<cattitle5>[^/]+)/(?P<urltitle5>[^/]+)/(?P<id5>\d+))/\d+)|"+\
+            r"(s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
             r"((c/(?P<urltitle2>[^/]+)/[^/]+/(?P<id2>\d+))/\d+)|"+\
             r"(view_st\.php/(?P<id3>\d+)))"
             
@@ -109,39 +123,28 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # [ A - All Readers ], strip '[' ']'
+        ## title:
+        ## <h1 id="post-title">A, A' Fan Fiction &#10095; Mmmmm</h1>
+        titletext = stripHTML(soup.find("h1",{"id":"post-title"}))
+        titletext = titletext[titletext.index(u'❯')+2:]
+        # print("title:(%s)"%titletext)
+        self.story.setMetadata('title',titletext)
+        
+        # [ A - All Readers ], strip '[ ' ' ]'
         ## Above title because we remove the smtxt font to get title.
-        smtxt = soup.find("h3",{"id":"post-rating"})
+        smtxt = soup.find("div",{"id":"post-rating"})
         if not smtxt:
             logger.error("can't find rating")
             raise exceptions.StoryDoesNotExist(self.url)
         else:
-            rating = smtxt.string[1:-1]
+            rating = smtxt.string[2:-2]
             self.story.setMetadata('rating',rating)
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"/fanfic/src.php/u/\d+"))
+        a = soup.find('a', href=re.compile(r"/user_info.php/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[-1])
         self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
-
-        ## Title - Good grief.  Title varies by chaptered, 1chapter and 'type=one shot'--and even 'one-shot's can have titled chapter.
-        ## But, if colspan=2, there's no chapter title.
-        ## <td class="ffh">Atmosphere: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td colspan=2 class="ffh">Hearts of Ice <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td colspan=2 class="ffh">Suzaku no Princess <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td class="ffh">The Kraut, The Bartender, and The Drunkard: Chapter 1</b> <font class="smtxt">[ P - Pre-Teen ]</font></td>
-        ## <td class="ffh">Betrayal and Justice: A Cold Heart</b> <font size="-1">( Chapter 1 )</font> <font class="smtxt">[ A - All Readers ]</font></td>
-        ## <td class="ffh">Question and Answer: Question and Answer</b> <font size="-1">( One-Shot )</font> <font class="smtxt">[ A - All Readers ]</font></td>
-        # title = soup.find('td',{'class':'ffh'})
-        # for font in title.findAll('font'):
-        #     font.extract() # removes 'font' tags from inside the td.        
-        # if title.has_attr('colspan'):
-        #     titlet = stripHTML(title)
-        # else:
-        #     ## No colspan, it's part chapter title--even if it's a one-shot.
-        #     titlet = ':'.join(stripHTML(title).split(':')[:-1]) # strip trailing 'Chapter X' or chapter title
-        self.story.setMetadata('title',stripHTML(soup.find('h1',{'id':'post-title'})))
 
         # save date from first for later.
         firstdate=None
@@ -155,7 +158,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # category
         # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>
-        for a in soup.findAll('a',href=re.compile(r"^/fanfic/src.php/a/")):
+        for a in soup.findAll('a',href=re.compile(r"^/fanfic/a/")):
             self.story.addToList('category',a.string)
         
         # genre
