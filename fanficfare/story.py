@@ -808,8 +808,8 @@ class Story(Configurable):
 
             for line in sort_ships_splits.splitlines():
                 if line:
-                    logger.debug("sort_ships_splits:%s"%line)
-                    logger.debug(retlist)
+                    ## logger.debug("sort_ships_splits:%s"%line)
+                    ## logger.debug(retlist)
                     (splitre,splitmerge) = line.split("=>")
                     splitmerge = splitmerge.replace(SPACE_REPLACE,' ')
                     newretlist = []
@@ -823,7 +823,7 @@ class Story(Configurable):
                         newretlist.append( splitmerge.join(sorted(curlist)) )
         
                     retlist = newretlist
-                    logger.debug(retlist)
+                    ## logger.debug(retlist)
         
         if retlist:
             if doreplacements:
