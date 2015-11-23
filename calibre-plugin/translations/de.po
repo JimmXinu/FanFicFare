@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2015-09-30 10:40+Central Daylight Time\n"
-"PO-Revision-Date: 2015-10-29 10:10+0000\n"
-"Last-Translator: Valsu <valsu@hylia.de>\n"
+"PO-Revision-Date: 2015-11-14 16:55+0000\n"
+"Last-Translator: ILB\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -238,7 +238,7 @@ msgid ""
 "Check for existings Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr ""
+msgstr "Mit jeder neuen Serien-URL wird auf bereits vorhandene Serien-Sammelbände geprüft.\nFanFicFare bietet an, diese zu überspringen, wenn ein Sammelband gefunden wurde.\nFunktioniert nicht, wenn \"Aktualisiere Calibre Metadaten aus der gespeicherten Metadaten-Spalte\" selektiert ist."
 
 #: config.py:471
 msgid "Check for changed Story URL?"
@@ -270,7 +270,7 @@ msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr ""
+msgstr "Markiere hinzugefügte/aktualisierte Bücher, wenn fertig. Verwendbar mit der nachfolgenden Option.\nSie können auch manuell nach 'marked:fff_success' (erfolgreich) suchen.\n'marked:fff_failed' (gescheitert) steht ebenfalls zur Verfügung, oder suche 'marked:fff' für beides."
 
 #: config.py:486
 msgid "Show Marked books when finished?"
@@ -281,7 +281,7 @@ msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr ""
+msgstr "Zeige markierte hinzugefügte/aktualisierte Bücher, wenn fertig. \nSie können auch manuell nach 'marked:fff_success' (erfolgreich) suchen.\n'marked:fff_failed' (gescheitert) steht ebenfalls zur Verfügung, oder suche 'marked:fff' für beides."
 
 #: config.py:491
 msgid "Smarten Punctuation (EPUB only)"
@@ -599,7 +599,7 @@ msgstr ""
 
 #: config.py:857
 msgid "Generate Calibre Cover:"
-msgstr ""
+msgstr "Erzeuge Calibre Cover:"
 
 #: config.py:884
 msgid "Plugin %(gc)s"
@@ -1317,7 +1317,7 @@ msgid ""
 "control to you quicker while updating, but you won't be asked for "
 "username/passwords or if you are an adult--stories that need those will just"
 " fail."
-msgstr ""
+msgstr "Sammelt Metadaten von Webseiten im Hintergrund.\nWährend eines Updates gibt dies die Kontrolle schneller an Sie zurück, aber Sie werden nicht nach Nutzernamen/Passwörtern oder ihrem Alter gefragt--Geschichten, die diese Daten benötigen, können nicht geladen werden."
 
 #: dialogs.py:913 fff_plugin.py:1434 fff_plugin.py:1633 fff_plugin.py:1663
 msgid "Comment"
@@ -1894,7 +1894,7 @@ msgstr "Das existierende EPUB hat %d Kapitel, die Web-Seite nur %d. Benutzen Sie
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
-msgstr ""
+msgstr "FanFicFare kann keine Kapitel im bestehenden epub erkennen, epub ist wahrscheinlich aus einer anderen Quelle. Verwenden Sie überschreiben, um die Aktualisierung zu erzwingen."
 
 #: fff_plugin.py:1312 jobs.py:208
 msgid "Not Overwriting, web site is not newer."
@@ -2036,25 +2036,25 @@ msgstr "Fehler"
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr ""
+msgstr "Sie konfigurierten FanFicFare Lese-Listen automatisch zu aktualisieren, aber Sie haben dieses % s Plugin nicht mehr installiert?"
 
 #: fff_plugin.py:2118
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr ""
+msgstr "Sie konfigurierten FanFicFare die \"zu lesen\"-Lese-Liste automatisch zu aktualisieren, aber Sie haben noch keine Listen festgelegt?"
 
 #: fff_plugin.py:2128 fff_plugin.py:2146
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr ""
+msgstr "Sie konfigurierten FanFicFare Lese-Listen automatisch zu aktualisieren, aber Sie haben keine Listen mit diesem Namen?"
 
 #: fff_plugin.py:2134
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr ""
+msgstr "Sie konfigurierten FanFicFare die \"ans Gerät senden\"-Lese-Listen automatisch zu aktualisieren, aber Sie haben noch keine Listen festgelegt?"
 
 #: fff_plugin.py:2257
 msgid "No story URL found."
