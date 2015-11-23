@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version="2.2.14",
+    version="2.2.15",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
