@@ -92,7 +92,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['page'] = 'http://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
+        loginUrl = 'https://' + self.getSiteDomain() + '/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
 
