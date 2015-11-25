@@ -100,7 +100,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         # set first URL
         a = soup.find('a', href=re.compile(r"viewstory.php\?sid=\d+"))
         ## href = "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree  as well as graphic violent situations.  ')) location = 'viewstory.php?sid=49111&i=1'"
-        m = re.match(r'.*?(viewstory.php\?sid=\d+)&i=\d+.*?',a['href'])
+        m = re.match(r'.*?(viewstory.php\?sid=\d+)',a['href'])
         self._setURL('http://'+self.host+'/eff/'+m.group(1))
         if self.parsedUrl.query.split('=',)[1] != self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
