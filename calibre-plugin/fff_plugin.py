@@ -528,7 +528,8 @@ class FanFicFarePlugin(InterfaceAction):
 
     def get_urls_from_page(self,url):
         logger.debug("get_urls_from_page URL:%s"%url)
-        if 'archiveofourown.org' in url:
+        ## some sites hide mature links unless logged in.
+        if 'archiveofourown.org' in url or 'fimfiction.net' in url:
             configuration = get_fff_config(url)
         else:
             configuration = None

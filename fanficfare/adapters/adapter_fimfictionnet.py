@@ -68,23 +68,26 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
+
+    def set_adult_cookie(self):
+        cookie = cl.Cookie(version=0, name='view_mature', value='true',
+                           port=None, port_specified=False,
+                           domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
+                           path='/', path_specified=True,
+                           secure=False,
+                           expires=time.time()+10000,
+                           discard=False,
+                           comment=None,
+                           comment_url=None,
+                           rest={'HttpOnly': None},
+                           rfc2109=False)
+        self.get_cookiejar().set_cookie(cookie)        
     
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         
         if self.is_adult or self.getConfig("is_adult"):
-            cookie = cl.Cookie(version=0, name='view_mature', value='true',
-                               port=None, port_specified=False,
-                               domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
-                               path='/story', path_specified=True,
-                               secure=False,
-                               expires=time.time()+10000,
-                               discard=False,
-                               comment=None,
-                               comment_url=None,
-                               rest={'HttpOnly': None},
-                               rfc2109=False)
-            self.cookiejar.set_cookie(cookie)
-
+            self.set_adult_cookie()
+            
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
 

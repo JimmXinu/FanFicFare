@@ -127,7 +127,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
                                comment_url=None,
                                rest={'HttpOnly': None},
                                rfc2109=False)
-            self.cookiejar.set_cookie(cookie)
+            self.get_cookiejar().set_cookie(cookie)
             self.setHeader()
 
         try:

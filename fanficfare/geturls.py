@@ -60,6 +60,10 @@ def get_urls_from_page(url,configuration=None,normalize=False):
                 # login the session.
                 adapter.performLogin(url,data)
                 # get the list page with logged in session.
+                
+        if 'fimfiction.net' in url and adapter.getConfig("is_adult"):
+            data = adapter._fetchUrl(url)
+            adapter.set_adult_cookie()
     
         # this way it uses User-Agent or other special settings.  Only AO3
         # is doing login.

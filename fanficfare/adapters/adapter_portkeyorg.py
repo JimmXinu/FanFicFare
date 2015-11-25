@@ -106,7 +106,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                                comment_url=None,
                                rest={'HttpOnly': None},
                                rfc2109=False) 
-            self.cookiejar.set_cookie(cookie)
+            self.get_cookiejar().set_cookie(cookie)
 
         try:
             data = self._fetchUrl(url)
