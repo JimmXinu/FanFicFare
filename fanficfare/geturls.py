@@ -186,7 +186,12 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     mail.login(user, passwd)
     mail.list()
     # Out: list of "folders" aka labels in gmail.
-    mail.select(folder) # , readonly=True connect to inbox.
+    mail.select('"%s"'%folder) # Needs to be quoted incase there are
+                               # spaces, etc.  imaplib doesn't
+                               # correctly quote folders with spaces.
+                               # However, it does check and won't
+                               # quote strings that already start and
+                               # end with ", so this is safe.
     
     result, data = mail.uid('search', None, "UNSEEN")
     
