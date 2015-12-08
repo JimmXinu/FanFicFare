@@ -122,9 +122,13 @@ def get_update_data(inputio,
                                 images[longdesc] = data
                                 img['src'] = img['longdesc']
                             except Exception as e:
-                                logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                logger.warn("Exception: %s"%(unicode(e)))
-                                traceback.print_exc()
+                                # don't report u'OEBPS/failedtoload',
+                                # it indicates a failed download
+                                # originally.
+                                if newsrc != u'OEBPS/failedtoload':
+                                    logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+                                    logger.warn("Exception: %s"%(unicode(e)))
+                                    traceback.print_exc()
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
