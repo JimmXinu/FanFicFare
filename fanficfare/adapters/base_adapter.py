@@ -599,6 +599,11 @@ class BaseSiteAdapter(Configurable):
                     # removes paired, but empty non paragraph tags.
                     if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
                         t.extract()
+
+                    # remove script tags cross the board.
+                    if t.name=='script':
+                        t.extract()
+                        
         except AttributeError, ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
