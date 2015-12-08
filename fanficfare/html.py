@@ -1,36 +1,39 @@
 #!/usr/bin/python
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
+## This module is used by mobi.py exclusively.
+
 import re
 import sys
 import StringIO
 import urllib
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 class HtmlProcessor:
   WHITESPACE_RE = re.compile(r'\s')
   # Look for </blockquote  <p>
-  BAD_TAG_RE = re.compile(r'<[^>]+<', re.MULTILINE)
+  #BAD_TAG_RE = re.compile(r'<[^>]+<', re.MULTILINE)
 
   def __init__(self, html, unfill=0):
     self.unfill = unfill
-    html = self._ProcessRawHtml(html)
-    self._soup = BeautifulSoup(html)
+#    html = self._ProcessRawHtml(html)
+    self._soup = BeautifulSoup(html,'html5lib')
     if self._soup.title.contents:
       self.title = self._soup.title.contents[0]
     else:
       self.title = None
 
-  def _ProcessRawHtml(self, html):
-    new_html, count = HtmlProcessor.BAD_TAG_RE.subn('<', html)
-    if count:
-      print >>sys.stderr, 'Replaced %d bad tags' % count
-    return new_html
+  # Unnecessary with BS4
+  # def _ProcessRawHtml(self, html):
+  #   new_html, count = HtmlProcessor.BAD_TAG_RE.subn('<', html)
+  #   if count:
+  #     print >>sys.stderr, 'Replaced %d bad tags' % count
+  #   return new_html
 
   def _StubInternalAnchors(self):
     '''Replace each internal anchor with a fixed-size filepos anchor.
-
+\
     Looks for every anchor with <a href="#myanchor"> and replaces that
     with <a filepos="00000000050">. Stores anchors in self._anchor_references'''
     self._anchor_references = []
@@ -44,11 +47,14 @@ class HtmlProcessor:
       del anchor['href']
       anchor['filepos'] = '%.10d' % anchor_num
       anchor_num += 1
-            
+
   def _ReplaceAnchorStubs(self):
     # TODO: Browsers allow extra whitespace in the href names.
-    # use __str__ instead of prettify--it inserts extra spaces.
-    assembled_text = self._soup.__str__('utf8')
+
+    # str() instead of unicode() rather than figure out how to fix
+    # ancient mobi.py code.
+    assembled_text = str(self._soup)
+
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
       ref = urllib.unquote(original_ref[1:]) # remove leading '#'
