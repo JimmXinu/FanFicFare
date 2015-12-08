@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+import bs4 as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -222,7 +222,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         html = html.replace("<hr>", "<hr/>")
         html = html.replace("<br>", "<br/>")
 
-        soup =  bs.BeautifulSoup(html, selfClosingTags=['br','hr']) # otherwise soup eats the br/hr tags.)
+        soup =  self.make_soup(html)
 
         ## fix all local image 'src' to absolute
         for img in soup.findAll("img", {"src": _REGEX_DOESNT_START_WITH_HTTP}):
@@ -362,9 +362,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
         if pagetitleDiv.find('a') is None:
             raise execeptions.FailedToDownload("Couldn't find title and author")
-        self.story.setMetadata('title', pagetitleDiv.find("a").text)
+        self.story.setMetadata('title', pagetitleDiv.find("a").string)
         authorLink = pagetitleDiv.findAll("a")[1]
-        self.story.setMetadata('author', authorLink.text)
+        self.story.setMetadata('author', authorLink.string)
         self.story.setMetadata('authorId', re.search("\d+", authorLink['href']).group(0))
         self.story.setMetadata('authorUrl', self.getViewUserUrl(self.story.getMetadata('authorId')))
 
@@ -376,7 +376,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             while nextEl is not None and not (\
                         type(nextEl) is bs.Tag \
                         and nextEl.name == "span" \
-                        and nextEl['class'] =='label' \
+                        and 'label' in nextEl['class'] \
                         ):
                 ## must string copy nextEl or nextEl will change trees
                 if (type(nextEl) is bs.Tag):
@@ -384,7 +384,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 else:
                     valueStr += unicode(nextEl)
                 nextEl = nextEl.nextSibling
-            key = labelSpan.text.strip()
+            key = labelSpan.string.strip()
 
             ## strip trailing line breaks
             valueStr = re.sub("<br />", "", valueStr)
@@ -407,11 +407,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             soup = self._fetch_to_soup(self.url + '&index=1')
 
         chapterLinks = []
-        for b in soup.findAll("b", text=_REGEX_CHAPTER_B):
-            chapterId = _REGEX_CHAPTER_B.search(b).group('chapterId')
-            chapterLink = b.findNext("a")
-            chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
-            self.chapterUrls.append((chapterLink.text, chapterLink['href']))
+        for b in soup.find_all("b"):
+            m = _REGEX_CHAPTER_B.search(stripHTML(b))
+            if m:
+                chapterId = m.group('chapterId')
+                chapterLink = b.findNext("a")
+                chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
+                self.chapterUrls.append((chapterLink.string, chapterLink['href']))
 
         ## Store reference to soup for getChapterText
         self.html = soup
