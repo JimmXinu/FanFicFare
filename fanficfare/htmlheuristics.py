@@ -19,7 +19,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import codecs
-import BeautifulSoup as bs
+import bs4 as bs
 import HtmlTagStack as stack
 
 from . import exceptions as exceptions
@@ -147,7 +147,7 @@ def replace_br_with_p(body):
             contentLinesSum += lineLen
             if lineLen > longestLineLength:
                 longestLineLength = lineLen
-                
+
     if contentLines == 0:
         contentLines = 1
 
@@ -258,7 +258,7 @@ def soup_up_div(body):
 
     body = body.replace(u'<br />', u'[br /]')
 
-    soup = bs.BeautifulSoup(body)
+    soup = bs.BeautifulSoup(body,'html5lib')
 
     body = u''
     lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
