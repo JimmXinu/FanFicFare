@@ -85,10 +85,16 @@ def do_download_worker(book_list,
         logger.info(job.details)
 
         if count >= total:
-            logger.info("\n"+_("Successful:")+"\n%s\n"%("\n".join([book['url'] for book in 
-                                                      filter(lambda x: x['good'], book_list) ] ) ) )
-            logger.info("\n"+_("Unsuccessful:")+"\n%s\n"%("\n".join([book['url'] for book in 
-                                                        filter(lambda x: not x['good'], book_list) ] ) ) )
+            ## ordering first by good vs bad, then by listorder.
+            good_list = filter(lambda x : x['good'], book_list)
+            bad_list = filter(lambda x : not x['good'], book_list)
+            good_list = sorted(good_list,key=lambda x : x['listorder'])
+            bad_list = sorted(bad_list,key=lambda x : x['listorder'])
+            
+            logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(url)s %(comment)s" % book for book in good_list+bad_list])))
+            
+            logger.info("\n"+_("Successful:")+"\n%s\n"%("\n".join([book['url'] for book in good_list])))
+            logger.info("\n"+_("Unsuccessful:")+"\n%s\n"%("\n".join([book['url'] for book in bad_list])))
             break
 
     server.close()
