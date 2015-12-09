@@ -387,7 +387,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             key = labelSpan.string.strip()
 
             ## strip trailing line breaks
-            valueStr = re.sub("<br />", "", valueStr)
+            valueStr = re.sub("<br/>", "", valueStr)
 
             ## strip trailing colons
             key = re.sub("\s*:\s*$", "", key)
