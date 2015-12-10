@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ash')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -92,23 +92,23 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('div', {'class':"story border"}).find('span',{'class':'left'})
         title=stripHTML(a).split('"')[1]
         self.story.setMetadata('title',title)
-        
+
         # Find authorid and URL from... author url.
         author = a.find('a')
         self.story.setMetadata('authorId',author['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+author['href'])
         self.story.setMetadata('author',author.string)
 		
-        authorSoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 		
         chapter=soup.find('select',{'name':'chapter'}).findAll('option')
 	
@@ -174,18 +174,17 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
                 break
 	
 	
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div',{'class':"chapter bordersolid"}).findNext('div').findNext('div')
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

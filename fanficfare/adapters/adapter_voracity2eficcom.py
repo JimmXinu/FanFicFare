@@ -3,7 +3,7 @@ import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
+from bs4.element import Tag
 
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -87,7 +87,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():
@@ -159,7 +159,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 keep_summary_html = self.getConfig('keep_summary_html')
 
                 for sibling in _yield_next_siblings(b_tag):
-                    if isinstance(sibling, BeautifulSoup.Tag):
+                    if isinstance(sibling, Tag):
                         # Encountered next label, break. This method is the
                         # safest and most reliable I could think of. Blame
                         # e-fiction sites that allow their users to include

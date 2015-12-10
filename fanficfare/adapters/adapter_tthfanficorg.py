@@ -40,7 +40,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
             self._setURL("http://"+self.getSiteDomain()\
                          +"/Story-"+self.story.getMetadata('storyId'))
@@ -70,7 +70,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
-    
+
     # tth won't send you future updates if you aren't 'caught up'
     # on the story.  Login isn't required for F21, but logging in will
     # mark stories you've downloaded as 'read' on tth.
@@ -87,7 +87,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         if not params['password']:
             return
-        
+
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['urealname']))
@@ -102,9 +102,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(loginUrl))
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
-        
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Stories Published" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                              params['urealname']))
@@ -124,7 +124,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         # on the story.  Login isn't required for F21, but logging in will
         # mark stories you've downloaded as 'read' on tth.
         self.performLogin()
-        
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
@@ -135,12 +135,12 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(url)
             else:
                 raise e
-            
+
         descurl = url
-            
+
         if "<h2>Story Not Found</h2>" in data:
             raise exceptions.StoryDoesNotExist(url)
-        
+
         if self.is_adult or self.getConfig("is_adult"):
             form = soup.find('form', {'id':'sitemaxratingform'})
             # if is_adult and rating isn't already set to FR21, set it so.
@@ -221,16 +221,16 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     self.chapterUrls.append(("%d. %s by %s"%(len(self.chapterUrls)+1,
                                                              stripHTML(a),
                                                              stripHTML(autha)),'http://'+self.host+a['href']))
-                                            
+
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(url)
                 else:
                     raise e
         else: # single author:
-            # Find the chapter selector 
+            # Find the chapter selector
             select = soup.find('select', { 'name' : 'chapnav' } )
-        	 
+        	
             if select is None:
         	   # no selector found, so it's a one-chapter story.
         	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -240,7 +240,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     url = "http://"+self.host+o['value']
                     # just in case there's tags, like <i> in chapter titles.
                     self.chapterUrls.append((stripHTML(o),url))
-    
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         verticaltable = soup.find('table', {'class':'verticaltable'})
@@ -259,7 +259,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         verticaltabletds = verticaltable.findAll('td')
         self.story.setMetadata('rating', verticaltabletds[2].string)
         self.story.setMetadata('numWords', verticaltabletds[4].string)
-        
+
         # Complete--if completed.
         if 'Yes' in verticaltabletds[10].string:
             self.story.setMetadata('status', 'Completed')
@@ -280,7 +280,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         #print("BtVS: %s BtVSNonX: %s"%(BtVS,BtVSNonX))
         if BtVS:
             self.story.addToList('category','Buffy: The Vampire Slayer')
-            
+
         pseries = soup.find('p', {'style':'margin-top:0px'})
         #print("pseries:%s"%pseries.get_text())
         m = re.match('This story is No\. (?P<num>\d+) in the series "(?P<series>.+)"\.',
@@ -294,7 +294,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'storyinnerbody'})
-        
+
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 

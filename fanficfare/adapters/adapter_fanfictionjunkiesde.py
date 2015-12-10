@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -70,22 +70,22 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
         self._setURL('http://' + self.getSiteDomain() + '/efiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ffjde') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%y" # XXX
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -106,7 +106,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -118,13 +118,13 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/efiction/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -166,33 +166,33 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "For adults only " in data: # XXX 
+        if "For adults only " in data: # XXX
             raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.find('h4')
-        ## Title      
+        ## Title
         a = pagetitle.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',a.string)
-        
+
         # Find authorid and URL from... author url.
         a = pagetitle.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/efiction/'+a['href'])
         self.story.setMetadata('author',a.string)
-        
+
         # Reviews
         reviewdata = soup.find('div', {'id' : 'sort'})
         a = reviewdata.findAll('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
-        self.story.setMetadata('reviews',stripHTML(a)) 
+        self.story.setMetadata('reviews',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
@@ -210,12 +210,12 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
                 return d[k]
             except:
                 return ""
-                           
+
 
         # <span class="label">Rated:</span> NC-17<br /> etc
         list = soup.find('div', {'class':'listbox'})
-        
-        
+
+
         labels = list.findAll('b')
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -248,7 +248,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
 
             if 'Ver&ouml;ffentlicht' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Aktualisiert' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -261,7 +261,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             series_url = 'http://'+self.host+'/efiction/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -270,22 +270,21 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

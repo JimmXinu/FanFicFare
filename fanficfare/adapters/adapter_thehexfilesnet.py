@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','thf')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y.%m.%d"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -92,27 +92,27 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
-        
+
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',stripHTML(a))
-        asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 		
         try:
             # in case link points somewhere other than the first chapter
             a = soup.findAll('option')[1]['value']
             self.story.setMetadata('storyId',a.split('=',)[1])
             url = 'http://'+self.host+'/'+a
-            soup = bs.BeautifulSoup(self._fetchUrl(url))
+            soup = self.make_soup(self._fetchUrl(url))
         except:
             pass
 		
@@ -176,32 +176,31 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr','img')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(self._fetchUrl(url))
 
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         # Ugh.  chapter html doesn't haven't anything useful around it to demarcate.
         for a in soup.findAll('table'):
-            a.extract()        
+            a.extract()
 
         for a in soup.findAll('head'):
             a.extract()
 
         html = soup.find('html')
         html.name='div'
-            
+
         return self.utf8FromSoup(url,soup)

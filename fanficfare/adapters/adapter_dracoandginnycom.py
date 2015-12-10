@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','dcagn')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -81,7 +81,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -93,13 +93,13 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -156,23 +156,23 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -198,17 +198,17 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
 
         # <span class="label">Rated:</span> NC-17<br /> etc
         content=soup.find('div',{'class' : 'listbox'})
-        
+
         self.setDescription(url,content.find('blockquote'))
-        
+
         for genre in content.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')):
             self.story.addToList('genre',genre.string)
 
         for warning in content.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')):
             self.story.addToList('warnings',warning.string)
-        
+
         labels = content.findAll('b')
-        
+
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
@@ -216,14 +216,14 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while value and 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
 
             if 'Word count' in label:
                 self.story.setMetadata('numWords', value.split(' |')[0])
-                
+
             if 'Rating' in label:
                 self.story.setMetadata('rating', value)
 
@@ -254,8 +254,8 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
 
             if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value.nextSibling).split(' |')[0], self.dateformat))
-            
+                self.story.setMetadata('datePublished', makeDate(stripHTML(value).split(' |')[0], self.dateformat))
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
@@ -266,7 +266,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -278,25 +278,24 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'class' : 'listbox'})
-        
+
         if None == div:
             div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

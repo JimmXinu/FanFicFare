@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -45,22 +45,22 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL("http://"+self.getSiteDomain()\
                          +"/chapters.php?stid="+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ncisfn')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -69,7 +69,7 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
     ## Changed from www.ncisfiction.com to www.ncisfiction.net Oct
     ## 2012 due to the ncisfiction.com domain expiring.  Still accept
     ## .com domains for existing updates, etc.
-    
+
     @classmethod
     def getAcceptDomains(cls):
         return ['www.ncisfiction.net','www.ncisfiction.com']
@@ -80,7 +80,7 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return r'http://www\.ncisfiction\.(net|com)/(chapters|story)?.php\?stid=\d+'
-       
+
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -98,24 +98,24 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulStoneSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title and author
         a = soup.find('div', {'class' : 'main_title'})
-        
+
         aut = a.find('a')
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+aut['href'])
         self.story.setMetadata('author',aut.string)
-        
+
         aut.extract()
         self.story.setMetadata('title',stripHTML(a)[:len(stripHTML(a))-2])
 
@@ -138,9 +138,9 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
         # formating, so it's a little ugly.
 
         info = soup.find('table', {'class' : 'story_info'})
-        
+
         # no convenient way to calculate word count as it is logged differently for stories with and without series
-        
+
         labels = info.findAll('tr')
         for tr in labels:
             value = tr.find('td')
@@ -182,7 +182,7 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
                     self.story.setMetadata('status', 'In-Progress')
                 else:
                     self.story.setMetadata('status', 'Completed')
-                    
+
         try:
             # Find Series name from series URL.
             a = soup.find('div',{'class' : 'sub_header'})
@@ -193,18 +193,17 @@ class NCISFictionNetAdapter(BaseSiteAdapter):
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'class' : 'story_text'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

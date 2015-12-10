@@ -22,7 +22,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -39,20 +39,20 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('authorId',m.group('auth'))
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
             self._setURL(url)
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.fictionalley.org'
@@ -92,17 +92,17 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         chapterdata = data
         # If chapter list page, get the first chapter to look for adult check
         chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
         if chapterlinklist:
             chapterdata = self._postFetchWithIAmOld(chapterlinklist[0]['href'])
-            
+
         if "Are you over seventeen years old" in chapterdata:
             raise exceptions.AdultCheckRequired(self.url)
-        
+
         if not chapterlinklist:
             # no chapter list, chapter URL: change to list link.
             # second a tag inside div breadcrumbs
@@ -113,19 +113,19 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             ## title's right there...
             self.story.setMetadata('title',stripHTML(storya))
             data = self._fetchUrl(url)
-            soup = bs.BeautifulSoup(data)
+            soup = self.make_soup(data)
             chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
         else:
             ## still need title from somewhere.  If chapterlinklist,
             ## then chapterdata contains a chapter, find title the
             ## same way.
-            chapsoup = bs.BeautifulSoup(chapterdata)
+            chapsoup = self.make_soup(chapterdata)
             storya = chapsoup.find('div',{'class':'breadcrumbs'}).findAll('a')[1]
             self.story.setMetadata('title',stripHTML(storya))
             del chapsoup
 
         del chapterdata
-        
+
         ## authorid already set.
         ## <h1 class="title" align="center">Just Off The Platform II by <a href="http://www.fictionalley.org/authors/drt/">DrT</a></h1>
         authora=soup.find('h1',{'class':'title'}).find('a')
@@ -144,7 +144,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
         ## Go scrape the rest of the metadata from the author's page.
         data = self._fetchUrl(self.story.getMetadata('authorUrl'))
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # <dl><dt><a class = "Rid story" href = "http://www.fictionalley.org/authors/aafro_man_ziegod/TMH.html">
         # [Rid] The Magical Hottiez</a> by <a class = "pen_name" href = "http://www.fictionalley.org/authors/aafro_man_ziegod/">Aafro Man Ziegod</a> </small></dt>
@@ -153,15 +153,15 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         # Chaos ensues after Witch Weekly, seeking to increase readers, decides to create a boyband out of five seemingly talentless wizards: Harry Potter, Draco Malfoy, Ron Weasley, Neville Longbottom, and Oliver "Toss Your Knickers Here" Wood.<br />
         # <small class = "storyinfo">Published: June 3, 2002 (between Goblet of Fire and Order of Phoenix) - Updated: June 3, 2002</small>
         # </dd></dl>
-        
+
         storya = soup.find('a',{'href':self.story.getMetadata('storyUrl')})
         storydd = storya.findNext('dd')
 
         # Rating: PG - Spoilers: None - 2525 hits - 736 words
         # Genre: Humor - Main character(s): H, R - Ships: None - Era: Multiple Eras
         # Harry and Ron are back at it again! They reeeeeeally don't want to be back, because they know what's awaiting them. "VH1 Goes Inside..." is back! Why? 'Cos there are soooo many more couples left to pick on.
-        # Published: September 25, 2004 (between Order of Phoenix and Half-Blood Prince) - Updated: September 25, 2004 
-               
+        # Published: September 25, 2004 (between Order of Phoenix and Half-Blood Prince) - Updated: September 25, 2004
+
         ## change to text and regexp find.
         metastr = stripHTML(storydd).replace('\n',' ').replace('\t',' ')
 
@@ -173,7 +173,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         if m:
             for g in m.group(1).split(','):
                 self.story.addToList('genre',g)
-        
+
         m = re.match(r".*?Published: ([a-zA-Z]+ \d\d?, \d\d\d\d).*?",metastr)
         if m:
             self.story.setMetadata('datePublished',makeDate(m.group(1), "%B %d, %Y"))
@@ -185,12 +185,12 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         m = re.match(r".*? (\d+) words Genre.*?",metastr)
         if m:
             self.story.setMetadata('numWords', m.group(1))
-            
+
         for small in storydd.findAll('small'):
             small.extract() ## removes the <small> tags, leaving only the summary.
         self.setDescription(url,storydd)
         #self.story.setMetadata('description',stripHTML(storydd))
-        
+
         return
 
     def getChapterText(self, url):
@@ -204,13 +204,12 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 	# something other than div prevents soup from pairing
 	# our div with poor html inside the story text.
 	data = data.replace('<!-- headerend -->','<crazytagstringnobodywouldstumbleonaccidently id="storytext">').replace('<!-- footerstart -->','</crazytagstringnobodywouldstumbleonaccidently>')
-        
+
         # problems with some stories confusing Soup.  This is a nasty
         # hack, but it works.
         data = data[data.index("<crazytagstringnobodywouldstumbleonaccidently"):]
 
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(data)
         body = soup.findAll('body') ## some stories use a nested body and body
                                     ## tag, in which case we don't
                                     ## need crazytagstringnobodywouldstumbleonaccidently
@@ -221,7 +220,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         else:
             text = soup.find('crazytagstringnobodywouldstumbleonaccidently', {'id' : 'storytext'})
             text.name='div' # change to div tag.
-            
+
         if not data or not text:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
@@ -230,10 +229,10 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         # epubutils.py
         for tag in text.findAll('head'):
             tag.extract()
-        
+
         for tag in text.findAll('body') + text.findAll('html'):
             tag.name = 'div'
-            
+
         return self.utf8FromSoup(url,text)
 
 def getClass():

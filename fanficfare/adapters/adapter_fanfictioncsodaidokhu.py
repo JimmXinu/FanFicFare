@@ -4,8 +4,7 @@ import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
-
+from bs4.element import Tag
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
@@ -65,7 +64,7 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():
@@ -147,7 +146,7 @@ class FanfictionCsodaidokHuAdapter(BaseSiteAdapter):
                     keep_summary_html = self.getConfig('keep_summary_html')
 
                     for sibling in _yield_next_siblings(element):
-                        if isinstance(sibling, BeautifulSoup.Tag):
+                        if isinstance(sibling, Tag):
                             if sibling.name == 'span' and sibling.get('class', None) == 'classification':
                                 break
 

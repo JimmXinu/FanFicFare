@@ -23,7 +23,7 @@ import urllib2
 import urlparse
 import time
 
-from .. import BeautifulSoup as bs
+from bs4.element import Tag, Comment
 from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, makeDate
@@ -113,7 +113,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
         try:
             data1 = self._fetchUrl(self.url)
-            soup = bs.BeautifulSoup(data1)
+            soup = self.make_soup(data1)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -121,7 +121,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                 raise e
 
         #strip comments from soup
-        [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, bs.Comment))]
+        [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, Comment))]
 
         # Cache the soups so we won't have to redownload in getChapterText later
         self.soupsCache = {}
@@ -137,7 +137,8 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
 
         # TODO better metadata
         date = soup.find("div", {"class": "submitted"}).string.strip()
-        date = re.sub(" &#151;.*", "", date)
+        # 11. April 2015 - 17:08
+        date = re.sub(r"(\d+\. \D+ \d+ - \d+:\d+).*", r"\1", date)
         date = _translate_date_german_english(date)
         self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
         title1 = soup.find("h1", {'class': 'title'}).string
@@ -179,7 +180,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             firstLink = "http://%s%s" % (self.getSiteDomain(), firstLinkDiv.findNext("a")['href'])
             logger.debug("Found first chapter right away <%s>" % firstLink)
             try:
-                soup = bs.BeautifulSoup(self._fetchUrl(firstLink))
+                soup = self.make_soup(self._fetchUrl(firstLink))
                 self.soupsCache[firstLink] = soup
                 self.chapterUrls.insert(0, (soup.find("h1").text, firstLink))
             except urllib2.HTTPError, e:
@@ -202,14 +203,14 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                     break
                 else:
                     logger.debug("Previous Chapter <%s>" % prevLink)
-                    if type(prevLink) != bs.Tag or prevLink.name != "a":
+                    if type(prevLink) != Tag or prevLink.name != "a":
                         prevLink = prevLink.findParent("a")
                     if prevLink is None or '#' in prevLink['href']:
                         logger.debug("Couldn't find prev part (false positive) <%s>" % prevLink)
                         break
                     prevLink = prevLink['href']
                 try:
-                    soup = bs.BeautifulSoup(self._fetchUrl(prevLink))
+                    soup = self.make_soup(self._fetchUrl(prevLink))
                     self.soupsCache[prevLink] = soup
                     prevTtitle = soup.find("h1", {'class': 'title'}).string
                     self.chapterUrls.insert(0, (prevTtitle, prevLink))
@@ -249,7 +250,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                 logger.debug("Couldn't find next part")
                 break
             else:
-                if type(nextLink) != bs.Tag or nextLink.name != "a":
+                if type(nextLink) != Tag or nextLink.name != "a":
                     nextLink = nextLink.findParent("a")
                 if nextLink is None or '#' in nextLink['href']:
                     logger.debug("Couldn't find next part (false positive) <%s>" % nextLink)
@@ -270,7 +271,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
                         break
             try:
                 data = self._fetchUrl(nextLink)
-                soup = bs.BeautifulSoup(data)
+                soup = self.make_soup(data)
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(nextLink)
@@ -280,7 +281,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             self.chapterUrls.append((title2, nextLink))
             logger.debug("Grabbing next chapter URL " + nextLink)
             self.soupsCache[nextLink] = soup
-            # [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, bs.Comment))]
+            # [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, Comment))]
         logger.debug("Chapters: %s" % self.chapterUrls)
 
 
@@ -289,7 +290,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
         curMax = self.maxChapter + step
         lastHit = True
         while True:
-            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, unicode(curMax), self.url) 
+            nextChapterUrl = re.sub(_REGEX_TRAILING_DIGIT, unicode(curMax), self.url)
             if nextChapterUrl == self.url:
                 logger.debug("Unable to guess next chapter because URL doesn't end in numbers")
                 break;
@@ -305,7 +306,7 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
             if hit:
                 logger.debug("Found chapter URL " + nextChapterUrl)
                 self.maxChapter = curMax
-                self.soupsCache[nextChapterUrl] = bs.BeautifulSoup(data)
+                self.soupsCache[nextChapterUrl] = self.make_soup(data)
                 if not lastHit:
                     break
                 lastHit = curMax
@@ -328,15 +329,15 @@ class BdsmGeschichtenAdapter(BaseSiteAdapter):
         else:
             logger.debug('Downloading chapter <%s>' % url)
             data1 = self._fetchUrl(url)
-            soup = bs.BeautifulSoup(data1)
+            soup = self.make_soup(data1)
             #strip comments from soup
-            [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, bs.Comment))]
+            [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, Comment))]
 
         # get story text
-        storyDiv1 = bs.Tag(soup, "div")
+        storyDiv1 = soup.new_tag("div")
         for para in soup.find("div", "full-node").find('div', 'content').findAll("p"):
             storyDiv1.append(para)
-        storyDiv1.append('<br />')
+        storyDiv1.append(soup.new_tag("br"))
         storytext = self.utf8FromSoup(url,storyDiv1)
 
         return storytext

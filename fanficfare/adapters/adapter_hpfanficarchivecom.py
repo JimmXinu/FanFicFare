@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','hpffa')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%B %d, %Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -89,20 +89,20 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -131,11 +131,13 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         for labelspan in labels:
             val = labelspan.nextSibling
             value = unicode('')
-            while val and not defaultGetattr(val,'class') == 'label':
-                value += unicode(val)
+            while val and not 'label' in defaultGetattr(val,'class'):
+                print("val:%s"%val)
+                if not isinstance(val,Comment):
+                    value += unicode(val)
                 val = val.nextSibling
             label = labelspan.string
-            #print("label:%s\nvalue:%s"%(label,value))
+            print("label:%s\nvalue:%s"%(label,value))
 
             if 'Summary' in label:
                 self.setDescription(url,value)
@@ -179,7 +181,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
@@ -190,7 +192,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/stories/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -202,21 +204,20 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
-        
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
-        
+
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 

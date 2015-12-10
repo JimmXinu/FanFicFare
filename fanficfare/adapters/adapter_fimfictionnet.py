@@ -34,18 +34,18 @@ def getClass():
     return FimFictionNetSiteAdapter
 
 class FimFictionNetSiteAdapter(BaseSiteAdapter):
-    
+
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fimficnet')
         self.story.setMetadata('storyId', self.parsedUrl.path.split('/',)[2])
         self._setURL("http://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
         self.is_adult = False
-        
+
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %b %Y"
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.fimfiction.net'
@@ -61,7 +61,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
-        
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -81,13 +81,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                            comment_url=None,
                            rest={'HttpOnly': None},
                            rfc2109=False)
-        self.get_cookiejar().set_cookie(cookie)        
-    
+        self.get_cookiejar().set_cookie(cookie)
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
-        
+
         if self.is_adult or self.getConfig("is_adult"):
             self.set_adult_cookie()
-            
+
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
 
@@ -102,13 +102,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-        
+
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
         if "This story has been marked as having adult content. Please click below to confirm you are of legal age to view adult material in your country." in data:
             raise exceptions.AdultCheckRequired(self.url)
-        
+
         if self.password:
             params = {}
             params['password'] = self.password
@@ -280,7 +280,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         if not (groupList == None):
             for groupName in groupList.find_all('a'):
-                self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"]) 
+                self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"])
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
 
         #sequels
@@ -289,7 +289,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if header.text.startswith('Sequels'):
                 sequelContainer = header.parent
                 for sequel in sequelContainer.find_all('a', {'class':'story_link'}):
-                    self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"]) 
+                    self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"])
                     self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
 
         #author last login
@@ -308,7 +308,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 durationGroups = re.match(r"(?:[^0-9]*(\d+?)w)?[^0-9]*(?:(\d+?)d)?", lastLoginString)
                 lastLogin = date.today() - timedelta(days=int(durationGroups.group(2) or 0), weeks=int(durationGroups.group(1) or 0))
             self.story.setMetadata("authorLastLogin", lastLogin)
-                
+
         #The link to the prequel is embedded in the description text, so erring
         #on the side of caution and wrapping this whole thing in a try block.
         #If anything goes wrong this probably wasn't a valid prequel link.
@@ -342,7 +342,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             data = re.sub(r'<p([^>]*>\s*)<blockquote([^>]*>)',r'<blockquote\2<p\1',data)
             data = re.sub(r'</blockquote(>\s*)</p>',r'</p\1</blockquote>',data)
         return data
-        
+
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 

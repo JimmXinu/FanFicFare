@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -33,7 +33,7 @@ def getClass():
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class TokraFandomnetComAdapter(BaseSiteAdapter): 
+class TokraFandomnetComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -46,21 +46,21 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','tokra')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m/%d/%Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.  But it
@@ -117,23 +117,23 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         #print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -163,7 +163,7 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
         genres = smalldiv.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
         for genre in genres:
             self.story.addToList('genre',genre.string)
-        
+
         chars = smalldiv.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
         for char in chars:
             self.story.addToList('characters',char.string)
@@ -192,7 +192,7 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -204,22 +204,22 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
         # remove 'small' leaving only summary.
         smalldiv.extract()
         self.setDescription(url,metadiv)
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url))
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'class' : 'content'})
 
         if None == div:
@@ -228,11 +228,11 @@ class TokraFandomnetComAdapter(BaseSiteAdapter):
         # remove some decorations while keeping notes.
         remove = div.find('div', {'id' : 'pagetitle'})
         remove.extract()
-    
+
         for remove in div.findAll('div', {'class' : 'right'}):
             remove.extract()
-    
+
         for remove in div.findAll('div', {'class' : 'left'}):
             remove.extract()
-    
+
         return self.utf8FromSoup(url,div)

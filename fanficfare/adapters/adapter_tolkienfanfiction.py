@@ -63,7 +63,8 @@ import urllib2
 import urlparse
 import string
 
-from .. import BeautifulSoup as bs
+from bs4.element import Comment
+from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter, makeDate
@@ -94,7 +95,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        self.decode = ["ISO-8859-1", "Windows-1252"] 
+        self.decode = ["ISO-8859-1", "Windows-1252"]
 
         self.story.setMetadata('siteabbrev','tolkien')
 
@@ -128,7 +129,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             # Get the link to the index page
             try:
                 chapterHtml = _fix_broken_markup(self._fetchUrl(self.url))
-                chapterSoup = bs.BeautifulSoup(chapterHtml)
+                chapterSoup = self.make_soup(chapterHtml)
                 indexLink = chapterSoup.find("a", text="[Index]").parent
                 self._normalizeURL('http://' + self.getSiteDomain() + '/' + indexLink.get('href'))
             except urllib2.HTTPError, e:
@@ -140,7 +141,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
         try:
             indexHtml = _fix_broken_markup(self._fetchUrl(self.url))
-            soup = bs.BeautifulSoup(indexHtml)
+            soup = self.make_soup(indexHtml)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -183,13 +184,13 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             self.story.setMetadata('numWords', numWords)
 
         # description
-        description = soup.find("b", text="Description:").parent.nextSibling.nextSibling
+        description = soup.find("b", text=re.compile("Description:")).nextSibling.nextSibling
         self.setDescription(self.url,description)
         logger.debug("Summary: '%s'" % description)
 
         # characters
-        characters = soup.find("b", text="Characters").parent.nextSibling.nextSibling.nextSibling
-        for character in characters.split(", "):
+        characters = soup.find("b", text="Characters").nextSibling.nextSibling
+        for character in stripHTML(characters).split(", "):
             self.story.addToList('characters', character)
         logger.debug("Characters: %s" % self.story.getMetadata('characters'))
 
@@ -206,7 +207,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             searchUrl = 'http://%s/Story_Chapter_Search.php?%s' % (self.host, queryString)
             logger.debug("Search URL: <%s>" % searchUrl)
             searchHtml = _fix_broken_markup(self._fetchUrl(searchUrl))
-            searchSoup = bs.BeautifulSoup(searchHtml)
+            searchSoup = self.make_soup(searchHtml)
             date = searchSoup.find(text="Updated:").nextSibling.string
             logger.debug("Last Updated: '%s'" % date)
             self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
@@ -222,10 +223,10 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
         time.sleep(0.5)
         htmldata = _fix_broken_markup(self._fetchUrl(url))
-        soup = bs.BeautifulSoup(htmldata)
+        soup = self.make_soup(htmldata)
 
         #strip comments from soup
-        [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, bs.Comment))]
+        [comment.extract() for comment in soup.findAll(text=lambda text:isinstance(text, Comment))]
 
         # Strip redundant headings
         [font.parent.extract() for font in soup.findAll("font", {"size": "4"})]

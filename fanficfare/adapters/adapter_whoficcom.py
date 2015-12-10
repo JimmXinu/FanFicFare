@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -38,7 +38,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        
+
     @staticmethod
     def getSiteDomain():
         return 'www.whofic.com'
@@ -61,10 +61,10 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         url = self.url+'&chapter=1'
         logger.debug("URL: "+url)
-        
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            soup = bs.BeautifulSoup(self._fetchUrl(url))
+            soup = self.make_soup(self._fetchUrl(url))
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -83,9 +83,9 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
 
-        # Find the chapter selector 
+        # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	 
+    	
         if select is None:
     	   # no selector found, so it's a one-chapter story.
     	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -112,10 +112,9 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # <i>Series:</i> None<br>
         # <i>Published:</i> 2010.08.15 - <i>Updated:</i> 2010.08.16 - <i>Chapters:</i> 4 - <i>Completed:</i> Yes - <i>Word Count:</i> 4890 </font>
         # </td></tr></table>
-             
+
         logger.debug("Author URL: "+self.story.getMetadata('authorUrl'))
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(self.story.getMetadata('authorUrl')),
-                                     selfClosingTags=('br')) # normalize <br> tags to <br />
+        soup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
         # find this story in the list, parse it's metadata based on
         # lots of assumptions about the html, since there's little
         # tagging.
@@ -124,7 +123,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # link instead to find the appropriate metadata.
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
-        metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br />')
+        metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br/>')
         # process metadata for this story.
         self.setDescription(url,metadatachunks[1])
         #self.story.setMetadata('description', metadatachunks[1])
@@ -132,9 +131,9 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # First line of the stuff with ' - ' separators
         moremeta = metadatachunks[2]
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
-        
+
         moremetaparts = moremeta.split(' - ')
-        
+
         # first part is category--whofic.com has categories
         # Doctor One-11, Torchwood, etc.  We're going to
         # prepend any with 'Doctor' or 'Era' (Multi-Era, Other
@@ -144,7 +143,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         category = moremetaparts[0]
         if 'Doctor' in category or 'Era' in category :
             self.story.addToList('category','Doctor Who')
-            
+
         for cat in category.split(', '):
             self.story.addToList('category',cat)
 
@@ -171,11 +170,11 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             for c in chars.split(','):
                 if c.strip() != u'None':
                     self.story.addToList('characters',c)
-            
+
         # the next line is stuff with ' - ' separators *and* names--with tags.
         moremeta = metadatachunks[5]
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
-        
+
         moremetaparts = moremeta.split(' - ')
 
         for part in moremetaparts:
@@ -201,7 +200,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -210,18 +209,17 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
 
         # hardly a great identifier, I know, but whofic really doesn't
         # give us anything better to work with.

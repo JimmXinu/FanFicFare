@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-#from .. import BeautifulSoup as bs
+#
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 

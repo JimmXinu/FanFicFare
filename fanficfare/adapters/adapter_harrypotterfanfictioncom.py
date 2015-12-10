@@ -23,7 +23,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -40,15 +40,15 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only psid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
 
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.harrypotterfanfiction.com'
@@ -87,9 +87,9 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Title
         a = soup.find('a', href=re.compile(r'\?psid='+self.story.getMetadata('storyId')))
@@ -97,8 +97,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         ## javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?psid=290995'
         if "This story may contain adult themes." in a['href'] and not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
-            
-        
+
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?showuid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -114,7 +114,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             if tdstr and tdstr.isdigit():
                 words+=int(tdstr)
         self.story.setMetadata('numWords',unicode(words))
-        
+
         # Find the chapters:
         tablelist = soup.find('table',{'class':'text'})
         for chapter in tablelist.findAll('a', href=re.compile(r'\?chapterid=\d+')):
@@ -161,18 +161,18 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             if m:
                 for g in m.group(1).split(','):
                     self.story.addToList('genre',g)
-    
+
             m = re.match(r".*?Characters: (.+?) Genre.*?",metastr)
             if m:
                 for g in m.group(1).split(','):
                     self.story.addToList('characters',g)
-    
+
             m = re.match(r".*?Warnings: (.+).*?",metastr)
             if m:
                 for w in m.group(1).split(','):
                     if w != 'Now Warnings':
                         self.story.addToList('warnings',w)
-    
+
             m = re.match(r".*?First Published: ([0-9\.]+).*?",metastr)
             if m:
                 self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y.%m.%d"))
@@ -186,11 +186,14 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        ## most adapters use BeautifulStoneSoup here, but non-Stone
-        ## allows nested div tags.
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        data = self._fetchUrl(url)
+
+        # remove everything after here--the site's chapters break the
+        # BS4 parser.
+        data = data[:data.index('<script type="text/javascript" src="reviewjs.js">')]
         
+        soup = self.make_soup(data)
+
         div = soup.find('div', {'id' : 'fluidtext'})
 
         if None == div:

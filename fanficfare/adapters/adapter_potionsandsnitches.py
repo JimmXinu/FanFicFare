@@ -23,7 +23,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -39,15 +39,15 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/fanfiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.potionsandsnitches.org'
@@ -78,14 +78,14 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -99,20 +99,12 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-        ## <meta name='description' content='&lt;p&gt;Description&lt;/p&gt; ...' >
-        ## Summary, strangely, is in the content attr of a <meta name='description'> tag
-        ## which is escaped HTML.  Unfortunately, we can't use it because they don't
-        ## escape (') chars in the desc, breakin the tag.
-        #meta_desc = soup.find('meta',{'name':'description'})
-        #metasoup = bs.BeautifulStoneSoup(meta_desc['content'])
-        #self.story.setMetadata('description',stripHTML(metasoup))
-
         def defaultGetattr(d,k):
             try:
                 return d[k]
             except:
                 return ""
-        
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -122,7 +114,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next div class='listbox'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'listbox':
+                while 'listbox' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -166,7 +158,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             if 'Published' in label:
                 # limit date values, there's some extra chars.
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value[:12]), "%d %b %Y"))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value[:12]), "%d %b %Y"))
 
@@ -177,7 +169,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/fanfiction/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -186,24 +178,23 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
-        
+
+
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)
 
 def getClass():

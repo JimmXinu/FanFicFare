@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -40,7 +40,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        
+
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
@@ -49,12 +49,12 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL. gets rid of chapter if there, left with chapter index URL
             nurl = "http://"+self.getSiteDomain()+"/historias/"+self.story.getMetadata('storyId')
             self._setURL(nurl)
@@ -62,8 +62,8 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
-        
+
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','potficscom')
 
@@ -94,7 +94,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self,url):
         params = {}
 
@@ -157,7 +157,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
         if "Esta historia no existe. Probablemente ha sido eliminada." in data:
             raise exceptions.StoryDoesNotExist(self.url)
-        
+
         ##print data
 
         #deal with adult content login
@@ -165,7 +165,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url,usecache=False)
-            
+
         #set constant meta for this site:
         #Set Language = Spanish
         self.story.setMetadata('language', 'Spanish')
@@ -174,12 +174,12 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #  by adding a section for this site with the line:
         #  extracategories:Harry Potter
         #self.story.addToList('category','Harry Potter')
-        
+
         #get the rest of the meta
         # use BeautifulSoup HTML parser to make everything easier to find.
         #self closing br and img present!
-        soup = bs.BeautifulSoup(data,selfClosingTags=('br','img'))
-    
+        soup = self.make_soup(data)
+
         #we want the second table directly under the body, contains all the metadata
         table = soup.html.body.findAll('table', recursive=False)[1]
         #within that, we want the second row, first cell
@@ -223,11 +223,11 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         hour = int(time[0])
         minute = int(time[1])
         self.story.setMetadata('dateUpdated', datetime.datetime(year, month, day, hour, minute))
-        
+
         mb = mb.span.findNextSibling('span').findNextSibling('span')
         wc = mb.find(text=re.compile(' palabras en total')).strip()
         self.story.setMetadata('numWords', wc.split()[0])
-        
+
         #then we come to categories and genres. Oh dear. On this site, categories hold everything from genre, to ships, to crossovers.
         #To make things worse, there is also another genre field, which often holds similar/duplicate info. Links to genre pages do not work
         #though, so perhaps those will be phased out?
@@ -235,7 +235,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         links = mb.findAll('a',href=re.compile('/(categorias|generos)/\d+'))
         genlist = [i.string.strip() for i in links]
         self.story.extendList('genre',genlist)
-        
+
         #get the chapter urls
         #we can go back to the table cell we found before
         #get its last element and work backwards to find the last ordered list on the page
@@ -250,15 +250,15 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             chapters.append((chTitle,chURL))
             #Get reviews, add to total
             revs += int(li.div.a.string.split()[0])
-        
+
         self.chapterUrls.extend(chapters)
         self.story.setMetadata('numChapters', len(chapters))
         self.story.setMetadata('reviews', revs)
-        
+
         #Now for the description... this may be tricky...
         #if it is there (doesn't have to be), it will be before the chapter list,
         #separated by a horizontal rule, and after the google ad bar
-        
+
         #get list's parent div
         mb = list.parent
         #get the div before that, will either be the description, or the google ad bar
@@ -268,17 +268,16 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             pass
         else:
             self.setDescription(url,mb)
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr','img'))
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'cuerpoHistoria'})
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         return self.utf8FromSoup(url,div)

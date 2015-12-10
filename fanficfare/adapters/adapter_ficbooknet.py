@@ -23,7 +23,7 @@ import re
 import urllib2
 from .. import translit
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -49,21 +49,21 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/readfic/'+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fbn')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %m %Y" 
-            
+        self.dateformat = "%d %m %Y"
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -90,17 +90,17 @@ class FicBookNetAdapter(BaseSiteAdapter):
 				
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # Now go hunting for all the meta data and the chapter list.
 		
         table = soup.find('td',{'width':'50%'})
-        
+
         ## Title
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
         logger.debug("Title: (%s)"%self.story.getMetadata('title'))
-        
+
         # Find authorid and URL from... author url.
         a = table.find('a')
         self.story.setMetadata('authorId',a.text) # Author's name is unique
@@ -118,9 +118,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 churl='http://'+self.host+chapter['href']
                 self.chapterUrls.append((stripHTML(chapter),churl))
                 if x == 0:
-                    pubdate = translit.translit(stripHTML(bs.BeautifulSoup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
+                    pubdate = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
                 if x == len(chapters)-1:
-                    update = translit.translit(stripHTML(bs.BeautifulSoup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
+                    update = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
         else:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
             self.story.setMetadata('numChapters',1)
@@ -135,19 +135,20 @@ class FicBookNetAdapter(BaseSiteAdapter):
             update=datetime.date.today().strftime(self.dateformat)
         pubdate=pubdate.split(',')[0]
         update=update.split(',')[0]
-		
-        fullmon = {"yanvarya":"01", "января":"01",
-           "fievralya":"02", "февраля":"02",
-           "marta":"03", "марта":"03",
-           "aprielya":"04", "апреля":"04",
-           "maya":"05", "мая":"05",
-           "iyunya":"06", "июня":"06",
-           "iyulya":"07", "июля":"07",
-           "avghusta":"08", "августа":"08",
-           "sentyabrya":"09", "сентября":"09",
-           "oktyabrya":"10", "октября":"10",
-           "noyabrya":"11", "ноября":"11",
-           "diekabrya":"12", "декабря":"12" }
+
+        fullmon = {"yanvarya":"01", u"января":"01",
+           "fievralya":"02", u"февраля":"02",
+           "marta":"03", u"марта":"03",
+           "aprielya":"04", u"апреля":"04",
+           "maya":"05", u"мая":"05",
+           "iyunya":"06", u"июня":"06",
+           "iyulya":"07", u"июля":"07",
+           "avghusta":"08", u"августа":"08",
+           "sentyabrya":"09", u"сентября":"09",
+           "oktyabrya":"10", u"октября":"10",
+           "noyabrya":"11", u"ноября":"11",
+           "diekabrya":"12", u"декабря":"12" }
+
         for (name,num) in fullmon.items():
             if name in pubdate:
                 pubdate = pubdate.replace(name,num)
@@ -160,7 +161,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 		
         pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
         pr='http://'+self.host+pr['href']
-        pr = bs.BeautifulSoup(self._fetchUrl(pr))
+        pr = self.make_soup(self._fetchUrl(pr))
         pr=pr.findAll('div', {'class' : 'part_text'})
         i=0
         for part in pr:
@@ -173,13 +174,13 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.addToList('category',fandom.string)
             i=i+1
         if i > 1:
-            self.story.addToList('genre', 'Кроссовер')
+            self.story.addToList('genre', u'Кроссовер')
 		
         meta=table.findAll('a', href=re.compile(r'/ratings/'))
         i=0
         for m in meta:
             if i == 0:
-                self.story.setMetadata('rating', m.find('b').text)
+                self.story.setMetadata('rating', stripHTML(m))
                 i=1
             elif i == 1:
                 if not "," in m.nextSibling:
@@ -198,7 +199,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         tags = table.findAll('b')
         for tag in tags:
             label = translit.translit(tag.text)
-            if 'Piersonazhi:' in label or 'Персонажи:' in label:
+            if 'Piersonazhi:' in label or u'Персонажи:' in label:
                 chars=tag.nextSibling.string.split(', ')
                 for char in chars:
                     self.story.addToList('characters',char)
@@ -207,20 +208,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
         summary=soup.find('span', {'class' : 'urlize'})
         self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         chapter = soup.find('div', {'class' : 'public_beta'})
         if chapter == None:
             chapter = soup.find('div', {'class' : 'public_beta_disabled'})
 
         if None == chapter:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,chapter)

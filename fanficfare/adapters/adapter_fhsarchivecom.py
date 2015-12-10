@@ -32,11 +32,11 @@ class FHSArchiveComAdapter(BaseEfictionAdapter):
     @classmethod
     def getSiteAbbrev(self):
         return 'fhsa'
-        
+
     @classmethod
     def getDateFormat(self):
-        return "%m/%d/%y" 
-   
+        return "%m/%d/%y"
+
     def handleMetadataPair(self, key, value):
         if key == 'Warnings':
             for val in re.split("\s*,\s*", value):
@@ -45,13 +45,13 @@ class FHSArchiveComAdapter(BaseEfictionAdapter):
                 else:
                     # toss numbers only.
                     self.story.addToList('warnings', filter(lambda x : not x.isdigit() , val))
-     
+
     #     elif 'Categories' in key:
     #         for val in re.split("\s*>\s*", value):
     #             self.story.addToList('category', val)
         else:
-            super(FHSArchiveComAdapter, self).handleMetadataPair(key, value) 
-                           
+            super(FHSArchiveComAdapter, self).handleMetadataPair(key, value)
+
 def getClass():
     return FHSArchiveComAdapter
-    
+

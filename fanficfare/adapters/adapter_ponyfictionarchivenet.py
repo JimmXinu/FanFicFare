@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,10 +46,10 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+
         # normalized story URL.
         if "explicit" in self.parsedUrl.netloc:
             self._setURL('http://explicit.' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -57,7 +57,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         else:
             self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
             self.dateformat = "%d %b %Y"
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','pffa')
 
@@ -65,7 +65,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'ponyfictionarchive.net'
-        
+
     @classmethod
     def getAcceptDomains(cls):
         return ['www.ponyfictionarchive.net','ponyfictionarchive.net','explicit.ponyfictionarchive.net']
@@ -122,23 +122,23 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -165,27 +165,27 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         genres = soup.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
         for genre in genres:
             self.story.addToList('genre',genre.string)
-           
+
         warnings = soup.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3'))
         for warning in warnings:
             self.story.addToList('warnings',warning.string)
-        
+
         status = soup.find('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
         if status: # apparently this site can have stories with neither In-Progress or Complete.
             self.story.setMetadata('status',status.string)
-        
-        section = soup.findAll('span', {'class' : 'General'})[1]            
-        
+
+        section = soup.findAll('span', {'class' : 'General'})[1]
+
         self.story.setMetadata('rating', section.previousSibling.previousSibling.string)
 
         value = section.nextSibling
         svalue = ""
-        while not defaultGetattr(value,'class') == 'label':
+        while 'label' not in defaultGetattr(value,'class'):
             svalue += unicode(value)
             value = value.nextSibling
         self.setDescription(url,svalue)
-        
-        # <span class="label">Rated:</span> NC-17<br /> etc           
+
+        # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -207,7 +207,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
@@ -218,7 +218,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -230,21 +230,21 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url)) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

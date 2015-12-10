@@ -29,11 +29,11 @@ class NHAMagicalWorldsUsAdapter(BaseEfictionAdapter):
     @classmethod
     def getSiteAbbrev(self):
         return 'nha'
-        
+
     @classmethod
     def getDateFormat(self):
-        return "%d/%m/%y" 
-                           
+        return "%d/%m/%y"
+
 def getClass():
     return NHAMagicalWorldsUsAdapter
-    
+

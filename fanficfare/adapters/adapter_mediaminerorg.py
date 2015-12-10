@@ -37,7 +37,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         urltitle='urltitle'
@@ -63,18 +63,18 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                 raise InvalidStoryURL(url,
                                       self.getSiteDomain(),
                                       self.getSiteExampleURLs())
-            
+
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/fanfic/s/'+cattitle+'/'+urltitle+'/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-            
+
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%B %d, %Y %H:%M"
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.mediaminer.org'
@@ -100,7 +100,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             r"(s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
             r"((c/(?P<urltitle2>[^/]+)/[^/]+/(?P<id2>\d+))/\d+)|"+\
             r"(view_st\.php/(?P<id3>\d+)))"
-            
+
     # Override stripURLParameters so the id parameter won't get stripped
     @classmethod
     def stripURLParameters(cls, url):
@@ -129,7 +129,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         titletext = titletext[titletext.index(u'❯')+2:]
         # print("title:(%s)"%titletext)
         self.story.setMetadata('title',titletext)
-        
+
         # [ A - All Readers ], strip '[ ' ' ]'
         ## Above title because we remove the smtxt font to get title.
         smtxt = soup.find("div",{"id":"post-rating"})
@@ -148,26 +148,26 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # save date from first for later.
         firstdate=None
-        
+
         # Find the chapters - one-shot now have chapter list, too.
         chap_p = soup.find('p',{'style':'margin-left:10px;'})
         for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
             self.chapterUrls.append((name,'http://'+self.host+aurl))
-            
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # category
         # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>
         for a in soup.findAll('a',href=re.compile(r"^/fanfic/a/")):
             self.story.addToList('category',a.string)
-        
+
         # genre
         # <a href="/fanfic/src.php/g/567">Ranma 1/2</a>
         for a in soup.findAll('a',href=re.compile(r"^/fanfic/src.php/g/")):
             self.story.addToList('genre',a.string)
 
         metastr = stripHTML(soup.find("div",{"class":"post-meta"}))
-        
+
         # Latest Revision: February 07, 2015 15:21 PST
         m = re.match(r".*?(?:Latest Revision|Uploaded On): ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",metastr)
         if m:
@@ -181,9 +181,9 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         m = re.match(r".*?\| Words: (\d+) \|",metastr)
         if m:
             self.story.setMetadata('numWords', m.group(1))
-            
+
         # Summary: ....
-        m = re.match(r".*?Summary: (.*)$",metastr) 
+        m = re.match(r".*?Summary: (.*)$",metastr)
         if m:
             self.setDescription(url, m.group(1))
             #self.story.setMetadata('description', m.group(1))
@@ -213,11 +213,11 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             date = makeDate(m.group(1), self.dateformat)
             if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
                 self.story.setMetadata('datePublished', date)
-                
+
         chapter = soup.find('div',{'id':'fanfic-text'})
-        
+
         return self.utf8FromSoup(url,chapter)
-    
+
         # chapter=self.make_soup('<div class="story"></div>').find('div')
 
         # if None == header:
@@ -233,7 +233,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         #         del div['style']
         #         del div['align']
         #     return self.utf8FromSoup(url,chapter)
-        
+
         # else:
         #     logger.debug('Using kludgey text find for older mediaminer story.')
         #     ## Some older mediaminer stories are unparsable with BeautifulSoup.
@@ -247,9 +247,9 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         #             soup.findAll('div',{'class':'footer smtxt'}) + \
         #             soup.findAll('table',{'class':'tbbrdr'}):
         #         tag.extract() # remove tag from soup.
-                
+
         #     return self.utf8FromSoup(url,soup)
-        
+
 
 def getClass():
     return MediaMinerOrgSiteAdapter

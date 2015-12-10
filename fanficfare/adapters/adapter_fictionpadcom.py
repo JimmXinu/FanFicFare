@@ -23,7 +23,7 @@ import urllib2
 import time
 import json
 
-from .. import BeautifulSoup as bs
+
 #from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -42,7 +42,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
             self._setURL("https://"+self.getSiteDomain()
                          +"/author/"+m.group('author')
@@ -59,7 +59,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteExampleURLs(cls):
         return "https://fictionpad.com/author/Author/stories/1234/Some-Title"
-    
+
     def getSiteURLPattern(self):
         # http://fictionpad.com/author/Serdd/stories/4275
         return r"http(s)?://(www\.)?fictionpad\.com/author/(?P<author>[^/]+)/stories/(?P<id>\d+)"
@@ -93,16 +93,16 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
                                                               params['login']))
 
         ## need to pull empty login page first to get authenticity_token
-        soup = bs.BeautifulSoup(self._fetchUrl(loginUrl))
+        soup = self.make_soup(self._fetchUrl(loginUrl))
         params['authenticity_token']=soup.find('input', {'name':'authenticity_token'})['value']
-        
+
         data = self._postUrl(loginUrl, params)
 
         if "Invalid email/pseudonym and password combination." in data:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['login']))
             raise exceptions.FailedToLogin(loginUrl,params['login'])
-            
+
 
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter.  From that we will get almost all the
@@ -116,7 +116,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             if "This is a mature story.  Please sign in to read it." in data:
                 self.performLogin()
                 data = self._fetchUrl(url)
-            
+
             find = "wordyarn.config.page = "
             data = data[data.index(find)+len(find):]
             data = data[:data.index("</script>")]
@@ -134,14 +134,14 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         story = tables['stories'][0]
         story_ver = tables['story_versions'][0]
         logger.debug("story:%s"%story)
-        
+
         self.story.setMetadata('authorId',author['id'])
         self.story.setMetadata('author',author['display_name'])
         self.story.setMetadata('authorUrl','https://'+self.host+'/author/'+author['display_name']+'/stories')
 
         self.story.setMetadata('title',story_ver['title'])
         self.setDescription(url,story_ver['description'])
-        
+
         if not ('assets/story_versions/covers' in story_ver['profile_image_url@2x']):
             self.setCoverImage(url,story_ver['profile_image_url@2x'])
 
@@ -165,10 +165,10 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
 
         for i in tables['fandoms']:
             self.story.addToList('category',i['name'])
-        
+
         for i in tables['genres']:
             self.story.addToList('genre',i['name'])
-        
+
         for i in tables['characters']:
             self.story.addToList('characters',i['name'])
 
@@ -179,16 +179,16 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             self.chapterUrls.append((chtitle,c['body_url']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-            
+
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
         if not url:
             data = u"<em>This chapter has no text.</em>"
         else:
             data = self._fetchUrl(url)
-        soup = bs.BeautifulSoup(u"<div id='story'>"+data+u"</div>")
+        soup = self.make_soup(u"<div id='story'>"+data+u"</div>")
         return self.utf8FromSoup(url,soup)
-    
+
 def getClass():
     return FictionPadSiteAdapter
 

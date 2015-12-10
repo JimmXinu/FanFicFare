@@ -23,7 +23,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -41,15 +41,15 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                                # utf8) are really windows-1252.
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.twilighted.net'
@@ -84,13 +84,13 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -119,20 +119,20 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # problems with some stories, but only in calibre.  I suspect
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
         # twilighted isn't writing <body> ??? wtf?
-        data = "<html><body>"+data[data.index("</head>"):] 
-        
+        data = "<html><body>"+data[data.index("</head>"):]
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -151,7 +151,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-        
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -161,7 +161,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -200,7 +200,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(value.strip(), "%B %d, %Y"))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -211,9 +211,9 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
-            
+
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -222,7 +222,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-        
+
         except:
             # I find it hard to care if the series parsing fails
             pass
@@ -236,16 +236,15 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
         # twilighted isn't writing <body> ??? wtf?
-        data = "<html><body>"+data[data.index("</head>"):] 
-        
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        data = "<html><body>"+data[data.index("</head>"):]
+
+        soup = self.make_soup(data)
+
         span = soup.find('div', {'id' : 'story'})
 
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,span)
 
 def getClass():

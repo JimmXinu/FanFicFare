@@ -23,7 +23,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -42,15 +42,15 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])        
-        
+        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
         self.dateformat = "%d %b %Y"
 
-            
+
     @classmethod
     def getAcceptDomains(cls):
         return ['thewriterscoffeeshop.com','twcslibrary.net']
@@ -85,13 +85,13 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -106,7 +106,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             addurl = "&ageconsent=ok&warning=3"
         else:
             addurl=""
-            
+
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
@@ -125,22 +125,22 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
 
         if "Age Consent Required" in data:
             raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # problems with some stories, but only in calibre.  I suspect
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
-        data = data[data.index("<body"):] 
-        
+        data = data[data.index("<body"):]
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -159,7 +159,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-        
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -169,7 +169,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     # poor HTML(unclosed <p> for one) can cause run on
                     # over the next label.
@@ -213,7 +213,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -226,7 +226,7 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -235,11 +235,11 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
@@ -250,9 +250,9 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
         # nasty hack, but it works.
         data = data[data.index("<body"):]
 
-        chapter=bs.BeautifulSoup('<div class="story"></div>')
-        
-        soup = bs.BeautifulSoup(data)
+        chapter=self.make_soup('<div class="story"></div>')
+
+        soup = self.make_soup(data)
 
         found=False
         for div in soup.findAll('div'):

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -45,27 +45,27 @@ class InDeathNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
-        
+
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
             self._setURL('http://www.' + self.getSiteDomain() + '/blog/archive/'+self.story.getMetadata('storyId')+'-'+m.group('name')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','idn')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %B %Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -78,22 +78,22 @@ class InDeathNetAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # http://www.indeath.net/blog/archive/169-ransom-in-death/
-        return re.escape("http://")+re.escape(self.getSiteDomain())+r"/blog/(archive/)?(?P<id>\d+)\-(?P<name>[a-z0-9\-]*)/?$"     
-        
-            
+        return re.escape("http://")+re.escape(self.getSiteDomain())+r"/blog/(archive/)?(?P<id>\d+)\-(?P<name>[a-z0-9\-]*)/?$"
+
+
     def getDateFromComponents(self, postmonth, postday):
-        ym = re.search("Entries\ in\ (?P<mon>January|February|March|April|May|June|July|August|September|October|November|December)\ (?P<year>\d{4})",postmonth)
-        d = re.search("(?P<day>\d{2})\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)",postday)
+        ym = re.search("Entries in (?P<mon>January|February|March|April|May|June|July|August|September|October|November|December) (?P<year>\d{4})",stripHTML(postmonth))
+        d = re.search("(?P<day>\d{2})\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)",stripHTML(postday))
         postdate = makeDate(d.group('day')+' '+ym.group('mon')+' '+ym.group('year'),self.dateformat)
         return postdate
 
     def getAuthorData(self):
-        
+
         mainUrl = self.url.replace("/archive","")
-        
+
         try:
             maindata = self._fetchUrl(mainUrl)
-            
+
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.meta)
@@ -101,45 +101,45 @@ class InDeathNetAdapter(BaseSiteAdapter):
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        mainsoup = bs.BeautifulSoup(maindata)
+        mainsoup = self.make_soup(maindata)
 
         # find first entry
         e = mainsoup.find('div',{'class':"entry"})
-        
+
         # get post author as author
         d = e.find('div',{'class':"desc"})
         a = d.find('strong')
         self.story.setMetadata('author',a.contents[0].string.strip())
-        
+
         # Don't seem to be able to get author pages anymore
         self.story.setMetadata('authorUrl','http://www.indeath.net/')
         self.story.setMetadata('authorId','0')
-        
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         try:
             data = self._fetchUrl(url)
-            
+
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.meta)
             else:
                 raise e
-                
-            
+
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         h = soup.find('a', id="blog_title")
         t = h.find('span')
         self.story.setMetadata('title',stripHTML(t.contents[0]).strip())
-        
-        s = t.find('div')        
+
+        s = t.find('div')
         if s != None:
             self.setDescription(url,s)
 
@@ -151,20 +151,20 @@ class InDeathNetAdapter(BaseSiteAdapter):
 
         #reverse the list since newest at the top
         chapters.reverse()
-        
+
         # Get date published & updated from first & last entries
         posttable=soup.find('div', id="main_column")
-        
+
         postmonths=posttable.findAll('th', text=re.compile(r'Entries\ in\ '))
         postmonths.reverse()
-        
-        postdates=posttable.findAll('span', _class="desc", text=re.compile('\d{2}\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'))
+
+        postdates=posttable.findAll('span', class_="desc")
         postdates.reverse()
-        
+
         self.story.setMetadata('datePublished',self.getDateFromComponents(postmonths[0],postdates[0]))
         self.story.setMetadata('dateUpdated',self.getDateFromComponents(postmonths[len(postmonths)-1],postdates[len(postdates)-1]))
-        
-        # Process List of Chapters              
+
+        # Process List of Chapters
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         for x in range(0,len(chapters)):
@@ -181,18 +181,18 @@ class InDeathNetAdapter(BaseSiteAdapter):
                     chaptertitle = ct
                 self.chapterUrls.append((chaptertitle,chapter['href']))
 
-        
-        
+
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        
-        #chapter=bs.BeautifulSoup('<div class="story"></div>')
+
+        #chapter=self.make_soup('<div class="story"></div>')
         data = self._fetchUrl(url)
-        soup = bs.BeautifulSoup(data,selfClosingTags=('br','hr','span','center'))
+        soup = self.make_soup(data)
 
         chapter = soup.find("div", "entry_content")
-        
+
         if None == chapter:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 

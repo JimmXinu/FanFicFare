@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -45,21 +45,21 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+
         # normalized story URL.
         self._setURL("http://"+self.getSiteDomain()\
                          +"/efiction/viewstory.php?sid="+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','trkvs')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.
@@ -75,7 +75,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return r'(http://trekiverse\.org/efiction/viewstory\.php\?sid=\d+|http://efiction\.trekiverse\.org/viewstory\.php\?sid=\d+)'
-       
+
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -84,7 +84,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -96,13 +96,13 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/efiction/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -141,7 +141,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url)
-            
+
         m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
             if self.is_adult or self.getConfig("is_adult"):
@@ -160,25 +160,25 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title and author
         a = soup.find('div', {'id' : 'pagetitle'})
         aut = a.find('a', href=re.compile(r"^viewuser\.php\?uid="))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/efiction/'+aut['href'])
         self.story.setMetadata('author',aut.string)
-        
+
         ttl = a.find('a', href=re.compile(r'^viewstory.php\?sid=%s$'%self.story.getMetadata('storyId')))
         self.story.setMetadata('title',ttl.string)
 
@@ -206,7 +206,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-        
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -216,7 +216,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ''
-                while value and not defaultGetattr(value,'class') == 'label':
+                while value and 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 # sometimes poorly formated desc (<p> w/o </p>) leads
@@ -279,10 +279,10 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(value.strip(), "%d %b %Y"))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(value.strip(), "%d %b %Y"))
-                    
+
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
@@ -290,7 +290,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/efiction/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -299,18 +299,18 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url)) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
@@ -321,5 +321,5 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             div.insert(0,"<hr>")
             div.insert(0,notesdiv)
             div.insert(0,"<hr>")
-        
+
         return self.utf8FromSoup(url,div)

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -47,21 +47,21 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/siye/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','siye') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y.%m.%d" # XXX
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -96,7 +96,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                 raise e
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
@@ -108,12 +108,12 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('author',a.string)
 
         # need(or easier) to pull other metadata from the author's list page.
-        authsoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 
         ## Title
         titlea = authsoup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(titlea))
-        
+
         # Find the chapters (from soup, not authsoup):
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
@@ -166,13 +166,13 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                 part = part[part.find(':')+1:]
                 self.setDescription(url,part)
                 #self.story.setMetadata('description',part)
-                
+
         # want to get the next tr of the table.
         #print("%s"%titlea.parent.parent.findNextSibling('tr'))
-            
+
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-                
+
         # SIYE formats stories in the author list differently when their part of a series.
         # Look for non-series...
         divdesc = titlea.parent.parent.find('div',{'class':'desc'})
@@ -211,7 +211,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -220,28 +220,27 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
-            pass        
+            pass
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        # soup = bs.BeautifulSoup(self._fetchUrl(url))
+        # soup = self.make_soup(self._fetchUrl(url))
         # BeautifulSoup objects to <p> inside <span>, which
         # technically isn't allowed.
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
+        soup = self.make_soup(self._fetchUrl(url))
 
         # not the most unique thing in the world, but it appears to be
         # the best we can do here.
         story = soup.find('span', {'style' : 'font-size: 100%;'})
-        
+
         if None == story:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         story.name='div'
-    
+
         return self.utf8FromSoup(url,story)

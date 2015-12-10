@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -50,22 +50,22 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ksa') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b/%d/%Y" # XXX
-            
+
     @classmethod
     def getAcceptDomains(cls):
         return ['www.ksarchive.com','ksarchive.com']
@@ -115,12 +115,12 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-            
+
         # Since the warning text can change by warning level, let's
         # look for the warning pass url.  ksarchive uses
         # &amp;warning= -- actually, so do other sites.  Must be an
         # eFiction book.
-            
+
         # viewstory.php?sid=1882&amp;warning=4
         # viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
         #print data
@@ -143,20 +143,20 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a)) # title's inside a <b> tag.
@@ -194,7 +194,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     # poor HTML(unclosed <p> for one) can cause run on
                     # over the next label.
@@ -281,7 +281,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -294,7 +294,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
@@ -305,20 +305,19 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                         self.story.setMetadata('seriesUrl',series_url)
                         break
                     i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(data)
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
@@ -326,5 +325,5 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Database error on the site reported!" % url)
             else:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class EFPFanFicNet(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','efp')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -80,7 +80,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -96,9 +96,9 @@ class EFPFanFicNet(BaseSiteAdapter):
         loginUrl = 'http://' + self.getSiteDomain() + '/user.php?sid='+self.story.getMetadata('storyId')
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if '<a class="menu" href="newaccount.php">' in d : # register for new account link
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -128,26 +128,26 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         # if "Access denied. This story has not been validated by the adminstrators of this site." in data:
         #     raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = soup.find('a', href=re.compile(r'^viewstory\.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
-        # Find the chapter selector 
+        # Find the chapter selector
         select = soup.find('select', { 'name' : 'sid' } )
-    	 
+    	
         if select is None:
     	   # no selector found, so it's a one-chapter story.
     	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -162,13 +162,13 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('language','Italian')
-        
+
         # normalize story URL to first chapter if later chapter URL was given:
         url = self.chapterUrls[0][1].replace('&i=1','')
         logger.debug("Normalizing to URL: "+url)
         self._setURL(url)
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
@@ -177,7 +177,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         authsoup = None
         storyblock = None
         authurl = self.story.getMetadata('authorUrl')
-        
+
         ## author can have more than one page of stories.
         while storyblock == None:
 
@@ -186,10 +186,10 @@ class EFPFanFicNet(BaseSiteAdapter):
                 # last author link with offset should be the 'next' link.
                 authurl = u'http://%s/%s' % ( self.getSiteDomain(),
                                               authsoup.findAll('a',href=re.compile(r'viewuser\.php\?uid=\d+&catid=&offset='))[-1]['href'] )
-            
+
             # Need author page for most of the metadata.
             logger.debug("fetching author page: (%s)"%authurl)
-            authsoup = bs.BeautifulSoup(self._fetchUrl(authurl))
+            authsoup = self.make_soup(self._fetchUrl(authurl))
             #print("authsoup:%s"%authsoup)
 
             storyas = authsoup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
@@ -204,7 +204,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         noteblock = storyblock.find('div', {'class':'notebloc'})
         #print("%s"%noteblock)
-        notetext = ("%s" % noteblock).replace("<br />"," |")
+        notetext = ("%s" % noteblock).replace("<br/>"," |")
         # <div class="notebloc">Autore: <a href="viewuser.php?uid=243036">Cendrillon89</a> | Pubblicata: 23/10/12 | Aggiornata: 30/10/12 | Rating: Arancione | Genere: Drammatico, Sentimentale | Capitoli: 10 | Completa<br />
         # Tipo di coppia: Het |  Personaggi: Akasuna no Sasori , Akatsuki, Nuovo Personaggio |   Note: OOC | Avvertimenti: Tematiche delicate<br />
         # Categoria: <a href="categories.php?catid=1&amp;parentcatid=1">Anime & Manga</a> > <a href="categories.php?catid=108&amp;parentcatid=108">Naruto</a> | Contesto: Naruto Shippuuden | Leggi le <a href="reviews.php?sid=1331275&amp;a=">3</a> recensioni</div>
@@ -212,7 +212,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         cats = noteblock.findAll('a',href=re.compile(r'browse.php\?type=categories'))
         for cat in cats:
             self.story.addToList('category',cat.string)
-            
+
         for item in notetext.split("|"):
             if ":" in item:
                 (label,value) = item.split(":")
@@ -223,13 +223,13 @@ class EFPFanFicNet(BaseSiteAdapter):
 
             if 'Pubblicata' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Aggiornata' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
             if label == "Completa":
                 self.story.setMetadata('status', 'Completed')
-            
+
             if label == "In corso":
                 self.story.setMetadata('status', 'In-Progress')
 
@@ -239,11 +239,11 @@ class EFPFanFicNet(BaseSiteAdapter):
             if 'Personaggi' in label:
                 for val in value.split(","):
                     self.story.addToList('characters',val)
-                    
+
             if 'Genere' in label:
                 for val in value.split(","):
                     self.story.addToList('genre',val)
-                    
+
             if 'Coppie' in label:
                 for val in value.split(","):
                     self.story.addToList('ships',val)
@@ -254,21 +254,21 @@ class EFPFanFicNet(BaseSiteAdapter):
                         self.story.addToList('warnings',val)
 
             # 'extra' metadata for this adapter:
-                    
+
             if 'Tipo di coppia' in label:
                 for val in value.split(","):
                     self.story.addToList('type',val)
-                    
+
             if 'Note' in label:
                 for val in value.split(","):
                     if val != "None":
                         self.story.addToList('notes',val)
-                    
+
             if 'Contesto' in label:
                 self.story.setMetadata('context', value)
 
             ## Note--efp doesn't provide word count.
-                
+
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?ssid=\d+&i=1"))
@@ -276,7 +276,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1'))
             i=1
@@ -286,23 +286,23 @@ class EFPFanFicNet(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url))
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'class' : 'storia'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         # remove any header and 'o:p' tags.
         for tag in div.findAll("head") + div.findAll("o:p"):
             tag.extract()

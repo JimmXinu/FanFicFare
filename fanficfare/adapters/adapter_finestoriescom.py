@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -40,22 +40,22 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
         if 'storyInfo' in self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/storyInfo.php?id='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fnst')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -76,7 +76,7 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -89,13 +89,13 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         params['rememberMe'] = '1'
         params['page'] = 'http://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "My Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
@@ -124,20 +124,20 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
-        a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+"$"))
+        a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/a/\w+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
@@ -156,28 +156,27 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # surprisingly, the detailed page does not give enough details, so go to author's page
-        
+
         skip=0
         i=0
         while i == 0:
-            asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+unicode(skip)))
-        
-            a = asoup.findAll('td', {'class' : 'lc2'})
-            for lc2 in a:
-                if lc2.find('a')['href'] == '/s/'+self.story.getMetadata('storyId'):
+            asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&skip="+unicode(skip)))
+
+            tds = asoup.findAll('td', {'class' : 'lc2'})
+            for lc2 in tds:
+                if lc2.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId'))):
                     i=1
                     break
-                if a[len(a)-1] == lc2:
+                if tds[len(tds)-1] == lc2:
                     skip=skip+10
-        
+
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('category',cat.text)
-        
+
         self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
-        
+
         lc4 = lc2.findNext('td', {'class' : 'lc4'})
-        
-        
+
         try:
             a = lc4.find('a', href=re.compile(r"/library/show_series.php\?id=\d+"))
             i = a.parent.text.split('(')[1].split(')')[0]
@@ -190,33 +189,41 @@ class FineStoriesComAdapter(BaseSiteAdapter):
             self.story.addToList("category",a.text)
         except:
             pass
-            
-        for a in lc4.findAll('span', {'class' : 'help'}):
+
+        for a in lc4.findAll('span', {'class' : 'help'}) + lc4.findAll('script'):
             a.extract()
-            
+
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),lc4.text.split('[More Info')[0])
-            
+
         for b in lc4.findAll('b'):
             label = b.text
             value = b.nextSibling
-            
+
             if 'For Age' in label:
                 self.story.setMetadata('rating', value)
-                
+
             if 'Tags' in label:
                 for genre in value.split(', '):
                     self.story.addToList('genre',genre)
-                    
+
+            ## Site uses a <script> to inject timestamp in locale plus <noscript> general version.
             if 'Posted' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
-                
-            if 'Concluded' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
-                
-            if 'Updated' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value.split('/ (')[0]), self.dateformat))
-                
+                value = b.find_next_sibling('noscript')
+                if '(' in value:
+                    date = makeDate(stripHTML(value.split(' (')[0]), self.dateformat)
+                else:
+                    date = makeDate(stripHTML(value), self.dateformat)
+                self.story.setMetadata('datePublished', date)
+                self.story.setMetadata('dateUpdated', date)
+
+            if 'Concluded' in label or 'Updated' in label:
+                value = b.find_next_sibling('noscript')
+                if '(' in value:
+                    date = makeDate(stripHTML(value.split(' (')[0]), self.dateformat)
+                else:
+                    date = makeDate(stripHTML(value), self.dateformat)
+                self.story.setMetadata('dateUpdated', date)
+
         status = lc4.find('span', {'class' : 'ab'})
         if  status != None:
             self.story.setMetadata('status', 'In-Progress')
@@ -225,64 +232,62 @@ class FineStoriesComAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'Completed')
 
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-        div = soup.find('div', {'id' : 'story'})
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
+        div = soup.find('article')
+
+        if None == div:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
         # some big chapters are split over several pages
         pager = div.find('span', {'class' : 'pager'})
         if pager != None:
             urls=pager.findAll('a')
             urls=urls[:len(urls)-1]
-            
-            
+
             for ur in urls:
-                soup = bs.BeautifulSoup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
-                div1 = soup.find('div', {'id' : 'story'})
-                
+                soup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']))
+
+                div1 = soup.find('article')
+
+                #print("div.contents:%s"%(div.contents,))
                 # appending next section
                 last=div.findAll('p')
                 next=div1.find('span', {'class' : 'conTag'}).nextSibling
-            
                 last[len(last)-1]=last[len(last)-1].append(next)
-                div.append(div1)
-            
-        # removing all the left-over stuff    
-        for a in div.findAll('span'):
-            a.extract()
-            
-        for a in div.findAll('h1'):
-            a.extract()
-        for a in div.findAll('h2'):
-            a.extract()
-        for a in div.findAll('h3'):
-            a.extract()
-        for a in div.findAll('h4'):
-            a.extract()
-        for a in div.findAll('br'):
-            a.extract()
-        for a in div.findAll('div', {'class' : 'date'}):
-            a.extract()
-            
-        a = div.find('form')
-        if a != None:
-            b = a.nextSibling
-            while b != None:
-                a.extract()
-                a=b
-                b=b.nextSibling
-        
 
-        if None == div:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+                self.clean_chapter(div1)
+                #print("div.contents:%s"%(div.contents,))
+                for t in div1.contents:
+                    div.append(t)
+
+        self.clean_chapter(div)
+
         return self.utf8FromSoup(url,div)
+    def clean_chapter(self,art):
+        # discard included chapter heading.
+        # discard included date
+        # discard share block
+        # continued/continues
+        # discard next link
+        for tag in art.find_all('h2') + \
+                art.find_all('div', class_="date") + \
+                art.find_all('div', class_="vform") + \
+                art.find_all('span', class_="conTag") + \
+                art.find_all('h3', class_="end"):
+            tag.extract()
+
+        # remove pager blocks.
+        for pager in art.find_all('span', class_="pager"):
+            # remove br tags before and after pager.
+            #print("br list prev: %s"%len(pager.find_previous_siblings('br')))
+            #print("br list next: %s"%len(pager.find_next_siblings('br')))
+            for tag in pager.find_next_siblings('br')[:2] + pager.find_previous_siblings('br')[:2]:
+                tag.extract()
+            pager.extract()

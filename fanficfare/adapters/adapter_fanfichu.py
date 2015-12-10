@@ -4,8 +4,6 @@ import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
-
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
@@ -55,7 +53,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():

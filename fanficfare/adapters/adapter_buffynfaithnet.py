@@ -22,7 +22,7 @@ import re
 import urllib2
 import cookielib as cl
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -42,9 +42,9 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        
+
         self.setHeader()
-        
+
         self.decode = ["Windows-1252",
                        "utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
@@ -53,12 +53,12 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL. gets rid of chapter if there, left with ch 1 URL on this site
             nurl = "http://"+self.getSiteDomain()+"/fanfictions/index.php?act=vie&id="+self.story.getMetadata('storyId')
             self._setURL(nurl)
@@ -69,8 +69,8 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
-        
+
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','bnfnet')
 
@@ -84,11 +84,11 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         "Only needs to be overriden if URL contains more than one parameter"
         ## This adapter needs at least two parameters left on the URL, act and id
         return re.sub(r"(\?act=(vie|ovr)&id=\d+)&.*$",r"\1",url)
-    
+
     def setHeader(self):
         "buffynfaith.net wants a Referer for images.  Used both above and below(after cookieproc added)"
         self.opener.addheaders.append(('Referer', 'http://'+self.getSiteDomain()+'/'))
-        
+
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234 http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=ovr&id=1234 http://"+cls.getSiteDomain()+"/fanfictions/index.php?act=vie&id=1234&ch=2"
@@ -107,13 +107,13 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
-    
+
     def extractChapterUrlsAndMetadata(self):
 
         dateformat = "%d %B %Y"
         url = self.url
         logger.debug("URL: "+url)
-        
+
         #set a cookie to get past adult check
         if self.is_adult or self.getConfig("is_adult"):
             cookie = cl.Cookie(version=0, name='my_age', value='yes',
@@ -140,22 +140,22 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
 
         #print data
 
-        if "ADULT CONTENT WARNING" in data: 
+        if "ADULT CONTENT WARNING" in data:
             raise exceptions.AdultCheckRequired(self.url)
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         #stuff in <head>: description
         svalue = soup.head.find('meta',attrs={'name':'description'})['content']
         #self.story.setMetadata('description',svalue)
         self.setDescription(url,svalue)
-        
+
         #useful stuff in rest of doc, all contained in this:
         doc = soup.body.find('div', id='my_wrapper')
-        
+
         #first the site category (more of a genre to me, meh) and title, in this element:
         mt = doc.find('div',attrs={'class':'maintitle'})
         self.story.addToList('genre',mt.findAll('a')[1].string)
@@ -165,7 +165,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         #the actual category, for me, is 'Buffy: The Vampire Slayer'
         #self.story.addToList('category','Buffy: The Vampire Slayer')
         #No need to do it here, it is better to set it in in plugin-defaults.ini and defaults.ini
-        
+
         #then a block that sits in a table cell like so:
         #(contains a lot of metadata)
         mblock = doc.find('td', align='left', width = '70%').contents
@@ -204,9 +204,9 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
             #end ifs
         #end while
 
-        # Find the chapter selector 
+        # Find the chapter selector
         select = soup.find('select', { 'name' : 'ch' } )
-         
+
         if select is None:
            # no selector found, so it's a one-chapter story.
            #self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -223,10 +223,10 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
                 title = ts[0]+'. '+ts[1]
                 self.chapterUrls.append((title,url))
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
+
         ## Go scrape the rest of the metadata from the author's page.
         data = self._fetchUrl(self.story.getMetadata('authorUrl'))
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         #find the story link and its parent div
         storya = soup.find('a',{'href':self.story.getMetadata('storyUrl')})
         storydiv = storya.parent
@@ -269,22 +269,21 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'fanfiction'})
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         #remove all the unnecessary bookmark tags
         [s.extract() for s in div('div',{'class':"tiny_box2"})]
-        
+
         #is there a review link?
         r = div.find('a',href=re.compile(re.escape("./index.php?act=irv")+".*$"))
         if r is not None:
         #remove the review link and its parent div
             r.parent.extract()
-        
+
         #There might also be a link to the sequel on the last chapter
         #I'm inclined to keep it in, but the URL needs to be changed from relative to absolute
         #Shame there isn't proper series metadata available

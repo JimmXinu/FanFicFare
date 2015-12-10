@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
 
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','csiforensics')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %b %Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -101,24 +101,24 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
-        if "This story is rated NC-17, and therefore is not suitable for minors.  If you are below the age required to view such material in your locality, please return from whence you came." in data: # XXX 
+        if "This story is rated NC-17, and therefore is not suitable for minors.  If you are below the age required to view such material in your locality, please return from whence you came." in data: # XXX
             raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
-       
+
         pt = soup.find('div', {'id' : 'pagetitle'})
         a = pt.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',a.string)
-       
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -136,10 +136,10 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
             self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
+
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-        
+
         # utility method
         def defaultGetattr(d,k):
             try:
@@ -148,29 +148,29 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
                 return ""
 
         smalldiv = soup.find('div', {'class' : 'small'})
-        
-      
+
+
         chars = smalldiv.findAll('a',href=re.compile(r'browse.php\?type=characters'))
         for char in chars:
             self.story.addToList('characters',char.string)
-            
+
         metatext = stripHTML(smalldiv)
 
         if 'Completed: Yes' in metatext:
             self.story.setMetadata('status', 'Completed')
         else:
-            self.story.setMetadata('status', 'In-Progress') 
-        
+            self.story.setMetadata('status', 'In-Progress')
+
         word=soup.find(text=re.compile("Word count:")).split(':')
         self.story.setMetadata('numWords', word[1])
 
         cats = smalldiv.findAll('a',href=re.compile(r'browse.php\?type=categories'))
         for cat in cats:
             self.story.addToList('category',cat.string)
-            
+
         warnings = smalldiv.findAll('a',href=re.compile(r'browse.php\?type=class(&amp;)type_id=2(&amp;)classid=\d+'))
         for warning in warnings:
-            self.story.addToList('warnings',warning.string)            
+            self.story.addToList('warnings',warning.string)
             			
         date=soup.find('div',{'class' : 'bottom'})
         pd=date.find(text=re.compile("Published:")).string.split(': ')
@@ -189,7 +189,7 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
                 for genre in genres:
                     self.story.addToList('genre',genre.string)
 
-            if 'Warnings' in label:                
+            if 'Warnings' in label:
                 warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
                 for warning in warnings:
                     self.story.addToList('warnings',warning.string)
@@ -201,7 +201,7 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -210,28 +210,28 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
         smalldiv.extract()
-        
-        # Summary  
+
+        # Summary
         summary = soup.find('div', {'class' : 'content'})
-        self.setDescription(url,summary)        
-           
+        self.setDescription(url,summary)
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url))
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)
  

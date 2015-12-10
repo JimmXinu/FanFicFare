@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,11 +46,11 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         if self.parsedUrl.path.split('/',)[1] == 'wiktt':
             self.story.addToList("category","Harry Potter")
             self.section='/wiktt/efiction/'
@@ -59,20 +59,20 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             self.story.addToList("category","Originals")
             self.section='/efiction/'
             self.dateformat = "%b %d, %Y"
-            
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + self.section + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','msq')
-        
-            
+
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'themasque.net'
-        
+
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://themasque.net/wiktt/efiction/viewstory.php?sid=1234 http://themasque.net/efiction/viewstory.php?sid=1234"
@@ -88,7 +88,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url):
         params = {}
 
@@ -100,13 +100,13 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
-    
+
         loginUrl = 'http://' + self.getSiteDomain()  + self.section + 'user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
-    
+
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
@@ -163,23 +163,23 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -202,7 +202,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-                
+
 # summary, rated, word count, categories, characters, genre, warnings, completed, published, updated, seires
 
         # <span class="label">Rated:</span> NC-17<br /> etc
@@ -214,7 +214,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'label':
+                while 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -254,21 +254,20 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

@@ -29,7 +29,7 @@ class TestSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tst1')
-        self.crazystring = u" crazy tests:[bare amp(&) quote(&#39;) amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&T) pound(&pound;)]"
+        self.crazystring = u"tests:[bare amp(&) qt(&#39;) amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&T) L(&pound;) Onna(女)]"
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         self.username=''
@@ -75,7 +75,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             if self.has_config(sections,'chapter_urls'):
                 for l in self.get_config(sections,'chapter_urls').splitlines() :
                     if l:
-                        self.chapterUrls.append( (l[1+l.index(','):],l[:l.index(',')]) )                    
+                        self.chapterUrls.append( (l[1+l.index(','):],l[:l.index(',')]) )
             else:
                 for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
                     self.chapterUrls.append( (chap,self.url+"&chapter=%d"%j) )
@@ -83,7 +83,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             #                 ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
             #                 ]
             self.story.setMetadata('numChapters',len(self.chapterUrls))
-            
+
             return
 
         if idnum >= 700 and idnum <= 710:
@@ -101,13 +101,13 @@ class TestSiteAdapter(BaseSiteAdapter):
 
         if idstr.startswith('670'):
             time.sleep(1.0)
-            
+
         if idstr.startswith('671'):
             time.sleep(1.0)
-            
+
         if self.getConfig("username"):
             self.username = self.getConfig("username")
-        
+
         if idstr == '668' and self.username != "Me" :
             raise exceptions.FailedToLogin(self.url,self.username)
 
@@ -150,7 +150,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         if idnum == 0:
             self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
             self.story.setMetadata('seriesUrl','http://test1.com?seriesid=0')
-            
+
         self.story.setMetadata('rating','Tweenie')
 
         if idstr == '673':
@@ -173,7 +173,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('author','Author From List u')
             self.story.addToList('author','Author From List i')
             self.story.addToList('author','Author From List o')
-        
+
             self.story.addToList('authorId','98765-1')
             self.story.addToList('authorId','98765-2')
             self.story.addToList('authorId','98765-3')
@@ -193,7 +193,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('authorId','98765-u')
             self.story.addToList('authorId','98765-i')
             self.story.addToList('authorId','98765-o')
-        
+
             self.story.addToList('authorUrl','http://author/url-1')
             self.story.addToList('authorUrl','http://author/url-2')
             self.story.addToList('authorUrl','http://author/url-3')
@@ -232,7 +232,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('category',u'Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
         elif idstr == '82':
-            self.story.addToList('characters','Henry (Once Upon a Time)')        
+            self.story.addToList('characters','Henry (Once Upon a Time)')
             self.story.addToList('category',u'Once Upon a Time (TV)')
         elif idstr == '83':
             self.story.addToList('category',u'Rizzoli &amp; Isles')
@@ -241,7 +241,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('characters','Chloe B.')
             self.story.addToList('ships','Chloe B. &amp; J. Rizzoli')
         elif idstr == '90':
-            self.story.setMetadata('characters','Henry (Once Upon a Time)')        
+            self.story.setMetadata('characters','Henry (Once Upon a Time)')
             self.story.setMetadata('category',u'Once Upon a Time (TV)')
         else:
             self.story.addToList('category','Harry Potter')
@@ -256,27 +256,27 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('ships','Harry Potter/Ginny Weasley')
             self.story.addToList('ships','Harry Potter/Ginny Weasley/Albus Dumbledore')
             self.story.addToList('ships','Harry Potter &amp; Hermione Granger')
-            
+
         self.story.addToList('genre','Fantasy')
         self.story.addToList('genre','Comedy')
         self.story.addToList('genre','Sci-Fi')
         self.story.addToList('genre','Noir')
-                
+
         self.story.addToList('listX','xVal1')
         self.story.addToList('listX','xVal2')
         self.story.addToList('listX','xVal3')
         self.story.addToList('listX','xVal4')
-        
+
         self.story.addToList('listY','yVal1')
         self.story.addToList('listY','yVal2')
         self.story.addToList('listY','yVal3')
         self.story.addToList('listY','yVal4')
-        
+
         self.story.addToList('listZ','zVal1')
         self.story.addToList('listZ','zVal2')
         self.story.addToList('listZ','zVal3')
         self.story.addToList('listZ','zVal4')
-        
+
         self.story.setMetadata('metaA','98765')
         self.story.setMetadata('metaB','01245')
         self.story.setMetadata('metaC','The mighty metaC!')
@@ -308,7 +308,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                             #('Chapter n',self.url+"&chapter=o"),
                             ]
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-                            
+
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
@@ -358,7 +358,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         elif 'test1.com' not in url:
             ## for chapter_urls setting.
             logger.debug('Getting chapter text from: %s' % url)
-    
+
             try:
                 origurl = url
                 (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
@@ -366,23 +366,23 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 if '#' in origurl and '#' not in url:
                     url = url + origurl[origurl.index('#'):]
                 logger.debug("chapter URL redirected to: %s"%url)
-                
+
                 soup = self.make_soup(data)
-        
+
                 if '#' in url:
                     anchorid = url.split('#')[1]
                     soup = soup.find('li',id=anchorid)
-        
+
                 bq = soup.find('blockquote')
-        
+
                 bq.name='div'
-        
+
                 for iframe in bq.find_all('iframe'):
                     iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-        
+
                 for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
                     qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-        
+
             except Exception as e:
                 if self.getConfig('continue_on_chapter_error'):
                     bq = self.make_soup("""<div>
@@ -394,9 +394,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 </div>"""%(url,traceback.format_exc()))
                 else:
                     raise
-                
+
             return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
-                
+
         else:
             text=u'''
 <div>

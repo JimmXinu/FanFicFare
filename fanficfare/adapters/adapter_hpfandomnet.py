@@ -49,22 +49,22 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         # XXX Most sites don't have the /eff part.  Replace all to remove it usually.
         self._setURL('http://' + self.getSiteDomain() + '/eff/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','hpfdm') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y.%m.%d" # XXX
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -96,7 +96,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         # set first URL
         a = soup.find('a', href=re.compile(r"viewstory.php\?sid=\d+"))
         ## href = "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree  as well as graphic violent situations.  ')) location = 'viewstory.php?sid=49111&i=1'"
@@ -116,9 +116,9 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             soup = self.make_soup(data)
-            
+
 #        self.story.setMetadata('storyId', re.compile(self.getSiteURLPattern()).match(a).group('storyId'))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -133,21 +133,21 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         if "javascript:if (confirm('Slash/het fiction which incorporates sexual situations to a somewhat graphic degree  as well as graphic violent situations.  ')) location = 'viewstory.php?sid=%s&i=1'"%self.story.getMetadata('storyId') in authdata \
                 and not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
-        
+
         authsoup = self.make_soup(authdata)
 
         reviewsa = authsoup.find('a', href=re.compile(r"reviews\.php\?sid="+self.story.getMetadata('storyId')+r".*"))
         # <table><tr><td><p><b><a ...>
         metablock = reviewsa.findParent("table")
         #print("metablock:%s"%metablock)
-        
+
         ## Title
         titlea = metablock.find('a', href=re.compile("viewstory.php"))
         #print("titlea:%s"%titlea)
         if titlea == None:
             raise exceptions.FailedToDownload("Story URL (%s) not found on author's page, can't use chapter URLs"%url)
         self.story.setMetadata('title',stripHTML(titlea))
-        
+
         # Find the chapters: !!! hpfandom.net differs from every other
         # eFiction site--the sid on viewstory for chapters is
         # *different* for each chapter
@@ -183,7 +183,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         if m != None:
             if m.group('rating') != None:
                 self.story.setMetadata('rating', m.group('rating'))
-                
+
             if m.group('words') != None:
                 self.story.setMetadata('numWords', m.group('words'))
 
@@ -192,7 +192,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
-                
+
 
         # <tr><td width="10%" valign="top">Chapters:</td><td width="40%" valign="top">4</td>
         # <td width="10%" valign="top">Published:</td><td width="40%" valign="top">2010.09.29</td></tr>
@@ -225,10 +225,10 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -239,15 +239,15 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
         # There are, however, tables with width=100% just above and below the real text.
         data = re.sub(r'<table width="100%">.*?</table>','<div name="storybody">',
                       data,count=1,flags=re.DOTALL)
-        
+
         data = re.sub(r'<table width="100%">.*?</table>','</div>',
                       data,count=1,flags=re.DOTALL)
-        
+
         soup = self.make_soup(data)
 
         div = soup.find("div",{'name':'storybody'})
         #print("\n\ndiv:%s\n\n"%div)
-        
+
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         return self.utf8FromSoup(url,div)

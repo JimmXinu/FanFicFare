@@ -42,35 +42,35 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-							   
-							   
+							
+							
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        
-        
+
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             self.story.setMetadata('storyId',m.group('id'))
-            
+
             # normalized story URL.
             self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ao3')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%b-%d"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -84,7 +84,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
         return r"https?://"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/0*(?P<id>\d+)"
-        
+
     ## Login
     def needToLoginCheck(self, data):
         if 'This work is only available to registered users of the Archive.' in data \
@@ -92,7 +92,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url, data):
 
         params = {}
@@ -110,10 +110,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         loginUrl = 'http://' + self.getSiteDomain() + '/user_sessions'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['user_session[login]']))
-    
+
         d = self._postUrl(loginUrl, params)
         #logger.info(d)
-    
+
         if "Successfully logged in" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['user_session[login]']))
@@ -148,7 +148,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
             if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -157,13 +157,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
             raise exceptions.StoryDoesNotExist(self.url)
-            
+
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url,data)
             data = self._fetchUrl(url,usecache=False)
             meta = self._fetchUrl(metaurl,usecache=False)
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         for tag in soup.findAll('div',id='admin-banner'):
@@ -173,7 +173,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             tag.extract()
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
@@ -242,7 +242,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             genres = a.findAll('a',{'class':"tag"})
             for genre in genres:
                 self.story.addToList('freeformtags',genre.string)
-                
+
         a = metasoup.find('dd',{'class':"category tags"})
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
@@ -255,7 +255,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             chars = a.findAll('a',{'class':"tag"})
             for char in chars:
                 self.story.addToList('characters',char.string)
-                
+
         a = metasoup.find('dd',{'class':"relationship tags"})
         if a != None:
             ships = a.findAll('a',{'class':"tag"})
@@ -300,7 +300,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 				
@@ -343,7 +343,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             new_tag = soup.new_tag(tag)
             new_tag.string=string
             elem.append(new_tag)
-    
+
         if 'authorheadnotes' not in exclude_notes:
             headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
@@ -351,14 +351,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 if headnotes != None:
                     append_tag(chapter,'b',"Author's Note:")
                     chapter.append(headnotes)
-        
+
         if 'chaptersummary' not in exclude_notes:
             chapsumm = soup.find('div', {'id' : "summary"})
             if chapsumm != None:
                 chapsumm = chapsumm.find('blockquote')
                 append_tag(chapter,'b',"Summary for the Chapter:")
                 chapter.append(chapsumm)
-                
+
         if 'chapterheadnotes' not in exclude_notes:
             chapnotes = soup.find('div', {'id' : "notes"})
             if chapnotes != None:

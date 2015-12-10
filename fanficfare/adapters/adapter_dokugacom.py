@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -45,10 +45,10 @@ class DokugaComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
-        
+
 
         # www.dokuga.com has two 'sections', shown in URL as
         # 'fanfiction' and 'spark' that change how things should be
@@ -56,10 +56,10 @@ class DokugaComAdapter(BaseSiteAdapter):
         # http://www.dokuga.com/fanfiction/story/7528/1
         # http://www.dokuga.com/spark/story/7299/1
         self.section=self.parsedUrl.path.split('/',)[1]
-        
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/'+self.parsedUrl.path.split('/',)[1]+'/story/'+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','dkg')
 
@@ -69,7 +69,7 @@ class DokugaComAdapter(BaseSiteAdapter):
             self.dateformat = "%d %b %Y"
         else:
             self.dateformat = "%m-%d-%y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -88,7 +88,7 @@ class DokugaComAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self, url,soup):
         params = {}
 
@@ -103,11 +103,11 @@ class DokugaComAdapter(BaseSiteAdapter):
         # copy all hidden input tags to pick up appropriate tokens.
         for tag in soup.findAll('input',{'type':'hidden'}):
             params[tag['name']] = tag['value']
-    
+
         loginUrl = 'http://' + self.getSiteDomain() + '/fanfiction'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
-    
+
         d = self._postUrl(loginUrl, params)
 
         if "Your session has expired. Please log in again." in d:
@@ -136,25 +136,25 @@ class DokugaComAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-                
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
-        
+        soup = self.make_soup(data)
+
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url,soup)
             data = self._fetchUrl(url)
-            soup = bs.BeautifulSoup(data)
-            
+            soup = self.make_soup(data)
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title and author
         a = soup.find('div', {'align' : 'center'}).find('h3')
-        
+
         # Find authorid and URL from... author url.
         aut = a.find('a')
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
@@ -162,7 +162,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+aut['href'])
         self.story.setMetadata('author',aut.string)
         aut.extract()
-        
+
         a = a.string[:(len(a.string)-4)]
         self.story.setMetadata('title',stripHTML(a))
 
@@ -176,12 +176,12 @@ class DokugaComAdapter(BaseSiteAdapter):
                 self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
-        asoup = bs.BeautifulSoup(self._fetchUrl(alink))
-        
+
+        asoup = self.make_soup(self._fetchUrl(alink))
+
         if 'fanfiction' in self.section:
             asoup=asoup.find('div', {'id' : 'cb_tabid_52'}).find('div')
-        
+
             #grab the rest of the metadata from the author's page
             for div in asoup.findAll('div'):
                 nav=div.find('a', href=re.compile(r'/fanfiction/story/'+self.story.getMetadata('storyId')+"/1$"))
@@ -189,90 +189,89 @@ class DokugaComAdapter(BaseSiteAdapter):
                     break
             div=div.nextSibling
             self.setDescription(url,div)
-        
+
             div=div.nextSibling
-            
-            a=div.text.split('Rating: ')
-            if len(a) == 2: self.story.setMetadata('rating', a[1].split('&')[0])
-        
-            a=div.text.split('Status: ')
+
+            a=div.string.split('Rating: ')
+            if len(a) == 2: self.story.setMetadata('rating', a[1].split('-')[0])
+
+            a=div.string.split('Status: ')
             if len(a)==2:
-                iscomp=a[1].split('&')[0]
+                iscomp=a[1].split('-')[0]
                 if 'Complete' in iscomp:
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
-            
-            a=div.text.split('Category: ')
-            if len(a) == 2: self.story.addToList('category', a[1].split('&')[0])
-        
-            a=div.text.split('Created: ')
-            if len(a) == 2: self.story.setMetadata('datePublished', makeDate(stripHTML(a[1].split('&')[0]), self.dateformat))
-        
-            a=div.text.split('Updated: ')
+
+            a=div.string.split('Category: ')
+            if len(a) == 2: self.story.addToList('category', a[1].split('-')[0])
+
+            a=div.string.split('Created: ')
+            if len(a) == 2: self.story.setMetadata('datePublished', makeDate(stripHTML(a[1].split('-')[0]), self.dateformat))
+
+            a=div.string.split('Updated: ')
             if len(a) == 2: self.story.setMetadata('dateUpdated', makeDate(stripHTML(a[1]), self.dateformat))
-            
+
             div=div.nextSibling.nextSibling
-            a=div.text.split('Words: ')
-            if len(a) == 2: self.story.setMetadata('numWords', a[1].split('&')[0])
-        
-            a=div.text.split('Genre: ')
+            a=div.string.split('Words: ')
+            if len(a) == 2: self.story.setMetadata('numWords', a[1].split('-')[0])
+
+            a=div.string.split('Genre: ')
             if len(a) == 2:
-                for genre in a[1].split('&')[0].split(', '):
+                for genre in a[1].split('-')[0].split(', '):
                     self.story.addToList('genre',genre)
-        
+
         else:
             asoup=asoup.find('div', {'id' : 'maincol'}).find('div', {'class' : 'padding'})
             for div in asoup.findAll('div'):
                 nav=div.find('a', href=re.compile(r'/spark/story/'+self.story.getMetadata('storyId')+"/1$"))
                 if nav != None:
                     break
-                    
+
             div=div.nextSibling.nextSibling
             self.setDescription(url,div)
             self.story.addToList('category', 'Spark')
-            
+
             div=div.nextSibling.nextSibling
-            a=div.text.split('Rating: ')
+            a=div.string.split('Rating: ')
             if len(a) == 2: self.story.setMetadata('rating', a[1].split(' - ')[0])
-            
-            a=div.text.split('Status: ')
+
+            a=div.string.split('Status: ')
             if len(a)==2:
                 iscomp=a[1].split(' - ')[0]
                 if 'Complete' in iscomp:
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
-            
-            a=div.text.split('Genre: ')
+
+            a=div.string.split('Genre: ')
             if len(a)==2:
                 for genre in a[1].split(' - ')[0].split('/'):
                     self.story.addToList('genre',genre)
-                
+
             div=div.nextSibling.nextSibling
-            
-            a=div.text.split('Updated: ')
+
+            a=div.string.split('Updated: ')
             if len(a)==2:
                 date=a[1].split('      -')[0]
                 self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
-        
+
                 # does not have published date anywhere
                 self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
-            
-            a=div.text.split('Words ')
+
+            a=div.string.split('Words ')
             if len(a)==2: self.story.setMetadata('numWords', a[1])
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'chtext'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

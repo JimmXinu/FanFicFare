@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,32 +46,32 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only storyid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?storyid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ntlb')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m-%d-%y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         return 'national-library.net'
-        
+
     @classmethod
     def getAcceptDomains(cls):
         return ['www.national-library.net','national-library.net']
 
     @classmethod
     def getSiteExampleURLs(cls):
-        # ONLY the stories archived on or after June 17, 2006 and that are hosted on the website: 
+        # ONLY the stories archived on or after June 17, 2006 and that are hosted on the website:
         return "http://"+cls.getSiteDomain()+"/viewstory.php?storyid=1234"
 
     def getSiteURLPattern(self):
@@ -93,20 +93,20 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"authorresults.php\?author=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -130,7 +130,7 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
         for x in range(2,len(labels)):
             value = labels[x].nextSibling
             label = labels[x].string
-            
+
             if 'Summary' in label:
                 self.setDescription(url,value)
                 #self.story.setMetadata('description',stripHTML(svalue))
@@ -152,43 +152,42 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
             if 'Character' in label:
                 for char in value.string.split(', '):
                     self.story.addToList('characters',char)
-                    
+
             if 'Pairing' in label:
                 for char in value.string.split(', '):
                     self.story.addToList('ships',char)
-                    
+
             if 'Warnings' in label:
                 for warning in value.string.split(', '):
                     self.story.addToList('warnings',warning)
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Series' in label:
                 self.setSeries(stripHTML(value.nextSibling), value.nextSibling.nextSibling.string[2:])
                 self.story.setMetadata('seriesUrl','http://'+self.host+'/'+value.nextSibling['href'])
-                
-        asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+
+        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
         story=asoup.find('a', href=re.compile(r'viewstory.php\?storyid='+self.story.getMetadata('storyId')))
-            
+
         a=story.findNext(text=re.compile('Genre')).parent.nextSibling.string.split(', ')
         for genre in a:
             self.story.setMetadata('genre', genre)
-        
+
         a=story.findNext(text=re.compile('Archived'))
         self.story.setMetadata('datePublished', makeDate(stripHTML(a.parent.nextSibling), self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(a.parent.nextSibling), self.dateformat))
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div')
-        
+
         # bit messy since higly inconsistent
         for p in soup.findAll('p', {'align' : 'center'}):
             p.extract()
@@ -209,5 +208,5 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

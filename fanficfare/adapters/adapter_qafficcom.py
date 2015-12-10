@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -46,21 +46,21 @@ class QafFicComAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/atp/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','atp')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m/%d/%y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -72,7 +72,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/atp/viewstory.php?sid=")+r"\d+$"
-       
+
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -117,43 +117,43 @@ class QafFicComAdapter(BaseSiteAdapter):
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
-                        raise e    
+                        raise e
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-            
+
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title and author
         a = soup.find('div', {'id' : 'pagetitle'})
-        
+
         aut = a.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/atp/'+aut['href'])
         self.story.setMetadata('author',aut.string)
         aut.extract()
-        
+
         self.story.setMetadata('title',stripHTML(a)[:(len(a.string)-3)])
 
         # Find the chapters:
         chapters=soup.find('select')
         if chapters != None:
             for chapter in chapters.findAll('option'):
-                # just in case there's tags, like <i> in chapter titles. 
+                # just in case there's tags, like <i> in chapter titles.
                 self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/atp/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
         else:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
-        asoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-        for list in asoup.findAll('div', {'class' : re.compile('listbox\s+')}):
+
+        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        for list in asoup.findAll('div', {'class' : re.compile('listbox')}):
             a = list.find('a')
             if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in a['href']:
                 break
@@ -177,7 +177,7 @@ class QafFicComAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'classification' and value != None:
+                while value and 'classification' not in defaultGetattr(value,'class'):
                     if "Featured Stories" not in value:
                         svalue += unicode(value)
                     value = value.nextSibling
@@ -218,7 +218,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value.split(' ::')[0]), self.dateformat))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -230,7 +230,7 @@ class QafFicComAdapter(BaseSiteAdapter):
                     # Find Series name from series URL.
                     series_url = 'http://'+self.host+'/atp/'+series['href']
                     # use BeautifulSoup HTML parser to make everything easier to find.
-                    seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+                    seriessoup = self.make_soup(self._fetchUrl(series_url))
                     storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
                     i=1
                     for a in storyas:
@@ -244,22 +244,21 @@ class QafFicComAdapter(BaseSiteAdapter):
                         i+=1
                     if i == 0:
                         break
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-                                     
+        soup = self.make_soup(self._fetchUrl(url))
+
         div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

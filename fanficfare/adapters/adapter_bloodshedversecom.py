@@ -3,7 +3,7 @@ import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter, makeDate
@@ -51,7 +51,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():

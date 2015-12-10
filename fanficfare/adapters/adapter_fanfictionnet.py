@@ -38,7 +38,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','ffnet')
-        
+
         # get storyId from url--url validation guarantees second part is storyId
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
 
@@ -90,7 +90,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
-    
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
         # fetch the chapter.  From that we will get almost all the
@@ -109,7 +109,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(url)
             else:
                 raise e
-            
+
         if "Unable to locate story" in data:
             raise exceptions.StoryDoesNotExist(url)
 
@@ -145,7 +145,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             except e:
                 logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
                 pass
-            
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
@@ -180,14 +180,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 logger.info("Fall back category collection")
                 for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
                     self.story.addToList('category',c)
-                
-                
-            
+
+
+
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
             rating = rating[8:]
-            
+
         self.story.setMetadata('rating',rating)
 
         # after Rating, the same bit of text containing id:123456 contains
@@ -199,7 +199,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         summarydiv = gui_table1i.find('div',{'style':'margin-top:2px'})
         if summarydiv:
             self.setDescription(url,stripHTML(summarydiv))
-            
+
 
         grayspan = gui_table1i.find('span', {'class':'xgray xcontrast_txt'})
         # for b in grayspan.findAll('button'):
@@ -210,7 +210,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         #logger.debug("metalist:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
-        # Rated: Fiction T - English - Adventure/Sci-Fi - Naruto U. - Chapters: 22 - Words: 114,414 - Reviews: 395 - Favs: 779 - Follows: 835 - Updated: 03-21-13 - Published: 04-28-12 - id: 8067258 
+        # Rated: Fiction T - English - Adventure/Sci-Fi - Naruto U. - Chapters: 22 - Words: 114,414 - Reviews: 395 - Favs: 779 - Follows: 835 - Updated: 03-21-13 - Published: 04-28-12 - id: 8067258
 
         # rating is obtained above more robustly.
         if metalist[0].startswith('Rated:'):
@@ -239,7 +239,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # updated get set to the same as published upstream if not found.
             self.story.setMetadata('dateUpdated',datetime.fromtimestamp(float(dates[0]['data-xutime'])))
         self.story.setMetadata('datePublished',datetime.fromtimestamp(float(dates[-1]['data-xutime'])))
-            
+
         donechars = False
         while len(metalist) > 0:
             if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:') or metalist[0].startswith('Updated:') or metalist[0].startswith('Published:'):
@@ -294,7 +294,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         authimg_url=img[0]['src']
 
                 logger.debug("authimg_url:%s"%authimg_url)
-            
+
                 ## ffnet uses different sizes on auth & story pages, but same id.
                 ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
                 ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
@@ -310,14 +310,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 ## don't use cover if it matches the auth image.
                 if cover_id and authimg_id and cover_id == authimg_id:
                     cover_url = None
-                    
+
             if cover_url:
                 self.setCoverImage(url,cover_url)
 
-                    
-        # Find the chapter selector 
+
+        # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	 
+    	
         if select is None:
     	   # no selector found, so it's a one-chapter story.
     	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -346,7 +346,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
-        
+
         # some ancient stories have body tags inside them that cause
         # soup parsing to discard the content.  For story text we
         # don't care about anything before "<div role='main'" and
@@ -356,9 +356,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # if divstr not in data:
         #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         # else:
-        #     data = data[data.index(divstr):] 
+        #     data = data[data.index(divstr):]
         # data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
-        
+
         soup = self.make_soup(data)
 
         ## Remove the 'share' button.
@@ -366,9 +366,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
         # if sharediv:
         #     sharediv.extract()
-        
+
         div = soup.find('div', {'id' : 'storytextp'})
-        
+
         if None == div:
             logger.debug('div id=storytextp not found.  data:%s'%data)
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -57,31 +57,31 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('https://' + self.getSiteDomain() + '/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','wwomb')
-        
+
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m/%d/%y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'www.squidge.org'
-    
+
     @classmethod # must be @classmethod, don't remove it.
     def getConfigSection(cls):
         # The config section name.  Only override if != site domain.
         return cls.getSiteDomain()+'/peja'
-    
+
     @classmethod
     def getSiteExampleURLs(cls):
         return "https://"+cls.getSiteDomain()+"/peja/cgi-bin/viewstory.php?sid=1234"
@@ -108,20 +108,20 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
 
         if "fatal MySQL error was encountered" in data:
             raise exceptions.FailedToDownload("Site SQL Error--bad story")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         # Find authorid and URL from... author url.
         author = soup.find('div', {'id':"pagetitle"}).find('a')
         self.story.setMetadata('authorId',author['href'].split('=')[1])
         self.story.setMetadata('authorUrl','https://'+self.host+'/peja/cgi-bin/'+author['href'])
         self.story.setMetadata('author',author.string)
 		
-        authorSoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
@@ -129,7 +129,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         title = authorSoup.find('a',{'href':'viewstory.php?sid='+self.story.getMetadata('storyId')})
         self.story.setMetadata('title',stripHTML(title))
         titleblock=title.parent.parent
-        
+
         chapterselect=soup.find('select',{'name':'chapter'})
         if chapterselect:
             for ch in chapterselect.findAll('option'):
@@ -139,7 +139,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
 		
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-        
+
         # utility method
         def defaultGetattr(d,k):
             try:
@@ -157,7 +157,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ""
-                while not defaultGetattr(value,'class') == 'classification':
+                while 'classification' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
@@ -199,19 +199,19 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
 
                 # site has started including a tracking script between Updated label and date--sometimes...
                 svalue = ""
-                while value is not None and not defaultGetattr(value,'class') == 'classification':
+                while value is not None and 'classification' not in defaultGetattr(value,'class'):
                     if '<script' not in unicode(value):
                         svalue += unicode(value)
                     value = value.nextSibling
                     #print("svalue:%s"%svalue)
-                    
+
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(svalue), self.dateformat))
 
         try:
@@ -220,9 +220,9 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             a = titleblock.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
             series_name = a.string
             series_url = 'https://'+self.host+'/peja/cgi-bin/'+a['href']
-    
+
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -233,24 +233,23 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 # don't count the 'site map' story.  See the url pattern method.
                 if '47746' not in a['href']:
                     i+=1
-                
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
 	
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = bs.BeautifulStoneSoup(self._fetchUrl(url),
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+        soup = self.make_soup(self._fetchUrl(url))
+
         chaptext = soup.find('div',{'id':"story"}).find('span')
 
         if None == chaptext:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,chaptext)

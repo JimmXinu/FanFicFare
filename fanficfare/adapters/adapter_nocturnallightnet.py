@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import re
 import urllib2
 import urlparse
 
-from .. import BeautifulSoup
+from bs4.element import Tag
 
 from base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -52,7 +54,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         else:
             data = self._fetchUrl(url, parameters)
 
-        return BeautifulSoup.BeautifulSoup(data)
+        return self.make_soup(data)
 
     @staticmethod
     def getSiteDomain():
@@ -111,7 +113,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         for b_tag in listbox('b'):
             key = b_tag.string.strip(':')
             try:
-                value = b_tag.nextSibling.string.replace('&bull;', '').strip(': ')
+                value = b_tag.nextSibling.string.replace('&bull;', '').replace(u'•','').strip(': ')
             # This can happen with some fancy markup in the summary. Just
             # ignore this error and set value to None, the summary parsing
             # takes care of this
@@ -123,7 +125,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
                 keep_summary_html = self.getConfig('keep_summary_html')
 
                 for sibling in _yield_next_siblings(b_tag):
-                    if isinstance(sibling, BeautifulSoup.Tag):
+                    if isinstance(sibling, Tag):
                         if sibling.name == 'b' and sibling.findPreviousSibling().name == 'br':
                             break
 
@@ -149,6 +151,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('rating', value)
 
             elif key == 'Chapters':
+                print("cahpter value:%s"%value)
                 self.story.setMetadata('numChapters', int(value))
 
                 # Also parse reviews number which lies right after the chapters

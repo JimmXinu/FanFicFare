@@ -22,7 +22,7 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -47,21 +47,21 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId') + '/1')
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ffde')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d.%m.%Y"
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -73,14 +73,14 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
-        
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
         this and change it to True.
         '''
         return True
-    
+
         ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'Diese Geschichte wurde als entwicklungsbeeintr' in data \
@@ -89,7 +89,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             return True
         else:
             return False
-        
+
     def performLogin(self,url):
         params = {}
 
@@ -106,7 +106,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         loginUrl = 'https://ssl.fanfiktion.de/'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['nickname']))
-        soup = bs.BeautifulSoup(self._postUrl(loginUrl,params))
+        soup = self.make_soup(self._postUrl(loginUrl,params))
         if not soup.find('a', title='Logout'):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['nickname']))
@@ -128,25 +128,25 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-                
+
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
             data = self._fetchUrl(url,usecache=False)
-            
+
         if "Uhr ist diese Geschichte nur nach einer" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         ## Title
         a = soup.find('a', href=re.compile(r'/s/'+self.story.getMetadata('storyId')+"/"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         head = soup.find('div', {'class' : 'story-left'})
         a = head.find('a')
@@ -167,7 +167,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         # second colspan=3 td in head.
         genres=stripHTML(head.find('span',class_='fa-angle-right').next_sibling)
         self.story.extendList('genre',genres[:genres.index('/')].split(', '))
-        
+
         if head.find('span',title='Fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
         else:
@@ -181,13 +181,13 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             if '/s/'+self.story.getMetadata('storyId')+'/1/' in a['href']:
                 break
         self.setDescription(url,a['onmouseover'].split("', '")[1])
-        
+
         td = tr[i].findAll('td')
         self.story.addToList('category',stripHTML(td[2]))
         self.story.setMetadata('rating', stripHTML(td[5]))
         self.story.setMetadata('numWords', stripHTML(td[6]))
- 
-            
+
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -195,12 +195,12 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         time.sleep(0.5) ## ffde has "floodlock" protection
 
         soup = self.make_soup(self._fetchUrl(url))
-        
+
         div = soup.find('div', {'id' : 'storytext'})
         for a in div.findAll('script'):
             a.extract()
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,div)

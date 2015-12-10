@@ -22,7 +22,7 @@ import re
 import urllib2
 import cookielib as cl
 
-from .. import BeautifulSoup as bs
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -52,21 +52,21 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/story/'+self.story.getMetadata('storyId'))
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','prtky') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d/%m/%y" # XXX
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -85,7 +85,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         this and change it to True.
         '''
         return True
-    
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -105,7 +105,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                                comment=None,
                                comment_url=None,
                                rest={'HttpOnly': None},
-                               rfc2109=False) 
+                               rfc2109=False)
             self.get_cookiejar().set_cookie(cookie)
 
         try:
@@ -116,15 +116,15 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
-        if "You must be over 18 years of age to view it" in data: # XXX 
+        if "You must be over 18 years of age to view it" in data: # XXX
             raise exceptions.AdultCheckRequired(self.url)
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
         #print data
 
         # Now go hunting for all the meta data and the chapter list.
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/profile/\d+"))
         #print("======a:%s"%a)
@@ -133,13 +133,13 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('author',a.string)
 
         ## Going to get the rest from the author page.
-        authsoup = bs.BeautifulSoup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-        
+        authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+
         ## Title
         titlea = authsoup.find('a', href=re.compile(r'/story/'+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(titlea))
         metablock = titlea.parent
-        
+
         # Find the chapters:
         for chapter in soup.find('select',{'name':'select5'}).findAll('option', {'value':re.compile(r'/story/'+self.story.getMetadata('storyId')+"/\d+$")}):
             # just in case there's tags, like <i> in chapter titles.
@@ -147,7 +147,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
             if not chtitle:
                 chtitle = "(Untitled Chapter)"
             self.chapterUrls.append((chtitle,'http://'+self.host+chapter['value']))
-            
+
         if len(self.chapterUrls) == 0:
             self.chapterUrls.append((stripHTML(self.story.getMetadata('title')),url))
 
@@ -162,7 +162,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                 return d[k]
             except:
                 return ""
-        # <SPAN class="dark-small-bold">Contents:</SPAN> <SPAN class="small-grey">NC17 </SPAN> 
+        # <SPAN class="dark-small-bold">Contents:</SPAN> <SPAN class="small-grey">NC17 </SPAN>
         # <SPAN class="dark-small-bold">Published: </SPAN><SPAN class="small-grey">12/11/07</SPAN>
         # <SPAN class="dark-small-bold"><BR>
         # Description:</SPAN> <SPAN class="small-black">A special book helps Harry tap into the power the Dark Lord knows not.  Of course it’s a book on sex magic and rituals… but Harry’s not complaining.  Spurned on by the ghost of a pervert founder, Harry leads his friends in the hunt for Voldemort’s Horcruxes.
@@ -201,10 +201,10 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
                 # spans.
                 svalue = ""
                 value = labelspan.nextSibling
-                while not defaultGetattr(value,'class') == 'dark-small-bold':
+                while 'dark-small-bold' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
-                    
+
                 for genre in svalue.split("/"):
                     genre = genre.strip()
                     if genre != 'None':
@@ -228,7 +228,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            
+
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
@@ -239,18 +239,18 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         #     series_url = 'http://'+self.host+'/'+a['href']
 
         #     # use BeautifulSoup HTML parser to make everything easier to find.
-        #     seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+        #     seriessoup = self.make_soup(self._fetchUrl(series_url))
         #     storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
         #     i=1
         #     for a in storyas:
         #         if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
         #             self.setSeries(series_name, i)
         #             break
-        #         i+=1            
+        #         i+=1
         # except:
         #     # I find it hard to care if the series parsing fails
         #     pass
-            
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -259,8 +259,8 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
 
         data = data.replace("HTML>","div>")
         data = data.replace("html>","div>")
-        
-        soup = bs.BeautifulSoup(data)
+
+        soup = self.make_soup(data)
 
         # remove ad blocks so they don't become covers.
         for ns in soup.findAll('noscript'):
@@ -270,7 +270,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         tag = soup.find('td', {'class' : 'story'})
         if tag == None and "<center><b>Chapter does not exist!</b></center>" in data:
             logger.error("Chapter is missing at: %s"%url)
-            return  self.utf8FromSoup(url,bs.BeautifulStoneSoup("<div><p><center><b>Chapter does not exist!</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
+            return  self.utf8FromSoup(url,self.make_soup("<div><p><center><b>Chapter does not exist!</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
         tag.name='div' # force to be a div to avoid problems with nook.
 
         centers = tag.findAll('center')
@@ -283,5 +283,5 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
 
         if None == tag:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,tag)

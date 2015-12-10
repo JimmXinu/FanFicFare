@@ -158,7 +158,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         # While wrapping in paragraphs would be possible, it's too much work,
         # I'd rather display the story 1:1 like it was found in the pre tag.
         content = unicode(element)
-        content = content.replace('\n', '<br />')
+        content = content.replace('\n', '<br/>')
 
         if self.getConfig('non_breaking_spaces'):
             return content.replace(' ', '&nbsp;')

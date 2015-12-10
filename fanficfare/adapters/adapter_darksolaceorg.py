@@ -31,11 +31,11 @@ class DarkSolaceOrgAdapter(BaseEfictionAdapter):
     @classmethod
     def getSiteAbbrev(self):
         return 'dksl'
-        
+
     @classmethod
     def getDateFormat(self):
         return "%B %d, %Y"
-                           
+
 def getClass():
     return DarkSolaceOrgAdapter
-    
+

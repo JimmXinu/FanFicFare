@@ -25,10 +25,10 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
 
     def __init__(self, config, url):
         BaseXenForoForumAdapter.__init__(self, config, url)
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','qq')
-            
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.

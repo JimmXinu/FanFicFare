@@ -23,7 +23,7 @@ import urllib2
 import urlparse
 import time
 
-from .. import BeautifulSoup as bs
+from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -98,7 +98,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         """
-        NOTE: Some stories can have versions, 
+        NOTE: Some stories can have versions,
               e.g. /my-story-ch-05-version-10
         NOTE: If two stories share the same title, a running index is added,
               e.g.: /my-story-ch-02-1
@@ -121,9 +121,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         logger.debug("Chapter/Story URL: <%s> " % self.url)
         try:
             data1 = self._fetchUrl(self.url)
-            soup1 = bs.BeautifulSoup(data1)
+            soup1 = self.make_soup(data1)
             #strip comments from soup
-            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, bs.Comment))]
+            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -142,9 +142,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # get the author page
         try:
             dataAuth = self._fetchUrl(authorurl)
-            soupAuth = bs.BeautifulSoup(dataAuth)
+            soupAuth = self.make_soup(dataAuth)
             #strip comments from soup
-            [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, bs.Comment))]
+            [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(authorurl)
@@ -189,7 +189,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 descriptions.append(chapterTr.findAll("td")[1].text)
                 chapterLink = chapterTr.find("td", "fc").find("a")
                 if not chapterLink["href"].startswith('http'):
-                    chapterLink["href"] = "http:" + chapterLink["href"] 
+                    chapterLink["href"] = "http:" + chapterLink["href"]
                 self.chapterUrls.append((chapterLink.text, chapterLink["href"]))
                 self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
                 dates.append(makeDate(chapterTr.findAll('td')[-1].text, self.dateformat))
@@ -207,9 +207,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self._setURL(self.chapterUrls[0][1])
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
-                
+
         # set storyId to 'title-author' to avoid duplicates
-        # self.story.setMetadata('storyId', 
+        # self.story.setMetadata('storyId',
         #     re.sub("[^a-z0-9]", "", self.story.getMetadata('title').lower())
         #     + "-"
         #     + re.sub("[^a-z0-9]", "", self.story.getMetadata('author').lower()))
@@ -223,16 +223,16 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # done by changing tag name, it causes problems with nested
         # <p> tags.
         data1 = data1.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
-        soup1 = bs.BeautifulSoup(data1)
+        soup1 = self.make_soup(data1)
 
         #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, bs.Comment))]
+        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
 
         # get story text
         story1 = soup1.find('div', 'b-story-body-x').div
         #print("story1:%s"%story1)
         # story1.name='div'
-        story1.append('<br />')
+        story1.append(soup1.new_tag('br'))
         storytext = self.utf8FromSoup(url,story1)
 
         # find num pages
@@ -249,11 +249,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 # done by changing tag name, it causes problems with nested
                 # <p> tags.
                 data2 = data2.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
-                soup2 = bs.BeautifulSoup(data2)
-                [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, bs.Comment))]
+                soup2 = self.make_soup(data2)
+                [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, Comment))]
                 story2 = soup2.find('div', 'b-story-body-x').div
                 # story2.name='div'
-                story2.append('<br />')
+                story2.append(soup2.new_tag('br'))
                 storytext += self.utf8FromSoup(url,story2)
             except urllib2.HTTPError, e:
                 if e.code == 404:

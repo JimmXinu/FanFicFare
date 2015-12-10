@@ -33,10 +33,10 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fw')
-        
+
         # get storyId from url--url validation guarantees second part is storyId
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-        
+
         self.username = "NoneGiven"
         self.password = ""
 
@@ -72,8 +72,8 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(url,params['username'])
             return False
         else:
-            return True        
-    
+            return True
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -101,7 +101,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-            
+
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
@@ -169,19 +169,19 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if m:
             for g in m.group(1).split(','):
                 self.story.addToList('genre',g)
-        
+
         m = re.match(r".*?Characters: (.*?) -.*?",metastr)
         if m:
             for g in m.group(1).split(','):
                 if g:
                     self.story.addToList('characters',g)
-        
+
         m = re.match(r".*?Published: ([0-9-]+?) -.*?",metastr)
         if m:
             self.story.setMetadata('datePublished',makeDate(m.group(1), "%Y-%m-%d"))
 
         # Updated can have more than one space after it. <shrug>
-        m = re.match(r".*?Updated: ([0-9-]+?) +-.*?",metastr) 
+        m = re.match(r".*?Updated: ([0-9-]+?) +-.*?",metastr)
         if m:
             self.story.setMetadata('dateUpdated',makeDate(m.group(1), "%Y-%m-%d"))
 

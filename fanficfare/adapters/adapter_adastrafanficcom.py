@@ -23,7 +23,6 @@ import re
 import urllib
 import urllib2
 
-from .. import BeautifulSoup as bs
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -40,15 +39,15 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
         self.is_adult=False
-        
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        
-        
+
+
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
-            
+
     @staticmethod
     def getSiteDomain():
         return 'www.adastrafanfic.com'
@@ -66,14 +65,14 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
-    
+
     def extractChapterUrlsAndMetadata(self):
 
         if self.is_adult or self.getConfig("is_adult"):
             addurl = "&warning=5"
         else:
             addurl=""
-            
+
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
@@ -87,19 +86,19 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
 
         if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
             raise exceptions.AdultCheckRequired(self.url)
-            
+
         # problems with some stories, but only in calibre.  I suspect
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
         data = data[data.index("<body"):]
-        
+
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = bs.BeautifulSoup(data)
+        soup = self.make_soup(data)
 
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -126,7 +125,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-        
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -136,7 +135,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             if 'Summary' in label:
                 ## Everything until the next span class='label'
                 svalue = ''
-                while value and not defaultGetattr(value,'class') == 'label':
+                while value and 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
                     value = value.nextSibling
                 # sometimes poorly formated desc (<p> w/o </p>) leads
@@ -185,7 +184,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
 
             if 'Published' in label:
                 self.story.setMetadata('datePublished', makeDate(value.strip(), "%d %b %Y"))
-            
+
             if 'Updated' in label:
                 # there's a stray [ at the end.
                 #value = value[0:-1]
@@ -198,7 +197,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = bs.BeautifulSoup(self._fetchUrl(series_url))
+            seriessoup = self_make_soup(self._fetchUrl(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -207,11 +206,11 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     break
                 i+=1
-            
+
         except:
             # I find it hard to care if the series parsing fails
             pass
-            
+
 
     def getChapterText(self, url):
 
@@ -222,15 +221,14 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         # issues with different SGML parsers in python.  This is a
         # nasty hack, but it works.
         data = data[data.index("<body"):]
-        
-        soup = bs.BeautifulStoneSoup(data,
-                                     selfClosingTags=('br','hr')) # otherwise soup eats the br/hr tags.
-        
+
+        soup = self.make_soup(data)
+
         span = soup.find('div', {'id' : 'story'})
 
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-    
+
         return self.utf8FromSoup(url,span)
 
 def getClass():
