@@ -848,7 +848,7 @@ class Story(Configurable):
             if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
                 # need to retain order for author & authorUrl so the
                 # two match up.
-                return retlist
+                return unique_list(retlist)
             else:
                 # remove dups and sort.
                 return sorted(list(set(retlist)))
@@ -1104,3 +1104,9 @@ def commaGroups(s):
         groups.append(s[-3:])
         s = s[:-3]
     return s + ','.join(reversed(groups))
+
+# http://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-in-python-whilst-preserving-order
+def unique_list(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
