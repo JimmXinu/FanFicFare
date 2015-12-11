@@ -132,12 +132,12 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             val = labelspan.nextSibling
             value = unicode('')
             while val and not 'label' in defaultGetattr(val,'class'):
-                print("val:%s"%val)
+                # print("val:%s"%val)
                 if not isinstance(val,Comment):
                     value += unicode(val)
                 val = val.nextSibling
             label = labelspan.string
-            print("label:%s\nvalue:%s"%(label,value))
+            # print("label:%s\nvalue:%s"%(label,value))
 
             if 'Summary' in label:
                 self.setDescription(url,value)
