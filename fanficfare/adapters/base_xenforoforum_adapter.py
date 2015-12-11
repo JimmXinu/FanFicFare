@@ -219,6 +219,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
 
                     url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
+                    url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
 
                     logger.debug("(ch:%s)used chapurl:%s"%(len(self.chapterUrls)+1,url))
                     self.chapterUrls.append((name,url))
