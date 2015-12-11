@@ -227,7 +227,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             if 'Eingestuft' in label:
                 self.story.setMetadata('rating', value)
 
-            if 'W&ouml;rter' in label:
+            if u'Wörter' in label:
                 self.story.setMetadata('numWords', value)
 
             if 'Kategorie' in label:
@@ -246,7 +246,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
                 else:
                     self.story.setMetadata('status', 'In-Progress')
 
-            if 'Ver&ouml;ffentlicht' in label:
+            if u'Veröffentlicht' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
 
             if 'Aktualisiert' in label:
