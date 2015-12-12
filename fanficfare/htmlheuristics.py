@@ -27,7 +27,7 @@ from . import exceptions as exceptions
 def replace_br_with_p(body):
 
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
-    # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a reagular space.
+    # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a regular space.
     body = body.replace(u'\xa0', u' ')
 
     if body.find('>') == -1 or body.rfind('<') == -1:
@@ -258,7 +258,9 @@ def soup_up_div(body):
 
     body = body.replace(u'<br />', u'[br /]')
 
-    soup = bs.BeautifulSoup(body,'html5lib')
+    # bs4 insists on wrapping *all* new soups in <html><body> if they
+    # don't already have them.  This way we have just the div.
+    soup = bs.BeautifulSoup('<div id="soup_up_div">'+body+'</div>','html5lib').find('div',id="soup_up_div")
 
     body = u''
     lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
