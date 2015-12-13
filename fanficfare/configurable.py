@@ -111,6 +111,8 @@ def get_valid_list_entries():
                  'authorId',
                  'authorUrl',
                  'lastupdate',
+                 'keep_html_attrs',
+                 'replace_tags_with_spans',
                  ])
 
 boollist=['true','false']
@@ -273,6 +275,8 @@ def get_valid_keywords():
                  'join_string_authorHTML',
                  'keep_style_attr',
                  'keep_title_attr',
+                 'keep_html_attrs',
+                 'replace_tags_with_spans',
                  'keep_summary_html',
                  'logpage_end',
                  'logpage_entries',
@@ -449,15 +453,18 @@ class Configuration(ConfigParser.SafeConfigParser):
         return val
 
     # split and strip each.
-    def get_config_list(self, sections, key):
+    def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
         vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
         #print "vlist("+key+"):"+str(vlist)
-        return vlist        
+        if not vlist:
+            return default
+        else:
+            return vlist
     
     # used by adapters & writers, non-convention naming style
-    def getConfigList(self, key):
-        return self.get_config_list(self.sectionslist, key)
+    def getConfigList(self, key, default=[]):
+        return self.get_config_list(self.sectionslist, key, default)
 
     # Moved here for test_config.
     def get_generate_cover_settings(self):
@@ -690,8 +697,8 @@ class Configurable(object):
     def get_config(self, sections, key, default=""):
         return self.configuration.get_config(sections,key,default)
 
-    def getConfigList(self, key):
-        return self.configuration.getConfigList(key)
+    def getConfigList(self, key, default=[]):
+        return self.configuration.getConfigList(key,default)
 
     def get_config_list(self, sections, key):
         return self.configuration.get_config_list(sections,key)

@@ -561,11 +561,13 @@ class BaseSiteAdapter(Configurable):
         if not fetch:
             fetch=self._fetchUrlRaw
 
-        acceptable_attributes = ['href','name','class','id']
+        acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id'])
+        
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')
         if self.getConfig("keep_title_attr"):
             acceptable_attributes.append('title')
+            
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
@@ -590,7 +592,7 @@ class BaseSiteAdapter(Configurable):
                 # these are not acceptable strict XHTML.  But we do already have 
                 # CSS classes of the same names defined
                 if t and hasattr(t,'name') and t.name is not None:
-                    if t.name in ('u'):
+                    if t.name in self.getConfigList('replace_tags_with_spans',['u']):
                         t['class']=t.name
                         t.name='span'
                     if t.name in ('center'):
