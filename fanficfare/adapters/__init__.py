@@ -139,6 +139,7 @@ import adapter_forumquestionablequestingcom
 import adapter_ninelivesarchivecom
 import adapter_masseffect2in
 import adapter_quotevcom
+import adapter_mcstoriescom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
