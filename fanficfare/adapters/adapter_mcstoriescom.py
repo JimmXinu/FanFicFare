@@ -118,7 +118,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         # Tags
         codesDiv = soup1.find('div', class_="storyCodes")
         for a in codesDiv.findAll('a'):
-            self.story.addToList('category', a.text)
+            self.story.addToList('eroticatags', a.text)
 
         # Publish and update dates
         publishdate = None
