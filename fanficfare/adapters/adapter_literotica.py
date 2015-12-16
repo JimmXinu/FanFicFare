@@ -158,7 +158,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         if storyLink is not None:
             urlTr = storyLink.parent.parent
-            if urlTr['class'] == "sl":
+            if "sl" in urlTr['class']:
                 isSingleStory = False
             else:
                 isSingleStory = True
@@ -175,7 +175,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.chapterUrls = [(storyLink.text, self.url)]
         else:
             seriesTr = urlTr.previousSibling
-            while seriesTr['class'] != 'ser-ttl':
+            while 'ser-ttl' not in seriesTr['class']:
                 seriesTr = seriesTr.previousSibling
             m = re.match("^(?P<title>.*?):\s(?P<numChapters>\d+)\sPart\sSeries$", seriesTr.find("strong").text)
             self.story.setMetadata('title', m.group('title'))
@@ -185,7 +185,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.chapterUrls = []
             dates = []
             descriptions = []
-            while chapterTr is not None and chapterTr['class'] == 'sl':
+            while chapterTr is not None and 'sl' in chapterTr['class']:
                 descriptions.append(chapterTr.findAll("td")[1].text)
                 chapterLink = chapterTr.find("td", "fc").find("a")
                 if not chapterLink["href"].startswith('http'):
