@@ -288,7 +288,9 @@ def soup_up_div(body):
                     lastElement = 2
                     body += s
             elif type(i) == bs.Comment:
-                body += s
+                #body += s
+                # skip comments because '<!-- text -->' becomes just 'text'
+                pass
             else:
                 if lastElement == 1:
                     body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
