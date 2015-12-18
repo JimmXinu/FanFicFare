@@ -247,9 +247,28 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         BtVS = True
         BtVSNonX = False
+        char=None
+        romance=False
         for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
-            if cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BTVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
-                self.story.addToList('category',cat.string)
+            # assumes only one -Centered and one Pairing: cat can ever
+            # be applied to one story.
+            if self.getConfig('centeredcat_to_characters') and cat.string.endswith('-Centered'):
+                char = cat.string[:-len('-Centered')]
+                self.story.addToList('characters',char)
+            elif self.getConfig('pairingcat_to_characters_ships') and cat.string.startswith('Pairing: '):
+                pair = cat.string[len('Pairing: '):]
+                self.story.addToList('characters',pair)
+                self.story.addToList('ships',char+'/'+pair)
+            elif cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BTVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
+                # assumed only ship category after Romance cat.
+                if self.getConfig('romancecat_to_characters_ships') and romance:
+                    self.story.addToList('ships',cat.string)
+                    for c in cat.string.split('/'):
+                        self.story.addToList('characters',c)
+                else:
+                    self.story.addToList('category',cat.string)
+                    if cat.string == 'Romance':
+                        romance=True
             else:
                 if 'Non-BtVS' in cat.string or 'Non-BTVS' in cat.string:
                     BtVS = False
