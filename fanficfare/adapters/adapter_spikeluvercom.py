@@ -3,7 +3,7 @@ import re
 import urllib2
 import urlparse
 
-from bs4 import BeautifulSoup
+from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 
 from base_adapter import BaseSiteAdapter, makeDate
@@ -98,7 +98,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         query_data = urlparse.parse_qs(components.query)
 
         self.story.setMetadata('author', stripHTML(author_anchor))
-        self.story.setMetadata('authorId', query_data['uid'])
+        self.story.setMetadata('authorId', query_data['uid'][0])
         self.story.setMetadata('authorUrl', url)
 
         sort_div = soup.find('div', id='sort')
@@ -122,7 +122,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 keep_summary_html = self.getConfig('keep_summary_html')
 
                 for sibling in _yield_next_siblings(span_tag):
-                    if isinstance(sibling, BeautifulSoup.Tag):
+                    if isinstance(sibling, Tag):
                         # Encountered next label, break. Not as bad as other
                         # e-fiction sites, let's hope this is enough for proper
                         # parsing.

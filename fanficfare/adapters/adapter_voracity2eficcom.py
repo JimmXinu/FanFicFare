@@ -138,7 +138,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         query_data = urlparse.parse_qs(components.query)
 
         self.story.setMetadata('author', author_anchor.string)
-        self.story.setMetadata('authorId', query_data['uid'])
+        self.story.setMetadata('authorId', query_data['uid'][0])
         self.story.setMetadata('authorUrl', url)
 
         sort_div = soup.find('div', id='sort')
