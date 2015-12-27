@@ -161,6 +161,9 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
             if 'Word count' in label:
                 self.story.setMetadata('numWords', value)
 
+            if 'Read' in label:
+                self.story.setMetadata('reads', value)
+                
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]

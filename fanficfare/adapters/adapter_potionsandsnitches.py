@@ -126,6 +126,9 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             if 'Word count' in label:
                 self.story.setMetadata('numWords', value)
 
+            if 'Read' in label:
+                self.story.setMetadata('reads', value)
+
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]
@@ -142,12 +145,30 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
                     else:
                         self.story.addToList('characters',char.string)
 
+            if 'Warning' in label:
+                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
+                for warning in warnings:
+                    self.story.addToList('warnings',stripHTML(warning))
+
             if 'Genre' in label:
                 genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
-                genrestext = [genre.string for genre in genres]
-                self.genre = ', '.join(genrestext)
-                for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
+                for genre in genres:
+                    self.story.addToList('genre',stripHTML(genre))
+
+            if 'Takes Place' in label:
+                takesplaces = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
+                for takesplace in takesplaces:
+                    self.story.addToList('takesplaces',stripHTML(takesplace))
+
+            if 'Snape flavour' in label:
+                snapeflavours = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
+                for snapeflavour in snapeflavours:
+                    self.story.addToList('snapeflavours',stripHTML(snapeflavour))
+
+            if 'Tags' in label:
+                sitetags = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
+                for sitetag in sitetags:
+                    self.story.addToList('sitetags',stripHTML(sitetag))
 
             if 'Completed' in label:
                 if 'Yes' in value:
@@ -183,6 +204,14 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             # I find it hard to care if the series parsing fails
             pass
 
+        divsort = soup.find('div',id='sort')
+        stars = len(divsort.find_all('img',src='images/star.gif'))
+        stars = stars + 0.5 * len(divsort.find_all('img',src='images/starhalf.gif'))
+        self.story.setMetadata('stars',stars)
+
+        a = divsort.find_all('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
+        self.story.setMetadata('reviews',stripHTML(a))
+        
 
     def getChapterText(self, url):
 
