@@ -77,6 +77,11 @@ class QuotevComAdapter(BaseSiteAdapter):
                 self.story.addToList('author', author)
                 self.story.addToList('authorId', get_url_path_segments(a['href'])[0])
                 self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
+            else:
+                self.story.setMetadata('author','Anonymous')
+                self.story.setMetadata('authorUrl','http://www.quotev.com')
+                self.story.setMetadata('authorId','0')
+
 
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         self.setCoverImage(self.url, urlparse.urljoin(self.url, soup.find('img', {'class': 'logo'})['src']))
