@@ -608,8 +608,9 @@ class FanFicFarePlugin(InterfaceAction):
                            status_prefix=_("Books UnNewed"))
 
     def get_unnew_books_loop(self,book,db=None,tdir=None):
-        
-        if book['calibre_id'] and db.has_format(book['calibre_id'],'EPUB',index_is_id=True):
+
+        book['changed']=False
+        if book['calibre_id'] and db.has_format(book['calibre_id'],'EPUB',index_is_id=True) and self.get_story_url(db,book['calibre_id']):
             tmp = PersistentTemporaryFile(prefix='%s-'%book['calibre_id'],
                                           suffix='.epub',
                                           dir=tdir)
