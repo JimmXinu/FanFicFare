@@ -168,7 +168,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             threadmarksa = soup.find('a',{'class':'threadmarksTrigger'})
             if threadmarksa:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
-                markas = soupmarks.find('ol',{'class':'overlayScroll'}).find_all('a')
+                markas = []
+                ol = soupmarks.find('ol',{'class':'overlayScroll'})
+                if ol:
+                    markas = ol.find_all('a')
+                else:
+                    ## SV changed their threadmarks.  Not isolated to
+                    ## SV only incase SB or QQ make the same change.
+                    markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
                 if len(markas) > 1:
                     for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
                         date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
