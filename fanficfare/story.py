@@ -816,10 +816,15 @@ class Story(Configurable):
                     for x in retlist:
                         curlist = []
                         for y in re.split(splitre,x):
+                            ## logger.debug("x:(%s) y:(%s)"%(x,y))
                             ## for SPLIT_META(\,)
-                            if doreplacements:
+                            if x != y and doreplacements: # doreplacements always true here (currently)
                                 y = self.doReplacements(y,'ships_CHARS',return_list=True)
+                            else:
+                                ## needs to be a list to extend curlist.
+                                y=[x]
                             curlist.extend(y)
+                            ## logger.debug("curlist:%s"%(curlist,))
                         newretlist.append( splitmerge.join(sorted(curlist)) )
         
                     retlist = newretlist
