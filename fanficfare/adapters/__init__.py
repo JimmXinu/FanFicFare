@@ -75,7 +75,6 @@ import adapter_ncisfictionnet
 import adapter_thealphagatecom
 import adapter_fanfiktionde
 import adapter_ponyfictionarchivenet
-import adapter_sg1heliopoliscom
 import adapter_ncisficcom
 import adapter_nationallibrarynet
 import adapter_themasquenet
