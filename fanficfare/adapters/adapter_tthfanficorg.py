@@ -172,7 +172,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             descurl=authorurl
             authorsoup = self.make_soup(authordata)
             # author can have several pages, scan until we find it.
-            while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))) ):
+            while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
                 nextarrow = authorsoup.find('a', {'class':'arrowf'})
                 if not nextarrow:
                     ## if rating is set lower than story, it won't be
