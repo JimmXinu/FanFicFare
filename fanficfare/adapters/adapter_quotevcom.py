@@ -74,7 +74,9 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorId','0')
 
         self.setDescription(self.url, soup.find('div', id='qdesct'))
-        self.setCoverImage(self.url, urlparse.urljoin(self.url, soup.find('img', {'class': 'logo'})['src']))
+        imgmeta = soup.find('meta',{'property':"og:image" })
+        if imgmeta:
+            self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))
 
         for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/stories/c/')}):
             self.story.addToList('category', a.get_text())
