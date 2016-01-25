@@ -190,6 +190,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 self.story.addToList('authorUrl',a['href'])
                 self.story.addToList('author',a.text)
 
+        byline = metasoup.find('h3',{'class':'byline'})
+        if byline:
+            self.story.setMetadata('byline',stripHTML(byline))
+
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
         # Scan all chapters to find the oldest and newest, on AO3 it's
