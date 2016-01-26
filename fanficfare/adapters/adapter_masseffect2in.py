@@ -554,7 +554,6 @@ class Chapter(object):
 
     def _parseRatingFromImage(self, element):
         """Given an image element, try to parse story rating from it."""
-        # Although deprecated, `has_key()' is required here.
         if not element.has_attr('src'):
             return
         source = element['src']

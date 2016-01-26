@@ -190,16 +190,16 @@ class _html2text(sgmllib.SGMLParser):
  
             If the set of attributes is not found, returns None
         """
-        if not attrs.has_key('href'): return None
+        if not attrs.has_attr('href'): return None
         
         i = -1
         for a in self.a:
             i += 1
             match = 0
             
-            if a.has_key('href') and a['href'] == attrs['href']:
-                if a.has_key('title') or attrs.has_key('title'):
-                        if (a.has_key('title') and attrs.has_key('title') and
+            if a.has_attr('href') and a['href'] == attrs['href']:
+                if a.has_attr('title') or attrs.has_attr('title'):
+                        if (a.has_attr('title') and attrs.has_attr('title') and
                             a['title'] == attrs['title']):
                             match = True
                 else:
@@ -249,7 +249,7 @@ class _html2text(sgmllib.SGMLParser):
                 
                 self.abbr_title = None
                 self.abbr_data = ''
-                if attrs.has_key('title'):
+                if attrs.has_attr('title'):
                     self.abbr_title = attrs['title']
             else:
                 if self.abbr_title != None:
@@ -262,7 +262,7 @@ class _html2text(sgmllib.SGMLParser):
                 attrsD = {}
                 for (x, y) in attrs: attrsD[x] = y
                 attrs = attrsD
-                if attrs.has_key('href') and not (SKIP_INTERNAL_LINKS and attrs['href'].startswith('#')): 
+                if attrs.has_attr('href') and not (SKIP_INTERNAL_LINKS and attrs['href'].startswith('#')): 
                     self.astack.append(attrs)
                     self.o("[")
                 else:
@@ -285,7 +285,7 @@ class _html2text(sgmllib.SGMLParser):
             attrsD = {}
             for (x, y) in attrs: attrsD[x] = y
             attrs = attrsD
-            if attrs.has_key('src'):
+            if attrs.has_attr('src'):
                 attrs['href'] = attrs['src']
                 alt = attrs.get('alt', '')
                 i = self.previousIndex(attrs)
@@ -392,7 +392,7 @@ class _html2text(sgmllib.SGMLParser):
                 for link in self.a:
                     if self.outcount > link['outcount']:
                         self.out("   ["+`link['count']`+"]: " + urlparse.urljoin(self.baseurl, link['href'])) 
-                        if link.has_key('title'): self.out(" ("+link['title']+")")
+                        if link.has_attr('title'): self.out(" ("+link['title']+")")
                         self.out("\n")
                     else:
                         newa.append(link)

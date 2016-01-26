@@ -256,9 +256,9 @@ class TheWritersCoffeeShopComSiteAdapter(BaseSiteAdapter):
 
         found=False
         for div in soup.findAll('div'):
-            if div.has_key('class') and div['class'] == 'notes':
+            if div.has_attr('class') and div['class'] == 'notes':
                 chapter.append(div)
-            if div.has_key('id') and div['id'] == 'story':
+            if div.has_attr('id') and div['id'] == 'story':
                 chapter.append(div)
                 found=True
 

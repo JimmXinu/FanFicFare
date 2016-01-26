@@ -92,7 +92,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
         #logger.debug("restrict search:%s"%soup)
     
     for a in soup.findAll('a'):
-        if a.has_key('href'):
+        if a.has_attr('href'):
             #logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             #logger.debug("1 urlhref:%s"%href)
