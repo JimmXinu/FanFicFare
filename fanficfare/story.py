@@ -654,6 +654,9 @@ class Story(Configurable):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
                 if key in ("datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))
+                if isinstance(value, (datetime.date, datetime.datetime, datetime.time)) and self.hasConfig(key+"_format"):
+                    # logger.info("DATE: %s"%key)
+                    value = value.strftime(self.getConfig(key+"_format"))
 
                 if key == "title" and (self.chapter_first or self.chapter_last) and self.getConfig("title_chapter_range_pattern"):
                     first = self.chapter_first or "1"
