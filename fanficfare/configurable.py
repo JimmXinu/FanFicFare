@@ -336,7 +336,7 @@ def get_valid_keywords():
 
 # *known* entry keywords -- or rather regexps for them.
 def get_valid_entry_keywords():
-    return list(['%s_label',
+    return list(['%s_(label|format)',
                  '(default_value|include_in|join_string|keep_in_order)_%s',])
 
 # Moved here for test_config.
