@@ -203,11 +203,14 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 	# Yes, it's an evil kludge, but what can ya do?  Using
 	# something other than div prevents soup from pairing
 	# our div with poor html inside the story text.
-	data = data.replace('<!-- headerend -->','<crazytagstringnobodywouldstumbleonaccidently id="storytext">').replace('<!-- footerstart -->','</crazytagstringnobodywouldstumbleonaccidently>')
+        crazy = "crazytagstringnobodywouldstumbleonaccidently"
+	data = data.replace('<!-- headerend -->','<'+crazy+' id="storytext">').replace('<!-- footerstart -->','</'+crazy+'>')
 
         # problems with some stories confusing Soup.  This is a nasty
         # hack, but it works.
-        data = data[data.index("<crazytagstringnobodywouldstumbleonaccidently"):]
+        data = data[data.index('<'+crazy+''):]
+        # ditto with extra crap at the end.
+        data = data[:data.index('</'+crazy+'>')+len('</'+crazy+'>')]
 
         soup = self.make_soup(data)
         body = soup.findAll('body') ## some stories use a nested body and body
@@ -218,7 +221,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             text = body[1]
             text.name='div' # force to be a div to avoid multiple body tags.
         else:
-            text = soup.find('crazytagstringnobodywouldstumbleonaccidently', {'id' : 'storytext'})
+            text = soup.find(crazy, {'id' : 'storytext'})
             text.name='div' # change to div tag.
 
         if not data or not text:

@@ -640,10 +640,21 @@ class BaseSiteAdapter(Configurable):
         Convenience method for getting a bs4 soup.  Older and
         non-updated adapters call the included bs3 library themselves.
         '''
+        
+        ## html5lib handles <noscript> oddly.  See:
+        ## https://bugs.launchpad.net/beautifulsoup/+bug/1277464
+        ## This should 'hide' and restore <noscript> tags.
+        data = data.replace("noscript>","fff_hide_noscript>")
+        
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
         soup = bs4.BeautifulSoup(data,'html5lib')
-        return bs4.BeautifulSoup(unicode(soup),'html5lib')
+        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        
+        for ns in soup.find_all('fff_hide_noscript'):
+            ns.name = 'noscript'
+            
+        return soup
     
 def cachedfetch(realfetch,cache,url):
     if url in cache:
