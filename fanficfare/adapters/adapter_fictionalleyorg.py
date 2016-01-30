@@ -188,6 +188,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
         for small in storydd.findAll('small'):
             small.extract() ## removes the <small> tags, leaving only the summary.
+        storydd.name = 'div' ## change tag name else Calibre treats it oddly.
         self.setDescription(url,storydd)
         #self.story.setMetadata('description',stripHTML(storydd))
 
