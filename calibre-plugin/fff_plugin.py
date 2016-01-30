@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -476,7 +476,8 @@ class FanFicFarePlugin(InterfaceAction):
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
                         'updateepubcover': prefs['updateepubcover'],
-                        'smarten_punctuation':prefs['smarten_punctuation']
+                        'smarten_punctuation':prefs['smarten_punctuation'],
+                        'do_wordcount':prefs['do_wordcount'],
                         },"\n".join(url_list))
             else:
                 self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)

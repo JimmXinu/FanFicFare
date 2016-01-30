@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -81,8 +81,8 @@ no_trans = { 'pini':'personal.ini',
 STD_COLS_SKIP = ['size','cover','news','ondevice','path','series_sort','sort']
 
 from calibre_plugins.fanficfare_plugin.prefs \
-    import (prefs, PREFS_NAMESPACE, updatecalcover_order, calcover_save_options,
-            gencalcover_order, SAVE_YES, SAVE_NO)
+    import (prefs, PREFS_NAMESPACE, prefs_save_options, updatecalcover_order,
+            gencalcover_order, do_wordcount_order, SAVE_YES, SAVE_NO)
 
 from calibre_plugins.fanficfare_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
@@ -261,6 +261,7 @@ class ConfigWidget(QWidget):
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
         prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
+        prefs['do_wordcount'] = prefs_save_options[unicode(self.basic_tab.do_wordcount.currentText())]
         prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
         prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
 
@@ -286,10 +287,10 @@ class ConfigWidget(QWidget):
         prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
             
         # Covers tab
-        prefs['updatecalcover'] = calcover_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
+        prefs['updatecalcover'] = prefs_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
         # for backward compatibility:
         prefs['updatecover'] = prefs['updatecalcover'] == SAVE_YES
-        prefs['gencalcover'] = calcover_save_options[unicode(self.calibrecover_tab.gencalcover.currentText())]
+        prefs['gencalcover'] = prefs_save_options[unicode(self.calibrecover_tab.gencalcover.currentText())]
         prefs['calibre_gen_cover'] = self.calibrecover_tab.calibre_gen_cover.isChecked()
         prefs['plugin_gen_cover'] = self.calibrecover_tab.plugin_gen_cover.isChecked()
         prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
@@ -478,6 +479,10 @@ class BasicTab(QWidget):
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
 
+        proc_gb = groupbox = QGroupBox(_("Post Processing Options"))
+        self.l = QVBoxLayout()
+        groupbox.setLayout(self.l)
+
         self.mark = QCheckBox(_("Mark added/updated books when finished?"),self)
         self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' is also available, or search 'marked:fff' for both."))
         self.mark.setChecked(prefs['mark'])
@@ -493,6 +498,24 @@ class BasicTab(QWidget):
         self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
         self.l.addWidget(self.smarten_punctuation)
 
+        
+        tooltip = _("Calculate Word Counts using Calibre internal methods.\n"
+                    "Many sites include Word Count, but many do not.\n"
+                    "This will count the words in each book and include it as if it came from the site.")
+        horz = QHBoxLayout()
+        label = QLabel(_('Calculate Word Count:'))
+        label.setToolTip(tooltip)
+        horz.addWidget(label)
+        self.do_wordcount = QComboBox(self)
+        for i in do_wordcount_order:
+            self.do_wordcount.addItem(i)
+        self.do_wordcount.setCurrentIndex(self.do_wordcount.findText(prefs_save_options[prefs['do_wordcount']]))
+        self.do_wordcount.setToolTip(tooltip)
+        label.setBuddy(self.do_wordcount)
+        horz.addWidget(self.do_wordcount)
+        self.l.addLayout(horz)
+
+        
         self.autoconvert = QCheckBox(_("Automatically Convert new/update books?"),self)
         self.autoconvert.setToolTip(_("Automatically call calibre's Convert for new/update books.\nConverts to the current output format as chosen in calibre's\nPreferences->Behavior settings."))
         self.autoconvert.setChecked(prefs['autoconvert'])
@@ -564,14 +587,17 @@ class BasicTab(QWidget):
 
         horz = QHBoxLayout()
 
-        horz.addWidget(cali_gb)
+        vertleft = QVBoxLayout()
+        vertleft.addWidget(cali_gb)
+        vertleft.addWidget(proc_gb)
 
-        vert = QVBoxLayout()
-        vert.addWidget(gui_gb)
-        vert.addWidget(misc_gb)
-        vert.addWidget(rej_gb)
+        vertright = QVBoxLayout()
+        vertright.addWidget(gui_gb)
+        vertright.addWidget(misc_gb)
+        vertright.addWidget(rej_gb)
         
-        horz.addLayout(vert)
+        horz.addLayout(vertleft)
+        horz.addLayout(vertright)
         
         topl.addLayout(horz)
         topl.insertStretch(-1)
@@ -840,11 +866,11 @@ class CalibreCoverTab(QWidget):
             self.updatecalcover.addItem(i)
         # back compat.  If has own value, use.
         if prefs['updatecalcover']:
-            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(calcover_save_options[prefs['updatecalcover']]))
+            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(prefs_save_options[prefs['updatecalcover']]))
         elif prefs['updatecover']: # doesn't have own val, set YES if old value set.
-            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(calcover_save_options[SAVE_YES]))
+            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(prefs_save_options[SAVE_YES]))
         else: # doesn't have own value, old value not set, NO.
-            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(calcover_save_options[SAVE_NO]))
+            self.updatecalcover.setCurrentIndex(self.updatecalcover.findText(prefs_save_options[SAVE_NO]))
         self.updatecalcover.setToolTip(tooltip)
         label.setBuddy(self.updatecalcover)
         horz.addWidget(self.updatecalcover)
@@ -862,11 +888,11 @@ class CalibreCoverTab(QWidget):
             self.gencalcover.addItem(i)
         # back compat.  If has own value, use.
         # if prefs['gencalcover']:
-        self.gencalcover.setCurrentIndex(self.gencalcover.findText(calcover_save_options[prefs['gencalcover']]))
+        self.gencalcover.setCurrentIndex(self.gencalcover.findText(prefs_save_options[prefs['gencalcover']]))
         # elif prefs['gencover']: # doesn't have own val, set YES if old value set.
-        #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(calcover_save_options[SAVE_YES]))
+        #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(prefs_save_options[SAVE_YES]))
         # else: # doesn't have own value, old value not set, NO.
-        #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(calcover_save_options[SAVE_NO]))
+        #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(prefs_save_options[SAVE_NO]))
             
         self.gencalcover.setToolTip(tooltip)
         label.setBuddy(self.gencalcover)
@@ -990,7 +1016,7 @@ class CalibreCoverTab(QWidget):
 
         ## First, cover gen on/off 
         for e in self.gencov_elements:
-            e.setEnabled(calcover_save_options[unicode(self.gencalcover.currentText())] != SAVE_NO)
+            e.setEnabled(prefs_save_options[unicode(self.gencalcover.currentText())] != SAVE_NO)
 
         # next, disable plugin settings when using calibre gen cov.
         if not self.plugin_gen_cover.isChecked():

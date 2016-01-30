@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback, re
@@ -73,55 +73,30 @@ from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
 
 from inihighlighter import IniHighlighter
 
-SKIP=_('Skip')
-ADDNEW=_('Add New Book')
-UPDATE=_('Update EPUB if New Chapters')
-UPDATEALWAYS=_('Update EPUB Always')
-OVERWRITE=_('Overwrite if Newer')
-OVERWRITEALWAYS=_('Overwrite Always')
-CALIBREONLY=_('Update Calibre Metadata from Web Site')
-CALIBREONLYSAVECOL=_('Update Calibre Metadata from Saved Metadata Column')
-collision_order=[SKIP,
-                 ADDNEW,
-                 UPDATE,
-                 UPDATEALWAYS,
-                 OVERWRITE,
-                 OVERWRITEALWAYS,
-                 CALIBREONLY,
-                 CALIBREONLYSAVECOL,]
-
-# best idea I've had for how to deal with config/pref saving the
-# collision name in english.
-SAVE_SKIP='Skip'
-SAVE_ADDNEW='Add New Book'
-SAVE_UPDATE='Update EPUB if New Chapters'
-SAVE_UPDATEALWAYS='Update EPUB Always'
-SAVE_OVERWRITE='Overwrite if Newer'
-SAVE_OVERWRITEALWAYS='Overwrite Always'
-SAVE_CALIBREONLY='Update Calibre Metadata Only'
-SAVE_CALIBREONLYSAVECOL='Update Calibre Metadata Only(Saved Column)'
-save_collisions={
-    SKIP:SAVE_SKIP,
-    ADDNEW:SAVE_ADDNEW,
-    UPDATE:SAVE_UPDATE,
-    UPDATEALWAYS:SAVE_UPDATEALWAYS,
-    OVERWRITE:SAVE_OVERWRITE,
-    OVERWRITEALWAYS:SAVE_OVERWRITEALWAYS,
-    CALIBREONLY:SAVE_CALIBREONLY,
-    CALIBREONLYSAVECOL:SAVE_CALIBREONLYSAVECOL,
-    SAVE_SKIP:SKIP,
-    SAVE_ADDNEW:ADDNEW,
-    SAVE_UPDATE:UPDATE,
-    SAVE_UPDATEALWAYS:UPDATEALWAYS,
-    SAVE_OVERWRITE:OVERWRITE,
-    SAVE_OVERWRITEALWAYS:OVERWRITEALWAYS,
-    SAVE_CALIBREONLY:CALIBREONLY,
-    SAVE_CALIBREONLYSAVECOL:CALIBREONLYSAVECOL,
-    }
-
-anthology_collision_order=[UPDATE,
-                           UPDATEALWAYS,
-                           OVERWRITEALWAYS]
+## moved to prefs.py so they can be included in jobs.py.
+from calibre_plugins.fanficfare_plugin.prefs import \
+    ( SAVE_YES,
+      SAVE_YES_UNLESS_SITE,
+      SKIP,
+      ADDNEW,
+      UPDATE,
+      UPDATEALWAYS,
+      OVERWRITE,
+      OVERWRITEALWAYS,
+      CALIBREONLY,
+      CALIBREONLYSAVECOL,
+      collision_order,
+      SAVE_SKIP,
+      SAVE_ADDNEW,
+      SAVE_UPDATE,
+      SAVE_UPDATEALWAYS,
+      SAVE_OVERWRITE,
+      SAVE_OVERWRITEALWAYS,
+      SAVE_CALIBREONLY,
+      SAVE_CALIBREONLYSAVECOL,
+      save_collisions,
+      anthology_collision_order,
+      )
 
 gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-bottom:0px;}' #  background-color:red;
 
@@ -473,8 +448,9 @@ class AddNewDialog(SizePersistedDialog):
             'updatemeta': self.updatemeta.isChecked(),
             'bgmeta': False, # self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
-            'smarten_punctuation':self.prefs['smarten_punctuation']
-                }
+            'smarten_punctuation':self.prefs['smarten_punctuation'],
+            'do_wordcount':self.prefs['do_wordcount'],
+            }
 
         if self.merge:
             retval['fileform']=='epub'
@@ -898,7 +874,8 @@ class UpdateExistingDialog(SizePersistedDialog):
             'updatemeta': self.updatemeta.isChecked(),
             'bgmeta': self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
-            'smarten_punctuation':self.prefs['smarten_punctuation']
+            'smarten_punctuation':self.prefs['smarten_punctuation'],
+            'do_wordcount':self.prefs['do_wordcount'],
             }
 
 class StoryListTableWidget(QTableWidget):

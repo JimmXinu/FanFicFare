@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2016, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -19,6 +19,9 @@ from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
 from calibre.library.comments import sanitize_comments_html
+
+from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
+from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
 
 # ------------------------------------------------------------------------------
 #
@@ -148,7 +151,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.setChaptersRange(book['begin'],book['end'])
             
             adapter.load_cookiejar(options['cookiejarfile'])
-            logger.debug("cookiejar:%s"%adapter.cookiejar)
+            #logger.debug("cookiejar:%s"%adapter.cookiejar)
             adapter.set_pagecache(options['pagecache'])
             
             story = adapter.getStoryMetadataOnly()
@@ -217,6 +220,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                
                 book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
@@ -271,6 +275,16 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
 
+            if options['do_wordcount'] == SAVE_YES or (
+                options['do_wordcount'] == SAVE_YES_UNLESS_SITE and not story.getMetadataRaw('numWords') ):
+                wordcount = get_word_count(outfile)
+                logger.info("get_word_count:%s"%wordcount)
+                story.setMetadata('numWords',wordcount)
+                writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                if options['savemetacol'] != '':
+                    book['savemetacol'] = story.dump_html_metadata()
+                
             if options['smarten_punctuation'] and options['fileform'] == "epub" \
                     and calibre_version >= (0, 9, 39):
                 # for smarten punc
@@ -286,8 +300,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 opts = O(**opts)
                 
                 log = Log(level=Log.DEBUG)
-                # report = []
-                polish({outfile:outfile}, opts, log, logger.info) # report.append
+                polish({outfile:outfile}, opts, log, logger.info)
             
         except NotGoingToDownload as d:
             book['good']=False

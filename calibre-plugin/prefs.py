@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -15,8 +15,58 @@ import copy
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
-from calibre_plugins.fanficfare_plugin.dialogs import SAVE_UPDATE
 from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
+
+SKIP=_('Skip')
+ADDNEW=_('Add New Book')
+UPDATE=_('Update EPUB if New Chapters')
+UPDATEALWAYS=_('Update EPUB Always')
+OVERWRITE=_('Overwrite if Newer')
+OVERWRITEALWAYS=_('Overwrite Always')
+CALIBREONLY=_('Update Calibre Metadata from Web Site')
+CALIBREONLYSAVECOL=_('Update Calibre Metadata from Saved Metadata Column')
+collision_order=[SKIP,
+                 ADDNEW,
+                 UPDATE,
+                 UPDATEALWAYS,
+                 OVERWRITE,
+                 OVERWRITEALWAYS,
+                 CALIBREONLY,
+                 CALIBREONLYSAVECOL,]
+
+# best idea I've had for how to deal with config/pref saving the
+# collision name in english.
+SAVE_SKIP='Skip'
+SAVE_ADDNEW='Add New Book'
+SAVE_UPDATE='Update EPUB if New Chapters'
+SAVE_UPDATEALWAYS='Update EPUB Always'
+SAVE_OVERWRITE='Overwrite if Newer'
+SAVE_OVERWRITEALWAYS='Overwrite Always'
+SAVE_CALIBREONLY='Update Calibre Metadata Only'
+SAVE_CALIBREONLYSAVECOL='Update Calibre Metadata Only(Saved Column)'
+save_collisions={
+    SKIP:SAVE_SKIP,
+    ADDNEW:SAVE_ADDNEW,
+    UPDATE:SAVE_UPDATE,
+    UPDATEALWAYS:SAVE_UPDATEALWAYS,
+    OVERWRITE:SAVE_OVERWRITE,
+    OVERWRITEALWAYS:SAVE_OVERWRITEALWAYS,
+    CALIBREONLY:SAVE_CALIBREONLY,
+    CALIBREONLYSAVECOL:SAVE_CALIBREONLYSAVECOL,
+    SAVE_SKIP:SKIP,
+    SAVE_ADDNEW:ADDNEW,
+    SAVE_UPDATE:UPDATE,
+    SAVE_UPDATEALWAYS:UPDATEALWAYS,
+    SAVE_OVERWRITE:OVERWRITE,
+    SAVE_OVERWRITEALWAYS:OVERWRITEALWAYS,
+    SAVE_CALIBREONLY:CALIBREONLY,
+    SAVE_CALIBREONLYSAVECOL:CALIBREONLYSAVECOL,
+    }
+
+anthology_collision_order=[UPDATE,
+                           UPDATEALWAYS,
+                           OVERWRITEALWAYS]
+
 
 # Show translated strings, but save the same string in prefs so your
 # prefs are the same in different languages.
@@ -26,9 +76,11 @@ YES_IF_IMG=_('Yes, if EPUB has a cover image')
 SAVE_YES_IF_IMG='Yes, if img'
 YES_UNLESS_IMG=_('Yes, unless FanFicFare found a cover image')
 SAVE_YES_UNLESS_IMG='Yes, unless img'
+YES_UNLESS_SITE=_('Yes, unless found on site')
+SAVE_YES_UNLESS_SITE='Yes, unless site'
 NO=_('No')
 SAVE_NO='No'
-calcover_save_options = {
+prefs_save_options = {
     YES:SAVE_YES,
     SAVE_YES:YES,
     YES_IF_IMG:SAVE_YES_IF_IMG,
@@ -37,9 +89,12 @@ calcover_save_options = {
     SAVE_YES_UNLESS_IMG:YES_UNLESS_IMG,
     NO:SAVE_NO,
     SAVE_NO:NO,
+    YES_UNLESS_SITE:SAVE_YES_UNLESS_SITE,
+    SAVE_YES_UNLESS_SITE:YES_UNLESS_SITE,
     }
 updatecalcover_order=[YES,YES_IF_IMG,NO]
 gencalcover_order=[YES,YES_UNLESS_IMG,NO]
+do_wordcount_order=[YES,YES_UNLESS_SITE,NO]
 
 # if don't have any settings for FanFicFarePlugin, copy from
 # predecessor FanFictionDownLoaderPlugin.
@@ -78,6 +133,7 @@ default_prefs['checkforseriesurlid'] = True
 default_prefs['checkforurlchange'] = True
 default_prefs['injectseries'] = False
 default_prefs['matchtitleauth'] = True
+default_prefs['do_wordcount'] = SAVE_YES_UNLESS_SITE
 default_prefs['smarten_punctuation'] = False
 default_prefs['show_est_time'] = False
 

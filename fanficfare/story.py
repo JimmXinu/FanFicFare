@@ -646,10 +646,8 @@ class Story(Configurable):
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
-                if key == "numWords":
-                    value = commaGroups(value)
-                if key == "numChapters":
-                    value = commaGroups("%d"%value)
+                if key in ("numWords","numChapters"):
+                    value = commaGroups(unicode(value))
                 if key in ("dateCreated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
                 if key in ("datePublished","dateUpdated"):
