@@ -310,6 +310,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     
             for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
                 qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+
+            ## img alt="[​IMG]" class="bbCodeImage LbImage lazyload
+            ## include lazy load images.
+            for img in bq.find_all('img',{'class':'lazyload'}):
+                img['src'] = img['data-src']
     
         except Exception as e:
             if self.getConfig('continue_on_chapter_error'):
