@@ -34,7 +34,7 @@ def replace_br_with_p(body):
         return body
 
     # logger.debug(u'---')
-    # logger.debug(u'BODY start.: ' + body[:250])
+    # logger.debug(u'BODY start.: ' + body[:4000])
     # logger.debug(u'--')
     # logger.debug(u'BODY end...: ' + body[-250:])
     # logger.debug(u'BODY.......: ' + body)
@@ -49,6 +49,9 @@ def replace_br_with_p(body):
     if is_valid_block(body) and body.find('<div') == 0:
         body = body[body.index('>')+1:body.rindex('<')].strip()
 
+    # BS is doing some BS on entities, meaning &lt; and &gt; are turned into < and >... a **very** bad idea in html.
+    body = re.sub(r'&(.+?);', r'XAMP;\1;', body)
+    
     body = soup_up_div(u'<div>' + body + u'</div>')
 
     body = body[body.index('>')+1:body.rindex('<')]
@@ -238,6 +241,7 @@ def replace_br_with_p(body):
     body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
 
     body = body.replace(u'{br /}', u'<br />')
+    body = re.sub(r'XAMP;(.+?);', r'&\1;', body)
     body = body.strip()
 
     # re-wrap in div tag.
