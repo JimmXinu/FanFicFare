@@ -109,7 +109,7 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
             self.get_cookiejar().set_cookie(cookie)
 
         try:
-            data = self._fetchUrl(url)
+            data = self._fetchUrl(url,usecache=False)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
