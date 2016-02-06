@@ -314,7 +314,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             ## TODO is not a link in the printable view, so no seriesURL possible 
             self.story.setMetadata('series', value)
         else:
-            logger.info("Unhandled metadata pair: '%s' : '%s'" % (key, value))
+            # Any other metadata found, convert label to lower case
+            # w/o spaces and use as key.  Still needs to be in
+            # extra_valid_entries to be used.
+            autokey = key.replace(' ','').lower()
+            for val in re.split("\s*,\s*", value):
+                self.story.addToList(autokey, val)
+            logger.debug("Auto metadata: entry:%s %s_label:%s value:%s" % (autokey, autokey, key, value))
 
     def extractChapterUrlsAndMetadata(self):
         printUrl = self.url + '&action=printable&textsize=0&chapter='
