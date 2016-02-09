@@ -2025,8 +2025,11 @@ class FanFicFarePlugin(InterfaceAction):
             cover_generated = False # flag for polish below.
             # Yes, should do gencov.  Which?
             if prefs['calibre_gen_cover'] and HAS_CALGC:
-                # calibre's builtin, if available.
-                cdata = cal_generate_cover(mi)
+                ## calibre's builtin, if available.  fetch updated mi
+                ## object from database. Additional normalization of
+                ## series (at least) happens
+                realmi = db.get_metadata(book_id, index_is_id=True)
+                cdata = cal_generate_cover(realmi)
                 db.set_cover(book_id, cdata)
                 cover_generated = True
             elif prefs['plugin_gen_cover'] and 'Generate Cover' in self.gui.iactions:
@@ -2073,6 +2076,9 @@ class FanFicFarePlugin(InterfaceAction):
     
                 if setting_name:
                     logger.debug("Running Generate Cover with settings %s."%setting_name)
+                    ## fetch updated mi object from
+                    ## database. Additional normalization of series
+                    ## (at least) happens
                     realmi = db.get_metadata(book_id, index_is_id=True)
                     gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
                     cover_generated = True
