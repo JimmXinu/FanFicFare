@@ -171,7 +171,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         if head.find('span',title='Fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
         else:
-            self.story.setMetadata('status', 'In Progress')
+            self.story.setMetadata('status', 'In-Progress')
 
         #find metadata on the author's page
         asoup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))

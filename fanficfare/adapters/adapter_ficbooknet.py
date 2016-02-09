@@ -193,7 +193,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if table.find('span', {'style' : 'color: green'}):
             self.story.setMetadata('status', 'Completed')
         else:
-            self.story.setMetadata('status', 'In Progress')
+            self.story.setMetadata('status', 'In-Progress')
 		
 
         tags = table.findAll('b')
