@@ -318,7 +318,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         status = lc4.find('span', {'class' : 'ab'})
         if  status != None:
-            self.story.setMetadata('status', 'In-Progress')
+            if 'Incomplete and Inactive' in status.text:
+                self.story.setMetadata('status', 'Incomplete')
+            else:
+                self.story.setMetadata('status', 'In-Progress')
             if "Last Activity" in status.text:
                 # date is passed as a timestamp and converted in JS.
                 value = status.findNext('noscript').text
