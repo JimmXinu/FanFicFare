@@ -122,7 +122,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)

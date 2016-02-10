@@ -365,12 +365,14 @@ def do_download(arg,
 
         del adapter
 
-    except exceptions.InvalidStoryURL, isu:
+    except exceptions.InvalidStoryURL as isu:
         print isu
-    except exceptions.StoryDoesNotExist, dne:
+    except exceptions.StoryDoesNotExist as dne:
         print dne
-    except exceptions.UnknownSite, us:
+    except exceptions.UnknownSite as us:
         print us
+    except exceptions.AccessDenied as ad:
+        print ad
 
 
 if __name__ == '__main__':

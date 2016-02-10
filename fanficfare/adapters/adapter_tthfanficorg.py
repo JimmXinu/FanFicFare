@@ -172,17 +172,22 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             descurl=authorurl
             authorsoup = self.make_soup(authordata)
             # author can have several pages, scan until we find it.
-            while( not authorsoup.find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
+            # find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
+            logger.info("authsoup:%s"%authorsoup)
+            while( not authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")}) ):
                 nextarrow = authorsoup.find('a', {'class':'arrowf'})
                 if not nextarrow:
                     ## if rating is set lower than story, it won't be
                     ## visible on author lists unless.  The *story* is
                     ## visible via the url, just not the entry on
                     ## author list.
-                    raise exceptions.AdultCheckRequired(self.url)
+                    logger.info("Story Not Found on Author List--Assuming needs Adult.")
+                    raise exceptions.FailedToDownload("Story Not Found on Author List--Assume needs Adult?")
+                    # raise exceptions.AdultCheckRequired(self.url)
                 nextpage = 'http://'+self.host+nextarrow['href']
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
+                logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
         except urllib2.HTTPError, e:

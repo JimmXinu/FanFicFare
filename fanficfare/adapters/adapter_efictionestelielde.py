@@ -91,7 +91,7 @@ class EfictionEstelielDeAdapter(BaseSiteAdapter):
                 raise e
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
         # Now go hunting for all the meta data and the chapter list.
 

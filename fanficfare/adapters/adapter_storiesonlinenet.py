@@ -139,7 +139,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url+":i",usecache=False)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
 
