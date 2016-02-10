@@ -263,7 +263,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             elif self.getConfig('pairingcat_to_characters_ships') and cat.string.startswith('Pairing: '):
                 pair = cat.string[len('Pairing: '):]
                 self.story.addToList('characters',pair)
-                self.story.addToList('ships',char+'/'+pair)
+                if char:
+                    self.story.addToList('ships',char+'/'+pair)
             elif cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BTVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
                 # assumed only ship category after Romance cat.
                 if self.getConfig('romancecat_to_characters_ships') and romance:
