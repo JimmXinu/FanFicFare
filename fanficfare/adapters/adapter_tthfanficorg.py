@@ -173,7 +173,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             authorsoup = self.make_soup(authordata)
             # author can have several pages, scan until we find it.
             # find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
-            logger.info("authsoup:%s"%authorsoup)
+            #logger.info("authsoup:%s"%authorsoup)
             while( not authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")}) ):
                 nextarrow = authorsoup.find('a', {'class':'arrowf'})
                 if not nextarrow:
@@ -187,7 +187,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 nextpage = 'http://'+self.host+nextarrow['href']
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
-                logger.info("authsoup:%s"%authorsoup)
+                #logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
         except urllib2.HTTPError, e:
