@@ -141,6 +141,11 @@ import adapter_quotevcom
 import adapter_mcstoriescom
 import adapter_lucifaelff
 import adapter_buffygilescom
+import adapter_rubyquillcom
+#import adapter_andromedawebcom # Not all lables are captured
+import adapter_artemisfowlcom
+import adapter_rabidreadercom
+import adapter_naiceanilmenet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
