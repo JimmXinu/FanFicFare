@@ -103,6 +103,8 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        if a is None:
+            raise exceptions.StoryDoesNotExist(self.url)
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/siye/'+a['href'])
         self.story.setMetadata('author',a.string)
