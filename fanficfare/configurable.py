@@ -116,6 +116,11 @@ def get_valid_list_entries():
                  ])
 
 boollist=['true','false']
+base_xenforo_list=['base_xenforoforum',
+                   'forums.spacebattles.com',
+                   'forums.sufficientvelocity.com',
+                   'questionablequesting.com',
+                   ]
 def get_valid_set_options():
     '''
     dict() of names of boolean options, but as a tuple with
@@ -155,6 +160,9 @@ def get_valid_set_options():
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'universe_as_series':(['storiesonline.net'],None,boollist),
                'strip_text_links':(['bloodshedverse.com'],None,boollist),
+               'centeredcat_to_characters':(['tthfanfic.org'],None,boollist),
+               'pairingcat_to_characters_ships':(['tthfanfic.org'],None,boollist),
+               'romancecat_to_characters_ships':(['tthfanfic.org'],None,boollist),
 
                # eFiction Base adapters allow bulk_load
                # kept forgetting to add them, so now it's automatic.
@@ -169,11 +177,8 @@ def get_valid_set_options():
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
 
-               'continue_on_chapter_error':(['base_xenforoforum',
-                                             'forums.spacebattles.com',
-                                             'forums.sufficientvelocity.com',
-                                             'questionablequesting.com',
-                                             ],None,boollist),
+               'continue_on_chapter_error':(base_xenforo_list,None,boollist),
+               '':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -310,6 +315,9 @@ def get_valid_keywords():
                  'strip_chapter_numbers',
                  'strip_chapter_numeral',
                  'strip_text_links',
+                 'centeredcat_to_characters',
+                 'pairingcat_to_characters_ships',
+                 'romancecat_to_characters_ships',
                  'titlepage_end',
                  'titlepage_entries',
                  'titlepage_entry',
@@ -332,6 +340,7 @@ def get_valid_keywords():
                  'zip_filename',
                  'zip_output',
                  'continue_on_chapter_error',
+                 'capitalize_forumtags',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.

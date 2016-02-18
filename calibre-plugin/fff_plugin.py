@@ -1308,11 +1308,14 @@ class FanFicFarePlugin(InterfaceAction):
 
                 if collision == OVERWRITE and \
                         db.has_format(book_id,formmapping[fileform],index_is_id=True):
+                    logger.debug("OVERWRITE file: "+db.format_abspath(book_id, formmapping[fileform], index_is_id=True))
                     fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8])
-                    book['fileupdated']=fileupdated
+                    logger.debug("OVERWRITE file updated: %s"%fileupdated)
+                    book['updated']=fileupdated
                     if not bgmeta:
                         # check make sure incoming is newer.
                         lastupdated=story.getMetadataRaw('dateUpdated')
+                        logger.debug("OVERWRITE site updated: %s"%lastupdated)
     
                         # updated doesn't have time (or is midnight), use dates only.
                         # updated does have time, use full timestamps.
@@ -1473,7 +1476,7 @@ class FanFicFarePlugin(InterfaceAction):
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
                 (book_list, options, cpus, merge)]
-        desc = _('Download FanFiction Book')
+        desc = _('Download %s FanFiction Book(s)') % len(filter(lambda x : x['good'], book_list))
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
                 func, args=args,
