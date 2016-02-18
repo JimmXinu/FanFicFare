@@ -360,9 +360,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                         errorDiv = soup.find("div", "errortext")
                         self.triedAcceptWarnings = True
                     else:
-                        raise exception.FailedToDownload(self.url, unicode(errorDiv))
+                        raise exceptions.FailedToDownload(self.url, unicode(errorDiv))
                 else:
-                    raise exception.FailedToDownload(self.url, unicode(errorDiv))
+                    raise exceptions.FailedToDownload(self.url, unicode(errorDiv))
 
         # title and author
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
