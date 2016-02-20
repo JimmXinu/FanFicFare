@@ -193,14 +193,10 @@ class TheHexFilesNetAdapter(BaseSiteAdapter):
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        # Ugh.  chapter html doesn't haven't anything useful around it to demarcate.
-        for a in soup.findAll('table'):
+        content = soup.find('table',{'class':'table'}).find('td') # td inside <table class='table'>
+        content.name='div'
+        
+        for a in content.findAll('table'):
             a.extract()
 
-        for a in soup.findAll('head'):
-            a.extract()
-
-        html = soup.find('html')
-        html.name='div'
-
-        return self.utf8FromSoup(url,soup)
+        return self.utf8FromSoup(url,content)
