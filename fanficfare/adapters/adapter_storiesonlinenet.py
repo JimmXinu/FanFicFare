@@ -36,6 +36,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
+        logger.debug("StoriesOnlineNetAdapter.__init__ - url='%s'" % url)
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -50,11 +51,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','strol')
+        self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
+
+    @classmethod
+    def getSiteAbbrev(self):
+        return 'strol'
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -66,7 +71,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+r"/s/\d+((:\d+)?(;\d+)?$|(:i)?$)?"
+        return re.escape("http://"+self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)((:\d+)?(;\d+)?$|(:i)?$)?"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -290,7 +295,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
             if 'Tags' in label or 'Codes' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
-                     self.story.addToList('sitetags',code)
+                    self.story.addToList('sitetags',code)
 
             if 'Posted' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
