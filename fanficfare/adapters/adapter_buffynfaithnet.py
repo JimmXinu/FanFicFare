@@ -62,9 +62,6 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
             # normalized story URL. gets rid of chapter if there, left with ch 1 URL on this site
             nurl = "http://"+self.getSiteDomain()+"/fanfictions/index.php?act=vie&id="+self.story.getMetadata('storyId')
             self._setURL(nurl)
-            #argh, this mangles the ampersands I need on metadata['storyUrl']
-            #will set it this way
-            self.story.setMetadata('storyUrl',nurl,condremoveentities=False)
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -159,7 +156,7 @@ class BuffyNFaithNetAdapter(BaseSiteAdapter):
         #first the site category (more of a genre to me, meh) and title, in this element:
         mt = doc.find('div',attrs={'class':'maintitle'})
         self.story.addToList('genre',mt.findAll('a')[1].string)
-        self.story.setMetadata('title',mt.findAll('a')[1].nextSibling[len('&nbsp;&raquo;&nbsp;'):])
+        self.story.setMetadata('title',stripHTML(mt).split(u'»')[-1].strip())
         del mt
 
         #the actual category, for me, is 'Buffy: The Vampire Slayer'
