@@ -187,7 +187,7 @@ class BaseSiteAdapter(Configurable):
         self.parsedUrl = up.urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path        
-        self.story.setMetadata('storyUrl',self.url)
+        self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
