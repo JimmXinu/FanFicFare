@@ -34,6 +34,8 @@ class TestSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         self.username=''
         self.is_adult=False
+        # happens inside BaseSiteAdapter.__init__
+        # self._setURL(url)
 
     @staticmethod
     def getSiteDomain():
