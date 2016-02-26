@@ -35,7 +35,7 @@ from exceptions import UnknownSite
 def get_urls_from_page(url,configuration=None,normalize=False):
 
     if not configuration:
-        configuration = Configuration("test1.com","EPUB")
+        configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
     data = None
     adapter = None
@@ -84,7 +84,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     urls = collections.OrderedDict()
 
     if not configuration:
-        configuration = Configuration("test1.com","EPUB")
+        configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
     soup = BeautifulSoup(data,"html5lib")
     if restrictsearch:
@@ -128,7 +128,7 @@ def get_urls_from_text(data,configuration=None,normalize=False):
     data=unicode(data)
 
     if not configuration:
-        configuration = Configuration("test1.com","EPUB")
+        configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
     
     for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
         # this (should) catch normal story links, some javascript

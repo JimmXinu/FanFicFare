@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -365,10 +365,12 @@ def make_generate_cover_settings(param):
 
 class Configuration(ConfigParser.SafeConfigParser):
 
-    def __init__(self, sections, fileform):
+    def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
         ConfigParser.SafeConfigParser.__init__(self)
 
+        self.lightweight = lightweight
+        
         self.linenos=dict() # key by section or section,key -> lineno
         
         ## [injected] section has even less priority than [defaults]
@@ -403,8 +405,18 @@ class Configuration(ConfigParser.SafeConfigParser):
         
         self.validEntries = get_valid_entries()
 
-    def addConfigSection(self,section):
-        self.sectionslist.insert(0,section)
+    def addUrlConfigSection(self,url):
+        if not self.lightweight: # don't need when just checking for normalized URL.
+            self.addConfigSection(url,'overrides')
+
+    def addConfigSection(self,section,before=None):
+        if section not in self.sectionslist: # don't add if already present.
+            if before is None:
+                self.sectionslist.insert(0,section)
+            else:
+                ## because sectionslist is hi-pri first, lo-pri last,
+                ## 'before' means after in the list.
+                self.sectionslist.insert(self.sectionslist.index(before)+1,section)
 
     def isListType(self,key):
         return key in self.listTypeEntries or self.hasConfig("include_in_"+key)
@@ -604,7 +616,7 @@ class Configuration(ConfigParser.SafeConfigParser):
     def test_config(self):
         errors=[]
 
-        teststory_re = re.compile(r'^teststory:(defaults|[0-9]+)$')
+        allowedsections_re = re.compile(r'^(teststory:(defaults|[0-9]+)|https?://.*)$')
         allowedsections = get_valid_sections()
 
         clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)')
@@ -619,7 +631,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         valdict = get_valid_set_options()
         
         for section in self.sections():
-            if section not in allowedsections and not teststory_re.match(section):
+            if section not in allowedsections and not allowedsections_re.match(section):
                 errors.append((self.get_lineno(section),"Bad Section Name: [%s]"%section))
             else:
                 sitename = section.replace('www.','')
@@ -685,6 +697,12 @@ class Configurable(object):
     def __init__(self, configuration):
         self.configuration = configuration
 
+    def is_lightweight(self):
+        return self.configuration.lightweight
+
+    def addUrlConfigSection(self,url):
+        self.configuration.addUrlConfigSection(url)
+        
     def isListType(self,key):
         return self.configuration.isListType(key)
 

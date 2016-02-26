@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -380,8 +380,8 @@ def set_in_ex_clude(setting):
 ## metakey[,metakey]=>pattern=>replacement[&&metakey=>regexp]
 def make_replacements(replace):
     retval=[]
-    for fullline in replace.splitlines():
-        line=fullline
+    for repl_line in replace.splitlines():
+        line=repl_line
         try:
             (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
             if "&&" in line:
@@ -403,10 +403,10 @@ def make_replacements(replace):
                 # replacement string.  The .ini parser eats any
                 # trailing spaces.
                 replacement=replacement.replace(SPACE_REPLACE,' ')
-                retval.append([metakeys,regexp,replacement,condkey,condregexp])
+                retval.append([repl_line,metakeys,regexp,replacement,condkey,condregexp])
         except Exception as e:
-            logger.error("Problem with Replacement Line:%s"%fullline)
-            raise exceptions.PersonalIniFailed(e,'replace_metadata unpacking failed',fullline)
+            logger.error("Problem with Replacement Line:%s"%repl_line)
+            raise exceptions.PersonalIniFailed(e,'replace_metadata unpacking failed',repl_line)
 #            raise
     return retval
 
@@ -419,6 +419,7 @@ class Story(Configurable):
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'4.4'}
+        self.replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be namedtuple of Chapter(url,title,html,etc)
         self.chapter_first = None
@@ -431,26 +432,35 @@ class Story(Configurable):
         self.calibrebookmark=None # cheesy way to carry calibre bookmark file forward across update.
         self.logfile=None # cheesy way to carry log file forward across update.
 
-        ## Look for config parameter, split and add each to metadata field.
-        for (config,metadata) in [("extracategories","category"),
-                                  ("extragenres","genre"),
-                                  ("extracharacters","characters"),
-                                  ("extraships","ships"),
-                                  ("extrawarnings","warnings")]:
-            for val in self.getConfigList(config):
-                self.addToList(metadata,val)
+        self.replacements_prepped = False
 
-        self.replacements = make_replacements(self.getConfig('replace_metadata'))
+    def prepare_replacements(self):
+        if not self.replacements_prepped and not self.is_lightweight():
+            logger.debug("prepare_replacements")
+            logger.debug("sections:%s"%self.configuration.sectionslist)
+            
+            ## Look for config parameter, split and add each to metadata field.
+            for (config,metadata) in [("extracategories","category"),
+                                      ("extragenres","genre"),
+                                      ("extracharacters","characters"),
+                                      ("extraships","ships"),
+                                      ("extrawarnings","warnings")]:
+                for val in self.getConfigList(config):
+                    self.addToList(metadata,val)
+    
+            self.replacements =  make_replacements(self.getConfig('replace_metadata'))
+    
+            in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
+                                'include_metadata_post','exclude_metadata_post']
+            for ie in in_ex_clude_list:
+                ies = self.getConfig(ie)
+                # print("%s %s"%(ie,ies))
+                if ies:
+                    iel = []
+                    self.in_ex_cludes[ie] = set_in_ex_clude(ies)
+            self.replacements_prepped = True
 
-        in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
-                            'include_metadata_post','exclude_metadata_post']
-        for ie in in_ex_clude_list:
-            ies = self.getConfig(ie)
-            # print("%s %s"%(ie,ies))
-            if ies:
-                iel = []
-                self.in_ex_cludes[ie] = set_in_ex_clude(ies)
-
+    
     def set_chapters_range(self,first=None,last=None):
         self.chapter_first=first
         self.chapter_last=last
@@ -484,6 +494,10 @@ class Story(Configurable):
 
 
     def do_in_ex_clude(self,which,value,key):
+        # sets self.replacements and self.in_ex_cludes if needed
+        # do_in_ex_clude is always called from doReplacements, so redundant.
+        # self.prepare_replacements()
+        
         if value and which in self.in_ex_cludes:
             include = 'include' in which
             keyfound = False
@@ -512,8 +526,10 @@ class Story(Configurable):
                 value = None
         return value
 
-
     def doReplacements(self,value,key,return_list=False,seen_list=[]):
+        # sets self.replacements and self.in_ex_cludes if needed
+        self.prepare_replacements()
+
         value = self.do_in_ex_clude('include_metadata_pre',value,key)
         value = self.do_in_ex_clude('exclude_metadata_pre',value,key)
 
@@ -523,7 +539,7 @@ class Story(Configurable):
                 # print("bailing on %s"%replaceline)
                 continue
             #print("replacement tuple:%s"%replaceline)
-            (metakeys,regexp,replacement,condkey,condregexp) = replaceline
+            (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
                     and regexp.search(value):
@@ -541,21 +557,28 @@ class Story(Configurable):
                     if SPLIT_META in replacement:
                         retlist = []
                         for splitrepl in replacement.split(SPLIT_META):
-                            retlist.extend(self.doReplacements(regexp.sub(splitrepl,value),
+                            try:
+                                tval = regexp.sub(splitrepl,value)
+                            except:
+                                logger.error("Exception with replacement line,value:(%s),(%s)"%(repl_line,value))
+                                raise
+                            retlist.extend(self.doReplacements(tval,
                                                                key,
                                                                return_list=True,
                                                                seen_list=seen_list+[replaceline]))
                         break
                     else:
                         # print("replacement,value:%s,%s->%s"%(replacement,value,regexp.sub(replacement,value)))
-                        value = regexp.sub(replacement,value)
-                        retlist = [value]
+                        try:
+                            value = regexp.sub(replacement,value)
+                            retlist = [value]
+                        except:
+                            logger.error("Exception with replacement line,value:(%s),(%s)"%(repl_line,value))
+                            raise
 
         for val in retlist:
             retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
             retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
-        # value = self.do_in_ex_clude('include_metadata_post',value,key)
-        # value = self.do_in_ex_clude('exclude_metadata_post',value,key)
 
         if return_list:
             return retlist

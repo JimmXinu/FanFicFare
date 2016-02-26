@@ -119,7 +119,6 @@ class TestSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata(u'title',"Test Story Title "+idstr)
             self.story.setMetadata('author','Test Author aa')
-        self.story.setMetadata('storyUrl',self.url)
         self.setDescription(self.url,u'Description '+self.crazystring+u''' Done
 <p>
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
