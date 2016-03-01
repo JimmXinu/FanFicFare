@@ -31,7 +31,7 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 if sys.version_info >= (2, 7):
-    # suppresses default logger.  Logging is setup in fanficdownload/__init__.py so it works in calibre, too.
+    # suppresses default logger.  Logging is setup in fanficfare/__init__.py so it works in calibre, too.
     rootlogger = logging.getLogger()
     loghandler = logging.NullHandler()
     loghandler.setFormatter(logging.Formatter('(=====)(levelname)s:%(message)s'))
@@ -39,11 +39,11 @@ if sys.version_info >= (2, 7):
 
 try:
     # running under calibre
-    from calibre_plugins.fanfictiondownloader_plugin.fanficfare import adapters, writers, exceptions
-    from calibre_plugins.fanfictiondownloader_plugin.fanficfare.configurable import Configuration
-    from calibre_plugins.fanfictiondownloader_plugin.fanficfare.epubutils import (
+    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+    from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
+    from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from calibre_plugins.fanfictiondownloader_plugin.fanficfare.geturls import get_urls_from_page
+    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page
 except ImportError:
     from fanficfare import adapters, writers, exceptions
     from fanficfare.configurable import Configuration
@@ -355,6 +355,7 @@ def do_download(arg,
             # regular download
             if options.metaonly:
                 pprint.pprint(adapter.getStoryMetadataOnly().getAllMetadata())
+                pprint.pprint(adapter.chapterUrls)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
