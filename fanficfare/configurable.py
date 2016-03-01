@@ -111,8 +111,6 @@ def get_valid_list_entries():
                  'authorId',
                  'authorUrl',
                  'lastupdate',
-                 'keep_html_attrs',
-                 'replace_tags_with_spans',
                  ])
 
 boollist=['true','false']
@@ -125,6 +123,10 @@ def get_valid_set_options():
     '''
     dict() of names of boolean options, but as a tuple with
     valid sites, valid formats and valid values (None==all)
+
+    This is to further restrict keywords to certain sections and/or
+    values.  get_valid_keywords() below is the list of allowed
+    keywords.  Any keyword listed here must also be listed there.
     '''
 
     valdict = {'collect_series':(None,None,boollist),
@@ -177,7 +179,13 @@ def get_valid_set_options():
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
 
+               'capitalize_forumtags':(base_xenforo_list,None,boollist),
                'continue_on_chapter_error':(base_xenforo_list,None,boollist),
+               'minimum_threadmarks':(base_xenforo_list,None,None),
+               'first_post_title':(base_xenforo_list,None,None),
+               'always_include_first_post':(base_xenforo_list,None,boollist),
+               '':(base_xenforo_list,None,boollist),
+               '':(base_xenforo_list,None,boollist),
                '':(base_xenforo_list,None,boollist),
                }
 
@@ -339,8 +347,12 @@ def get_valid_keywords():
                  'wrap_width',
                  'zip_filename',
                  'zip_output',
-                 'continue_on_chapter_error',
                  'capitalize_forumtags',
+                 'continue_on_chapter_error',
+                 'minimum_threadmarks',
+                 'first_post_title',
+                 'always_include_first_post',
+                 '',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
@@ -405,9 +417,16 @@ class Configuration(ConfigParser.SafeConfigParser):
         
         self.validEntries = get_valid_entries()
 
+        self.url_config_set = False
+
     def addUrlConfigSection(self,url):
         if not self.lightweight: # don't need when just checking for normalized URL.
-            self.addConfigSection(url,'overrides')
+            # replace if already set once.
+            if self.url_config_set:
+                self.sectionslist[self.sectionslist.index('overrides')+1]=url
+            else:
+                self.addConfigSection(url,'overrides')
+                self.url_config_set=True
 
     def addConfigSection(self,section,before=None):
         if section not in self.sectionslist: # don't add if already present.
@@ -616,7 +635,10 @@ class Configuration(ConfigParser.SafeConfigParser):
     def test_config(self):
         errors=[]
 
-        allowedsections_re = re.compile(r'^(teststory:(defaults|[0-9]+)|https?://.*)$')
+        ## too complicated right now to enforce
+        ## get_valid_set_options() warnings on teststory and
+        ## [storyUrl] sections.
+        allow_all_sections_re = re.compile(r'^(teststory:(defaults|[0-9]+)|https?://.*)$')
         allowedsections = get_valid_sections()
 
         clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)')
@@ -626,12 +648,13 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings')
         
-        generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings')        
-
+        generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings')
+        
         valdict = get_valid_set_options()
         
         for section in self.sections():
-            if section not in allowedsections and not allowedsections_re.match(section):
+            allow_all_section = allow_all_sections_re.match(section)
+            if section not in allowedsections and not allow_all_section:
                 errors.append((self.get_lineno(section),"Bad Section Name: [%s]"%section))
             else:
                 sitename = section.replace('www.','')
@@ -669,26 +692,25 @@ class Configuration(ConfigParser.SafeConfigParser):
                         # timeline=>#ccolumn,n
                         # "FanFiction"=>#collection
 
-                        def make_sections(x):
-                            return '['+'], ['.join(x)+']'
-                        if keyword in valdict:
-                            (valsites,valformats,vals)=valdict[keyword]
-                            if valsites != None and sitename != None and sitename not in valsites:
-                                errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valsites))))
-                            if valformats != None and formatname != None and formatname not in valformats:
-                                errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valformats))))
-                            if value not in vals:
-                                errors.append((self.get_lineno(section,keyword),"%s not a valid value for %s"%(value,keyword)))
+                        if not allow_all_section:
+                            def make_sections(x):
+                                return '['+'], ['.join(x)+']'
+                            if keyword in valdict:
+                                (valsites,valformats,vals)=valdict[keyword]
+                                if valsites != None and sitename != None and sitename not in valsites:
+                                    errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valsites))))
+                                if valformats != None and formatname != None and formatname not in valformats:
+                                    errors.append((self.get_lineno(section,keyword),"%s not valid in section [%s] -- only valid in %s sections."%(keyword,section,make_sections(valformats))))
+                                if vals != None and value not in vals:
+                                    errors.append((self.get_lineno(section,keyword),"%s not a valid value for %s"%(value,keyword)))
 
-                            
                         ## skipping output_filename_safepattern
                         ## regex--not used with plugin and this isn't
                         ## used with CLI/web yet.
 
                     except Exception as e:
-                        errors.append((self.get_lineno(section,keyword),"Error:%s in (%s:%s)"%(e,keyword,value)))
-                
-        
+                        errors.append((self.get_lineno(section,keyword),"Error:%s in (%s:%s)"%(e,keyword,value)))                
+
         return errors
 
 # extended by adapter, writer and story for ease of calling configuration.

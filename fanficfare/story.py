@@ -426,6 +426,9 @@ class Story(Configurable):
         self.chapter_last = None
         self.imgurls = []
         self.imgtuples = []
+        # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
+        # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
+        self.processed_metadata_cache = {}
 
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
@@ -470,6 +473,9 @@ class Story(Configurable):
 
     def setMetadata(self, key, value, condremoveentities=True):
 
+        # delete 
+        if key in self.processed_metadata_cache:
+            del self.processed_metadata_cache[key]
         # keep as list type, but set as only value.
         if self.isList(key):
             self.addToList(key,value,condremoveentities=condremoveentities,clear=True)
@@ -492,6 +498,12 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"),clear=True)
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
+        if key == 'storyUrl' and value:
+            self.addUrlConfigSection(value) # adapter/writer share the
+                                            # same configuration.
+                                            # ignored if config
+                                            # is_lightweight()
+            self.replacements_prepped = False
 
     def do_in_ex_clude(self,which,value,key):
         # sets self.replacements and self.in_ex_cludes if needed
@@ -659,13 +671,16 @@ class Story(Configurable):
         if not self.isValidMetaEntry(key):
             return value
 
-        if self.isList(key):
+        # check for a cached value to speed processing
+        if key in self.processed_metadata_cache \
+                and (removeallentities,doreplacements) in self.processed_metadata_cache[key]:
+            return self.processed_metadata_cache[key][(removeallentities,doreplacements)]
+        elif self.isList(key):
             # join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
             # value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
             value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
-            return value
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
@@ -690,11 +705,16 @@ class Story(Configurable):
             if doreplacements:
                 value=self.doReplacements(value,key)
             if removeallentities and value != None:
-                return removeAllEntities(value)
-            else:
-                return value
+                value = removeAllEntities(value)
         else: #if self.getConfig("default_value_"+key):
-            return self.getConfig("default_value_"+key)
+            value = self.getConfig("default_value_"+key)
+
+        # save a cached value to speed processing
+        if key not in self.processed_metadata_cache:
+            self.processed_metadata_cache[key] = {}
+        self.processed_metadata_cache[key][(removeallentities,doreplacements)] = value
+        
+        return value
 
     def getAllMetadata(self,
                        removeallentities=False,

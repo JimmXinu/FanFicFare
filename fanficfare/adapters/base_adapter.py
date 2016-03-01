@@ -188,9 +188,6 @@ class BaseSiteAdapter(Configurable):
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path        
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
-        self.addUrlConfigSection(url) # self.story shares the same configuration.
-                                      # ignored inside if config is_lightweight()
-        self.story.config_prepped = False
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
