@@ -61,7 +61,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', element.find('h1').get_text())
 
         # quotev html is all about formatting without any content tagging
-        authdiv = soup.find('div', {'style':"text-align:left;"})
+        authdiv = soup.find('div', {'style':"font-size:0.7em;color:#aaa;margin-top:-10px;text-align:center;margin-left:45px;cursor:pointer"})
         if authdiv:
             #print("div:%s"%authdiv.find_all('a'))
             for a in authdiv.find_all('a'):
@@ -119,7 +119,8 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata('comments', stripHTML(commentspans[0]).replace(',', ''))
 
         for a in soup.find('div', id='rselect')('a'):
-            self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
+            if 'javascript' not in a['href']:
+                self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
         
