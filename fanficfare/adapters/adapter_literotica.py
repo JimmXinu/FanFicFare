@@ -166,7 +166,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         if isSingleStory:
             self.story.setMetadata('title', storyLink.text)
-            self.story.setMetadata('description', urlTr.findAll("td")[1].text)
+            self.story.setDescription(authorurl,urlTr.findAll("td")[1].text)
             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
             date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
@@ -190,7 +190,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             descriptions = []
             ratings = []
             while chapterTr is not None and 'sl' in chapterTr['class']:
-                descriptions.append("<br>\n%d. %s" % (len(descriptions)+1, stripHTML(chapterTr.findAll("td")[1])) )
+                descriptions.append("%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1])) )
                 chapterLink = chapterTr.find("td", "fc").find("a")
                 if not chapterLink["href"].startswith('http'):
                     chapterLink["href"] = "http:" + chapterLink["href"]
@@ -204,7 +204,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 ratings.append(float(numrating))
 
             ## Set description to joint chapter descriptions
-            self.setDescription(authorurl,"".join(descriptions))
+            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
             ## Set the oldest date as publication date, the newest as update date
             dates.sort()
