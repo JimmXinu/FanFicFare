@@ -166,7 +166,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         if isSingleStory:
             self.story.setMetadata('title', storyLink.text)
-            self.story.setDescription(authorurl,urlTr.findAll("td")[1].text)
+            self.setDescription(authorurl,urlTr.findAll("td")[1].text)
             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
             date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
