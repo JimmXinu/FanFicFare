@@ -338,7 +338,7 @@ class BaseSiteAdapter(Configurable):
                 return (self._decode(data),opened)
             except u2.HTTPError, he:
                 excpt=he
-                if he.code in (403,404):
+                if he.code in (403,404,410):
                     logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(he)))
                     break # break out on 404
             except Exception, e:
@@ -346,7 +346,7 @@ class BaseSiteAdapter(Configurable):
                 logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
                 
         logger.error("Giving up on %s" %url)
-        logger.exception(excpt)
+        logger.debug(excpt, exc_info=True)
         raise(excpt)
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
