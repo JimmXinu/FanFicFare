@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import traceback, copy, threading
+import traceback, copy, threading, re
 from collections import OrderedDict
 
 try:
@@ -665,53 +665,94 @@ class PersonalIniTab(QWidget):
         label = QLabel(_('These settings provide more detailed control over what metadata will be displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s for different sites.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
-#        self.l.addSpacing(5)
-
-        label = QLabel(_("FanFicFare now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
-        label.setWordWrap(True)
-        self.l.addWidget(label)
-        
-        # self.label = QLabel('personal.ini:')
-        # self.l.addWidget(self.label)
-
-        # self.ini = QTextEdit(self)
-        # try:
-        #     self.ini.setFont(QFont("Courier",
-        #                            self.plugin_action.gui.font().pointSize()+1))
-        # except Exception as e:
-        #     logger.error("Couldn't get font: %s"%e)
-        # self.ini.setLineWrapMode(QTextEdit.NoWrap)
-        # self.ini.setText(prefs['personal.ini'])
-        # self.l.addWidget(self.ini)
+        self.l.addSpacing(5)
 
         self.personalini = prefs['personal.ini']
 
+        groupbox = QGroupBox(_("personal.ini"))
+        vert = QVBoxLayout()
+        groupbox.setLayout(vert)
+        self.l.addWidget(groupbox)
+
+        horz = QHBoxLayout()
+        vert.addLayout(horz)        
         self.ini_button = QPushButton(_('Edit personal.ini'), self)
         #self.ini_button.setToolTip(_("Edit personal.ini file."))
         self.ini_button.clicked.connect(self.add_ini_button)
-        self.l.addWidget(self.ini_button)
+        horz.addWidget(self.ini_button)
         
+        label = QLabel(_("FanFicFare now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
+        label.setWordWrap(True)
+        horz.addWidget(label)
+        
+        vert.addSpacing(5)
+
+        horz = QHBoxLayout()
+        vert.addLayout(horz)
+        self.ini_button = QPushButton(_('View "Safe" personal.ini'), self)
+        #self.ini_button.setToolTip(_("Edit personal.ini file."))
+        self.ini_button.clicked.connect(self.safe_ini_button)
+        horz.addWidget(self.ini_button)
+        
+        label = QLabel(_("View your personal.ini with usernames and passwords removed.  For safely sharing your personal.ini settings with others."))
+        label.setWordWrap(True)
+        horz.addWidget(label)
+        
+        self.l.addSpacing(5)
+        
+        groupbox = QGroupBox(_("defaults.ini"))
+        horz = QHBoxLayout()
+        groupbox.setLayout(horz)
+        self.l.addWidget(groupbox)
+        
+        view_label = _("View all of the plugin's configurable settings\nand their default settings.")
+        self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
+        self.defaults.setToolTip(view_label)
+        self.defaults.clicked.connect(self.show_defaults)
+        horz.addWidget(self.defaults)
+
+        label = QLabel(view_label)
+        label.setWordWrap(True)
+        horz.addWidget(label)
+        
+        self.l.addSpacing(5)
+
+        groupbox = QGroupBox(_("Calibre Columns"))
+        vert = QVBoxLayout()
+        groupbox.setLayout(vert)
+        self.l.addWidget(groupbox)
+
+        horz = QHBoxLayout()
+        vert.addLayout(horz)
+        pass_label = _("If checked, when updating/overwriting an existing book, FanFicFare will have the Calibre Columns available to use in replace_metadata, title_page, etc.<br>Click the button below to see the Calibre Column namess.")%no_trans
+        self.cal_cols_pass_in = QCheckBox(_('Pass Calibre Columns into FanFicFare on Update/Overwrite')%no_trans,self)
+        self.cal_cols_pass_in.setToolTip(pass_label)
+        self.cal_cols_pass_in.setChecked(prefs['cal_cols_pass_in'])
+        horz.addWidget(self.cal_cols_pass_in)
+        
+        label = QLabel(pass_label)
+        label.setWordWrap(True)
+        horz.addWidget(label)
+
+        vert.addSpacing(5)
+        
+        horz = QHBoxLayout()
+        vert.addLayout(horz)
+        col_label = _("FanFicFare can pass the Calibre Columns into the download/update process.<br>This will show you the columns available by name.")
+        self.showcalcols = QPushButton(_('Show Calibre Column Names'), self)
+        self.showcalcols.setToolTip(col_label)
+        self.showcalcols.clicked.connect(self.show_showcalcols)
+        horz.addWidget(self.showcalcols)
+
+        label = QLabel(col_label)
+        label.setWordWrap(True)
+        horz.addWidget(label)
+
         label = QLabel(_("Changes will only be saved if you click 'OK' to leave Customize FanFicFare."))
         label.setWordWrap(True)
         self.l.addWidget(label)
-        
-        self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
-        self.defaults.setToolTip(_("View all of the plugin's configurable settings\nand their default settings."))
-        self.defaults.clicked.connect(self.show_defaults)
-        self.l.addWidget(self.defaults)
-
-        self.cal_cols_pass_in = QCheckBox(_('Pass Calibre Columns into FanFicFare on Update/Overwrite')%no_trans,self)
-        self.cal_cols_pass_in.setToolTip(_("If checked, when updating/overwriting an existing book, FanFicFare will have the Calibre Columns available to use in replace_metadata, title_page, etc.<br>Click the button below to see the Calibre Column namess.")%no_trans)
-        self.cal_cols_pass_in.setChecked(prefs['cal_cols_pass_in'])
-        self.l.addWidget(self.cal_cols_pass_in)
-        
-        self.showcalcols = QPushButton(_('Show Calibre Column Names'), self)
-        self.showcalcols.setToolTip(_("FanFicFare can pass the Calibre Columns into the download/update process.<br>This will show you the columns available by name."))
-        self.showcalcols.clicked.connect(self.show_showcalcols)
-        self.l.addWidget(self.showcalcols)
 
         self.l.insertStretch(-1)
-        # let edit box fill the space.
         
     def show_defaults(self):
         IniTextDialog(self,
@@ -722,6 +763,18 @@ class PersonalIniTab(QWidget):
                        use_find=True,
                        read_only=True,
                        save_size_name='fff:defaults.ini').exec_()
+        
+    def safe_ini_button(self):
+        personalini = re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',self.personalini,flags=re.MULTILINE)
+        
+        d = EditTextDialog(self,
+                           personalini,
+                           icon=self.windowIcon(),
+                           title=_("View 'Safe' personal.ini"),
+                           label=_("View your personal.ini with usernames and passwords removed.  For safely sharing your personal.ini settings with others."),
+                           save_size_name='fff:safe personal.ini',
+                           read_only=True)
+        d.exec_()
         
     def add_ini_button(self):
         d = IniTextDialog(self,
