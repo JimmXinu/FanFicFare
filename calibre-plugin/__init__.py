@@ -12,7 +12,7 @@ if sys.version_info >= (2, 7):
     import logging
     logger = logging.getLogger(__name__)
     loghandler=logging.StreamHandler()
-    loghandler.setFormatter(logging.Formatter("FFF:%(levelname)s:%(filename)s(%(lineno)d):%(message)s"))
+    loghandler.setFormatter(logging.Formatter("FFF: %(levelname)s: %(asctime)s: %(filename)s(%(lineno)d): %(message)s"))
     logger.addHandler(loghandler)
     loghandler.setLevel(logging.DEBUG)
     logger.setLevel(logging.DEBUG)

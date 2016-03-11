@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 import re
 import urllib2
 import urlparse
-import time
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
@@ -167,12 +166,16 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         if isSingleStory:
             self.story.setMetadata('title', storyLink.text)
-            self.story.setMetadata('description', urlTr.findAll("td")[1].text)
+            self.setDescription(authorurl,urlTr.findAll("td")[1].text)
             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
             date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
             self.chapterUrls = [(storyLink.text, self.url)]
+            averrating = stripHTML(storyLink.parent)
+            ## title (0.00)
+            averrating = averrating[averrating.rfind('(')+1:averrating.rfind(')')]
+            self.story.setMetadata('averrating',averrating)
         else:
             seriesTr = urlTr.previousSibling
             while 'ser-ttl' not in seriesTr['class']:
@@ -185,8 +188,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.chapterUrls = []
             dates = []
             descriptions = []
+            ratings = []
             while chapterTr is not None and 'sl' in chapterTr['class']:
-                descriptions.append(chapterTr.findAll("td")[1].text)
+                descriptions.append("%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1])) )
                 chapterLink = chapterTr.find("td", "fc").find("a")
                 if not chapterLink["href"].startswith('http'):
                     chapterLink["href"] = "http:" + chapterLink["href"]
@@ -194,9 +198,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
                 dates.append(makeDate(chapterTr.findAll('td')[-1].text, self.dateformat))
                 chapterTr = chapterTr.nextSibling
+                numrating = stripHTML(chapterLink.parent)
+                ## title (0.00)
+                numrating = numrating[numrating.rfind('(')+1:numrating.rfind(')')]
+                ratings.append(float(numrating))
 
             ## Set description to joint chapter descriptions
-            self.story.setMetadata('description', " / ".join(descriptions))
+            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
             ## Set the oldest date as publication date, the newest as update date
             dates.sort()
@@ -205,6 +213,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
             # normalize on first chapter URL.
             self._setURL(self.chapterUrls[0][1])
+
+            self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 

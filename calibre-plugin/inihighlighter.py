@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -68,6 +68,10 @@ class IniHighlighter(QSyntaxHighlighter):
         self.teststoryRule = HighlightingRule( r"^\[teststory:([0-9]+|defaults)\]", Qt.darkCyan, blocknum=3 )
         self.highlightingRules.append( self.teststoryRule )
 
+        # storyUrl sections
+        self.storyUrlRule = HighlightingRule( r"^\[https?://.*\]", Qt.darkMagenta, blocknum=4 )
+        self.highlightingRules.append( self.storyUrlRule )
+
         # NOT comments -- but can be custom columns, so don't flag.
         #self.highlightingRules.append( HighlightingRule( r"(?<!^)#[^\n]*" , Qt.red ) )
         
@@ -95,6 +99,10 @@ class IniHighlighter(QSyntaxHighlighter):
             # teststory section rules:
             if blocknum == 3:
                 self.setFormat( 0, len(text), self.teststoryRule.highlight )
+            
+            # storyUrl section rules:
+            if blocknum == 4:
+                self.setFormat( 0, len(text), self.storyUrlRule.highlight )
             
         self.setCurrentBlockState( blocknum )
 

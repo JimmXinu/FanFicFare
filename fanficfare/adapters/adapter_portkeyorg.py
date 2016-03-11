@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -270,7 +270,10 @@ class PortkeyOrgAdapter(BaseSiteAdapter): # XXX
         tag = soup.find('td', {'class' : 'story'})
         if tag == None and "<center><b>Chapter does not exist!</b></center>" in data:
             logger.error("Chapter is missing at: %s"%url)
-            return  self.utf8FromSoup(url,self.make_soup("<div><p><center><b>Chapter does not exist!</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
+            return  self.utf8FromSoup(url,self.make_soup("<div><p><center><b>Site says: Chapter does not exist!</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
+        elif tag == None and "<center><b>This chapter has corrupted or a blank chapter was uploaded. Please contact the author and request that they re-upload the chapter</b></center>" in data:
+            logger.error("Chapter is missing at: %s"%url)
+            return  self.utf8FromSoup(url,self.make_soup("<div><p><center><b>Site says: This chapter has corrupted or a blank chapter was uploaded.</b></center></p><p>Chapter is missing at: <a href='%s'>%s</a></p></div>"%(url,url)))
         tag.name='div' # force to be a div to avoid problems with nook.
 
         centers = tag.findAll('center')

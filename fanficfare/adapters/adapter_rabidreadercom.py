@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,23 +18,19 @@
 # Software: eFiction
 from base_efiction_adapter import BaseEfictionAdapter
 
-class MuggleNetComAdapter(BaseEfictionAdapter):
+class RabidReaderComAdapter(BaseEfictionAdapter):
 
-    @staticmethod # must be @staticmethod, don't remove it.
+    @staticmethod
     def getSiteDomain():
-        return 'fanfiction.mugglenet.com'
-
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['fanfiction.mugglenet.com','fanfic.mugglenet.com']
+        return 'www.therabidreader.com'
 
     @classmethod
     def getSiteAbbrev(self):
-        return 'mgln'
+        return 'rrcom'
 
     @classmethod
     def getDateFormat(self):
-        return "%m/%d/%y"
+        return "%d %b %Y"
 
 def getClass():
-    return MuggleNetComAdapter
+    return RabidReaderComAdapter

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -140,6 +140,14 @@ import adapter_masseffect2in
 import adapter_quotevcom
 import adapter_mcstoriescom
 
+import adapter_lucifaelff
+import adapter_buffygilescom
+#import adapter_rubyquillcom
+import adapter_andromedawebcom # Not all lables are captured
+import adapter_artemisfowlcom
+import adapter_rabidreadercom
+import adapter_naiceanilmenet
+
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
 ## to pick out the adapter.
@@ -169,8 +177,9 @@ def getNormalStoryURL(url):
         return None
 
 def getNormalStoryURLSite(url):
+    # print("getNormalStoryURLSite:%s"%url)
     if not getNormalStoryURL.__dummyconfig:
-        getNormalStoryURL.__dummyconfig = Configuration("test1.com","EPUB")
+        getNormalStoryURL.__dummyconfig = Configuration(["test1.com"],"EPUB",lightweight=True)
     # pulling up an adapter is pretty low over-head.  If
     # it fails, it's a bad url.
     try:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ class BaseSiteAdapter(Configurable):
         self.parsedUrl = up.urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path        
-        self.story.setMetadata('storyUrl',self.url)
+        self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
@@ -236,11 +236,11 @@ class BaseSiteAdapter(Configurable):
         '''
         cachekey=self._get_cachekey(url, parameters, headers)
         if usecache and self._has_cachekey(cachekey):
-            logger.debug("#####################################\npagecache HIT: %s"%cachekey)
+            logger.debug("#####################################\npagecache HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
             return data
         
-        logger.debug("#####################################\npagecache MISS: %s"%cachekey)
+        logger.debug("#####################################\npagecache MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
         ## u2.Request assumes POST when data!=None.  Also assumes data
@@ -279,7 +279,7 @@ class BaseSiteAdapter(Configurable):
         '''
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
-            logger.debug("#####################################\npagecache HIT: %s"%cachekey)
+            logger.debug("#####################################\npagecache HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
             class FakeOpened:
                 def __init__(self,data,url):
@@ -289,7 +289,7 @@ class BaseSiteAdapter(Configurable):
                 def read(self): return self.data
             return (data,FakeOpened(data,redirecturl))
         
-        logger.debug("#####################################\npagecache MISS: %s"%cachekey)
+        logger.debug("#####################################\npagecache MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
         if parameters != None:
             opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
@@ -338,15 +338,15 @@ class BaseSiteAdapter(Configurable):
                 return (self._decode(data),opened)
             except u2.HTTPError, he:
                 excpt=he
-                if he.code in (403,404):
-                    logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(url),unicode(he)))
+                if he.code in (403,404,410):
+                    logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
             except Exception, e:
                 excpt=e
-                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
+                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
                 
-        logger.error("Giving up on %s" %url)
-        logger.exception(excpt)
+        logger.error("Giving up on %s" %safe_url(url))
+        logger.debug(excpt, exc_info=True)
         raise(excpt)
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
@@ -688,3 +688,8 @@ def makeDate(string,dateform):
             
     return datetime.datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
 
+# .? for AO3's ']' in param names.
+safe_url_re = re.compile(r'(?P<attr>(password|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
+def safe_url(url):
+    # return url with password attr (if present) obscured.
+    return re.sub(safe_url_re,r'\g<attr>XXXXXXXX\g<amp>',url)

@@ -131,7 +131,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             #print("data:%s"%data)
             soup = self.make_soup(data)
         except urllib2.HTTPError, e:
-            if e.code == 404:
+            if e.code in (404,410):
                 raise exceptions.StoryDoesNotExist(url)
             else:
                 raise e

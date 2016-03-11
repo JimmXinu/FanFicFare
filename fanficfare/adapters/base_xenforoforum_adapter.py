@@ -49,9 +49,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             #logger.debug("groupdict:%s"%m.groupdict())
-            if m.group('post'):
-                self.story.setMetadata('storyId',m.group('post'))
-                self._setURL(self.getURLPrefix() + '/posts/'+m.group('post')+'/')
+            if m.group('anchorpost'):
+                self.story.setMetadata('storyId',m.group('anchorpost'))
+                self._setURL(self.getURLPrefix() + '/posts/'+m.group('anchorpost')+'/')
             else:
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
@@ -83,7 +83,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return cls.getURLPrefix()+"/threads/some-story-name.123456/ "+cls.getURLPrefix()+"/posts/123456/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<post>\d+))?$"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
 
     def use_pagecache(self):
         '''
@@ -150,7 +150,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 raise
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = self.make_soup(data)
+        topsoup = soup = self.make_soup(data)
 
         a = soup.find('h3',{'class':'userText'}).find('a')
         self.story.addToList('authorId',a['href'].split('/')[1])
@@ -160,6 +160,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         h1 = soup.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
 
+        first_post_title = self.getConfig('first_post_title','First Post')
+
+        threadmark_chaps = False
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
             soup = soup.find('li',id=anchorid)
@@ -176,7 +179,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     ## SV changed their threadmarks.  Not isolated to
                     ## SV only incase SB or QQ make the same change.
                     markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
-                if len(markas) > 1:
+                if len(markas) >= int(self.getConfig('minimum_threadmarks',2)):
+                    threadmark_chaps = True
+                    if self.getConfig('always_include_first_post'):
+                        self.chapterUrls.append((first_post_title,useurl))
+                    
                     for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
                         date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
@@ -186,16 +193,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
-                    ## only use tags if threadmarks for chapters.
-                    ##  a bit arbitrary, but likely.
-                    for tag in soup.findAll('a',{'class':'tag'}):
-                        tstr = stripHTML(tag)
-                        if self.getConfig('capitalize_forumtags'):
-                            tstr = tstr.title()
-                        self.story.addToList('forumtags',tstr)
-
             soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
+        if threadmark_chaps or self.getConfig('always_use_forumtags'):
+            ## only  use  tags if  threadmarks  for  chapters or
+            for tag in topsoup.findAll('a',{'class':'tag'}):
+                tstr = stripHTML(tag)
+                if self.getConfig('capitalize_forumtags'):
+                    tstr = tstr.title()
+                self.story.addToList('forumtags',tstr)
+            
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
 
@@ -211,8 +218,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
+
         if not self.chapterUrls:
-            self.chapterUrls.append(("First Post",useurl))
+            self.chapterUrls.append((first_post_title,useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
                 #logger.debug("found chapurl:%s"%url)
                 if not url.startswith('http'):
@@ -230,9 +238,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                     logger.debug("(ch:%s)used chapurl:%s"%(len(self.chapterUrls)+1,url))
                     self.chapterUrls.append((name,url))
-                    if url == useurl and 'First Post' == self.chapterUrls[0][0]:
+                    if url == useurl and first_post_title == self.chapterUrls[0][0] \
+                            and not self.getConfig('always_include_first_post',False):
                         # remove "First Post" if included in list.
-                        logger.debug("delete dup 'First Post' chapter: %s %s"%self.chapterUrls[0])
                         del self.chapterUrls[0]
 
             # Didn't use threadmarks, so take created/updated dates

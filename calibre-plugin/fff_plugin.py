@@ -7,6 +7,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+
+# import cProfile
+
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         profile = cProfile.Profile()
+#         try:
+#             profile.enable()
+#             result = func(*args, **kwargs)
+#             profile.disable()
+#             return result
+#         finally:
+#             profile.print_stats()
+#     return profiled_func
+
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -994,7 +1010,8 @@ class FanFicFarePlugin(InterfaceAction):
                                    show_copy_button=False):
                     rejecturllist.remove(url)
         return False
-            
+
+    # @do_cprofile
     def prep_download_loop(self,book,
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
@@ -1015,6 +1032,7 @@ class FanFicFarePlugin(InterfaceAction):
         ## Check reject list.  Redundant with below for when story URL
         ## changes, but also kept here to avoid network hit in most
         ## common case where given url is story url.
+
         if self.reject_url(merge,book):
             return
 
