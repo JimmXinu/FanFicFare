@@ -1,3 +1,5 @@
+#  -*- coding: utf-8 -*-
+
 import re
 import urlparse
 import urllib2
@@ -58,10 +60,10 @@ class QuotevComAdapter(BaseSiteAdapter):
         if not element:
             raise exceptions.StoryDoesNotExist(self.url)
 
-        self.story.setMetadata('title', element.find('h1').get_text())
-
-        # quotev html is all about formatting without any content tagging
-        authdiv = soup.find('div', {'style':"font-size:0.7em;color:#aaa;margin-top:-10px;text-align:center;margin-left:45px;cursor:pointer"})
+        title = element.find('h1')
+        self.story.setMetadata('title', title.get_text())
+        
+        authdiv = title.next_sibling # soup.find('div', {'style':"font-size:0.7em;color:#aaa;margin-top:-10px;text-align:center;margin-left:45px;cursor:pointer"})
         if authdiv:
             #print("div:%s"%authdiv.find_all('a'))
             for a in authdiv.find_all('a'):
@@ -89,9 +91,9 @@ class QuotevComAdapter(BaseSiteAdapter):
         if len(elements) > 1:
             self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
 
-        metadiv = elements[0].parent
-        
-        if 'completed' in stripHTML(metadiv):
+        metadiv = elements[0].parent.parent
+        # print stripHTML(metadiv)
+        if u'· completed ·' in stripHTML(metadiv):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')        
@@ -102,16 +104,13 @@ class QuotevComAdapter(BaseSiteAdapter):
             parts = datum.split()
             if len(parts) < 2 or parts[1] not in self.getConfig('extra_valid_entries'):
                 continue
-            # Not a valid metadatum
-            # if not len(parts) == 2:
-            #     continue
 
             key, value = parts[1], parts[0]
             self.story.setMetadata(key, value.replace(',', '').replace('.', ''))
 
         favspans = soup.find('a',{'id':'fav_btn'}).find_all('span')
         if len(favspans) > 1:
-            self.story.setMetadata('favorites', stripHTML(favspans[1]).replace(',', ''))
+            self.story.setMetadata('favorites', stripHTML(favspans[-1]).replace(',', ''))
             
         commentspans = soup.find('a',{'id':'comment_btn'}).find_all('span')
         #print("commentspans:%s"%commentspans)
