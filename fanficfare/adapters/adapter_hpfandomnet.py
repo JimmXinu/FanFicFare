@@ -136,10 +136,11 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
 
         authsoup = self.make_soup(authdata)
 
-        reviewsa = authsoup.find('a', href=re.compile(r"reviews\.php\?sid="+self.story.getMetadata('storyId')+r".*"))
+        reviewsa = authsoup.find_all('a', href=re.compile(r"reviews\.php\?sid="+self.story.getMetadata('storyId')+r".*"))
         # <table><tr><td><p><b><a ...>
-        metablock = reviewsa.findParent("table")
+        metablock = reviewsa[0].findParent("table")
         #print("metablock:%s"%metablock)
+        self.story.setMetadata('reviews',stripHTML(reviewsa[-1]))
 
         ## Title
         titlea = metablock.find('a', href=re.compile("viewstory.php"))
@@ -148,6 +149,7 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
             raise exceptions.FailedToDownload("Story URL (%s) not found on author's page, can't use chapter URLs"%url)
         self.story.setMetadata('title',stripHTML(titlea))
 
+        total_reads = 0
         # Find the chapters: !!! hpfandom.net differs from every other
         # eFiction site--the sid on viewstory for chapters is
         # *different* for each chapter
@@ -156,9 +158,15 @@ class HPFandomNetAdapterAdapter(BaseSiteAdapter): # XXX
             # just in case there's tags, like <i> in chapter titles.
             #print("====chapter===%s"%m.group(1))
             self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/eff/'+m.group(1)))
-
+            try:
+                total_reads += int(stripHTML((chapter.find_parent('tr').find_all('td')[-1])))
+            except:
+                pass # don't care
         if len(self.chapterUrls) == 0:
             self.chapterUrls.append((stripHTML(self.story.getMetadata('title')),url))
+
+        if total_reads > 0:
+            self.story.setMetadata('reads',total_reads)
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
