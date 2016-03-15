@@ -382,7 +382,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             while nextEl is not None and not (\
                         type(nextEl) is bs.Tag \
                         and nextEl.name == "span" \
-                        and 'label' in nextEl.get('class',[]) \ # for spans without class
+                        and 'label' in nextEl.get('class',[]) \
                         ):
                 ## must string copy nextEl or nextEl will change trees
                 if (type(nextEl) is bs.Tag):
