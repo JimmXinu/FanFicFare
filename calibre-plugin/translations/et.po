@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-03-11 11:48+Central Standard Time\n"
-"PO-Revision-Date: 2016-03-12 09:16+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2016-03-16 23:23+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -155,7 +155,7 @@ msgstr ""
 
 #: config.py:431
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr "Vaikimisi Uuenda EPUBi kaant EPUBI uuendamisel?"
+msgstr "Vaikimisi Uuenda EPUBi kaant EPUBi uuendamisel?"
 
 #: config.py:432
 msgid ""
@@ -461,7 +461,7 @@ msgstr ""
 
 #: config.py:672
 msgid "personal.ini"
-msgstr ""
+msgstr "personal.ini"
 
 #: config.py:679 config.py:783 config.py:784
 msgid "Edit personal.ini"
@@ -475,17 +475,17 @@ msgstr "FanFicFare toetab nüüd faili personal.ini muutmise aknas otsimist, vä
 
 #: config.py:692
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "Näita faili personal.ini \"turvalist versiooni\""
 
 #: config.py:697 config.py:774
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr ""
+msgstr "Näita oma faili personal.ini, millest on kasutajanimed ja paroolid eemaldatud. Oma personal.ini-faili turvaliseks teistega jagamiseks."
 
 #: config.py:703
 msgid "defaults.ini"
-msgstr ""
+msgstr "defaults.ini"
 
 #: config.py:708
 msgid ""
@@ -499,7 +499,7 @@ msgstr "Näita vaikesätteid"
 
 #: config.py:720
 msgid "Calibre Columns"
-msgstr ""
+msgstr "Calibre veerud"
 
 #: config.py:727
 msgid ""
@@ -537,7 +537,7 @@ msgstr "Plugina vaikesätted (%s) (Kirjutuskaitstud)"
 
 #: config.py:773
 msgid "View 'Safe' personal.ini"
-msgstr ""
+msgstr "Näita faili personal.ini 'turvalist versiooni'"
 
 #: config.py:807
 msgid "Calibre Column Entry Names"
