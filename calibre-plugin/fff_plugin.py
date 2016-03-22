@@ -1695,14 +1695,14 @@ class FanFicFarePlugin(InterfaceAction):
                 if 'status' in book:
                     status = book['status']
                 else:
-                    status = 'Good'
+                    status = _('Good')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             for book in bad_list:
                 if 'status' in book:
                     status = book['status']
                 else:
-                    status = 'Bad'
+                    status = _('Bad')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             htmllog = htmllog + '</table></body></html>'
@@ -2231,7 +2231,7 @@ class FanFicFarePlugin(InterfaceAction):
             book = self.convert_url_to_book(url)
             if book['url'] in uniqueurls:
                 book['good'] = False
-                book['comment'] = "Same story already included."
+                book['comment'] = _("Same story already included.")
             uniqueurls.add(book['url'])
             book['listorder']=i # BG d/l jobs don't come back in order.
                                 # Didn't matter until anthologies & 'marked' successes
