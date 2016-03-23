@@ -220,7 +220,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     # updated does have time, use full timestamps.
                     if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
                             (lastupdated.time() != time.min and fileupdated > lastupdated):
-                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png',showerror=False)
 
                 
                 logger.info("write to %s"%outfile)
@@ -259,7 +259,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                             book['outfile'] = book['epub_for_update'] # for anthology merge ops.
                             return book
                         else: # not merge,
-                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
+                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
                     elif chaptercount > urlchaptercount:
                         raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                     elif chaptercount == 0:
@@ -310,6 +310,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             
         except NotGoingToDownload as d:
             book['good']=False
+            book['showerror']=d.showerror
             book['comment']=unicode(d)
             book['icon'] = d.icon
     

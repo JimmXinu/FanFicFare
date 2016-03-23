@@ -158,9 +158,10 @@ class RejectUrlEntry:
         return retval
 
 class NotGoingToDownload(Exception):
-    def __init__(self,error,icon='dialog_error.png'):
+    def __init__(self,error,icon='dialog_error.png',showerror=True):
         self.error=error
         self.icon=icon
+        self.showerror=showerror
 
     def __str__(self):
         return self.error
@@ -639,6 +640,7 @@ class LoopProgressDialog(QProgressDialog):
 
         except NotGoingToDownload as d:
             book['good']=False
+            book['showerror']=d.showerror
             book['comment']=unicode(d)
             book['icon'] = d.icon
 

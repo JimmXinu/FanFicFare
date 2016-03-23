@@ -1318,7 +1318,7 @@ class FanFicFarePlugin(InterfaceAction):
                         urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
-                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
+                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
                         elif chaptercount > urlchaptercount:
                             raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
@@ -1339,7 +1339,7 @@ class FanFicFarePlugin(InterfaceAction):
                         # updated does have time, use full timestamps.
                         if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
                                 (lastupdated.time() != time.min and fileupdated > lastupdated):
-                            raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+                            raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png',showerror=False)
 
                 # For update, provide a tmp file copy of the existing epub so
                 # it can't change underneath us.  Now also overwrite for logpage preserve.
@@ -1512,7 +1512,7 @@ class FanFicFarePlugin(InterfaceAction):
         custom_columns = self.gui.library_view.model().custom_columns
         if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             label = custom_columns[prefs['errorcol']]['label']
-            if not book['good']:
+            if not book['good'] and (book['showerror'] or prefs['save_all_errors']):
                 logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
                 self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True) # book['comment']
             else:
@@ -1795,7 +1795,7 @@ class FanFicFarePlugin(InterfaceAction):
                                status_prefix=_("Updated"))
 
     def update_error_column_loop(self,book,db=None,label=None):
-        if book['calibre_id'] and label:
+        if book['calibre_id'] and label and (book['showerror'] or prefs['save_all_errors']):
             logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
             self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True)
 
@@ -2212,6 +2212,10 @@ class FanFicFarePlugin(InterfaceAction):
         book['comments'] = '' # note this is the book comments.
 
         book['good'] = True
+        book['showerror'] = True # False when NotGoingToDownload is
+                                 # not-overwrite / not-update / skip
+                                 # -- what some would consider 'not an
+                                 # error'
         book['calibre_id'] = None
         book['begin'] = None
         book['end'] = None
