@@ -11,9 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-03-11 11:48+Central Standard Time\n"
-"PO-Revision-Date: 2016-03-12 12:43+0000\n"
-"Last-Translator: Ptitprince <leporello1791@gmail.com>\n"
+"POT-Creation-Date: 2016-03-21 20:15+Central Daylight Time\n"
+"PO-Revision-Date: 2016-03-22 08:15+0000\n"
+"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1885,27 +1885,27 @@ msgstr "Mise à jour déclinée par l'utilisateur en raison d'une URL(%s) de ré
 msgid "Different URL"
 msgstr "URL différente"
 
-#: fff_plugin.py:1305
+#: fff_plugin.py:1305 jobs.py:198
 msgid "Metadata collected."
 msgstr "Métadonnées collectées"
 
-#: fff_plugin.py:1321 jobs.py:256
+#: fff_plugin.py:1321 jobs.py:262
 msgid "Already contains %d chapters."
 msgstr "Contient déjà des chapitres %d."
 
-#: fff_plugin.py:1323 jobs.py:258
+#: fff_plugin.py:1323 jobs.py:264
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "L'ePub existant contient des chapitres %d, le site web a seulement %d. Utiliser Ecraser pour forcer la mise à jour."
 
-#: fff_plugin.py:1325 jobs.py:260
+#: fff_plugin.py:1325 jobs.py:266
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare ne reconnait pas les chapitres dans l'ePub existant, l'ePub est probablement d'une source différente. Utiliser Ecraser pour forcer la mise à jour."
 
-#: fff_plugin.py:1342 jobs.py:217
+#: fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
 msgstr "Ne pas écraser, le site web n'est pas plus récent."
 
@@ -1921,7 +1921,7 @@ msgstr "Voir le journal pour les détails."
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr "Procéder à la mise à jour de votre bibliothèque (Erreur de Colonne, si configuré) ?"
 
-#: fff_plugin.py:1469 fff_plugin.py:1671
+#: fff_plugin.py:1469 fff_plugin.py:1671 fff_plugin.py:1705
 msgid "Bad"
 msgstr "Mauvais(e)"
 
@@ -1993,7 +1993,7 @@ msgstr "Cependant, s'il y a une version plus ancienne, celle-ci sera quand même
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Procéder à la mise à jour de cette anthologie et de votre librairie ?"
 
-#: fff_plugin.py:1669
+#: fff_plugin.py:1669 fff_plugin.py:1698
 msgid "Good"
 msgstr "Bon"
 
@@ -2037,7 +2037,7 @@ msgstr "Mettre à jour calibre depuis de MAUVAIS récits FanFiction"
 msgid "Adding format to book failed for some reason..."
 msgstr "Le format ajouté au livre a échoué pour une raison quelconque..."
 
-#: fff_plugin.py:1823
+#: fff_plugin.py:1823 jobs.py:320
 msgid "Error"
 msgstr "Erreur"
 
@@ -2064,6 +2064,10 @@ msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Vous avec configuré FanFicFare pour mette à jour automatiquement les Listes de Lecture \"Envoyé vers le dispositif\", mais vous n'avez paramétré aucune liste ?"
+
+#: fff_plugin.py:2234
+msgid "Same story already included."
+msgstr ""
 
 #: fff_plugin.py:2294
 msgid "No story URL found."
@@ -2097,30 +2101,38 @@ msgstr "Anthologie"
 msgid "(was set, removed for security)"
 msgstr "(a été paramétré, retiré par sécurité)"
 
-#: jobs.py:69
+#: jobs.py:75
 msgid "Downloading FanFiction Stories"
 msgstr "Téléchargement de Récits FanFiction"
 
-#: jobs.py:97
+#: jobs.py:91
+msgid "%d of %d stories finished downloading"
+msgstr ""
+
+#: jobs.py:103
 msgid "Download Results:"
 msgstr "Résultat du téléchargement :"
 
-#: jobs.py:99
+#: jobs.py:105
 msgid "Successful:"
 msgstr "Réussi :"
 
-#: jobs.py:100
+#: jobs.py:106
 msgid "Unsuccessful:"
 msgstr "Échoué :"
 
-#: jobs.py:125
+#: jobs.py:131
 msgid "Download started..."
 msgstr "Téléchargement démarré..."
 
-#: jobs.py:249
+#: jobs.py:230
+msgid "Download %s completed, %s chapters."
+msgstr ""
+
+#: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Contient déjà des chapitres %d. Réutilisez tel quel."
 
-#: jobs.py:272
+#: jobs.py:278
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr "Mise à jour %s terminée, ajouté %s chapitres pour %s au total."

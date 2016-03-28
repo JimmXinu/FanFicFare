@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-03-11 11:48+Central Standard Time\n"
-"PO-Revision-Date: 2016-03-12 09:16+0000\n"
+"POT-Creation-Date: 2016-03-21 20:15+Central Daylight Time\n"
+"PO-Revision-Date: 2016-03-22 08:15+0000\n"
 "Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/calibre/calibre-plugins/language/nb/)\n"
 "MIME-Version: 1.0\n"
@@ -1881,27 +1881,27 @@ msgstr "Oppdatering nektet av bruker på grunn av forskjellig historieurl (%s)"
 msgid "Different URL"
 msgstr "Forskjellig URL"
 
-#: fff_plugin.py:1305
+#: fff_plugin.py:1305 jobs.py:198
 msgid "Metadata collected."
 msgstr "Samlet metadata."
 
-#: fff_plugin.py:1321 jobs.py:256
+#: fff_plugin.py:1321 jobs.py:262
 msgid "Already contains %d chapters."
 msgstr "Inneholder allerede %d kapitler."
 
-#: fff_plugin.py:1323 jobs.py:258
+#: fff_plugin.py:1323 jobs.py:264
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "Eksisterende epub inneholder %d kapitler, nettside har bare %d. Bruk Overskriv for å tvinge gjennom oppdatering."
 
-#: fff_plugin.py:1325 jobs.py:260
+#: fff_plugin.py:1325 jobs.py:266
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare kjenner ikke igjen kapitlene i eksisterende epub. Epuben er sansynligvis fra en annen kilde. Bruk overskriving for å tvinge gjennom en oppdatering."
 
-#: fff_plugin.py:1342 jobs.py:217
+#: fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
 msgstr "Overskriver ikke. Nettsiden er ikke nyere."
 
@@ -1917,7 +1917,7 @@ msgstr "Se loggen for flere detaljer."
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr "Fortsett og oppdatere biblioteket (feilkolonne hvis denne er konfigurert)?"
 
-#: fff_plugin.py:1469 fff_plugin.py:1671
+#: fff_plugin.py:1469 fff_plugin.py:1671 fff_plugin.py:1705
 msgid "Bad"
 msgstr "Dårlig"
 
@@ -1989,7 +1989,7 @@ msgstr "Hvis det finnes en eldre versjon inkluderes denne uansett."
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Fortsett å oppdatere antologigen og biblioteket ditt?"
 
-#: fff_plugin.py:1669
+#: fff_plugin.py:1669 fff_plugin.py:1698
 msgid "Good"
 msgstr "Bra"
 
@@ -2033,7 +2033,7 @@ msgstr "Oppdater calibre for BAD fanfictionhistorier"
 msgid "Adding format to book failed for some reason..."
 msgstr "Legger til format til bok som feilet av en eller annen grunn..."
 
-#: fff_plugin.py:1823
+#: fff_plugin.py:1823 jobs.py:320
 msgid "Error"
 msgstr "Feil"
 
@@ -2060,6 +2060,10 @@ msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Du har satt opp FanFicFare til å automatisk oppdatere \"Send til enhet\" leselisten, men du har ingen satt liste."
+
+#: fff_plugin.py:2234
+msgid "Same story already included."
+msgstr ""
 
 #: fff_plugin.py:2294
 msgid "No story URL found."
@@ -2093,30 +2097,38 @@ msgstr "Antologi"
 msgid "(was set, removed for security)"
 msgstr "(ble satt, fjernet av sikkerhetsårsaker)"
 
-#: jobs.py:69
+#: jobs.py:75
 msgid "Downloading FanFiction Stories"
 msgstr "Laster ned fanfictionhistorier"
 
-#: jobs.py:97
+#: jobs.py:91
+msgid "%d of %d stories finished downloading"
+msgstr ""
+
+#: jobs.py:103
 msgid "Download Results:"
 msgstr "Nedlastede resultater:"
 
-#: jobs.py:99
+#: jobs.py:105
 msgid "Successful:"
 msgstr "Vellykket:"
 
-#: jobs.py:100
+#: jobs.py:106
 msgid "Unsuccessful:"
 msgstr "Mislykket:"
 
-#: jobs.py:125
+#: jobs.py:131
 msgid "Download started..."
 msgstr "Nedlasting har startet..."
 
-#: jobs.py:249
+#: jobs.py:230
+msgid "Download %s completed, %s chapters."
+msgstr ""
+
+#: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Inneholder allerede %d kapitler. Gjenbruk uten endringer."
 
-#: jobs.py:272
+#: jobs.py:278
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr "Oppdatering %s gjennomført, la til %s kapitler av %s totalt."

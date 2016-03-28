@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-03-11 11:48+Central Standard Time\n"
-"PO-Revision-Date: 2016-03-16 23:23+0000\n"
-"Last-Translator: Maidur\n"
+"POT-Creation-Date: 2016-03-21 20:15+Central Daylight Time\n"
+"PO-Revision-Date: 2016-03-22 08:15+0000\n"
+"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1880,27 +1880,27 @@ msgstr ""
 msgid "Different URL"
 msgstr "Erinev URL"
 
-#: fff_plugin.py:1305
+#: fff_plugin.py:1305 jobs.py:198
 msgid "Metadata collected."
 msgstr "Metaandmed kogutud."
 
-#: fff_plugin.py:1321 jobs.py:256
+#: fff_plugin.py:1321 jobs.py:262
 msgid "Already contains %d chapters."
 msgstr "Juba sisaldab %d peatükki."
 
-#: fff_plugin.py:1323 jobs.py:258
+#: fff_plugin.py:1323 jobs.py:264
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "Olemasolev epub sisaldab %d peatükki, veebisaidil on neid ainult %d. Uuendamise sundimiseks kasuta ülekirjutamist."
 
-#: fff_plugin.py:1325 jobs.py:260
+#: fff_plugin.py:1325 jobs.py:266
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare ei leia olemasolevast epubist peatükke, epub on arvatavasti pärit teisest allikast. Uuendamise sundimiseks kasuta ülekirjutamist."
 
-#: fff_plugin.py:1342 jobs.py:217
+#: fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
 msgstr "Ei kirjutata üle, veebisait pole uuem."
 
@@ -1916,7 +1916,7 @@ msgstr "Üksikasjade nägemiseks vaata logi."
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr "Kas jätkata kogu uuendamisega(vea veerg, kui seadistatud)?"
 
-#: fff_plugin.py:1469 fff_plugin.py:1671
+#: fff_plugin.py:1469 fff_plugin.py:1671 fff_plugin.py:1705
 msgid "Bad"
 msgstr "Halb"
 
@@ -1988,7 +1988,7 @@ msgstr "Kuid kui on olemas vanem versioon, siis see ikka kaasatakse."
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Kas jätkata selle antoloogia ja sinu kogu uuendamisega?"
 
-#: fff_plugin.py:1669
+#: fff_plugin.py:1669 fff_plugin.py:1698
 msgid "Good"
 msgstr "Hea"
 
@@ -2032,7 +2032,7 @@ msgstr ""
 msgid "Adding format to book failed for some reason..."
 msgstr "Raamatusse formaadi lisamine miskipärast ebaõnnestus..."
 
-#: fff_plugin.py:1823
+#: fff_plugin.py:1823 jobs.py:320
 msgid "Error"
 msgstr "Viga"
 
@@ -2058,6 +2058,10 @@ msgstr ""
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
+msgstr ""
+
+#: fff_plugin.py:2234
+msgid "Same story already included."
 msgstr ""
 
 #: fff_plugin.py:2294
@@ -2092,30 +2096,38 @@ msgstr " Antoloogia"
 msgid "(was set, removed for security)"
 msgstr "(oli määratud, turvalisuse huvides eemaldati)"
 
-#: jobs.py:69
+#: jobs.py:75
 msgid "Downloading FanFiction Stories"
 msgstr "FanFiction-juttude allalaadimine"
 
-#: jobs.py:97
+#: jobs.py:91
+msgid "%d of %d stories finished downloading"
+msgstr ""
+
+#: jobs.py:103
 msgid "Download Results:"
 msgstr "Allalaadimise tulemused:"
 
-#: jobs.py:99
+#: jobs.py:105
 msgid "Successful:"
 msgstr "Edukas:"
 
-#: jobs.py:100
+#: jobs.py:106
 msgid "Unsuccessful:"
 msgstr "Edutu:"
 
-#: jobs.py:125
+#: jobs.py:131
 msgid "Download started..."
 msgstr "Alustati allalaadimist..."
 
-#: jobs.py:249
+#: jobs.py:230
+msgid "Download %s completed, %s chapters."
+msgstr ""
+
+#: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Juba sisaldab %d peatükki.  Taaskasutatakse nagu on."
 
-#: jobs.py:272
+#: jobs.py:278
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr ""
