@@ -571,11 +571,14 @@ class BaseSiteAdapter(Configurable):
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
-            for img in soup.findAll('img'):
-                # some pre-existing epubs have img tags that had src stripped off.
-                if img.has_attr('src'):
-                    (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
-                                                                      coverexclusion=self.getConfig('cover_exclusion_regexp'))
+            try:
+                for img in soup.find_all('img'):
+                    # some pre-existing epubs have img tags that had src stripped off.
+                    if img.has_attr('src'):
+                        (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
+                                                                          coverexclusion=self.getConfig('cover_exclusion_regexp'))
+            except AttributeError as ae:
+                logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping images.")
 
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
