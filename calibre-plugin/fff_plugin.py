@@ -1329,7 +1329,7 @@ class FanFicFarePlugin(InterfaceAction):
                     logger.debug("OVERWRITE file: "+db.format_abspath(book_id, formmapping[fileform], index_is_id=True))
                     fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8])
                     logger.debug("OVERWRITE file updated: %s"%fileupdated)
-                    book['updated']=fileupdated
+                    book['fileupdated']=fileupdated
                     if not bgmeta:
                         # check make sure incoming is newer.
                         lastupdated=story.getMetadataRaw('dateUpdated')
