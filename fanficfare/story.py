@@ -1161,5 +1161,5 @@ def unique_list(seq):
     try:
         return [x for x in seq if not (x in seen or seen_add(x))]
     except:
-        print("unique_list exception seq:%s"%seq)
+        logger.debug("unique_list exception seq:%s"%seq)
         raise
