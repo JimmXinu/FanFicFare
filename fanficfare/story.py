@@ -439,8 +439,8 @@ class Story(Configurable):
 
     def prepare_replacements(self):
         if not self.replacements_prepped and not self.is_lightweight():
-            logger.debug("prepare_replacements")
-            logger.debug("sections:%s"%self.configuration.sectionslist)
+            # logger.debug("prepare_replacements")
+            # logger.debug("sections:%s"%self.configuration.sectionslist)
             
             ## Look for config parameter, split and add each to metadata field.
             for (config,metadata) in [("extracategories","category"),
