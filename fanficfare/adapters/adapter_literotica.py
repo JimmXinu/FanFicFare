@@ -32,13 +32,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
+        logger.debug("LiteroticaComAdapter:__init__ - url='%s'" % url)
 
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
+                            # Most sites that claim to be
+                            # iso-8859-1 (and some that claim to be
+                            # utf8) are really windows-1252.
 
+        # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','litero')
 
         # normalize to first chapter.  Not sure if they ever have more than 2 digits.
@@ -61,7 +63,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = '%m/%d/%y'
+        self.dateformat = "%m/%d/%y"
 
     @staticmethod
     def getSiteDomain():
@@ -95,6 +97,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
 
+    def getCategories(self, soup):
+        if self.getConfig("use_meta_keywords"):
+            categories = soup.find("meta", {"name":"keywords"})['content'].split(', ')
+            categories = [c for c in categories if not self.story.getMetadata('title') in c]
+            if self.story.getMetadata('author') in categories:
+                categories.remove(self.story.getMetadata('author'))
+            logger.debug("Meta = %s" % categories)
+            for category in categories:
+    #            logger.debug("\tCategory=%s" % category)
+#                 self.story.addToList('category', category.title())
+                self.story.addToList('eroticatags', category.title())
+
     def extractChapterUrlsAndMetadata(self):
         """
         NOTE: Some stories can have versions,
@@ -118,6 +132,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         logger.debug("Chapter/Story URL: <%s> " % self.url)
+
         try:
             data1 = self._fetchUrl(self.url)
             soup1 = self.make_soup(data1)
@@ -144,6 +159,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             soupAuth = self.make_soup(dataAuth)
             #strip comments from soup
             [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
+#            logger.debug(soupAuth)
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(authorurl)
@@ -154,6 +170,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site has started using //domain.name/asdf urls remove https?: from front
         ## site has started putting https back on again.
         storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:])))
+#         storyLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
+
+        if storyLink is not None:
+            # pull the published date from the author page
+            # default values from single link.  Updated below if multiple chapter.
+            logger.debug("Found story on the author page.")
+            date = storyLink.parent.parent.findAll('td')[-1].text
+            self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
+            self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
 
         if storyLink is not None:
             urlTr = storyLink.parent.parent
@@ -165,9 +190,14 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
 
         if isSingleStory:
-            self.story.setMetadata('title', storyLink.text)
-            self.setDescription(authorurl,urlTr.findAll("td")[1].text)
-            self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
+#             self.chapterUrls = [(soup1.h1.string, self.url)]
+#             self.story.setMetadata('title', soup1.h1.string)
+
+            self.story.setMetadata('title', storyLink.text.strip('/'))
+            logger.debug('Title: "%s"' % storyLink.text.strip('/'))
+            self.story.setMetadata('description', urlTr.findAll("td")[1].text)
+            self.story.addToList('category', urlTr.findAll("td")[2].text)
+#             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
             date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
@@ -175,13 +205,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             averrating = stripHTML(storyLink.parent)
             ## title (0.00)
             averrating = averrating[averrating.rfind('(')+1:averrating.rfind(')')]
-            self.story.setMetadata('averrating',averrating)
+            try:
+                self.story.setMetadata('averrating', float(averrating))
+            except:
+                pass
+#             self.story.setMetadata('averrating',averrating)
+        # parse out the list of chapters
         else:
             seriesTr = urlTr.previousSibling
             while 'ser-ttl' not in seriesTr['class']:
                 seriesTr = seriesTr.previousSibling
             m = re.match("^(?P<title>.*?):\s(?P<numChapters>\d+)\sPart\sSeries$", seriesTr.find("strong").text)
             self.story.setMetadata('title', m.group('title'))
+            seriesTitle = m.group('title')
 
             ## Walk the chapters
             chapterTr = seriesTr.nextSibling
@@ -189,88 +225,149 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             dates = []
             descriptions = []
             ratings = []
+            chapters = []
             while chapterTr is not None and 'sl' in chapterTr['class']:
-                descriptions.append("%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1])) )
+                description = "%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1]))
+                description = stripHTML(chapterTr.findAll("td")[1])
                 chapterLink = chapterTr.find("td", "fc").find("a")
-                if not chapterLink["href"].startswith('http'):
-                    chapterLink["href"] = "http:" + chapterLink["href"]
-                self.chapterUrls.append((chapterLink.text, chapterLink["href"]))
                 self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
-                dates.append(makeDate(chapterTr.findAll('td')[-1].text, self.dateformat))
+                pub_date = makeDate(chapterTr.findAll('td')[-1].text, self.dateformat)
+                dates.append(pub_date)
                 chapterTr = chapterTr.nextSibling
+                
+                chapter_title = chapterLink.text
+                if self.getConfig("clean_chapter_titles"):
+                    logger.debug('\tChapter Name: "%s"' % chapterLink.string)
+                    logger.debug('\tChapter Name: "%s"' % chapterLink.text)
+                    if chapterLink.text.lower().startswith(seriesTitle.lower()):
+                        chapter = chapterLink.text[len(seriesTitle):].strip()
+                        logger.debug('\tChapter: "%s"' % chapter)
+                        if chapter == '':
+                            chapter_title = 'Chapter %d' % (len(self.chapterUrls) + 1)
+                        else:
+                            separater_char = chapter[0]
+                            logger.debug('\tseparater_char: "%s"' % separater_char)
+                            chapter = chapter[1:].strip() if separater_char in [":", "-"] else chapter
+                            logger.debug('\tChapter: "%s"' % chapter)
+                            if chapter.lower().startswith('ch.'):
+                                chapter = chapter[len('ch.'):]
+                                try:
+                                    chapter_title = 'Chapter %d' % int(chapter)
+                                except:
+                                    chapter_title = 'Chapter %s' % chapter
+                            elif chapter.lower().startswith('pt.'):
+                                chapter = chapter[len('pt.'):]
+                                try:
+                                    chapter_title = 'Part %d' % int(chapter)
+                                except:
+                                    chapter_title = 'Part %s' % chapter
+                            elif separater_char in [":", "-"]:
+                                chapter_title = chapter
+    
+    #                 if chapter_title == '':
+    #                     chapter_title = chapterLink.string
+
+                # pages include full URLs.
+                chapurl = chapterLink['href']
+                if chapurl.startswith('//'):
+                    chapurl = self.parsedUrl.scheme + ':' + chapurl
+                logger.debug("Chapter URL: " + chapurl)
+                logger.debug("Chapter Title: " + chapter_title)
+                logger.debug("Chapter description: " + description)
+                chapters.append((chapter_title, chapurl, description, pub_date))
+#                 self.chapterUrls.append((chapter_title, chapurl))
                 numrating = stripHTML(chapterLink.parent)
                 ## title (0.00)
                 numrating = numrating[numrating.rfind('(')+1:numrating.rfind(')')]
-                ratings.append(float(numrating))
+                try:
+                    ratings.append(float(numrating))
+                except:
+                    pass
 
-            ## Set description to joint chapter descriptions
-            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
-
+            chapters = sorted(chapters, key=lambda chapter: chapter[3])
+            for i, chapter in enumerate(chapters):
+                self.chapterUrls.append((chapter[0], chapter[1]))
+                descriptions.append("%d. %s" % (i + 1, chapter[2]))
             ## Set the oldest date as publication date, the newest as update date
             dates.sort()
             self.story.setMetadata('datePublished', dates[0])
             self.story.setMetadata('dateUpdated', dates[-1])
+            self.story.setMetadata('datePublished', chapters[0][3])
+            self.story.setMetadata('dateUpdated', chapters[-1][3])
+            ## Set description to joint chapter descriptions
+            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
-            # normalize on first chapter URL.
-            self._setURL(self.chapterUrls[0][1])
+            if len(ratings) > 0:
+                self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
 
-            self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
+        # normalize on first chapter URL.
+        self._setURL(self.chapterUrls[0][1])
+
+        # reset storyId to first chapter.
+        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
-        # set storyId to 'title-author' to avoid duplicates
-        # self.story.setMetadata('storyId',
-        #     re.sub("[^a-z0-9]", "", self.story.getMetadata('title').lower())
-        #     + "-"
-        #     + re.sub("[^a-z0-9]", "", self.story.getMetadata('author').lower()))
+        self.story.setMetadata('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
+        self.getCategories(soup1)
+#         self.story.setMetadata('description', soup1.find('meta', {'name': 'description'})['content'])
 
         return
 
+
+    def getPageText(self, raw_page, url):
+        logger.debug('Getting page text')
+#         logger.debug(soup)
+        raw_page = raw_page.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
+#         logger.debug("\tChapter text: %s" % raw_page)
+        page_soup = self.make_soup(raw_page)
+        [comment.extract() for comment in page_soup.findAll(text=lambda text:isinstance(text, Comment))]
+        story2 = page_soup.find('div', 'b-story-body-x').div
+#         logger.debug("getPageText- name div div...")
+#         logger.debug(soup)
+#         story2.append(page_soup.new_tag('br'))
+        div = self.utf8FromSoup(url, story2)
+#        logger.debug(div)
+
+        fullhtml = str(div)
+#         logger.debug(fullhtml)
+        fullhtml = re.sub(r'<br />\s*<br />', r'</p><p>', fullhtml)
+        fullhtml = re.sub(r'^<div>', r'', fullhtml)
+        fullhtml = re.sub(r'</div>$', r'', fullhtml)
+        fullhtml = re.sub(r'(<p><br/></p>\s+)+$', r'', fullhtml)
+#         logger.debug(fullhtml)
+        return fullhtml
+
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from <%s>' % url)
-        data1 = self._fetchUrl(url)
-        # brute force approach to replace the wrapping <p> tag.  If
-        # done by changing tag name, it causes problems with nested
-        # <p> tags.
-        data1 = data1.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
-        soup1 = self.make_soup(data1)
 
-        #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+        logger.debug('Getting chapter text from: %s' % url)
 
-        # get story text
-        story1 = soup1.find('div', 'b-story-body-x').div
-        #print("story1:%s"%story1)
-        # story1.name='div'
-        story1.append(soup1.new_tag('br'))
-        storytext = self.utf8FromSoup(url,story1)
+        raw_page = self._fetchUrl(url)
+        page_soup = self.make_soup(raw_page)
+        pages = page_soup.find('select', {'name' : 'page'})
+        page_nums = [page.text for page in pages.findAll('option')] if pages else 0
 
-        # find num pages
-        pgs = int(soup1.find("span", "b-pager-caption-t r-d45").string.split(' ')[0])
-        logger.debug("pages: "+unicode(pgs))
+        fullhtml = "" 
+        self.getCategories(page_soup)
+        if self.getConfig("description_in_chapter"):
+            chapter_description = page_soup.find("meta", {"name" : "description"})['content']
+            logger.debug("\tChapter description: %s" % chapter_description)
+            fullhtml += '<p><b>Description:</b> %s</p><hr />' % chapter_description
+        fullhtml += self.getPageText(raw_page, url)
+        if pages:
+            for page_no in xrange(2, len(page_nums) + 1):
+                page_url = url +  "?page=%s" % page_no
+                logger.debug("page_url= %s" % page_url)
+                raw_page = self._fetchUrl(page_url)
+                fullhtml += self.getPageText(raw_page, url)
+        
+#        fullhtml = self.utf8FromSoup(url, bs.BeautifulSoup(fullhtml))
+#        fullhtml = re.sub(r'^<div>', r'', fullhtml)
+#        fullhtml = re.sub(r'</div>$', r'', fullhtml)
+#        if None == div:
+#            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        # get all the pages
-        for i in xrange(2, pgs+1):
-            try:
-                logger.debug("fetching page "+unicode(i))
-                time.sleep(0.5)
-                data2 = self._fetchUrl(url, {'page': i})
-                # brute force approach to replace the wrapping <p> tag.  If
-                # done by changing tag name, it causes problems with nested
-                # <p> tags.
-                data2 = data2.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
-                soup2 = self.make_soup(data2)
-                [comment.extract() for comment in soup2.findAll(text=lambda text:isinstance(text, Comment))]
-                story2 = soup2.find('div', 'b-story-body-x').div
-                # story2.name='div'
-                story2.append(soup2.new_tag('br'))
-                storytext += self.utf8FromSoup(url,story2)
-            except urllib2.HTTPError, e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(url)
-                else:
-                    raise e
-        return storytext
+        return fullhtml
 
 
 def getClass():
