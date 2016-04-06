@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-02-14 10:17+Central Standard Time\n"
-"PO-Revision-Date: 2016-02-15 09:01+0000\n"
+"POT-Creation-Date: 2016-03-21 20:15+Central Daylight Time\n"
+"PO-Revision-Date: 2016-03-22 08:15+0000\n"
 "Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/calibre/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -461,136 +461,162 @@ msgid ""
 "for different sites."
 msgstr "Estes ajustes fornecem um controle mais detalhado sobre quais metadados serão exibidos dentro do ebook, bem como permitem que você ajuste %(isa)s e %(u)s/%(p)s para diferentes sites."
 
-#: config.py:670
+#: config.py:672
+msgid "personal.ini"
+msgstr ""
+
+#: config.py:679 config.py:783 config.py:784
+msgid "Edit personal.ini"
+msgstr "Editar personal.ini"
+
+#: config.py:684
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
 msgstr "FanFicFare agora inclui descoberta, código de cores, e verificação de erros para edição de personal.ini. Vermelho normalmente indica erros."
 
-#: config.py:689 config.py:730 config.py:731
-msgid "Edit personal.ini"
-msgstr "Editar personal.ini"
+#: config.py:692
+msgid "View \"Safe\" personal.ini"
+msgstr ""
 
-#: config.py:694
+#: config.py:697 config.py:774
 msgid ""
-"Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
-msgstr "Mudanças somente serão salvas se você clicar em 'OK' para deixar a FanFicFare Customizada."
+"View your personal.ini with usernames and passwords removed.  For safely "
+"sharing your personal.ini settings with others."
+msgstr ""
 
-#: config.py:698
-msgid "View Defaults"
-msgstr "Padrões de Visualização"
+#: config.py:703
+msgid "defaults.ini"
+msgstr ""
 
-#: config.py:699
+#: config.py:708
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
 msgstr "Visualiza todos os ajustes configuráveis do plugin\ne seus ajustes padrão."
 
-#: config.py:703
-msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
-msgstr "Passe Colunas Calibre para FanFicFare em Atualizar / Sobrescrever"
+#: config.py:709
+msgid "View Defaults"
+msgstr "Padrões de Visualização"
 
-#: config.py:704
+#: config.py:720
+msgid "Calibre Columns"
+msgstr ""
+
+#: config.py:727
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column namess."
 msgstr ""
 
-#: config.py:708
-msgid "Show Calibre Column Names"
-msgstr ""
+#: config.py:728
+msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
+msgstr "Passe Colunas Calibre para FanFicFare em Atualizar / Sobrescrever"
 
-#: config.py:709
+#: config.py:741
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
 msgstr ""
 
-#: config.py:720
+#: config.py:742
+msgid "Show Calibre Column Names"
+msgstr ""
+
+#: config.py:751
+msgid ""
+"Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
+msgstr "Mudanças somente serão salvas se você clicar em 'OK' para deixar a FanFicFare Customizada."
+
+#: config.py:761
 msgid "Plugin Defaults"
 msgstr "Padrões do Plugin"
 
-#: config.py:721
+#: config.py:762
 msgid "Plugin Defaults (%s) (Read-Only)"
 msgstr "Padrões do Plugin (%s) (Somente Leitura)"
 
-#: config.py:754
+#: config.py:773
+msgid "View 'Safe' personal.ini"
+msgstr ""
+
+#: config.py:807
 msgid "Calibre Column Entry Names"
 msgstr ""
 
-#: config.py:755
+#: config.py:808
 msgid "Label (entry_name)"
 msgstr ""
 
-#: config.py:775
+#: config.py:828
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
 msgstr "Estes ajustes permitem a integração com o Plugin %(rl)s. %(rl)s pode enviar automaticamente para os dispositivos e alterar colunas personalizadas. Você tem que criar e configurar as listas de %(rl)s para ser útil."
 
-#: config.py:780
+#: config.py:833
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
 msgstr "Adicionar histórias novas/atualizadas para Lista(s) de Leitura \"Enviar para o Dispositivo\"."
 
-#: config.py:781
+#: config.py:834
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
 msgstr "Adicionar automaticamente histórias novas/atualizadas para essas lista no plugin %(rl)s."
 
-#: config.py:786
+#: config.py:839
 msgid "\"Send to Device\" Reading Lists"
 msgstr "Lista(s) de Leitura \"Enviar para o Dispositivo\""
 
-#: config.py:787 config.py:790 config.py:804 config.py:807
+#: config.py:840 config.py:843 config.py:857 config.py:860
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
 msgstr "Quando ativo, histórias novas/atualizadas serão automaticamente adicionadas para essas listas."
 
-#: config.py:797
+#: config.py:850
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
 msgstr "Adicionar histórias novas/atualizadas para Lista(s) de Leitura \"Para Ler\"."
 
-#: config.py:798
+#: config.py:851
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
 msgstr "Adicionar automaticamente histórias novas/atualizadas para essas listas no plugin %(rl)s.\nTambém oferece opção de menu para remover histórias das listas \"Para Ler\"."
 
-#: config.py:803
+#: config.py:856
 msgid "\"To Read\" Reading Lists"
 msgstr "Listas de Leitura \"Para Ler\""
 
-#: config.py:814
+#: config.py:867
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
 msgstr "Adicionar histórias de volta à Lista(s) de Leitura \"Enviar para o Dispositivo\" quando marcado como \"Ler\"."
 
-#: config.py:815
+#: config.py:868
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
 msgstr "Opção de menu para remover listas \"Para Ler\" também irá adicionar histórias de volta à Lista(s) de Leitura \"Enviar para o Dispositivo\""
 
-#: config.py:819
+#: config.py:872
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
 msgstr ""
 
-#: config.py:820
+#: config.py:873
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
 msgstr ""
 
-#: config.py:848
+#: config.py:901
 msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
 msgstr ""
 
-#: config.py:856
+#: config.py:909
 msgid ""
 "Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
@@ -598,66 +624,66 @@ msgid ""
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
 msgstr ""
 
-#: config.py:861
+#: config.py:914
 msgid "Update Calibre Cover (from EPUB):"
 msgstr ""
 
-#: config.py:879
+#: config.py:932
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Defaults to 'Yes, Always' for backward compatibility and because "
 "%(gc)s(Plugin) will only run if configured for Default or site."
 msgstr ""
 
-#: config.py:883
+#: config.py:936
 msgid "Generate Calibre Cover:"
 msgstr ""
 
-#: config.py:910
+#: config.py:963
 msgid "Plugin %(gc)s"
 msgstr ""
 
-#: config.py:911
+#: config.py:964
 msgid "Use plugin to create covers.  Additional settings are below."
 msgstr ""
 
-#: config.py:918
+#: config.py:971
 msgid "Calibre Generate Cover"
 msgstr ""
 
-#: config.py:919
+#: config.py:972
 msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
 msgstr ""
 
-#: config.py:933
+#: config.py:986
 msgid "Generate Covers Only for New Books"
 msgstr ""
 
-#: config.py:934
+#: config.py:987
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "\\>Used for both Calibre and Plugin generated covers."
 msgstr ""
 
-#: config.py:940
+#: config.py:993
 msgid "Inject/update the cover inside EPUB"
 msgstr ""
 
-#: config.py:941
+#: config.py:994
 msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br \\>Used for both Calibre and Plugin "
 "generated covers."
 msgstr ""
 
-#: config.py:947
+#: config.py:1000
 msgid "%(gc)s(Plugin) Settings"
 msgstr ""
 
-#: config.py:955
+#: config.py:1008
 msgid ""
 "The %(gc)s plugin can create cover images for books using various metadata "
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
@@ -665,276 +691,276 @@ msgid ""
 " by site and/or one to use by Default."
 msgstr ""
 
-#: config.py:973 config.py:977 config.py:990
+#: config.py:1026 config.py:1030 config.py:1043
 msgid "Default"
 msgstr "Padrão"
 
-#: config.py:978
+#: config.py:1031
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
 msgstr ""
 
-#: config.py:981
+#: config.py:1034
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
 msgstr "Na atualização de metadados, execute %(gc)s com este ajuste para %(site)s de história."
 
-#: config.py:1004
+#: config.py:1057
 msgid "Allow %(gcset)s from %(pini)s to override"
 msgstr "Permitir %(gcset)s de %(pini)s para substituir"
 
-#: config.py:1005
+#: config.py:1058
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br \\>%(gcset)s "
 "is ignored when this is off."
 msgstr ""
 
-#: config.py:1043
+#: config.py:1096
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
 msgstr "Esses ajustes fornecem integração com o Plugin %(cp)s. %(cp)s pode atualizar automaticamente colunas personalizadas com a página, palavra e estatísticas de nível de leitura. Você primeiro tem que criar e configurar as colunas em %(cp)s."
 
-#: config.py:1048
+#: config.py:1101
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
 msgstr "Se qualquer uma das definições abaixo são marcadas, quando as histórias são adicionadas ou atualizadas, o Plugin %(cp)s será chamado para atualizar as estatísticas marcadas."
 
-#: config.py:1054
+#: config.py:1107
 msgid "Which column and algorithm to use are configured in %(cp)s."
 msgstr "Qual coluna e algoritmo será usado são configurados em %(cp)s."
 
-#: config.py:1064
+#: config.py:1117
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
 msgstr ""
 
-#: config.py:1069
+#: config.py:1122
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
 msgstr ""
 
-#: config.py:1105
+#: config.py:1158
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
 msgstr ""
 
-#: config.py:1110
+#: config.py:1163
 msgid "Keyboard shortcuts..."
 msgstr "Atalhos do teclado..."
 
-#: config.py:1111
+#: config.py:1164
 msgid "Edit the keyboard shortcuts associated with this plugin"
 msgstr "Edite os atalhos de teclado associados com este plugin"
 
-#: config.py:1115
+#: config.py:1168
 msgid "Reset disabled &confirmation dialogs"
 msgstr "Redefinir diálogos de &confirmação desativados"
 
-#: config.py:1116
+#: config.py:1169
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
 msgstr ""
 
-#: config.py:1120
+#: config.py:1173
 msgid "&View library preferences..."
 msgstr "&Visualizar preferências da biblioteca..."
 
-#: config.py:1121
+#: config.py:1174
 msgid "View data stored in the library database for this plugin"
 msgstr "Visualizar dados armazenados no banco de dados da biblioteca para este plugin"
 
-#: config.py:1132
+#: config.py:1185
 msgid "Done"
 msgstr "Ok"
 
-#: config.py:1133
+#: config.py:1186
 msgid "Confirmation dialogs have all been reset"
 msgstr "Os diálogos de confirmação foram redefinidos"
 
-#: config.py:1181
+#: config.py:1234
 msgid "Category"
 msgstr "Categoria"
 
-#: config.py:1182
+#: config.py:1235
 msgid "Genre"
 msgstr "Gênero"
 
-#: config.py:1183
+#: config.py:1236
 msgid "Language"
 msgstr "Idioma"
 
-#: config.py:1184 fff_plugin.py:1446 fff_plugin.py:1645 fff_plugin.py:1675
+#: config.py:1237 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Status"
 msgstr "Estado"
 
-#: config.py:1185
+#: config.py:1238
 msgid "Status:%(cmplt)s"
 msgstr "Estado:%(cmplt)s"
 
-#: config.py:1186
+#: config.py:1239
 msgid "Status:%(inprog)s"
 msgstr "Estado:%(inprog)s"
 
-#: config.py:1187 config.py:1335
+#: config.py:1240 config.py:1388
 msgid "Series"
 msgstr "Séries"
 
-#: config.py:1188
+#: config.py:1241
 msgid "Characters"
 msgstr "Caracteres"
 
-#: config.py:1189
+#: config.py:1242
 msgid "Relationships"
 msgstr "Relacionamentos"
 
-#: config.py:1190
+#: config.py:1243
 msgid "Published"
 msgstr "Publicado"
 
-#: config.py:1191 fff_plugin.py:1758 fff_plugin.py:1777
+#: config.py:1244 fff_plugin.py:1776 fff_plugin.py:1795
 msgid "Updated"
 msgstr "Atualizado"
 
-#: config.py:1192
+#: config.py:1245
 msgid "Created"
 msgstr "Criado"
 
-#: config.py:1193
+#: config.py:1246
 msgid "Rating"
 msgstr "Classificação"
 
-#: config.py:1194
+#: config.py:1247
 msgid "Warnings"
 msgstr "Avisos"
 
-#: config.py:1195
+#: config.py:1248
 msgid "Chapters"
 msgstr "Capítulos"
 
-#: config.py:1196
+#: config.py:1249
 msgid "Words"
 msgstr "Palavras"
 
-#: config.py:1197
+#: config.py:1250
 msgid "Site"
 msgstr "Site"
 
-#: config.py:1198
+#: config.py:1251
 msgid "Story ID"
 msgstr "ID da História"
 
-#: config.py:1199
+#: config.py:1252
 msgid "Author ID"
 msgstr "ID do Autor"
 
-#: config.py:1200
+#: config.py:1253
 msgid "Extra Tags"
 msgstr "Etiquetas Extras"
 
-#: config.py:1201 config.py:1327 dialogs.py:891 dialogs.py:987
-#: fff_plugin.py:1446 fff_plugin.py:1645 fff_plugin.py:1675
+#: config.py:1254 config.py:1380 dialogs.py:891 dialogs.py:987
+#: fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Title"
 msgstr "Título"
 
-#: config.py:1202
+#: config.py:1255
 msgid "Story URL"
 msgstr "URL da História"
 
-#: config.py:1203
+#: config.py:1256
 msgid "Description"
 msgstr "Descrição"
 
-#: config.py:1204 dialogs.py:891 dialogs.py:987 fff_plugin.py:1446
-#: fff_plugin.py:1645 fff_plugin.py:1675
+#: config.py:1257 dialogs.py:891 dialogs.py:987 fff_plugin.py:1464
+#: fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Author"
 msgstr "Autor"
 
-#: config.py:1205
+#: config.py:1258
 msgid "Author URL"
 msgstr "URL do Autor"
 
-#: config.py:1206
+#: config.py:1259
 msgid "File Format"
 msgstr "Formato do Arquivo"
 
-#: config.py:1207
+#: config.py:1260
 msgid "File Extension"
 msgstr "Extensão do Arquivo"
 
-#: config.py:1208
+#: config.py:1261
 msgid "Site Abbrev"
 msgstr "Abreviação do Site"
 
-#: config.py:1209
+#: config.py:1262
 msgid "FanFicFare Version"
 msgstr ""
 
-#: config.py:1224
+#: config.py:1277
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
 msgstr "Se você tem colunas personalizadas definidas, elas serão listadas abaixo. Escolha um tipo de valor de metadados para preencher as colunas automaticamente."
 
-#: config.py:1249
+#: config.py:1302
 msgid "Update this %s column(%s) with..."
 msgstr "Atualizar essa %s coluna(%s) com..."
 
-#: config.py:1259
+#: config.py:1312
 msgid "Values that aren't valid for this enumeration column will be ignored."
 msgstr "Valores que não são válidos para esta coluna de enumeração serão ignorados."
 
-#: config.py:1259 config.py:1261
+#: config.py:1312 config.py:1314
 msgid "Metadata values valid for this type of column."
 msgstr "Valores de metadados válidos para este tipo de coluna."
 
-#: config.py:1264 config.py:1354
+#: config.py:1317 config.py:1407
 msgid "New Only"
 msgstr "Apenas Novo"
 
-#: config.py:1265
+#: config.py:1318
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
 msgstr "Gravar para %s(%s) apenas para novos\nlivros, não atualizações para livros existentes."
 
-#: config.py:1276
+#: config.py:1329
 msgid "Allow %(ccset)s from %(pini)s to override"
 msgstr "Permitir %(ccset)s de %(pini)s substituir"
 
-#: config.py:1277
+#: config.py:1330
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
 msgstr "O %(pini)s parâmetro %(ccset)s permite definir colunas personalizadas para valores específicos do site que não são comuns a todos os sites.<br />%(ccset)s é ignorado quando este é desativado."
 
-#: config.py:1281
+#: config.py:1334
 msgid "Special column:"
 msgstr "Coluna especial:"
 
-#: config.py:1286
+#: config.py:1339
 msgid "Update/Overwrite Error Column:"
 msgstr "Atualizar/Substituir Coluna do Erro:"
 
-#: config.py:1287
+#: config.py:1340
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
 msgstr "Quando uma atualização ou substituição de uma história já existente falhar, registre o motivo nesta coluna.\n(Apenas colunas de Texto e Texto Longo.)"
 
-#: config.py:1301
+#: config.py:1354
 msgid "Saved Metadata Column:"
 msgstr ""
 
-#: config.py:1302
+#: config.py:1355
 msgid ""
 "If set, FanFicFare will save a copy of all its metadata in this column when "
 "the book is downloaded or updated.<br/>The metadata from this column can "
@@ -942,133 +968,133 @@ msgid ""
 "metadata from the server again.<br/>(Long Text columns only.)"
 msgstr ""
 
-#: config.py:1328
+#: config.py:1381
 msgid "Author(s)"
 msgstr "Autor(es)"
 
-#: config.py:1329
+#: config.py:1382
 msgid "Publisher"
 msgstr "Editor"
 
-#: config.py:1330
+#: config.py:1383
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: config.py:1331
+#: config.py:1384
 msgid "Languages"
 msgstr "Idiomas"
 
-#: config.py:1332
+#: config.py:1385
 msgid "Published Date"
 msgstr "Data de Publicação"
 
-#: config.py:1333
+#: config.py:1386
 msgid "Date"
 msgstr "Data"
 
-#: config.py:1334
+#: config.py:1387
 msgid "Comments"
 msgstr "Comentários"
 
-#: config.py:1336
+#: config.py:1389
 msgid "Ids(url id only)"
 msgstr "Ids(apenas id da url)"
 
-#: config.py:1341
+#: config.py:1394
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
 msgstr ""
 
-#: config.py:1355
+#: config.py:1408
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
 msgstr "Gravar para %s apenas para novos\nlivros, não atualizações dos livros existentes."
 
-#: config.py:1364
+#: config.py:1417
 msgid "Other Standard Column Options"
 msgstr ""
 
-#: config.py:1369
+#: config.py:1422
 msgid "Set Calibre Author URL"
 msgstr ""
 
-#: config.py:1370
+#: config.py:1423
 msgid "Set Calibre Author URL to Author's URL on story site."
 msgstr ""
 
-#: config.py:1387
+#: config.py:1440
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
 msgstr ""
 
-#: config.py:1392
+#: config.py:1445
 msgid "IMAP Server Name"
 msgstr "Nome do Servidor IMAP"
 
-#: config.py:1393
+#: config.py:1446
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
 msgstr "Nome do servidor IMAP--deve permitir IMAP4 com SSL. Ex: imap.gmail.com"
 
-#: config.py:1402
+#: config.py:1455
 msgid "IMAP User Name"
 msgstr "Nome de usuário IMAP"
 
-#: config.py:1403
+#: config.py:1456
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
 msgstr "Nome do usuário IMAP. Ex: yourname@gmail.com\nNote que as contas do Gmail precisam ter o IMAP habilitado nas configurações do Gmail primeiro."
 
-#: config.py:1412
+#: config.py:1465
 msgid "IMAP User Password"
 msgstr "Senha do usuário IMAP"
 
-#: config.py:1413
+#: config.py:1466
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
 msgstr ""
 
-#: config.py:1423
+#: config.py:1476
 msgid "Remember Password for Session (when not saved above)"
 msgstr "Lembrar senha para a seção (quando não salvo acima)"
 
-#: config.py:1424
+#: config.py:1477
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
 msgstr ""
 
-#: config.py:1429
+#: config.py:1482
 msgid "IMAP Folder Name"
 msgstr "Nome da pasta IMAP"
 
-#: config.py:1430
+#: config.py:1483
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
 msgstr "Nome da pasta IMAP para pesquisar por novos e-mails. A pasta (ou etiqueta) tem que existir anteriormente. Use INBOX para a sua caixa de entrada padrão."
 
-#: config.py:1439
+#: config.py:1492
 msgid "Mark Emails Read"
 msgstr "Marca E-mails lidos"
 
-#: config.py:1440
+#: config.py:1493
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
 msgstr "Se marcado, os e-mails serão marcados como lidos se eles conterem qualquer URL de histórias."
 
-#: config.py:1445
+#: config.py:1498
 msgid "Discard URLs on Reject List"
 msgstr ""
 
-#: config.py:1446
+#: config.py:1499
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
@@ -1076,17 +1102,17 @@ msgid ""
 "configured to."
 msgstr ""
 
-#: config.py:1451
+#: config.py:1504
 msgid "Download from Email Immediately"
 msgstr ""
 
-#: config.py:1452
+#: config.py:1505
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
 msgstr ""
 
-#: config.py:1457
+#: config.py:1510
 msgid ""
 "<b>It's safest if you create a separate email account that you use only for "
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
@@ -1218,15 +1244,15 @@ msgstr "Senha:"
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:591 fff_plugin.py:942
+#: dialogs.py:591 fff_plugin.py:958
 msgid "Fetching metadata for stories..."
 msgstr "Buscando metadados para histórias..."
 
-#: dialogs.py:592 fff_plugin.py:943
+#: dialogs.py:592 fff_plugin.py:959
 msgid "Downloading metadata for stories"
 msgstr "Transferindo metadados para histórias"
 
-#: dialogs.py:593 fff_plugin.py:944
+#: dialogs.py:593 fff_plugin.py:960
 msgid "Fetched metadata for"
 msgstr "Metadados pesquisados para"
 
@@ -1270,7 +1296,7 @@ msgstr "%d segundos"
 msgid "less than 1 second"
 msgstr "menos de 1 segundo"
 
-#: dialogs.py:708 fff_plugin.py:365 fff_plugin.py:368
+#: dialogs.py:708 fff_plugin.py:381 fff_plugin.py:384
 msgid "About FanFicFare"
 msgstr ""
 
@@ -1299,7 +1325,7 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:891 fff_plugin.py:1446 fff_plugin.py:1645 fff_plugin.py:1675
+#: dialogs.py:891 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Comment"
 msgstr "Comentários"
 
@@ -1399,699 +1425,711 @@ msgstr "Salvar mesmo assim"
 msgid "Enter Email Password for %s:"
 msgstr "Insira o e-mail de senha para %s:"
 
-#: fff_plugin.py:115 fff_plugin.py:146
+#: fff_plugin.py:131 fff_plugin.py:162
 msgid "FanFicFare"
 msgstr ""
 
-#: fff_plugin.py:116
+#: fff_plugin.py:132
 msgid "Download FanFiction stories from various web sites"
 msgstr "Transferir histórias de ficção de vários sites"
 
-#: fff_plugin.py:277
+#: fff_plugin.py:293
 msgid "&Download from URLs"
 msgstr ""
 
-#: fff_plugin.py:279
+#: fff_plugin.py:295
 msgid "Download FanFiction Books from URLs"
 msgstr ""
 
-#: fff_plugin.py:282
+#: fff_plugin.py:298
 msgid "&Update Existing FanFiction Books"
 msgstr ""
 
-#: fff_plugin.py:287
+#: fff_plugin.py:303
 msgid "Get Story URLs from &Email"
 msgstr ""
 
-#: fff_plugin.py:291 fff_plugin.py:506
+#: fff_plugin.py:307 fff_plugin.py:522
 msgid "Get Story URLs from Web Page"
 msgstr "Obter URLs de história da página do site"
 
-#: fff_plugin.py:297
+#: fff_plugin.py:313
 msgid "&Make Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:299
+#: fff_plugin.py:315
 msgid "Make FanFiction Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:302
+#: fff_plugin.py:318
 msgid "Make Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:304
+#: fff_plugin.py:320
 msgid "Make FanFiction Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:307
+#: fff_plugin.py:323
 msgid "Update Anthology Epub"
 msgstr ""
 
-#: fff_plugin.py:309
+#: fff_plugin.py:325
 msgid "Update FanFiction Anthology Epub"
 msgstr "Atualizar Antologia de Epub de Ficção"
 
-#: fff_plugin.py:316
+#: fff_plugin.py:332
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:318
+#: fff_plugin.py:334
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:320 fff_plugin.py:325
+#: fff_plugin.py:336 fff_plugin.py:341
 msgid "Mark Read: Remove from \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:322
+#: fff_plugin.py:338
 msgid "Add to \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:324
+#: fff_plugin.py:340
 msgid "Mark Unread: Add to \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:340
+#: fff_plugin.py:356
 msgid "Remove \"New\" Chapter Marks from Selected books"
 msgstr ""
 
-#: fff_plugin.py:346
+#: fff_plugin.py:362
 msgid "Get Story URLs from Selected Books"
 msgstr ""
 
-#: fff_plugin.py:351
+#: fff_plugin.py:367
 msgid "Reject Selected Books"
 msgstr "Rejeitar livros selecionados"
 
-#: fff_plugin.py:359
+#: fff_plugin.py:375
 msgid "&Configure FanFicFare"
 msgstr ""
 
-#: fff_plugin.py:362
+#: fff_plugin.py:378
 msgid "Configure FanFicFare"
 msgstr ""
 
-#: fff_plugin.py:417
+#: fff_plugin.py:433
 msgid "Cannot Update Reading Lists from Device View"
 msgstr "Não foi possível atualizar as listas de leitura do dispositivo"
 
-#: fff_plugin.py:421
+#: fff_plugin.py:437
 msgid "No Selected Books to Update Reading Lists"
 msgstr "Nenhum livro selecionado para atualizar nas listas de leitura"
 
-#: fff_plugin.py:431
+#: fff_plugin.py:447
 msgid "FanFicFare Email Settings are not configured."
 msgstr ""
 
-#: fff_plugin.py:451
+#: fff_plugin.py:467
 msgid "Fetching Story URLs from Email..."
 msgstr ""
 
-#: fff_plugin.py:467 fff_plugin.py:489
+#: fff_plugin.py:483 fff_plugin.py:505
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "Sem URL's de histórias válidos encontrados nos e-mails não lidos."
 
-#: fff_plugin.py:483
+#: fff_plugin.py:499
 msgid "Finished Fetching Story URLs from Email."
 msgstr ""
 
-#: fff_plugin.py:491
+#: fff_plugin.py:507
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr ""
 
-#: fff_plugin.py:492
+#: fff_plugin.py:508
 msgid "Get Story URLs from Email"
 msgstr "Pegue URL's de histórias por E-mail"
 
-#: fff_plugin.py:515
+#: fff_plugin.py:531
 msgid "Fetching Story URLs from Page..."
 msgstr ""
 
-#: fff_plugin.py:519
+#: fff_plugin.py:535
 msgid "Finished Fetching Story URLs from Page."
 msgstr ""
 
-#: fff_plugin.py:525 fff_plugin.py:578
+#: fff_plugin.py:541 fff_plugin.py:594
 msgid "List of Story URLs"
 msgstr "Lista de URLs de história"
 
-#: fff_plugin.py:526
+#: fff_plugin.py:542
 msgid "No Valid Story URLs found on given page."
 msgstr "Nenhuma URL de história foi encontrada na página sugerida."
 
-#: fff_plugin.py:542 fff_plugin.py:595
+#: fff_plugin.py:558 fff_plugin.py:611
 msgid "No Selected Books to Get URLs From"
 msgstr "Nenhum livro selecionado para obter URLs"
 
-#: fff_plugin.py:560
+#: fff_plugin.py:576
 msgid "Collecting URLs for stories..."
 msgstr "Coletando URLs de história..."
 
-#: fff_plugin.py:561
+#: fff_plugin.py:577
 msgid "Get URLs for stories"
 msgstr "Obtendo URLs de histórias"
 
-#: fff_plugin.py:562 fff_plugin.py:674 fff_plugin.py:867
+#: fff_plugin.py:578 fff_plugin.py:690 fff_plugin.py:883
 msgid "URL retrieved"
 msgstr "URL recuperada"
 
-#: fff_plugin.py:582
+#: fff_plugin.py:598
 msgid "List of URLs"
 msgstr "Lista de URLs"
 
-#: fff_plugin.py:583
+#: fff_plugin.py:599
 msgid "No Story URLs found in selected books."
 msgstr "Nenhuma URL de história foi encontrada nos livros selecionados."
 
-#: fff_plugin.py:590
+#: fff_plugin.py:606
 msgid "Can only UnNew books in library"
 msgstr ""
 
-#: fff_plugin.py:607
+#: fff_plugin.py:623
 msgid "UnNewing books..."
 msgstr ""
 
-#: fff_plugin.py:608
+#: fff_plugin.py:624
 msgid "UnNew Books"
 msgstr ""
 
-#: fff_plugin.py:609
+#: fff_plugin.py:625
 msgid "Books UnNewed"
 msgstr ""
 
-#: fff_plugin.py:649 fff_plugin.py:1604
+#: fff_plugin.py:665 fff_plugin.py:1622
 msgid "Starting auto conversion of %d books."
 msgstr "Começando a conversão automática de %s livros."
 
-#: fff_plugin.py:664
+#: fff_plugin.py:680
 msgid "No Selected Books have URLs to Reject"
 msgstr "Nenhum livro selecionado tem URLs para rejeitar"
 
-#: fff_plugin.py:672
+#: fff_plugin.py:688
 msgid "Collecting URLs for Reject List..."
 msgstr "Coletando URLs para lista de rejeição..."
 
-#: fff_plugin.py:673
+#: fff_plugin.py:689
 msgid "Get URLs for Reject List"
 msgstr "Obtendo URLs para lista de rejeição"
 
-#: fff_plugin.py:708
+#: fff_plugin.py:724
 msgid "Proceed to Remove?"
 msgstr "Proceder para remover?"
 
-#: fff_plugin.py:708
+#: fff_plugin.py:724
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr ""
 
-#: fff_plugin.py:730
+#: fff_plugin.py:746
 msgid "Cannot Make Anthologys without %s"
 msgstr "Não foi possível criar antologias sem %s"
 
-#: fff_plugin.py:734 fff_plugin.py:844
+#: fff_plugin.py:750 fff_plugin.py:860
 msgid "Cannot Update Books from Device View"
 msgstr "Não foi possível atualizar livros do dispositivo"
 
-#: fff_plugin.py:738
+#: fff_plugin.py:754
 msgid "Can only update 1 anthology at a time"
 msgstr "Pode ser atualizada apenas 1 antologia de cada vez"
 
-#: fff_plugin.py:747
+#: fff_plugin.py:763
 msgid "Can only Update Epub Anthologies"
 msgstr "Pode ser atualizada apenas antologias de Epubs"
 
-#: fff_plugin.py:765 fff_plugin.py:766
+#: fff_plugin.py:781 fff_plugin.py:782
 msgid "Cannot Update Anthology"
 msgstr "Não foi possível atualizar antologia"
 
-#: fff_plugin.py:766
+#: fff_plugin.py:782
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr ""
 
-#: fff_plugin.py:773
+#: fff_plugin.py:789
 msgid "Fetching Story URLs for Series..."
 msgstr ""
 
-#: fff_plugin.py:783
+#: fff_plugin.py:799
 msgid "Finished Fetching Story URLs for Series."
 msgstr ""
 
-#: fff_plugin.py:830
+#: fff_plugin.py:846
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr "Existem %d histórias na antologia atual que <b>não</b> são serão mantidas, se você seguir em frente."
 
-#: fff_plugin.py:831
+#: fff_plugin.py:847
 msgid "Story URLs that will be removed:"
 msgstr "URLs de história que serão removidas:"
 
-#: fff_plugin.py:833
+#: fff_plugin.py:849
 msgid "Update anyway?"
 msgstr "Atualizar mesmo assim?"
 
-#: fff_plugin.py:834
+#: fff_plugin.py:850
 msgid "Stories Removed"
 msgstr "Histórias Removidas"
 
-#: fff_plugin.py:851
+#: fff_plugin.py:867
 msgid "No Selected Books to Update"
 msgstr "Nenhum livro selecionado para atualizar"
 
-#: fff_plugin.py:865
+#: fff_plugin.py:881
 msgid "Collecting stories for update..."
 msgstr "Coletando histórias para atualizar..."
 
-#: fff_plugin.py:866
+#: fff_plugin.py:882
 msgid "Get stories for updates"
 msgstr "Obter histórias para atualização"
 
-#: fff_plugin.py:876
+#: fff_plugin.py:892
 msgid "Update Existing List"
 msgstr "Atualizar lista existente"
 
-#: fff_plugin.py:936
+#: fff_plugin.py:952
 msgid "Start queuing downloading for %s stories."
 msgstr ""
 
-#: fff_plugin.py:937
+#: fff_plugin.py:953
 msgid "Queuing download for stories..."
 msgstr ""
 
-#: fff_plugin.py:938
+#: fff_plugin.py:954
 msgid "Queuing download for stories"
 msgstr ""
 
-#: fff_plugin.py:939
+#: fff_plugin.py:955
 msgid "Queued download for"
 msgstr ""
 
-#: fff_plugin.py:941
+#: fff_plugin.py:957
 msgid "Started fetching metadata for %s stories."
 msgstr "Começou a busca de metadados para %s histórias."
 
-#: fff_plugin.py:955
+#: fff_plugin.py:971
 msgid "No valid story URLs entered."
 msgstr "Nenhuma história válida nas URLs inseridas."
 
-#: fff_plugin.py:965 fff_plugin.py:971
+#: fff_plugin.py:981 fff_plugin.py:987
 msgid "Reject URL?"
 msgstr "Rejeitar URL?"
 
-#: fff_plugin.py:972 fff_plugin.py:990
+#: fff_plugin.py:988 fff_plugin.py:1006
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr "<b>%s</b> está em sua lista de URLs rejeitadas:"
 
-#: fff_plugin.py:974
+#: fff_plugin.py:990
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Clique em '<b>Sim</b>' para rejeitar."
 
-#: fff_plugin.py:975 fff_plugin.py:1142
+#: fff_plugin.py:991 fff_plugin.py:1160
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Clique em '<b>Não</b>' para transferir de qualquer maneira."
 
-#: fff_plugin.py:977
+#: fff_plugin.py:993
 msgid "Story on Reject URLs list (%s)."
 msgstr "História na lista de URLs rejeitadas (%s)."
 
-#: fff_plugin.py:980
+#: fff_plugin.py:996
 msgid "Rejected"
 msgstr "Rejeitado"
 
-#: fff_plugin.py:983
+#: fff_plugin.py:999
 msgid "Remove Reject URL?"
 msgstr "Remover URL rejeitada?"
 
-#: fff_plugin.py:989
+#: fff_plugin.py:1005
 msgid "Remove URL from Reject List?"
 msgstr "Remover URL da lista de rejeição?"
 
-#: fff_plugin.py:992
+#: fff_plugin.py:1008
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Clique em '<b>Sim</b>' para removê-la da lista."
 
-#: fff_plugin.py:993
+#: fff_plugin.py:1009
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Clique em '<b>Não</b>' para mantê-la na lista."
 
-#: fff_plugin.py:1035
+#: fff_plugin.py:1053
 msgid "Cannot update non-epub format."
 msgstr "Não é possível atualizar formatos que não sejam epub."
 
-#: fff_plugin.py:1110
+#: fff_plugin.py:1128
 msgid "Are You an Adult?"
 msgstr "Você é adulto?"
 
-#: fff_plugin.py:1111
+#: fff_plugin.py:1129
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr "%s requer que você seja um adulto. Confirme que você é um adulto em sua localidade:"
 
-#: fff_plugin.py:1133
+#: fff_plugin.py:1151
 msgid "Skip Story?"
 msgstr "Ignorar história?"
 
-#: fff_plugin.py:1139
+#: fff_plugin.py:1157
 msgid "Skip Anthology Story?"
 msgstr "Ignorar antologia da história?"
 
-#: fff_plugin.py:1140
+#: fff_plugin.py:1158
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr "\"<b>%s</b>\" está na série \"<b><a href=\"%s\">%s</a></b>\" que você tem um livro de antologia."
 
-#: fff_plugin.py:1141
+#: fff_plugin.py:1159
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Clique em '<b>Sim</b>' para ignorar."
 
-#: fff_plugin.py:1144
+#: fff_plugin.py:1162
 msgid "Story in Series Anthology(%s)."
 msgstr "História na série de antologia (%s)."
 
-#: fff_plugin.py:1150
+#: fff_plugin.py:1168
 msgid "Skipped"
 msgstr "Ignorado"
 
-#: fff_plugin.py:1160
+#: fff_plugin.py:1178
 msgid "Add"
 msgstr "Adicionar"
 
-#: fff_plugin.py:1196
+#: fff_plugin.py:1214
 msgid "Meta"
 msgstr "Meta"
 
-#: fff_plugin.py:1225
+#: fff_plugin.py:1243
 msgid "Skipping duplicate story."
 msgstr "Ignorando história duplicada."
 
-#: fff_plugin.py:1228
+#: fff_plugin.py:1246
 msgid ""
 "More than one identical book by Identifer URL or title/author(s)--can't tell"
 " which book to update/overwrite."
 msgstr "Mais do que um livro idêntico por identificador de URL ou título/autor(es)--não pode dizer qual livro atualizar/substituir."
 
-#: fff_plugin.py:1239
+#: fff_plugin.py:1257
 msgid "Update"
 msgstr "Atualizar"
 
-#: fff_plugin.py:1247 fff_plugin.py:1254
+#: fff_plugin.py:1265 fff_plugin.py:1272
 msgid "Change Story URL?"
 msgstr "Alterar URL de história?"
 
-#: fff_plugin.py:1255
+#: fff_plugin.py:1273
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
 msgstr "<b>%s</b> por <b>%s</b> já está na sua biblioteca com uma URL de origem diferente:"
 
-#: fff_plugin.py:1256
+#: fff_plugin.py:1274
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "Na biblioteca: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1257 fff_plugin.py:1271
+#: fff_plugin.py:1275 fff_plugin.py:1289
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Nova URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1258
+#: fff_plugin.py:1276
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Clique em '<b>Sim</b>' para atualizar/substituir livro com a nova URL."
 
-#: fff_plugin.py:1259
+#: fff_plugin.py:1277
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr "Clique em '<b>Não</b>' para ignorar a atualização/substituição desse livro."
 
-#: fff_plugin.py:1261 fff_plugin.py:1268
+#: fff_plugin.py:1279 fff_plugin.py:1286
 msgid "Download as New Book?"
 msgstr "Transferir como novo livro?"
 
-#: fff_plugin.py:1269
+#: fff_plugin.py:1287
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
 msgstr "<b>%s</b> por <b>%s</b> já está na sua biblioteca com uma URL de origem diferente."
 
-#: fff_plugin.py:1270
+#: fff_plugin.py:1288
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr "Você optou por não atualizar o livro existente. Você deseja adicionar um novo livro para esta URL?"
 
-#: fff_plugin.py:1272
+#: fff_plugin.py:1290
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Clique em '<b>Sim</b>' para um novo livro com nova URL."
 
-#: fff_plugin.py:1273
+#: fff_plugin.py:1291
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "Clique em '<b>Não</b>' para ignorar a URL."
 
-#: fff_plugin.py:1279
+#: fff_plugin.py:1297
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr "Atualização recusada pelo usuário devido à diferentes URL(%s) de história"
 
-#: fff_plugin.py:1282
+#: fff_plugin.py:1300
 msgid "Different URL"
 msgstr "URL Diferente"
 
-#: fff_plugin.py:1287
+#: fff_plugin.py:1305 jobs.py:198
 msgid "Metadata collected."
 msgstr "Metadados recolhidos."
 
-#: fff_plugin.py:1303 jobs.py:256
+#: fff_plugin.py:1321 jobs.py:262
 msgid "Already contains %d chapters."
 msgstr "Já contém %s capítulos."
 
-#: fff_plugin.py:1305 jobs.py:258
+#: fff_plugin.py:1323 jobs.py:264
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "O epub existente contém %d capítulos, o site tem apenas %d. Use Substituir para forçar uma atualização."
 
-#: fff_plugin.py:1307 jobs.py:260
+#: fff_plugin.py:1325 jobs.py:266
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr ""
 
-#: fff_plugin.py:1324 jobs.py:217
+#: fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
 msgstr "Nenhuma substituição, o site não é mais novo."
 
-#: fff_plugin.py:1442
+#: fff_plugin.py:1460
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Nenhuma das <b>%d</b> URLs/histórias fornecidas podem ser/precisam ser transferidas."
 
-#: fff_plugin.py:1443 fff_plugin.py:1641 fff_plugin.py:1671
+#: fff_plugin.py:1461 fff_plugin.py:1659 fff_plugin.py:1689
 msgid "See log for details."
 msgstr "Veja o registro para detalhes."
 
-#: fff_plugin.py:1444
+#: fff_plugin.py:1462
 msgid "Proceed with updating your library(Error Column, if configured)?"
 msgstr "Prosseguir com a atualização sua biblioteca (Coluna de erro, se configurado)?"
 
-#: fff_plugin.py:1451 fff_plugin.py:1653
+#: fff_plugin.py:1469 fff_plugin.py:1671 fff_plugin.py:1705
 msgid "Bad"
 msgstr "Ruim"
 
-#: fff_plugin.py:1459
+#: fff_plugin.py:1477
 msgid "FanFicFare download ended"
 msgstr ""
 
-#: fff_plugin.py:1459 fff_plugin.py:1696
+#: fff_plugin.py:1477 fff_plugin.py:1714
 msgid "FanFicFare log"
 msgstr ""
 
-#: fff_plugin.py:1479
+#: fff_plugin.py:1497
 msgid "Download %s FanFiction Book(s)"
 msgstr ""
 
-#: fff_plugin.py:1486
+#: fff_plugin.py:1504
 msgid "Starting %d FanFicFare Downloads"
 msgstr ""
 
-#: fff_plugin.py:1517
+#: fff_plugin.py:1535
 msgid "Story Details:"
 msgstr "Detalhes da história:"
 
-#: fff_plugin.py:1520
+#: fff_plugin.py:1538
 msgid "Error Updating Metadata"
 msgstr "Erro ao atualizar metadados"
 
-#: fff_plugin.py:1521
+#: fff_plugin.py:1539
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr ""
 
-#: fff_plugin.py:1522
+#: fff_plugin.py:1540
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "O ebook foi atualizado, mas os metadados não."
 
-#: fff_plugin.py:1574
+#: fff_plugin.py:1592
 msgid "Finished Adding/Updating %d books."
 msgstr "O adicionamento/atualização de %s livros está concluído."
 
-#: fff_plugin.py:1625
+#: fff_plugin.py:1643
 msgid "No Good Stories for Anthology"
 msgstr "Nenhuma BOA história para antologia"
 
-#: fff_plugin.py:1626
+#: fff_plugin.py:1644
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Não há boas histórias/atualizações de onde transferir, a criação/atualização de antologia foi abortada."
 
-#: fff_plugin.py:1631 fff_plugin.py:1670
+#: fff_plugin.py:1649 fff_plugin.py:1688
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: fff_plugin.py:1638
+#: fff_plugin.py:1656
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Você deseja realmente continuar com a criação/atualização desta antologia?"
 
-#: fff_plugin.py:1639
+#: fff_plugin.py:1657
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Todas as atualizações que falharam <b>não</b> vão ser incluídas na antologia."
 
-#: fff_plugin.py:1640
+#: fff_plugin.py:1658
 msgid "However, if there's an older version, it will still be included."
 msgstr "No entanto, se houver uma versão mais antiga, ela será incluída."
 
-#: fff_plugin.py:1643
+#: fff_plugin.py:1661
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Prosseguir com a atualização desta antologia e sua biblioteca?"
 
-#: fff_plugin.py:1651
+#: fff_plugin.py:1669 fff_plugin.py:1698
 msgid "Good"
 msgstr "BOA"
 
-#: fff_plugin.py:1672
+#: fff_plugin.py:1690
 msgid "Proceed with updating your library?"
 msgstr "Prosseguir com a atualização de sua biblioteca?"
 
-#: fff_plugin.py:1696
+#: fff_plugin.py:1714
 msgid "FanFicFare download complete"
 msgstr ""
 
-#: fff_plugin.py:1709
+#: fff_plugin.py:1727
 msgid "Merging %s books."
 msgstr "Mesclando %s livros."
 
-#: fff_plugin.py:1749
+#: fff_plugin.py:1767
 msgid "FanFicFare Adding/Updating books."
 msgstr ""
 
-#: fff_plugin.py:1756
+#: fff_plugin.py:1774
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Atualizando o calibre de histórias de ficção..."
 
-#: fff_plugin.py:1757
+#: fff_plugin.py:1775
 msgid "Update calibre for FanFiction stories"
 msgstr "Atualizar o calibre de histórias de ficção"
 
-#: fff_plugin.py:1766
+#: fff_plugin.py:1784
 msgid "Adding/Updating %s BAD books."
 msgstr "Adicionando/atualizando %s livros RUINS."
 
-#: fff_plugin.py:1775
+#: fff_plugin.py:1793
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Atualizando o calibre de histórias RUINS de ficção..."
 
-#: fff_plugin.py:1776
+#: fff_plugin.py:1794
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Atualizar o calibre de histórias RUINS de ficção"
 
-#: fff_plugin.py:1802
+#: fff_plugin.py:1820
 msgid "Adding format to book failed for some reason..."
 msgstr "Falha ao adicionar formato por algum motivo..."
 
-#: fff_plugin.py:1805
+#: fff_plugin.py:1823 jobs.py:320
 msgid "Error"
 msgstr "Erro"
 
-#: fff_plugin.py:2125
+#: fff_plugin.py:2143
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: fff_plugin.py:2137
+#: fff_plugin.py:2155
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2147 fff_plugin.py:2165
+#: fff_plugin.py:2165 fff_plugin.py:2183
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr ""
 
-#: fff_plugin.py:2153
+#: fff_plugin.py:2171
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2276
+#: fff_plugin.py:2234
+msgid "Same story already included."
+msgstr ""
+
+#: fff_plugin.py:2294
 msgid "No story URL found."
 msgstr "Nenhuma URL de história encontrada."
 
-#: fff_plugin.py:2279
+#: fff_plugin.py:2297
 msgid "Not Found"
 msgstr "Não encontrado"
 
-#: fff_plugin.py:2285
+#: fff_plugin.py:2303
 msgid "URL is not a valid story URL."
 msgstr "A URL não é uma URL válida de história."
 
-#: fff_plugin.py:2288
+#: fff_plugin.py:2306
 msgid "Bad URL"
 msgstr "URL ruim:"
 
-#: fff_plugin.py:2427 fff_plugin.py:2430
+#: fff_plugin.py:2445 fff_plugin.py:2448
 msgid "Anthology containing:"
 msgstr "Antologia contendo:"
 
-#: fff_plugin.py:2428
+#: fff_plugin.py:2446
 msgid "%s by %s"
 msgstr "%s por %s"
 
-#: fff_plugin.py:2450
+#: fff_plugin.py:2468
 msgid " Anthology"
 msgstr "Antologia"
 
-#: fff_plugin.py:2493
+#: fff_plugin.py:2511
 msgid "(was set, removed for security)"
 msgstr "(foi definido, removido para segurança)"
 
-#: jobs.py:69
+#: jobs.py:75
 msgid "Downloading FanFiction Stories"
 msgstr "Transferir histórias de ficção"
 
-#: jobs.py:97
+#: jobs.py:91
+msgid "%d of %d stories finished downloading"
+msgstr ""
+
+#: jobs.py:103
 msgid "Download Results:"
 msgstr ""
 
-#: jobs.py:99
+#: jobs.py:105
 msgid "Successful:"
 msgstr "Bem sucedido:"
 
-#: jobs.py:100
+#: jobs.py:106
 msgid "Unsuccessful:"
 msgstr "Mal sucedido:"
 
-#: jobs.py:125
+#: jobs.py:131
 msgid "Download started..."
 msgstr "Transferência iniciada..."
 
-#: jobs.py:249
+#: jobs.py:230
+msgid "Download %s completed, %s chapters."
+msgstr ""
+
+#: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Já contém %s capítulos. Reutilizar como está."
 
-#: jobs.py:272
+#: jobs.py:278
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr "Atualização %s concluída, adicionados %s capítulos de um total de %s."

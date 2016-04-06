@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
             data1 = self._fetchUrl(self.url)
             soup1 = self.make_soup(data1)
             #strip comments from soup
-            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+            [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -112,18 +112,18 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
 
         # Description
         synopsis = soup1.find('section', class_='synopsis')
-        description = "\n\n".join([p.text for p in synopsis.findAll('p')])
+        description = "\n\n".join([p.text for p in synopsis.find_all('p')])
         self.story.setMetadata('description', description)
 
         # Tags
         codesDiv = soup1.find('div', class_="storyCodes")
-        for a in codesDiv.findAll('a'):
+        for a in codesDiv.find_all('a'):
             self.story.addToList('eroticatags', a.text)
 
         # Publish and update dates
         publishdate = None
         updatedate = None
-        datelines = soup1.findAll('h3', class_='dateline')
+        datelines = soup1.find_all('h3', class_='dateline')
         for dateline in datelines:
             if dateline.text.startswith('Added '):
                 publishdate = makeDate(dateline.text, "Added " + self.dateformat)
@@ -139,7 +139,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
 
         if chapterTable is not None:
             # Multi-chapter story
-            chapterRows = chapterTable.findAll('tr')
+            chapterRows = chapterTable.find_all('tr')
 
             for row in chapterRows:
                 chapterCell = row.td
@@ -172,13 +172,13 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         soup1 = self.make_soup(data1)
 
         #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
 
         # get story text
         story1 = soup1.find('article', id='mcstories')
 
         # Remove duplicate name and author headers
-        [h3.extract() for h3 in story1.findAll('h3')]
+        [h3.extract() for h3 in story1.find_all('h3',class_=re.compile(r'(title|chapter|byline)'))]
 
         storytext = self.utf8FromSoup(url, story1)
 

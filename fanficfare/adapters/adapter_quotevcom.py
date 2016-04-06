@@ -78,7 +78,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         imgmeta = soup.find('meta',{'property':"og:image" })
         if imgmeta:
-            self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))
+            self.coverurl = self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))[1]
 
         for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/stories/c/')}):
             self.story.addToList('category', a.get_text())
@@ -127,8 +127,15 @@ class QuotevComAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        element = soup.find('div', id='rescontent')
-        for a in element('a'):
+        rescontent = soup.find('div', id='rescontent')
+        
+        # attempt to find and include chapter specific images.
+        img = soup.find('div',{'id':'quizHeader'}).find('img')
+        #print("img['src'](%s) != self.coverurl(%s)"%(img['src'],self.coverurl))
+        if img['src'] != self.coverurl:
+            rescontent.insert(0,img)
+        
+        for a in rescontent('a'):
             a.unwrap()
 
-        return self.utf8FromSoup(url, element)
+        return self.utf8FromSoup(url, rescontent)

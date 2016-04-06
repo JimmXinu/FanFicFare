@@ -210,18 +210,18 @@ class FileServer(webapp2.RequestHandler):
             # to hold the whole in memory just for the
             # compress/uncompress
             if download.format != 'epub':
-                def dc(data):
+                def decompress(data):
                     try:
                         return zlib.decompress(data)
                     # if error, assume it's a chunk from before we started compessing.
                     except zlib.error:
                         return data
             else:
-                def dc(data):
+                def decompress(data):
                     return data
 
             for datum in data:
-                self.response.out.write(dc(datum.blob))
+                self.response.out.write(decompress(datum.blob))
 
         except Exception, e:
             fic = DownloadMeta()
@@ -286,8 +286,8 @@ class ClearRecentServer(webapp2.RequestHandler):
             if results:
                 for d in results:
                     d.delete()
-                    for c in d.data_chunks:
-                        c.delete()
+                    for chunk in d.data_chunks:
+                        chunk.delete()
                     num = num + 1
                     logging.debug('Delete '+d.url)
             else:
@@ -494,8 +494,8 @@ class FanfictionDownloaderTask(UserConfigServer):
         # use existing record if available.
         # fileId should have record from /fdown.
         download = getDownloadMeta(id=fileId,url=url,user=user,format=format,new=True)
-        for c in download.data_chunks:
-            c.delete()
+        for chunk in download.data_chunks:
+            chunk.delete()
         download.put()
 
         logging.info('Creating adapter...')
@@ -542,21 +542,22 @@ class FanfictionDownloaderTask(UserConfigServer):
             # compressed individually to avoid having to hold the
             # whole in memory just for the compress/uncompress.
             if format != 'epub':
-                def c(data):
+                def compress(data):
                     return zlib.compress(data)
             else:
-                def c(data):
+                def compress(data):
                     return data
 
             # delete existing chunks first
-            for c in download.data_chunks:
-                c.delete()
+            for chunk in download.data_chunks:
+                chunk.delete()
                 
             index=0
             while( len(data) > 0 ):
+                # logging.info("len(data): %s" % len(data))
                 DownloadData(download=download,
                              index=index,
-                             blob=c(data[:1000000])).put()
+                             blob=compress(data[:1000000])).put()
                 index += 1
                 data = data[1000000:]
             download.completed=True

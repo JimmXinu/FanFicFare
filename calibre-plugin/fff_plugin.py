@@ -1318,7 +1318,7 @@ class FanFicFarePlugin(InterfaceAction):
                         urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
-                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
+                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
                         elif chaptercount > urlchaptercount:
                             raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
@@ -1329,7 +1329,7 @@ class FanFicFarePlugin(InterfaceAction):
                     logger.debug("OVERWRITE file: "+db.format_abspath(book_id, formmapping[fileform], index_is_id=True))
                     fileupdated=datetime.fromtimestamp(os.stat(db.format_abspath(book_id, formmapping[fileform], index_is_id=True))[8])
                     logger.debug("OVERWRITE file updated: %s"%fileupdated)
-                    book['updated']=fileupdated
+                    book['fileupdated']=fileupdated
                     if not bgmeta:
                         # check make sure incoming is newer.
                         lastupdated=story.getMetadataRaw('dateUpdated')
@@ -1339,7 +1339,7 @@ class FanFicFarePlugin(InterfaceAction):
                         # updated does have time, use full timestamps.
                         if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
                                 (lastupdated.time() != time.min and fileupdated > lastupdated):
-                            raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+                            raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png',showerror=False)
 
                 # For update, provide a tmp file copy of the existing epub so
                 # it can't change underneath us.  Now also overwrite for logpage preserve.
@@ -1512,7 +1512,7 @@ class FanFicFarePlugin(InterfaceAction):
         custom_columns = self.gui.library_view.model().custom_columns
         if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             label = custom_columns[prefs['errorcol']]['label']
-            if not book['good']:
+            if not book['good'] and (book['showerror'] or prefs['save_all_errors']):
                 logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
                 self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True) # book['comment']
             else:
@@ -1695,14 +1695,14 @@ class FanFicFarePlugin(InterfaceAction):
                 if 'status' in book:
                     status = book['status']
                 else:
-                    status = 'Good'
+                    status = _('Good')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             for book in bad_list:
                 if 'status' in book:
                     status = book['status']
                 else:
-                    status = 'Bad'
+                    status = _('Bad')
                 htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             htmllog = htmllog + '</table></body></html>'
@@ -1795,7 +1795,7 @@ class FanFicFarePlugin(InterfaceAction):
                                status_prefix=_("Updated"))
 
     def update_error_column_loop(self,book,db=None,label=None):
-        if book['calibre_id'] and label:
+        if book['calibre_id'] and label and (book['showerror'] or prefs['save_all_errors']):
             logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
             self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True)
 
@@ -2212,6 +2212,10 @@ class FanFicFarePlugin(InterfaceAction):
         book['comments'] = '' # note this is the book comments.
 
         book['good'] = True
+        book['showerror'] = True # False when NotGoingToDownload is
+                                 # not-overwrite / not-update / skip
+                                 # -- what some would consider 'not an
+                                 # error'
         book['calibre_id'] = None
         book['begin'] = None
         book['end'] = None
@@ -2231,7 +2235,7 @@ class FanFicFarePlugin(InterfaceAction):
             book = self.convert_url_to_book(url)
             if book['url'] in uniqueurls:
                 book['good'] = False
-                book['comment'] = "Same story already included."
+                book['comment'] = _("Same story already included.")
             uniqueurls.add(book['url'])
             book['listorder']=i # BG d/l jobs don't come back in order.
                                 # Didn't matter until anthologies & 'marked' successes

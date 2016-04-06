@@ -51,7 +51,7 @@ _WRONGPASSWORD = "That password doesn't match the one in our database"
 _USERACCOUNT = 'Member Account'
 
 # Regular expressions
-_REGEX_WARING_PARAM = re.compile("warning=(?P<warningId>\d+)")
+_REGEX_WARNING_PARAM = re.compile("warning=(?P<warningId>\d+)")
 _REGEX_CHAPTER_B = re.compile("^(?P<chapterId>\d+)\.")
 _REGEX_CHAPTER_PARAM = re.compile("chapter=(?P<chapterId>\d+)$")
 _REGEX_CHAPTER_FRAGMENT = re.compile("^#(?P<chapterId>\d+)$")
@@ -345,6 +345,8 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                     self.triedLoggingIn = True
                 else:
                     raise exceptions.FailedToLogin(self.url, unicode(errorDiv))
+            elif "This story has not been validated" in stripHTML(errorDiv):
+                raise exceptions.AccessDenied(self.getSiteDomain() +" says: "+stripHTML(errorDiv))
             else:
                 warningLink = errorDiv.find("a")
                 if warningLink is not None and ( \
@@ -354,7 +356,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                         if not (self.is_adult or self.getConfig("is_adult")):
                             raise exceptions.AdultCheckRequired(self.url)
                         # XXX Using this method, we're independent of # getHighestWarningLevel
-                        printUrl += "&ageconsent=ok&warning=%s" % (_REGEX_WARING_PARAM.search(warningLink['href']).group(1))
+                        printUrl += "&ageconsent=ok&warning=%s" % (_REGEX_WARNING_PARAM.search(warningLink['href']).group(1))
                         # printUrl += "&ageconsent=ok&warning=%s" % self.getHighestWarningLevel()
                         soup = self._fetch_to_soup(printUrl)
                         errorDiv = soup.find("div", "errortext")
@@ -382,7 +384,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             while nextEl is not None and not (\
                         type(nextEl) is bs.Tag \
                         and nextEl.name == "span" \
-                        and 'label' in nextEl['class'] \
+                        and 'label' in nextEl.get('class',[]) \
                         ):
                 ## must string copy nextEl or nextEl will change trees
                 if (type(nextEl) is bs.Tag):

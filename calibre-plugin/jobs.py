@@ -23,6 +23,12 @@ from calibre.library.comments import sanitize_comments_html
 from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
 from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 # ------------------------------------------------------------------------------
 #
 #              Functions to perform downloads using worker jobs
@@ -82,7 +88,7 @@ def do_download_worker(book_list,
         book_list.append(job.result)
         book_id = job._book['calibre_id']
         count = count + 1
-        notification(float(count)/total, '%d of %d stories finished downloading'%(count,total))
+        notification(float(count)/total, _('%d of %d stories finished downloading')%(count,total))
         # Add this job's output to the current log
         logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         logger.info(job.details)
@@ -189,7 +195,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## No need to download at all.  Shouldn't ever get down here.
             if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
                 logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
-                book['comment'] = 'Metadata collected.'
+                book['comment'] = _('Metadata collected.')
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
@@ -214,14 +220,14 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     # updated does have time, use full timestamps.
                     if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
                             (lastupdated.time() != time.min and fileupdated > lastupdated):
-                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png')
+                        raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png',showerror=False)
 
                 
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
                 
-                book['comment'] = 'Download %s completed, %s chapters.'%(options['fileform'],story.getMetadata("numChapters"))
+                book['comment'] = _('Download %s completed, %s chapters.')%(options['fileform'],story.getMetadata("numChapters"))
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
@@ -253,7 +259,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                             book['outfile'] = book['epub_for_update'] # for anthology merge ops.
                             return book
                         else: # not merge,
-                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png')
+                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
                     elif chaptercount > urlchaptercount:
                         raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                     elif chaptercount == 0:
@@ -304,6 +310,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             
         except NotGoingToDownload as d:
             book['good']=False
+            book['showerror']=d.showerror
             book['comment']=unicode(d)
             book['icon'] = d.icon
     
@@ -311,7 +318,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['good']=False
             book['comment']=unicode(e)
             book['icon']='dialog_error.png'
-            book['status'] = 'Error'
+            book['status'] = _('Error')
             logger.info("Exception: %s:%s"%(book,unicode(e)))
             traceback.print_exc()
             

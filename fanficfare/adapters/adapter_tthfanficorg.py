@@ -257,10 +257,11 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
             # assumes only one -Centered and one Pairing: cat can ever
             # be applied to one story.
-            if self.getConfig('centeredcat_to_characters') and cat.string.endswith('-Centered'):
+            # Seen at least once: incorrect (empty) cat link, thus "and cat.string"
+            if self.getConfig('centeredcat_to_characters') and cat.string and cat.string.endswith('-Centered'):
                 char = cat.string[:-len('-Centered')]
                 self.story.addToList('characters',char)
-            elif self.getConfig('pairingcat_to_characters_ships') and cat.string.startswith('Pairing: '):
+            elif self.getConfig('pairingcat_to_characters_ships') and cat.string and cat.string.startswith('Pairing: '):
                 pair = cat.string[len('Pairing: '):]
                 self.story.addToList('characters',pair)
                 if char:

@@ -332,6 +332,7 @@ class ConfigWidget(QWidget):
         # Custom Columns tab
         # error column
         prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
+        prefs['save_all_errors'] = self.cust_columns_tab.save_all_errors.isChecked()
 
         # metadata column
         prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
@@ -1340,6 +1341,7 @@ class CustomColumnsTab(QWidget):
         tooltip=_("When an update or overwrite of an existing story fails, record the reason in this column.\n(Text and Long Text columns only.)")
         label.setToolTip(tooltip)
         horz.addWidget(label)
+
         self.errorcol = QComboBox(self)
         self.errorcol.setToolTip(tooltip)
         self.errorcol.addItem('','none')
@@ -1348,6 +1350,15 @@ class CustomColumnsTab(QWidget):
                 self.errorcol.addItem(column['name'],key)
         self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
         horz.addWidget(self.errorcol)
+        
+        self.save_all_errors = QCheckBox(_('Save All Errors'),self)
+        self.save_all_errors.setToolTip(_('If unchecked, these errors will not be saved:%s')%(
+                '\n'+
+                '\n'.join((_("Not Overwriting, web site is not newer."),
+                           _("Already contains %d chapters.").replace('%d','X')))))
+        self.save_all_errors.setChecked(prefs['save_all_errors'])
+        horz.addWidget(self.save_all_errors)
+        
         self.l.addLayout(horz)
         
         horz = QHBoxLayout()
@@ -1363,6 +1374,10 @@ class CustomColumnsTab(QWidget):
                 self.savemetacol.addItem(column['name'],key)
         self.savemetacol.setCurrentIndex(self.savemetacol.findData(prefs['savemetacol']))
         horz.addWidget(self.savemetacol)
+
+        label = QLabel('')
+        horz.addWidget(label) # empty spacer for alignment with error column line.
+        
         self.l.addLayout(horz)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
