@@ -1067,9 +1067,9 @@ class Story(Configurable):
 
         prefix='ffdl'
         if imgurl not in self.imgurls:
-            parsedUrl = urlparse.urlparse(imgurl)
 
             try:
+                parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl))
