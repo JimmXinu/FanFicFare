@@ -147,6 +147,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
+        elif "Error! Daily Limit Reached" in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! Daily Limit Reached")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -183,7 +185,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         page=0
         i=0
         while i == 0:
-            asoup = self.make_soup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page)))
+            data = self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page))
+            asoup = self.make_soup(data)
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
@@ -208,6 +211,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         try:
             a = lc4.find('a', href=re.compile(r"/series/\d+/.*"))
+            logger.debug("Looking for series - a='{0}'".format(a))
             if a:
                 # if there's a number after the series name, series_contents is a two element list:
                 # [<a href="...">Title</a>, u' (2)']
@@ -220,7 +224,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 series_soup = self.make_soup(self._fetchUrl(seriesUrl))
                 if series_soup:
                     logger.debug("Retrieving Series - looking for name")
-                    series_name = series_soup.find('span', {'id' : 'ptitle'}).text.partition(' — ')[0]
+                    series_name = stripHTML(series_soup.find('span', {'id' : 'ptitle'}))
+                    series_name = re.sub(r' . a series by.*$','',series_name)
                     logger.debug("Series name: '{0}'".format(series_name))
                 self.setSeries(series_name, i)
                 desc = lc4.contents[2]
@@ -237,7 +242,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                         # The id is prefixed with the letter "u".
                         universe_id = universe.find('a')['id'][1:]
                         logger.debug("universe_id='%s'" % universe_id)
-                        universe_name = universe.find('div', {'class' : 'ser-name'}).text.partition(' ')[2]
+                        universe_name = stripHTML(universe.find('div', {'class' : 'ser-name'})).partition(' ')[2]
                         logger.debug("universe_name='%s'" % universe_name)
                         # If there is link to the story, we have the right universe
                         story_a = universe.find('a', href=re.compile('/s/'+self.story.getMetadata('storyId')))
@@ -249,6 +254,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 else:
                     logger.debug("No universe page")
         except:
+            raise
             pass
         try:
             a = lc4.find('a', href=re.compile(r"/universe/\d+/.*"))
@@ -264,7 +270,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
-                    universe_name = universe_soup.find('h1', {'id' : 'ptitle'}).text.partition('—')[0]
+                    universe_name = stripHTML(universe_soup.find('h1', {'id' : 'ptitle'}))
+                    universe_name = re.sub(r' . A Universe from the Mind.*$','',universe_name)
                     logger.debug("Universes name: '{0}'".format(universe_name))
 
                 self.story.setMetadata('universeUrl',universeUrl)
@@ -276,6 +283,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             else:
                 logger.debug("Do not have a universe")
         except:
+            raise
             pass
 
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
