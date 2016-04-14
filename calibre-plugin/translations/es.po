@@ -5,13 +5,14 @@
 # Adolfo Jayme Barrientos, 2014
 # dario hereñu <magallania@gmail.com>, 2015
 # Jellby <jellby@yahoo.com>, 2014-2016
+# Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # JimmXinu <retiefjimm@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-03-22 21:58+Central Daylight Time\n"
-"PO-Revision-Date: 2016-03-29 09:06+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2016-04-13 22:04+0000\n"
+"Last-Translator: Antonio Mireles <antonio@mirelesindependent.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -502,7 +503,7 @@ msgstr "Ver opciones predeterminadas"
 
 #: config.py:721
 msgid "Calibre Columns"
-msgstr ""
+msgstr "Columnas de Calibre"
 
 #: config.py:728
 msgid ""
@@ -959,11 +960,11 @@ msgstr "Cuando una actualización o reemplazo de una historia existente falla, r
 
 #: config.py:1354
 msgid "Save All Errors"
-msgstr ""
+msgstr "Guardar Todos los Errores"
 
 #: config.py:1355
 msgid "If unchecked, these errors will not be saved:%s"
-msgstr ""
+msgstr "Si no son seleccionados, estos errores no serán guardados:%s"
 
 #: config.py:1357 fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
@@ -2073,7 +2074,7 @@ msgstr "Ha configurado FanFicFare para actualizar automáticamente la lista «En
 
 #: fff_plugin.py:2238
 msgid "Same story already included."
-msgstr ""
+msgstr "La misma historia ha sido incluida."
 
 #: fff_plugin.py:2298
 msgid "No story URL found."
@@ -2113,7 +2114,7 @@ msgstr "Descargando historias de «fanfiction»"
 
 #: jobs.py:91
 msgid "%d of %d stories finished downloading"
-msgstr ""
+msgstr "%d de %d historias han terminado de descargarse"
 
 #: jobs.py:103
 msgid "Download Results:"
@@ -2133,7 +2134,7 @@ msgstr "Descarga comenzada..."
 
 #: jobs.py:230
 msgid "Download %s completed, %s chapters."
-msgstr ""
+msgstr "Descarga %s completada, %s capítulos."
 
 #: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
