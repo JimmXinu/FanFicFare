@@ -329,7 +329,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         div = self.utf8FromSoup(url, story2)
 #        logger.debug(div)
 
-        fullhtml = str(div)
+        fullhtml = unicode(div)
 #         logger.debug(fullhtml)
         fullhtml = re.sub(r'<br />\s*<br />', r'</p><p>', fullhtml)
         fullhtml = re.sub(r'^<div>', r'', fullhtml)
