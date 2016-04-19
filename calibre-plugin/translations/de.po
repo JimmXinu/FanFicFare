@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-03-22 21:58+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-07 16:00+0000\n"
+"PO-Revision-Date: 2016-04-16 14:33+0000\n"
 "Last-Translator: ILB\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -1720,19 +1720,19 @@ msgstr "Vorhandene Liste aktualisieren"
 
 #: fff_plugin.py:952
 msgid "Start queuing downloading for %s stories."
-msgstr ""
+msgstr "Starte anstehenden Download für %s Stories."
 
 #: fff_plugin.py:953
 msgid "Queuing download for stories..."
-msgstr ""
+msgstr "Anstehender Download für Stories ..."
 
 #: fff_plugin.py:954
 msgid "Queuing download for stories"
-msgstr ""
+msgstr "Anstehender Download für Stories"
 
 #: fff_plugin.py:955
 msgid "Queued download for"
-msgstr ""
+msgstr "Anstehender Download für"
 
 #: fff_plugin.py:957
 msgid "Started fetching metadata for %s stories."
@@ -2076,7 +2076,7 @@ msgstr "Sie konfigurierten FanFicFare die \"ans Gerät senden\"-Lese-Listen auto
 
 #: fff_plugin.py:2238
 msgid "Same story already included."
-msgstr ""
+msgstr "Die gleiche Story ist bereits enthalten."
 
 #: fff_plugin.py:2298
 msgid "No story URL found."
