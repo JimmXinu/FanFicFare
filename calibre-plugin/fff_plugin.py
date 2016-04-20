@@ -2076,7 +2076,7 @@ class FanFicFarePlugin(InterfaceAction):
                     #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                     for (template,regexp,setting) in configuration.get_generate_cover_settings():
                         value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
-                        print("%s(%s) => %s => %s"%(template,value,regexp,setting))
+                        # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
                         if re.search(regexp,value):
                             setting_name = setting
                             break

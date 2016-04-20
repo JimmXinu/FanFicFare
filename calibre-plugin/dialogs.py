@@ -647,8 +647,7 @@ class LoopProgressDialog(QProgressDialog):
         except Exception as e:
             book['good']=False
             book['comment']=unicode(e)
-            logger.error("Exception: %s:%s"%(book,unicode(e)))
-            traceback.print_exc()
+            logger.error("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
 
         self.updateStatus()
         self.i += 1

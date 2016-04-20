@@ -319,8 +319,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['comment']=unicode(e)
             book['icon']='dialog_error.png'
             book['status'] = _('Error')
-            logger.info("Exception: %s:%s"%(book,unicode(e)))
-            traceback.print_exc()
+            logger.info("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
             
         #time.sleep(10)
     return book

@@ -84,8 +84,7 @@ def get_update_data(inputio,
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
                 logger.warn("Cover Image %s not found"%src)
-                logger.warn("Exception: %s"%(unicode(e)))
-                traceback.print_exc()
+                logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
 
     filecount = 0
     soups = [] # list of xhmtl blocks
@@ -127,8 +126,7 @@ def get_update_data(inputio,
                                 # originally.
                                 if newsrc != u'OEBPS/failedtoload':
                                     logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warn("Exception: %s"%(unicode(e)))
-                                    traceback.print_exc()
+                                    logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
