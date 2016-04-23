@@ -272,7 +272,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
             return makeDate(datestr, self.dateformat)
         except:
-            logger.debug('No date found in %s'%parenttag)
+            logger.debug('No date found in %s'%parenttag,exc_info=True)
             return None
 
     # grab the text for an individual chapter.
