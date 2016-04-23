@@ -63,17 +63,17 @@ class QuotevComAdapter(BaseSiteAdapter):
         title = element.find('h1')
         self.story.setMetadata('title', title.get_text())
         
-        authdiv = title.next_sibling # soup.find('div', {'style':"font-size:0.7em;color:#aaa;margin-top:-10px;text-align:center;margin-left:45px;cursor:pointer"})
+        authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
-            #print("div:%s"%authdiv.find_all('a'))
+            print("div:%s"%authdiv)
             for a in authdiv.find_all('a'):
                 self.story.addToList('author', a.get_text())
                 self.story.addToList('authorId', a['href'].split('/')[-1])
                 self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
-        else:
-            self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl','http://www.quotev.com')
-            self.story.setMetadata('authorId','0')
+        if not self.story.getList('author'):
+            self.story.addToList('author','Anonymous')
+            self.story.addToList('authorUrl','http://www.quotev.com')
+            self.story.addToList('authorId','0')
 
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         imgmeta = soup.find('meta',{'property':"og:image" })
