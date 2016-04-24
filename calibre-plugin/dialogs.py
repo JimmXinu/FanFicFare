@@ -581,14 +581,34 @@ class UserPassDialog(QDialog):
         self.status=False
         self.hide()
 
-class LoopProgressDialog(QProgressDialog):
+def LoopProgressDialog(gui,
+                       book_list,
+                       foreach_function,
+                       finish_function,
+                       init_label=_("Fetching metadata for stories..."),
+                       win_title=_("Downloading metadata for stories"),
+                       status_prefix=_("Fetched metadata for")):
+    ld = _LoopProgressDialog(gui,
+                             book_list,
+                             foreach_function,
+                             init_label,
+                             win_title,
+                             status_prefix)
+    
+    # Mac OS X gets upset if the finish_function is called from inside
+    # the real _LoopProgressDialog class.
+    
+    # reflect old behavior.
+    if not ld.wasCanceled():
+        finish_function(book_list)
+        
+class _LoopProgressDialog(QProgressDialog):
     '''
     ProgressDialog displayed while fetching metadata for each story.
     '''
     def __init__(self, gui,
                  book_list,
                  foreach_function,
-                 finish_function,
                  init_label=_("Fetching metadata for stories..."),
                  win_title=_("Downloading metadata for stories"),
                  status_prefix=_("Fetched metadata for")):
@@ -599,7 +619,6 @@ class LoopProgressDialog(QProgressDialog):
         self.setMinimumWidth(500)
         self.book_list = book_list
         self.foreach_function = foreach_function
-        self.finish_function = finish_function
         self.status_prefix = status_prefix
         self.i = 0
         self.start_time = datetime.now()
@@ -659,8 +678,6 @@ class LoopProgressDialog(QProgressDialog):
 
     def do_when_finished(self):
         self.hide()
-        # Queues a job to process these books in the background.
-        self.finish_function(self.book_list)
 
 def time_duration_format(seconds):
     """
