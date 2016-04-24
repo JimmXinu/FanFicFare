@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-03-22 21:58+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-16 19:19+0000\n"
+"PO-Revision-Date: 2016-04-22 09:32+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -157,7 +157,7 @@ msgstr ""
 
 #: config.py:432
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr ""
+msgstr "Som standard uppdatera EPUB omslag vid uppdatering av EPUB?"
 
 #: config.py:433
 msgid ""
