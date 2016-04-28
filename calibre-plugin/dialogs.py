@@ -658,6 +658,7 @@ class _LoopProgressDialog(QProgressDialog):
             self.foreach_function(book)
 
         except NotGoingToDownload as d:
+            book['status']=_('Skipped')
             book['good']=False
             book['showerror']=d.showerror
             book['comment']=unicode(d)
