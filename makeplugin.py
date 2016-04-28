@@ -36,7 +36,7 @@ if __name__=="__main__":
 
     os.chdir('../included_dependencies')
     # 'a' for append
-    files=['gif.py','six.py','bs4','html5lib','chardet']
+    files=['gif.py','six.py','bs4','html5lib','chardet','html2text']
     createZipFile("../"+filename,"a",
                   files,
                   exclude=exclude)

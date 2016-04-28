@@ -81,7 +81,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['beautifulsoup4','chardet','html5lib'], # html5lib requires 'six'.
+    install_requires=['beautifulsoup4','chardet','html5lib','html2text'], # html5lib requires 'six'.
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
