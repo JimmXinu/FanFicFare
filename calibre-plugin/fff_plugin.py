@@ -1475,7 +1475,8 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.proceed_question(self.update_error_column,
                                       payload, htmllog,
                                       _('FanFicFare log'), _('FanFicFare download ended'), msg,
-                                      show_copy_button=False)
+                                      show_copy_button=False,
+                                      log_viewer_unique_name="FanFicFare log viewer")
             return
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
@@ -1712,7 +1713,8 @@ class FanFicFarePlugin(InterfaceAction):
         self.gui.proceed_question(do_update_func,
                                   payload, htmllog,
                                   _('FanFicFare log'), _('FanFicFare download complete'), msg,
-                                  show_copy_button=False)
+                                  show_copy_button=False,
+                                  log_viewer_unique_name="FanFicFare log viewer")
 
     def do_download_merge_update(self, payload):
 
