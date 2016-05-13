@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Adolfo Jayme-Barrientos, 2014
+# Fitoschido, 2014
 # dario hereñu <magallania@gmail.com>, 2015
 # Jellby <jellby@yahoo.com>, 2014-2016
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
@@ -10,7 +10,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-03-22 21:58+Central Daylight Time\n"
+"POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
 "PO-Revision-Date: 2016-04-13 22:04+0000\n"
 "Last-Translator: Antonio Mireles <antonio@mirelesindependent.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
@@ -21,11 +21,11 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: __init__.py:42
+#: __init__.py:48
 msgid "UI plugin to download FanFiction stories from various sites."
 msgstr "Complemento de interfaz de usuario para descargar historias de «fanfiction» desde distintos sitios de Internet."
 
-#: __init__.py:116
+#: __init__.py:122
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
@@ -452,7 +452,7 @@ msgid ""
 "<b>http://...,title by author - note</b>"
 msgstr "Un URL por línea.\n<b>http://...,nota</b>\n<b>http://...,título por autor - nota</b>"
 
-#: config.py:650 dialogs.py:1102
+#: config.py:650 dialogs.py:1119
 msgid "Add this reason to all URLs added:"
 msgstr "Añadir este motivo a todos los URL añadidos:"
 
@@ -867,7 +867,7 @@ msgstr "ID del autor"
 msgid "Extra Tags"
 msgstr "Etiquetas adicionales"
 
-#: config.py:1255 config.py:1395 dialogs.py:893 dialogs.py:989
+#: config.py:1255 config.py:1395 dialogs.py:910 dialogs.py:1006
 #: fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Title"
 msgstr "Título"
@@ -880,7 +880,7 @@ msgstr "URL de la historia"
 msgid "Description"
 msgstr "Descripción"
 
-#: config.py:1258 dialogs.py:893 dialogs.py:989 fff_plugin.py:1464
+#: config.py:1258 dialogs.py:910 dialogs.py:1006 fff_plugin.py:1464
 #: fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Author"
 msgstr "Autor"
@@ -1138,34 +1138,34 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr "<b>Lo más seguro es crear una cuenta de correo electrónico separada que use sólo para las notificaciones de actualización de historias. FanFicFare y calibre no pueden garantizar que ningún software malicioso pueda obtener la contraseña una vez que la haya introducido.<br>Use esta función bajo su propia responsabilidad.</b>"
 
-#: dialogs.py:245 dialogs.py:773
+#: dialogs.py:245 dialogs.py:790
 msgid "Show Download Options"
 msgstr "Mostrar opciones de descarga"
 
-#: dialogs.py:264 dialogs.py:793
+#: dialogs.py:264 dialogs.py:810
 msgid "Output &Format:"
 msgstr "&Formato de salida:"
 
-#: dialogs.py:272 dialogs.py:801
+#: dialogs.py:272 dialogs.py:818
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Elija un formato de salida para crear. Puede establecer el predeterminado en la configuración del complemento."
 
-#: dialogs.py:300 dialogs.py:821
+#: dialogs.py:300 dialogs.py:838
 msgid "Update Calibre &Metadata?"
 msgstr "¿Actualizar los metadatos de calibre?"
 
-#: dialogs.py:301 dialogs.py:822
+#: dialogs.py:301 dialogs.py:839
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr "¿Actualizar los metadatos de las historias existentes en calibre a partir del sitio de internet?\n(Las columnas establecidas en «Sólo nuevo» en la pestaña de columnas sólo se cambiarán para libros nuevos)."
 
-#: dialogs.py:307 dialogs.py:826
+#: dialogs.py:307 dialogs.py:843
 msgid "Update EPUB Cover?"
 msgstr "¿Actualizar portada del archivo EPUB?"
 
-#: dialogs.py:308 dialogs.py:827
+#: dialogs.py:308 dialogs.py:844
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
@@ -1230,11 +1230,11 @@ msgid ""
 "Requires %s plugin."
 msgstr "Obtener URL e ir a la ventana de descarga para antologías.\nRequiere el complemento %s."
 
-#: dialogs.py:516 dialogs.py:570 dialogs.py:597 dialogs.py:1504
+#: dialogs.py:516 dialogs.py:570 dialogs.py:617 dialogs.py:1521
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: dialogs.py:548 dialogs.py:1492
+#: dialogs.py:548 dialogs.py:1509
 msgid "Password"
 msgstr "Contraseña"
 
@@ -1258,84 +1258,88 @@ msgstr "Usuario:"
 msgid "Password:"
 msgstr "Contraseña:"
 
-#: dialogs.py:566 dialogs.py:715 dialogs.py:1500
+#: dialogs.py:566 dialogs.py:732 dialogs.py:1517
 msgid "OK"
 msgstr "Aceptar"
 
-#: dialogs.py:592 fff_plugin.py:958
+#: dialogs.py:588 dialogs.py:612 fff_plugin.py:958
 msgid "Fetching metadata for stories..."
 msgstr "Obteniendo metadatos para las historias..."
 
-#: dialogs.py:593 fff_plugin.py:959
+#: dialogs.py:589 dialogs.py:613 fff_plugin.py:959
 msgid "Downloading metadata for stories"
 msgstr "Descargando metadatos para las historias"
 
-#: dialogs.py:594 fff_plugin.py:960
+#: dialogs.py:590 dialogs.py:614 fff_plugin.py:960
 msgid "Fetched metadata for"
 msgstr "Metadatos obtenidos para"
 
-#: dialogs.py:624
+#: dialogs.py:643
 msgid " - %s estimated until done"
 msgstr "- aproximadamente %s para terminar"
 
-#: dialogs.py:675
+#: dialogs.py:661 fff_plugin.py:1168
+msgid "Skipped"
+msgstr "Omitida"
+
+#: dialogs.py:692
 msgid "%d day"
 msgstr "%d día"
 
-#: dialogs.py:675
+#: dialogs.py:692
 msgid "%d days"
 msgstr "%d días"
 
-#: dialogs.py:676
+#: dialogs.py:693
 msgid "%d hour"
 msgstr "%d hora"
 
-#: dialogs.py:676
+#: dialogs.py:693
 msgid "%d hours"
 msgstr "%d horas"
 
-#: dialogs.py:677
+#: dialogs.py:694
 msgid "%d minute"
 msgstr "%d minuto"
 
-#: dialogs.py:677
+#: dialogs.py:694
 msgid "%d minutes"
 msgstr "%d minutos"
 
-#: dialogs.py:678
+#: dialogs.py:695
 msgid "%d second"
 msgstr "%d segundo"
 
-#: dialogs.py:678
+#: dialogs.py:695
 msgid "%d seconds"
 msgstr "%d segundos"
 
-#: dialogs.py:693
+#: dialogs.py:710
 msgid "less than 1 second"
 msgstr "menos de 1 segundo"
 
-#: dialogs.py:710 fff_plugin.py:381 fff_plugin.py:384
+#: dialogs.py:727 fff_plugin.py:381 fff_plugin.py:384
 msgid "About FanFicFare"
 msgstr "Acerca de FanFicFare"
 
-#: dialogs.py:764
+#: dialogs.py:781
 msgid "Remove selected books from the list"
 msgstr "Eliminar los libros seleccionados de la lista"
 
-#: dialogs.py:806
+#: dialogs.py:823
 msgid "Update Mode:"
 msgstr "Modo de actualización:"
 
-#: dialogs.py:809
+#: dialogs.py:826
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr "Qué tipo de actualización se realizará. Puede definirse el valor predeterminado en la configuración del complemento."
 
-#: dialogs.py:831
+#: dialogs.py:848
 msgid "Background Metadata?"
 msgstr "¿Metadatos en segundo plano?"
 
-#: dialogs.py:832
+#: dialogs.py:849
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1343,103 +1347,103 @@ msgid ""
 " fail."
 msgstr "Recopilar metadatos de Internet en un proceso en segundo plano.<br/>Esto le devuelve el control más rápidamente al actualizar, pero no tendrá la posibilidad de introducir contraseñas o especificar si es usted adulto, las historias que requieran esa información fallarán sin más."
 
-#: dialogs.py:893 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
+#: dialogs.py:910 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Comment"
 msgstr "Comentario"
 
-#: dialogs.py:961
+#: dialogs.py:978
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "¿Está seguro de querer eliminar este libro de la lista?"
 
-#: dialogs.py:963
+#: dialogs.py:980
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "¿Está seguro de querer eliminar los %d libros seleccionados de la lista?"
 
-#: dialogs.py:989
+#: dialogs.py:1006
 msgid "Note"
 msgstr "Nota"
 
-#: dialogs.py:1028
+#: dialogs.py:1045
 msgid "Select or Edit Reject Note."
 msgstr "Seleccionar o modificar nota de rechazo."
 
-#: dialogs.py:1037
+#: dialogs.py:1054
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "¿Está seguro de querer eliminar este URL de la lista?"
 
-#: dialogs.py:1039
+#: dialogs.py:1056
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr "¿Está seguro de querer eliminar los %d URL seleccionados de la lista?"
 
-#: dialogs.py:1057
+#: dialogs.py:1074
 msgid "List of Books to Reject"
 msgstr "Lista de libros para rechazar"
 
-#: dialogs.py:1070
+#: dialogs.py:1087
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr "FFF recordará estos URL, mostrará una nota y le permitirá rechazarlos si vuelve a intentar descargarlos más adelante."
 
-#: dialogs.py:1084
+#: dialogs.py:1101
 msgid "Remove selected URLs from the list"
 msgstr "Eliminar los URL seleccionados de la lista"
 
-#: dialogs.py:1099 dialogs.py:1103
+#: dialogs.py:1116 dialogs.py:1120
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr "Se añadirá a cualquier nota que haya establecido para cada URL anterior."
 
-#: dialogs.py:1113
+#: dialogs.py:1130
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr "¿Eliminar libros (incluyendo libros sin URL de «fanfiction»)?"
 
-#: dialogs.py:1114
+#: dialogs.py:1131
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "Eliminar los libros seleccionados después de añadirlos a la lista de URL rechazados."
 
-#: dialogs.py:1270
+#: dialogs.py:1287
 msgid "Search for string in edit box."
 msgstr "Buscar el texto en el cuadro."
 
-#: dialogs.py:1273
+#: dialogs.py:1290
 msgid "Find:"
 msgstr "Buscar:"
 
-#: dialogs.py:1278
+#: dialogs.py:1295
 msgid "Find"
 msgstr "Buscar"
 
-#: dialogs.py:1288
+#: dialogs.py:1305
 msgid "Case sensitive"
 msgstr "Distinguir mayúsculas y minúsculas"
 
-#: dialogs.py:1289
+#: dialogs.py:1306
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr "Buscar texto distinguiendo mayúsculas y minúsculas; no considera que Carlos, CARLOS y carlos son todos iguales."
 
-#: dialogs.py:1318
+#: dialogs.py:1335
 msgid "Go back to fix errors?"
 msgstr "¿Volver atrás para corregir errores?"
 
-#: dialogs.py:1430
+#: dialogs.py:1447
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Pulse en un error más abajo para volver a modificar directamente esa línea:"
 
-#: dialogs.py:1444
+#: dialogs.py:1461
 msgid "Click to go to line %s"
 msgstr "Pulsar para ir a la línea %s"
 
-#: dialogs.py:1460
+#: dialogs.py:1477
 msgid "Return to Editing"
 msgstr "Volver a modificar"
 
-#: dialogs.py:1464
+#: dialogs.py:1481
 msgid "Save Anyway"
 msgstr "Guardar de todas formas"
 
-#: dialogs.py:1493
+#: dialogs.py:1510
 msgid "Enter Email Password for %s:"
 msgstr "Introduzca la contraseña de correo electrónico para %s:"
 
@@ -1815,10 +1819,6 @@ msgstr "Pulse en «<b>Sí</b>» para omitir."
 #: fff_plugin.py:1162
 msgid "Story in Series Anthology(%s)."
 msgstr "Historia en antología de serie (%s)."
-
-#: fff_plugin.py:1168
-msgid "Skipped"
-msgstr "Omitida"
 
 #: fff_plugin.py:1178
 msgid "Add"

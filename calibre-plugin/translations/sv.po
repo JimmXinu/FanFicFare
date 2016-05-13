@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2016-03-22 21:58+Central Daylight Time\n"
+"POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
 "PO-Revision-Date: 2016-04-22 09:32+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: __init__.py:42
+#: __init__.py:48
 msgid "UI plugin to download FanFiction stories from various sites."
 msgstr "Grafisk gränssnittsinstickprogram för att ladda ner FanFiction historier från diverse platser."
 
-#: __init__.py:116
+#: __init__.py:122
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
@@ -450,7 +450,7 @@ msgid ""
 "<b>http://...,title by author - note</b>"
 msgstr ""
 
-#: config.py:650 dialogs.py:1102
+#: config.py:650 dialogs.py:1119
 msgid "Add this reason to all URLs added:"
 msgstr ""
 
@@ -865,7 +865,7 @@ msgstr "Författar-ID"
 msgid "Extra Tags"
 msgstr "Extra taggar"
 
-#: config.py:1255 config.py:1395 dialogs.py:893 dialogs.py:989
+#: config.py:1255 config.py:1395 dialogs.py:910 dialogs.py:1006
 #: fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Title"
 msgstr "Titel"
@@ -878,7 +878,7 @@ msgstr "Berättelse-URL"
 msgid "Description"
 msgstr "Beskrivning"
 
-#: config.py:1258 dialogs.py:893 dialogs.py:989 fff_plugin.py:1464
+#: config.py:1258 dialogs.py:910 dialogs.py:1006 fff_plugin.py:1464
 #: fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Author"
 msgstr "Författare"
@@ -1136,34 +1136,34 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr ""
 
-#: dialogs.py:245 dialogs.py:773
+#: dialogs.py:245 dialogs.py:790
 msgid "Show Download Options"
 msgstr "Visa nedladdningsalternativ"
 
-#: dialogs.py:264 dialogs.py:793
+#: dialogs.py:264 dialogs.py:810
 msgid "Output &Format:"
 msgstr ""
 
-#: dialogs.py:272 dialogs.py:801
+#: dialogs.py:272 dialogs.py:818
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Välj utdataformat att skapa. Kan fastställa standard från plugin konfiguration."
 
-#: dialogs.py:300 dialogs.py:821
+#: dialogs.py:300 dialogs.py:838
 msgid "Update Calibre &Metadata?"
 msgstr ""
 
-#: dialogs.py:301 dialogs.py:822
+#: dialogs.py:301 dialogs.py:839
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr ""
 
-#: dialogs.py:307 dialogs.py:826
+#: dialogs.py:307 dialogs.py:843
 msgid "Update EPUB Cover?"
 msgstr "Uppdatera EPUB omslag?"
 
-#: dialogs.py:308 dialogs.py:827
+#: dialogs.py:308 dialogs.py:844
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
@@ -1228,11 +1228,11 @@ msgid ""
 "Requires %s plugin."
 msgstr ""
 
-#: dialogs.py:516 dialogs.py:570 dialogs.py:597 dialogs.py:1504
+#: dialogs.py:516 dialogs.py:570 dialogs.py:617 dialogs.py:1521
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: dialogs.py:548 dialogs.py:1492
+#: dialogs.py:548 dialogs.py:1509
 msgid "Password"
 msgstr "Lösenord"
 
@@ -1256,84 +1256,88 @@ msgstr "Användare:"
 msgid "Password:"
 msgstr "Lösenord:"
 
-#: dialogs.py:566 dialogs.py:715 dialogs.py:1500
+#: dialogs.py:566 dialogs.py:732 dialogs.py:1517
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:592 fff_plugin.py:958
+#: dialogs.py:588 dialogs.py:612 fff_plugin.py:958
 msgid "Fetching metadata for stories..."
 msgstr ""
 
-#: dialogs.py:593 fff_plugin.py:959
+#: dialogs.py:589 dialogs.py:613 fff_plugin.py:959
 msgid "Downloading metadata for stories"
 msgstr ""
 
-#: dialogs.py:594 fff_plugin.py:960
+#: dialogs.py:590 dialogs.py:614 fff_plugin.py:960
 msgid "Fetched metadata for"
 msgstr ""
 
-#: dialogs.py:624
+#: dialogs.py:643
 msgid " - %s estimated until done"
 msgstr " - %s estimaterade till klara"
 
-#: dialogs.py:675
+#: dialogs.py:661 fff_plugin.py:1168
+msgid "Skipped"
+msgstr "Hoppade över"
+
+#: dialogs.py:692
 msgid "%d day"
 msgstr "%d dag"
 
-#: dialogs.py:675
+#: dialogs.py:692
 msgid "%d days"
 msgstr "%d dagar"
 
-#: dialogs.py:676
+#: dialogs.py:693
 msgid "%d hour"
 msgstr "%d timme"
 
-#: dialogs.py:676
+#: dialogs.py:693
 msgid "%d hours"
 msgstr "%d timmar"
 
-#: dialogs.py:677
+#: dialogs.py:694
 msgid "%d minute"
 msgstr "%d minut"
 
-#: dialogs.py:677
+#: dialogs.py:694
 msgid "%d minutes"
 msgstr "%d minuter"
 
-#: dialogs.py:678
+#: dialogs.py:695
 msgid "%d second"
 msgstr "%d sekund"
 
-#: dialogs.py:678
+#: dialogs.py:695
 msgid "%d seconds"
 msgstr "%d sekunder"
 
-#: dialogs.py:693
+#: dialogs.py:710
 msgid "less than 1 second"
 msgstr "mindre än 1 sekund"
 
-#: dialogs.py:710 fff_plugin.py:381 fff_plugin.py:384
+#: dialogs.py:727 fff_plugin.py:381 fff_plugin.py:384
 msgid "About FanFicFare"
 msgstr "Om FanFicFare"
 
-#: dialogs.py:764
+#: dialogs.py:781
 msgid "Remove selected books from the list"
 msgstr "Ta bort valda böcker från listan"
 
-#: dialogs.py:806
+#: dialogs.py:823
 msgid "Update Mode:"
 msgstr "Uppdateringsläge:"
 
-#: dialogs.py:809
+#: dialogs.py:826
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:831
+#: dialogs.py:848
 msgid "Background Metadata?"
 msgstr ""
 
-#: dialogs.py:832
+#: dialogs.py:849
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1341,103 +1345,103 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:893 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
+#: dialogs.py:910 fff_plugin.py:1464 fff_plugin.py:1663 fff_plugin.py:1693
 msgid "Comment"
 msgstr "Kommentar"
 
-#: dialogs.py:961
+#: dialogs.py:978
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Är du säker du vill ta bort denna bok från listan?"
 
-#: dialogs.py:963
+#: dialogs.py:980
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Är du säker du vill ta bort valda %d böcker från listan?"
 
-#: dialogs.py:989
+#: dialogs.py:1006
 msgid "Note"
 msgstr ""
 
-#: dialogs.py:1028
+#: dialogs.py:1045
 msgid "Select or Edit Reject Note."
 msgstr ""
 
-#: dialogs.py:1037
+#: dialogs.py:1054
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr ""
 
-#: dialogs.py:1039
+#: dialogs.py:1056
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr ""
 
-#: dialogs.py:1057
+#: dialogs.py:1074
 msgid "List of Books to Reject"
 msgstr ""
 
-#: dialogs.py:1070
+#: dialogs.py:1087
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr ""
 
-#: dialogs.py:1084
+#: dialogs.py:1101
 msgid "Remove selected URLs from the list"
 msgstr "Ta bort valda URL:er från listan"
 
-#: dialogs.py:1099 dialogs.py:1103
+#: dialogs.py:1116 dialogs.py:1120
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr ""
 
-#: dialogs.py:1113
+#: dialogs.py:1130
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr ""
 
-#: dialogs.py:1114
+#: dialogs.py:1131
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr ""
 
-#: dialogs.py:1270
+#: dialogs.py:1287
 msgid "Search for string in edit box."
 msgstr "Sök efter sträng i redigeringsrutan."
 
-#: dialogs.py:1273
+#: dialogs.py:1290
 msgid "Find:"
 msgstr "Hitta:"
 
-#: dialogs.py:1278
+#: dialogs.py:1295
 msgid "Find"
 msgstr "Hitta"
 
-#: dialogs.py:1288
+#: dialogs.py:1305
 msgid "Case sensitive"
 msgstr "Teckenlägeskänslig"
 
-#: dialogs.py:1289
+#: dialogs.py:1306
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr ""
 
-#: dialogs.py:1318
+#: dialogs.py:1335
 msgid "Go back to fix errors?"
 msgstr ""
 
-#: dialogs.py:1430
+#: dialogs.py:1447
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr ""
 
-#: dialogs.py:1444
+#: dialogs.py:1461
 msgid "Click to go to line %s"
 msgstr "Klicka för att gå till rad %s"
 
-#: dialogs.py:1460
+#: dialogs.py:1477
 msgid "Return to Editing"
 msgstr "Återgå till redigering"
 
-#: dialogs.py:1464
+#: dialogs.py:1481
 msgid "Save Anyway"
 msgstr "Spara i alla fall"
 
-#: dialogs.py:1493
+#: dialogs.py:1510
 msgid "Enter Email Password for %s:"
 msgstr "Ange lösenord för e-postadress till %s:"
 
@@ -1813,10 +1817,6 @@ msgstr ""
 #: fff_plugin.py:1162
 msgid "Story in Series Anthology(%s)."
 msgstr ""
-
-#: fff_plugin.py:1168
-msgid "Skipped"
-msgstr "Hoppade över"
 
 #: fff_plugin.py:1178
 msgid "Add"
