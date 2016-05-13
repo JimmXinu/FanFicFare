@@ -102,7 +102,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 		
         ## Title
-        a = soup.find('h1')
+        a = soup.find('section',{'class':'chapter-info'}).find('h1')
+        # kill '+' marks if present.
+        sup = a.find('sup')
+        if sup:
+            sup.extract()
         self.story.setMetadata('title',stripHTML(a))
         logger.debug("Title: (%s)"%self.story.getMetadata('title'))
 
