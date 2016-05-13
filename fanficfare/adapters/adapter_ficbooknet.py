@@ -55,7 +55,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/readfic/'+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/readfic/'+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fbn')
@@ -71,10 +71,10 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/readfic/12345 http://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content"
+        return "https://"+cls.getSiteDomain()+"/readfic/12345 https://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/readfic/")+r"\d+"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"\d+"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -92,39 +92,47 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
+        adult_div = soup.find('div',id='adultCoverWarning')
+        if adult_div:
+            if self.is_adult or self.getConfig("is_adult"):
+                adult_div.extract()
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
+        
         # Now go hunting for all the meta data and the chapter list.
 		
-        table = soup.find('td',{'width':'50%'})
-
         ## Title
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
         logger.debug("Title: (%s)"%self.story.getMetadata('title'))
 
         # Find authorid and URL from... author url.
-        a = table.find('a')
+        # assume first avatar-nickname -- there can be a second marked 'beta'.
+        a = soup.find('a',{'class':'avatar-nickname'})
         self.story.setMetadata('authorId',a.text) # Author's name is unique
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.text)
         logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
         # Find the chapters:
-        chapters = soup.find('div', {'class' : 'part_list'})
+        chapters = soup.find('ul', {'class' : 'table-of-contents'})
         if chapters != None:
             chapters=chapters.findAll('a', href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"/\d+#part_content$"))
             self.story.setMetadata('numChapters',len(chapters))
             for x in range(0,len(chapters)):
                 chapter=chapters[x]
-                churl='http://'+self.host+chapter['href']
+                churl='https://'+self.host+chapter['href']
                 self.chapterUrls.append((stripHTML(chapter),churl))
                 if x == 0:
-                    pubdate = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
+                    pubdate = translit.translit(stripHTML(chapter.parent.find('span')))
+                    # pubdate = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
                 if x == len(chapters)-1:
-                    update = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
+                    update = translit.translit(stripHTML(chapter.parent.find('span')))
+                    # update = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
         else:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
             self.story.setMetadata('numChapters',1)
-            pubdate=translit.translit(stripHTML(soup.find('div', {'class' : 'part_added'}).find('span')))
+            pubdate=translit.translit(stripHTML(soup.find('div',{'class':'title-area'}).find('span')))
             update=pubdate
 
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
@@ -158,54 +166,63 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
         self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
         self.story.setMetadata('language','Russian')
-		
-        pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
-        pr='http://'+self.host+pr['href']
-        pr = self.make_soup(self._fetchUrl(pr))
-        pr=pr.findAll('div', {'class' : 'part_text'})
+
+        ## after site change, I don't see word count anywhere.
+        # pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
+        # pr='https://'+self.host+pr['href']
+        # pr = self.make_soup(self._fetchUrl(pr))
+        # pr=pr.findAll('div', {'class' : 'part_text'})
+        # i=0
+        # for part in pr:
+        #     i=i+len(stripHTML(part).split(' '))
+        # self.story.setMetadata('numWords', unicode(i))
+
+
+        dlinfo = soup.find('dl',{'class':'info'})
+        
         i=0
-        for part in pr:
-            i=i+len(stripHTML(part).split(' '))
-        self.story.setMetadata('numWords', unicode(i))
-		
-        i=0
-        fandoms = table.findAll('a', href=re.compile(r'/fanfiction/\w+'))
+        fandoms = dlinfo.find('dd').findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
         if i > 1:
             self.story.addToList('genre', u'Кроссовер')
-		
-        meta=table.findAll('a', href=re.compile(r'/ratings/'))
-        i=0
-        for m in meta:
-            if i == 0:
-                self.story.setMetadata('rating', stripHTML(m))
-                i=1
-            elif i == 1:
-                if not "," in m.nextSibling:
-                    i=2
-                self.story.addToList('genre', m.find('b').text)
-            elif i == 2:
-                self.story.addToList('warnings', m.find('b').text)
-		
 
-        if table.find('span', {'style' : 'color: green'}):
+        for genre in dlinfo.findAll('a',href=re.compile(r'/genres/')):
+            self.story.addToList('genre',stripHTML(genre))
+
+        ratingdt = dlinfo.find('dt',text='Рейтинг:')
+        self.story.setMetadata('rating', stripHTML(ratingdt.next_sibling))
+            
+        # meta=table.findAll('a', href=re.compile(r'/ratings/'))
+        # i=0
+        # for m in meta:
+        #     if i == 0:
+        #         self.story.setMetadata('rating', stripHTML(m))
+        #         i=1
+        #     elif i == 1:
+        #         if not "," in m.nextSibling:
+        #             i=2
+        #         self.story.addToList('genre', m.find('b').text)
+        #     elif i == 2:
+        #         self.story.addToList('warnings', m.find('b').text)		
+
+        if dlinfo.find('span', {'style' : 'color: green'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 		
 
-        tags = table.findAll('b')
+        tags = dlinfo.findAll('dt')
         for tag in tags:
             label = translit.translit(tag.text)
             if 'Piersonazhi:' in label or u'Персонажи:' in label:
-                chars=tag.nextSibling.string.split(', ')
+                chars=stripHTML(tag.next_sibling).split(', ')
                 for char in chars:
                     self.story.addToList('characters',char)
                 break
 				
-        summary=soup.find('span', {'class' : 'urlize'})
+        summary=soup.find('div', {'class' : 'urlize'})
         self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)
 
