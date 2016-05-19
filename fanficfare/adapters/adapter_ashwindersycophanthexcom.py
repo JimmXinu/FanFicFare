@@ -77,7 +77,8 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'This story contains adult content and/or themes.' in data \
-                or "That password doesn't match the one in our database" in data:
+                or "That password doesn't match the one in our database" in data \
+                or "Member Login" in data:
             return True
         else:
             return False
