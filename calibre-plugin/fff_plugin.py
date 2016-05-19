@@ -1752,6 +1752,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.get_epubmerge_plugin().do_merge(tmp.name,
                                              [ x['outfile'] for x in good_list ],
+                                             tags=mergebook['tags'],
                                              titleopt=mergebook['title'],
                                              keepmetadatafiles=True,
                                              source=mergebook['url'])
