@@ -73,7 +73,7 @@ except:
 
 from calibre.library.field_metadata import FieldMetadata
 field_metadata = FieldMetadata()
-    
+
 from calibre_plugins.fanficfare_plugin.common_utils import (
     set_plugin_icon_resources, get_icon, create_menu_action_unique,
     get_library_uuid)
@@ -497,11 +497,11 @@ class FanFicFarePlugin(InterfaceAction):
                         },"\n".join(url_list))
             else:
                 self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
-                
+
         else:
             if url_list:
                 self.add_dialog("\n".join(url_list),merge=False)
-            else:            
+            else:
                 msg = _('No Valid Story URLs Found in Unread Emails.')
                 if reject_list:
                     msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
@@ -509,7 +509,7 @@ class FanFicFarePlugin(InterfaceAction):
                             msg,
                             show=True,
                             show_copy_button=False)
-    
+
     def get_urls_from_page_menu(self,anthology=False):
 
         urltxt = ""
@@ -534,7 +534,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
         self.restore_cursor()
-        
+
         if url_list:
             self.add_dialog("\n".join(url_list),merge=d.anthology,anthology_url=url)
         else:
@@ -606,7 +606,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.status_bar.show_message(_('Can only UnNew books in library'),
                                              3000)
             return
-        
+
         if not self.gui.current_view().selectionModel().selectedRows() :
             self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
                                              3000)
@@ -632,7 +632,7 @@ class FanFicFarePlugin(InterfaceAction):
                                           suffix='.epub',
                                           dir=tdir)
             db.copy_format_to(book['calibre_id'],'EPUB',tmp,index_is_id=True)
-            
+
             unnewtmp = PersistentTemporaryFile(prefix='unnew-%s-'%book['calibre_id'],
                                                suffix='.epub',
                                                dir=tdir)
@@ -656,7 +656,7 @@ class FanFicFarePlugin(InterfaceAction):
                     if fmt.lower() != 'epub' and db.has_format(book['calibre_id'],fmt,index_is_id=True):
                         logger.debug("autoconvert remove f:"+fmt)
                         db.remove_format(book['calibre_id'], fmt, index_is_id=True)#, notify=False
-                
+
     def get_unnew_books_finish(self, book_list, tdir=None):
         remove_dir(tdir)
         if prefs['autoconvert']:
@@ -787,7 +787,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.busy_cursor()
         self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
-        
+
         # get list from identifiers:url/uri if present, but only if
         # it's *not* a valid story URL.
         mergeurl = self.get_story_url(db,book_id)
@@ -798,7 +798,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
         self.restore_cursor()
-        
+
         #print("urlmapfile:%s"%urlmapfile)
 
         # AddNewDialog collects URLs, format and presents buttons.
@@ -958,7 +958,7 @@ class FanFicFarePlugin(InterfaceAction):
                 init_label=_("Fetching metadata for stories...")
                 win_title=_("Downloading metadata for stories")
                 status_prefix=_("Fetched metadata for")
-                
+
             self.gui.status_bar.show_message(status_bar, 3000)
             LoopProgressDialog(self.gui,
                                books,
@@ -1072,7 +1072,7 @@ class FanFicFarePlugin(InterfaceAction):
             ## Getting metadata from configured column.
             custom_columns = self.gui.library_view.model().custom_columns
             if ( collision in (CALIBREONLYSAVECOL) and
-                 prefs['savemetacol'] != '' and 
+                 prefs['savemetacol'] != '' and
                  prefs['savemetacol'] in custom_columns ):
 
                 savedmeta_book_id = book['calibre_id']
@@ -1081,13 +1081,13 @@ class FanFicFarePlugin(InterfaceAction):
                     identicalbooks = self.do_id_search(url)
                     if len(identicalbooks) == 1:
                         savedmeta_book_id = identicalbooks.pop()
-                        
+
                 if savedmeta_book_id:
                     label = custom_columns[prefs['savemetacol']]['label']
                     savedmetadata = db.get_custom(savedmeta_book_id, label=label, index_is_id=True)
                 else:
                     savedmetadata = None
-                    
+
                 if savedmetadata:
                     # sets flag inside story so getStoryMetadataOnly won't hit server.
                     adapter.setStoryMetadata(savedmetadata)
@@ -1123,19 +1123,19 @@ class FanFicFarePlugin(InterfaceAction):
                         if userpass.status:
                             adapter.username = userpass.user.text()
                             adapter.password = userpass.passwd.text()
-        
+
                     except exceptions.AdultCheckRequired:
                         if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
                                            _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
                                            show_copy_button=False):
                             adapter.is_adult=True
-        
+
                 # let other exceptions percolate up.
                 story = adapter.getStoryMetadataOnly(get_cover=False)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
                 book['url'] = story.getMetadata('storyUrl')
-        
+
             ## Check reject list.  Redundant with below for when story
             ## URL changes, but also kept here to avoid network hit in
             ## most common case where given url is story url.
@@ -1167,7 +1167,7 @@ class FanFicFarePlugin(InterfaceAction):
                         book['icon']='rotate-right.png'
                         book['status'] = _('Skipped')
                         return
-    
+
         ################################################################################################################################################33
 
         book['is_adult'] = adapter.is_adult
@@ -1176,7 +1176,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         book['icon'] = 'plus.png'
         book['status'] = _('Add')
-        
+
         if not bgmeta:
             # set PI version instead of default.
             if 'version' in options:
@@ -1187,7 +1187,7 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['savemetacol'] != '':
                 # get metadata to save in configured column.
                 book['savemetacol'] = story.dump_html_metadata()
-            
+
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("site")
@@ -1198,7 +1198,7 @@ class FanFicFarePlugin(InterfaceAction):
             else:
                 book['comments']=''
             book['series'] = story.getMetadata("series", removeallentities=True)
-    
+
             if story.getMetadataRaw('datePublished'):
                 book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
             if story.getMetadataRaw('dateUpdated'):
@@ -1207,7 +1207,7 @@ class FanFicFarePlugin(InterfaceAction):
                 book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
             else:
                 book['timestamp'] = None # need *something* there for calibre.
-    
+
         if not merge:# skip all the collision code when d/ling for merging.
             if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
                 book['icon'] = 'metadata.png'
@@ -1334,7 +1334,7 @@ class FanFicFarePlugin(InterfaceAction):
                         # check make sure incoming is newer.
                         lastupdated=story.getMetadataRaw('dateUpdated')
                         logger.debug("OVERWRITE site updated: %s"%lastupdated)
-    
+
                         # updated doesn't have time (or is midnight), use dates only.
                         # updated does have time, use full timestamps.
                         if (lastupdated.time() == time.min and fileupdated.date() > lastupdated.date()) or \
@@ -1377,19 +1377,19 @@ class FanFicFarePlugin(InterfaceAction):
                     if not label and k in field_metadata:
                         label=field_metadata[k]['name']
                     key='calibre_std_'+k
-                    
+
                     # if k == 'user_categories':
                     #     value=u', '.join(mi.get(k))
                     #     label=_('User Categories')
-        
+
                     if label: # only if it has a human readable name.
                         if value is None or not book['calibre_id']:
                             ## if existing book, populate existing calibre column
                             ## values in metadata, else '' to hide.
-                            value=''                    
+                            value=''
                         book['calibre_columns'][key]={'val':value,'label':label}
                         #logger.debug("%s(%s): %s"%(label,key,value))
-        
+
                 # custom columns
                 for k, column in self.gui.library_view.model().custom_columns.iteritems():
                     if k != prefs['savemetacol']:
@@ -1405,7 +1405,7 @@ class FanFicFarePlugin(InterfaceAction):
                             value=''
                         book['calibre_columns'][key]={'val':value,'label':label}
                         # logger.debug("%s(%s): %s"%(label,key,value))
-            
+
             # if still 'good', make a temp file to write the output to.
             # For HTML format users, make the filename inside the zip something reasonable.
             # For crazy long titles/authors, limit it to 200chars.
@@ -1472,11 +1472,20 @@ class FanFicFarePlugin(InterfaceAction):
             htmllog = htmllog + '</table></body></html>'
 
             payload = ([], book_list, options)
-            self.gui.proceed_question(self.update_error_column,
-                                      payload, htmllog,
-                                      _('FanFicFare log'), _('FanFicFare download ended'), msg,
-                                      show_copy_button=False,
-                                      log_viewer_unique_name="FanFicFare log viewer")
+
+            # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
+            if calibre_version >= (2, 57, 0):
+                self.gui.proceed_question(self.update_error_column,
+                                          payload, htmllog,
+                                          _('FanFicFare log'), _('FanFicFare download ended'), msg,
+                                          show_copy_button=False,
+                                          log_viewer_unique_name="FanFicFare log viewer")
+            else:
+                self.gui.proceed_question(self.update_error_column,
+                                          payload, htmllog,
+                                          _('FanFicFare log'), _('FanFicFare download ended'), msg,
+                                          show_copy_button=False)
+
             return
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
@@ -1710,11 +1719,18 @@ class FanFicFarePlugin(InterfaceAction):
 
             do_update_func = self.do_download_list_update
 
-        self.gui.proceed_question(do_update_func,
-                                  payload, htmllog,
-                                  _('FanFicFare log'), _('FanFicFare download complete'), msg,
-                                  show_copy_button=False,
-                                  log_viewer_unique_name="FanFicFare log viewer")
+        # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
+        if calibre_version >= (2, 57, 0):
+            self.gui.proceed_question(do_update_func,
+                                      payload, htmllog,
+                                      _('FanFicFare log'), _('FanFicFare download complete'), msg,
+                                      show_copy_button=False,
+                                      log_viewer_unique_name="FanFicFare log viewer")
+        else:
+            self.gui.proceed_question(do_update_func,
+                                      payload, htmllog,
+                                      _('FanFicFare log'), _('FanFicFare download complete'), msg,
+                                      show_copy_button=False)
 
     def do_download_merge_update(self, payload):
 
@@ -2045,7 +2061,7 @@ class FanFicFarePlugin(InterfaceAction):
             prefs['gencalcover'] == SAVE_YES ## yes, always
             or (prefs['gencalcover'] == SAVE_YES_UNLESS_IMG ## yes, unless image.
                 and book['all_metadata']['cover_image'] not in ('specific','first','default')) ):
-        
+
             cover_generated = False # flag for polish below.
             # Yes, should do gencov.  Which?
             if prefs['calibre_gen_cover'] and HAS_CALGC:
@@ -2058,19 +2074,19 @@ class FanFicFarePlugin(InterfaceAction):
                 cover_generated = True
             elif prefs['plugin_gen_cover'] and 'Generate Cover' in self.gui.iactions:
                 # plugin, if available.
-    
+
                 #logger.debug("Do Generate Cover added:%s gcnewonly:%s"%(book['added'],prefs['gcnewonly']))
-    
+
                 # force a refresh if generating cover so complex composite
                 # custom columns are current and correct
                 db.refresh_ids([book_id])
-    
+
                 gc_plugin = self.gui.iactions['Generate Cover']
                 setting_name = None
                 if prefs['allow_gc_from_ini']:
                     if not configuration: # might already have it from allow_custcol_from_ini
                         configuration = get_fff_config(book['url'],options['fileform'])
-    
+
                     # template => regexp to match => GC Setting to use.
                     # generate_cover_settings:
                     # ${category} => Buffy:? the Vampire Slayer => Buffy
@@ -2083,21 +2099,21 @@ class FanFicFarePlugin(InterfaceAction):
                         if re.search(regexp,value):
                             setting_name = setting
                             break
-    
+
                     if setting_name:
                         logger.debug("Generate Cover Setting from generate_cover_settings(%s)"%setting_name)
                         if setting_name not in gc_plugin.get_saved_setting_names():
                             logger.info("GC Name %s not found, discarding! (check personal.ini for typos)"%setting_name)
                             setting_name = None
-    
+
                 if not setting_name and book['all_metadata']['site'] in prefs['gc_site_settings']:
                     setting_name =  prefs['gc_site_settings'][book['all_metadata']['site']]
                     logger.debug("Generate Cover Setting from site(%s)"%setting_name)
-    
+
                 if not setting_name and 'Default' in prefs['gc_site_settings']:
                     setting_name =  prefs['gc_site_settings']['Default']
                     logger.debug("Generate Cover Setting from Default(%s)"%setting_name)
-    
+
                 if setting_name:
                     logger.debug("Running Generate Cover with settings %s."%setting_name)
                     ## fetch updated mi object from
@@ -2106,14 +2122,14 @@ class FanFicFarePlugin(InterfaceAction):
                     realmi = db.get_metadata(book_id, index_is_id=True)
                     gc_plugin.generate_cover_for_book(realmi,saved_setting_name=setting_name)
                     cover_generated = True
-    
+
             if cover_generated and prefs['gc_polish_cover'] and \
                     options['fileform'] == "epub":
                 # set cover inside epub from calibre's polish feature
                 from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                 from calibre.utils.logging import Log
                 from collections import namedtuple
-    
+
                 # Couldn't find a better way to get the cover path.
                 cover_path = os.path.join(db.library_path,
                                           db.path(book_id, index_is_id=True),
@@ -2124,7 +2140,7 @@ class FanFicFarePlugin(InterfaceAction):
                 opts.update(data)
                 O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
                 opts = O(**opts)
-    
+
                 log = Log(level=Log.DEBUG)
                 outfile = db.format_abspath(book_id,
                                             formmapping[options['fileform']],
@@ -2490,7 +2506,7 @@ class FanFicFarePlugin(InterfaceAction):
 
     def restore_cursor(self):
         QApplication.restoreOverrideCursor()
-    
+
 def split_text_to_urls(urls):
     # remove dups while preserving order.
     dups=set()
