@@ -21,19 +21,19 @@ from datetime import datetime
 try:
     from PyQt5 import QtWidgets as QtGui
     from PyQt5 import QtCore
-    from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
-                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+    from PyQt5.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
+                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
-    from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
-                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+    from PyQt4.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
+                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 
 try:
     from calibre.gui2 import QVariant
@@ -1450,6 +1450,15 @@ class ViewLog(SizePersistedDialog):
 
         self.lineno = None
 
+        scrollable = QScrollArea()
+        scrollcontent = QWidget()
+        scrollable.setWidget(scrollcontent)
+        scrollable.setWidgetResizable(True)
+        self.l.addWidget(scrollable)
+
+        self.sl = QVBoxLayout()
+        scrollcontent.setLayout(self.sl)
+
         ## error = (lineno, msg)
         for (lineno, error_msg) in errors:
             # print('adding label for error:%s: %s'%(lineno, error_msg))
@@ -1460,7 +1469,7 @@ class ViewLog(SizePersistedDialog):
             label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
             label.setToolTip(_('Click to go to line %s')%lineno)
             label.mouseReleaseEvent = partial(self.label_clicked, lineno=lineno)
-            self.l.addWidget(label)
+            self.sl.addWidget(label)
 
         # html='<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>'
 
@@ -1470,7 +1479,7 @@ class ViewLog(SizePersistedDialog):
         # self.tb.setHtml(html)
         # l.addWidget(self.tb)
 
-        self.l.insertStretch(-1)
+        self.sl.insertStretch(-1)
 
         horz = QHBoxLayout()
 
