@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-22 09:32+0000\n"
+"PO-Revision-Date: 2016-05-23 16:51+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -260,11 +260,11 @@ msgstr ""
 
 #: config.py:483
 msgid "Post Processing Options"
-msgstr ""
+msgstr "Efterbehandlings alternativ"
 
 #: config.py:487
 msgid "Mark added/updated books when finished?"
-msgstr ""
+msgstr "Markera tillagda/uppdaterade böcker när det är klart?"
 
 #: config.py:488
 msgid ""
@@ -275,7 +275,7 @@ msgstr ""
 
 #: config.py:492
 msgid "Show Marked books when finished?"
-msgstr ""
+msgstr "Visa markerade böcker när det är klart?"
 
 #: config.py:493
 msgid ""
@@ -303,11 +303,11 @@ msgstr ""
 
 #: config.py:507
 msgid "Calculate Word Count:"
-msgstr ""
+msgstr "Beräkna antalet ord:"
 
 #: config.py:520
 msgid "Automatically Convert new/update books?"
-msgstr ""
+msgstr "Konvertera automatiskt nya/uppdaterade böcker?"
 
 #: config.py:521
 msgid ""
@@ -322,7 +322,7 @@ msgstr "GUI-alternativ"
 
 #: config.py:529
 msgid "Take URLs from Clipboard?"
-msgstr ""
+msgstr "Ta webbadresser från urklipp?"
 
 #: config.py:530
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
@@ -330,7 +330,7 @@ msgstr ""
 
 #: config.py:534
 msgid "Default to Update when books selected?"
-msgstr ""
+msgstr "Standard att uppdatera när böcker väljs?"
 
 #: config.py:535
 msgid ""
@@ -350,7 +350,7 @@ msgstr ""
 
 #: config.py:544
 msgid "Show estimated time left?"
-msgstr ""
+msgstr "Visa beräknad tid som återstår?"
 
 #: config.py:545
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
@@ -1375,7 +1375,7 @@ msgstr ""
 
 #: dialogs.py:1074
 msgid "List of Books to Reject"
-msgstr ""
+msgstr "Lista över böcker att avvisa"
 
 #: dialogs.py:1087
 msgid ""
@@ -1423,7 +1423,7 @@ msgstr ""
 
 #: dialogs.py:1335
 msgid "Go back to fix errors?"
-msgstr ""
+msgstr "Gå tillbaka för att åtgärda fel?"
 
 #: dialogs.py:1447
 msgid "Click an error below to return to Editing directly on that line:"
