@@ -4,6 +4,7 @@
 # Translators:
 # Xotes <alois.glibert@gmail.com>, 2015
 # Franck, 2015
+# J M <JimmXinuTwo@xinu.nu>, 2016
 # Ptit Prince <leporello1791@gmail.com>, 2014-2016
 # Piconcely Yoann <yoanncoolazz@gmail.com>, 2015
 # sengian <sengian1@gmail.com>, 2016
@@ -13,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-17 07:52+0000\n"
-"Last-Translator: sengian <sengian1@gmail.com>\n"
+"PO-Revision-Date: 2016-06-01 00:19+0000\n"
+"Last-Translator: J M <JimmXinuTwo@xinu.nu>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -208,7 +209,7 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr "Les étiquettes existantes seront gardées et toutes les nouvelles étiquettes ajoutées.\nLes étiquettes %(cmplt)s et %(inprog) seront quand même mise à jour, si connues.\nLes étiquettes %(lul)s seront mises à jour si %(lus)s dans %(is)s.\n(Si les étiquettes sont définies à 'Nouveau uniquement\" dans l'onglet colonnes standards, ceci n'a pas d'effet.)"
+msgstr "Les étiquettes existantes seront gardées et toutes les nouvelles étiquettes ajoutées.\nLes étiquettes %(cmplt)s et %(inprog)s seront quand même mise à jour, si connues.\nLes étiquettes %(lul)s seront mises à jour si %(lus)s dans %(is)s.\n(Si les étiquettes sont définies à 'Nouveau uniquement\" dans l'onglet colonnes standards, ceci n'a pas d'effet.)"
 
 #: config.py:458
 msgid "Force Author into Author Sort?"

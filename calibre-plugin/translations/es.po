@@ -6,13 +6,14 @@
 # dario hereñu <magallania@gmail.com>, 2015
 # Jellby <jellby@yahoo.com>, 2014-2016
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
+# juanda097 <juanda097@openmailbox.org>, 2016
 # JimmXinu <retiefjimm@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-13 22:04+0000\n"
-"Last-Translator: Antonio Mireles <antonio@mirelesindependent.com>\n"
+"PO-Revision-Date: 2016-05-31 03:04+0000\n"
+"Last-Translator: juanda097 <juanda097@openmailbox.org>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -465,7 +466,7 @@ msgstr "Estas configuraciones proporcionan un control más fino sobre qué metad
 
 #: config.py:673
 msgid "personal.ini"
-msgstr ""
+msgstr "personal.ini"
 
 #: config.py:680 config.py:784 config.py:785
 msgid "Edit personal.ini"
@@ -485,11 +486,11 @@ msgstr ""
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr ""
+msgstr "Ver sus personal.ini con nombres de usuario y contraseñas eliminadas. Para compartir de forma segura la configuración personal.ini con otros."
 
 #: config.py:704
 msgid "defaults.ini"
-msgstr ""
+msgstr "defaults.ini"
 
 #: config.py:709
 msgid ""
