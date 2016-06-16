@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-06-01 00:20+0000\n"
-"Last-Translator: J M <JimmXinuTwo@xinu.nu>\n"
+"PO-Revision-Date: 2016-06-12 18:44+0000\n"
+"Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -48,7 +48,7 @@ msgstr "Inställningar för:"
 
 #: common_utils.py:497
 msgid "Clear"
-msgstr "Ta bort"
+msgstr "Rensa"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
@@ -154,7 +154,7 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr ""
+msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera calibres metadata (titel, författare, URL, taggar, anpassade kolumner, osv.) från webbsidan. <br />Detta ställer in det som standard till på eller av. <br />Kolumner satt till \"Endast ny\" i kolumnflikarna kommer endast att ställas in för nya böcker."
 
 #: config.py:432
 msgid "Default Update EPUB Cover when Updating EPUB?"
@@ -165,7 +165,7 @@ msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr ""
+msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera bokomslagesbilden <i>i</ i> EPUB:en från webbsidan när EPUB uppdateras. <br />Detta ställer in det som standard till på eller av."
 
 #: config.py:437
 msgid "Default Background Metadata?"
@@ -193,7 +193,7 @@ msgstr "Ta bort andra format som finns?"
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
-msgstr ""
+msgstr "Kryssa i det här för att automatiskt ta bort alla andra e-bokformat när du uppdaterar en befintlig bok.\nPraktiskt om du har både en Nook (EPUB) och Kindle (MOBI), till exempel."
 
 #: config.py:453
 msgid "Keep Existing Tags when Updating Metadata?"
@@ -209,7 +209,7 @@ msgstr ""
 
 #: config.py:458
 msgid "Force Author into Author Sort?"
-msgstr ""
+msgstr "Tvingar författare in i författarsortering?"
 
 #: config.py:459
 msgid ""
@@ -341,7 +341,7 @@ msgstr ""
 
 #: config.py:539
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr ""
+msgstr "Håll 'Lägg till ny från URL'-dialog överst?"
 
 #: config.py:540
 msgid ""
@@ -355,15 +355,15 @@ msgstr "Visa beräknad tid som återstår?"
 
 #: config.py:545
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr ""
+msgstr "När en förloppsmätare visas, visa en grov uppskattning av den tid som återstår."
 
 #: config.py:549
 msgid "Misc Options"
-msgstr ""
+msgstr "Tillbehör och övriga alternativ"
 
 #: config.py:553
 msgid "Inject calibre Series when none found?"
-msgstr ""
+msgstr "Inför calibre serier när ingen finns?"
 
 #: config.py:554
 msgid ""
@@ -384,7 +384,7 @@ msgstr ""
 
 #: config.py:563
 msgid "Reject List"
-msgstr ""
+msgstr "Avvisa lista"
 
 #: config.py:567
 msgid "Edit Reject URL List"
@@ -464,7 +464,7 @@ msgstr ""
 
 #: config.py:673
 msgid "personal.ini"
-msgstr ""
+msgstr "personal.ini"
 
 #: config.py:680 config.py:784 config.py:785
 msgid "Edit personal.ini"
@@ -478,7 +478,7 @@ msgstr ""
 
 #: config.py:693
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "Visa \"säker\" personal.ini"
 
 #: config.py:698 config.py:775
 msgid ""
@@ -488,7 +488,7 @@ msgstr ""
 
 #: config.py:704
 msgid "defaults.ini"
-msgstr ""
+msgstr "defaults.ini"
 
 #: config.py:709
 msgid ""
@@ -502,7 +502,7 @@ msgstr "Visa standardvärden"
 
 #: config.py:721
 msgid "Calibre Columns"
-msgstr ""
+msgstr "calibre-kolumner"
 
 #: config.py:728
 msgid ""
@@ -523,7 +523,7 @@ msgstr ""
 
 #: config.py:743
 msgid "Show Calibre Column Names"
-msgstr ""
+msgstr "Visa calibre-kolumn namn"
 
 #: config.py:752
 msgid ""
@@ -532,15 +532,15 @@ msgstr ""
 
 #: config.py:762
 msgid "Plugin Defaults"
-msgstr ""
+msgstr "Tilläggets standardinställningar"
 
 #: config.py:763
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr ""
+msgstr "plugin standardinställningar (%s) (skrivskyddad)"
 
 #: config.py:774
 msgid "View 'Safe' personal.ini"
-msgstr ""
+msgstr "Visa 'säker' personal.ini"
 
 #: config.py:808
 msgid "Calibre Column Entry Names"
@@ -638,15 +638,15 @@ msgstr ""
 
 #: config.py:937
 msgid "Generate Calibre Cover:"
-msgstr ""
+msgstr "Generera calibre omslag:"
 
 #: config.py:964
 msgid "Plugin %(gc)s"
-msgstr ""
+msgstr "Tillägg %(gc)s"
 
 #: config.py:965
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr ""
+msgstr "Använd tillägg för att skapa omslag. Ytterligare inställningar finns nedan."
 
 #: config.py:972
 msgid "Calibre Generate Cover"
@@ -661,7 +661,7 @@ msgstr ""
 
 #: config.py:987
 msgid "Generate Covers Only for New Books"
-msgstr ""
+msgstr "Skapa omslag endast för nya böcker"
 
 #: config.py:988
 msgid ""
@@ -682,7 +682,7 @@ msgstr ""
 
 #: config.py:1001
 msgid "%(gc)s(Plugin) Settings"
-msgstr ""
+msgstr "%(gc)s(Plugin) Inställningar"
 
 #: config.py:1009
 msgid ""
@@ -732,7 +732,7 @@ msgstr ""
 
 #: config.py:1108
 msgid "Which column and algorithm to use are configured in %(cp)s."
-msgstr ""
+msgstr "Vilken kolumn och algoritm att använda är konfigurerade i%(cp)s."
 
 #: config.py:1118
 msgid ""
@@ -808,7 +808,7 @@ msgstr "Status:%(cmplt)s"
 
 #: config.py:1240
 msgid "Status:%(inprog)s"
-msgstr ""
+msgstr "Status:%(inprog)s"
 
 #: config.py:1241 config.py:1403
 msgid "Series"
@@ -912,7 +912,7 @@ msgstr ""
 
 #: config.py:1303
 msgid "Update this %s column(%s) with..."
-msgstr ""
+msgstr "Uppdatera denna %s kolumn(%s) med..."
 
 #: config.py:1313
 msgid "Values that aren't valid for this enumeration column will be ignored."
@@ -945,7 +945,7 @@ msgstr ""
 
 #: config.py:1335
 msgid "Special column:"
-msgstr ""
+msgstr "Special kolumn:"
 
 #: config.py:1340
 msgid "Update/Overwrite Error Column:"
@@ -959,7 +959,7 @@ msgstr ""
 
 #: config.py:1354
 msgid "Save All Errors"
-msgstr ""
+msgstr "Spara alla fel"
 
 #: config.py:1355
 msgid "If unchecked, these errors will not be saved:%s"
@@ -1051,7 +1051,7 @@ msgstr ""
 
 #: config.py:1460
 msgid "IMAP Server Name"
-msgstr ""
+msgstr "IMAP-servernamn"
 
 #: config.py:1461
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
@@ -1059,7 +1059,7 @@ msgstr ""
 
 #: config.py:1470
 msgid "IMAP User Name"
-msgstr ""
+msgstr "IMAP-användarnamn"
 
 #: config.py:1471
 msgid ""
@@ -1069,7 +1069,7 @@ msgstr ""
 
 #: config.py:1480
 msgid "IMAP User Password"
-msgstr ""
+msgstr "IMAP-användarlösenord"
 
 #: config.py:1481
 msgid ""
@@ -1143,7 +1143,7 @@ msgstr "Visa nedladdningsalternativ"
 
 #: dialogs.py:264 dialogs.py:810
 msgid "Output &Format:"
-msgstr ""
+msgstr "Utdata &format:"
 
 #: dialogs.py:272 dialogs.py:818
 msgid ""
@@ -1152,7 +1152,7 @@ msgstr "Välj utdataformat att skapa. Kan fastställa standard från plugin konf
 
 #: dialogs.py:300 dialogs.py:838
 msgid "Update Calibre &Metadata?"
-msgstr ""
+msgstr "Uppdatera calibre &metadata?"
 
 #: dialogs.py:301 dialogs.py:839
 msgid ""
@@ -1213,7 +1213,7 @@ msgstr ""
 
 #: dialogs.py:505
 msgid "For Individual Books"
-msgstr ""
+msgstr "För individuella böcker"
 
 #: dialogs.py:506
 msgid "Get URLs and go to dialog for individual story downloads."
@@ -1271,7 +1271,7 @@ msgstr ""
 
 #: dialogs.py:590 dialogs.py:614 fff_plugin.py:960
 msgid "Fetched metadata for"
-msgstr ""
+msgstr "Hämtade metadata för"
 
 #: dialogs.py:643
 msgid " - %s estimated until done"
@@ -1360,7 +1360,7 @@ msgstr "Är du säker du vill ta bort valda %d böcker från listan?"
 
 #: dialogs.py:1006
 msgid "Note"
-msgstr ""
+msgstr "Anteckning"
 
 #: dialogs.py:1045
 msgid "Select or Edit Reject Note."
@@ -1512,7 +1512,7 @@ msgstr ""
 
 #: fff_plugin.py:338
 msgid "Add to \"Send to Device\" Lists"
-msgstr ""
+msgstr "Lägg till \"Skicka till enhet\"-listor"
 
 #: fff_plugin.py:340
 msgid "Mark Unread: Add to \"To Read\" Lists"
@@ -1528,15 +1528,15 @@ msgstr ""
 
 #: fff_plugin.py:367
 msgid "Reject Selected Books"
-msgstr ""
+msgstr "Avvisa markerade böcker"
 
 #: fff_plugin.py:375
 msgid "&Configure FanFicFare"
-msgstr ""
+msgstr "&Anpassa FanFicFare"
 
 #: fff_plugin.py:378
 msgid "Configure FanFicFare"
-msgstr ""
+msgstr "Anpassa FanFicFare"
 
 #: fff_plugin.py:433
 msgid "Cannot Update Reading Lists from Device View"
@@ -1853,7 +1853,7 @@ msgstr ""
 
 #: fff_plugin.py:1274
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr ""
+msgstr "I bibliotek: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
 #: fff_plugin.py:1275 fff_plugin.py:1289
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
@@ -1889,7 +1889,7 @@ msgstr ""
 
 #: fff_plugin.py:1291
 msgid "Click '<b>No</b>' to skip URL."
-msgstr ""
+msgstr "Klicka '<b>Nej</b>' för att hoppa över URL."
 
 #: fff_plugin.py:1297
 msgid "Update declined by user due to differing story URL(%s)"
