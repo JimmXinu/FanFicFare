@@ -1069,6 +1069,9 @@ class Story(Configurable):
         if imgurl not in self.imgurls:
 
             try:
+                if imgurl == 'failedtoload':
+                    raise Exception("Previously failed to load")
+
                 parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
