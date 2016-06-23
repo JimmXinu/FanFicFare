@@ -4,6 +4,7 @@
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
 # ILB, 2014-2016
+# jumo none, 2016
 # Sebastian Keller <Haggard@gmx.de>, 2015
 # Simon_Schuette <simonschuette@arcor.de>, 2014-2016
 # Simon S, 2015
@@ -13,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-04-16 14:33+0000\n"
-"Last-Translator: ILB\n"
+"PO-Revision-Date: 2016-06-22 21:43+0000\n"
+"Last-Translator: jumo none\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -962,7 +963,7 @@ msgstr "Wenn eine Aktualisierung oder Überschreibung einer existierenden Story 
 
 #: config.py:1354
 msgid "Save All Errors"
-msgstr ""
+msgstr "Speicher alle Fehler"
 
 #: config.py:1355
 msgid "If unchecked, these errors will not be saved:%s"
@@ -2116,7 +2117,7 @@ msgstr "FanFiction-Geschichten herunterladen"
 
 #: jobs.py:91
 msgid "%d of %d stories finished downloading"
-msgstr ""
+msgstr "%d von %d der Geschichten sind fertig runtergeladen"
 
 #: jobs.py:103
 msgid "Download Results:"
