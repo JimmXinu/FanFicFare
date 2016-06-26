@@ -206,6 +206,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         #     b.extract()
         metatext = stripHTML(grayspan).replace('Hurt/Comfort','Hurt-Comfort')
         #logger.debug("metatext:(%s)"%metatext)
+        
+        if 'Status: Complete' in metatext:
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
+
         metalist = metatext.split(" - ")
         #logger.debug("metalist:(%s)"%metalist)
 
@@ -240,36 +246,44 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('dateUpdated',datetime.fromtimestamp(float(dates[0]['data-xutime'])))
         self.story.setMetadata('datePublished',datetime.fromtimestamp(float(dates[-1]['data-xutime'])))
 
-        donechars = False
+        # Meta key titles and the metadata they go into, if any.
+        metakeys = {
+            # These are already handled separately.
+            'Chapters':False,
+            'Status':False,
+            'id':False,
+            'Updated':False,
+            'Published':False,
+            'Reviews':'reviews',
+            'Favs':'favs',
+            'Follows':'follows',
+            'Words':'numWords',
+            }
+
+        chars_ships_list=[]
         while len(metalist) > 0:
-            if  metalist[0].startswith('Chapters') or metalist[0].startswith('Status') or metalist[0].startswith('id:') or metalist[0].startswith('Updated:') or metalist[0].startswith('Published:'):
-                pass
-            elif  metalist[0].startswith('Reviews'):
-                self.story.setMetadata('reviews',metalist[0].split(':')[1].strip())
-            elif  metalist[0].startswith('Favs:'):
-                self.story.setMetadata('favs',metalist[0].split(':')[1].strip())
-            elif  metalist[0].startswith('Follows:'):
-                self.story.setMetadata('follows',metalist[0].split(':')[1].strip())
-            elif  metalist[0].startswith('Words'):
-                self.story.setMetadata('numWords',metalist[0].split(':')[1].strip())
-            elif not donechars:
-                # with 'pairing' support, pairings are bracketed w/o comma after
-                # [Caspian X, Lucy Pevensie] Edmund Pevensie, Peter Pevensie
-                self.story.extendList('characters',metalist[0].replace('[','').replace(']',',').split(','))
+            m = metalist.pop(0)
+            if ':' in m:
+                key = m.split(':')[0].strip()
+                if key in metakeys:
+                    if metakeys[key]:
+                        self.story.setMetadata(metakeys[key],m.split(':')[1].strip())
+                    continue
+            # no ':' or not found in metakeys
+            chars_ships_list.append(m)
 
-                l = metalist[0]
-                while '[' in l:
-                    self.story.addToList('ships',l[l.index('[')+1:l.index(']')].replace(', ','/'))
-                    l = l[l.index(']')+1:]
+        # all because sometimes chars can have ' - ' in them.
+        chars_ships_text = (' - ').join(chars_ships_list)
+        # print("chars_ships_text:%s"%chars_ships_text)
+        # with 'pairing' support, pairings are bracketed w/o comma after
+        # [Caspian X, Lucy Pevensie] Edmund Pevensie, Peter Pevensie
+        self.story.extendList('characters',chars_ships_text.replace('[','').replace(']',',').split(','))
 
-                donechars = True
-            metalist=metalist[1:]
-
-        if 'Status: Complete' in metatext:
-            self.story.setMetadata('status', 'Completed')
-        else:
-            self.story.setMetadata('status', 'In-Progress')
-
+        l = chars_ships_text
+        while '[' in l:
+            self.story.addToList('ships',l[l.index('[')+1:l.index(']')].replace(', ','/'))
+            l = l[l.index(']')+1:]                    
+        
         if get_cover:
             # Try the larger image first.
             cover_url = ""
