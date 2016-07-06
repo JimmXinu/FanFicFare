@@ -229,13 +229,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if ( url.startswith(self.getURLPrefix()) or
                      url.startswith('http://'+self.getSiteDomain()) or
                      url.startswith('https://'+self.getSiteDomain()) ) and \
-                     ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url):
+                     ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
 
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
 
                     # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
                     url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
+
+                    # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
+                    url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',r'/posts/\1/',url)
 
                     url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
                     url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
