@@ -1,6 +1,6 @@
 # ffd-retief-hrd fanficfare
 application: fanficfare
-version: 2-3-04
+version: 2-3-04a
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -34,13 +34,3 @@ handlers:
 
 - url: /.*
   script: main.app
-
-#builtins:
-#- datastore_admin: on
-
-libraries:
-- name: django
-  version: "1.2"
-
-- name: PIL
-  version: "1.1.7"

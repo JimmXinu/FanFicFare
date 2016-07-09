@@ -30,20 +30,6 @@ import datetime
 import traceback
 from StringIO import StringIO
 
-## Just to shut up the appengine warning about "You are using the
-## default Django version (0.96). The default Django version will
-## change in an App Engine release in the near future. Please call
-## use_library() to explicitly select a Django version. For more
-## information see
-## http://code.google.com/appengine/docs/python/tools/libraries.html#Django"
-## Note that if you are using the SDK App Engine Launcher and hit an SDK
-## Console page first, you will get a django version mismatch error when you
-## to go hit one of the application pages.  Just change a file again, and
-## make sure to hit an app page before the SDK page to clear it.
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-#from google.appengine.dist import use_library
-#use_library('django', '1.2')
-
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
 from google.appengine.api import users
