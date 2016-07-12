@@ -1958,14 +1958,17 @@ class FanFicFarePlugin(InterfaceAction):
         configuration = None
         if prefs['allow_custcol_from_ini']:
             configuration = get_fff_config(book['url'],options['fileform'])
-            # meta => custcol[,a|n|r]
+            # meta => custcol[,a|n|r|n_anthaver,r_anthaver]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
                 if "=>" in line:
                     (meta,custcol) = map( lambda x: x.strip(), line.split("=>") )
                     flag='r'
+                    anthaver=False
                     if "," in custcol:
                         (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
+                        anthaver = 'anthaver' in flag
+                        flag=flag[0] # first char only.
 
                     if meta not in book['all_metadata']:
                         # if double quoted, use as a literal value.
@@ -1987,8 +1990,15 @@ class FanFicFarePlugin(InterfaceAction):
                     if flag == 'r' or (flag == 'n' and book['added']):
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
                             if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
-                                # re-split list, strip commas, convert to floats, sum up.
-                                val = sum([ float(x.replace(",","")) for x in val.split(", ") ])
+                                # re-split list, strip commas, convert to floats
+                                items = [ float(x.replace(",","")) for x in val.split(", ") ]
+                                if anthaver:
+                                    if items:
+                                        val = sum(items) / float(len(items))
+                                    else:
+                                        val = 0
+                                else:
+                                    val = sum(items)
                             else:
                                 val = unicode(val).replace(",","")
                         else:
