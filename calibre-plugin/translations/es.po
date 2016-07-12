@@ -4,6 +4,7 @@
 # Translators:
 # Adolfo Jayme-Barrientos, 2014
 # dario hereñu <magallania@gmail.com>, 2015
+# Enrique Medina <medina9304@gmail.com>, 2016
 # Jellby <jellby@yahoo.com>, 2014-2016
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # juanda097 <juanda097@openmailbox.org>, 2016
@@ -12,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-05-31 03:04+0000\n"
-"Last-Translator: juanda097 <juanda097@openmailbox.org>\n"
+"PO-Revision-Date: 2016-07-12 05:10+0000\n"
+"Last-Translator: Enrique Medina <medina9304@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -480,7 +481,7 @@ msgstr "FanFicFare ahora incluye búsquedas, código de color y comprobación de
 
 #: config.py:693
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "Ver personal.ini \"Seguro\""
 
 #: config.py:698 config.py:775
 msgid ""
@@ -542,7 +543,7 @@ msgstr "Valores predeterminados (%s) (sólo lectura)"
 
 #: config.py:774
 msgid "View 'Safe' personal.ini"
-msgstr ""
+msgstr "Ver personal.ini 'Seguro'"
 
 #: config.py:808
 msgid "Calibre Column Entry Names"

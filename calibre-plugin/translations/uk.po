@@ -2,14 +2,15 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
+# Andrii <dexteritymaster@gmail.com>, 2016
 # Andrii <dexteritymaster@gmail.com>, 2014-2015
 # Yuri Chornoivan <yurchor@ukr.net>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-03-29 09:06+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2016-06-26 20:50+0000\n"
+"Last-Translator: Andrii <dexteritymaster@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/calibre/calibre-plugins/language/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,55 +31,55 @@ msgstr "Шлях до бібліотеки calibre. Типово буде вик
 
 #: common_utils.py:398
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Клавіатурні гарячі клавіші"
 
 #: common_utils.py:444
 msgid "Undefined"
-msgstr ""
+msgstr "Невизначено"
 
 #: common_utils.py:464
 msgid "Prefs Viewer dialog"
-msgstr ""
+msgstr "Налаштування Вікна Перегляду"
 
 #: common_utils.py:465
 msgid "Preferences for: "
-msgstr ""
+msgstr "Налаштування для:"
 
 #: common_utils.py:497
 msgid "Clear"
-msgstr ""
+msgstr "Очистити"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
-msgstr ""
+msgstr "Очистити всі налаштування для цього плагіну"
 
 #: common_utils.py:526
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr ""
+msgstr "Ви впевнені, що бажаєте очистити ваші налаштування в цій бібліотцеці для даного плагіну?"
 
 #: common_utils.py:527
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr ""
+msgstr "Будь-які налаштування в інших бібліотеках, або збережені в файлі JSON в папці ваший плагінів не будуть змінені."
 
 #: common_utils.py:528
 msgid "You must restart calibre afterwards."
-msgstr ""
+msgstr "Після цього ви повинні перезавантажити Calibre."
 
 #: common_utils.py:537
 msgid "All settings for this plugin in this library have been cleared."
-msgstr ""
+msgstr "Всі налаштування для цього плагіну в цій бібліотеці були очищені."
 
 #: common_utils.py:538
 msgid "Please restart calibre now."
-msgstr ""
+msgstr "Будь-ласка перезавантажте Calibre."
 
 #: common_utils.py:540
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Перезавантажити Calibre"
 
 #: config.py:192
 msgid "List of Supported Sites"
@@ -94,7 +95,7 @@ msgstr "Основні"
 
 #: config.py:220
 msgid "Calibre Cover"
-msgstr ""
+msgstr "Обкладинка Calibre"
 
 #: config.py:228
 msgid "Standard Columns"
@@ -106,7 +107,7 @@ msgstr "Нетипові стовпчики"
 
 #: config.py:234
 msgid "Email Settings"
-msgstr ""
+msgstr "Налаштування Пошти"
 
 #: config.py:237
 msgid "Other"

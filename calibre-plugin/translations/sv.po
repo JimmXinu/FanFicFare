@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-06-12 18:44+0000\n"
+"PO-Revision-Date: 2016-07-07 08:37+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -1813,7 +1813,7 @@ msgstr ""
 
 #: fff_plugin.py:1159
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr ""
+msgstr "Tryck '<b>Ja</b>' för att hoppa över."
 
 #: fff_plugin.py:1162
 msgid "Story in Series Anthology(%s)."
@@ -1857,11 +1857,11 @@ msgstr "I bibliotek: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
 #: fff_plugin.py:1275 fff_plugin.py:1289
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr ""
+msgstr "Ny webbadress: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
 #: fff_plugin.py:1276
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr ""
+msgstr "Klicka '<b>Ja</b>' för att uppdatera/skriva över bok med ny webbadress."
 
 #: fff_plugin.py:1277
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
@@ -1885,7 +1885,7 @@ msgstr ""
 
 #: fff_plugin.py:1290
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr ""
+msgstr "Klicka '<b>Ja</b>' till en ny bok med ny webbadress."
 
 #: fff_plugin.py:1291
 msgid "Click '<b>No</b>' to skip URL."
@@ -1921,7 +1921,7 @@ msgstr ""
 
 #: fff_plugin.py:1461 fff_plugin.py:1659 fff_plugin.py:1689
 msgid "See log for details."
-msgstr ""
+msgstr "Se logg för detaljer."
 
 #: fff_plugin.py:1462
 msgid "Proceed with updating your library(Error Column, if configured)?"
@@ -1937,11 +1937,11 @@ msgstr ""
 
 #: fff_plugin.py:1477 fff_plugin.py:1714
 msgid "FanFicFare log"
-msgstr ""
+msgstr "FanFicFare logg"
 
 #: fff_plugin.py:1497
 msgid "Download %s FanFiction Book(s)"
-msgstr ""
+msgstr "Hämta %s FanFiction bok/böcker"
 
 #: fff_plugin.py:1504
 msgid "Starting %d FanFicFare Downloads"
@@ -1953,7 +1953,7 @@ msgstr "Berättelsedetaljer:"
 
 #: fff_plugin.py:1538
 msgid "Error Updating Metadata"
-msgstr ""
+msgstr "Fel vid uppdatering av metadata"
 
 #: fff_plugin.py:1539
 msgid ""
