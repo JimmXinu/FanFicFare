@@ -132,9 +132,9 @@ class BaseSiteAdapter(Configurable):
 
     def set_cookiejar(self,cj):
         self.cookiejar = cj
+        saveheaders = self.opener.addheaders
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
-        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
-                                  ('X-Clacks-Overhead','GNU Terry Pratchett')]
+        self.opener.addheaders = saveheaders
         
     def load_cookiejar(self,filename):
         '''
