@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-04-28 16:06+Central Daylight Time\n"
-"PO-Revision-Date: 2016-07-07 08:37+0000\n"
+"PO-Revision-Date: 2016-07-19 12:05+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -84,7 +84,7 @@ msgstr "Starta om calibre nu."
 
 #: config.py:192
 msgid "List of Supported Sites"
-msgstr "Lista av stöda platser"
+msgstr "Lista av stödda platser"
 
 #: config.py:194
 msgid "FAQs"
@@ -963,19 +963,19 @@ msgstr "Spara alla fel"
 
 #: config.py:1355
 msgid "If unchecked, these errors will not be saved:%s"
-msgstr ""
+msgstr "Om inte ikryssad, kommer dessa fel inte sparas:%s"
 
 #: config.py:1357 fff_plugin.py:1342 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
-msgstr ""
+msgstr "Skriver inte över, webbsida är inte nyare."
 
 #: config.py:1358 fff_plugin.py:1321 jobs.py:262
 msgid "Already contains %d chapters."
-msgstr ""
+msgstr "Innehåller redan %d kapitel."
 
 #: config.py:1365
 msgid "Saved Metadata Column:"
-msgstr ""
+msgstr "Sparad metadatakolumn:"
 
 #: config.py:1366
 msgid ""
@@ -1089,7 +1089,7 @@ msgstr ""
 
 #: config.py:1497
 msgid "IMAP Folder Name"
-msgstr ""
+msgstr "IMAP katalognamn"
 
 #: config.py:1498
 msgid ""
@@ -1099,7 +1099,7 @@ msgstr ""
 
 #: config.py:1507
 msgid "Mark Emails Read"
-msgstr ""
+msgstr "Märk lästa epostmeddelanden"
 
 #: config.py:1508
 msgid ""
@@ -1456,15 +1456,15 @@ msgstr ""
 
 #: fff_plugin.py:293
 msgid "&Download from URLs"
-msgstr ""
+msgstr "&Hämta från adresser"
 
 #: fff_plugin.py:295
 msgid "Download FanFiction Books from URLs"
-msgstr ""
+msgstr "Hämta FanFiction Böcker från adresser"
 
 #: fff_plugin.py:298
 msgid "&Update Existing FanFiction Books"
-msgstr ""
+msgstr "&Uppdatera existerande FanFiction böcker"
 
 #: fff_plugin.py:303
 msgid "Get Story URLs from &Email"
