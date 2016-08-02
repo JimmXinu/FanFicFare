@@ -144,6 +144,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        if "This submission is awaiting moderator's approval" in data1:
+            raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
+
         # author
         a = soup1.find("span", "b-story-user-y")
         self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'][0])
