@@ -21,19 +21,19 @@ from datetime import datetime
 try:
     from PyQt5 import QtWidgets as QtGui
     from PyQt5 import QtCore
-    from PyQt5.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
-                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+    from PyQt5.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
+                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
-    from PyQt4.Qt import (QDialog, QTableWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-                          QPushButton, QFont, QLabel, QCheckBox, QIcon, QLineEdit,
-                          QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QPixmap, Qt, QAbstractItemView, QTextEdit, pyqtSignal,
-                          QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+    from PyQt4.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
+                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
 
 try:
     from calibre.gui2 import QVariant
@@ -581,14 +581,34 @@ class UserPassDialog(QDialog):
         self.status=False
         self.hide()
 
-class LoopProgressDialog(QProgressDialog):
+def LoopProgressDialog(gui,
+                       book_list,
+                       foreach_function,
+                       finish_function,
+                       init_label=_("Fetching metadata for stories..."),
+                       win_title=_("Downloading metadata for stories"),
+                       status_prefix=_("Fetched metadata for")):
+    ld = _LoopProgressDialog(gui,
+                             book_list,
+                             foreach_function,
+                             init_label,
+                             win_title,
+                             status_prefix)
+    
+    # Mac OS X gets upset if the finish_function is called from inside
+    # the real _LoopProgressDialog class.
+    
+    # reflect old behavior.
+    if not ld.wasCanceled():
+        finish_function(book_list)
+        
+class _LoopProgressDialog(QProgressDialog):
     '''
     ProgressDialog displayed while fetching metadata for each story.
     '''
     def __init__(self, gui,
                  book_list,
                  foreach_function,
-                 finish_function,
                  init_label=_("Fetching metadata for stories..."),
                  win_title=_("Downloading metadata for stories"),
                  status_prefix=_("Fetched metadata for")):
@@ -599,7 +619,6 @@ class LoopProgressDialog(QProgressDialog):
         self.setMinimumWidth(500)
         self.book_list = book_list
         self.foreach_function = foreach_function
-        self.finish_function = finish_function
         self.status_prefix = status_prefix
         self.i = 0
         self.start_time = datetime.now()
@@ -639,6 +658,7 @@ class LoopProgressDialog(QProgressDialog):
             self.foreach_function(book)
 
         except NotGoingToDownload as d:
+            book['status']=_('Skipped')
             book['good']=False
             book['showerror']=d.showerror
             book['comment']=unicode(d)
@@ -647,8 +667,7 @@ class LoopProgressDialog(QProgressDialog):
         except Exception as e:
             book['good']=False
             book['comment']=unicode(e)
-            logger.error("Exception: %s:%s"%(book,unicode(e)))
-            traceback.print_exc()
+            logger.error("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
 
         self.updateStatus()
         self.i += 1
@@ -660,8 +679,6 @@ class LoopProgressDialog(QProgressDialog):
 
     def do_when_finished(self):
         self.hide()
-        # Queues a job to process these books in the background.
-        self.finish_function(self.book_list)
 
 def time_duration_format(seconds):
     """
@@ -1433,6 +1450,15 @@ class ViewLog(SizePersistedDialog):
 
         self.lineno = None
 
+        scrollable = QScrollArea()
+        scrollcontent = QWidget()
+        scrollable.setWidget(scrollcontent)
+        scrollable.setWidgetResizable(True)
+        self.l.addWidget(scrollable)
+
+        self.sl = QVBoxLayout()
+        scrollcontent.setLayout(self.sl)
+
         ## error = (lineno, msg)
         for (lineno, error_msg) in errors:
             # print('adding label for error:%s: %s'%(lineno, error_msg))
@@ -1443,7 +1469,7 @@ class ViewLog(SizePersistedDialog):
             label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
             label.setToolTip(_('Click to go to line %s')%lineno)
             label.mouseReleaseEvent = partial(self.label_clicked, lineno=lineno)
-            self.l.addWidget(label)
+            self.sl.addWidget(label)
 
         # html='<p>'+'</p><p>'.join([ '(lineno: %s) %s'%e for e in errors ])+'</p>'
 
@@ -1453,7 +1479,7 @@ class ViewLog(SizePersistedDialog):
         # self.tb.setHtml(html)
         # l.addWidget(self.tb)
 
-        self.l.insertStretch(-1)
+        self.sl.insertStretch(-1)
 
         horz = QHBoxLayout()
 

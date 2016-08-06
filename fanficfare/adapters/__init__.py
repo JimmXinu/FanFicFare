@@ -112,11 +112,30 @@ import adapter_potionsandsnitches
 import adapter_potterficscom
 import adapter_potterheadsanonymouscom
 import adapter_pretendercentrecom
+<<<<<<< HEAD
 import adapter_psychficcom
+=======
+import adapter_darksolaceorg
+import adapter_finestoriescom
+import adapter_hpfanficarchivecom
+import adapter_twilightarchivescom
+import adapter_nhamagicalworldsus
+import adapter_hlfictionnet
+import adapter_dracoandginnycom
+import adapter_scarvesandcoffeenet
+import adapter_thepetulantpoetesscom
+import adapter_wolverineandroguecom
+import adapter_sinfuldesireorg
+import adapter_merlinficdtwinscouk
+import adapter_thehookupzonenet
+import adapter_bloodtiesfancom
+import adapter_indeathnet
+>>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
 import adapter_qafficcom
 import adapter_quotevcom
 import adapter_rabidreadercom
 import adapter_restrictedsectionorg
+<<<<<<< HEAD
 import adapter_rubyquillcom
 import adapter_samandjacknet
 import adapter_samdeanarchivenu
@@ -128,6 +147,13 @@ import adapter_siyecouk
 import adapter_spikeluvercom
 import adapter_squidgeorgpeja
 import adapter_storiesofardacom
+=======
+import adapter_imagineeficcom
+import adapter_psychficcom
+import adapter_asr3slashzoneorg
+import adapter_potterheadsanonymouscom
+import adapter_fictionpadcom
+>>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
 import adapter_storiesonlinenet
 import adapter_tenhawkpresentscom
 import adapter_tgstorytimecom
@@ -145,10 +171,42 @@ import adapter_twcslibrarynet
 import adapter_twilightarchivescom
 import adapter_twilightednet
 import adapter_voracity2eficcom
+<<<<<<< HEAD
 import adapter_walkingtheplankorg
 import adapter_whoficcom
 import adapter_wolverineandroguecom
 import adapter_wraithbaitcom
+=======
+import adapter_spikeluvercom
+import adapter_bloodshedversecom
+import adapter_nocturnallightnet
+import adapter_fanfichu
+import adapter_fanfictioncsodaidokhu
+import adapter_fictionmaniatv
+import adapter_tolkienfanfiction
+import adapter_themaplebookshelf
+import adapter_fannation
+import adapter_sheppardweircom
+import adapter_samandjacknet
+import adapter_csiforensicscom
+import adapter_lotrfanfictioncom
+import adapter_fhsarchivecom
+import adapter_fanfictionjunkiesde
+import adapter_tgstorytimecom
+import adapter_itcouldhappennet
+import adapter_forumsspacebattlescom
+import adapter_forumssufficientvelocitycom
+import adapter_forumquestionablequestingcom
+import adapter_ninelivesarchivecom
+import adapter_masseffect2in
+import adapter_quotevcom
+import adapter_mcstoriescom
+import adapter_lucifaelff
+import adapter_buffygilescom
+import adapter_andromedawebcom
+import adapter_artemisfowlcom
+import adapter_naiceanilmenet
+>>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need

@@ -28,7 +28,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
     READ_URL_TEMPLATE = BASE_URL + 'stories.php?go=read&no=%s'
 
     STARTED_DATETIME_FORMAT = '%m/%d/%Y'
-    UPDATED_DATETIME_FORMAT = '%m/%d/%Y %I:%M'
+    UPDATED_DATETIME_FORMAT = '%m/%d/%Y %I:%M %p'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -168,14 +168,8 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
                     self.story.setMetadata('datePublished', makeDate(value, self.STARTED_DATETIME_FORMAT))
 
                 elif key == 'Updated':
-                    date_string, period = value.rsplit(' ', 1)
-                    date = makeDate(date_string, self.UPDATED_DATETIME_FORMAT)
-
-                    # Rather ugly hack to work around Calibre's changing of
-                    # Python's locale setting, causing am/pm to not be properly
-                    # parsed by strptime() when using a non-english locale
-                    if period == 'pm':
-                        date += timedelta(hours=12)
+                    date = makeDate(value, self.UPDATED_DATETIME_FORMAT)
+                    # ugly %p(am/pm) hack moved into makeDate so other sites can use it.
                     self.story.setMetadata('dateUpdated', date)
 
         if self.story.getMetadata('rating') == 'NC-17' and not (self.is_adult or self.getConfig('is_adult')):

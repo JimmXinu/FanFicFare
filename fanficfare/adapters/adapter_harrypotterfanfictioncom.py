@@ -188,9 +188,13 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         data = self._fetchUrl(url)
 
-        # remove everything after here--the site's chapters break the
-        # BS4 parser.
-        data = data[:data.index('<script type="text/javascript" src="reviewjs.js">')]
+        try:
+            # remove everything after here--the site's chapters break
+            # the BS4 parser.
+            data = data[:data.index('<script type="text/javascript" src="reviewjs.js">')]
+        except:
+            # some older stories don't have the code at the end that breaks things.
+            pass
         
         soup = self.make_soup(data)
 

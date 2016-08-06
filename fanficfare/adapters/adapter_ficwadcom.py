@@ -93,7 +93,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
             # non-existent/removed story urls get thrown to the front page.
-            if "<h2>Welcome to FicWad</h2>" in data:
+            if "<h4>Featured Story</h4>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
             soup = self.make_soup(data)
         except urllib2.HTTPError, e:

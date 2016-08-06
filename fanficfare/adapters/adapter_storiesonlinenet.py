@@ -97,7 +97,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['page'] = 'http://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
 
-        loginUrl = 'https://' + self.getSiteDomain() + '/login.php'
+        loginUrl = 'https://' + self.getSiteDomain() + '/sol-secure/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
 
@@ -147,6 +147,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
+        elif "Error! Daily Limit Reached" in data:
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! Daily Limit Reached")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -183,7 +185,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         page=0
         i=0
         while i == 0:
-            asoup = self.make_soup(self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page)))
+            data = self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page))
+            asoup = self.make_soup(data)
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
@@ -208,6 +211,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         try:
             a = lc4.find('a', href=re.compile(r"/series/\d+/.*"))
+            # logger.debug("Looking for series - a='{0}'".format(a))
             if a:
                 # if there's a number after the series name, series_contents is a two element list:
                 # [<a href="...">Title</a>, u' (2)']
@@ -216,59 +220,62 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 seriesUrl = 'http://'+self.host+a['href']
                 self.story.setMetadata('seriesUrl',seriesUrl)
                 series_name = stripHTML(a)
-                logger.debug("Series name= %s" % series_name)
+                # logger.debug("Series name= %s" % series_name)
                 series_soup = self.make_soup(self._fetchUrl(seriesUrl))
                 if series_soup:
-                    logger.debug("Retrieving Series - looking for name")
-                    series_name = series_soup.find('span', {'id' : 'ptitle'}).text.partition(' — ')[0]
-                    logger.debug("Series name: '{0}'".format(series_name))
+                    # logger.debug("Retrieving Series - looking for name")
+                    series_name = stripHTML(series_soup.find('span', {'id' : 'ptitle'}))
+                    series_name = re.sub(r' . a series by.*$','',series_name)
+                    # logger.debug("Series name: '%s'" % series_name)
                 self.setSeries(series_name, i)
                 desc = lc4.contents[2]
                 # Check if series is in a universe
                 universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
                 universes_soup = self.make_soup(self._fetchUrl(universe_url) )
-                logger.debug("Universe url='{0}'".format(universe_url))
+                # logger.debug("Universe url='{0}'".format(universe_url))
                 if universes_soup:
                     universes = universes_soup.findAll('div', {'class' : 'ser-box'})
-                    logger.debug("Number of Universes: %d" % len(universes))
+                    # logger.debug("Number of Universes: %d" % len(universes))
                     for universe in universes:
-                        logger.debug("universe.find('a')={0}".format(universe.find('a')))
+                        # logger.debug("universe.find('a')={0}".format(universe.find('a')))
                         # The universe id is in an "a" tag that has an id but nothing else. It is the first tag.
                         # The id is prefixed with the letter "u".
                         universe_id = universe.find('a')['id'][1:]
-                        logger.debug("universe_id='%s'" % universe_id)
-                        universe_name = universe.find('div', {'class' : 'ser-name'}).text.partition(' ')[2]
-                        logger.debug("universe_name='%s'" % universe_name)
+                        # logger.debug("universe_id='%s'" % universe_id)
+                        universe_name = stripHTML(universe.find('div', {'class' : 'ser-name'})).partition(' ')[2]
+                        # logger.debug("universe_name='%s'" % universe_name)
                         # If there is link to the story, we have the right universe
                         story_a = universe.find('a', href=re.compile('/s/'+self.story.getMetadata('storyId')))
                         if story_a:
-                            logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
+                            # logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
                             self.story.setMetadata("universe", universe_name)
                             self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
                             break
                 else:
                     logger.debug("No universe page")
         except:
+            raise
             pass
         try:
             a = lc4.find('a', href=re.compile(r"/universe/\d+/.*"))
-            logger.debug("Looking for universe - a='{0}'".format(a))
+            # logger.debug("Looking for universe - a='{0}'".format(a))
             if a:
                 self.story.setMetadata("universe",stripHTML(a))
                 desc = lc4.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
                 universe_name = stripHTML(a)
                 universeUrl = 'http://'+self.host+a['href']
-                logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
+                # logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
                 universe_soup = self.make_soup(self._fetchUrl(universeUrl))
                 logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
-                    universe_name = universe_soup.find('h1', {'id' : 'ptitle'}).text.partition('—')[0]
-                    logger.debug("Universes name: '{0}'".format(universe_name))
+                    universe_name = stripHTML(universe_soup.find('h1', {'id' : 'ptitle'}))
+                    universe_name = re.sub(r' . A Universe from the Mind.*$','',universe_name)
+                    # logger.debug("Universes name: '{0}'".format(universe_name))
 
                 self.story.setMetadata('universeUrl',universeUrl)
-                logger.debug("Setting universe name: '{0}'".format(universe_name))
+                # logger.debug("Setting universe name: '{0}'".format(universe_name))
                 self.story.setMetadata('universe',universe_name)
                 if self.getConfig("universe_as_series"):
                     self.setSeries(universe_name, 0)
@@ -276,6 +283,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             else:
                 logger.debug("Do not have a universe")
         except:
+            raise
             pass
 
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
@@ -312,12 +320,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         #     http://storiesonline.net/s/11999
         #     http://storiesonline.net/s/10823
         if get_cover:
-            logger.debug("Looking for the cover image...")
+            # logger.debug("Looking for the cover image...")
             cover_url = ""
             img = soup.find('img')
             if img:
                 cover_url=img['src']
-            logger.debug("cover_url: %s"%cover_url)
+            # logger.debug("cover_url: %s"%cover_url)
             if cover_url:
                 self.setCoverImage(url,cover_url)
 
@@ -355,7 +363,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
             urls=pager.findAll('a')
             urls=urls[:len(urls)-1]
-            logger.debug("pager urls:%s"%urls)
+            # logger.debug("pager urls:%s"%urls)
             pager.extract()
             chaptertag.contents = chaptertag.contents[2:]
 
@@ -364,7 +372,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
                 pagetag = soup.find('div', {'id' : 'story'})
                 if not pagetag:
-                    logger.debug("div id=story not found, try article")
+                    # logger.debug("div id=story not found, try article")
                     pagetag = soup.find('article', {'id' : 'story'})
 
                 self.cleanPage(pagetag)

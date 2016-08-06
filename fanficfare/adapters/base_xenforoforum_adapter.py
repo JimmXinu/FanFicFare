@@ -196,8 +196,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
         if threadmark_chaps or self.getConfig('always_use_forumtags'):
-            ## only  use  tags if  threadmarks  for  chapters or
-            for tag in topsoup.findAll('a',{'class':'tag'}):
+            ## only use tags if threadmarks for chapters or always_use_forumtags is on.
+            for tag in topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'}):
                 tstr = stripHTML(tag)
                 if self.getConfig('capitalize_forumtags'):
                     tstr = tstr.title()
@@ -228,10 +228,17 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 if ( url.startswith(self.getURLPrefix()) or
                      url.startswith('http://'+self.getSiteDomain()) or
-                     url.startswith('https://'+self.getSiteDomain()) ) and ('/posts/' in url or '/threads/' in url):
+                     url.startswith('https://'+self.getSiteDomain()) ) and \
+                     ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
 
                     # brute force way to deal with SB's http->https change when hardcoded http urls.
                     url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+
+                    # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
+                    url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
+
+                    # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
+                    url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',r'/posts/\1/',url)
 
                     url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
                     url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
@@ -272,7 +279,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
             return makeDate(datestr, self.dateformat)
         except:
-            logger.debug('No date found in %s'%parenttag)
+            logger.debug('No date found in %s'%parenttag,exc_info=True)
             return None
 
     # grab the text for an individual chapter.

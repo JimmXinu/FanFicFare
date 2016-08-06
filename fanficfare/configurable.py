@@ -166,6 +166,10 @@ def get_valid_set_options():
                'pairingcat_to_characters_ships':(['tthfanfic.org'],None,boollist),
                'romancecat_to_characters_ships':(['tthfanfic.org'],None,boollist),
 
+               'use_meta_keywords':(['literotica.com'],None,boollist),
+               'clean_chapter_titles':(['literotica.com'],None,boollist),
+               'description_in_chapter':(['literotica.com'],None,boollist),
+
                # eFiction Base adapters allow bulk_load
                # kept forgetting to add them, so now it's automatic.
                'bulk_load':(adapters.get_bulk_load_sites(),
@@ -184,9 +188,6 @@ def get_valid_set_options():
                'minimum_threadmarks':(base_xenforo_list,None,None),
                'first_post_title':(base_xenforo_list,None,None),
                'always_include_first_post':(base_xenforo_list,None,boollist),
-               '':(base_xenforo_list,None,boollist),
-               '':(base_xenforo_list,None,boollist),
-               '':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -326,6 +327,9 @@ def get_valid_keywords():
                  'centeredcat_to_characters',
                  'pairingcat_to_characters_ships',
                  'romancecat_to_characters_ships',
+                 'use_meta_keywords',
+                 'clean_chapter_titles',
+                 'description_in_chapter',
                  'titlepage_end',
                  'titlepage_entries',
                  'titlepage_entry',
