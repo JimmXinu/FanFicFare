@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version="2.2.18",
+    version="2.3.5",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -81,7 +81,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['beautifulsoup4','chardet','html5lib'], # html5lib requires 'six'.
+    install_requires=['beautifulsoup4','chardet','html5lib','html2text'], # html5lib requires 'six'.
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

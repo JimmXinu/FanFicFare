@@ -30,20 +30,6 @@ import datetime
 import traceback
 from StringIO import StringIO
 
-## Just to shut up the appengine warning about "You are using the
-## default Django version (0.96). The default Django version will
-## change in an App Engine release in the near future. Please call
-## use_library() to explicitly select a Django version. For more
-## information see
-## http://code.google.com/appengine/docs/python/tools/libraries.html#Django"
-## Note that if you are using the SDK App Engine Launcher and hit an SDK
-## Console page first, you will get a django version mismatch error when you
-## to go hit one of the application pages.  Just change a file again, and
-## make sure to hit an app page before the SDK page to clear it.
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-#from google.appengine.dist import use_library
-#use_library('django', '1.2')
-
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
 from google.appengine.api import users
@@ -210,18 +196,18 @@ class FileServer(webapp2.RequestHandler):
             # to hold the whole in memory just for the
             # compress/uncompress
             if download.format != 'epub':
-                def dc(data):
+                def decompress(data):
                     try:
                         return zlib.decompress(data)
                     # if error, assume it's a chunk from before we started compessing.
                     except zlib.error:
                         return data
             else:
-                def dc(data):
+                def decompress(data):
                     return data
 
             for datum in data:
-                self.response.out.write(dc(datum.blob))
+                self.response.out.write(decompress(datum.blob))
 
         except Exception, e:
             fic = DownloadMeta()
@@ -286,8 +272,8 @@ class ClearRecentServer(webapp2.RequestHandler):
             if results:
                 for d in results:
                     d.delete()
-                    for c in d.data_chunks:
-                        c.delete()
+                    for chunk in d.data_chunks:
+                        chunk.delete()
                     num = num + 1
                     logging.debug('Delete '+d.url)
             else:
@@ -494,8 +480,8 @@ class FanfictionDownloaderTask(UserConfigServer):
         # use existing record if available.
         # fileId should have record from /fdown.
         download = getDownloadMeta(id=fileId,url=url,user=user,format=format,new=True)
-        for c in download.data_chunks:
-            c.delete()
+        for chunk in download.data_chunks:
+            chunk.delete()
         download.put()
 
         logging.info('Creating adapter...')
@@ -542,21 +528,22 @@ class FanfictionDownloaderTask(UserConfigServer):
             # compressed individually to avoid having to hold the
             # whole in memory just for the compress/uncompress.
             if format != 'epub':
-                def c(data):
+                def compress(data):
                     return zlib.compress(data)
             else:
-                def c(data):
+                def compress(data):
                     return data
 
             # delete existing chunks first
-            for c in download.data_chunks:
-                c.delete()
+            for chunk in download.data_chunks:
+                chunk.delete()
                 
             index=0
             while( len(data) > 0 ):
+                # logging.info("len(data): %s" % len(data))
                 DownloadData(download=download,
                              index=index,
-                             blob=c(data[:1000000])).put()
+                             blob=compress(data[:1000000])).put()
                 index += 1
                 data = data[1000000:]
             download.completed=True

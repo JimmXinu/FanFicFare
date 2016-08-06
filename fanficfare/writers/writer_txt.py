@@ -21,7 +21,7 @@ from textwrap import wrap
 
 from base_writer import *
 
-from ..html2text import html2text
+from html2text import html2text
 
 ## In BaseStoryWriter, we define _write to encode <unicode> objects
 ## back into <string> for true output.  But txt needs to write the
@@ -109,7 +109,7 @@ End file.
 
         self.wrap_width = self.getConfig('wrap_width')
         if self.wrap_width == '' or self.wrap_width == '0':
-            self.wrap_width = None
+            self.wrap_width = 0
         else:
             self.wrap_width = int(self.wrap_width)
         
@@ -159,7 +159,7 @@ End file.
                 logging.debug('Writing chapter text for: %s' % chap.title)
                 vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_START.substitute(vals)))))
-                self._write(out,self.lineends(html2text(chap.html,wrap_width=self.wrap_width)))
+                self._write(out,self.lineends(html2text(chap.html,bodywidth=self.wrap_width)))
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_END.substitute(vals)))))
 
         self._write(out,self.lineends(self.wraplines(FILE_END.substitute(self.story.getAllMetadata()))))

@@ -112,6 +112,11 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # need(or easier) to pull other metadata from the author's list page.
         authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 
+        # remove author profile incase they've put the story URL in their bio.
+        profile = authsoup.find('div',{'id':'profile'})
+        if profile: # in case it changes.
+            profile.extract()
+
         ## Title
         titlea = authsoup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(titlea))

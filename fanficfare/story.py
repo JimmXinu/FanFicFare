@@ -439,8 +439,8 @@ class Story(Configurable):
 
     def prepare_replacements(self):
         if not self.replacements_prepped and not self.is_lightweight():
-            logger.debug("prepare_replacements")
-            logger.debug("sections:%s"%self.configuration.sectionslist)
+            # logger.debug("prepare_replacements")
+            # logger.debug("sections:%s"%self.configuration.sectionslist)
             
             ## Look for config parameter, split and add each to metadata field.
             for (config,metadata) in [("extracategories","category"),
@@ -1067,9 +1067,12 @@ class Story(Configurable):
 
         prefix='ffdl'
         if imgurl not in self.imgurls:
-            parsedUrl = urlparse.urlparse(imgurl)
 
             try:
+                if imgurl == 'failedtoload':
+                    raise Exception("Previously failed to load")
+
+                parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl))
@@ -1161,5 +1164,5 @@ def unique_list(seq):
     try:
         return [x for x in seq if not (x in seen or seen_add(x))]
     except:
-        print("unique_list exception seq:%s"%seq)
+        logger.debug("unique_list exception seq:%s"%seq)
         raise

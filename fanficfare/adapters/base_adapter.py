@@ -16,7 +16,8 @@
 #
 
 import re
-import datetime
+from datetime import datetime, timedelta
+
 import time
 import logging
 import urllib
@@ -99,7 +100,7 @@ class BaseSiteAdapter(Configurable):
         self.metadataDone = False
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
-        self.story.setMetadata('dateCreated',datetime.datetime.now())
+        self.story.setMetadata('dateCreated',datetime.now())
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
@@ -131,9 +132,9 @@ class BaseSiteAdapter(Configurable):
 
     def set_cookiejar(self,cj):
         self.cookiejar = cj
+        saveheaders = self.opener.addheaders
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
-        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
-                                  ('X-Clacks-Overhead','GNU Terry Pratchett')]
+        self.opener.addheaders = saveheaders
         
     def load_cookiejar(self,filename):
         '''
@@ -571,11 +572,14 @@ class BaseSiteAdapter(Configurable):
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
-            for img in soup.findAll('img'):
-                # some pre-existing epubs have img tags that had src stripped off.
-                if img.has_attr('src'):
-                    (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
-                                                                      coverexclusion=self.getConfig('cover_exclusion_regexp'))
+            try:
+                for img in soup.find_all('img'):
+                    # some pre-existing epubs have img tags that had src stripped off.
+                    if img.has_attr('src'):
+                        (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
+                                                                          coverexclusion=self.getConfig('cover_exclusion_regexp'))
+            except AttributeError as ae:
+                logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping images.")
 
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
@@ -685,8 +689,23 @@ def makeDate(string,dateform):
             if name in string:
                 string = string.replace(name,num)
                 break
+
+    # Many locales don't define %p for AM/PM.  So if %p, remove from
+    # dateform, look for 'pm' in string, remove am/pm from string and
+    # add 12 hours if pm found.
+    add_hours = False
+    if u"%p" in dateform:
+        dateform = dateform.replace(u"%p",u"")
+        if 'pm' in string or 'PM' in string:
+            add_hours = True
+        string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
+
+    date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    
+    if add_hours:
+        date += timedelta(hours=12)
             
-    return datetime.datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    return date
 
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(password|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)

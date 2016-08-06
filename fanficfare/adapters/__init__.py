@@ -85,7 +85,6 @@ import adapter_hpfanficarchivecom
 import adapter_twilightarchivescom
 import adapter_nhamagicalworldsus
 import adapter_hlfictionnet
-import adapter_grangerenchantedcom
 import adapter_dracoandginnycom
 import adapter_scarvesandcoffeenet
 import adapter_thepetulantpoetesscom
@@ -102,13 +101,9 @@ import adapter_efictionestelielde
 import adapter_pommedesangcom
 import adapter_restrictedsectionorg
 import adapter_imagineeficcom
-import adapter_buffynfaithnet
 import adapter_psychficcom
-import adapter_tokrafandomnetcom
 import adapter_asr3slashzoneorg
-import adapter_nickandgregnet
 import adapter_potterheadsanonymouscom
-import adapter_scarheadnet
 import adapter_fictionpadcom
 import adapter_storiesonlinenet
 import adapter_trekiverseorg
@@ -120,7 +115,6 @@ import adapter_nocturnallightnet
 import adapter_fanfichu
 import adapter_fanfictioncsodaidokhu
 import adapter_fictionmaniatv
-import adapter_bdsmgeschichten
 import adapter_tolkienfanfiction
 import adapter_themaplebookshelf
 import adapter_fannation
@@ -139,13 +133,10 @@ import adapter_ninelivesarchivecom
 import adapter_masseffect2in
 import adapter_quotevcom
 import adapter_mcstoriescom
-
 import adapter_lucifaelff
 import adapter_buffygilescom
-#import adapter_rubyquillcom
-import adapter_andromedawebcom # Not all lables are captured
+import adapter_andromedawebcom
 import adapter_artemisfowlcom
-import adapter_rabidreadercom
 import adapter_naiceanilmenet
 
 ## This bit of complexity allows adapters to be added by just adding

@@ -63,22 +63,22 @@ class QuotevComAdapter(BaseSiteAdapter):
         title = element.find('h1')
         self.story.setMetadata('title', title.get_text())
         
-        authdiv = title.next_sibling # soup.find('div', {'style':"font-size:0.7em;color:#aaa;margin-top:-10px;text-align:center;margin-left:45px;cursor:pointer"})
+        authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
-            #print("div:%s"%authdiv.find_all('a'))
+            print("div:%s"%authdiv)
             for a in authdiv.find_all('a'):
                 self.story.addToList('author', a.get_text())
                 self.story.addToList('authorId', a['href'].split('/')[-1])
                 self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
-        else:
-            self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl','http://www.quotev.com')
-            self.story.setMetadata('authorId','0')
+        if not self.story.getList('author'):
+            self.story.addToList('author','Anonymous')
+            self.story.addToList('authorUrl','http://www.quotev.com')
+            self.story.addToList('authorId','0')
 
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         imgmeta = soup.find('meta',{'property':"og:image" })
         if imgmeta:
-            self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))
+            self.coverurl = self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))[1]
 
         for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/stories/c/')}):
             self.story.addToList('category', a.get_text())
@@ -127,8 +127,15 @@ class QuotevComAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        element = soup.find('div', id='rescontent')
-        for a in element('a'):
+        rescontent = soup.find('div', id='rescontent')
+        
+        # attempt to find and include chapter specific images.
+        img = soup.find('div',{'id':'quizHeader'}).find('img')
+        #print("img['src'](%s) != self.coverurl(%s)"%(img['src'],self.coverurl))
+        if img['src'] != self.coverurl:
+            rescontent.insert(0,img)
+        
+        for a in rescontent('a'):
             a.unwrap()
 
-        return self.utf8FromSoup(url, element)
+        return self.utf8FromSoup(url, rescontent)
