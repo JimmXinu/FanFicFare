@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ from ..configurable import Configuration
 
 ## must import each adapter here.
 
-import adapter_test1
 import adapter_adastrafanficcom
 import adapter_andromedawebcom
 import adapter_archiveofourownorg
@@ -35,11 +34,9 @@ import adapter_archiveskyehawkecom
 import adapter_artemisfowlcom
 import adapter_ashwindersycophanthexcom
 import adapter_asr3slashzoneorg
-import adapter_bdsmgeschichten
 import adapter_bloodshedversecom
 import adapter_bloodtiesfancom
 import adapter_buffygilescom
-import adapter_buffynfaithnet
 import adapter_chaossycophanthexcom
 import adapter_csiforensicscom
 import adapter_darksolaceorg
@@ -55,7 +52,6 @@ import adapter_fanficcastletvnet
 import adapter_fanfichu
 import adapter_fanfictioncsodaidokhu
 import adapter_fanfictionjunkiesde
-import adapter_fanfictionlucifaelcom
 import adapter_fanfictionnet
 import adapter_fanfiktionde
 import adapter_fannation
@@ -71,7 +67,6 @@ import adapter_finestoriescom
 import adapter_forumquestionablequestingcom
 import adapter_forumsspacebattlescom
 import adapter_forumssufficientvelocitycom
-import adapter_grangerenchantedcom
 import adapter_haremlucifaelcom
 import adapter_harrypotterfanfictioncom
 import adapter_hlfictionnet
@@ -86,6 +81,7 @@ import adapter_ksarchivecom
 import adapter_libraryofmoriacom
 import adapter_literotica
 import adapter_lotrfanfictioncom
+import adapter_lucifaelff
 import adapter_lumossycophanthexcom
 import adapter_masseffect2in
 import adapter_mcstoriescom
@@ -99,7 +95,6 @@ import adapter_ncisficcom
 import adapter_ncisfictionnet
 import adapter_nfacommunitycom
 import adapter_nhamagicalworldsus
-import adapter_nickandgregnet
 import adapter_ninelivesarchivecom
 import adapter_nocturnallightnet
 import adapter_occlumencysycophanthexcom
@@ -112,34 +107,14 @@ import adapter_potionsandsnitches
 import adapter_potterficscom
 import adapter_potterheadsanonymouscom
 import adapter_pretendercentrecom
-<<<<<<< HEAD
 import adapter_psychficcom
-=======
-import adapter_darksolaceorg
-import adapter_finestoriescom
-import adapter_hpfanficarchivecom
-import adapter_twilightarchivescom
-import adapter_nhamagicalworldsus
-import adapter_hlfictionnet
-import adapter_dracoandginnycom
-import adapter_scarvesandcoffeenet
-import adapter_thepetulantpoetesscom
-import adapter_wolverineandroguecom
-import adapter_sinfuldesireorg
-import adapter_merlinficdtwinscouk
-import adapter_thehookupzonenet
-import adapter_bloodtiesfancom
-import adapter_indeathnet
->>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
 import adapter_qafficcom
 import adapter_quotevcom
 import adapter_rabidreadercom
 import adapter_restrictedsectionorg
-<<<<<<< HEAD
 import adapter_rubyquillcom
 import adapter_samandjacknet
 import adapter_samdeanarchivenu
-import adapter_scarheadnet
 import adapter_scarvesandcoffeenet
 import adapter_sheppardweircom
 import adapter_sinfuldesireorg
@@ -147,15 +122,10 @@ import adapter_siyecouk
 import adapter_spikeluvercom
 import adapter_squidgeorgpeja
 import adapter_storiesofardacom
-=======
-import adapter_imagineeficcom
-import adapter_psychficcom
-import adapter_asr3slashzoneorg
-import adapter_potterheadsanonymouscom
-import adapter_fictionpadcom
->>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
 import adapter_storiesonlinenet
 import adapter_tenhawkpresentscom
+import adapter_test1
+import adapter_tgfictionnet
 import adapter_tgstorytimecom
 import adapter_thealphagatecom
 import adapter_thehexfilesnet
@@ -163,7 +133,6 @@ import adapter_thehookupzonenet
 import adapter_themaplebookshelf
 import adapter_themasquenet
 import adapter_thepetulantpoetesscom
-import adapter_tokrafandomnetcom
 import adapter_tolkienfanfiction
 import adapter_trekiverseorg
 import adapter_tthfanficorg
@@ -171,42 +140,21 @@ import adapter_twcslibrarynet
 import adapter_twilightarchivescom
 import adapter_twilightednet
 import adapter_voracity2eficcom
-<<<<<<< HEAD
 import adapter_walkingtheplankorg
 import adapter_whoficcom
 import adapter_wolverineandroguecom
 import adapter_wraithbaitcom
-=======
-import adapter_spikeluvercom
-import adapter_bloodshedversecom
-import adapter_nocturnallightnet
-import adapter_fanfichu
-import adapter_fanfictioncsodaidokhu
-import adapter_fictionmaniatv
-import adapter_tolkienfanfiction
-import adapter_themaplebookshelf
-import adapter_fannation
-import adapter_sheppardweircom
-import adapter_samandjacknet
-import adapter_csiforensicscom
-import adapter_lotrfanfictioncom
-import adapter_fhsarchivecom
-import adapter_fanfictionjunkiesde
-import adapter_tgstorytimecom
-import adapter_itcouldhappennet
-import adapter_forumsspacebattlescom
-import adapter_forumssufficientvelocitycom
-import adapter_forumquestionablequestingcom
-import adapter_ninelivesarchivecom
-import adapter_masseffect2in
-import adapter_quotevcom
-import adapter_mcstoriescom
-import adapter_lucifaelff
-import adapter_buffygilescom
-import adapter_andromedawebcom
-import adapter_artemisfowlcom
-import adapter_naiceanilmenet
->>>>>>> 6d423e586fdcf72277a6f994e4e47e20944375df
+
+##Testing this adapter
+import adapter_adultfanfictionorg
+
+## These are no longer used, but I've left them listed for archival purposes.
+#import adapter_bdsmgeschichten
+#import adapter_buffynfaithnet
+#import adapter_grangerenchantedcom
+#import adapter_nickandgregnet
+#import adapter_scarheadnet
+#import adapter_tokrafandomnetcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -237,8 +185,9 @@ def getNormalStoryURL(url):
         return None
 
 def getNormalStoryURLSite(url):
+    # print("getNormalStoryURLSite:%s"%url)
     if not getNormalStoryURL.__dummyconfig:
-        getNormalStoryURL.__dummyconfig = Configuration("test1.com","EPUB")
+        getNormalStoryURL.__dummyconfig = Configuration(["test1.com"],"EPUB",lightweight=True)
     # pulling up an adapter is pretty low over-head.  If
     # it fails, it's a bad url.
     try:
