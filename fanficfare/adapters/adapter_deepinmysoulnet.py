@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# ####### Not all lables are captured. they are not formtted correctly on the 
-# #######  webpage.
 
 # Software: eFiction
 import time
@@ -31,11 +29,11 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return AndromedaWebComAdapter # XXX
+    return DeepInMySoulNetAdapter   ## XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
+class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -58,16 +56,16 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         self._setURL('http://' + self.getSiteDomain() + '/fiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','awc') # XXX
+        self.story.setMetadata('siteabbrev','dimsn')  ## XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %b %Y" # XXX
+        self.dateformat = "%B %d, %Y"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.andromeda-web.com'  # XXX
+        return 'www.deepinmysoul.net'  # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -97,7 +95,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/fiction/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -119,7 +117,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&warning=2"
+            addurl = "&warning=4"
         else:
             addurl=""
 
@@ -147,9 +145,9 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         # eFiction book.
 
         # fiction/viewstory.php?sid=1882&amp;warning=4
-        # fiction/viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=2
+        # fiction/viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
         #print data
-        m = re.search(r"'fiction/viewstory.php\?sid=10(&amp;warning=2)'",data)
+        m = re.search(r"'fiction/viewstory.php\?sid=29(&amp;warning=4)'",data)
         m = re.search(r"'fiction/viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
             if self.is_adult or self.getConfig("is_adult"):
@@ -180,7 +178,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         # Now go hunting for all the meta data and the chapter list.
 
-        pagetitle = soup.find('div',{'id':'content'})
+        pagetitle = soup.find('div',{'id':'pagecontent'})
 
         ## Title
         a = pagetitle.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
@@ -293,9 +291,10 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         soup = self.make_soup(self._fetchUrl(url))
 
-        div = soup.find('div', {'class' : 'story'})
+        div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
+

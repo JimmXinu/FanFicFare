@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# ####### Not all lables are captured. they are not formtted correctly on the 
-# #######  webpage.
 
 # Software: eFiction
 import time
@@ -31,11 +29,11 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return AndromedaWebComAdapter # XXX
+    return KiaRepositoryMujajiNetAdapter   ## XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
+class KiaRepositoryMujajiNetAdapter(BaseSiteAdapter):  # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -55,26 +53,26 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         # normalized story URL.
         # XXX Most sites don't have the /fiction part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/fiction/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/repository/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','awc') # XXX
+        self.story.setMetadata('siteabbrev','kia')  ## XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %b %Y" # XXX
+        self.dateformat = "%d %b %Y"   ## XXX
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.andromeda-web.com'  # XXX
+        return 'mujaji.net'  # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fiction/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/repository/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/fiction/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/repository/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -97,7 +95,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        loginUrl = 'http://' + self.getSiteDomain() + '/repository/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -119,7 +117,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
             # If the title search below fails, there's a good chance
             # you need a different number.  print data at that point
             # and see what the 'click here to continue' url says.
-            addurl = "&warning=2"
+            addurl = "&warning=4"
         else:
             addurl=""
 
@@ -147,10 +145,10 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         # eFiction book.
 
         # fiction/viewstory.php?sid=1882&amp;warning=4
-        # fiction/viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=2
+        # fiction/viewstory.php?sid=1654&amp;ageconsent=ok&amp;warning=5
         #print data
-        m = re.search(r"'fiction/viewstory.php\?sid=10(&amp;warning=2)'",data)
-        m = re.search(r"'fiction/viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
+        m = re.search(r"'repository/viewstory.php\?sid=29(&amp;warning=4)'",data)
+        m = re.search(r"'repository/viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
             if self.is_adult or self.getConfig("is_adult"):
                 # We tried the default and still got a warning, so
@@ -180,7 +178,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         # Now go hunting for all the meta data and the chapter list.
 
-        pagetitle = soup.find('div',{'id':'content'})
+        pagetitle = soup.find('div',{'id':'pagetitle'})
 
         ## Title
         a = pagetitle.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
@@ -196,7 +194,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fiction/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/repository/'+chapter['href']+addurl))
 
             self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -267,16 +265,16 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         try:
             # Find Series name from series URL.
-            a = soup.find('a', href=re.compile(r"fiction/viewseries.php\?seriesid=\d+"))
+            a = soup.find('a', href=re.compile(r"repository/viewseries.php\?seriesid=\d+"))
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^fiction/viewstory.php\?sid=\d+$'))
+            storyas = seriessoup.findAll('a', href=re.compile(r'^repository/viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
-                if a['href'] == ('fiction/viewstory.php?sid='+self.story.getMetadata('storyId')):
+                if a['href'] == ('repository/viewstory.php?sid='+self.story.getMetadata('storyId')):
                     self.setSeries(series_name, i)
                     self.story.setMetadata('seriesUrl',series_url)
                     break
@@ -293,9 +291,10 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         soup = self.make_soup(self._fetchUrl(url))
 
-        div = soup.find('div', {'class' : 'story'})
+        div = soup.find('div', {'id' : 'story'})
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
+
