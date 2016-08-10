@@ -138,6 +138,11 @@ import adapter_buffygilescom
 import adapter_andromedawebcom
 import adapter_artemisfowlcom
 import adapter_naiceanilmenet
+import adapter_deepinmysoulnet
+import adapter_haremlucifaelcom
+import adapter_kiarepositorymujajinet
+import adapter_fanfictionlucifaelcom
+import adapter_adultfanfictionorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
