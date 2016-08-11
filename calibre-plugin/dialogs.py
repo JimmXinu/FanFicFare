@@ -622,6 +622,7 @@ class _LoopProgressDialog(QProgressDialog):
         self.status_prefix = status_prefix
         self.i = 0
         self.start_time = datetime.now()
+        self.first = True
 
         # can't import at file load.
         from calibre_plugins.fanficfare_plugin.prefs import prefs
@@ -648,8 +649,14 @@ class _LoopProgressDialog(QProgressDialog):
 
     def do_loop(self):
 
-        if self.i == 0:
-            self.setValue(0)
+        if self.first:
+            ## Windows 10 doesn't want to show the prog dialog content
+            ## until after the timer's been called again.  Something to
+            ## do with cooperative multi threading maybe?
+            ## So this just trips the timer loop an extra time at the start.
+            self.first = False
+            QTimer.singleShot(0, self.do_loop)
+            return
 
         book = self.book_list[self.i]
         try:
