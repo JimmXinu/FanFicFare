@@ -188,6 +188,7 @@ def get_valid_set_options():
                'minimum_threadmarks':(base_xenforo_list,None,None),
                'first_post_title':(base_xenforo_list,None,None),
                'always_include_first_post':(base_xenforo_list,None,boollist),
+               'always_reload_first_chapter':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
