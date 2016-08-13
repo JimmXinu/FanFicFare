@@ -57,13 +57,10 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         #Setting the 'Zone' for each "Site"
         self.zone = self.parsedUrl.netloc.split('.')[0]
 
-        # normalized story URL.
-        if self.zone in ('hp','anime2','anime','bleach','books','buffy','cartoon','celeb','comics','games','inu','lotr',
-                         'manga','naruto','ne','original','tv','xmen','ygo','yuyu'):
-            self._setURL('http://' + self.zone + '.' + self.getSiteDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
-        else:
-            raise exceptions.StoryDoesNotExist('{0}.{1} is not a valid URL for this site. Examples: {2}'.format(self.zone,self.getSiteDomain(),str(self.getSiteExampleURLs())))
-            #I know the above get's captured by previous code, but I didn't want it to continue if the url was incorrect, and actually got here.
+        # normalized story URL. (checking self.zone against list
+        # removed--it was redundant w/getAcceptDomains and
+        # getSiteURLPattern both)
+        self._setURL('http://' + self.zone + '.' + self.getBaseDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         #self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
@@ -77,15 +74,21 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         
 
     ##This method will be moved to the sub-adapters
-    @classmethod
-    def getSiteAbbrev(self):
-        return self.zone+'aff'
+    # @classmethod
+    # def getSiteAbbrev(self):
+    #     return self.zone+'aff'
 
-    ##This method will be moved to the sub-adapters
+    ## Added because adult-fanfiction.org does send you to
+    ## www.adult-fanfiction.org when you go to it and it also moves
+    ## the site & examples down the web service front page so the
+    ## first screen isn't dominated by 'adult' links.
+    def getBaseDomain(self):
+        return 'adult-fanfiction.org'
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'adult-fanfiction.org'
+        return 'www.adult-fanfiction.org'
 
     @classmethod
     def getAcceptDomains(cls):
@@ -140,7 +143,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
               + "http://yuyu.adult-fanfiction.org/story.php?no=123456789")
 
     def getSiteURLPattern(self):
-        return r'http?://(hp|anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
+        return r'http?://(anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|movies|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
 
     ##This is not working right now, so I'm commenting it out, but leaving it for future testing
     ## Login seems to be reasonably standard across eFiction sites.
@@ -214,7 +217,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                 raise e
 
         if "The dragons running the back end of the site can not seem to find the story you are looking for." in data:
-            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() 
+            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() 
                                                +" says: The dragons running the back end of the site can not seem to find the story you are looking for.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
@@ -268,7 +271,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                 raise e
 
         if "The member you are looking for does not exist." in adata:
-            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() +" says: The member you are looking for does not exist.")
+            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
 
         asoup = self.make_soup(adata)
 
@@ -307,7 +310,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     ## the page number, it will default to the last page, even if you use 1000, for an author
                     ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).
                     if "The member you are looking for does not exist." in adata:
-                        raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() +" says: The member you are looking for does not exist.")
+                        raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
     
                 asoup = self.make_soup(adata)
     
