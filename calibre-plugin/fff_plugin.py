@@ -2468,18 +2468,33 @@ class FanFicFarePlugin(InterfaceAction):
                         book['anthology_meta_list'][k]=True
 
         logger.debug("book['url']:%s"%book['url'])
+
+        book['comments'] = _("Anthology containing:")+"\n\n"
+        if len(book['author']) > 1:
+            mkbooktitle = lambda x : _("%s by %s") % (x['title'],' & '.join(x['author']))
+        else:
+            mkbooktitle = lambda x : x['title']
+
+        if prefs['includecomments']:
+            def mkbookcomments(x):
+                if x['comments']:
+                    return '<b>%s</b>\n\n%s'%(mkbooktitle(x),x['comments'])
+                else:
+                    return '<b>%s</b>\n'%mkbooktitle(x)
+
+            book['comments'] += ('<div class="mergedbook">' +
+                            '<hr></div><div class="mergedbook">'.join([ mkbookcomments(x) for x in book_list]) +
+                            '</div>')
+        else:
+            book['comments'] += '\n'.join( [ mkbooktitle(x) for x in book_list ] )
+
         configuration = get_fff_config(book['url'],fileform)
         if existingbook:
             book['title'] = deftitle = existingbook['title']
-            book['comments'] = existingbook['comments']
+            if prefs['anth_comments_newonly']:
+                book['comments'] = existingbook['comments']
         else:
             book['title'] = deftitle = book_list[0]['title']
-            if len(book['author']) > 1:
-                book['comments'] = _("Anthology containing:")+"\n" + \
-                    "\n".join([ _("%s by %s")%(b['title'],', '.join(b['author'])) for b in book_list ])
-            else:
-                book['comments'] = _("Anthology containing:")+"\n" + \
-                    "\n".join([ b['title'] for b in book_list ])
             # book['all_metadata']['description']
 
             # if all same series, use series for name.  But only if all and not previous named
