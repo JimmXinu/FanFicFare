@@ -1891,7 +1891,8 @@ class FanFicFarePlugin(InterfaceAction):
             #print("mi.tags:%s"%mi.tags)
 
         if book['all_metadata']['langcode']:
-            mi.languages=[book['all_metadata']['langcode']]
+            # split due to anthologies.  Gives list of one for non-anth.
+            mi.languages=book['all_metadata']['langcode'].split(', ')
         else:
             # Set language english, but only if not already set.
             if not oldmi.languages:
@@ -2410,7 +2411,9 @@ class FanFicFarePlugin(InterfaceAction):
                 #print("book series:%s"%serieslist[-1])
 
             if b['publisher']:
-                if 'publisher' not in book:
+                if not book['publisher']:
+                    ## not set in all_metadata because it's not one of
+                    ## the permitted metadata--use site instead.
                     book['publisher']=b['publisher']
                 elif book['publisher']!=b['publisher']:
                     book['publisher']=None # if any are different, don't use.
