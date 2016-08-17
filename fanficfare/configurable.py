@@ -176,6 +176,7 @@ def get_valid_set_options():
                             None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
+               'logpage_at_end':(None,['epub'],boollist),
                
                'windows_eol':(None,['txt'],boollist),
                
@@ -283,6 +284,7 @@ def get_valid_keywords():
                  'image_max_size',
                  'include_images',
                  'include_logpage',
+                 'logpage_at_end',
                  'include_subject_tags',
                  'include_titlepage',
                  'include_tocpage',
