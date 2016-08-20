@@ -21,6 +21,10 @@ def get_dcsource(inputio):
 def get_dcsource_chaptercount(inputio):
     return get_update_data(inputio,getfilecount=True,getsoups=False)[:2] # (source,filecount)
 
+def get_cover_data(inputio):
+    # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
+    return get_update_data(inputio,getfilecount=True,getsoups=False)[4]
+
 def get_update_data(inputio,
                     getfilecount=True,
                     getsoups=True):

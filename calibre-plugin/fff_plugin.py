@@ -83,7 +83,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
-    reset_orig_chapters_epub)
+    reset_orig_chapters_epub, get_cover_data)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -114,6 +114,13 @@ formmapping = {
     'mobi':'MOBI',
     'html':'ZIP',
     'txt':'TXT'
+    }
+
+imagetypes = {
+    'image/jpeg':'jpg',
+    'image/png':'png',
+    'image/gif':'gif',
+    'image/svg+xml':'svg',
     }
 
 PLUGIN_ICONS = ['images/icon.png']
@@ -1733,6 +1740,7 @@ class FanFicFarePlugin(InterfaceAction):
                                       show_copy_button=False)
 
     def do_download_merge_update(self, payload):
+        db = self.gui.current_db
 
         (good_list,bad_list,options) = payload
         total_good = len(good_list)
@@ -1758,20 +1766,62 @@ class FanFicFarePlugin(InterfaceAction):
 
         #print("mergebook:\n%s"%mergebook)
 
-        if mergebook['good']: # there shouldn't be any !'good' books at this point.
-            # if still 'good', make a temp file to write the output to.
-            tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
-                                          dir=options['tdir'])
-            logger.debug("title:"+mergebook['title'])
-            logger.debug("outfile:"+tmp.name)
-            mergebook['outfile'] = tmp.name
+        # make a temp file to write the output to.
+        tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
+                                      dir=options['tdir'])
+        # logger.debug("title:"+mergebook['title'])
+        logger.debug("outfile:"+tmp.name)
+        mergebook['outfile'] = tmp.name
 
+        ## Calibre's Polish heuristics for covers can cause problems
+        ## if a merged anthology book has sub-book covers, but not a
+        ## proper main cover.  So, now if there are any covers, we
+        ## will force a main cover.
+
+        ## start with None.  If no subbook covers, don't force one
+        ## here.  User can configure FFF to always create/polish a
+        ## cover if they want.  This is about when we force it.
+        coverpath = None
+        coverimgtype = None
+
+        ## first, look for covers inside the subbooks.  Stop at the
+        ## first one, which will be used if there isn't a pre-existing
+        ## calibre cover.
+        if not coverpath:
+            for book in good_list:
+                coverdata = get_cover_data(book['outfile'])
+                if coverdata: # found a cover.
+                    (coverimgtype,coverimgdata) = coverdata[4:6]
+                    logger.debug('coverimgtype:%s [%s]'%(coverimgtype,imagetypes[coverimgtype]))
+                    tmpcover = PersistentTemporaryFile(suffix='.'+imagetypes[coverimgtype],
+                                                       dir=options['tdir'])
+                    tmpcover.write(coverimgdata)
+                    tmpcover.flush()
+                    tmpcover.close()
+                    coverpath = tmpcover.name
+                    break
+        # logger.debug('coverpath:%s'%coverpath)
+
+        ## if updating an existing book and there is at least one
+        ## subbook cover:
+        if coverpath and mergebook['calibre_id']:
+            # Couldn't find a better way to get the cover path.
+            calcoverpath = os.path.join(db.library_path,
+                                     db.path(mergebook['calibre_id'], index_is_id=True),
+                                     'cover.jpg')
+            ## if there's an existing cover, use it.  Calibre will set
+            ## it for us during lots of different actions anyway.
+            if os.path.exists(calcoverpath):
+                coverpath = calcoverpath
+
+        # logger.debug('coverpath:%s'%coverpath)
         self.get_epubmerge_plugin().do_merge(tmp.name,
                                              [ x['outfile'] for x in good_list ],
                                              tags=mergebook['tags'],
                                              titleopt=mergebook['title'],
                                              keepmetadatafiles=True,
-                                             source=mergebook['url'])
+                                             source=mergebook['url'],
+                                             coverjpgpath=coverpath)
 
         options['collision']=OVERWRITEALWAYS
         self.update_books_loop(mergebook,self.gui.current_db,options)
