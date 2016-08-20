@@ -170,9 +170,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         elif 'Crossover' in categories[0]['href']:
             caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
             catsoup = self.make_soup(self._fetchUrl(caturl))
+            found = False
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
                 self.story.addToList('category',stripHTML(a))
-            else:
+                found = True
+            if not found:
                 # Fall back.  I ran across a story with a Crossver
                 # category link to a broken page once.
                 # http://www.fanfiction.net/s/2622060/1/
@@ -180,8 +182,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 logger.info("Fall back category collection")
                 for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
                     self.story.addToList('category',c)
-
-
 
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
