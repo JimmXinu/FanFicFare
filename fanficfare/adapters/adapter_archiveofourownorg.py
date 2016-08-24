@@ -187,7 +187,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[-1])
-                self.story.addToList('authorUrl',a['href'])
+                self.story.addToList('authorUrl','http://'+self.host+a['href'])
                 self.story.addToList('author',a.text)
 
         byline = metasoup.find('h3',{'class':'byline'})
