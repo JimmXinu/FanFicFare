@@ -83,7 +83,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
-    reset_orig_chapters_epub)
+    reset_orig_chapters_epub, get_cover_data)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -114,6 +114,13 @@ formmapping = {
     'mobi':'MOBI',
     'html':'ZIP',
     'txt':'TXT'
+    }
+
+imagetypes = {
+    'image/jpeg':'jpg',
+    'image/png':'png',
+    'image/gif':'gif',
+    'image/svg+xml':'svg',
     }
 
 PLUGIN_ICONS = ['images/icon.png']
@@ -1733,6 +1740,7 @@ class FanFicFarePlugin(InterfaceAction):
                                       show_copy_button=False)
 
     def do_download_merge_update(self, payload):
+        db = self.gui.current_db
 
         (good_list,bad_list,options) = payload
         total_good = len(good_list)
@@ -1758,20 +1766,62 @@ class FanFicFarePlugin(InterfaceAction):
 
         #print("mergebook:\n%s"%mergebook)
 
-        if mergebook['good']: # there shouldn't be any !'good' books at this point.
-            # if still 'good', make a temp file to write the output to.
-            tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
-                                          dir=options['tdir'])
-            logger.debug("title:"+mergebook['title'])
-            logger.debug("outfile:"+tmp.name)
-            mergebook['outfile'] = tmp.name
+        # make a temp file to write the output to.
+        tmp = PersistentTemporaryFile(suffix='.'+options['fileform'],
+                                      dir=options['tdir'])
+        # logger.debug("title:"+mergebook['title'])
+        logger.debug("outfile:"+tmp.name)
+        mergebook['outfile'] = tmp.name
 
+        ## Calibre's Polish heuristics for covers can cause problems
+        ## if a merged anthology book has sub-book covers, but not a
+        ## proper main cover.  So, now if there are any covers, we
+        ## will force a main cover.
+
+        ## start with None.  If no subbook covers, don't force one
+        ## here.  User can configure FFF to always create/polish a
+        ## cover if they want.  This is about when we force it.
+        coverpath = None
+        coverimgtype = None
+
+        ## first, look for covers inside the subbooks.  Stop at the
+        ## first one, which will be used if there isn't a pre-existing
+        ## calibre cover.
+        if not coverpath:
+            for book in good_list:
+                coverdata = get_cover_data(book['outfile'])
+                if coverdata: # found a cover.
+                    (coverimgtype,coverimgdata) = coverdata[4:6]
+                    logger.debug('coverimgtype:%s [%s]'%(coverimgtype,imagetypes[coverimgtype]))
+                    tmpcover = PersistentTemporaryFile(suffix='.'+imagetypes[coverimgtype],
+                                                       dir=options['tdir'])
+                    tmpcover.write(coverimgdata)
+                    tmpcover.flush()
+                    tmpcover.close()
+                    coverpath = tmpcover.name
+                    break
+        # logger.debug('coverpath:%s'%coverpath)
+
+        ## if updating an existing book and there is at least one
+        ## subbook cover:
+        if coverpath and mergebook['calibre_id']:
+            # Couldn't find a better way to get the cover path.
+            calcoverpath = os.path.join(db.library_path,
+                                     db.path(mergebook['calibre_id'], index_is_id=True),
+                                     'cover.jpg')
+            ## if there's an existing cover, use it.  Calibre will set
+            ## it for us during lots of different actions anyway.
+            if os.path.exists(calcoverpath):
+                coverpath = calcoverpath
+
+        # logger.debug('coverpath:%s'%coverpath)
         self.get_epubmerge_plugin().do_merge(tmp.name,
                                              [ x['outfile'] for x in good_list ],
                                              tags=mergebook['tags'],
                                              titleopt=mergebook['title'],
                                              keepmetadatafiles=True,
-                                             source=mergebook['url'])
+                                             source=mergebook['url'],
+                                             coverjpgpath=coverpath)
 
         options['collision']=OVERWRITEALWAYS
         self.update_books_loop(mergebook,self.gui.current_db,options)
@@ -1891,7 +1941,8 @@ class FanFicFarePlugin(InterfaceAction):
             #print("mi.tags:%s"%mi.tags)
 
         if book['all_metadata']['langcode']:
-            mi.languages=[book['all_metadata']['langcode']]
+            # split due to anthologies.  Gives list of one for non-anth.
+            mi.languages=book['all_metadata']['langcode'].split(', ')
         else:
             # Set language english, but only if not already set.
             if not oldmi.languages:
@@ -2410,7 +2461,9 @@ class FanFicFarePlugin(InterfaceAction):
                 #print("book series:%s"%serieslist[-1])
 
             if b['publisher']:
-                if 'publisher' not in book:
+                if not book['publisher']:
+                    ## not set in all_metadata because it's not one of
+                    ## the permitted metadata--use site instead.
                     book['publisher']=b['publisher']
                 elif book['publisher']!=b['publisher']:
                     book['publisher']=None # if any are different, don't use.
@@ -2468,18 +2521,33 @@ class FanFicFarePlugin(InterfaceAction):
                         book['anthology_meta_list'][k]=True
 
         logger.debug("book['url']:%s"%book['url'])
+
+        book['comments'] = _("Anthology containing:")+"\n\n"
+        if len(book['author']) > 1:
+            mkbooktitle = lambda x : _("%s by %s") % (x['title'],' & '.join(x['author']))
+        else:
+            mkbooktitle = lambda x : x['title']
+
+        if prefs['includecomments']:
+            def mkbookcomments(x):
+                if x['comments']:
+                    return '<b>%s</b>\n\n%s'%(mkbooktitle(x),x['comments'])
+                else:
+                    return '<b>%s</b>\n'%mkbooktitle(x)
+
+            book['comments'] += ('<div class="mergedbook">' +
+                            '<hr></div><div class="mergedbook">'.join([ mkbookcomments(x) for x in book_list]) +
+                            '</div>')
+        else:
+            book['comments'] += '\n'.join( [ mkbooktitle(x) for x in book_list ] )
+
         configuration = get_fff_config(book['url'],fileform)
         if existingbook:
             book['title'] = deftitle = existingbook['title']
-            book['comments'] = existingbook['comments']
+            if prefs['anth_comments_newonly']:
+                book['comments'] = existingbook['comments']
         else:
             book['title'] = deftitle = book_list[0]['title']
-            if len(book['author']) > 1:
-                book['comments'] = _("Anthology containing:")+"\n" + \
-                    "\n".join([ _("%s by %s")%(b['title'],', '.join(b['author'])) for b in book_list ])
-            else:
-                book['comments'] = _("Anthology containing:")+"\n" + \
-                    "\n".join([ b['title'] for b in book_list ])
             # book['all_metadata']['description']
 
             # if all same series, use series for name.  But only if all and not previous named

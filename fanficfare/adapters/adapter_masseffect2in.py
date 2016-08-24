@@ -459,7 +459,22 @@ class Chapter(object):
                 .strip(u'| \n')
         except AttributeError:
             raise ParsingError(u'Failed to locate date.')
-        date = makeDate(dateText, '%d.%m.%Y')
+
+        # The site uses Europe/Moscow (MSK, UTC+0300) server time.
+        def todayInMoscow():
+            now = datetime.datetime.now() + datetime.timedelta(hours=3)
+            today = datetime.datetime(now.year, now.month, now.day)
+            return today
+
+        def parseDateText(text):
+            if text == u'Вчера':
+                return todayInMoscow() - datetime.timedelta(days=1)
+            elif text == u'Сегодня':
+                return todayInMoscow()
+            else:
+                return makeDate(text, '%d.%m.%Y')
+
+        date = parseDateText(dateText)
         return date
 
     def _getInfoBarElement(self):

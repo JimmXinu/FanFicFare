@@ -85,7 +85,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteURLPattern(self):
-        return r"http://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
+        return r"https?://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
 
     @classmethod
     def getEncoding(cls):

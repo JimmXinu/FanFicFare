@@ -328,6 +328,8 @@ class ConfigWidget(QWidget):
         prefs['std_cols_newonly'] = colsnewonly
 
         prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
+        prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
+        prefs['anth_comments_newonly'] =self.std_columns_tab.anth_comments_newonly.isChecked()
 
         # Custom Columns tab
         # error column
@@ -1438,6 +1440,17 @@ class StandardColumnsTab(QWidget):
         self.set_author_url.setToolTip(_("Set Calibre Author URL to Author's URL on story site."))
         self.set_author_url.setChecked(prefs['set_author_url'])
         self.l.addWidget(self.set_author_url)
+
+        self.includecomments = QCheckBox(_("Include Books' Comments in Anthology Comments?"),self)
+        self.includecomments.setToolTip(_('''Include all the merged books' comments in the new book's comments.
+Default is a list of included titles only.'''))
+        self.includecomments.setChecked(prefs['includecomments'])
+        self.l.addWidget(self.includecomments)
+
+        self.anth_comments_newonly = QCheckBox(_("Set Anthology Comments only for new books"),self)
+        self.anth_comments_newonly.setToolTip(_("Comments will only be set for New Anthologies, not updates.\nThat way comments you set manually are retained."))
+        self.anth_comments_newonly.setChecked(prefs['anth_comments_newonly'])
+        self.l.addWidget(self.anth_comments_newonly)
         
         self.l.insertStretch(-1)
 

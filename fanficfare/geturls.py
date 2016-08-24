@@ -125,7 +125,10 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 
 def get_urls_from_text(data,configuration=None,normalize=False):
     urls = collections.OrderedDict()
-    data=unicode(data)
+    try:
+        data = unicode(data)
+    except UnicodeDecodeError:
+        data=data.decode('utf8') ## for when called outside calibre.
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
@@ -229,7 +232,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
                 if part.get_content_type() == 'text/html':
                     urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
             except Exception as e:
-                logger.error("Failed to read email content: %s"%e)
+                logger.error("Failed to read email content: %s"%e,exc_info=True)
         #logger.debug "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
 
         if urllist and markread:

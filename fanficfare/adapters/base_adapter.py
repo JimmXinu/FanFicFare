@@ -393,6 +393,13 @@ class BaseSiteAdapter(Configurable):
                         data = self.getChapterText(url)
                         # if had to fetch and has existing chapters
                         newchap = bool(self.oldchapters or self.oldchaptersmap)
+
+                    if index == 0 and self.getConfig('always_reload_first_chapter'):
+                        data = self.getChapterText(url)
+                        # first chapter is rarely marked new
+                        # anyway--only if it's replaced during an
+                        # update.
+                        newchap = False
                         
                     self.story.addChapter(url,
                                           removeEntities(title),

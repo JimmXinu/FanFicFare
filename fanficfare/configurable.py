@@ -176,6 +176,7 @@ def get_valid_set_options():
                             None,boollist),
                
                'include_logpage':(None,['epub'],boollist+['smart']),
+               'logpage_at_end':(None,['epub'],boollist),
                
                'windows_eol':(None,['txt'],boollist),
                
@@ -188,6 +189,7 @@ def get_valid_set_options():
                'minimum_threadmarks':(base_xenforo_list,None,None),
                'first_post_title':(base_xenforo_list,None,None),
                'always_include_first_post':(base_xenforo_list,None,boollist),
+               'always_reload_first_chapter':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -282,6 +284,7 @@ def get_valid_keywords():
                  'image_max_size',
                  'include_images',
                  'include_logpage',
+                 'logpage_at_end',
                  'include_subject_tags',
                  'include_titlepage',
                  'include_tocpage',

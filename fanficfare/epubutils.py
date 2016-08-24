@@ -21,6 +21,10 @@ def get_dcsource(inputio):
 def get_dcsource_chaptercount(inputio):
     return get_update_data(inputio,getfilecount=True,getsoups=False)[:2] # (source,filecount)
 
+def get_cover_data(inputio):
+    # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
+    return get_update_data(inputio,getfilecount=True,getsoups=False)[4]
+
 def get_update_data(inputio,
                     getfilecount=True,
                     getsoups=True):
@@ -50,26 +54,32 @@ def get_update_data(inputio,
         if item.getAttribute("type") == "cover":
             # there is a cover (x)html file, save the soup for it.
             href=relpath+item.getAttribute("href")
-            oldcoverhtmlhref = href
-            oldcoverhtmldata = epub.read(href)
-            oldcoverhtmltype = "application/xhtml+xml"
-            for item in contentdom.getElementsByTagName("item"):
-                if( relpath+item.getAttribute("href") == oldcoverhtmlhref ):
-                    oldcoverhtmltype = item.getAttribute("media-type")
-                    break
-            soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"),"html5lib")
             src = None
-            # first img or image tag.
-            imgs = soup.findAll('img')
-            if imgs:
-                src = get_path_part(href)+imgs[0]['src']
-            else:
-                imgs = soup.findAll('image')
+            try:
+                oldcoverhtmlhref = href
+                oldcoverhtmldata = epub.read(href)
+                oldcoverhtmltype = "application/xhtml+xml"
+                for item in contentdom.getElementsByTagName("item"):
+                    if( relpath+item.getAttribute("href") == oldcoverhtmlhref ):
+                        oldcoverhtmltype = item.getAttribute("media-type")
+                        break
+                soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"),"html5lib")
+                # first img or image tag.
+                imgs = soup.findAll('img')
                 if imgs:
-                    src=get_path_part(href)+imgs[0]['xlink:href']
+                    src = get_path_part(href)+imgs[0]['src']
+                else:
+                    imgs = soup.findAll('image')
+                    if imgs:
+                        src=get_path_part(href)+imgs[0]['xlink:href']
 
-            if not src:
-                continue
+                if not src:
+                    continue
+            except Exception as e:
+                ## Calibre's Polish Book corrupts sub-book covers.
+                logger.warn("Cover (x)html file %s not found"%href)
+                logger.warn("Exception: %s"%(unicode(e)))
+
             try:
                 # remove all .. and the path part above it, if present.
                 # Mostly for epubs edited by Sigil.
@@ -84,7 +94,7 @@ def get_update_data(inputio,
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
                 logger.warn("Cover Image %s not found"%src)
-                logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
+                logger.warn("Exception: %s"%(unicode(e)))
 
     filecount = 0
     soups = [] # list of xhmtl blocks
