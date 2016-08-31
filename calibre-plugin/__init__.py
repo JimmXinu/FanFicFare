@@ -32,6 +32,9 @@ except NameError:
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
+## single sourcing version number in fanficfare/__init__.py
+from calibre_plugins.fanficfare_plugin.fanficfare import __version_num__
+
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
 class FanFicFareBase(InterfaceActionBase):
@@ -48,7 +51,7 @@ class FanFicFareBase(InterfaceActionBase):
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (2, 3, 6)
+    version             = __version_num__
     minimum_calibre_version = (1, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -116,18 +119,18 @@ class FanFicFareBase(InterfaceActionBase):
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre.utils.config import prefs as calibre_prefs
-            from optparse import OptionParser      
-    
+            from optparse import OptionParser
+
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')
             parser.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
             # parser.add_option('--dont-notify-gui', default=False, action='store_true',
             #               help=_('Do not notify the running calibre GUI (if any) that the database has'
             #                      ' changed. Use with care, as it can lead to database corruption!'))
-    
+
             pargs = [x for x in argv if x.startswith('--with-library') or x.startswith('--library-path')
                      or not x.startswith('-')]
             opts, args = parser.parse_args(pargs)
-    
+
             fff_prefs = PrefsFacade(db(path=opts.library_path,
                                         read_only=True))
 

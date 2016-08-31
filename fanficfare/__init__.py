@@ -17,7 +17,7 @@
 
 try:
     # just a way to switch between web service and CLI/PI
-    import google.appengine.api 
+    import google.appengine.api
 except:
     try: # just a way to switch between CLI and PI
         import calibre.constants
@@ -32,3 +32,8 @@ except:
             loghandler.setLevel(logging.DEBUG)
             logger.setLevel(logging.DEBUG)
 
+## single sourcing version number in fanficfare/__init__.py
+## __version_num__ for calibre plugin
+## __version__ moved from ../setup.py so cli.py can also display it.
+__version_num__ = (2, 3, 6)
+__version__ = ".".join([unicode(x) for x in __version_num__])

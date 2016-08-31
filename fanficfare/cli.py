@@ -39,13 +39,13 @@ if sys.version_info >= (2, 7):
 
 try:
     # running under calibre
-    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions, __version__
     from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page
 except ImportError:
-    from fanficfare import adapters, writers, exceptions
+    from fanficfare import adapters, writers, exceptions, __version__
     from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
@@ -114,8 +114,16 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
                       help='Show debug output while downloading.', )
+    parser.add_option('-v', '--version',
+                      action='store_true', dest='version',
+                      help='Display version and quit.', )
 
     options, args = parser.parse_args(argv)
+
+    if options.version:
+        ## single sourcing version number in fanficfare/__init__.py
+        print("Version: %s" % __version__)
+        return
 
     if not options.debug:
         logger = logging.getLogger('fanficfare')
@@ -142,7 +150,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
         urls=[]
         with open(options.infile,"r") as infile:
             #print "File exists and is readable"
-          
+
             #fileurls = [line.strip() for line in infile]
             for url in infile:
                 url = url[:url.find('#')].strip()
@@ -173,7 +181,7 @@ def do_download(arg,
                 options,
                 passed_defaultsini,
                 passed_personalini):
-                
+
     # Attempt to update an existing epub.
     chaptercount = None
     output_filename = None
@@ -182,7 +190,7 @@ def do_download(arg,
         # remove mark_new_chapters marks
         reset_orig_chapters_epub(arg,arg)
         return
-    
+
     if options.update:
         try:
             url, chaptercount = get_dcsource_chaptercount(arg)
@@ -197,7 +205,7 @@ def do_download(arg,
             url = arg
     else:
         url = arg
-        
+
     try:
         configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
     except exceptions.UnknownSite, e:
@@ -269,10 +277,10 @@ def do_download(arg,
         if not hasattr(options,'pagecache'):
             options.pagecache = adapter.get_empty_pagecache()
             options.cookiejar = adapter.get_empty_cookiejar()
-        
+
         adapter.set_pagecache(options.pagecache)
         adapter.set_cookiejar(options.cookiejar)
-        
+
         adapter.setChaptersRange(options.begin, options.end)
 
         # check for updating from URL (vs from file)
