@@ -51,7 +51,7 @@ try:
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 except ImportError:
-    from fanficfare import adapters, writers, exceptions,# __version__ THIS DIDN'T WORK I DON'T KNOW WHY.
+    from fanficfare import adapters, writers, exceptions#, __version__ THIS DIDN'T WORK I DON'T KNOW WHY.
     from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
@@ -206,7 +206,11 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                         #print "URL: (%s)"%url
                         urls.append(url)
         if options.address:
-            email_urls = get_urls_from_imap(options.imap, options.address, options.password, options.label)
+            try:
+                email_urls = get_urls_from_imap(options.imap, options.address, options.password, options.label)
+            except Exception as e:
+                print "Error with email: {}".format(e)
+                return
             for url in email_urls:
                 url = url.strip()
                 if len(url) > 0:
