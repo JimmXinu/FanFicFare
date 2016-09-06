@@ -230,12 +230,13 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                         try:
                             loc = mkdtemp()
                             print "Found in calibre library with ID {}".format(storyID)
-                            res = check_output('calibredb export {} --with-library "{}" --dont-save-cover --dont-write-opf --single-dir --to-dir "{}"'.format(storyID, options.library, loc), shell=True) #use tempdir
+                            res = check_output('calibredb export {} --with-library "{}" --dont-save-cover --dont-write-opf --single-dir --to-dir "{}"'.format(storyID, options.library, loc), shell=True, stderr=STDOUT) #use tempdir
                             current_file = join(loc, get_files(loc, ".epub")[0])
                             output_file = do_download(current_file,
                                 options,
                                 passed_defaultsini,
                                 passed_personalini)
+                            res = check_output('calibredb remove {} --with-library "{}"'.format(storyID, options.library, shell=True, stderr=STDOUT)
                         except Exception, e:
                              print "URL({}) Failed: Exception ({}).".format(url, e)
                              outfile.write("{}\n".format(url))
