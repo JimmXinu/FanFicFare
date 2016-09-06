@@ -236,7 +236,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                                 options,
                                 passed_defaultsini,
                                 passed_personalini)
-                            res = check_output('calibredb remove {} --with-library "{}"'.format(storyID, options.library, shell=True, stderr=STDOUT)
+                            res = check_output('calibredb remove {} --with-library "{}"'.format(storyID, options.library, shell=True, stderr=STDOUT))
                         except Exception, e:
                              print "URL({}) Failed: Exception ({}).".format(url, e)
                              outfile.write("{}\n".format(url))
