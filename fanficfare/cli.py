@@ -18,7 +18,13 @@
 from optparse import OptionParser
 from os.path import expanduser, join, dirname
 from os import access, R_OK
-from subprocess import call
+
+from os import listdir, remove, errno, devnull
+from os.path import isfile, join, abspath
+from subprocess import call, check_output, STDOUT
+from tempfile import mkdtemp
+from shutil import rmtree
+
 import ConfigParser
 import getpass
 import logging
@@ -43,13 +49,13 @@ try:
     from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page
+    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 except ImportError:
-    from fanficfare import adapters, writers, exceptions, __version__
+    from fanficfare import adapters, writers, exceptions#, __version__ THIS DIDN'T WORK I DON'T KNOW WHY.
     from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from fanficfare.geturls import get_urls_from_page
+    from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 
 
 def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
@@ -59,6 +65,18 @@ def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
     del writer
     return output_filename
 
+def parse_url(url): # this is required because of how calibre stores urls in the identifier field vs how the url appears in many email notification updates
+    url = url.replace("https://", "")
+    url = url.replace("http://", "")
+    if "fanfiction.net" in url: #have to likely write something for every supported url
+        url = url[:url.find("/", url.find("/s/") + 3)+1]
+    return url
+
+def get_files(mypath, filetype=None):
+    if filetype:
+        return [f for f in listdir(mypath) if isfile(join(mypath, f)) and f.endswith(filetype)]
+    else:
+        return [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
 def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=None):
     if argv is None:
@@ -117,6 +135,18 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     parser.add_option('-v', '--version',
                       action='store_true', dest='version',
                       help='Display version and quit.', )
+                      
+    parser.add_option('-a', '--address', dest='address', default=None, help='Email Address. Requires -p, -r, and -q. Will search the supplied email for unread messages with download links and attempt to use them to download stories from.') #email address
+    
+    parser.add_option('-p', '--password', dest='password', default=None, help='Email Password.') #password for email address
+    
+    parser.add_option('-r', '--imap-server', dest='imap', default=None, help='Imap Server.') #imap server for email address
+    
+    parser.add_option('-q', '--label', dest='label', default=None, help='Location of emails to look for in email address, such as INBOX') #label for email
+    
+    parser.add_option('-z', '--output', dest='output', default=devnull, help='Name of file to output problem urls to. If the name is the same as the input file, will overwrite the input file') #for reuse mostly
+    
+    parser.add_option('-w', '--with-library', dest='library', default=None, help='Path to calibre library. If you enable this option, any urls passed in will be looked for in the calibre library and those epubs updated.') #calibredb
 
     options, args = parser.parse_args(argv)
 
@@ -129,7 +159,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
         logger = logging.getLogger('fanficfare')
         logger.setLevel(logging.INFO)
 
-    if not (options.siteslist or options.infile) and len(args) != 1:
+    if not (options.siteslist or options.infile or options.address) and len(args) != 1:
         parser.error('incorrect number of arguments')
 
     if options.siteslist:
@@ -144,37 +174,108 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
 
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
+        
+    if options.library:
+        try:
+            with open(devnull, 'w') as nullout:
+                call(['calibredb'], stdout=nullout, stderr=nullout)
+        except OSError as e:
+            if errno == ENOENT:
+                print "Calibredb is not installed on this system. Cannot search the calibre library or update it."
+                options.library = None
 
     # for passing in a file list
-    if options.infile:
-        urls=[]
-        with open(options.infile,"r") as infile:
-            #print "File exists and is readable"
+    
+    #put in the email lookup here
+    
+    if any([options.address, options.password, options.imap, options.label]) and not all([options.address, options.password, options.imap, options.label]):
+        print "An email option was supplied without all information being given. Please use -h for help."
+        return
+    if not (options.infile or options.address):
+        urls = args
+    else:
+        urls = []
+        if options.infile:
+            with open(options.infile,"r") as infile:
+                #print "File exists and is readable"
 
-            #fileurls = [line.strip() for line in infile]
-            for url in infile:
-                url = url[:url.find('#')].strip()
+                #fileurls = [line.strip() for line in infile]
+                for url in infile:
+                    url = url[:url.find('#')].strip()
+                    if len(url) > 0:
+                        #print "URL: (%s)"%url
+                        urls.append(url)
+        if options.address:
+            try:
+                email_urls = get_urls_from_imap(options.imap, options.address, options.password, options.label)
+            except Exception as e:
+                print "Error with email: {}".format(e)
+                return
+            for url in email_urls:
+                url = url.strip()
                 if len(url) > 0:
                     #print "URL: (%s)"%url
                     urls.append(url)
-    else:
-        urls = args
-
-    if len(urls) > 1:
+        urls = [parse_url(x) for x in urls]
+    with open(options.output, "w") as outfile:
         for url in urls:
             try:
-                do_download(url,
+            
+                #if calibre library, do exports here
+                
+                if options.library:
+                    loc = None
+                    try:
+                        storyID = check_output('calibredb search "Identifiers:{}" --with-library "{}"'.format(url, options.library), shell=True,stderr=STDOUT)
+                        try:
+                            loc = mkdtemp()
+                            print "Found in calibre library with ID {}".format(storyID)
+                            if not options.update:
+                                print "Story is in calibre but update clause wasn't passed."
+                                raise ValueError("Story is in calibre but update clause wasn't passed")
+                            res = check_output('calibredb export {} --with-library "{}" --dont-save-cover --dont-write-opf --single-dir --to-dir "{}"'.format(storyID, options.library, loc), shell=True, stderr=STDOUT) #use tempdir
+                            current_file = join(loc, get_files(loc, ".epub")[0])
+                            output_file = do_download(current_file,
+                                options,
+                                passed_defaultsini,
+                                passed_personalini)
+                            res = check_output('calibredb remove {} --with-library "{}"'.format(storyID, options.library), shell=True, stderr=STDOUT)
+                        except Exception, e:
+                             print "URL({}) Failed: Exception ({}).".format(url, e)
+                             outfile.write("{}\n".format(url))
+                             rmtree(loc)
+                             #remove(current_file) # not needed because of rmtree
+                             continue
+                    
+                    except:
+                        output_file = do_download(url,
+                            options,
+                            passed_defaultsini,
+                            passed_personalini)
+                        output_file = join(abspath("."), output_file)
+                    res = check_output('calibredb add "{}" --with-library "{}"'.format(output_file, options.library), shell=True, stderr=STDOUT) #uses the output file now returned by do_download in order to add the file to calibre and then remove it. 
+                    res = check_output('calibredb search "Identifiers:{}" --with-library "{}"'.format(url, options.library), shell=True, stderr=STDOUT)
+                    print "Added {} to library with id {}".format(output_file[output_file.rfind("/")+1:], res)
+                    if loc: #if loc was set it means we used it, so remove it and all of the files within. else just removes the file itself
+                        rmtree(loc)
+                    else:
+                        remove(output_file)
+                
+                else:
+                    do_download(url,
                             options,
                             passed_defaultsini,
                             passed_personalini)
                 #print("pagecache:%s"%options.pagecache.keys())
+                
             except Exception, e:
                 print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
-    else:
-        do_download(urls[0],
-                    options,
-                    passed_defaultsini,
-                    passed_personalini)
+                outfile.write("{}\n".format(url))
+        '''else:
+            do_download(urls[0],
+                        options,
+                        passed_defaultsini,
+                        passed_personalini)'''
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -308,7 +409,7 @@ def do_download(arg,
                 except ImportError:
                     print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
                     if not sys.stdin.readline().strip().lower().startswith('y'):
-                        return
+                        raise#return
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
@@ -334,10 +435,13 @@ def do_download(arg,
 
             if chaptercount == urlchaptercount and not options.metaonly:
                 print '%s already contains %d chapters.' % (output_filename, chaptercount)
+                raise ValueError('%s already contains %d chapters.' % (output_filename, chaptercount))
             elif chaptercount > urlchaptercount:
                 print '%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount)
+                raise ValueError('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
                 print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename
+                raise ValueError("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
@@ -376,13 +480,20 @@ def do_download(arg,
 
     except exceptions.InvalidStoryURL as isu:
         print isu
+        raise isu
     except exceptions.StoryDoesNotExist as dne:
         print dne
+        raise dne
     except exceptions.UnknownSite as us:
         print us
+        raise us
     except exceptions.AccessDenied as ad:
         print ad
+        raise ad
+        
+    return output_filename
 
+#put raises in
 
 if __name__ == '__main__':
     main()
