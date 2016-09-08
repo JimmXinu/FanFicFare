@@ -176,6 +176,7 @@ default_prefs['imapsessionpass'] = False
 default_prefs['imapfolder'] = 'INBOX'
 default_prefs['imapmarkread'] = True
 default_prefs['auto_reject_from_email'] = False
+default_prefs['update_existing_only_from_email'] = False
 default_prefs['download_from_email_immediately'] = False
 
 def set_library_config(library_config,db):

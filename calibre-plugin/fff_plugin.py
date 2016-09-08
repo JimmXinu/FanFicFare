@@ -484,8 +484,15 @@ class FanFicFarePlugin(InterfaceAction):
         reject_list=set()
         if prefs['auto_reject_from_email']:
             # need to normalize for reject list.
-            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURLSite(x)[0])])
+            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURL(x))])
         url_list = url_list - reject_list
+
+        ## feature for update-only - check url_list with
+        ## self.do_id_search(url)
+        notupdate_list = set()
+        if prefs['update_existing_only_from_email']:
+            notupdate_list = set([x for x in url_list if not self.do_id_search(adapters.getNormalStoryURL(x))])
+        url_list = url_list - notupdate_list
 
         self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
         self.restore_cursor()
@@ -512,6 +519,8 @@ class FanFicFarePlugin(InterfaceAction):
                 msg = _('No Valid Story URLs Found in Unread Emails.')
                 if reject_list:
                     msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
+                if notupdate_list:
+                    msg = msg + '<p>'+(_("(%d Story URLs Skipped, no Existing Book in Library)")%len(notupdate_list))+'</p>'
                 info_dialog(self.gui, _('Get Story URLs from Email'),
                             msg,
                             show=True,
