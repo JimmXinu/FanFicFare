@@ -298,17 +298,20 @@ def do_download(arg,
         if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
             try:
                 from calibre.utils.magick import Image
-
                 logging.debug('Using calibre.utils.magick')
             except ImportError:
                 try:
-                    import Image
-
-                    logging.debug('Using PIL')
+                    ## Pillow is a more current fork of PIL library
+                    from PIL import Image
+                    logging.debug('Using Pillow')
                 except ImportError:
-                    print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
-                    if not sys.stdin.readline().strip().lower().startswith('y'):
-                        return
+                    try:
+                        import Image
+                        logging.debug('Using PIL')
+                    except ImportError:
+                        print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
+                        if not sys.stdin.readline().strip().lower().startswith('y'):
+                            return
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
