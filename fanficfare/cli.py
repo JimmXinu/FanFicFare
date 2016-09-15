@@ -166,7 +166,8 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                 if len(url) > 0:
                     #print "URL: (%s)"%url
                     urls.append(url)
-    elif options.imaplist or options.list or options.normalize:
+
+    if options.imaplist or options.list or options.normalize:
         # list doesn't have a supported site.
         configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
         if options.imaplist:
@@ -178,17 +179,20 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
 
         if options.list or options.normalize:
             retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
+            del args[0]
 
         l = filter(len, [x.strip() for x in retlist])
         if len(l) and options.downloadlist:
             urls.extend(l)
         else:
             print '\n'.join(l)
-            return
-    else:
+
+    if not any((options.infile, options.imaplist, options.list, options.normalize)):
         urls = args
 
-    if len(urls) > 1:
+    if len(urls) < 1:
+        print "No valid URLs given"
+    elif len(urls) > 1:
         for url in urls:
             try:
                 do_download(url,
@@ -239,7 +243,7 @@ def do_download(arg,
                                       passed_personalini,
                                       options,
                                       chaptercount)
-        
+
     try:
         adapter = adapters.getAdapter(configuration, url)
 
