@@ -43,13 +43,13 @@ try:
     from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page
+    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 except ImportError:
     from fanficfare import adapters, writers, exceptions, __version__
     from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from fanficfare.geturls import get_urls_from_page
+    from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 
 
 def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
@@ -108,6 +108,12 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     parser.add_option('-n', '--normalize-list',
                       action='store_true', dest='normalize', default=False,
                       help='Get list of valid story URLs from page given, but normalized to standard forms.', )
+    parser.add_option('--imap-list',
+                      action='store_true', dest='imaplist',
+                      help='Get list of valid story URLs from unread email from IMAP account configured in ini.', )
+    parser.add_option('--download-list',
+                      action='store_true', dest='downloadlist',
+                      help='Download story URLs retrieved with --list, --normalize-list or --imap-list.  Update existing EPUBs if used with --update-epub.', )
     parser.add_option('-s', '--sites-list',
                       action='store_true', dest='siteslist', default=False,
                       help='Get list of valid story URLs examples.', )
@@ -129,7 +135,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
         logger = logging.getLogger('fanficfare')
         logger.setLevel(logging.INFO)
 
-    if not (options.siteslist or options.infile) and len(args) != 1:
+    if not (options.imaplist or options.siteslist or options.infile) and len(args) != 1:
         parser.error('incorrect number of arguments')
 
     if options.siteslist:
@@ -145,9 +151,12 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
 
+    if options.downloadlist and not any((options.imaplist, options.list, options.normalize)):
+        parser.error('--download-list only works with --list, --normalize-list or --imap-list')
+
+    urls=[]
     # for passing in a file list
     if options.infile:
-        urls=[]
         with open(options.infile,"r") as infile:
             #print "File exists and is readable"
 
@@ -157,6 +166,25 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                 if len(url) > 0:
                     #print "URL: (%s)"%url
                     urls.append(url)
+    elif options.imaplist or options.list or options.normalize:
+        # list doesn't have a supported site.
+        configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
+        if options.imaplist:
+            retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
+                                         configuration.getConfig('imap_username'),
+                                         configuration.getConfig('imap_password'),
+                                         configuration.getConfig('imap_folder'),
+                                         configuration.getConfig('imap_mark_read'))
+
+        if options.list or options.normalize:
+            retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
+
+        l = filter(len, [x.strip() for x in retlist])
+        if len(l) and options.downloadlist:
+            urls.extend(l)
+        else:
+            print '\n'.join(l)
+            return
     else:
         urls = args
 
@@ -206,71 +234,12 @@ def do_download(arg,
     else:
         url = arg
 
-    try:
-        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
-    except exceptions.UnknownSite, e:
-        if options.list or options.normalize:
-            # list for page doesn't have to be a supported site.
-            configuration = Configuration('test1.com', options.format)
-        else:
-            raise e
-
-    conflist = []
-    homepath = join(expanduser('~'), '.fanficdownloader')
-    ## also look for .fanficfare now, give higher priority than old dir.
-    homepath2 = join(expanduser('~'), '.fanficfare')
-
-    if passed_defaultsini:
-        configuration.readfp(passed_defaultsini)
-
-    # don't need to check existance for our selves.
-    conflist.append(join(dirname(__file__), 'defaults.ini'))
-    conflist.append(join(homepath, 'defaults.ini'))
-    conflist.append(join(homepath2, 'defaults.ini'))
-    conflist.append('defaults.ini')
-
-    if passed_personalini:
-        configuration.readfp(passed_personalini)
-
-    conflist.append(join(homepath, 'personal.ini'))
-    conflist.append(join(homepath2, 'personal.ini'))
-    conflist.append('personal.ini')
-
-    if options.configfile:
-        conflist.extend(options.configfile)
-
-    logging.debug('reading %s config file(s), if present' % conflist)
-    configuration.read(conflist)
-
-    try:
-        configuration.add_section('overrides')
-    except ConfigParser.DuplicateSectionError:
-        pass
-
-    if options.force:
-        configuration.set('overrides', 'always_overwrite', 'true')
-
-    if options.update and chaptercount:
-        configuration.set('overrides', 'output_filename', output_filename)
-
-    if options.update and not options.updatecover:
-        configuration.set('overrides', 'never_make_cover', 'true')
-
-    # images only for epub, even if the user mistakenly turned it
-    # on else where.
-    if options.format not in ('epub', 'html'):
-        configuration.set('overrides', 'include_images', 'false')
-
-    if options.options:
-        for opt in options.options:
-            (var, val) = opt.split('=')
-            configuration.set('overrides', var, val)
-
-    if options.list or options.normalize:
-        retlist = get_urls_from_page(arg, configuration, normalize=options.normalize)
-        print '\n'.join(retlist)
-        return
-
+    configuration = get_configuration(url,
+                                      passed_defaultsini,
+                                      passed_personalini,
+                                      options,
+                                      chaptercount)
+        
     try:
         adapter = adapters.getAdapter(configuration, url)
 
@@ -386,6 +355,65 @@ def do_download(arg,
     except exceptions.AccessDenied as ad:
         print ad
 
+def get_configuration(url,
+                      passed_defaultsini,
+                      passed_personalini,
+                      options,
+                      chaptercount=None):
+    configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+
+    conflist = []
+    homepath = join(expanduser('~'), '.fanficdownloader')
+    ## also look for .fanficfare now, give higher priority than old dir.
+    homepath2 = join(expanduser('~'), '.fanficfare')
+
+    if passed_defaultsini:
+        configuration.readfp(passed_defaultsini)
+
+    # don't need to check existance for our selves.
+    conflist.append(join(dirname(__file__), 'defaults.ini'))
+    conflist.append(join(homepath, 'defaults.ini'))
+    conflist.append(join(homepath2, 'defaults.ini'))
+    conflist.append('defaults.ini')
+
+    if passed_personalini:
+        configuration.readfp(passed_personalini)
+
+    conflist.append(join(homepath, 'personal.ini'))
+    conflist.append(join(homepath2, 'personal.ini'))
+    conflist.append('personal.ini')
+
+    if options.configfile:
+        conflist.extend(options.configfile)
+
+    logging.debug('reading %s config file(s), if present' % conflist)
+    configuration.read(conflist)
+
+    try:
+        configuration.add_section('overrides')
+    except ConfigParser.DuplicateSectionError:
+        pass
+
+    if options.force:
+        configuration.set('overrides', 'always_overwrite', 'true')
+
+    if options.update and chaptercount:
+        configuration.set('overrides', 'output_filename', output_filename)
+
+    if options.update and not options.updatecover:
+        configuration.set('overrides', 'never_make_cover', 'true')
+
+    # images only for epub, even if the user mistakenly turned it
+    # on else where.
+    if options.format not in ('epub', 'html'):
+        configuration.set('overrides', 'include_images', 'false')
+
+    if options.options:
+        for opt in options.options:
+            (var, val) = opt.split('=')
+            configuration.set('overrides', var, val)
+
+    return configuration
 
 if __name__ == '__main__':
     main()
