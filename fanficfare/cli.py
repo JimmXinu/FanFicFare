@@ -59,13 +59,14 @@ def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
     del writer
     return output_filename
 
+configuration = None
 
 def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=None):
     if argv is None:
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
-        parser = OptionParser('usage: %prog [options] storyurl')
+        parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='write story as FORMAT, epub(default), mobi, text or html', metavar='FORMAT')
 
@@ -88,44 +89,55 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                       help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
-                      help='Update an existing epub with new chapters, give epub filename instead of storyurl.', )
-    parser.add_option('--unnew',
-                      action='store_true', dest='unnew',
-                      help='Remove (new) chapter marks left by mark_new_chapters setting.', )
+                      help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
     parser.add_option('--update-cover',
                       action='store_true', dest='updatecover',
                       help='Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.', )
+    parser.add_option('--unnew',
+                      action='store_true', dest='unnew',
+                      help='Remove (new) chapter marks left by mark_new_chapters setting.', )
     parser.add_option('--force',
                       action='store_true', dest='force',
                       help='Force overwrite of an existing epub, download and overwrite all chapters.', )
     parser.add_option('-i', '--infile',
-                      help='Give a filename to read for URLs (and/or existing EPUB files with -u for updates).',
+                      help='Give a filename to read for URLs (and/or existing EPUB files with --update-epub).',
                       dest='infile', default=None,
                       metavar='INFILE')
+
     parser.add_option('-l', '--list',
-                      action='store_true', dest='list',
+                      dest='list', default=None, metavar='URL',
                       help='Get list of valid story URLs from page given.', )
     parser.add_option('-n', '--normalize-list',
-                      action='store_true', dest='normalize', default=False,
+                      dest='normalize', default=None, metavar='URL',
                       help='Get list of valid story URLs from page given, but normalized to standard forms.', )
-    parser.add_option('--imap-list',
+    parser.add_option('--download-list',
+                      dest='downloadlist', default=None, metavar='URL',
+                      help='Download story URLs retrieved from page given.  Update existing EPUBs if used with --update-epub.', )
+
+    parser.add_option('--imap',
                       action='store_true', dest='imaplist',
                       help='Get list of valid story URLs from unread email from IMAP account configured in ini.', )
-    parser.add_option('--download-list',
-                      action='store_true', dest='downloadlist',
-                      help='Download story URLs retrieved with --list, --normalize-list or --imap-list.  Update existing EPUBs if used with --update-epub.', )
+
+    parser.add_option('--download-imap',
+                      action='store_true', dest='downloadimap',
+                      help='Download valid story URLs from unread email from IMAP account configured in ini.  Update existing EPUBs if used with --update-epub.', )
+
     parser.add_option('-s', '--sites-list',
                       action='store_true', dest='siteslist', default=False,
                       help='Get list of valid story URLs examples.', )
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
-                      help='Show debug output while downloading.', )
+                      help='Show debug and notice output.', )
     parser.add_option('-v', '--version',
                       action='store_true', dest='version',
                       help='Display version and quit.', )
 
     options, args = parser.parse_args(argv)
 
+    # XXX
+    print options
+    print args
+    
     if options.version:
         ## single sourcing version number in fanficfare/__init__.py
         print("Version: %s" % __version__)
@@ -133,10 +145,17 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
 
     if not options.debug:
         logger = logging.getLogger('fanficfare')
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.WARNING)
 
-    if not (options.imaplist or options.siteslist or options.infile) and len(args) != 1:
-        parser.error('incorrect number of arguments')
+    list_only = any((options.imaplist,
+                     options.siteslist,
+                     options.list,
+                     options.normalize,
+                     ))
+    
+    if list_only and (args or any((options.downloadimap,
+                                 options.downloadlist))):
+        parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
 
     if options.siteslist:
         for site, examples in adapters.getSiteExamples():
@@ -151,10 +170,49 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
 
-    if options.downloadlist and not any((options.imaplist, options.list, options.normalize)):
-        parser.error('--download-list only works with --list, --normalize-list or --imap-list')
+    urls=args
 
-    urls=[]
+    if options.list:
+        configuration = get_configuration(options.list,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
+        retlist = get_urls_from_page(options.list, configuration)
+        print '\n'.join(retlist)
+
+    if options.normalize:
+        configuration = get_configuration(options.normalize,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
+        retlist = get_urls_from_page(options.normalize, configuration,normalize=True)
+        print '\n'.join(retlist)
+
+    if options.downloadlist:
+        configuration = get_configuration(options.downloadlist,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
+        retlist = get_urls_from_page(options.downloadlist, configuration)
+        urls.extend(retlist)
+
+        # l = filter(len, [x.strip() for x in retlist])
+        # if len(l) and options.downloadlist:
+        #     urls.extend(l)
+
+    if options.imaplist or options.downloadimap:
+        # list doesn't have a supported site.
+        configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
+        markread = configuration.getConfig('imap_mark_read') == 'true' or \
+            (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
+        retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
+                                     configuration.getConfig('imap_username'),
+                                     configuration.getConfig('imap_password'),
+                                     configuration.getConfig('imap_folder'),
+                                     markread)
+
+        if options.downloadimap:
+            urls.extend(retlist)
+        else:
+            print '\n'.join(retlist)
+    
     # for passing in a file list
     if options.infile:
         with open(options.infile,"r") as infile:
@@ -167,46 +225,25 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                     #print "URL: (%s)"%url
                     urls.append(url)
 
-    if options.imaplist or options.list or options.normalize:
-        # list doesn't have a supported site.
-        configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
-        if options.imaplist:
-            retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
-                                         configuration.getConfig('imap_username'),
-                                         configuration.getConfig('imap_password'),
-                                         configuration.getConfig('imap_folder'),
-                                         configuration.getConfig('imap_mark_read'))
-
-        if options.list or options.normalize:
-            retlist = get_urls_from_page(args[0], configuration, normalize=options.normalize)
-            del args[0]
-
-        l = filter(len, [x.strip() for x in retlist])
-        if len(l) and options.downloadlist:
-            urls.extend(l)
+    print urls
+    if not list_only:
+        if len(urls) < 1:
+            print "No valid story URLs found"
         else:
-            print '\n'.join(l)
-
-    if not any((options.infile, options.imaplist, options.list, options.normalize)):
-        urls = args
-
-    if len(urls) < 1:
-        print "No valid URLs given"
-    elif len(urls) > 1:
-        for url in urls:
-            try:
-                do_download(url,
-                            options,
-                            passed_defaultsini,
-                            passed_personalini)
+            for url in urls:
+                try:
+                    do_download(url,
+                                options,
+                                passed_defaultsini,
+                                passed_personalini)
                 #print("pagecache:%s"%options.pagecache.keys())
-            except Exception, e:
-                print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
-    else:
-        do_download(urls[0],
-                    options,
-                    passed_defaultsini,
-                    passed_personalini)
+                except Exception, e:
+                    print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+    # else:
+    #     do_download(urls[0],
+    #                 options,
+    #                 passed_defaultsini,
+    #                 passed_personalini)
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -364,7 +401,14 @@ def get_configuration(url,
                       passed_personalini,
                       options,
                       chaptercount=None):
-    configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+    try:
+        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+    except exceptions.UnknownSite, e:
+        if options.list or options.normalize or options.downloadlist:
+            # list for page doesn't have to be a supported site.
+            configuration = Configuration('test1.com', options.format)
+        else:
+            raise e
 
     conflist = []
     homepath = join(expanduser('~'), '.fanficdownloader')
