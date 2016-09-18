@@ -134,10 +134,10 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
 
     options, args = parser.parse_args(argv)
 
-    # XXX
-    print options
-    print args
-    
+    # # XXX
+    # print options
+    # print args
+
     if options.version:
         ## single sourcing version number in fanficfare/__init__.py
         print("Version: %s" % __version__)
@@ -152,7 +152,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                      options.list,
                      options.normalize,
                      ))
-    
+
     if list_only and (args or any((options.downloadimap,
                                  options.downloadlist))):
         parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
@@ -212,7 +212,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
             urls.extend(retlist)
         else:
             print '\n'.join(retlist)
-    
+
     # for passing in a file list
     if options.infile:
         with open(options.infile,"r") as infile:
@@ -225,7 +225,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
                     #print "URL: (%s)"%url
                     urls.append(url)
 
-    print urls
+    # print urls
     if not list_only:
         if len(urls) < 1:
             print "No valid story URLs found"
