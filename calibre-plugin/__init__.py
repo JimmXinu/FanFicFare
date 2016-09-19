@@ -32,9 +32,6 @@ except NameError:
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
-## single sourcing version number in fanficfare/__init__.py
-from calibre_plugins.fanficfare_plugin.fanficfare import __version_num__
-
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
 class FanFicFareBase(InterfaceActionBase):
@@ -51,7 +48,7 @@ class FanFicFareBase(InterfaceActionBase):
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = __version_num__
+    version             = (2, 3, 6)
     minimum_calibre_version = (1, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -135,6 +132,7 @@ class FanFicFareBase(InterfaceActionBase):
                                         read_only=True))
 
             fff_main(argv[1:],
-                      parser=parser,
-                      passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
-                      passed_personalini=StringIO(fff_prefs["personal.ini"]))
+                     parser=parser,
+                     passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
+                     passed_personalini=StringIO(fff_prefs["personal.ini"]),
+                     )

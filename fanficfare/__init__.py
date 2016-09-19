@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -31,9 +31,3 @@ except:
             logger.addHandler(loghandler)
             loghandler.setLevel(logging.DEBUG)
             logger.setLevel(logging.DEBUG)
-
-## single sourcing version number in fanficfare/__init__.py
-## __version_num__ for calibre plugin
-## __version__ moved from ../setup.py so cli.py can also display it.
-__version_num__ = (2, 3, 6)
-__version__ = ".".join([unicode(x) for x in __version_num__])

@@ -26,6 +26,8 @@ import pprint
 import string
 import sys
 
+version="2.3.6"
+
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
     sys.exit(1)
@@ -39,13 +41,13 @@ if sys.version_info >= (2, 7):
 
 try:
     # running under calibre
-    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions, __version__
+    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
     from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 except ImportError:
-    from fanficfare import adapters, writers, exceptions, __version__
+    from fanficfare import adapters, writers, exceptions
     from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
@@ -59,9 +61,10 @@ def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
     del writer
     return output_filename
 
-configuration = None
-
-def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=None):
+def main(argv=None,
+         parser=None,
+         passed_defaultsini=None,
+         passed_personalini=None):
     if argv is None:
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
@@ -139,8 +142,7 @@ def main(argv=None, parser=None, passed_defaultsini=None, passed_personalini=Non
     # print args
 
     if options.version:
-        ## single sourcing version number in fanficfare/__init__.py
-        print("Version: %s" % __version__)
+        print("Version: %s" % version)
         return
 
     if not options.debug:

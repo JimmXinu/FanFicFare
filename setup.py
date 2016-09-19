@@ -16,16 +16,12 @@ from os import path
 # Get the long description from the relevant file
 with codecs.open('DESCRIPTION.rst', encoding='utf-8') as f:
     long_description = f.read()
-
-from fanficfare import __version__
     
 setup(
     name="FanFicFare",
 
-    # Versions should comply with PEP440.  For a discussion on single-sourcing
-    # the version across setup.py and the project code, see
-    # https://packaging.python.org/en/latest/single_source_version.html
-    version=__version__,
+    # Versions should comply with PEP440.
+    version="2.3.6",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
