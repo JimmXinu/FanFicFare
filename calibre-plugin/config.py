@@ -14,11 +14,13 @@ import traceback, copy, threading, re
 from collections import OrderedDict
 
 try:
+    from PyQt5 import QtWidgets as QtGui
     from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
                           QDialogButtonBox, QGroupBox, QButtonGroup, QRadioButton, Qt)
 except ImportError as e:
+    from PyQt4 import QtGui
     from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
@@ -258,6 +260,7 @@ class ConfigWidget(QWidget):
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
+        prefs['auto_reject_seriesurlid'] = self.basic_tab.auto_reject_seriesurlid.isChecked()
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
         prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
@@ -469,9 +472,17 @@ class BasicTab(QWidget):
         self.l.addWidget(self.suppresstitlesort)
 
         self.checkforseriesurlid = QCheckBox(_("Check for existing Series Anthology books?"),self)
-        self.checkforseriesurlid.setToolTip(_("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.checkforseriesurlid.setToolTip(_("Check for existing Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
         self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
         self.l.addWidget(self.checkforseriesurlid)
+
+        self.auto_reject_seriesurlid = QCheckBox(_("Reject Without Confirmation?"),self)
+        self.auto_reject_seriesurlid.setToolTip(_("Automatically reject storys with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.auto_reject_seriesurlid.setChecked(prefs['auto_reject_seriesurlid'])
+        horz = QHBoxLayout()
+        horz.addItem(QtGui.QSpacerItem(20, 1))
+        horz.addWidget(self.auto_reject_seriesurlid)
+        self.l.addLayout(horz)
 
         self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)
         self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book.\nfanfiction.net URLs will change from http to https silently."))

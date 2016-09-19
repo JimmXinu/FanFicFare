@@ -1164,7 +1164,8 @@ class FanFicFarePlugin(InterfaceAction):
                     # try to find *series anthology* by *seriesUrl* identifier url or uri first.
                     identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
                     # print("identicalbooks:%s"%identicalbooks)
-                    if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
+                    if len(identicalbooks) > 0 and (prefs['auto_reject_seriesurlid'] or \
+                                                        question_dialog(self.gui, _('Skip Story?'),'''
                                                                       <h3>%s</h3>
                                                                       <p>%s</p>
                                                                       <p>%s</p>
@@ -1174,7 +1175,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                                    _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
                                                                    _("Click '<b>Yes</b>' to Skip."),
                                                                    _("Click '<b>No</b>' to download anyway.")),
-                                                                   show_copy_button=False):
+                                                                   show_copy_button=False)):
                         book['comment'] = _("Story in Series Anthology(%s).")%series
                         book['title'] = story.getMetadata('title')
                         book['author'] = [story.getMetadata('author')]
