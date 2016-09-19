@@ -137,10 +137,6 @@ def main(argv=None,
 
     options, args = parser.parse_args(argv)
 
-    # # XXX
-    # print options
-    # print args
-
     if options.version:
         print("Version: %s" % version)
         return
@@ -156,7 +152,7 @@ def main(argv=None,
                      ))
 
     if list_only and (args or any((options.downloadimap,
-                                 options.downloadlist))):
+                                   options.downloadlist))):
         parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
 
     if options.siteslist:
@@ -174,6 +170,11 @@ def main(argv=None,
 
     urls=args
 
+    if not list_only and not (args or any((options.downloadimap,
+                                           options.downloadlist))):
+        parser.print_help();
+        return
+    
     if options.list:
         configuration = get_configuration(options.list,
                                           passed_defaultsini,
@@ -194,10 +195,6 @@ def main(argv=None,
                                           passed_personalini,options)
         retlist = get_urls_from_page(options.downloadlist, configuration)
         urls.extend(retlist)
-
-        # l = filter(len, [x.strip() for x in retlist])
-        # if len(l) and options.downloadlist:
-        #     urls.extend(l)
 
     if options.imaplist or options.downloadimap:
         # list doesn't have a supported site.
@@ -227,7 +224,6 @@ def main(argv=None,
                     #print "URL: (%s)"%url
                     urls.append(url)
 
-    # print urls
     if not list_only:
         if len(urls) < 1:
             print "No valid story URLs found"
@@ -241,11 +237,6 @@ def main(argv=None,
                 #print("pagecache:%s"%options.pagecache.keys())
                 except Exception, e:
                     print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
-    # else:
-    #     do_download(urls[0],
-    #                 options,
-    #                 passed_defaultsini,
-    #                 passed_personalini)
 
 # make rest a function and loop on it.
 def do_download(arg,
