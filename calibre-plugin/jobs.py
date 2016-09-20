@@ -161,7 +161,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.set_pagecache(options['pagecache'])
             
             story = adapter.getStoryMetadataOnly()
-            if 'calibre_series' in book:
+            if not story.getMetadata("series") and 'calibre_series' in book:
                 adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
                 
             # set PI version instead of default.
