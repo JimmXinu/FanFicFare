@@ -184,7 +184,6 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
             except:
                 return ""
 
-        # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -195,7 +194,13 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
                 svalue = ""
                 while 'label' not in defaultGetattr(value,'class'):
                     svalue += unicode(value)
-                    value = value.nextSibling
+                    # poor HTML(unclosed <p> for one) can cause run on
+                    # over the next label.
+                    if '<span class="label">' in svalue:
+                        svalue = svalue[0:svalue.find('<span class="label">')]
+                        break
+                    else:
+                        value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
 
