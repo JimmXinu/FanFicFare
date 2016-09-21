@@ -57,20 +57,10 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         #Setting the 'Zone' for each "Site"
         self.zone = self.parsedUrl.netloc.split('.')[0]
 
-<<<<<<< HEAD
-        # normalized story URL.
-        if self.zone in ('hp','anime2','anime','bleach','books','buffy','cartoon','celeb','comics','games','inu','lotr',
-                         'manga','naruto','ne','original','tv','xmen','ygo','yuyu'):
-            self._setURL('http://' + self.zone + '.' + self.getSiteDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
-        else:
-            raise exceptions.StoryDoesNotExist('{0}.{1} is not a valid URL for this site. Examples: {2}'.format(self.zone,self.getSiteDomain(),str(self.getSiteExampleURLs())))
-            #I know the above get's captured by previous code, but I didn't want it to continue if the url was incorrect, and actually got here.
-=======
-        # normalized story URL. (checking self.zone against list
+        # normalized story URL.(checking self.zone against list
         # removed--it was redundant w/getAcceptDomains and
         # getSiteURLPattern both)
         self._setURL('http://' + self.zone + '.' + self.getBaseDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
 
         # Each adapter needs to have a unique site abbreviation.
         #self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
@@ -83,21 +73,6 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         self.dateformat = "%Y-%m-%d"
         
 
-    ##This method will be moved to the sub-adapters
-<<<<<<< HEAD
-    @classmethod
-    def getSiteAbbrev(self):
-        return self.zone+'aff'
-
-    ##This method will be moved to the sub-adapters
-    @staticmethod # must be @staticmethod, don't remove it.
-    def getSiteDomain():
-        # The site domain.  Does have www here, if it uses it.
-        return 'adult-fanfiction.org'
-=======
-    # @classmethod
-    # def getSiteAbbrev(self):
-    #     return self.zone+'aff'
 
     ## Added because adult-fanfiction.org does send you to
     ## www.adult-fanfiction.org when you go to it and it also moves
@@ -110,7 +85,6 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'www.adult-fanfiction.org'
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
 
     @classmethod
     def getAcceptDomains(cls):
@@ -165,11 +139,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
               + "http://yuyu.adult-fanfiction.org/story.php?no=123456789")
 
     def getSiteURLPattern(self):
-<<<<<<< HEAD
-        return r'http?://(hp|anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
-=======
         return r'http?://(anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|movies|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
 
     ##This is not working right now, so I'm commenting it out, but leaving it for future testing
     ## Login seems to be reasonably standard across eFiction sites.
@@ -232,7 +202,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
         except urllib2.HTTPError, e:
-            if e.code in 404:
+            if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: 404. %s"%self.url)
             elif e.code == 410:
                 raise exceptions.StoryDoesNotExist("Code: 410. %s"%self.url)
@@ -243,11 +213,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                 raise e
 
         if "The dragons running the back end of the site can not seem to find the story you are looking for." in data:
-<<<<<<< HEAD
-            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() 
-=======
             raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() 
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
                                                +" says: The dragons running the back end of the site can not seem to find the story you are looking for.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
@@ -268,9 +234,14 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"profile.php\?no=\d+"))
-        self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl',a['href'])
-        self.story.setMetadata('author',stripHTML(a))
+        if a == None:
+            self.story.setMetadata('authorId','000000000')
+            self.story.setMetadata('authorUrl','http://www.adult-fanfiction.org')
+            self.story.setMetadata('author','No Author Found')
+        else:
+            self.story.setMetadata('authorId',a['href'].split('=')[1])
+            self.story.setMetadata('authorUrl',a['href'])
+            self.story.setMetadata('author',stripHTML(a))
 
         # Find the chapters:
         chapters = soup.find('div',{'id':'snav'})
@@ -284,121 +255,123 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         ##Get the first Author page to see if there are multiple pages. 
         ##AFF doesn't care if the page number is larger than the actual pages, 
         ##it will continue to show the last page even if the variable is larger than the actual page
-        author_Url = self.story.getMetadata('authorUrl')+'&view=story&zone='+self.zone+'&page=1'
-
-        ##I'm resetting the author page to the zone for this story
-        self.story.setMetadata('authorUrl',author_Url)
-
-        logger.debug('Getting the author page: {0}'.format(author_Url))
-        try:
-            adata = self._fetchUrl(author_Url)
-        except urllib2.HTTPError, e:
-            if e.code in 404:
-                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. %s"%author_Url)
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. %s"%author_Url)
+        if self.story.getMetadata('authorId') == '000000000':
+            logger.warning('There was no author found for the story... Metadata will not be retreived.')
+        else:
+            author_Url = self.story.getMetadata('authorUrl')+'&view=story&zone='+self.zone+'&page=1'
+    
+            ##I'm resetting the author page to the zone for this story
+            self.story.setMetadata('authorUrl',author_Url)
+    
+            logger.debug('Getting the author page: {0}'.format(author_Url))
+            try:
+                adata = self._fetchUrl(author_Url)
+            except urllib2.HTTPError, e:
+                if e.code in 404:
+                    raise exceptions.StoryDoesNotExist("Author Page: Code: 404. %s"%author_Url)
+                elif e.code == 410:
+                    raise exceptions.StoryDoesNotExist("Author Page: Code: 410. %s"%author_Url)
+                else:
+                    raise e
+    
+            if "The member you are looking for does not exist." in adata:
+                raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
+    
+            asoup = self.make_soup(adata)
+    
+            ##Getting the number of pages
+            pages=asoup.find('div',{'class' : 'pagination'}).findAll('li')[-1].find('a')
+            if not pages == None:
+                pages = pages['href'].split('=')[-1]
             else:
-                raise e
-
-        if "The member you are looking for does not exist." in adata:
-<<<<<<< HEAD
-            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() +" says: The member you are looking for does not exist.")
-=======
-            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
-
-        asoup = self.make_soup(adata)
-
-        ##Getting the number of pages
-        pages=asoup.find('div',{'class' : 'pagination'}).findAll('li')[-1].find('a')
-        if not pages == None:
-            pages = pages['href'].split('=')[-1]
-        else:
-            pages = 0
-        logger.info(pages)
-        ##If there is only 1 page of stories, check it to get the Metadata, 
-        if pages == 0:
-            a = asoup.findAll('li')
-            for lc2 in a:
-                if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
-                    break
-        ## otherwise go through the pages 
-        else:
-            page=1
-            i=0
-            while i == 0:
-                ##We already have the first page, so if this is the first time through, skip getting the page
-                if page != 1:
-                    author_Url = self.story.getMetadata('authorUrl')+'&view=story&zone='+self.zone+'&page='+str(page)
-                    logger.debug('Getting the author page: {0}'.format(author_Url))
-                    try:
-                        adata = self._fetchUrl(author_Url)
-                    except urllib2.HTTPError, e:
-                        if e.code in 404:
-                            raise exceptions.StoryDoesNotExist("Author Page: Code: 404. %s"%author_Url)
-                        elif e.code == 410:
-                            raise exceptions.StoryDoesNotExist("Author Page: Code: 410. %s"%author_Url)
-                        else:
-                            raise e
-                    ##This will probably never be needed, since AFF doesn't seem to care what number you put as 
-                    ## the page number, it will default to the last page, even if you use 1000, for an author
-                    ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).
-                    if "The member you are looking for does not exist." in adata:
-<<<<<<< HEAD
-                        raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getSiteDomain() +" says: The member you are looking for does not exist.")
-=======
-                        raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
+                pages = 0
     
-                asoup = self.make_soup(adata)
-    
+            ##If there is only 1 page of stories, check it to get the Metadata, 
+            if pages == 0:
                 a = asoup.findAll('li')
                 for lc2 in a:
                     if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
-                        i=1
                         break
-                page = page + 1
-                if page > pages:
-                    break
-
-        ##Split the Metadata up into a list
-        ##We have to change the soup type to a string, then remove the newlines, and double spaces, 
-        ##then changes the <br/> to '-:-', which seperates the different elemeents.
-        ##Then we strip the HTML elements from the string.
-        ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
-        ##They are always in the same order.
-        liMetadata = stripHTML(str(lc2).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ').replace(r'<br/>','-:-'))
-        liMetadata = liMetadata.replace(r'-:--:-','-:-').strip('-:-').strip('-:-')
-
-        for i, value in enumerate(liMetadata.split('-:-')):
-            ##The item 6 is the reviews... We are disregarding them.
-            ##The item 7 is the 'Dragon Prints'... not sure what they are, so disregarding them.
-            ##The 0 item is the title
-            if i == 0:
-                if value <> self.story.getMetadata('title'):
-                    raise exceptions.StoryDoesNotExist('Did not find story in author story list: {0}'.format(author_Url))
-            elif i == 1:
-                ##Get the description
-                self.story.setMetadata('description',stripHTML(value.strip()))
-            elif i == 2:
-                ##The Get the Category
-                self.story.setMetadata('category',value.replace(r'&gt;',r'>').replace(r'Located :',r'').strip())
-            elif i == 3:
-                ##Get the Erotic Tags
-                value = stripHTML(value.replace(r'Content Tags :',r'')).strip()
-                for code in re.split(r'\s',value):
-                    self.story.addToList('eroticatags',code)
-            elif i == 4:
-                ##Get the Posted Date
-                value = value.replace(r'Posted :',r'').strip()
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-            elif i == 5:
-                ##Get the 'Updated' Edited date
-                ##AFF has the time for the Updated date, and we only want the date,
-                ##so we take the first 10 characters only
-                value = value.replace(r'Edited :',r'').strip()[0:10]
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
+            ## otherwise go through the pages 
+            else:
+                page=1
+                i=0
+                while i == 0:
+                    ##We already have the first page, so if this is the first time through, skip getting the page
+                    if page != 1:
+                        author_Url = self.story.getMetadata('authorUrl')+'&view=story&zone='+self.zone+'&page='+str(page)
+                        logger.debug('Getting the author page: {0}'.format(author_Url))
+                        try:
+                            adata = self._fetchUrl(author_Url)
+                        except urllib2.HTTPError, e:
+                            if e.code in 404:
+                                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. %s"%author_Url)
+                            elif e.code == 410:
+                                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. %s"%author_Url)
+                            else:
+                                raise e
+                        ##This will probably never be needed, since AFF doesn't seem to care what number you put as 
+                        ## the page number, it will default to the last page, even if you use 1000, for an author
+                        ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).
+                        if "The member you are looking for does not exist." in adata:
+                            raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
+        
+                    asoup = self.make_soup(adata)
+        
+                    a = asoup.findAll('li')
+                    for lc2 in a:
+                        if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
+                            i=1
+                            break
+                    page = page + 1
+                    if page > pages:
+                        break
+    
+            ##Split the Metadata up into a list
+            ##We have to change the soup type to a string, then remove the newlines, and double spaces, 
+            ##then changes the <br/> to '-:-', which seperates the different elemeents.
+            ##Then we strip the HTML elements from the string.
+            ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
+            ##They are always in the same order.
+            liMetadata = str(lc2.renderContents()).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
+            liMetadata = stripHTML(liMetadata.replace(r'<br/>','-:-').replace('<!-- <br /-->','-:-'))
+            liMetadata = liMetadata.strip('-:-').strip('-:-')
+            for i, value in enumerate(liMetadata.split('-:-')):
+                ##The 0 item is the title
+                if i == 0:
+                    if value <> self.story.getMetadata('title').replace('&amp;','&'):
+                        raise exceptions.StoryDoesNotExist('Did not find story in author story list: {0}'.format(author_Url))
+                elif i == 1:
+                    ##Get the description
+                    self.setDescription(url,stripHTML(value.strip()))
+                else:
+                    if 'Located :' in value:
+                        self.story.setMetadata('category',value.replace(r'&gt;',r'>').replace(r'Located :',r'').strip())
+                    elif 'Category :' in value:
+                        # Get the Category
+                        self.story.setMetadata('category',value.replace(r'&gt;',r'>').replace(r'Located :',r'').strip())
+                    elif 'Content Tags :' in value:
+                        # Get the Erotic Tags
+                        value = stripHTML(value.replace(r'Content Tags :',r'')).strip()
+                        for code in re.split(r'\s',value):
+                            self.story.addToList('eroticatags',code)
+                    elif 'Posted :' in value:
+                        # Get the Posted Date
+                        value = value.replace(r'Posted :',r'').strip()
+                        self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
+                    elif 'Edited :' in value:
+                        # Get the 'Updated' Edited date
+                        # AFF has the time for the Updated date, and we only want the date,
+                        # so we take the first 10 characters only
+                        value = value.replace(r'Edited :',r'').strip()[0:10]
+                        self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                    else:
+                        # This catches the blank elements, and the Review and Dragon Prints.
+                        # I am not interested in these, so do nothing
+                        zzzzzzz=0
+        if len(self.story.getMetadata('description')) == 0:
+            self.setDescription(url,'>>>>>>>>>> No Summary Given <<<<<<<<<<')
+                        
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.

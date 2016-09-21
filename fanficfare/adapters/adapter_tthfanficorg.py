@@ -258,15 +258,15 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             # assumes only one -Centered and one Pairing: cat can ever
             # be applied to one story.
             # Seen at least once: incorrect (empty) cat link, thus "and cat.string"
-            if self.getConfig('centeredcat_to_characters') and cat.string and cat.string.endswith('-Centered'):
-                char = cat.string[:-len('-Centered')]
+            if self.getConfig('centeredcat_to_characters') and cat.string and cat.string.endswith('Centered'):
+                char = cat.string[:-len('Centered')].replace('-','').strip()
                 self.story.addToList('characters',char)
             elif self.getConfig('pairingcat_to_characters_ships') and cat.string and cat.string.startswith('Pairing: '):
                 pair = cat.string[len('Pairing: '):]
                 self.story.addToList('characters',pair)
                 if char:
                     self.story.addToList('ships',char+'/'+pair)
-            elif cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BTVS/AtS Stories', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
+            elif cat.string not in ['General', 'Non-BtVS/AtS Stories', 'Non-BtVS/AtS Crossovers', 'BtVS/AtS Non-Crossover', 'Non-BtVS Crossovers']:
                 # assumed only ship category after Romance cat.
                 if self.getConfig('romancecat_to_characters_ships') and romance:
                     self.story.addToList('ships',cat.string)
@@ -279,7 +279,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             else:
                 if 'Non-BtVS' in cat.string or 'Non-BTVS' in cat.string:
                     BtVS = False
-                if 'BtVS/AtS Non-Crossover' == cat.string:
+                if 'BtVS/AtS Non-Crossover' == cat.string or 'Non-BtVS/AtS Crossovers' == cat.string:
                     BtVSNonX = True
 
         verticaltabletds = verticaltable.findAll('td')

@@ -103,10 +103,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             categories = [c for c in categories if not self.story.getMetadata('title') in c]
             if self.story.getMetadata('author') in categories:
                 categories.remove(self.story.getMetadata('author'))
-            logger.debug("Meta = %s" % categories)
+            logger.debug("Meta Categories = %s" % categories)
             for category in categories:
-    #            logger.debug("\tCategory=%s" % category)
-#                 self.story.addToList('category', category.title())
+                #logger.debug("\tCategory=%s" % category.title())
+                #self.story.addToList('category', category.title())
                 self.story.addToList('eroticatags', category.title())
 
     def extractChapterUrlsAndMetadata(self):
@@ -135,17 +135,23 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         try:
             data1 = self._fetchUrl(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments from soup
-            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist("Code 404: {0}".format(self.url))
+            elif e.code == 410:
+                raise exceptions.StoryDoesNotExist("Code 410: {0}".format(self.url))
+            elif e.code == 502:
+                raise exceptions.FailedToDownload("Bad Gateway: %s"%self.url)
             else:
                 raise e
 
         if "This submission is awaiting moderator's approval" in data1:
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
+
+        soup1 = self.make_soup(data1)
+        #strip comments from soup
+        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+
 
         # author
         a = soup1.find("span", "b-story-user-y")
@@ -165,7 +171,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 #            logger.debug(soupAuth)
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(authorurl)
+                raise exceptions.StoryDoesNotExist("Code 404: {0}".format(authorurl))
+            elif e.code == 410:
+                raise exceptions.StoryDoesNotExist("Code 410: {0}".format(authorurl))
             else:
                 raise e
 
@@ -190,7 +198,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             else:
                 isSingleStory = True
         else:
-            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
+            raise exceptions.StoryDoesNotExist("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
 
         if isSingleStory:
 #             self.chapterUrls = [(soup1.h1.string, self.url)]
@@ -375,6 +383,4 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
 def getClass():
     return LiteroticaSiteAdapter
-
-
 

@@ -34,7 +34,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','aaff')
         self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
+                       "utf8","ISO-8859-1"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.

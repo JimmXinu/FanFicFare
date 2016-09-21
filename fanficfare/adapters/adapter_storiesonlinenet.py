@@ -131,7 +131,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url+":i")
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
+                raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
+            elif e.code == 410:
+                raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
             elif e.code == 401:
                 self.needToLogin = True
                 data = ''
@@ -230,29 +232,30 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.setSeries(series_name, i)
                 desc = lc4.contents[2]
                 # Check if series is in a universe
-                universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
-                universes_soup = self.make_soup(self._fetchUrl(universe_url) )
-                # logger.debug("Universe url='{0}'".format(universe_url))
-                if universes_soup:
-                    universes = universes_soup.findAll('div', {'class' : 'ser-box'})
-                    # logger.debug("Number of Universes: %d" % len(universes))
-                    for universe in universes:
-                        # logger.debug("universe.find('a')={0}".format(universe.find('a')))
-                        # The universe id is in an "a" tag that has an id but nothing else. It is the first tag.
-                        # The id is prefixed with the letter "u".
-                        universe_id = universe.find('a')['id'][1:]
-                        # logger.debug("universe_id='%s'" % universe_id)
-                        universe_name = stripHTML(universe.find('div', {'class' : 'ser-name'})).partition(' ')[2]
-                        # logger.debug("universe_name='%s'" % universe_name)
-                        # If there is link to the story, we have the right universe
-                        story_a = universe.find('a', href=re.compile('/s/'+self.story.getMetadata('storyId')))
-                        if story_a:
-                            # logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
-                            self.story.setMetadata("universe", universe_name)
-                            self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
-                            break
-                else:
-                    logger.debug("No universe page")
+                if "/universes" in data:
+                    universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
+                    universes_soup = self.make_soup(self._fetchUrl(universe_url) )
+                    # logger.debug("Universe url='{0}'".format(universe_url))
+                    if universes_soup:
+                        universes = universes_soup.findAll('div', {'class' : 'ser-box'})
+                        # logger.debug("Number of Universes: %d" % len(universes))
+                        for universe in universes:
+                            # logger.debug("universe.find('a')={0}".format(universe.find('a')))
+                            # The universe id is in an "a" tag that has an id but nothing else. It is the first tag.
+                            # The id is prefixed with the letter "u".
+                            universe_id = universe.find('a')['id'][1:]
+                            # logger.debug("universe_id='%s'" % universe_id)
+                            universe_name = stripHTML(universe.find('div', {'class' : 'ser-name'})).partition(' ')[2]
+                            # logger.debug("universe_name='%s'" % universe_name)
+                            # If there is link to the story, we have the right universe
+                            story_a = universe.find('a', href=re.compile('/s/'+self.story.getMetadata('storyId')))
+                            if story_a:
+                                # logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
+                                self.story.setMetadata("universe", universe_name)
+                                self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
+                                break
+                    else:
+                        logger.debug("No universe page")
         except:
             raise
             pass

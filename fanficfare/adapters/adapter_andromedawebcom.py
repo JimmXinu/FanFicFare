@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -177,6 +177,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
+        # print data
 
         # Now go hunting for all the meta data and the chapter list.
 

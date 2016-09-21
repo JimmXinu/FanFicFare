@@ -20,6 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+import sys
 
 
 from ..htmlcleanup import stripHTML
@@ -38,7 +39,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["iso-8859-1",
-                       "Windows-1252"] # 1252 is a superset of iso-8859-1.
+                       "Windows-1252","utf8"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
@@ -107,10 +108,9 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['penname']))
             raise exceptions.FailedToLogin(url,params['penname'])
-            return False
+            #return False
         else:
             return True
-
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -285,20 +285,21 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
 
         try:
             # Find Series name from series URL.
-            a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-            series_name = a.string
-            series_url = 'http://'+self.host+'/efiction/'+a['href']
-
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-            i=1
-            for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    self.story.setMetadata('seriesUrl',series_url)
-                    break
-                i+=1
+            aseries = soup.findAll('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
+            for a in aseries:
+                if not "http" in a['href']:
+                    series_name = a.string
+                    series_url = 'http://'+self.host+'/efiction/'+a['href']
+                    # use BeautifulSoup HTML parser to make everything easier to find.
+                    seriessoup = self.make_soup(self._fetchUrl(series_url))
+                    storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                    i=1
+                    for a in storyas:
+                        if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                            self.setSeries(series_name, i)
+                            self.story.setMetadata('seriesUrl',series_url)
+                            break
+                        i+=1
 
         except:
             # I find it hard to care if the series parsing fails

@@ -22,7 +22,6 @@ import re
 import urllib
 import urllib2
 
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -34,7 +33,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fa')
         self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
+                       "utf8","ISO-8859-1"] # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
@@ -98,7 +97,13 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         # If chapter list page, get the first chapter to look for adult check
         chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
         if chapterlinklist:
-            chapterdata = self._postFetchWithIAmOld(chapterlinklist[0]['href'])
+            try:
+                chapterdata = self._postFetchWithIAmOld(chapterlinklist[0]['href'])
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    raise exceptions.StoryDoesNotExist(self.url)
+                else:
+                    raise e
 
         if "Are you over seventeen years old" in chapterdata:
             raise exceptions.AdultCheckRequired(self.url)
@@ -197,15 +202,23 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
+	
+        try:
+            data = self._fetchUrl(url)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                chapterdoesnotexist = self.make_soup("<div><p>Chapter Does Not Exist</p></div>")
+                return self.utf8FromSoup(url,chapterdoesnotexist)
+            else:
+                raise e	
 
-        data = self._fetchUrl(url)
-	# find <!-- headerend --> & <!-- footerstart --> and
-	# replaced with matching div pair for easier parsing.
-	# Yes, it's an evil kludge, but what can ya do?  Using
-	# something other than div prevents soup from pairing
-	# our div with poor html inside the story text.
+        # find <!-- headerend --> & <!-- footerstart --> and
+        # replaced with matching div pair for easier parsing.
+        # Yes, it's an evil kludge, but what can ya do?  Using
+        # something other than div prevents soup from pairing
+        # our div with poor html inside the story text.
         crazy = "crazytagstringnobodywouldstumbleonaccidently"
-	data = data.replace('<!-- headerend -->','<'+crazy+' id="storytext">').replace('<!-- footerstart -->','</'+crazy+'>')
+        data = data.replace('<!-- headerend -->','<'+crazy+' id="storytext">').replace('<!-- footerstart -->','</'+crazy+'>')
 
         # problems with some stories confusing Soup.  This is a nasty
         # hack, but it works.

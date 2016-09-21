@@ -139,8 +139,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         metaurl = self.url+addurl
         url = self.url+'/navigate'+addurl
-        logger.info("url: "+url)
-        logger.info("metaurl: "+metaurl)
+        logger.debug("url: "+url)
+        logger.debug("metaurl: "+metaurl)
 
         try:
             data = self._fetchUrl(url)
@@ -187,7 +187,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[-1])
-                self.story.addToList('authorUrl',a['href'])
+                self.story.addToList('authorUrl','http://'+self.host+a['href'])
                 self.story.addToList('author',a.text)
 
         byline = metasoup.find('h3',{'class':'byline'})

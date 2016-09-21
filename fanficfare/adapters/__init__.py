@@ -27,7 +27,9 @@ from ..configurable import Configuration
 
 ## must import each adapter here.
 
+import adapter_test1
 import adapter_adastrafanficcom
+import adapter_adultfanfictionorg
 import adapter_andromedawebcom
 import adapter_archiveofourownorg
 import adapter_archiveskyehawkecom
@@ -124,7 +126,6 @@ import adapter_squidgeorgpeja
 import adapter_storiesofardacom
 import adapter_storiesonlinenet
 import adapter_tenhawkpresentscom
-import adapter_test1
 import adapter_tgfictionnet
 import adapter_tgstorytimecom
 import adapter_thealphagatecom
@@ -134,20 +135,19 @@ import adapter_themaplebookshelf
 import adapter_themasquenet
 import adapter_thepetulantpoetesscom
 import adapter_tolkienfanfiction
+import adapter_tomparisdormcom
 import adapter_trekiverseorg
 import adapter_tthfanficorg
 import adapter_twcslibrarynet
 import adapter_twilightarchivescom
 import adapter_twilightednet
 import adapter_voracity2eficcom
-<<<<<<< HEAD
 import adapter_walkingtheplankorg
 import adapter_whoficcom
 import adapter_wolverineandroguecom
 import adapter_wraithbaitcom
 
 ##Testing this adapter
-import adapter_adultfanfictionorg
 
 ## These are no longer used, but I've left them listed for archival purposes.
 #import adapter_bdsmgeschichten
@@ -156,42 +156,6 @@ import adapter_adultfanfictionorg
 #import adapter_nickandgregnet
 #import adapter_scarheadnet
 #import adapter_tokrafandomnetcom
-=======
-import adapter_spikeluvercom
-import adapter_bloodshedversecom
-import adapter_nocturnallightnet
-import adapter_fanfichu
-import adapter_fanfictioncsodaidokhu
-import adapter_fictionmaniatv
-import adapter_tolkienfanfiction
-import adapter_themaplebookshelf
-import adapter_fannation
-import adapter_sheppardweircom
-import adapter_samandjacknet
-import adapter_csiforensicscom
-import adapter_lotrfanfictioncom
-import adapter_fhsarchivecom
-import adapter_fanfictionjunkiesde
-import adapter_tgstorytimecom
-import adapter_itcouldhappennet
-import adapter_forumsspacebattlescom
-import adapter_forumssufficientvelocitycom
-import adapter_forumquestionablequestingcom
-import adapter_ninelivesarchivecom
-import adapter_masseffect2in
-import adapter_quotevcom
-import adapter_mcstoriescom
-import adapter_lucifaelff
-import adapter_buffygilescom
-import adapter_andromedawebcom
-import adapter_artemisfowlcom
-import adapter_naiceanilmenet
-import adapter_deepinmysoulnet
-import adapter_haremlucifaelcom
-import adapter_kiarepositorymujajinet
-import adapter_fanfictionlucifaelcom
-import adapter_adultfanfictionorg
->>>>>>> d0e4999712959f95df46863da370d11d10c37e5b
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need

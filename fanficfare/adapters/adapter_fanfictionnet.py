@@ -114,7 +114,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(url)
 
         # some times "Chapter not found...", sometimes "Chapter text not found..."
-        if "not found. Please check to see you are not using an outdated url." in data:
+        if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
         if self.getConfig('check_next_chapter'):
@@ -135,7 +135,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                                 chapcount+1)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
                 newdata = self._fetchUrl(tryurl)
-                if "not found. Please check to see you are not using an outdated url." not in newdata \
+                if "Please check to see you are not using an outdated url." not in newdata \
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
@@ -161,7 +161,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## For 2, fetch the crossover page and pull the two categories from there.
 
         categories = soup.find('div',{'id':'pre_story_links'}).findAll('a',{'class':'xcontrast_txt'})
-        #print("xcontrast_txt a:%s"%categories)
+        #print("xcontrast_txt a: %s"%categories)
         if len(categories) > 1:
             # Strangely, the ones with *two* links are the
             # non-crossover categories.  Each is in a category itself
@@ -175,6 +175,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.addToList('category',stripHTML(a))
                 found = True
             if not found:
+
                 # Fall back.  I ran across a story with a Crossver
                 # category link to a broken page once.
                 # http://www.fanfiction.net/s/2622060/1/
@@ -182,7 +183,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 logger.info("Fall back category collection")
                 for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
                     self.story.addToList('category',c)
-
+                    
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
@@ -199,8 +200,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         summarydiv = gui_table1i.find('div',{'style':'margin-top:2px'})
         if summarydiv:
             self.setDescription(url,stripHTML(summarydiv))
-
-
+            
         grayspan = gui_table1i.find('span', {'class':'xgray xcontrast_txt'})
         # for b in grayspan.findAll('button'):
         #     b.extract()

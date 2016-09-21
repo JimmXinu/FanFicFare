@@ -32,6 +32,11 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
+        self.decode = ["Windows-1252",
+                       "utf8","ISO-8859-1"] # 1252 is a superset of iso-8859-1.
+                               # Most sites that claim to be
+                               # iso-8859-1 (and some that claim to be
+                               # utf8) are really windows-1252.
         self.story.setMetadata('siteabbrev','fw')
 
         # get storyId from url--url validation guarantees second part is storyId
@@ -115,15 +120,22 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',storya['href'].split('/',)[2])
             url = "http://"+self.getSiteDomain()+storya['href']
             logger.debug("Normalizing to URL: "+url)
-            self._setURL(url)
             try:
-                soup = self.make_soup(self._fetchUrl(url))
+                data2 = self._fetchUrl(url)
+                # non-existent/removed story urls get thrown to the front page.
+                if "<h4>Featured Story</h4>" in data2:
+                    logger.debug("This is not the correct url, keeping previous url: %s"%self.url)
+                    url = self.url
+                else:
+                    self._setURL(url)
+                soup = self.make_soup(data2)
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
                     raise e
 
+        
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
@@ -131,9 +143,15 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 soup = self.make_soup(self._fetchUrl(url,usecache=False))
 
         # title - first h4 tag will be title.
-        titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
+        try:
+            titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
+        except:
+            raise exceptions.StoryDoesNotExist("Can't find the Title. %s"%self.url)
         self.story.setMetadata('title', stripHTML(titleh4.a))
 
+        if 'Deleted story' in self.story.getMetadata('title'):
+            raise exceptions.StoryDoesNotExist("This story was deleted. %s"%self.url)
+        
         # Find authorid and URL from... author url.
         a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/a/"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
