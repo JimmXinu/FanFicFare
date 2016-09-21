@@ -45,11 +45,11 @@ from fanficfare import adapters, writers, exceptions
 from fanficfare.configurable import Configuration
 
 class UserConfigServer(webapp2.RequestHandler):
-    
+
     def getUserConfig(self,user,url,fileformat):
 
         configuration = Configuration(adapters.getConfigSectionsFor(url),fileformat)
-        
+
         logging.debug('reading defaults.ini config file')
         configuration.read('fanficfare/defaults.ini')
 
@@ -96,7 +96,7 @@ class MainHandler(webapp2.RequestHandler):
             template_values = {'login_url' : url, 'authorized': False}
             path = os.path.join(os.path.dirname(__file__), 'index.html')
 
-        
+
         template_values['supported_sites'] = '<dl>\n'
         for (site,examples) in adapters.getSiteExamples():
             template_values['supported_sites'] += "<dt>%s</dt>\n<dd>Example Story URLs:<br>"%site
@@ -139,7 +139,7 @@ class EditConfigServer(UserConfigServer):
                 self.redirect("/?error=configsaved")
             except Exception, e:
                 logging.info("Saved Config Failed:%s"%e)
-                self.redirect("/?error=custom&errtext=%s"%urlEscape(unicode(e)))
+                self.redirect("/?error=custom&errtext=%s"%urllib.quote(unicode(e),''))
         else: # not update, assume display for edit
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
@@ -240,7 +240,7 @@ class FileStatusServer(webapp2.RequestHandler):
             if download:
                 logging.info("Status url: %s" % download.url)
                 if download.completed and download.format=='epub':
-                    escaped_url = urlEscape(self.request.host_url+"/file/"+download.name+"."+download.format+"?id="+fileId+"&fake=file."+download.format)
+                    escaped_url = urllib.quote(self.request.host_url+"/file/"+download.name+"."+download.format+"?id="+fileId+"&fake=file."+download.format,'')
             else:
                 download = DownloadMeta()
                 download.failure = "Download not found"
@@ -295,7 +295,7 @@ class RecentFilesServer(webapp2.RequestHandler):
 
         for fic in fics:
             if fic.completed and fic.format == 'epub':
-                fic.escaped_url = urlEscape(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+unicode(fic.key())+"&fake=file."+fic.format)
+                fic.escaped_url = urllib.quote(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+unicode(fic.key())+"&fake=file."+fic.format,'')
 
         template_values = dict(fics = fics, nickname = user.nickname())
         path = os.path.join(os.path.dirname(__file__), 'recent.html')
@@ -313,7 +313,7 @@ class AllRecentFilesServer(webapp2.RequestHandler):
             q.order('-date')
         else:
             q.order('-count')
-            
+
         fics = q.fetch(200)
         logging.info("Recent fetched %d downloads for user %s."%(len(fics),user.nickname()))
 
@@ -322,7 +322,7 @@ class AllRecentFilesServer(webapp2.RequestHandler):
         for fic in fics:
             ficslug = FicSlug(fic)
             sendslugs.append(ficslug)
-                
+
         template_values = dict(fics = sendslugs, nickname = user.nickname())
         path = os.path.join(os.path.dirname(__file__), 'allrecent.html')
         self.response.out.write(template.render(path, template_values))
@@ -333,7 +333,7 @@ class FicSlug():
         self.count = savedmeta.count
         for k, v in savedmeta.meta.iteritems():
             setattr(self,k,v)
-        
+
 class FanfictionDownloader(UserConfigServer):
     def get(self):
         self.post()
@@ -361,7 +361,7 @@ class FanfictionDownloader(UserConfigServer):
         ch_end = mc.group('end')
         if ch_begin and not mc.group('comma'):
             ch_end = ch_begin
-        
+
         logging.info("Queuing Download: %s" % url)
         login = self.request.get('login')
         password = self.request.get('password')
@@ -376,8 +376,11 @@ class FanfictionDownloader(UserConfigServer):
         try:
             try:
                 configuration = self.getUserConfig(user,url,format)
+            except exceptions.UnknownSite:
+                self.redirect("/?error=custom&errtext=%s"%urllib.quote("Unsupported site in URL (%s).  See 'Support sites' list below."%url,''))
+                return
             except Exception, e:
-                self.redirect("/?error=custom&errtext=%s"%urlEscape("There's an error in your User Configuration: "+unicode(e)))
+                self.redirect("/?error=custom&errtext=%s"%urllib.quote("There's an error in your User Configuration: "+unicode(e),'')[:2048]) # limited due to Locatton header length limit.
                 return
 
             adapter = adapters.getAdapter(configuration,url)
@@ -537,7 +540,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             # delete existing chunks first
             for chunk in download.data_chunks:
                 chunk.delete()
-                
+
             index=0
             while( len(data) > 0 ):
                 # logging.info("len(data): %s" % len(data))
@@ -563,7 +566,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             smeta.meta = allmeta
             smeta.date = datetime.datetime.now()
             smeta.put()
-            
+
             logging.info("Download finished OK")
             del data
 
@@ -615,16 +618,6 @@ def getDownloadMeta(id=None,url=None,user=None,format=None,new=False):
             download.format = format
 
     return download
-
-def toPercentDecimal(match):
-    "Return the %decimal number for the character for url escaping"
-    s = match.group(1)
-    return "%%%02x" % ord(s)
-
-def urlEscape(data):
-    "Escape text, including unicode, for use in URLs"
-    p = re.compile(r'([^\w])')
-    return p.sub(toPercentDecimal, data.encode("utf-8"))
 
 logging.getLogger().setLevel(logging.DEBUG)
 app = webapp2.WSGIApplication([('/', MainHandler),
