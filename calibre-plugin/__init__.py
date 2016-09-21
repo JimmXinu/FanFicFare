@@ -48,7 +48,7 @@ class FanFicFareBase(InterfaceActionBase):
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (2, 3, 5)
+    version             = (2, 3, 6)
     minimum_calibre_version = (1, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -116,22 +116,23 @@ class FanFicFareBase(InterfaceActionBase):
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre.utils.config import prefs as calibre_prefs
-            from optparse import OptionParser      
-    
+            from optparse import OptionParser
+
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')
             parser.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
             # parser.add_option('--dont-notify-gui', default=False, action='store_true',
             #               help=_('Do not notify the running calibre GUI (if any) that the database has'
             #                      ' changed. Use with care, as it can lead to database corruption!'))
-    
+
             pargs = [x for x in argv if x.startswith('--with-library') or x.startswith('--library-path')
                      or not x.startswith('-')]
             opts, args = parser.parse_args(pargs)
-    
+
             fff_prefs = PrefsFacade(db(path=opts.library_path,
                                         read_only=True))
 
             fff_main(argv[1:],
-                      parser=parser,
-                      passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
-                      passed_personalini=StringIO(fff_prefs["personal.ini"]))
+                     parser=parser,
+                     passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
+                     passed_personalini=StringIO(fff_prefs["personal.ini"]),
+                     )

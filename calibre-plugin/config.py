@@ -14,11 +14,13 @@ import traceback, copy, threading, re
 from collections import OrderedDict
 
 try:
+    from PyQt5 import QtWidgets as QtGui
     from PyQt5.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
                           QDialogButtonBox, QGroupBox, QButtonGroup, QRadioButton, Qt)
 except ImportError as e:
+    from PyQt4 import QtGui
     from PyQt4.Qt import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                           QLabel, QLineEdit, QFont, QWidget, QTextEdit, QComboBox,
                           QCheckBox, QPushButton, QTabWidget, QScrollArea,
@@ -87,7 +89,7 @@ from calibre_plugins.fanficfare_plugin.prefs \
 from calibre_plugins.fanficfare_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
             EditTextDialog, IniTextDialog, RejectUrlEntry)
-    
+
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
     import getSiteSections
 
@@ -112,7 +114,7 @@ class RejectURLList:
             #print("rue.url:%s"%rue.url)
             if rue.valid:
                 cache[rue.url] = rue
-        return cache        
+        return cache
 
     def _get_listcache(self):
         if self.listcache == None:
@@ -124,7 +126,7 @@ class RejectURLList:
         self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
         self.prefs.save_to_db()
         self.listcache = None
-        
+
     def clear_cache(self):
         self.listcache = None
 
@@ -133,7 +135,7 @@ class RejectURLList:
         with self.sync_lock:
             listcache = self._get_listcache()
             return url in listcache
-        
+
     def get_note(self,url):
         with self.sync_lock:
             listcache = self._get_listcache()
@@ -159,7 +161,7 @@ class RejectURLList:
 
     def add_text(self,rejecttext,addreasontext):
         self.add(self._read_list_from_text(rejecttext,addreasontext).values())
-            
+
     def add(self,rejectlist,clear=False):
         with self.sync_lock:
             if clear:
@@ -172,7 +174,7 @@ class RejectURLList:
 
     def get_list(self):
         return self._get_listcache().values()
-            
+
     def get_reject_reasons(self):
         return self.prefs['rejectreasons'].splitlines()
 
@@ -183,7 +185,7 @@ class ConfigWidget(QWidget):
     def __init__(self, plugin_action):
         QWidget.__init__(self)
         self.plugin_action = plugin_action
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -192,7 +194,7 @@ class ConfigWidget(QWidget):
                            +_('List of Supported Sites')+'</a> -- <a href="'\
                            +'https://github.com/JimmXinu/FanFicFare/wiki/FAQs">'\
                            +_('FAQs')+'</a>')
-        
+
         label.setOpenExternalLinks(True)
         self.l.addWidget(label)
 
@@ -204,13 +206,13 @@ class ConfigWidget(QWidget):
 
         tab_widget = QTabWidget(self)
         self.scroll_area.setWidget(tab_widget)
-        
+
         self.basic_tab = BasicTab(self, plugin_action)
         tab_widget.addTab(self.basic_tab, _('Basic'))
 
         self.personalini_tab = PersonalIniTab(self, plugin_action)
         tab_widget.addTab(self.personalini_tab, 'personal.ini')
-        
+
         self.readinglist_tab = ReadingListTab(self, plugin_action)
         tab_widget.addTab(self.readinglist_tab, 'Reading Lists')
         if 'Reading List' not in plugin_action.gui.iactions:
@@ -258,6 +260,7 @@ class ConfigWidget(QWidget):
         prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
         prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
         prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
+        prefs['auto_reject_seriesurlid'] = self.basic_tab.auto_reject_seriesurlid.isChecked()
         prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
         prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
         prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
@@ -285,7 +288,7 @@ class ConfigWidget(QWidget):
             prefs['personal.ini'] = get_resources('plugin-example.ini')
 
         prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
-            
+
         # Covers tab
         prefs['updatecalcover'] = prefs_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
         # for backward compatibility:
@@ -306,7 +309,7 @@ class ConfigWidget(QWidget):
 
         # Count Pages tab
         countpagesstats = []
-        
+
         if self.countpages_tab.pagecount.isChecked():
             countpagesstats.append('PageCount')
         if self.countpages_tab.wordcount.isChecked():
@@ -317,10 +320,10 @@ class ConfigWidget(QWidget):
             countpagesstats.append('FleschGrade')
         if self.countpages_tab.gunningfog.isChecked():
             countpagesstats.append('GunningFog')
-            
+
         prefs['countpagesstats'] = countpagesstats
         prefs['wordcountmissing'] = self.countpages_tab.wordcount.isChecked() and self.countpages_tab.wordcountmissing.isChecked()
-        
+
         # Standard Columns tab
         colsnewonly = {}
         for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
@@ -352,7 +355,7 @@ class ConfigWidget(QWidget):
         for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
             colsnewonly[col] = checkbox.isChecked()
         prefs['custom_cols_newonly'] = colsnewonly
-        
+
         prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
 
         prefs['imapserver'] = unicode(self.imap_tab.imapserver.text()).strip()
@@ -362,8 +365,9 @@ class ConfigWidget(QWidget):
         prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
         prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
         prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
+        prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
         prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
-        
+
         prefs.save_to_db()
 
     def edit_shortcuts(self):
@@ -380,7 +384,7 @@ class BasicTab(QWidget):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         topl = QVBoxLayout()
         self.setLayout(topl)
 
@@ -435,7 +439,7 @@ class BasicTab(QWidget):
         self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
         self.updateepubcover.setChecked(prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
-        
+
         self.bgmeta = QCheckBox(_('Default Background Metadata?'),self)
         self.bgmeta.setToolTip(_("On each download, FanFicFare offers an option to Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail.<br />Only available for Update/Overwrite of existing books in case URL given isn't canonical or matches to existing book by Title/Author."))
         self.bgmeta.setChecked(prefs['bgmeta'])
@@ -451,7 +455,7 @@ class BasicTab(QWidget):
         self.deleteotherforms.setToolTip(_('Check this to automatically delete all other ebook formats when updating an existing book.\nHandy if you have both a Nook(epub) and Kindle(mobi), for example.'))
         self.deleteotherforms.setChecked(prefs['deleteotherforms'])
         self.l.addWidget(self.deleteotherforms)
-        
+
         self.keeptags = QCheckBox(_('Keep Existing Tags when Updating Metadata?'),self)
         self.keeptags.setToolTip(_("Existing tags will be kept and any new tags added.\n%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n%(lul)s tags will be updated if %(lus)s in %(is)s.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")%no_trans)
         self.keeptags.setChecked(prefs['keeptags'])
@@ -468,9 +472,17 @@ class BasicTab(QWidget):
         self.l.addWidget(self.suppresstitlesort)
 
         self.checkforseriesurlid = QCheckBox(_("Check for existing Series Anthology books?"),self)
-        self.checkforseriesurlid.setToolTip(_("Check for existings Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.checkforseriesurlid.setToolTip(_("Check for existing Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
         self.checkforseriesurlid.setChecked(prefs['checkforseriesurlid'])
         self.l.addWidget(self.checkforseriesurlid)
+
+        self.auto_reject_seriesurlid = QCheckBox(_("Reject Without Confirmation?"),self)
+        self.auto_reject_seriesurlid.setToolTip(_("Automatically reject storys with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.auto_reject_seriesurlid.setChecked(prefs['auto_reject_seriesurlid'])
+        horz = QHBoxLayout()
+        horz.addItem(QtGui.QSpacerItem(20, 1))
+        horz.addWidget(self.auto_reject_seriesurlid)
+        self.l.addLayout(horz)
 
         self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)
         self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book.\nfanfiction.net URLs will change from http to https silently."))
@@ -501,7 +513,7 @@ class BasicTab(QWidget):
         self.smarten_punctuation.setChecked(prefs['smarten_punctuation'])
         self.l.addWidget(self.smarten_punctuation)
 
-        
+
         tooltip = _("Calculate Word Counts using Calibre internal methods.\n"
                     "Many sites include Word Count, but many do not.\n"
                     "This will count the words in each book and include it as if it came from the site.")
@@ -518,7 +530,7 @@ class BasicTab(QWidget):
         horz.addWidget(self.do_wordcount)
         self.l.addLayout(horz)
 
-        
+
         self.autoconvert = QCheckBox(_("Automatically Convert new/update books?"),self)
         self.autoconvert.setToolTip(_("Automatically call calibre's Convert for new/update books.\nConverts to the current output format as chosen in calibre's\nPreferences->Behavior settings."))
         self.autoconvert.setChecked(prefs['autoconvert'])
@@ -570,12 +582,12 @@ class BasicTab(QWidget):
         self.rejectlist.setToolTip(_("Edit list of URLs FanFicFare will automatically Reject."))
         self.rejectlist.clicked.connect(self.show_rejectlist)
         self.l.addWidget(self.rejectlist)
-        
+
         self.reject_urls = QPushButton(_('Add Reject URLs'), self)
         self.reject_urls.setToolTip(_("Add additional URLs to Reject as text."))
         self.reject_urls.clicked.connect(self.add_reject_urls)
         self.l.addWidget(self.reject_urls)
-        
+
         self.reject_reasons = QPushButton(_('Edit Reject Reasons List'), self)
         self.reject_reasons.setToolTip(_("Customize the Reasons presented when Rejecting URLs"))
         self.reject_reasons.clicked.connect(self.show_reject_reasons)
@@ -598,13 +610,13 @@ class BasicTab(QWidget):
         vertright.addWidget(gui_gb)
         vertright.addWidget(misc_gb)
         vertright.addWidget(rej_gb)
-        
+
         horz.addLayout(vertleft)
         horz.addLayout(vertright)
-        
+
         topl.addLayout(horz)
         topl.insertStretch(-1)
-        
+
     def set_collisions(self):
         prev=self.collision.currentText()
         self.collision.clear()
@@ -614,7 +626,7 @@ class BasicTab(QWidget):
         i = self.collision.findText(prev)
         if i > -1:
             self.collision.setCurrentIndex(i)
-        
+
     def show_rejectlist(self):
         d = RejectListDialog(self,
                              rejecturllist.get_list(),
@@ -623,12 +635,12 @@ class BasicTab(QWidget):
                              show_delete=False,
                              show_all_reasons=False)
         d.exec_()
-        
+
         if d.result() != d.Accepted:
             return
-        
+
         rejecturllist.add(d.get_reject_list(),clear=True)
-        
+
     def show_reject_reasons(self):
         d = EditTextDialog(self,
                            prefs['rejectreasons'],
@@ -640,7 +652,7 @@ class BasicTab(QWidget):
         d.exec_()
         if d.result() == d.Accepted:
             prefs['rejectreasons'] = d.get_plain_text()
-                
+
     def add_reject_urls(self):
         d = EditTextDialog(self,
                            "http://example.com/story.php?sid=5,"+_("Reason why I rejected it")+"\nhttp://example.com/story.php?sid=6,"+_("Title by Author")+" - "+_("Reason why I rejected it"),
@@ -654,14 +666,14 @@ class BasicTab(QWidget):
         d.exec_()
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
-                
+
 class PersonalIniTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -678,16 +690,16 @@ class PersonalIniTab(QWidget):
         self.l.addWidget(groupbox)
 
         horz = QHBoxLayout()
-        vert.addLayout(horz)        
+        vert.addLayout(horz)
         self.ini_button = QPushButton(_('Edit personal.ini'), self)
         #self.ini_button.setToolTip(_("Edit personal.ini file."))
         self.ini_button.clicked.connect(self.add_ini_button)
         horz.addWidget(self.ini_button)
-        
+
         label = QLabel(_("FanFicFare now includes find, color coding, and error checking for personal.ini editing.  Red generally indicates errors."))
         label.setWordWrap(True)
         horz.addWidget(label)
-        
+
         vert.addSpacing(5)
 
         horz = QHBoxLayout()
@@ -696,18 +708,18 @@ class PersonalIniTab(QWidget):
         #self.ini_button.setToolTip(_("Edit personal.ini file."))
         self.ini_button.clicked.connect(self.safe_ini_button)
         horz.addWidget(self.ini_button)
-        
+
         label = QLabel(_("View your personal.ini with usernames and passwords removed.  For safely sharing your personal.ini settings with others."))
         label.setWordWrap(True)
         horz.addWidget(label)
-        
+
         self.l.addSpacing(5)
-        
+
         groupbox = QGroupBox(_("defaults.ini"))
         horz = QHBoxLayout()
         groupbox.setLayout(horz)
         self.l.addWidget(groupbox)
-        
+
         view_label = _("View all of the plugin's configurable settings\nand their default settings.")
         self.defaults = QPushButton(_('View Defaults')+' (plugin-defaults.ini)', self)
         self.defaults.setToolTip(view_label)
@@ -717,7 +729,7 @@ class PersonalIniTab(QWidget):
         label = QLabel(view_label)
         label.setWordWrap(True)
         horz.addWidget(label)
-        
+
         self.l.addSpacing(5)
 
         groupbox = QGroupBox(_("Calibre Columns"))
@@ -732,13 +744,13 @@ class PersonalIniTab(QWidget):
         self.cal_cols_pass_in.setToolTip(pass_label)
         self.cal_cols_pass_in.setChecked(prefs['cal_cols_pass_in'])
         horz.addWidget(self.cal_cols_pass_in)
-        
+
         label = QLabel(pass_label)
         label.setWordWrap(True)
         horz.addWidget(label)
 
         vert.addSpacing(5)
-        
+
         horz = QHBoxLayout()
         vert.addLayout(horz)
         col_label = _("FanFicFare can pass the Calibre Columns into the download/update process.<br>This will show you the columns available by name.")
@@ -756,7 +768,7 @@ class PersonalIniTab(QWidget):
         self.l.addWidget(label)
 
         self.l.insertStretch(-1)
-        
+
     def show_defaults(self):
         IniTextDialog(self,
                        get_resources('plugin-defaults.ini'),
@@ -766,10 +778,10 @@ class PersonalIniTab(QWidget):
                        use_find=True,
                        read_only=True,
                        save_size_name='fff:defaults.ini').exec_()
-        
+
     def safe_ini_button(self):
         personalini = re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',self.personalini,flags=re.MULTILINE)
-        
+
         d = EditTextDialog(self,
                            personalini,
                            icon=self.windowIcon(),
@@ -778,7 +790,7 @@ class PersonalIniTab(QWidget):
                            save_size_name='fff:safe personal.ini',
                            read_only=True)
         d.exec_()
-        
+
     def add_ini_button(self):
         d = IniTextDialog(self,
                            self.personalini,
@@ -790,13 +802,13 @@ class PersonalIniTab(QWidget):
         d.exec_()
         if d.result() == d.Accepted:
             self.personalini = d.get_plain_text()
-                
+
     def show_showcalcols(self):
         lines=[]#[('calibre_std_user_categories',_('User Categories'))]
         for k,f in field_metadata.iteritems():
             if f['name'] and k not in STD_COLS_SKIP: # only if it has a human readable name.
                 lines.append(('calibre_std_'+k,f['name']))
-            
+
         for k, column in self.plugin_action.gui.library_view.model().custom_columns.iteritems():
             if k != prefs['savemetacol']:
                 # custom always have name.
@@ -811,14 +823,14 @@ class PersonalIniTab(QWidget):
                        label=_('Label (entry_name)'),
                        read_only=True,
                        save_size_name='fff:showcalcols').exec_()
-        
+
 class ReadingListTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -827,21 +839,21 @@ class ReadingListTab(QWidget):
             reading_lists = rl_plugin.get_list_names()
         except KeyError:
             reading_lists= []
-            
+
         label = QLabel(_('These settings provide integration with the %(rl)s Plugin.  %(rl)s can automatically send to devices and change custom columns.  You have to create and configure the lists in %(rl)s to be useful.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
         self.addtolists = QCheckBox(_('Add new/updated stories to "Send to Device" Reading List(s).'),self)
         self.addtolists.setToolTip(_('Automatically add new/updated stories to these lists in the %(rl)s plugin.')%no_trans)
         self.addtolists.setChecked(prefs['addtolists'])
         self.l.addWidget(self.addtolists)
-            
+
         horz = QHBoxLayout()
         label = QLabel(_('"Send to Device" Reading Lists'))
         label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
-        horz.addWidget(label)        
+        horz.addWidget(label)
         self.send_lists_box = EditWithComplete(self)
         self.send_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.send_lists_box.update_items_cache(reading_lists)
@@ -849,16 +861,16 @@ class ReadingListTab(QWidget):
         horz.addWidget(self.send_lists_box)
         self.send_lists_box.setCursorPosition(0)
         self.l.addLayout(horz)
-        
+
         self.addtoreadlists = QCheckBox(_('Add new/updated stories to "To Read" Reading List(s).'),self)
         self.addtoreadlists.setToolTip(_('Automatically add new/updated stories to these lists in the %(rl)s plugin.\nAlso offers menu option to remove stories from the "To Read" lists.')%no_trans)
         self.addtoreadlists.setChecked(prefs['addtoreadlists'])
         self.l.addWidget(self.addtoreadlists)
-            
+
         horz = QHBoxLayout()
         label = QLabel(_('"To Read" Reading Lists'))
         label.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
-        horz.addWidget(label)        
+        horz.addWidget(label)
         self.read_lists_box = EditWithComplete(self)
         self.read_lists_box.setToolTip(_("When enabled, new/updated stories will be automatically added to these lists."))
         self.read_lists_box.update_items_cache(reading_lists)
@@ -866,31 +878,31 @@ class ReadingListTab(QWidget):
         horz.addWidget(self.read_lists_box)
         self.read_lists_box.setCursorPosition(0)
         self.l.addLayout(horz)
-        
+
         self.addtolistsonread = QCheckBox(_('Add stories back to "Send to Device" Reading List(s) when marked "Read".'),self)
         self.addtolistsonread.setToolTip(_('Menu option to remove from "To Read" lists will also add stories back to "Send to Device" Reading List(s)'))
         self.addtolistsonread.setChecked(prefs['addtolistsonread'])
         self.l.addWidget(self.addtolistsonread)
-            
+
         self.autounnew = QCheckBox(_('Automatically run Remove "New" Chapter Marks when marking books "Read".'),self)
         self.autounnew.setToolTip(_('Menu option to remove from "To Read" lists will also remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.'))
         self.autounnew.setChecked(prefs['autounnew'])
         self.l.addWidget(self.autounnew)
-            
+
         self.l.insertStretch(-1)
-        
+
 class CalibreCoverTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.gencov_elements=[] ## used to disable/enable when gen
                                 ## cover is off/on.  This is more
                                 ## about being a visual que than real
                                 ## necessary function.
-        
+
         topl = self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -900,7 +912,7 @@ class CalibreCoverTab(QWidget):
         except KeyError:
             gc_settings= []
 
-            
+
         label = QLabel(_("The Calibre cover image for a downloaded book can come"
                          " from the story site(if EPUB and images are enabled), or"
                          " from either Calibre's built-in random cover generator or"
@@ -908,7 +920,7 @@ class CalibreCoverTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
         tooltip = _("Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
                     "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
                     "Cover in EPUB could be from site or previously injected into the EPUB.\n"
@@ -949,7 +961,7 @@ class CalibreCoverTab(QWidget):
         #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(prefs_save_options[SAVE_YES]))
         # else: # doesn't have own value, old value not set, NO.
         #     self.gencalcover.setCurrentIndex(self.gencalcover.findText(prefs_save_options[SAVE_NO]))
-            
+
         self.gencalcover.setToolTip(tooltip)
         label.setBuddy(self.gencalcover)
         horz.addWidget(self.gencalcover)
@@ -962,7 +974,7 @@ class CalibreCoverTab(QWidget):
         self.gencov_gb = QGroupBox()
         horz = QHBoxLayout()
         self.gencov_gb.setLayout(horz)
-        
+
         self.plugin_gen_cover = QRadioButton(_('Plugin %(gc)s')%no_trans,self)
         self.plugin_gen_cover.setToolTip(_("Use plugin to create covers.  Additional settings are below."))
         self.gencov_rdgrp.addButton(self.plugin_gen_cover)
@@ -1007,7 +1019,7 @@ class CalibreCoverTab(QWidget):
         self.gencov_elements.append(self.gcp_gb)
 
         self.gencov_rdgrp.buttonClicked.connect(self.endisable_elements)
-            
+
         label = QLabel(_('The %(gc)s plugin can create cover images for books using various metadata (including existing cover image).  If you have %(gc)s installed, FanFicFare can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting by site and/or one to use by Default.')%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
@@ -1021,7 +1033,7 @@ class CalibreCoverTab(QWidget):
 
         self.sl = QVBoxLayout()
         scrollcontent.setLayout(self.sl)
-        
+
         self.gc_dropdowns = {}
 
         sitelist = getSiteSections()
@@ -1054,9 +1066,9 @@ class CalibreCoverTab(QWidget):
 
             horz.addWidget(dropdown)
             self.sl.addLayout(horz)
-        
+
         self.sl.insertStretch(-1)
-        
+
         self.allow_gc_from_ini = QCheckBox(_('Allow %(gcset)s from %(pini)s to override')%no_trans,self)
         self.allow_gc_from_ini.setToolTip(_("The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based on metadata"
                                             " rather than site, but it's much more complex.<br \>%(gcset)s is ignored when this is off.")%no_trans)
@@ -1070,7 +1082,7 @@ class CalibreCoverTab(QWidget):
         "Clearing house function for setting elements of Calibre"
         "Cover tab enabled/disabled depending on all factors."
 
-        ## First, cover gen on/off 
+        ## First, cover gen on/off
         for e in self.gencov_elements:
             e.setEnabled(prefs_save_options[unicode(self.gencalcover.currentText())] != SAVE_NO)
 
@@ -1084,15 +1096,15 @@ class CalibreCoverTab(QWidget):
         if not 'Generate Cover' in self.plugin_action.gui.iactions:
             self.plugin_gen_cover.setEnabled(False)
             self.gcp_gb.setEnabled(False)
-        
-            
+
+
 class CountPagesTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -1115,7 +1127,7 @@ class CountPagesTab(QWidget):
         self.l.addWidget(self.pagecount)
 
         horz = QHBoxLayout()
-        
+
         self.wordcount = QCheckBox('Word Count',self)
         self.wordcount.setToolTip(tooltip+"\n"+_('Will overwrite word count from FanFicFare metadata if set to update the same custom column.'))
         self.wordcount.setChecked('WordCount' in prefs['countpagesstats'])
@@ -1128,33 +1140,33 @@ class CountPagesTab(QWidget):
         horz.addWidget(self.wordcountmissing)
 
         self.wordcount.stateChanged.connect(lambda x : self.wordcountmissing.setEnabled(self.wordcount.isChecked()))
-        
+
         self.l.addLayout(horz)
 
         self.fleschreading = QCheckBox('Flesch Reading Ease',self)
         self.fleschreading.setToolTip(tooltip)
         self.fleschreading.setChecked('FleschReading' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschreading)
-        
+
         self.fleschgrade = QCheckBox('Flesch-Kincaid Grade Level',self)
         self.fleschgrade.setToolTip(tooltip)
         self.fleschgrade.setChecked('FleschGrade' in prefs['countpagesstats'])
         self.l.addWidget(self.fleschgrade)
-        
+
         self.gunningfog = QCheckBox('Gunning Fog Index',self)
         self.gunningfog.setToolTip(tooltip)
         self.gunningfog.setChecked('GunningFog' in prefs['countpagesstats'])
         self.l.addWidget(self.gunningfog)
-        
+
         self.l.insertStretch(-1)
-        
+
 class OtherTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -1162,7 +1174,7 @@ class OtherTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
         keyboard_shortcuts_button = QPushButton(_('Keyboard shortcuts...'), self)
         keyboard_shortcuts_button.setToolTip(_('Edit the keyboard shortcuts associated with this plugin'))
         keyboard_shortcuts_button.clicked.connect(parent_dialog.edit_shortcuts)
@@ -1172,14 +1184,14 @@ class OtherTab(QWidget):
         reset_confirmation_button.setToolTip(_('Reset all show me again dialogs for the FanFicFare plugin'))
         reset_confirmation_button.clicked.connect(self.reset_dialogs)
         self.l.addWidget(reset_confirmation_button)
-        
+
         view_prefs_button = QPushButton(_('&View library preferences...'), self)
         view_prefs_button.setToolTip(_('View data stored in the library database for this plugin'))
         view_prefs_button.clicked.connect(self.view_prefs)
         self.l.addWidget(view_prefs_button)
-        
+
         self.l.insertStretch(-1)
-        
+
     def reset_dialogs(self):
         for key in dynamic.keys():
             if key.startswith('fanfictiondownloader_') and key.endswith('_again') \
@@ -1189,7 +1201,7 @@ class OtherTab(QWidget):
                     _('Confirmation dialogs have all been reset'),
                     show=True,
                     show_copy_button=False)
-        
+
     def view_prefs(self):
         d = PrefsViewerDialog(self.plugin_action.gui, PREFS_NAMESPACE)
         d.exec_()
@@ -1271,7 +1283,7 @@ class CustomColumnsTab(QWidget):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         custom_columns = self.plugin_action.gui.library_view.model().custom_columns
 
         self.l = QVBoxLayout()
@@ -1281,7 +1293,7 @@ class CustomColumnsTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
         self.custcol_dropdowns = {}
         self.custcol_newonlycheck = {}
 
@@ -1293,7 +1305,7 @@ class CustomColumnsTab(QWidget):
 
         self.sl = QVBoxLayout()
         scrollcontent.setLayout(self.sl)
-        
+
         for key, column in custom_columns.iteritems():
 
             if column['datatype'] in permitted_values:
@@ -1323,9 +1335,9 @@ class CustomColumnsTab(QWidget):
                 if key in prefs['custom_cols_newonly']:
                     newonlycheck.setChecked(prefs['custom_cols_newonly'][key])
                 horz.addWidget(newonlycheck)
-                
+
                 self.sl.addLayout(horz)
-        
+
         self.sl.insertStretch(-1)
 
         self.l.addSpacing(5)
@@ -1333,11 +1345,11 @@ class CustomColumnsTab(QWidget):
         self.allow_custcol_from_ini.setToolTip(_("The %(pini)s parameter %(ccset)s allows you to set custom columns to site specific values that aren't common to all sites.<br />%(ccset)s is ignored when this is off.")%no_trans)
         self.allow_custcol_from_ini.setChecked(prefs['allow_custcol_from_ini'])
         self.l.addWidget(self.allow_custcol_from_ini)
-        
+
         label = QLabel(_("Special column:"))
         label.setWordWrap(True)
         self.l.addWidget(label)
-        
+
         horz = QHBoxLayout()
         label = QLabel(_("Update/Overwrite Error Column:"))
         tooltip=_("When an update or overwrite of an existing story fails, record the reason in this column.\n(Text and Long Text columns only.)")
@@ -1352,7 +1364,7 @@ class CustomColumnsTab(QWidget):
                 self.errorcol.addItem(column['name'],key)
         self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
         horz.addWidget(self.errorcol)
-        
+
         self.save_all_errors = QCheckBox(_('Save All Errors'),self)
         self.save_all_errors.setToolTip(_('If unchecked, these errors will not be saved:%s')%(
                 '\n'+
@@ -1360,9 +1372,9 @@ class CustomColumnsTab(QWidget):
                            _("Already contains %d chapters.").replace('%d','X')))))
         self.save_all_errors.setChecked(prefs['save_all_errors'])
         horz.addWidget(self.save_all_errors)
-        
+
         self.l.addLayout(horz)
-        
+
         horz = QHBoxLayout()
         label = QLabel(_("Saved Metadata Column:"))
         tooltip=_("If set, FanFicFare will save a copy of all its metadata in this column when the book is downloaded or updated.<br/>The metadata from this column can later be used to update custom columns without having to request the metadata from the server again.<br/>(Long Text columns only.)")
@@ -1379,7 +1391,7 @@ class CustomColumnsTab(QWidget):
 
         label = QLabel('')
         horz.addWidget(label) # empty spacer for alignment with error column line.
-        
+
         self.l.addLayout(horz)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
@@ -1393,7 +1405,7 @@ class StandardColumnsTab(QWidget):
         QWidget.__init__(self)
 
         columns=OrderedDict()
-        
+
         columns["title"]=_("Title")
         columns["authors"]=_("Author(s)")
         columns["publisher"]=_("Publisher")
@@ -1412,7 +1424,7 @@ class StandardColumnsTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-        
+
         self.stdcol_newonlycheck = {}
 
         for key, column in columns.iteritems():
@@ -1427,9 +1439,9 @@ class StandardColumnsTab(QWidget):
             if key in prefs['std_cols_newonly']:
                 newonlycheck.setChecked(prefs['std_cols_newonly'][key])
             horz.addWidget(newonlycheck)
-            
+
             self.l.addLayout(horz)
-            
+
         self.l.addSpacing(5)
         label = QLabel(_("Other Standard Column Options"))
         label.setWordWrap(True)
@@ -1451,7 +1463,7 @@ Default is a list of included titles only.'''))
         self.anth_comments_newonly.setToolTip(_("Comments will only be set for New Anthologies, not updates.\nThat way comments you set manually are retained."))
         self.anth_comments_newonly.setChecked(prefs['anth_comments_newonly'])
         self.l.addWidget(self.anth_comments_newonly)
-        
+
         self.l.insertStretch(-1)
 
 class ImapTab(QWidget):
@@ -1460,11 +1472,11 @@ class ImapTab(QWidget):
         self.parent_dialog = parent_dialog
         self.plugin_action = plugin_action
         QWidget.__init__(self)
-        
+
         self.l = QGridLayout()
         self.setLayout(self.l)
         row=0
-            
+
         label = QLabel(_('These settings will allow FanFicFare to fetch story URLs from your email account.  It will only look for story URLs in unread emails in the folder specified below.'))
         label.setWordWrap(True)
         self.l.addWidget(label,row,0,1,-1)
@@ -1479,21 +1491,21 @@ class ImapTab(QWidget):
         self.imapserver.setText(prefs['imapserver'])
         self.l.addWidget(self.imapserver,row,1)
         row+=1
-        
+
         label = QLabel(_('IMAP User Name'))
         tooltip = _("Name of IMAP user.  Eg: yourname@gmail.com\nNote that Gmail accounts need to have IMAP enabled in Gmail Settings first.")
         label.setToolTip(tooltip)
-        self.l.addWidget(label,row,0)        
+        self.l.addWidget(label,row,0)
         self.imapuser = QLineEdit(self)
         self.imapuser.setToolTip(tooltip)
         self.imapuser.setText(prefs['imapuser'])
         self.l.addWidget(self.imapuser,row,1)
         row+=1
-        
+
         label = QLabel(_('IMAP User Password'))
         tooltip = _("IMAP password.  If left empty, FanFicFare will ask you for your password when you use the feature.")
         label.setToolTip(tooltip)
-        self.l.addWidget(label,row,0)        
+        self.l.addWidget(label,row,0)
         self.imappass = QLineEdit(self)
         self.imappass.setToolTip(tooltip)
         self.imappass.setEchoMode(QLineEdit.Password)
@@ -1506,35 +1518,41 @@ class ImapTab(QWidget):
         self.imapsessionpass.setChecked(prefs['imapsessionpass'])
         self.l.addWidget(self.imapsessionpass,row,0,1,-1)
         row+=1
-        
+
         label = QLabel(_('IMAP Folder Name'))
         tooltip = _("Name of IMAP folder to search for new emails.  The folder (or label) has to already exist.  Use INBOX for your default inbox.")
         label.setToolTip(tooltip)
-        self.l.addWidget(label,row,0)        
+        self.l.addWidget(label,row,0)
         self.imapfolder = QLineEdit(self)
         self.imapfolder.setToolTip(tooltip)
         self.imapfolder.setText(prefs['imapfolder'])
         self.l.addWidget(self.imapfolder,row,1)
         row+=1
-        
+
         self.imapmarkread = QCheckBox(_('Mark Emails Read'),self)
         self.imapmarkread.setToolTip(_('If checked, emails will be marked as having been read if they contain any story URLs.'))
         self.imapmarkread.setChecked(prefs['imapmarkread'])
         self.l.addWidget(self.imapmarkread,row,0,1,-1)
         row+=1
-            
+
         self.auto_reject_from_email = QCheckBox(_('Discard URLs on Reject List'),self)
         self.auto_reject_from_email.setToolTip(_('If checked, FanFicFare will silently discard story URLs from emails that are on your Reject URL List.<br>Otherwise they will appear and you will see the normal Reject URL dialog.<br>The Emails will still be marked Read if configured to.'))
         self.auto_reject_from_email.setChecked(prefs['auto_reject_from_email'])
         self.l.addWidget(self.auto_reject_from_email,row,0,1,-1)
         row+=1
-        
+
+        self.update_existing_only_from_email = QCheckBox(_('Update Existing Books Only'),self)
+        self.update_existing_only_from_email.setToolTip(_('If checked, FanFicFare will silently discard story URLs from emails that are not already in your library.<br>Otherwise all story URLs, new and existing, will be used.<br>The Emails will still be marked Read if configured to.'))
+        self.update_existing_only_from_email.setChecked(prefs['update_existing_only_from_email'])
+        self.l.addWidget(self.update_existing_only_from_email,row,0,1,-1)
+        row+=1
+
         self.download_from_email_immediately = QCheckBox(_('Download from Email Immediately'),self)
         self.download_from_email_immediately.setToolTip(_('If checked, FanFicFare will start downloading story URLs from emails immediately.<br>Otherwise the usual Download from URLs dialog will appear.'))
         self.download_from_email_immediately.setChecked(prefs['download_from_email_immediately'])
         self.l.addWidget(self.download_from_email_immediately,row,0,1,-1)
         row+=1
-        
+
         label = QLabel(_("<b>It's safest if you create a separate email account that you use only "
                          "for your story update notices.  FanFicFare and calibre cannot guarantee that "
                          "malicious code cannot get your email password once you've entered it. "
@@ -1543,5 +1561,5 @@ class ImapTab(QWidget):
         self.l.addWidget(label,row,0,1,-1,Qt.AlignTop)
         self.l.setRowStretch(row,1)
         row+=1
-        
-        
+
+

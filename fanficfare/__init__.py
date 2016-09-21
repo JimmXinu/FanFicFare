@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 try:
     # just a way to switch between web service and CLI/PI
-    import google.appengine.api 
+    import google.appengine.api
 except:
     try: # just a way to switch between CLI and PI
         import calibre.constants
@@ -31,4 +31,3 @@ except:
             logger.addHandler(loghandler)
             loghandler.setLevel(logging.DEBUG)
             logger.setLevel(logging.DEBUG)
-

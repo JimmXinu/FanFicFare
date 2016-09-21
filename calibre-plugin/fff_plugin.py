@@ -484,8 +484,15 @@ class FanFicFarePlugin(InterfaceAction):
         reject_list=set()
         if prefs['auto_reject_from_email']:
             # need to normalize for reject list.
-            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURLSite(x)[0])])
+            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURL(x))])
         url_list = url_list - reject_list
+
+        ## feature for update-only - check url_list with
+        ## self.do_id_search(url)
+        notupdate_list = set()
+        if prefs['update_existing_only_from_email']:
+            notupdate_list = set([x for x in url_list if not self.do_id_search(adapters.getNormalStoryURL(x))])
+        url_list = url_list - notupdate_list
 
         self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
         self.restore_cursor()
@@ -512,6 +519,8 @@ class FanFicFarePlugin(InterfaceAction):
                 msg = _('No Valid Story URLs Found in Unread Emails.')
                 if reject_list:
                     msg = msg + '<p>'+(_('(%d Story URLs Skipped, on Rejected URL List)')%len(reject_list))+'</p>'
+                if notupdate_list:
+                    msg = msg + '<p>'+(_("(%d Story URLs Skipped, no Existing Book in Library)")%len(notupdate_list))+'</p>'
                 info_dialog(self.gui, _('Get Story URLs from Email'),
                             msg,
                             show=True,
@@ -1155,7 +1164,8 @@ class FanFicFarePlugin(InterfaceAction):
                     # try to find *series anthology* by *seriesUrl* identifier url or uri first.
                     identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
                     # print("identicalbooks:%s"%identicalbooks)
-                    if len(identicalbooks) > 0 and question_dialog(self.gui, _('Skip Story?'),'''
+                    if len(identicalbooks) > 0 and (prefs['auto_reject_seriesurlid'] or \
+                                                        question_dialog(self.gui, _('Skip Story?'),'''
                                                                       <h3>%s</h3>
                                                                       <p>%s</p>
                                                                       <p>%s</p>
@@ -1165,7 +1175,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                                    _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
                                                                    _("Click '<b>Yes</b>' to Skip."),
                                                                    _("Click '<b>No</b>' to download anyway.")),
-                                                                   show_copy_button=False):
+                                                                   show_copy_button=False)):
                         book['comment'] = _("Story in Series Anthology(%s).")%series
                         book['title'] = story.getMetadata('title')
                         book['author'] = [story.getMetadata('author')]
