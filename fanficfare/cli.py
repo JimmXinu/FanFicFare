@@ -236,6 +236,8 @@ def main(argv=None,
                                 passed_personalini)
                 #print("pagecache:%s"%options.pagecache.keys())
                 except Exception, e:
+                    if len(urls) == 1:
+                        raise
                     print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
 
 # make rest a function and loop on it.
