@@ -84,7 +84,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         # fictionhunt doesn't have author pages, use ffnet original author link.
         a = soup.find('a', href=re.compile(r"fanfiction.net/u/\d+"))
-        self.story.setMetadata('authorId',a['href'].split('/')[2])
+        self.story.setMetadata('authorId',a['href'].split('/')[-1])
         self.story.setMetadata('authorUrl','https://www.fanfiction.net/u/'+self.story.getMetadata('authorId'))
         self.story.setMetadata('author',a.string)
 
@@ -105,7 +105,6 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
             r' - Published: (?P<datePublished>[0-9-]+)(?P<completed> - Complete)?'
 
         details_dict = re.match(detail_re,stripHTML(details)).groupdict()
-        print details_dict
 
         # lists
         for meta in ('characters','genre'):
@@ -131,7 +130,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # alternative is to get the num of chaps from the last
         # indiated chapter list instead.
         for i in range(1,1+int(self.story.getMetadata('numChapters'))):
-            self.chapterUrls.append((unicode(i),"http://"+self.getSiteDomain()\
+            self.chapterUrls.append(("Chapter "+unicode(i),"http://"+self.getSiteDomain()\
                                          +"/read/"+self.story.getMetadata('storyId')+"/%s"%i))
 
     def getChapterText(self, url):
