@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
 # limitations under the License.
 #
 
-import time
 from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
 from urllib import unquote_plus
-import time
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -206,7 +204,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         #     b.extract()
         metatext = stripHTML(grayspan).replace('Hurt/Comfort','Hurt-Comfort')
         #logger.debug("metatext:(%s)"%metatext)
-        
+
         if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
         else:
@@ -282,8 +280,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         l = chars_ships_text
         while '[' in l:
             self.story.addToList('ships',l[l.index('[')+1:l.index(']')].replace(', ','/'))
-            l = l[l.index(']')+1:]                    
-        
+            l = l[l.index(']')+1:]
+
         if get_cover:
             # Try the larger image first.
             cover_url = ""
@@ -331,7 +329,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	
+
         if select is None:
     	   # no selector found, so it's a one-chapter story.
     	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -351,35 +349,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        # time.sleep(4.0) ## ffnet(and, I assume, fpcom) tends to fail
-        #                 ## more if hit too fast.  This is in
-        #                 ## additional to what ever the
-        #                 ## slow_down_sleep_time setting is.
         logger.debug('Getting chapter text from: %s' % url)
+        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
+        ## fast.  This is in additional to what ever the
+        ## slow_down_sleep_time setting is.
         data = self._fetchUrl(url,extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
 
-        # some ancient stories have body tags inside them that cause
-        # soup parsing to discard the content.  For story text we
-        # don't care about anything before "<div role='main'" and
-        # this kills any body tags.
-        # XXX needed with new BS? -- No, doesn't look like it
-        # divstr = "<div role='main'"
-        # if divstr not in data:
-        #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        # else:
-        #     data = data[data.index(divstr):]
-        # data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
-
         soup = self.make_soup(data)
-
-        ## Remove the 'share' button.
-        ## No longer appears in the story text.
-        # sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
-        # if sharediv:
-        #     sharediv.extract()
 
         div = soup.find('div', {'id' : 'storytextp'})
 
