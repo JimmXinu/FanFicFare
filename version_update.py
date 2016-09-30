@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+
+import codecs, sys, re
+
+from tempfile import mkstemp
+from os import rename, close, unlink
+
+#print sys.argv[1:]
+
+## Files that contain version numbers that will need to be updated.
+version_files = [
+    # 'version_test.sml',
+    # 'version_test.txt',
+    'setup.py',
+    'calibre-plugin/__init__.py',
+    'webservice/app.yaml',
+    'fanficfare/cli.py',
+    ]
+
+## save version from this file for index.html link.
+# save_file='version_test.txt'
+save_file='webservice/app.yaml'
+saved_version = None
+
+
+def main(args):
+   ## major.minor.micro
+    '''
+    version             = (2, 3, 6)
+    version="2.3.6",
+version: 2-3-06a
+version="2.3.6"
+'''
+    version_re = \
+        r'^(?P<prefix>[ ]*)version(?P<infix>[ =:"\\(]+)' \
+        r'(?P<major>[0-9]+)(?P<dot1>[, \\.-]+)' \
+        r'(?P<minor>[0-9]+)(?P<dot2>[, \\.-]+)' \
+        r'(?P<micro>[0-9]+[a-z]?)(?P<suffix>[",\\)]*\r?\n)$'
+
+    version_subs = '\g<prefix>version\g<infix>%s\g<dot1>%s\g<dot2>%s\g<suffix>' % tuple(args)
+    
+    do_loop(version_files, version_re, version_subs)
+
+    if saved_version:
+        # index_files = ['index.html']
+        index_files = ['webservice/index.html']
+        index_re = 'http://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
+        index_subs = 'http://%s-%s-%s.fanficfare.appspot.com'%saved_version
+        do_loop(index_files, index_re, index_subs)
+
+def do_loop(files, pattern, substring):
+    global saved_version
+    for source_file_path in files:
+        print "src:"+source_file_path
+        fh, target_file_path = mkstemp()
+        with codecs.open(target_file_path, 'w', 'utf-8') as target_file:
+            with codecs.open(source_file_path, 'r', 'utf-8') as source_file:
+                for line in source_file:
+                    repline = re.sub(pattern, substring, line)
+                    if line != repline and source_file_path == save_file:
+                        m = re.match(pattern,line)
+                        saved_version = (m.group('major'),m.group('minor'),m.group('micro'))
+                        print("<-%s->%s"%(line,repline))
+                    target_file.write(repline)
+        close(fh)
+        unlink(source_file_path)
+        rename(target_file_path,source_file_path)
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    try:
+        if len(args) != 3:
+            raise Exception()
+        [int(x) for x in args]
+    except:
+        print "Requires exactly 3 numeric args: major minor micro"
+        exit()
+    main(args)
+#    print saved_version
