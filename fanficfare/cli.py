@@ -170,7 +170,8 @@ def main(argv=None,
 
     urls=args
 
-    if not list_only and not (args or any((options.downloadimap,
+    if not list_only and not (args or any((options.infile,
+                                           options.downloadimap,
                                            options.downloadlist))):
         parser.print_help();
         return
