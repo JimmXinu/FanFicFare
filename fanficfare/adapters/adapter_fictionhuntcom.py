@@ -48,7 +48,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://fictionhunt.com/read/1234/1/ https://fictionhunt.com/read/1234/12/ http://fictionhunt.com/read/1234/1/Story_Title http://m.fanfiction.net/read/1234/1/"
+        return "http://fictionhunt.com/read/1234/1"
 
     def getSiteURLPattern(self):
         return r"http://(www.)?fictionhunt.com/read/\d+(/\d+)?(/|/[^/]+)?/?$"
