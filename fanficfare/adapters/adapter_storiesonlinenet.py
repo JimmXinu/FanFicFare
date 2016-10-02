@@ -171,7 +171,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.story.addToList('author',stripHTML(a).replace("'s Page",""))
 
         # Find the chapters:
-        chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+$"))
+        chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+(/.*)?$"))
         if len(chapters) != 0:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
