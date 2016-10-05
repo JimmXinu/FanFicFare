@@ -40,7 +40,7 @@ import adapters
 def re_compile(regex,line):
     try:
         return re.compile(regex)
-    except Exception, e: 
+    except Exception, e:
         raise exceptions.RegularExpresssionFailed(e,regex,line)
 
 # fall back labels.
@@ -59,6 +59,7 @@ titleLabels = {
     'warnings':'Warnings',
     'numChapters':'Chapters',
     'numWords':'Words',
+    'words_added':'Words Added', # logpage only
     'site':'Site',
     'storyId':'Story ID',
     'authorId':'Author ID',
@@ -78,7 +79,7 @@ formatsections = ['html','txt','epub','mobi']
 othersections = ['defaults','overrides']
 
 def get_valid_sections():
-    sites = adapters.getConfigSections() 
+    sites = adapters.getConfigSections()
     sitesections = list(othersections)
     for section in sites:
         sitesections.append(section)
@@ -90,7 +91,7 @@ def get_valid_sections():
         else:
             # add w/ www if doesn't www
             sitesections.append('www.%s'%section)
-            
+
     allowedsections = []
     allowedsections.extend(formatsections)
 
@@ -99,7 +100,7 @@ def get_valid_sections():
         for f in formatsections:
             allowedsections.append('%s:%s'%(section,f))
     return allowedsections
-    
+
 def get_valid_list_entries():
     return list(['category',
                  'genre',
@@ -144,15 +145,15 @@ def get_valid_set_options():
                'strip_chapter_numbers':(None,None,boollist),
                'mark_new_chapters':(None,None,boollist),
                'titlepage_use_table':(None,None,boollist),
-               
+
                'use_ssl_unverified_context':(None,None,boollist),
-                              
+
                'add_chapter_numbers':(None,None,boollist+['toconly']),
-               
+
                'check_next_chapter':(['fanfiction.net'],None,boollist),
                'tweak_fg_sleep':(['fanfiction.net'],None,boollist),
                'skip_author_cover':(['fanfiction.net'],None,boollist),
-               
+
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
@@ -174,12 +175,12 @@ def get_valid_set_options():
                # kept forgetting to add them, so now it's automatic.
                'bulk_load':(adapters.get_bulk_load_sites(),
                             None,boollist),
-               
+
                'include_logpage':(None,['epub'],boollist+['smart']),
                'logpage_at_end':(None,['epub'],boollist),
-               
+
                'windows_eol':(None,['txt'],boollist),
-               
+
                'include_images':(None,['epub','html'],boollist),
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
@@ -205,6 +206,7 @@ def get_valid_scalar_entries():
                  'rating',
                  'numChapters',
                  'numWords',
+                 'words_added', # logpage only.
                  'site',
                  'storyId',
                  'title',
@@ -376,9 +378,9 @@ def make_generate_cover_settings(param):
                 (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                 re_compile(regexp,line)
                 vlist.append((template,regexp,setting))
-            except Exception, e: 
+            except Exception, e:
                 raise exceptions.PersonalIniFailed(e,line,param)
-                
+
     return vlist
 
 
@@ -389,9 +391,9 @@ class Configuration(ConfigParser.SafeConfigParser):
         ConfigParser.SafeConfigParser.__init__(self)
 
         self.lightweight = lightweight
-        
+
         self.linenos=dict() # key by section or section,key -> lineno
-        
+
         ## [injected] section has even less priority than [defaults]
         self.sectionslist = ['defaults','injected']
 
@@ -399,17 +401,17 @@ class Configuration(ConfigParser.SafeConfigParser):
         ## but before site-specific.
         for section in sections[:-1]:
             self.addConfigSection(section)
-        
+
         if site.startswith("www."):
             sitewith = site
             sitewithout = site.replace("www.","")
         else:
             sitewith = "www."+site
             sitewithout = site
-        
+
         self.addConfigSection(sitewith)
         self.addConfigSection(sitewithout)
-        
+
         if fileform:
             self.addConfigSection(fileform)
             ## add other sections:fileform (not including site DN)
@@ -419,9 +421,9 @@ class Configuration(ConfigParser.SafeConfigParser):
             self.addConfigSection(sitewith+":"+fileform)
             self.addConfigSection(sitewithout+":"+fileform)
         self.addConfigSection("overrides")
-        
+
         self.listTypeEntries = get_valid_list_entries()
-        
+
         self.validEntries = get_valid_entries()
 
         self.url_config_set = False
@@ -446,7 +448,7 @@ class Configuration(ConfigParser.SafeConfigParser):
 
     def isListType(self,key):
         return key in self.listTypeEntries or self.hasConfig("include_in_"+key)
-        
+
     def isValidMetaEntry(self, key):
         return key in self.getValidMetaList()
 
@@ -476,7 +478,7 @@ class Configuration(ConfigParser.SafeConfigParser):
     # used by adapters & writers, non-convention naming style
     def getConfig(self, key, default=""):
         return self.get_config(self.sectionslist,key,default)
-    
+
     def get_config(self, sections, key, default=""):
         val = default
         for section in sections:
@@ -496,7 +498,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                 #print "getConfig(add_to_%s)=[%s]%s" % (key,section,val)
             except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
                 pass
-            
+
         return val
 
     # split and strip each.
@@ -508,7 +510,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             return default
         else:
             return vlist
-    
+
     # used by adapters & writers, non-convention naming style
     def getConfigList(self, key, default=[]):
         return self.get_config_list(self.sectionslist, key, default)
@@ -522,7 +524,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             return self.linenos.get(section+','+key,None)
         else:
             return self.linenos.get(section,None)
-    
+
     ## Copied from Python 2.7 library so as to make read utf8.
     def read(self, filenames):
         """Read and parse a filename or a list of filenames.
@@ -546,7 +548,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             fp.close()
             read_ok.append(filename)
         return read_ok
-    
+
     ## Copied from Python 2.7 library so as to make it save linenos too.
     #
     # Regular expressions for parsing section headers and options.
@@ -626,7 +628,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                             optval = ''
                         optname = self.optionxform(optname.rstrip())
                         cursect[optname] = optval
-                        self.linenos[cursect['__name__']+','+optname]=lineno                        
+                        self.linenos[cursect['__name__']+','+optname]=lineno
                     else:
                         # a non-fatal parsing error occurred.  set up the
                         # exception but keep going. the exception will be
@@ -654,11 +656,11 @@ class Configuration(ConfigParser.SafeConfigParser):
         from story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings')
-        
+
         generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings')
-        
+
         valdict = get_valid_set_options()
-        
+
         for section in self.sections():
             allow_all_section = allow_all_sections_re.match(section)
             if section not in allowedsections and not allow_all_section:
@@ -674,17 +676,17 @@ class Configuration(ConfigParser.SafeConfigParser):
                 elif sitename in othersections:
                     formatname = None
                     sitename = None
-                    
+
                 ## check each keyword in section.  Due to precedence
                 ## order of sections, it's possible for bad lines to
                 ## never be used.
                 for keyword,value in self.items(section):
                     try:
-                        
+
                         ## check regex bearing keywords first.  Each
                         ## will raise exceptions if flawed.
                         if clude_metadata_re.match(keyword):
-                            set_in_ex_clude(value)    
+                            set_in_ex_clude(value)
 
                         if replace_metadata_re.match(keyword):
                             make_replacements(value)
@@ -716,7 +718,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                         ## used with CLI/web yet.
 
                     except Exception as e:
-                        errors.append((self.get_lineno(section,keyword),"Error:%s in (%s:%s)"%(e,keyword,value)))                
+                        errors.append((self.get_lineno(section,keyword),"Error:%s in (%s:%s)"%(e,keyword,value)))
 
         return errors
 
@@ -731,7 +733,7 @@ class Configurable(object):
 
     def addUrlConfigSection(self,url):
         self.configuration.addUrlConfigSection(url)
-        
+
     def isListType(self,key):
         return self.configuration.isListType(key)
 
@@ -740,10 +742,10 @@ class Configurable(object):
 
     def getValidMetaList(self):
         return self.configuration.getValidMetaList()
-    
+
     def hasConfig(self, key):
-        return self.configuration.hasConfig(key)        
-        
+        return self.configuration.hasConfig(key)
+
     def has_config(self, sections, key):
         return self.configuration.has_config(sections, key)
 

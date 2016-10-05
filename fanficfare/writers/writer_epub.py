@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 from base_writer import *
 from ..htmlcleanup import stripHTML,removeEntities
+from ..story import commaGroups
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +207,7 @@ div { margin: 0pt; padding: 0pt; }
         # to add to.
         if self.story.logfile:
             logger.debug("existing logfile found, appending")
-            logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
+            # logger.debug("existing data:%s"%self._getLastLogData(self.story.logfile))
             replace_string = "</body>" # "</h3>"
             self._write(out,self.story.logfile.replace(replace_string,self._makeLogEntry(self._getLastLogData(self.story.logfile))+replace_string))
         else:
@@ -252,6 +253,14 @@ div { margin: 0pt; padding: 0pt; }
             END = self.EPUB_LOG_UPDATE_END
 
         retval = START.substitute(self.story.getAllMetadata())
+
+        ## words_added is only used in logpage because it's the only
+        ## place we know the previous version's word count.
+        if 'words_added' in (self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries")):
+            new_words = self.story.getMetadata('numWords')
+            old_words = oldvalues.get('numWords',None)
+            if new_words and old_words:
+                self.story.setMetadata('words_added',commaGroups(unicode(int(new_words.replace(',',''))-int(old_words.replace(',','')))))
 
         for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
             if self.isValidMetaEntry(entry):
