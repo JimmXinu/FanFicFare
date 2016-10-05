@@ -275,7 +275,8 @@ def do_download(arg,
                                       passed_defaultsini,
                                       passed_personalini,
                                       options,
-                                      chaptercount)
+                                      chaptercount,
+                                      output_filename)
 
     try:
         adapter = adapters.getAdapter(configuration, url)
@@ -396,7 +397,8 @@ def get_configuration(url,
                       passed_defaultsini,
                       passed_personalini,
                       options,
-                      chaptercount=None):
+                      chaptercount=None,
+                      output_filename=None):
     try:
         configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
     except exceptions.UnknownSite, e:
@@ -441,7 +443,7 @@ def get_configuration(url,
     if options.force:
         configuration.set('overrides', 'always_overwrite', 'true')
 
-    if options.update and chaptercount:
+    if options.update and chaptercount and output_filename:
         configuration.set('overrides', 'output_filename', output_filename)
 
     if options.update and not options.updatecover:
