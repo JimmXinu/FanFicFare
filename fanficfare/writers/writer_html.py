@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class HTMLWriter(BaseStoryWriter):
 
     def __init__(self, config, story):
         BaseStoryWriter.__init__(self, config, story)
-        
+
         self.HTML_FILE_START = string.Template('''<!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,7 @@ ${output_css}
         self.HTML_COVER = string.Template('''
 <img src="${coverimg}" alt="cover" />
 ''')
-        
+
         self.HTML_TITLE_PAGE_START = string.Template('''
 <table class="full">
 ''')
@@ -62,14 +62,14 @@ ${output_css}
 ''')
 
         self.HTML_TOC_PAGE_START = string.Template('''
-<a name="TOCTOP"><h2>Table of Contents</h2>
+<a name="TOCTOP"><h2>Table of Contents</h2></a>
 <p>
 ''')
 
         self.HTML_TOC_ENTRY = string.Template('''
 <a href="#section${index}">${chapter}</a><br />
 ''')
-                          
+
         self.HTML_TOC_PAGE_END = string.Template('''
 </p>
 ''')
@@ -100,12 +100,12 @@ ${output_css}
             FILE_END = string.Template(self.getConfig("file_end"))
         else:
             FILE_END = self.HTML_FILE_END
-        
+
         self._write(out,FILE_START.substitute(self.story.getAllMetadata()))
 
         if self.getConfig('include_images') and self.story.cover:
             self._write(out,COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
-            
+
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
                             self.HTML_TITLE_ENTRY,
@@ -120,12 +120,12 @@ ${output_css}
             CHAPTER_START = string.Template(self.getConfig("chapter_start"))
         else:
             CHAPTER_START = self.HTML_CHAPTER_START
-        
+
         if self.hasConfig('chapter_end'):
             CHAPTER_END = string.Template(self.getConfig("chapter_end"))
         else:
             CHAPTER_END = self.HTML_CHAPTER_END
-        
+
         for index, chap in enumerate(self.story.getChapters()):
             if chap.html:
                 logging.debug('Writing chapter text for: %s' % chap.title)
@@ -139,4 +139,4 @@ ${output_css}
         if self.getConfig('include_images'):
             for imgmap in self.story.getImgUrls():
                 self.writeFile(imgmap['newsrc'],imgmap['data'])
-        
+
