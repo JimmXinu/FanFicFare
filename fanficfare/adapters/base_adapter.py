@@ -84,7 +84,7 @@ class BaseSiteAdapter(Configurable):
 
     def __init__(self, configuration, url):
         Configurable.__init__(self, configuration)
-        
+
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
@@ -113,7 +113,7 @@ class BaseSiteAdapter(Configurable):
         self.logfile = None
 
         self.pagecache = self.get_empty_pagecache()
-        
+
         ## order of preference for decoding.
         self.decode = ["utf8",
                        "Windows-1252"] # 1252 is a superset of
@@ -135,17 +135,17 @@ class BaseSiteAdapter(Configurable):
         saveheaders = self.opener.addheaders
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
-        
+
     def load_cookiejar(self,filename):
         '''
         Needs to be called after adapter create, but before any fetchs
         are done.  Takes file *name*.
         '''
         self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
-        
+
     def get_pagecache(self):
         return self.pagecache
-    
+
     def set_pagecache(self,d):
         self.pagecache=d
 
@@ -159,7 +159,7 @@ class BaseSiteAdapter(Configurable):
 
     def _has_cachekey(self,cachekey):
         return self.use_pagecache() and cachekey in self.get_pagecache()
-    
+
     def _get_from_pagecache(self,cachekey):
         if self.use_pagecache():
             return self.get_pagecache().get(cachekey)
@@ -176,18 +176,18 @@ class BaseSiteAdapter(Configurable):
         this and change it to True.
         '''
         return False
-        
+
     # def story_load(self,filename):
     #     d = pickle.load(self.story.metadata,filename)
     #     self.story.metadata = d['metadata']
     #     self.chapterUrls = d['chapterlist']
     #     self.story.metadataDone = True
-        
+
     def _setURL(self,url):
         self.url = url
         self.parsedUrl = up.urlparse(url)
         self.host = self.parsedUrl.netloc
-        self.path = self.parsedUrl.path        
+        self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
 
 ## website encoding(s)--in theory, each website reports the character
@@ -201,7 +201,7 @@ class BaseSiteAdapter(Configurable):
             decode = self.getConfigList('website_encodings')
         else:
             decode = self.decode
-        
+
         for code in decode:
             try:
                 #print code
@@ -230,7 +230,7 @@ class BaseSiteAdapter(Configurable):
                  usecache=True):
         '''
         When should cache be cleared or not used? logins...
-        
+
         extrasleep is primarily for ffnet adapter which has extra
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
@@ -240,7 +240,7 @@ class BaseSiteAdapter(Configurable):
             logger.debug("#####################################\npagecache HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
             return data
-        
+
         logger.debug("#####################################\npagecache MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
@@ -261,19 +261,19 @@ class BaseSiteAdapter(Configurable):
                      parameters=None,
                      extrasleep=None,
                      usecache=True):
-        
+
         return self._fetchUrlRawOpened(url,
                                        parameters,
                                        extrasleep,
                                        usecache)[0]
-        
+
     def _fetchUrlRawOpened(self, url,
                            parameters=None,
                            extrasleep=None,
                            usecache=True):
         '''
         When should cache be cleared or not used? logins...
-        
+
         extrasleep is primarily for ffnet adapter which has extra
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
@@ -289,7 +289,7 @@ class BaseSiteAdapter(Configurable):
                 def geturl(self): return self.url
                 def read(self): return self.data
             return (data,FakeOpened(data,redirecturl))
-        
+
         logger.debug("#####################################\npagecache MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
         if parameters != None:
@@ -298,13 +298,13 @@ class BaseSiteAdapter(Configurable):
             opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
         data = opened.read()
         self._set_to_pagecache(cachekey,data,opened.url)
-        
+
         return (data,opened)
 
     def set_sleep(self,val):
         logger.debug("\n===========\n set sleep time %s\n==========="%val)
         self.override_sleep = val
-    
+
     def do_sleep(self,extrasleep=None):
         if extrasleep:
             time.sleep(float(extrasleep))
@@ -312,7 +312,7 @@ class BaseSiteAdapter(Configurable):
             time.sleep(float(self.override_sleep))
         elif self.getConfig('slow_down_sleep_time'):
             time.sleep(float(self.getConfig('slow_down_sleep_time')))
-        
+
     def _fetchUrl(self, url,
                   parameters=None,
                   usecache=True,
@@ -330,7 +330,7 @@ class BaseSiteAdapter(Configurable):
 
         excpt=None
         for sleeptime in [0, 0.5, 4, 9]:
-            time.sleep(sleeptime)	
+            time.sleep(sleeptime)
             try:
                 (data,opened)=self._fetchUrlRawOpened(url,
                                                       parameters=parameters,
@@ -345,7 +345,7 @@ class BaseSiteAdapter(Configurable):
             except Exception, e:
                 excpt=e
                 logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
-                
+
         logger.error("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)
         raise(excpt)
@@ -357,11 +357,15 @@ class BaseSiteAdapter(Configurable):
         if last:
             self.chapterLast=int(last)-1
         self.story.set_chapters_range(first,last)
-    
+
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
             self.getStoryMetadataOnly(get_cover=True)
+
+            ## one-off step to normalize old chapter URLs if present.
+            if self.oldchaptersmap:
+                self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
 
             for index, (title,url) in enumerate(self.chapterUrls):
                 newchap = False
@@ -388,7 +392,7 @@ class BaseSiteAdapter(Configurable):
                                url in self.oldchaptersdata and (
                             self.oldchaptersdata[url]['chapterorigtitle'] !=
                             self.oldchaptersdata[url]['chaptertitle']) )
-                    
+
                     if not data:
                         data = self.getChapterText(url)
                         # if had to fetch and has existing chapters
@@ -400,13 +404,13 @@ class BaseSiteAdapter(Configurable):
                         # anyway--only if it's replaced during an
                         # update.
                         newchap = False
-                        
+
                     self.story.addChapter(url,
                                           removeEntities(title),
                                           removeEntities(data),
                                           newchap)
             self.storyDone = True
-            
+
             # include image, but no cover from story, add default_cover_image cover.
             if self.getConfig('include_images') and \
                     not self.story.cover and \
@@ -423,26 +427,30 @@ class BaseSiteAdapter(Configurable):
             if not self.story.cover and self.oldcover:
                 self.story.oldcover = self.oldcover
                 self.story.setMetadata('cover_image','old')
-                
+
             # cheesy way to carry calibre bookmark file forward across update.
             if self.calibrebookmark:
                 self.story.calibrebookmark = self.calibrebookmark
             if self.logfile:
                 self.story.logfile = self.logfile
-                
+
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:
             self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
-            
+
             if not self.story.getMetadataRaw('dateUpdated'):
                 if self.story.getMetadataRaw('datePublished'):
                     self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
                 else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
 
             self.metadataDone = True
+            # normalize chapter urls.
+            for index, (title,url) in enumerate(self.chapterUrls):
+                self.chapterUrls[index] = (title,self.normalize_chapterurl(url))
+
         return self.story
 
     def setStoryMetadata(self,metahtml):
@@ -453,36 +461,36 @@ class BaseSiteAdapter(Configurable):
                 if self.story.getMetadataRaw('datePublished'):
                     self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
                 else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))                
-    
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
+
     def hookForUpdates(self,chaptercount):
         "Usually not needed."
         return chaptercount
 
     ###############################
-    
+
     @staticmethod
     def getSiteDomain():
         "Needs to be overriden in each adapter class."
         return 'no such domain'
-    
+
     @classmethod
     def getConfigSection(cls):
         "Only needs to be overriden if != site domain."
         return cls.getSiteDomain()
-    
+
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
         return [cls.getConfigSection()]
-    
+
     @classmethod
     def stripURLParameters(cls,url):
         "Only needs to be overriden if URL contains more than one parameter"
         ## remove any trailing '&' parameters--?sid=999 will be left.
         ## that's all that any of the current adapters need or want.
         return re.sub(r"&.*$","",url)
-    
+
     ## URL pattern validation is done *after* picking an adaptor based
     ## on domain instead of *as* the adaptor selector so we can offer
     ## the user example(s) for that particular site.
@@ -490,7 +498,7 @@ class BaseSiteAdapter(Configurable):
     def getSiteURLPattern(self):
         "Used to validate URL.  Should be override in each adapter class."
         return '^http://'+re.escape(self.getSiteDomain())
-    
+
     @classmethod
     def getSiteExampleURLs(cls):
         """
@@ -500,7 +508,7 @@ class BaseSiteAdapter(Configurable):
         validateURL method.
         """
         return 'no such example'
-    
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         '''
         There are a handful of adapters that fetch a cover image while
@@ -509,7 +517,7 @@ class BaseSiteAdapter(Configurable):
         this instead of extractChapterUrlsAndMetadata()
         '''
         return self.extractChapterUrlsAndMetadata()
-    
+
     def extractChapterUrlsAndMetadata(self):
         "Needs to be overriden in each adapter class.  Populates self.story metadata and self.chapterUrls"
         pass
@@ -561,7 +569,7 @@ class BaseSiteAdapter(Configurable):
             # bs4
             return soup.attrs.keys()
         return []
-        
+
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
@@ -570,12 +578,12 @@ class BaseSiteAdapter(Configurable):
             fetch=self._fetchUrlRaw
 
         acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id'])
-        
+
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')
         if self.getConfig("keep_title_attr"):
             acceptable_attributes.append('title')
-            
+
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
             acceptable_attributes.extend(('src','alt','longdesc'))
@@ -592,6 +600,19 @@ class BaseSiteAdapter(Configurable):
             if attr not in acceptable_attributes:
                 del soup[attr] ## strip all tag attributes except href and name
 
+        ## apply adapter's normalize_chapterurls to all links in
+        ## chapter texts, if they match chapter URLs.  While this will
+        ## be occasionally helpful by itself, it's really for the next
+        ## feature: internal text links.
+        if self.getConfig('normalize_text_links'):
+            for alink in soup.find_all('a'):
+                # try:
+                if alink.has_attr('href'):
+                    logger.debug("normalize_text_links %s -> %s"%(alink['href'],self.normalize_chapterurl(alink['href'])))
+                    alink['href'] = self.normalize_chapterurl(alink['href'])
+                # except AttributeError as ae:
+                #     logger.info("Parsing for normalize_text_links failed...")
+
         try:
             # as a generator, each tag will be returned even if there's a
             # mismatch at the end.
@@ -599,8 +620,8 @@ class BaseSiteAdapter(Configurable):
                 for attr in self.get_attr_keys(t):
                     if attr not in acceptable_attributes:
                         del t[attr] ## strip all tag attributes except acceptable_attributes
-    
-                # these are not acceptable strict XHTML.  But we do already have 
+
+                # these are not acceptable strict XHTML.  But we do already have
                 # CSS classes of the same names defined
                 if t and hasattr(t,'name') and t.name is not None:
                     if t.name in self.getConfigList('replace_tags_with_spans',['u']):
@@ -616,11 +637,11 @@ class BaseSiteAdapter(Configurable):
                     # remove script tags cross the board.
                     if t.name=='script':
                         t.extract()
-                        
+
         except AttributeError, ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
-        
+
         retval = unicode(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
@@ -629,16 +650,16 @@ class BaseSiteAdapter(Configurable):
             # that under the text for the rest of the chapter.
             retval = re.sub(r"(?!<(div|p)>)\s*(?P<imgtag><img[^>]+>)\s*(?!</(div|p)>)",
                             "<div>\g<imgtag></div>",retval)
-            
+
         # Don't want html, head or body tags in chapter html--writers add them.
         # This is primarily for epub updates.
         retval = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",retval)
-        
+
         if self.getConfig("replace_br_with_p") and allow_replace_br_with_p:
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
             retval = replace_br_with_p(retval)
-            
+
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the
             # soup is more difficult than it first appears.  So cheat.
@@ -648,31 +669,35 @@ class BaseSiteAdapter(Configurable):
 
     def make_soup(self,data):
         '''
-        Convenience method for getting a bs4 soup.  Older and
-        non-updated adapters call the included bs3 library themselves.
+        Convenience method for getting a bs4 soup.  bs3 has been removed.
         '''
-        
+
         ## html5lib handles <noscript> oddly.  See:
         ## https://bugs.launchpad.net/beautifulsoup/+bug/1277464
         ## This should 'hide' and restore <noscript> tags.
         data = data.replace("noscript>","fff_hide_noscript>")
-        
+
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
         soup = bs4.BeautifulSoup(data,'html5lib')
         soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
-        
+
         for ns in soup.find_all('fff_hide_noscript'):
             ns.name = 'noscript'
-            
+
         return soup
-    
+
+    ## For adapters, especially base_xenforoforum to override.  Make
+    ## sure to return unchanged URL if it's NOT a chapter URL...
+    def normalize_chapterurl(self,url):
+        return url
+
 def cachedfetch(realfetch,cache,url):
     if url in cache:
         return cache[url]
     else:
         return realfetch(url)
-    
+
 fullmon = {u"January":u"01", u"February":u"02", u"March":u"03", u"April":u"04", u"May":u"05",
            u"June":u"06","July":u"07", u"August":u"08", u"September":u"09", u"October":u"10",
            u"November":u"11", u"December":u"12" }
@@ -687,7 +712,7 @@ def makeDate(string,dateform):
     # lie.  It has to do something even more complicated to get
     # Russian month names correct everywhere.
     do_abbrev = "%b" in dateform
-        
+
     if u"%B" in dateform or do_abbrev:
         dateform = dateform.replace(u"%B",u"%m").replace(u"%b",u"%m")
         for (name,num) in fullmon.items():
@@ -708,10 +733,10 @@ def makeDate(string,dateform):
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
     date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
-    
+
     if add_hours:
         date += timedelta(hours=12)
-            
+
     return date
 
 # .? for AO3's ']' in param names.

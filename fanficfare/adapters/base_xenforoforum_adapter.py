@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2015 FanFicFare team
+# Copyright 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,6 +85,62 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
 
+    ## For adapters, especially base_xenforoforum to override.  Make
+    ## sure to return unchanged URL if it's NOT a chapter URL.  This
+    ## is most helpful for xenforoforum because threadmarks use
+    ## thread-name URLs--which can change if the thread name changes.
+    def normalize_chapterurl(self,url):
+        (is_chapter_url,normalized_url) = self._is_normalize_chapterurl(url)
+        if is_chapter_url:
+            return normalized_url
+        else:
+            return url
+
+    ## returns (is_chapter_url,normalized_url)
+    def _is_normalize_chapterurl(self,url):
+        is_chapter_url = False
+
+        ## moved from extract metadata to share with normalize_chapterurl.
+        if not url.startswith('http'):
+            url = self.getURLPrefix()+'/'+url
+
+        if ( url.startswith(self.getURLPrefix()) or
+             url.startswith('http://'+self.getSiteDomain()) or
+             url.startswith('https://'+self.getSiteDomain()) ) and \
+             ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
+            # brute force way to deal with SB's http->https change when hardcoded http urls.
+            url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+
+            # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
+            url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
+
+            # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
+            url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',r'/posts/\1/',url)
+
+            url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
+            url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
+
+            #### moved from getChapterText()
+            ## there's some history of stories with links to the wrong
+            ## page.  This changes page#post URLs to perma-link URLs.
+            ## Which will be redirected back to page#posts, but the
+            ## *correct* ones.
+            # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/page-4#post-39915
+            # https://forums.sufficientvelocity.com/posts/39915/
+            if '#post-' in url:
+                url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
+
+            ## Same as above except for for case where author mistakenly
+            ## used the reply link instead of normal link to post.
+            # "http://forums.spacebattles.com/threads/manager-worm-story-thread-iv.301602/reply?quote=15962513"
+            # https://forums.spacebattles.com/posts/
+            if 'reply?quote=' in url:
+                url = self.getURLPrefix()+'/posts/'+url.split('reply?quote=')[1]+'/'
+
+            is_chapter_url = True
+        return (is_chapter_url,url)
+
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -119,7 +175,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # params[soup.find('input', {'id':'password'})['name']] = params['password']
 
         d = self._fetchUrl(loginUrl, params)
-    
+
         if "Log Out" not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                              params['login']))
@@ -183,7 +239,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     threadmark_chaps = True
                     if self.getConfig('always_include_first_post'):
                         self.chapterUrls.append((first_post_title,useurl))
-                    
+
                     for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
                         date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
@@ -202,7 +258,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if self.getConfig('capitalize_forumtags'):
                     tstr = tstr.title()
                 self.story.addToList('forumtags',tstr)
-            
+
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
 
@@ -222,28 +278,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if not self.chapterUrls:
             self.chapterUrls.append((first_post_title,useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
-                #logger.debug("found chapurl:%s"%url)
-                if not url.startswith('http'):
-                    url = self.getURLPrefix()+'/'+url
 
-                if ( url.startswith(self.getURLPrefix()) or
-                     url.startswith('http://'+self.getSiteDomain()) or
-                     url.startswith('https://'+self.getSiteDomain()) ) and \
-                     ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
-
-                    # brute force way to deal with SB's http->https change when hardcoded http urls.
-                    url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
-
-                    # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
-                    url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
-
-                    # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
-                    url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',r'/posts/\1/',url)
-
-                    url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
-                    url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
-
-                    logger.debug("(ch:%s)used chapurl:%s"%(len(self.chapterUrls)+1,url))
+                (is_chapter_url,url) = self._is_normalize_chapterurl(url)
+                if is_chapter_url:
                     self.chapterUrls.append((name,url))
                     if url == useurl and first_post_title == self.chapterUrls[0][0] \
                             and not self.getConfig('always_include_first_post',False):
@@ -286,22 +323,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        ## there's some history of stories with links to the wrong
-        ## page.  This changes page#post URLs to perma-link URLs.
-        ## Which will be redirected back to page#posts, but the
-        ## *correct* ones.
-        # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/page-4#post-39915
-        # https://forums.sufficientvelocity.com/posts/39915/
-        if '#post-' in url:
-            url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
-
-        ## Same as above except for for case where author mistakenly
-        ## used the reply link instead of normal link to post.
-        # "http://forums.spacebattles.com/threads/manager-worm-story-thread-iv.301602/reply?quote=15962513"
-        # https://forums.spacebattles.com/posts/
-        if 'reply?quote=' in url:
-            url = self.getURLPrefix()+'/posts/'+url.split('reply?quote=')[1]+'/'
-
         try:
             origurl = url
             (data,opened) = self._fetchUrlOpened(url)
@@ -309,20 +330,20 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             if '#' in origurl and '#' not in url:
                 url = url + origurl[origurl.index('#'):]
             logger.debug("chapter URL redirected to: %s"%url)
-            
+
             soup = self.make_soup(data)
-    
+
             if '#' in url:
                 anchorid = url.split('#')[1]
                 soup = soup.find('li',id=anchorid)
-    
+
             bq = soup.find('blockquote')
-    
+
             bq.name='div'
-    
+
             for iframe in bq.find_all('iframe'):
                 iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-    
+
             for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
                 qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
@@ -330,7 +351,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## include lazy load images.
             for img in bq.find_all('img',{'class':'lazyload'}):
                 img['src'] = img['data-src']
-    
+
         except Exception as e:
             if self.getConfig('continue_on_chapter_error'):
                 bq = self.make_soup("""<div>

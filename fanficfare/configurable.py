@@ -184,6 +184,7 @@ def get_valid_set_options():
                'include_images':(None,['epub','html'],boollist),
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
+               'normalize_text_links':(None,['epub','html'],boollist),
 
                'capitalize_forumtags':(base_xenforo_list,None,boollist),
                'continue_on_chapter_error':(base_xenforo_list,None,boollist),
@@ -361,7 +362,7 @@ def get_valid_keywords():
                  'minimum_threadmarks',
                  'first_post_title',
                  'always_include_first_post',
-                 '',
+                 'normalize_text_links',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
