@@ -608,7 +608,7 @@ class BaseSiteAdapter(Configurable):
             for alink in soup.find_all('a'):
                 # try:
                 if alink.has_attr('href'):
-                    logger.debug("normalize_text_links %s -> %s"%(alink['href'],self.normalize_chapterurl(alink['href'])))
+                    # logger.debug("normalize_text_links %s -> %s"%(alink['href'],self.normalize_chapterurl(alink['href'])))
                     alink['href'] = self.normalize_chapterurl(alink['href'])
                 # except AttributeError as ae:
                 #     logger.info("Parsing for normalize_text_links failed...")

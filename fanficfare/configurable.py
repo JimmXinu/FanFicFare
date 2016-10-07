@@ -128,6 +128,12 @@ def get_valid_set_options():
     This is to further restrict keywords to certain sections and/or
     values.  get_valid_keywords() below is the list of allowed
     keywords.  Any keyword listed here must also be listed there.
+
+    This is what's used by the code when you save personal.ini in
+    plugin that stops and points out possible errors in keyword
+    *values*.  It doesn't flag 'bad' keywords.  Note that it's
+    separate from color highlighting and most keywords need to be
+    added to both.
     '''
 
     valdict = {'collect_series':(None,None,boollist),
@@ -185,6 +191,7 @@ def get_valid_set_options():
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
                'normalize_text_links':(None,['epub','html'],boollist),
+               'internalize_text_links':(None,['epub','html'],boollist),
 
                'capitalize_forumtags':(base_xenforo_list,None,boollist),
                'continue_on_chapter_error':(base_xenforo_list,None,boollist),
@@ -230,6 +237,11 @@ def get_valid_entries():
 
 # *known* keywords -- or rather regexps for them.
 def get_valid_keywords():
+    '''
+    Among other things, this list is used by the color highlighting in
+    personal.ini editing in plugin.  Note that it's separate from
+    value checking and most keywords need to be added to both.
+    '''
     return list(['(in|ex)clude_metadata_(pre|post)',
                  'add_chapter_numbers',
                  'add_genre_when_multi_category',
@@ -362,7 +374,9 @@ def get_valid_keywords():
                  'minimum_threadmarks',
                  'first_post_title',
                  'always_include_first_post',
+                 'always_reload_first_chapter',
                  'normalize_text_links',
+                 'internalize_text_links',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.

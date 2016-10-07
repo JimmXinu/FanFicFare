@@ -18,6 +18,8 @@
 import logging
 import string
 
+import bs4
+
 from base_writer import *
 
 class HTMLWriter(BaseStoryWriter):
@@ -126,12 +128,37 @@ ${output_css}
         else:
             CHAPTER_END = self.HTML_CHAPTER_END
 
+        ## collect chapter urls and file names for internalize_text_links option.
+        chapurlmap = {}
         for index, chap in enumerate(self.story.getChapters()):
             if chap.html:
+                ## HTML_CHAPTER_START needs to have matching <a>
+                ## anchor to work.  Which it does by default.  This
+                ## could also be made configurable if some user
+                ## changed it.
+                chapurlmap[chap.url]="#section%04d"%(index+1) # url -> index
+
+        for index, chap in enumerate(self.story.getChapters()):
+            if chap.html:
+                chap_data = chap.html
+                if self.getConfig('internalize_text_links'):
+                    soup = bs4.BeautifulSoup(chap.html,'html5lib')
+                    changed=False
+                    for alink in soup.find_all('a'):
+                        if alink.has_attr('href') and alink['href'] in chapurlmap:
+                            alink['href']=chapurlmap[alink['href']]
+                            changed=True
+                    if changed:
+                        chap_data = unicode(soup)
+                        # Don't want html, head or body tags in
+                        # chapter html--bs4 insists on adding them.
+                        chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
+
+
                 logging.debug('Writing chapter text for: %s' % chap.title)
                 vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
                 self._write(out,CHAPTER_START.substitute(vals))
-                self._write(out,chap.html)
+                self._write(out,chap_data)
                 self._write(out,CHAPTER_END.substitute(vals))
 
         self._write(out,FILE_END.substitute(self.story.getAllMetadata()))

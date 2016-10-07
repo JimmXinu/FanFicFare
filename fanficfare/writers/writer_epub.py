@@ -27,6 +27,8 @@ import re
 ## use DOM to generate the XML files.
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 
+import bs4
+
 from base_writer import *
 from ..htmlcleanup import stripHTML,removeEntities
 from ..story import commaGroups
@@ -511,6 +513,8 @@ div { margin: 0pt; padding: 0pt; }
                           (self.story.logfile or self.story.getMetadataRaw("status") == "In-Progress") )  \
                      or self.getConfig("include_logpage") == "true"
 
+        ## collect chapter urls and file names for internalize_text_links option.
+        chapurlmap = {}
         for index, chap in enumerate(self.story.getChapters(fortoc=True)):
             if chap.html:
                 i=index+1
@@ -519,6 +523,7 @@ div { margin: 0pt; padding: 0pt; }
                               "application/xhtml+xml",
                               chap.title))
                 itemrefs.append("file%04d"%i)
+                chapurlmap[chap.url]="file%04d.xhtml"%i # url -> relative epub file name.
 
         if dologpage:
             if self.getConfig("logpage_at_end") == "true":
@@ -668,6 +673,20 @@ div { margin: 0pt; padding: 0pt; }
 
         for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
             if chap.html:
+                chap_data = chap.html
+                if self.getConfig('internalize_text_links'):
+                    soup = bs4.BeautifulSoup(chap.html,'html5lib')
+                    changed=False
+                    for alink in soup.find_all('a'):
+                        if alink.has_attr('href') and alink['href'] in chapurlmap:
+                            alink['href']=chapurlmap[alink['href']]
+                            changed=True
+                    if changed:
+                        chap_data = unicode(soup)
+                        # Don't want html, head or body tags in
+                        # chapter html--bs4 insists on adding them.
+                        chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
+
                 #logger.debug('Writing chapter text for: %s' % chap.title)
                 vals={'url':removeEntities(chap.url),
                       'chapter':removeEntities(chap.title),
@@ -679,7 +698,9 @@ div { margin: 0pt; padding: 0pt; }
                 for k,v in vals.items():
                     if isinstance(v,basestring): vals[k]=v.replace('"','&quot;')
                 fullhtml = CHAPTER_START.substitute(vals) + \
-                    chap.html + CHAPTER_END.substitute(vals)
+                    chap_data.strip() + \
+                    CHAPTER_END.substitute(vals)
+                # strip to avoid ever growning numbers of newlines.
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big
