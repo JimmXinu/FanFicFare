@@ -378,7 +378,10 @@ def do_download(arg,
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
         if not options.metaonly and adapter.getConfig('post_process_cmd'):
-            metadata = adapter.story.getAllMetadata()
+            if adapter.getConfig('post_process_apply_filename_safepattern',True):
+                metadata = adapter.story.get_filename_safe_metadata()
+            else:
+                metadata = adapter.story.getAllMetadata()
             metadata['output_filename'] = output_filename
             call(string.Template(adapter.getConfig('post_process_cmd')).substitute(metadata), shell=True)
 

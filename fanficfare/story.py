@@ -997,20 +997,28 @@ class Story(Configurable):
 
         return retval
 
+    def get_filename_safe_metadata(self):
+        origvalues = self.getAllMetadata()
+        values={}
+        pattern = re_compile(self.getConfig("output_filename_safepattern",
+                                            r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),
+                             "output_filename_safepattern")
+        for k in origvalues.keys():
+            if k == 'formatext': # don't do file extension--we set it anyway.
+                values[k]=self.getMetadata(k)
+            else:
+                values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
+        return values
+    
     def formatFileName(self,template,allowunsafefilename=True):
-        values = origvalues = self.getAllMetadata()
         # fall back default:
         if not template:
             template="${title}-${siteabbrev}_${storyId}${formatext}"
 
-        if not allowunsafefilename:
-            values={}
-            pattern = re_compile(self.getConfig("output_filename_safepattern",r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),"output_filename_safepattern")
-            for k in origvalues.keys():
-                if k == 'formatext': # don't do file extension--we set it anyway.
-                    values[k]=self.getMetadata(k)
-                else:
-                    values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
+        if allowunsafefilename:
+            values = self.getAllMetadata()
+        else:
+            values = self.get_filename_safe_metadata()
 
         return string.Template(template).substitute(values).encode('utf8')
 
