@@ -125,9 +125,10 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         rating=pt.text.split('[')[1].split(']')[0]
         self.story.setMetadata('rating', rating)
 
-        st = soup.find('div', {'class' : 'storytitle'})
-        a = st.findAll('a', href=re.compile(r'reviews.php\?type=ST&item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
-        self.story.setMetadata('reviews',stripHTML(a))
+        # site stopped showing reviews ~ Oct 2016
+        # st = soup.find('div', {'class' : 'storytitle'})
+        # a = st.findAll('a', href=re.compile(r'reviews.php\?type=ST&item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
+        # self.story.setMetadata('reviews',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
