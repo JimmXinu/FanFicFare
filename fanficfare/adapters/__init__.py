@@ -144,6 +144,7 @@ import adapter_kiarepositorymujajinet
 import adapter_fanfictionlucifaelcom
 import adapter_adultfanfictionorg
 import adapter_fictionhuntcom
+import adapter_royalroadl
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
