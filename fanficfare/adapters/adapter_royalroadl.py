@@ -142,9 +142,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             for tag in genre:
                 self.story.addToList('genre',tag)
 
-        rating=soup.find(attrs=dict(property="books:rating:value"))['content']
-        self.story.setMetadata('rating',rating)
-        logger.debug(self.story.getMetadata('rating'))
+        # 'rating' in FFF speak means G, PG, Teen, Restricted, etc.
+        # 'stars' is used instead for RR's 1-5 stars rating.
+        stars=soup.find(attrs=dict(property="books:rating:value"))['content']
+        self.story.setMetadata('stars',stars)
+        logger.debug(self.story.getMetadata('stars'))
 
         warning = soup.find('strong',text='Warning')
         if warning != None:
