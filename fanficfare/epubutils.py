@@ -110,12 +110,14 @@ def get_update_data(inputio,
             if( item.getAttribute("media-type") == "application/xhtml+xml" ):
                 href=relpath+item.getAttribute("href")
                 #print("---- item href:%s path part: %s"%(href,get_path_part(href)))
-                if re.match(r'.*/log_page\.x?html',href):
+                if re.match(r'.*/log_page(_u\d+)?\.x?html',href):
                     try:
                         logfile = epub.read(href).decode("utf-8")
                     except:
                         pass # corner case I bumped into while testing.
-                if re.match(r'.*/(file|chapter)\d+\.x?html',href):
+                if re.match(r'.*/(file|chapter)\d+(_u\d+)?\.x?html',href):
+                    # (_u\d+)? is from calibre convert naming files
+                    # 3/OEBPS/file0005_u3.xhtml etc.
                     if getsoups:
                         soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"),"html5lib")
                         for img in soup.findAll('img'):
