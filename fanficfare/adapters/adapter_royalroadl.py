@@ -132,7 +132,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # this is forum based so it's a bit ugly
-        description=soup.find('div',{'class':'description'})
+        description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})
         self.setDescription(url,description)
 
         dates = [tr.findAll('td')[1] for tr in chapters.findAll('tr')]
