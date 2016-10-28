@@ -161,6 +161,7 @@ default_prefs['wordcountmissing'] = False
 default_prefs['errorcol'] = ''
 default_prefs['save_all_errors'] = True
 default_prefs['savemetacol'] = ''
+default_prefs['lasttouchcol'] = ''
 default_prefs['custom_cols'] = {}
 default_prefs['custom_cols_newonly'] = {}
 default_prefs['allow_custcol_from_ini'] = True
@@ -193,7 +194,7 @@ def get_library_config(db):
         #print("get prefs from db")
         library_config = db.prefs.get_namespaced(PREFS_NAMESPACE,
                                                  PREFS_KEY_SETTINGS)
-        
+
         # if don't have any settings for FanFicFarePlugin, copy from
         # predecessor FanFictionDownLoaderPlugin.
         if library_config is None:
@@ -204,7 +205,7 @@ def get_library_config(db):
             # defaults.
             logger.info("Using default settings")
             library_config = copy.deepcopy(default_prefs)
-            
+
     return library_config
 
 # fake out so I don't have to change the prefs calls anywhere.  The
@@ -218,13 +219,13 @@ class PrefsFacade():
             # In the GUI plugin we want current db so we detect when
             # it's changed.  CLI plugin calls need to pass db in.
             return get_gui().current_db
-    
+
     def __init__(self,passed_db=None):
         self.default_prefs = default_prefs
         self.libraryid = None
         self.current_prefs = None
         self.passed_db=passed_db
-        
+
     def _get_prefs(self):
         libraryid = get_library_uuid(self._get_db())
         if self.current_prefs == None or self.libraryid != libraryid:
@@ -232,8 +233,8 @@ class PrefsFacade():
             self.libraryid = libraryid
             self.current_prefs = get_library_config(self._get_db())
         return self.current_prefs
-        
-    def __getitem__(self,k):            
+
+    def __getitem__(self,k):
         prefs = self._get_prefs()
         if k not in prefs:
             # pulls from default_prefs.defaults automatically if not set
@@ -253,6 +254,6 @@ class PrefsFacade():
 
     def save_to_db(self):
         set_library_config(self._get_prefs(),self._get_db())
-        
+
 prefs = PrefsFacade()
 

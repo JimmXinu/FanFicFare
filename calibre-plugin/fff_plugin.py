@@ -1223,7 +1223,7 @@ class FanFicFarePlugin(InterfaceAction):
             if story.getMetadataRaw('dateCreated'):
                 book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
             else:
-                book['timestamp'] = None # need *something* there for calibre.
+                book['timestamp'] = datetime.now() # need *something* there for calibre.
 
         if not merge:# skip all the collision code when d/ling for merging.
             if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
@@ -1476,7 +1476,7 @@ class FanFicFarePlugin(InterfaceAction):
                     <p>%s</p>'''%(
                 _('None of the <b>%d</b> URLs/stories given can be/need to be downloaded.')%len(book_list),
                 _('See log for details.'),
-                _('Proceed with updating your library(Error Column, if configured)?'))
+                _('Proceed with updating your library(Error or Last Touch Columns, if configured)?'))
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in book_list:
@@ -1540,10 +1540,14 @@ class FanFicFarePlugin(InterfaceAction):
         if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
             label = custom_columns[prefs['errorcol']]['label']
             if not book['good'] and (book['showerror'] or prefs['save_all_errors']):
-                logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
+                #logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
                 self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True) # book['comment']
             else:
                 self.set_custom(db, book['calibre_id'], '(none)', '', label=label, commit=True) # book['comment']
+
+        if book['calibre_id'] and prefs['lasttouchcol'] != '' and prefs['lasttouchcol'] in custom_columns:
+            label = custom_columns[prefs['lasttouchcol']]['label']
+            self.set_custom(db, book['calibre_id'], 'lasttouchcol', book['timestamp'], label=label, commit=True)
 
         if not book['good']:
             return # only update errorcol on error.
@@ -1845,7 +1849,11 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.gui.status_bar.show_message(_('FanFicFare Adding/Updating books.'))
 
-        if good_list or prefs['mark'] or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in self.gui.library_view.model().custom_columns):
+        columns = self.gui.library_view.model().custom_columns
+        if good_list \
+                or prefs['mark'] \
+                or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in columns) \
+                or (prefs['lasttouchcol'] != '' and prefs['lasttouchcol'] in columns):
             LoopProgressDialog(self.gui,
                                good_list+bad_list,
                                partial(self.update_books_loop, options=options, db=self.gui.current_db),
@@ -1858,25 +1866,34 @@ class FanFicFarePlugin(InterfaceAction):
         '''Update custom error column if configured.'''
         (empty_list,book_list,options)=payload
         custom_columns = self.gui.library_view.model().custom_columns
-        if prefs['mark'] or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
+        if prefs['mark'] \
+                or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns)\
+                or (prefs['lasttouchcol'] != '' and prefs['lasttouchcol'] in custom_columns):
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
             self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.')%len(book_list))
             if (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
-                label = custom_columns[prefs['errorcol']]['label']
+                errorcol_label = custom_columns[prefs['errorcol']]['label']
             else:
-                label = None
+                errorcol_label = None
+            if (prefs['lasttouchcol'] != '' and prefs['lasttouchcol'] in custom_columns):
+                lasttouchcol_label = custom_columns[prefs['lasttouchcol']]['label']
+            else:
+                lasttouchcol_label = None
             LoopProgressDialog(self.gui,
                                book_list,
-                               partial(self.update_error_column_loop, db=self.gui.current_db, label=label),
+                               partial(self.update_error_column_loop, db=self.gui.current_db, errorcol_label=errorcol_label, lasttouchcol_label=lasttouchcol_label),
                                partial(self.update_books_finish, options=options),
                                init_label=_("Updating calibre for BAD FanFiction stories..."),
                                win_title=_("Update calibre for BAD FanFiction stories"),
                                status_prefix=_("Updated"))
 
-    def update_error_column_loop(self,book,db=None,label=None):
-        if book['calibre_id'] and label and (book['showerror'] or prefs['save_all_errors']):
-            logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-            self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True)
+    def update_error_column_loop(self,book,db=None,errorcol_label=None,lasttouchcol_label=None):
+        if book['calibre_id'] and errorcol_label and (book['showerror'] or prefs['save_all_errors']):
+            #logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
+            self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=errorcol_label, commit=True)
+        if book['calibre_id'] and lasttouchcol_label and (book['showerror'] or prefs['save_all_errors']):
+            #logger.debug("lasttouchcol %s %s %s"%(book['title'],book['url'],book['timestamp']))
+            self.set_custom(db, book['calibre_id'], 'comment', book['timestamp'], label=lasttouchcol_label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
@@ -1984,6 +2001,11 @@ class FanFicFarePlugin(InterfaceAction):
         if 'savemetacol' in book and prefs['savemetacol'] != '' and prefs['savemetacol'] in custom_columns:
             label = custom_columns[prefs['savemetacol']]['label']
             self.set_custom(db, book_id, 'comment', book['savemetacol'], label=label, commit=True)
+
+        # save lasttouch for new books.  Otherwise new books don't get lasttouch
+        if prefs['lasttouchcol'] != '' and prefs['lasttouchcol'] in custom_columns:
+            label = custom_columns[prefs['lasttouchcol']]['label']
+            self.set_custom(db, book_id, 'lasttouchcol', book['timestamp'], label=label, commit=True)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
         for col, meta in prefs['custom_cols'].iteritems():
