@@ -342,8 +342,8 @@ class ConfigWidget(QWidget):
         # metadata column
         prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
 
-        # lasttouch column
-        prefs['lasttouchcol'] = unicode(convert_qvariant(self.cust_columns_tab.lasttouchcol.itemData(self.cust_columns_tab.lasttouchcol.currentIndex())))
+        # lastchecked column
+        prefs['lastcheckedcol'] = unicode(convert_qvariant(self.cust_columns_tab.lastcheckedcol.itemData(self.cust_columns_tab.lastcheckedcol.currentIndex())))
 
         # cust cols tab
         colsmap = {}
@@ -1398,19 +1398,19 @@ class CustomColumnsTab(QWidget):
         self.l.addLayout(horz)
 
         horz = QHBoxLayout()
-        label = QLabel(_("Last Touched Column:"))
+        label = QLabel(_("Last Checked Column:"))
         tooltip=_("Record the last time FanFicFare updated or checked for updates.\n(Date columns only.)")
         label.setToolTip(tooltip)
         horz.addWidget(label)
 
-        self.lasttouchcol = QComboBox(self)
-        self.lasttouchcol.setToolTip(tooltip)
-        self.lasttouchcol.addItem('','none')
+        self.lastcheckedcol = QComboBox(self)
+        self.lastcheckedcol.setToolTip(tooltip)
+        self.lastcheckedcol.addItem('','none')
         for key, column in custom_columns.iteritems():
             if column['datatype'] == 'datetime':
-                self.lasttouchcol.addItem(column['name'],key)
-        self.lasttouchcol.setCurrentIndex(self.lasttouchcol.findData(prefs['lasttouchcol']))
-        horz.addWidget(self.lasttouchcol)
+                self.lastcheckedcol.addItem(column['name'],key)
+        self.lastcheckedcol.setCurrentIndex(self.lastcheckedcol.findData(prefs['lastcheckedcol']))
+        horz.addWidget(self.lastcheckedcol)
 
         label = QLabel('')
         horz.addWidget(label) # empty spacer for alignment with error column line.
