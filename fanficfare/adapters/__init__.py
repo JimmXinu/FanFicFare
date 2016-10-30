@@ -145,6 +145,10 @@ import adapter_fanfictionlucifaelcom
 import adapter_adultfanfictionorg
 import adapter_fictionhuntcom
 import adapter_royalroadl
+import adapter_chosentwofanficcom
+import adapter_bdsmlibrarycom
+import adapter_ficsitecom
+import adapter_asexstoriescom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
