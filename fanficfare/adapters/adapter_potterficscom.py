@@ -182,8 +182,8 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
         #we want the second table directly under the body, contains all the metadata
         table = soup.html.body.findAll('table', recursive=False)[1]
-        #within that, we want the second row, first cell
-        cell = table.tr.findNextSibling('tr').td
+        #within that, we want the first row, three cell
+        cell = table.tr.find_all('td')[2]
 
         #find first metadata block--isn't first if logged in
         mb = cell.div.findNextSibling('div',{'align':'left'})
