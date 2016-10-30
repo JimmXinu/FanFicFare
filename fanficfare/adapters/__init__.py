@@ -133,7 +133,6 @@ import adapter_ninelivesarchivecom
 import adapter_masseffect2in
 import adapter_quotevcom
 import adapter_mcstoriescom
-import adapter_lucifaelff
 import adapter_buffygilescom
 import adapter_andromedawebcom
 import adapter_artemisfowlcom
