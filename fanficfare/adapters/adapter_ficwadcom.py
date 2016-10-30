@@ -22,6 +22,7 @@ import re
 import urllib2
 import time
 import httplib, urllib
+import sys
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -128,7 +129,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                     url = self.url
                 else:
                     self._setURL(url)
-                soup = self.make_soup(data2)
+                    soup = self.make_soup(data2)
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
@@ -242,7 +243,9 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         span = soup.find('div', {'id' : 'storytext'})
 
         if None == span:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            # I personally don't like tracebacks if it can be prevented, so I have changed the below line to facilitate that.
+            #raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            raise exceptions.StoryDoesNotExist("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,span)
 

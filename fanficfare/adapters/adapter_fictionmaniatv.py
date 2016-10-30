@@ -107,9 +107,12 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             elif key == 'New Name':
                 self.story.setMetadata('newName', value)
 
+            ## I've encountered a few storyies that have None as the value for Other Names, 
+            ## so I added an if statement to test for it  [GComyn]
             elif key == 'Other Names':
-                for name in value.split(', '):
-                    self.story.addToList('characters', name)
+                if value != None:
+                    for name in value.split(', '):
+                        self.story.addToList('characters', name)
 
             # I have no clue how the rating system works, if you are reading
             # transgender fanfiction, you are probably an adult.

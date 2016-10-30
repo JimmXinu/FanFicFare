@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
@@ -39,7 +40,8 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
+                       "utf8", "iso-8859-1"] 
+                               # 1252 is a superset of iso-8859-1.
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
@@ -52,33 +54,86 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','hpffa')
+        self.story.setMetadata('siteabbrev','ficsite')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%B %d, %Y"
+        self.dateformat = "%m/%d/%Y"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'hpfanficarchive.com'
+        return 'www.ficsite.com'
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
+    ## Login seems to be reasonably standard across eFiction sites.
+    def needToLoginCheck(self, data):
+        if 'Registered Users Only' in data \
+                or 'There is no such account on our website' in data \
+                or "That password doesn't match the one in our database" in data:
+            return True
+        else:
+            return False
+
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['penname'] = self.username
+            params['password'] = self.password
+        else:
+            params['penname'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['cookiecheck'] = '1'
+        params['submit'] = 'Submit'
+
+        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['penname']))
+
+        d = self._fetchUrl(loginUrl, params)
+
+        if "Member Account" not in d : #Member Account
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['penname']))
+            raise exceptions.FailedToLogin(url,params['penname'])
+            return False
+        else:
+            return True
+    
+    # I've added this because there are several warnings
+    # that are used by this site.
+    def getWarning(self, data):
+        if "This story contains adult subject matter that may include coarse language, violence, and mild sexual content of a graphical nature. Reader discretion is requested. Thank you." in data:
+            return '&ageconsent=ok&warning=5'
+        elif "This story contains graphical material of an adult nature and a same sex primary relationship. Please do not read if this is not to your taste. Thank you." in data:
+            return '&warning=7'
+        elif "This story contains graphical material of an adult nature. Reader discretion is requested. Thank you." in data:
+            return '&warning=6'
+        else:
+            return False
+        
+    
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
+        if (self.is_adult or self.getConfig("is_adult")):
+            addurl = '&index=1&ageconsent=ok&warning=5'
+        else:
+            addurl='&index=1'
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
-        url = self.url
+        url = self.url+addurl
         logger.debug("URL: "+url)
 
         try:
@@ -89,11 +144,21 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        if self.needToLoginCheck(data):
+            # need to log in for this one.
+            self.performLogin(url)
+            data = self._fetchUrl(url)
+        
+        warning = self.getWarning(data)
+        if warning != False:
+            data = self._fetchUrl(url+warning)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-        elif "That story either does not exist on this archive or has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: That story either does not exist on this archive or has not been validated by the adminstrators of this site.")
+        elif "This story contains adult subject matter that may include coarse language, violence, and mild sexual content of a graphical nature. Reader discretion is requested. Thank you." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain()+" says: This story contains adult subject matter that may include coarse language, violence, and mild sexual content of a graphical nature. Reader discretion is requested. Thank you.")
+        elif "This story contains graphical material of an adult nature and a same sex primary relationship. Please do not read if this is not to your taste. Thank you." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain()+" says: This story contains graphical material of an adult nature and a same sex primary relationship. Please do not read if this is not to your taste. Thank you.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -101,21 +166,22 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
         # Now go hunting for all the meta data and the chapter list.
 
+        ## Title and Author Div
+        div = soup.find('div',{'id':'pagetitle'})
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        a = div.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
         self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        a = div.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/stories/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/stories/'+chapter['href']))
-
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
@@ -191,7 +257,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/stories/'+a['href']
+            series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

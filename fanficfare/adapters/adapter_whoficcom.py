@@ -21,12 +21,15 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
-
+import sys
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 from base_adapter import BaseSiteAdapter,  makeDate
+
+def getClass():
+    return WhoficComSiteAdapter
 
 class WhoficComSiteAdapter(BaseSiteAdapter):
 
@@ -124,12 +127,28 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
         metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br/>')
-        # process metadata for this story.
-        self.setDescription(url,metadatachunks[1])
-        #self.story.setMetadata('description', metadatachunks[1])
+        
+        # Some stories have a <br/> inside the description, which
+        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5. 
+        # so we have to process through the metadatachunks to get the description, 
+        # then the next metadata chunk [GComyn]
 
-        # First line of the stuff with ' - ' separators
-        moremeta = metadatachunks[2]
+        # process metadata for this story.
+        description = metadatachunks[1]
+        for i, mdc in enumerate(metadatachunks):
+            if i==0 or i==1:
+                # 0 is the title section, and 1 is always the description, 
+                # which is already set, so skip them [GComyn]
+                pass
+            else:
+                if not '<a href=' in mdc:
+                    description += ' // ' + mdc
+                else:
+                    idx = i
+                    break
+        moremeta = metadatachunks[idx]
+        self.setDescription(url,description)
+
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
 
         moremetaparts = moremeta.split(' - ')
@@ -163,16 +182,16 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             self.story.addToList('genre',g)
 
         # line 3 is characters.
-        chars = metadatachunks[3]
+        chars = metadatachunks[idx+1]
         charsearch="<i>Characters:</i>"
         if charsearch in chars:
-            chars = chars[metadatachunks[3].index(charsearch)+len(charsearch):]
+            chars = chars[metadatachunks[idx+1].index(charsearch)+len(charsearch):]
             for c in chars.split(','):
                 if c.strip() != u'None':
                     self.story.addToList('characters',c)
 
         # the next line is stuff with ' - ' separators *and* names--with tags.
-        moremeta = metadatachunks[5]
+        moremeta = metadatachunks[idx+3]
         moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
 
         moremetaparts = moremeta.split(' - ')
@@ -193,26 +212,28 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             if name == 'Word Count':
                 self.story.setMetadata('numWords', value)
 
-        try:
-            # Find Series name from series URL.
-            a = metadata.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
+        # Find Series name from series URL.
+        a = metadata.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
+        if a != None:
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
-
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-            i=1
-            for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    self.story.setMetadata('seriesUrl',series_url)
-                    break
-                i+=1
-
-        except:
-            # I find it hard to care if the series parsing fails
-            pass
+            try:
+                # use BeautifulSoup HTML parser to make everything easier to find.
+                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                i=1
+                for a in storyas:
+                    if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                        self.setSeries(series_name, i)
+                        self.story.setMetadata('seriesUrl',series_url)
+                        break
+                    i+=1
+            except:
+                # I find it hard to care if the series parsing fails
+                # I've changed it a little to put the series name and url in even if the page is no longer available [GComyn]
+                self.setSeries(series_name, 0)
+                self.story.setMetadata('seriesUrl',series_url)
+                #pass
 
     def getChapterText(self, url):
 
@@ -230,7 +251,4 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         span.name='div'
         return self.utf8FromSoup(url,span)
-
-def getClass():
-    return WhoficComSiteAdapter
 

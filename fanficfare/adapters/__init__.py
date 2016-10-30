@@ -146,8 +146,13 @@ import adapter_walkingtheplankorg
 import adapter_whoficcom
 import adapter_wolverineandroguecom
 import adapter_wraithbaitcom
+import adapter_fictionhuntcom
+import adapter_chosentwofanficcom
+import adapter_bdsmlibrarycom
+import adapter_ficsitecom
 
 ##Testing this adapter
+import adapter_asexstoriescom
 
 ## These are no longer used, but I've left them listed for archival purposes.
 #import adapter_bdsmgeschichten

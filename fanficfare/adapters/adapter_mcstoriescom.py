@@ -98,6 +98,9 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        if 'Page Not Found.' in data1:
+            raise exceptions.StoryDoesNotExist(self.url)
+
         # Extract metadata
         title = soup1.find('h3', class_='title')
         self.story.setMetadata('title', title.text)

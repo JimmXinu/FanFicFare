@@ -143,7 +143,18 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url+":i",usecache=False)
+            try:
+                data = self._fetchUrl(url+":i",usecache=False)
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
+                elif e.code == 410:
+                    raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
+                elif e.code == 401:
+                    self.needToLogin = True
+                    data = ''
+                else:
+                    raise e
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")

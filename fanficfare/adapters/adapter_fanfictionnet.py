@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
 # limitations under the License.
 #
 
-import time
 from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
 from urllib import unquote_plus
-import time
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -38,6 +36,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','ffnet')
+
+        self.decode = ["utf8",
+                       "Windows-1252", "iso-8859-1"] # 1252 is a superset of iso-8859-1.
+                            # Most sites that claim to be
+                            # iso-8859-1 (and some that claim to be
+                            # utf8) are really windows-1252.
 
         # get storyId from url--url validation guarantees second part is storyId
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
@@ -115,7 +119,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # some times "Chapter not found...", sometimes "Chapter text not found..."
         if "Please check to see you are not using an outdated url." in data:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
+            ### I personally don't like tracebacks, unless it is something that can be fixed.
+            ### This cannot be fixed in this code, so I've changed it to StoryDoesNotExist [GComyn]
+            #raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
+            raise exceptions.StoryDoesNotExist("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
         if self.getConfig('check_next_chapter'):
             try:
@@ -175,7 +182,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.addToList('category',stripHTML(a))
                 found = True
             if not found:
-
                 # Fall back.  I ran across a story with a Crossver
                 # category link to a broken page once.
                 # http://www.fanfiction.net/s/2622060/1/
@@ -183,7 +189,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 logger.info("Fall back category collection")
                 for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
                     self.story.addToList('category',c)
-                    
+
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
         if 'Fiction' in rating: # if rating has 'Fiction ', strip that out for consistency with past.
@@ -206,7 +212,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         #     b.extract()
         metatext = stripHTML(grayspan).replace('Hurt/Comfort','Hurt-Comfort')
         #logger.debug("metatext:(%s)"%metatext)
-        
+
         if 'Status: Complete' in metatext:
             self.story.setMetadata('status', 'Completed')
         else:
@@ -282,11 +288,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         l = chars_ships_text
         while '[' in l:
             self.story.addToList('ships',l[l.index('[')+1:l.index(']')].replace(', ','/'))
-            l = l[l.index(']')+1:]                    
-        
-        if get_cover:
+            l = l[l.index(']')+1:]
+
+            if get_cover:
             # Try the larger image first.
-            cover_url = ""
+                cover_url = ""
             try:
                 img = soup.select('img.lazy.cimage')
                 cover_url=img[0]['data-original']
@@ -331,7 +337,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	
+
         if select is None:
     	   # no selector found, so it's a one-chapter story.
     	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -351,35 +357,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        # time.sleep(4.0) ## ffnet(and, I assume, fpcom) tends to fail
-        #                 ## more if hit too fast.  This is in
-        #                 ## additional to what ever the
-        #                 ## slow_down_sleep_time setting is.
         logger.debug('Getting chapter text from: %s' % url)
+        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
+        ## fast.  This is in additional to what ever the
+        ## slow_down_sleep_time setting is.
         data = self._fetchUrl(url,extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
 
-        # some ancient stories have body tags inside them that cause
-        # soup parsing to discard the content.  For story text we
-        # don't care about anything before "<div role='main'" and
-        # this kills any body tags.
-        # XXX needed with new BS? -- No, doesn't look like it
-        # divstr = "<div role='main'"
-        # if divstr not in data:
-        #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        # else:
-        #     data = data[data.index(divstr):]
-        # data = data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
-
         soup = self.make_soup(data)
-
-        ## Remove the 'share' button.
-        ## No longer appears in the story text.
-        # sharediv = soup.find('div', {'class' : 'a2a_kit a2a_default_style'})
-        # if sharediv:
-        #     sharediv.extract()
 
         div = soup.find('div', {'id' : 'storytextp'})
 

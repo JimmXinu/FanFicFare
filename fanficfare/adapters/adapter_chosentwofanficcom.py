@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
@@ -29,20 +30,21 @@ from .. import exceptions as exceptions
 from base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return HPFanficArchiveComAdapter
+    return ChosenTwoFanFicArchiveAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class HPFanficArchiveComAdapter(BaseSiteAdapter):
+class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
+                       "utf8", 
+                       "iso-8859-1"] # 1252 is a superset of iso-8859-1.
+                                     # Most sites that claim to be
+                                     # iso-8859-1 (and some that claim to be
+                                     # utf8) are really windows-1252.
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
@@ -52,33 +54,39 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','hpffa')
+        self.story.setMetadata('siteabbrev','chosen2')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%B %d, %Y"
+        self.dateformat = "%m/%d/%Y"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'hpfanficarchive.com'
+        return 'chosentwofanfic.com'
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
+        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
+        # checking to see if the is_adult is set to true
+        if self.is_adult or self.getConfig("is_adult"):
+            addURL = "&ageconsent=ok&warning=3"
+        else:
+            addURL = ""
+    
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
-        url = self.url
+        url = '{0}&index=1{1}'.format(self.url,addURL)
         logger.debug("URL: "+url)
 
         try:
@@ -89,32 +97,36 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
+            raise exceptions.AdultCheckRequired(self.url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
-        elif "That story either does not exist on this archive or has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: That story either does not exist on this archive or has not been validated by the adminstrators of this site.")
+            raise exceptions.AccessDenied("{0} says: Access denied. This story has not been validated by the adminstrators of this site.".format(self.getSiteDomain()))
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
+        ## Some stories have a banner that has it's own a tag before the actual text title...
+        ## so I'm checking the pagetitle div for all a tags that match the criteria, then taking the last.
+        a = soup.find('div',{'id':'pagetitle'}).findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))[-1]
         self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        # This site lists the newest member to the site before the div that has the story info
+        # so I'm checking the pagetitle div for this as well
+        a = soup.find('div',{'id':'pagetitle'}).find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/stories/'+a['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/stories/'+chapter['href']))
+            #self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'http://{0}/{1}{2}'.format(self.host, chapter['href'],addURL)))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -187,11 +199,14 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
+            if 'Disclaimer' in label:
+                self.story.setMetadata('disclaimer', stripHTML(value))
+
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/stories/'+a['href']
+            series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
