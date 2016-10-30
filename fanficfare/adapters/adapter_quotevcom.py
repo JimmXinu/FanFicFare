@@ -51,8 +51,11 @@ class QuotevComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         try:
             data = self._fetchUrl(self.url)
-        except urllib2.HTTPError:
-            raise exceptions.FailedToDownload(self.url)
+        except urllib2.HTTPError as e:
+            if e.code == 404:
+                raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
+            else:
+                raise #exceptions.FailedToDownload(self.url)
 
         soup = self.make_soup(data)
 
