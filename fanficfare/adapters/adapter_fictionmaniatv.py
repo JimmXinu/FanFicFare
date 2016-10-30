@@ -107,7 +107,9 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             elif key == 'New Name':
                 self.story.setMetadata('newName', value)
 
-            elif key == 'Other Names':
+            ## I've encountered a few storyies that have None as the
+            ## value for Other Names [GComyn]
+            elif key == 'Other Names' and value != None:
                 for name in value.split(', '):
                     self.story.addToList('characters', name)
 

@@ -92,6 +92,8 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        elif "That story either does not exist on this archive or has not been validated by the adminstrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: That story either does not exist on this archive or has not been validated by the adminstrators of this site.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)

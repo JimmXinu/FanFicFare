@@ -181,7 +181,6 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
         if self.getConfig('strip_text_links'):
             for anchor in storytext_div('a', {'class': 'FAtxtL'}):
-                navigable_string = BeautifulSoup.NavigableString(anchor.string)
-                anchor.replaceWith(navigable_string)
+                anchor.replaceWith(anchor.string)
 
         return self.utf8FromSoup(url, storytext_div)

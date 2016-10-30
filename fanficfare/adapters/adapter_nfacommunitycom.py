@@ -184,6 +184,7 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
             except:
                 return ""
 
+        # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -202,7 +203,6 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
                     else:
                         value = value.nextSibling
                 self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
 
             if 'Rated' in label:
                 self.story.setMetadata('rating', value)
