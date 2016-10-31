@@ -86,7 +86,9 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
-    soup = BeautifulSoup(data,"html5lib")
+    ## soup and re-soup because BS4/html5lib is more forgiving of
+    ## incorrectly nested tags that way.
+    soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
     if restrictsearch:
         soup = soup.find(*restrictsearch)
         #logger.debug("restrict search:%s"%soup)
