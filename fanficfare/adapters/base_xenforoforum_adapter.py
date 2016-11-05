@@ -281,7 +281,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
 
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
-                if is_chapter_url:
+                if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
                     self.chapterUrls.append((name,url))
                     if url == useurl and first_post_title == self.chapterUrls[0][0] \
                             and not self.getConfig('always_include_first_post',False):
