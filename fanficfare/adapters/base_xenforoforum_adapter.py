@@ -206,9 +206,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 raise
 
         # use BeautifulSoup HTML parser to make everything easier to find.
-        topsoup = soup = self.make_soup(data)
+        topsoup = souptag = self.make_soup(data)
 
-        h1 = soup.find('div',{'class':'titleBar'}).h1
+        h1 = souptag.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
 
         first_post_title = self.getConfig('first_post_title','First Post')
@@ -216,10 +216,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         threadmark_chaps = False
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
-            soup = soup.find('li',id=anchorid)
+            souptag = souptag.find('li',id=anchorid)
         else:
             # try threadmarks if no '#' in , require at least 2.
-            threadmarksa = soup.find('a',{'class':'threadmarksTrigger'})
+            threadmarksa = souptag.find('a',{'class':'threadmarksTrigger'})
             if threadmarksa:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
                 markas = []
@@ -244,7 +244,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
-            soup = soup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
+            souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
+
+        self.handle_spoilers(topsoup,souptag)
 
         if threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
@@ -255,13 +257,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 self.story.addToList('forumtags',tstr)
 
         # author moved down here to take from post URLs.
-        a = soup.find('h3',{'class':'userText'}).find('a')
+        a = souptag.find('h3',{'class':'userText'}).find('a')
         self.story.addToList('authorId',a['href'].split('/')[1])
         self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
         self.story.addToList('author',a.text)
 
         # Now go hunting for the 'chapter list'.
-        bq = soup.find('blockquote') # assume first posting contains TOC urls.
+        bq = souptag.find('blockquote') # assume first posting contains TOC urls.
 
         bq.name='div'
 
@@ -279,7 +281,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if not self.chapterUrls:
             self.chapterUrls.append((first_post_title,useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
-
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
                 if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
                     self.chapterUrls.append((name,url))
@@ -290,12 +291,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             # Didn't use threadmarks, so take created/updated dates
             # from the 'first' posting created and updated.
-            date = self.make_date(soup.find('a',{'class':'datePermalink'}))
+            date = self.make_date(souptag.find('a',{'class':'datePermalink'}))
             if date:
                 self.story.setMetadata('datePublished', date)
                 self.story.setMetadata('dateUpdated', date) # updated overwritten below if found.
 
-            date = self.make_date(soup.find('div',{'class':'editDate'}))
+            date = self.make_date(souptag.find('div',{'class':'editDate'}))
             if date:
                 self.story.setMetadata('dateUpdated', date)
 
@@ -332,13 +333,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 url = url + origurl[origurl.index('#'):]
             logger.debug("chapter URL redirected to: %s"%url)
 
-            soup = self.make_soup(data)
+            topsoup = souptag = self.make_soup(data)
 
             if '#' in url:
                 anchorid = url.split('#')[1]
-                soup = soup.find('li',id=anchorid)
+                souptag = topsoup.find('li',id=anchorid)
 
-            bq = soup.find('blockquote')
+            self.handle_spoilers(topsoup,souptag)
+
+            bq = souptag.find('blockquote')
 
             bq.name='div'
 
@@ -367,3 +370,19 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',bq)
+
+    def handle_spoilers(self,topsoup,tag):
+        '''
+        Modifies tag given as required to do spoiler changes.
+        '''
+        if self.getConfig('remove_spoilers'):
+            for div in tag.find_all('div',class_='bbCodeSpoilerContainer'):
+                div.extract()
+        elif self.getConfig('legend_spoilers'):
+            for div in tag.find_all('div',class_='bbCodeSpoilerContainer'):
+                div.name='fieldset'
+                legend = topsoup.new_tag('legend')
+                legend.string = stripHTML(div.button.span)
+                div.insert(0,legend)
+                div.button.extract()
+        
