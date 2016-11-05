@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -119,10 +119,10 @@ class TestSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata(u'title',"Test Story Title "+idstr)
             self.story.setMetadata('author','Test Author aa')
-        self.setDescription(self.url,u'Description '+self.crazystring+u''' Done
+        self.setDescription(self.url,u'<div>Description '+self.crazystring+u''' Done
 <p>
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
-''')
+</div>''')
         self.story.setMetadata('datePublished',makeDate("1975-03-15","%Y-%m-%d"))
         if idstr == '669':
             self.story.setMetadata('dateUpdated',datetime.datetime.now())

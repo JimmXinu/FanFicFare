@@ -535,6 +535,11 @@ class BaseSiteAdapter(Configurable):
         #print("\n\nsvalue:\n%s\n"%svalue)
         strval = u"%s"%svalue # works for either soup or string
         if self.hasConfig('description_limit'):
+            if self.getConfig('keep_summary_html'):
+                # remove extra whitespaces since HTML ignores them anyway.
+                # some sites waste a lot of the description_limit on
+                # spaces otherwise.
+                strval = re.sub(r'[ \t\n\r\f\v]{2,}',' ',strval) # \s is localized.
             limit = int(self.getConfig('description_limit'))
             if limit and len(strval) > limit:
                 svalue = strval[:limit]

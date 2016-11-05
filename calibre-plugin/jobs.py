@@ -18,7 +18,6 @@ from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
-from calibre.library.comments import sanitize_comments_html
 
 from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
 from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
@@ -173,10 +172,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['publisher'] = story.getMetadata("site")
             book['url'] = story.getMetadata("storyUrl")
             book['tags'] = story.getSubjectTags(removeallentities=True)
-            if story.getMetadata("description"):
-                book['comments'] = sanitize_comments_html(story.getMetadata("description"))
-            else:
-                book['comments']=''
+            book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)
     
             if story.getMetadataRaw('datePublished'):

@@ -52,7 +52,6 @@ from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.config import prefs as calibre_prefs
 from calibre.utils.date import local_tz
-from calibre.library.comments import sanitize_comments_html
 from calibre.constants import config_dir as calibre_config_dir
 
 # The class that all interface action plugins must inherit from
@@ -1210,10 +1209,7 @@ class FanFicFarePlugin(InterfaceAction):
             book['publisher'] = story.getMetadata("site")
             book['url'] = story.getMetadata("storyUrl")
             book['tags'] = story.getSubjectTags(removeallentities=True)
-            if story.getMetadata("description"):
-                book['comments'] = sanitize_comments_html(story.getMetadata("description"))
-            else:
-                book['comments']=''
+            book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)
 
             if story.getMetadataRaw('datePublished'):

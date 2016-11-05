@@ -193,6 +193,16 @@ except:
     is_appengine = False
 
 
+try:
+    from calibre.library.comments import sanitize_comments_html, sanitize_html
+except:
+    def sanitize_comments_html(t):
+        ## should only be called by Calibre version, so this shouldn't
+        ## trip.
+        logger.debug("fake sanitize called...")
+        return t
+    sanitize_html = sanitize_comments_html
+
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
 # but with some corrections and guesses.
@@ -394,7 +404,7 @@ def make_replacements(replace):
                     (regexp,replacement)=parts[1:]
                 else:
                     (regexp,replacement)=parts
-    
+
             if regexp:
                 regexp = re_compile(regexp,line)
                 if condregexp:
@@ -441,7 +451,7 @@ class Story(Configurable):
         if not self.replacements_prepped and not self.is_lightweight():
             # logger.debug("prepare_replacements")
             # logger.debug("sections:%s"%self.configuration.sectionslist)
-            
+
             ## Look for config parameter, split and add each to metadata field.
             for (config,metadata) in [("extracategories","category"),
                                       ("extragenres","genre"),
@@ -450,9 +460,9 @@ class Story(Configurable):
                                       ("extrawarnings","warnings")]:
                 for val in self.getConfigList(config):
                     self.addToList(metadata,val)
-    
+
             self.replacements =  make_replacements(self.getConfig('replace_metadata'))
-    
+
             in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
                                 'include_metadata_post','exclude_metadata_post']
             for ie in in_ex_clude_list:
@@ -463,17 +473,17 @@ class Story(Configurable):
                     self.in_ex_cludes[ie] = set_in_ex_clude(ies)
             self.replacements_prepped = True
 
-    
+
     def set_chapters_range(self,first=None,last=None):
         self.chapter_first=first
         self.chapter_last=last
-                
+
     def join_list(self, key, vallist):
         return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
 
     def setMetadata(self, key, value, condremoveentities=True):
 
-        # delete 
+        # delete
         if key in self.processed_metadata_cache:
             del self.processed_metadata_cache[key]
         # keep as list type, but set as only value.
@@ -509,7 +519,7 @@ class Story(Configurable):
         # sets self.replacements and self.in_ex_cludes if needed
         # do_in_ex_clude is always called from doReplacements, so redundant.
         # self.prepare_replacements()
-        
+
         if value and which in self.in_ex_cludes:
             include = 'include' in which
             keyfound = False
@@ -653,13 +663,13 @@ class Story(Configurable):
                 val = int(tag.string)
             else:
                 val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
-                
+
             #logger.debug("key(%s)=val(%s)"%(tag['id'],val))
             if val:
                 self.metadata[tag['id']]=val
-                
+
         # self.metadata = json.loads(s, object_hook=datetime_decoder)
-        
+
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
             return self.metadata[key]
@@ -713,7 +723,7 @@ class Story(Configurable):
         if key not in self.processed_metadata_cache:
             self.processed_metadata_cache[key] = {}
         self.processed_metadata_cache[key][(removeallentities,doreplacements)] = value
-        
+
         return value
 
     def getAllMetadata(self,
@@ -789,6 +799,30 @@ class Story(Configurable):
                 allmetadata[k] = self.getMetadata(k, removeallentities, doreplacements)
 
         return allmetadata
+
+    def get_sanitized_description(self):
+        '''
+        For calibre version so this code can be consolidated between
+        fff_plugin.py and jobs.py
+        '''
+        orig = description = self.getMetadata("description")
+        logger.debug("description:%s"%description)
+        if not description:
+            description = ''
+        else:
+            if self.getConfig('keep_summary_html'):
+                ## Handles desc with (supposed) html without html->MD
+                ## text->html dance that sanitize_comments_html does.
+                description = sanitize_html(description)
+                logger.debug("desc using sanitize_html")
+            else:
+                ## because of the html->MD text->html dance, text only
+                ## (or MD/MD-like) descs come out better.
+                description = sanitize_comments_html(description)
+                logger.debug("desc using sanitize_comments_html")
+        if orig != description:
+            logger.debug("\nchanged description\n%s\n%s"%(orig,description))
+        return description
 
     # just for less clutter in adapters.
     def extendList(self,listname,l):
@@ -870,10 +904,10 @@ class Story(Configurable):
                             curlist.extend(y)
                             ## logger.debug("curlist:%s"%(curlist,))
                         newretlist.append( splitmerge.join(sorted(curlist)) )
-        
+
                     retlist = newretlist
                     ## logger.debug(retlist)
-        
+
         if retlist:
             if doreplacements:
                 newretlist = []
@@ -948,9 +982,9 @@ class Story(Configurable):
 
         ## only add numbers if more than one chapter.  Ditto (new) marks.
         if len(self.chapters) > 1:
-            addnums = ( self.getConfig('add_chapter_numbers') == "true" 
+            addnums = ( self.getConfig('add_chapter_numbers') == "true"
                         or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc) )
-            
+
             marknew = self.getConfig('mark_new_chapters')=='true'
 
             defpattern = self.getConfig('chapter_title_def_pattern','${title}') # default val in case of missing defaults.ini
@@ -975,8 +1009,8 @@ class Story(Configurable):
             # logger.debug("Patterns: (%s)(%s)"%(pattern,newpattern))
             templ = string.Template(pattern)
             newtempl = string.Template(newpattern)
-            toctempl = string.Template(tocpattern)            
-            
+            toctempl = string.Template(tocpattern)
+
             for index, chap in enumerate(self.chapters):
                 if chap.new:
                     usetempl = newtempl
@@ -1009,7 +1043,7 @@ class Story(Configurable):
             else:
                 values[k]=re.sub(pattern,'_', removeAllEntities(self.getMetadata(k)))
         return values
-    
+
     def formatFileName(self,template,allowunsafefilename=True):
         # fall back default:
         if not template:
