@@ -208,11 +208,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = soup = self.make_soup(data)
 
-        a = soup.find('h3',{'class':'userText'}).find('a')
-        self.story.addToList('authorId',a['href'].split('/')[1])
-        self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
-        self.story.addToList('author',a.text)
-
         h1 = soup.find('div',{'class':'titleBar'}).h1
         self.story.setMetadata('title',stripHTML(h1))
 
@@ -258,6 +253,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if self.getConfig('capitalize_forumtags'):
                     tstr = tstr.title()
                 self.story.addToList('forumtags',tstr)
+
+        # author moved down here to take from post URLs.
+        a = soup.find('h3',{'class':'userText'}).find('a')
+        self.story.addToList('authorId',a['href'].split('/')[1])
+        self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
+        self.story.addToList('author',a.text)
 
         # Now go hunting for the 'chapter list'.
         bq = soup.find('blockquote') # assume first posting contains TOC urls.
