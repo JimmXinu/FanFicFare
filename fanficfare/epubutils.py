@@ -13,7 +13,7 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
 from StringIO import StringIO
 
-import bs4 as bs
+import bs4
 
 def get_dcsource(inputio):
     return get_update_data(inputio,getfilecount=False,getsoups=False)[0]
@@ -63,7 +63,7 @@ def get_update_data(inputio,
                     if( relpath+item.getAttribute("href") == oldcoverhtmlhref ):
                         oldcoverhtmltype = item.getAttribute("media-type")
                         break
-                soup = bs.BeautifulSoup(oldcoverhtmldata.decode("utf-8"),"html5lib")
+                soup = make_soup(oldcoverhtmldata.decode("utf-8"))
                 # first img or image tag.
                 imgs = soup.findAll('img')
                 if imgs:
@@ -119,7 +119,7 @@ def get_update_data(inputio,
                     # (_u\d+)? is from calibre convert naming files
                     # 3/OEBPS/file0005_u3.xhtml etc.
                     if getsoups:
-                        soup = bs.BeautifulSoup(epub.read(href).decode("utf-8"),"html5lib")
+                        soup = make_soup(epub.read(href).decode("utf-8"))
                         for img in soup.findAll('img'):
                             newsrc=''
                             longdesc=''
@@ -222,7 +222,7 @@ def get_story_url_from_html(inputio,_is_good_url=None):
         #print("---- item:%s"%item)
         if( item.getAttribute("media-type") == "application/xhtml+xml" ):
             filehref=relpath+item.getAttribute("href")
-            soup = bs.BeautifulSoup(epub.read(filehref).decode("utf-8"),"html5lib")
+            soup = make_soup(epub.read(filehref).decode("utf-8"))
             for link in soup.findAll('a',href=re.compile(r'^http.*')):
                 ahref=link['href']
                 #print("href:(%s)"%ahref)
@@ -274,7 +274,7 @@ def reset_orig_chapters_epub(inputio,outfile):
             if re.match(r'.*/file\d+\.xhtml',zf):
                 #logger.debug("zf:%s"%zf)
                 data = data.decode('utf-8')
-                soup = bs.BeautifulSoup(data,"html5lib")
+                soup = make_soup(data)
 
                 chapterorigtitle = None
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
@@ -369,3 +369,23 @@ def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
             texttag.childNodes[0].replaceWholeText(chaptertoctitle)
             #logger.debug("text label:%s"%texttag.toxml())
             continue
+
+def make_soup(data):
+    '''
+    Convenience method for getting a bs4 soup.  bs3 has been removed.
+    '''
+
+    ## html5lib handles <noscript> oddly.  See:
+    ## https://bugs.launchpad.net/beautifulsoup/+bug/1277464
+    ## This should 'hide' and restore <noscript> tags.
+    data = data.replace("noscript>","fff_hide_noscript>")
+
+    ## soup and re-soup because BS4/html5lib is more forgiving of
+    ## incorrectly nested tags that way.
+    soup = bs4.BeautifulSoup(data,'html5lib')
+    soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+
+    for ns in soup.find_all('fff_hide_noscript'):
+        ns.name = 'noscript'
+
+    return soup
