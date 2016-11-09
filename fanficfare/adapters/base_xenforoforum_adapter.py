@@ -170,10 +170,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['login']))
 
-        # soup = self.make_soup(self._fetchUrl(loginUrl))
-        # params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
-        # params[soup.find('input', {'id':'password'})['name']] = params['password']
-
         d = self._fetchUrl(loginUrl, params)
 
         if "Log Out" not in d :
@@ -183,6 +179,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             return False
         else:
             return True
+
+    def make_soup(self,data):
+        soup = super(BaseXenForoForumAdapter, self).make_soup(data)
+        ## after lazy load images, there are noscript blocks also
+        ## containing <img> tags.  The problem comes in when they hit
+        ## book readers such as Kindle and Nook and then you see the
+        ## same images twice.
+        for noscript in soup.find_all('noscript'):
+            noscript.extract()
+        return soup
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -385,4 +391,4 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 legend.string = stripHTML(div.button.span)
                 div.insert(0,legend)
                 div.button.extract()
-        
+
