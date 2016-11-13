@@ -39,7 +39,7 @@ import adapters
 
 def re_compile(regex,line):
     try:
-        return re.compile(regex)
+        return re.compile(regex,re.DOTALL)
     except Exception, e:
         raise exceptions.RegularExpresssionFailed(e,regex,line)
 
