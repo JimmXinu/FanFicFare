@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-10-28 22:56+Central Daylight Time\n"
-"PO-Revision-Date: 2016-10-30 09:20+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2016-11-11 03:03+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -953,13 +953,13 @@ msgstr "Eriline veerg:"
 
 #: config.py:1357
 msgid "Update/Overwrite Error Column:"
-msgstr ""
+msgstr "Uuendamise/Ülekirjutamise vea veerg:"
 
 #: config.py:1358
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
-msgstr ""
+msgstr "Kui olemasoleva jutu uuendamine või ülekirjutamine ebaõnnestub, talleta selle põhjus selles veerus.\n(Ainult 'Tekst'- ja 'Pikk tekst'-tüüpi veerud.)"
 
 #: config.py:1371
 msgid "Save All Errors"
@@ -979,7 +979,7 @@ msgstr "Juba sisaldab %d peatükki."
 
 #: config.py:1382
 msgid "Saved Metadata Column:"
-msgstr ""
+msgstr "Salvestatud metaandmete veerg:"
 
 #: config.py:1383
 msgid ""
@@ -987,17 +987,17 @@ msgid ""
 "the book is downloaded or updated.<br/>The metadata from this column can "
 "later be used to update custom columns without having to request the "
 "metadata from the server again.<br/>(Long Text columns only.)"
-msgstr ""
+msgstr "Kui märgistatud, salvestab FanFicFare raamatu allalaadimisel või uuendamisel sellesse veergu koopia kõikidest selle metaandmetest.<br/>Selles veerus olevaid metaandmeid saab hiljem kasutada kohandatud veergude uuendamisel, ilma metaandmeid serverist uuesti taotlemata.<br/>(Ainult 'Pikk tekst'-tüüpi veerud.)"
 
 #: config.py:1401
 msgid "Last Checked Column:"
-msgstr ""
+msgstr "Viimase kontrolli veerg:"
 
 #: config.py:1402
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
-msgstr ""
+msgstr "Talletab viimase aja, kui FanFicFare uuendas või uuendusi kontrollis.\n(Ainult 'Kuupäev'-tüüpi veerud.)"
 
 #: config.py:1431
 msgid "Author(s)"
@@ -1036,7 +1036,7 @@ msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
-msgstr ""
+msgstr "All on välja toodud põhilised calibre metaandmete veerud. Sa saad valida, kas FanFicFare täidab need veerud automaatselt uuendamisel või ainult uute raamatute puhul."
 
 #: config.py:1458
 msgid ""
@@ -1316,7 +1316,7 @@ msgstr "Juttude metaandmete allalaadimine"
 
 #: dialogs.py:590 dialogs.py:614 fff_plugin.py:976
 msgid "Fetched metadata for"
-msgstr ""
+msgstr "Tõmmati metaandmed jutule"
 
 #: dialogs.py:644
 msgid " - %s estimated until done"
@@ -1617,7 +1617,7 @@ msgstr "(%d jutu URLi jäeti vahele, kogus pole olemasolevat raamatut)"
 
 #: fff_plugin.py:524
 msgid "Get Story URLs from Email"
-msgstr ""
+msgstr "Hangi juttude URLid e-kirjast"
 
 #: fff_plugin.py:547
 msgid "Fetching Story URLs from Page..."
@@ -1645,11 +1645,11 @@ msgstr "URLide kogumine juttudeks..."
 
 #: fff_plugin.py:593
 msgid "Get URLs for stories"
-msgstr ""
+msgstr "Hangi juttude URLid"
 
 #: fff_plugin.py:594 fff_plugin.py:706 fff_plugin.py:899
 msgid "URL retrieved"
-msgstr ""
+msgstr "URL välja otsitud"
 
 #: fff_plugin.py:614
 msgid "List of URLs"
@@ -1728,11 +1728,11 @@ msgstr "Raamat ei ole FanFicFare antoloogia või sisaldab ilma kehtivate jutu UR
 
 #: fff_plugin.py:805
 msgid "Fetching Story URLs for Series..."
-msgstr ""
+msgstr "Sarjade jaoks juttude URLide tõmbamine..."
 
 #: fff_plugin.py:815
 msgid "Finished Fetching Story URLs for Series."
-msgstr ""
+msgstr "Sarjade jaoks juttude URLide tõmbamine valmis."
 
 #: fff_plugin.py:862
 msgid ""
@@ -1762,11 +1762,11 @@ msgstr "Juttude kogumine uuendamiseks..."
 
 #: fff_plugin.py:898
 msgid "Get stories for updates"
-msgstr ""
+msgstr "Hangi jutte uuendamiseks"
 
 #: fff_plugin.py:908
 msgid "Update Existing List"
-msgstr ""
+msgstr "Uuenda olemasolevat loendit"
 
 #: fff_plugin.py:968
 msgid "Start queuing downloading for %s stories."
@@ -1884,7 +1884,7 @@ msgstr "Jutu duplikaadi vahelejätmine."
 msgid ""
 "More than one identical book by Identifer URL or title/author(s)--can't tell"
 " which book to update/overwrite."
-msgstr ""
+msgstr "Rohkem kui üks identset raamatut identifikaatori URLi või pealkirja/autori(te) alusel--ei oska öelda, millist raamatut uuendada/üle kirjutada."
 
 #: fff_plugin.py:1274
 msgid "Update"

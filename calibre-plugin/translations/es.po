@@ -2,8 +2,8 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Adolfo Jayme Barrientos, 2014
-# Alberto Díaz Tormo <albertodiaztormo@gmail.com>, 2016
+# Adolfo Jayme-Barrientos, 2014
+# Albert, 2016
 # dario hereñu <magallania@gmail.com>, 2015-2016
 # Enrique Medina <medina9304@gmail.com>, 2016
 # Jellby <jellby@yahoo.com>, 2014-2016

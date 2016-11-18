@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-10-28 22:56+Central Daylight Time\n"
-"PO-Revision-Date: 2016-10-30 09:20+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2016-11-09 06:35+0000\n"
+"Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,13 +22,13 @@ msgstr ""
 
 #: __init__.py:48
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "Grafisk gränssnittsinstickprogram för att ladda ner FanFiction historier från diverse platser."
+msgstr "Grafiska gränssnittstillägg för att ladda ner FanFiction historier från diverse platser."
 
 #: __init__.py:122
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Sökväg till calibre-biblioteket. Som standard är att använda sökvägen som lagrades i inställningarna."
+msgstr "Sökväg till calibre biblioteket. Som standard är att använda sökvägen lagrad i inställningarna."
 
 #: common_utils.py:398
 msgid "Keyboard shortcuts"
@@ -52,7 +52,7 @@ msgstr "Rensa"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
-msgstr "Ta bort alla inställningar för detta insticksprogram"
+msgstr "Rensa alla inställningar för detta tillägg"
 
 #: common_utils.py:526
 msgid ""
@@ -72,7 +72,7 @@ msgstr "Du måste starta om calibre efteråt."
 
 #: common_utils.py:537
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Alla inställningar för detta insticksprogram i biblioteket har tagits bort."
+msgstr "Alla inställningar för detta tillägg i detta bibliotek har rensats."
 
 #: common_utils.py:538
 msgid "Please restart calibre now."
@@ -88,7 +88,7 @@ msgstr "Lista av stödda platser"
 
 #: config.py:196
 msgid "FAQs"
-msgstr "FAQs"
+msgstr "Vanliga frågor"
 
 #: config.py:211
 msgid "Basic"
@@ -96,7 +96,7 @@ msgstr "Grundläggande"
 
 #: config.py:222
 msgid "Calibre Cover"
-msgstr "Calibre-omslag"
+msgstr "calibre omslag"
 
 #: config.py:230
 msgid "Standard Columns"
@@ -104,7 +104,7 @@ msgstr "Standard kolumner"
 
 #: config.py:233
 msgid "Custom Columns"
-msgstr "Anpassa kolumner"
+msgstr "Anpassade kolumner"
 
 #: config.py:236
 msgid "Email Settings"
@@ -118,11 +118,11 @@ msgstr "Andra"
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Dessa inställningar styr grundläggande funktioner av tilläggsprogrammet-laddar ner FanFiction."
+msgstr "Dessa inställningar styr grundläggande funktioner av tillägget--ladda ner FanFiction."
 
 #: config.py:398
 msgid "Defaults Options on Download"
-msgstr "Grundinställningsval för nerladdning"
+msgstr "Grundinställningar för hämtning"
 
 #: config.py:402
 msgid ""
@@ -132,13 +132,13 @@ msgstr "Under varje nedladdning, FanFicFare erbjuder ett val att välja utdmatni
 
 #: config.py:404
 msgid "Default Output &Format:"
-msgstr "Standard Utdata &Format:"
+msgstr "Standard utdata&format:"
 
 #: config.py:419
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "Under varje nedladdning, FanFicFare erbjuder ett val för vad som kommer att hända om berättelsen redan finns.\n<br/>Denna ställer in vilket val kommer att vara standard."
+msgstr "Under varje nedladdning, erbjuder FanFicFare ett val för vad som händer om berättelsen redan finns. <br />Denna ställer in vilket val kommer att vara standard."
 
 #: config.py:421
 msgid "Default If Story Already Exists?"
@@ -146,7 +146,7 @@ msgstr ""
 
 #: config.py:436
 msgid "Default Update Calibre &Metadata?"
-msgstr "Standard Update calibre &Metadata?"
+msgstr "Standard uppdatera calibre &metadata?"
 
 #: config.py:437
 msgid ""
@@ -165,11 +165,11 @@ msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera bokomslagesbilden <i>i</ i> EPUB:en från webbsidan när EPUB uppdateras. <br />Detta ställer in det som standard till på eller av."
+msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera bokomslagesbilden <i>i</ i> EPUB:n från webbsidan när EPUB:n uppdateras.<br />Detta ställer in det standard till på eller av."
 
 #: config.py:446
 msgid "Default Background Metadata?"
-msgstr "Standard Bakgrundsmetadata"
+msgstr "Standard bakgrund metadata?"
 
 #: config.py:447
 msgid ""
@@ -183,11 +183,11 @@ msgstr ""
 
 #: config.py:453
 msgid "Updating Calibre Options"
-msgstr "Uppdaterar Calibres alternativ"
+msgstr "Uppdatera calibres alternativ"
 
 #: config.py:457
 msgid "Delete other existing formats?"
-msgstr "Ta bort andra format som finns?"
+msgstr "Ta bort andra befintliga format?"
 
 #: config.py:458
 msgid ""
@@ -595,7 +595,7 @@ msgstr ""
 
 #: config.py:874
 msgid "\"To Read\" Reading Lists"
-msgstr ""
+msgstr "*Att läsa* läslista"
 
 #: config.py:885
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
@@ -970,7 +970,7 @@ msgstr "Spara alla fel"
 
 #: config.py:1372
 msgid "If unchecked, these errors will not be saved:%s"
-msgstr "Om inte ikryssad, kommer dessa fel inte sparas:%s"
+msgstr "Om inte ikryssad, kommer dessa fel inte att sparas:%s"
 
 #: config.py:1374 fff_plugin.py:1359 jobs.py:223
 msgid "Not Overwriting, web site is not newer."
@@ -1008,7 +1008,7 @@ msgstr "Författare"
 
 #: config.py:1432
 msgid "Publisher"
-msgstr ""
+msgstr "Förlag"
 
 #: config.py:1433
 msgid "Tags"
@@ -1323,7 +1323,7 @@ msgstr "Hämtade metadata för"
 
 #: dialogs.py:644
 msgid " - %s estimated until done"
-msgstr " - %s estimaterade till klara"
+msgstr " - %s estimaterade till klart"
 
 #: dialogs.py:668 fff_plugin.py:1185
 msgid "Skipped"
@@ -1492,7 +1492,7 @@ msgstr "Spara i alla fall"
 
 #: dialogs.py:1526
 msgid "Enter Email Password for %s:"
-msgstr "Ange lösenord för e-postadress till %s:"
+msgstr "Ange e-postadress lösenord för %s:"
 
 #: fff_plugin.py:138 fff_plugin.py:169
 msgid "FanFicFare"
@@ -2017,11 +2017,11 @@ msgstr ""
 
 #: fff_plugin.py:1571
 msgid "The ebook has been updated, but the metadata has not."
-msgstr ""
+msgstr "E-boken har uppdaterats, men inte metadata."
 
 #: fff_plugin.py:1623
 msgid "Finished Adding/Updating %d books."
-msgstr ""
+msgstr "Klar med tilläggning/uppdatering av %d böcker."
 
 #: fff_plugin.py:1674
 msgid "No Good Stories for Anthology"
@@ -2083,7 +2083,7 @@ msgstr ""
 
 #: fff_plugin.py:1873
 msgid "Adding/Updating %s BAD books."
-msgstr ""
+msgstr "Lägga till/uppdatera %s DÅLIGA böcker."
 
 #: fff_plugin.py:1886
 msgid "Updating calibre for BAD FanFiction stories..."
@@ -2187,12 +2187,12 @@ msgstr "Nerladdning påbörjad..."
 
 #: jobs.py:230
 msgid "Download %s completed, %s chapters."
-msgstr ""
+msgstr "Hämta %s färdiga, %s kapitel."
 
 #: jobs.py:255
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr ""
+msgstr "Innehåller redan %d kapitel. Återanvänd som de är."
 
 #: jobs.py:278
 msgid "Update %s completed, added %s chapters for %s total."
-msgstr ""
+msgstr "Uppdatera %s färdiga, tillagda %s kapitel för %s totalt."
