@@ -148,6 +148,13 @@ import adapter_chosentwofanficcom
 import adapter_bdsmlibrarycom
 import adapter_ficsitecom
 import adapter_asexstoriescom
+import adapter_gluttonyfictioncom
+import adapter_valentchambercom
+import adapter_looselugscom
+import adapter_wwwgiantessworldnet
+import adapter_lotrgficcom
+import adapter_tomparisdormcom
+import adapter_writingwhimsicalwanderingsnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
