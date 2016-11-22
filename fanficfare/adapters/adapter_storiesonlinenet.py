@@ -198,6 +198,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             asoup = self.make_soup(data)
 
             a = asoup.findAll('td', {'class' : 'lc2'})
+            if len(a) < 1:
+                raise exceptions.FailedToDownload("StoriesOnline: Story details not found on Author page(s)--Please use 'Classic' Listing Theme.")
             for lc2 in a:
                 if lc2.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId'))):
                     i=1
