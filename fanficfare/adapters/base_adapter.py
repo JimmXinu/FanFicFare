@@ -368,7 +368,7 @@ class BaseSiteAdapter(Configurable):
                 self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
 
             for index, (title,url) in enumerate(self.chapterUrls):
-                logger.debug("index:%s"%index)
+                #logger.debug("index:%s"%index)
                 newchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
@@ -525,7 +525,7 @@ class BaseSiteAdapter(Configurable):
 
     def getChapterTextNum(self, url, index):
         "For adapters that also want to know the chapter index number."
-        return getChapterText(self, url)
+        return self.getChapterText(url)
 
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."

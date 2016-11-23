@@ -199,6 +199,7 @@ def get_valid_set_options():
                'first_post_title':(base_xenforo_list,None,None),
                'always_include_first_post':(base_xenforo_list,None,boollist),
                'always_reload_first_chapter':(base_xenforo_list,None,boollist),
+               'use_reader_mode':(base_xenforo_list,None,boollist),
                'remove_spoilers':(base_xenforo_list,None,boollist),
                'legend_spoilers':(base_xenforo_list,None,boollist),
                }
@@ -377,6 +378,8 @@ def get_valid_keywords():
                  'first_post_title',
                  'always_include_first_post',
                  'always_reload_first_chapter',
+                 'use_reader_mode',
+                 'reader_posts_per_page',
                  'remove_spoilers',
                  'legend_spoilers',
                  'normalize_text_links',

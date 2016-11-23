@@ -33,7 +33,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         # save for reader processing.
-        self.threadmark_chaps = 0
         self.reader = False
 
         #logger.info("init url: "+url)
@@ -226,7 +225,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         first_post_title = self.getConfig('first_post_title','First Post')
 
-        self.threadmark_chaps = 0
+        threadmark_chaps = False
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
             souptag = souptag.find('li',id=anchorid)
@@ -244,8 +243,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     ## SV only incase SB or QQ make the same change.
                     markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
                 if len(markas) >= int(self.getConfig('minimum_threadmarks',2)):
-                    # remember if using threadmarks.
-                    self.threadmark_chaps = len(markas)
+                    threadmark_chaps = True
                     # remember if reader link found.
                     self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
 
@@ -265,7 +263,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         self.handle_spoilers(topsoup,souptag)
 
-        if self.threadmark_chaps > 0 or self.getConfig('always_use_forumtags'):
+        if threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
             for tag in topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'}):
                 tstr = stripHTML(tag)
@@ -345,45 +343,45 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         try:
             origurl = url
 
-            # reader mode shows only threadmarked posts in threadmark order.
-            # don't use reader mode for first post when always_include_first_post.
-            if ( self.reader and 
+            # reader mode shows only threadmarked posts in threadmark
+            # order.  don't use reader mode for /threads/ urls, or
+            # first post when always_include_first_post.
+            if ( self.reader and
                  self.getConfig("use_reader_mode",True) and
                  '/threads/' not in url and
                  (index > 0 or not self.getConfig('always_include_first_post')) ):
-
-                logger.debug("USE READER")
+                logger.debug("USE READER MODE")
                 # in case it changes:
                 posts_per_page = self.getConfig("reader_posts_per_page",10)
 
                 # always_include_first_post with threadmarks added an
                 # extra first chapter, we should be past it.
                 if self.getConfig('always_include_first_post'):
-                    index = index - 1                
+                    index = index - 1
                 reader_page_num = int((index+posts_per_page)/posts_per_page)
                 reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
                 logger.debug("Reader URL to: %s"%reader_url)
                 data = self._fetchUrl(reader_url)
                 topsoup = souptag = self.make_soup(data)
 
-                # assumed normalized to 
-                anchorid = url.split('/')[-2]
+                # assumed normalized to /posts/1234/
+                anchorid = "post-"+url.split('/')[-2]
                 logger.debug("anchorid: %s"%anchorid)
                 souptag = topsoup.find('li',id=anchorid)
             else:
-                logger.debug("DON'T USE READER")
+                logger.debug("DON'T USE READER MODE")
                 (data,opened) = self._fetchUrlOpened(url)
                 url = opened.geturl()
                 if '#' in origurl and '#' not in url:
                     url = url + origurl[origurl.index('#'):]
                 logger.debug("chapter URL redirected to: %s"%url)
-    
+
                 topsoup = souptag = self.make_soup(data)
-    
+
                 if '#' in url:
                     anchorid = url.split('#')[1]
                     souptag = topsoup.find('li',id=anchorid)
-    
+
             self.handle_spoilers(topsoup,souptag)
 
             bq = souptag.find('blockquote')
