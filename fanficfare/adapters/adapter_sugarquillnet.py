@@ -1,0 +1,169 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2012 Fanficdownloader team, 2015 FanFicFare team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#############################################################################
+### Adapted by GComyn
+### Original - November 23, 2016
+#############################################################################
+import time
+import logging
+logger = logging.getLogger(__name__)
+import re
+import urllib2
+import sys
+
+from bs4.element import Comment
+from ..htmlcleanup import stripHTML
+from .. import exceptions as exceptions
+
+from base_adapter import BaseSiteAdapter, makeDate
+
+def getClass():
+    return SugarQuillNetAdapter
+
+# Class name has to be unique.  Our convention is camel case the
+# sitename with Adapter at the end.  www is skipped.
+class SugarQuillNetAdapter(BaseSiteAdapter):
+
+    def __init__(self, config, url):
+        BaseSiteAdapter.__init__(self, config, url)
+
+        self.decode = ["utf8",
+                       "Windows-1252",
+                       "iso-8859-1"] # 1252 is a superset of iso-8859-1.
+                               # Most sites that claim to be
+                               # iso-8859-1 (and some that claim to be
+                               # utf8) are really windows-1252.
+        self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
+        self.password = ""
+        self.is_adult=False
+
+        # get storyId from url--url validation guarantees query is only storyid=1234
+        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+
+        # normalized story URL.
+        self._setURL('http://' + self.getSiteDomain() + '/read.php?storyid='+self.story.getMetadata('storyId'))
+
+        # Each adapter needs to have a unique site abbreviation.
+        self.story.setMetadata('siteabbrev','sq')
+
+        # The date format will vary from site to site.
+        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        self.dateformat = "%m/%d/%y"
+
+
+    @staticmethod # must be @staticmethod, don't remove it.
+    def getSiteDomain():
+        # The site domain.  Does have www here, if it uses it.
+        return 'www.sugarquill.net'
+
+    @classmethod
+    def getSiteExampleURLs(cls):
+        return "http://"+cls.getSiteDomain()+"/read.php?storyid=1234"
+
+    def getSiteURLPattern(self):
+        return re.escape("http://"+self.getSiteDomain()+"/read.php?storyid=")+r"\d+"
+
+    ## Getting the chapter list and the meta data
+    def extractChapterUrlsAndMetadata(self):
+
+        # index=1 makes sure we see the story chapter index.  Some
+        # sites skip that for one-chapter stories.
+        url = self.url+'&chapno=1'
+        logger.debug("URL: "+url)
+
+        try:
+            data = self._fetchUrl(url)
+        except urllib2.HTTPError, e:
+            if e.code == 404:
+                raise exceptions.StoryDoesNotExist(url)
+            else:
+                raise e
+
+        if "Invalid storyid or chapno" in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Invalid storyid or chapno.")
+
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        soup = self.make_soup(data)
+
+        # Now go hunting for all the meta data and the chapter list.
+
+        ## Title
+        a = soup.find('b',text='Story').nextSibling.string.strip(':').strip()
+        self.story.setMetadata('title',a)
+
+        # Find authorid and URL from... author url.
+        a = soup.find('b',text='Author').nextSibling.nextSibling
+        self.story.setMetadata('authorId',a['href'].split('id=')[1])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('author',a.string.replace("(Professors' Bookshelf)",'').strip())
+
+        # Find the chapters:
+        for chapter in soup.findAll('option'):
+            if chapter.string == 'Default':
+                chapter.string = 'Chapter 1'
+            self.chapterUrls.append((chapter.string, '{0}&chapno={1}'.format(self.url,chapter['value'])))
+
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+
+		## This site doesn't have much metadata, so we will get what we can.
+        ## The metadata is all on the author's page, so we have to get it to parse.
+        author_Url = self.story.getMetadata('authorUrl').replace('&amp;','&')
+        logger.debug('Getting the author page: {0}'.format(author_Url))
+        try:
+            adata = self._fetchUrl(author_Url)
+        except urllib2.HTTPError, e:
+            if e.code in 404:
+                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
+            elif e.code == 410:
+                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
+            else:
+                raise e
+
+        if 'Invalid authorid' in adata:
+            raise exceptions.StoryDoesNotExist('{0} says: Invalid authorid'.format(self.getSiteDomain()))
+                
+        asoup = self.make_soup(adata)
+
+        lc2 = asoup.find('a', href=re.compile(r'read.php\?storyid='+self.story.getMetadata('storyId')))
+        lc2 = lc2.findPrevious('table')
+        summry = stripHTML(lc2.find('td',{'class':'highlightcolor2'})).strip()
+        self.setDescription(url,summry)
+        
+        lupdt = lc2.findAll('td',{'class':'highlightcolor1'})[1].string.replace('Last updated','').strip()
+        self.story.setMetadata('dateUpdated', makeDate(lupdt, self.dateformat))
+
+        self._setURL('http://' + self.getSiteDomain() + '/read.php?storyid='+self.story.getMetadata('storyId')+'&chapno=1')
+        ## and that is all of the metadata that is on this site...
+
+    # grab the text for an individual chapter.
+    def getChapterText(self, url):
+
+        logger.debug('Getting chapter text from: %s' % url)
+
+        soup = self.make_soup(self._fetchUrl(url))
+
+        chap = soup.find('td',{'class':'content_pane'})
+
+        if chap == None:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        
+        ## some chapters have a table at the beginning, which we shall remove.
+        tbls = chap.findAll('table')
+        for tbl in tbls:
+            tbl.extract()
+
+        return self.utf8FromSoup(url,chap)
