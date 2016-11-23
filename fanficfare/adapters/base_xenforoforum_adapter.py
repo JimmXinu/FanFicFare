@@ -125,7 +125,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## page.  This changes page#post URLs to perma-link URLs.
             ## Which will be redirected back to page#posts, but the
             ## *correct* ones.
-            # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/page-4#post-39915
             # https://forums.sufficientvelocity.com/posts/39915/
             if '#post-' in url:
                 url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
@@ -136,6 +135,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # https://forums.spacebattles.com/posts/
             if 'reply?quote=' in url:
                 url = self.getURLPrefix()+'/posts/'+url.split('reply?quote=')[1]+'/'
+
+            ## normalize named thread urls, too.
+            # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/
+            url = re.sub(r'/threads/.*\.([0-9]+)/',r'/threads/\1/',url)
 
             is_chapter_url = True
         return (is_chapter_url,url)
