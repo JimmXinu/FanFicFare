@@ -368,6 +368,7 @@ class BaseSiteAdapter(Configurable):
                 self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
 
             for index, (title,url) in enumerate(self.chapterUrls):
+                logger.debug("index:%s"%index)
                 newchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
@@ -394,12 +395,12 @@ class BaseSiteAdapter(Configurable):
                             self.oldchaptersdata[url]['chaptertitle']) )
 
                     if not data:
-                        data = self.getChapterText(url)
+                        data = self.getChapterTextNum(url,index)
                         # if had to fetch and has existing chapters
                         newchap = bool(self.oldchapters or self.oldchaptersmap)
 
                     if index == 0 and self.getConfig('always_reload_first_chapter'):
-                        data = self.getChapterText(url)
+                        data = self.getChapterTextNum(url,index)
                         # first chapter is rarely marked new
                         # anyway--only if it's replaced during an
                         # update.
@@ -521,6 +522,10 @@ class BaseSiteAdapter(Configurable):
     def extractChapterUrlsAndMetadata(self):
         "Needs to be overriden in each adapter class.  Populates self.story metadata and self.chapterUrls"
         pass
+
+    def getChapterTextNum(self, url, index):
+        "For adapters that also want to know the chapter index number."
+        return getChapterText(self, url)
 
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
