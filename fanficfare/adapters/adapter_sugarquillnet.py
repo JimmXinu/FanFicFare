@@ -17,6 +17,14 @@
 #############################################################################
 ### Adapted by GComyn
 ### Original - November 23, 2016
+### Updateed - November 24,2016
+###         Fixed chapter determination. Some stories had another form in the
+###         first chapter, so had to change that section.
+#############################################################################
+### Updateed - November 25,2016
+###         some of the stories have extra formatting that makes the heuristics
+###         take a long gime to process. I've removed as much of the extra
+###         formatting as I thought I could.
 #############################################################################
 import time
 import logging
@@ -112,7 +120,8 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string.replace("(Professors' Bookshelf)",'').strip())
 
         # Find the chapters:
-        for chapter in soup.findAll('option'):
+        chapters = soup.find('select',{'name':'chapno'}).findAll('option')
+        for chapter in chapters:
             if chapter.string == 'Default':
                 chapter.string = 'Chapter 1'
             self.chapterUrls.append((chapter.string, '{0}&chapno={1}'.format(self.url,chapter['value'])))
@@ -135,14 +144,14 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         if 'Invalid authorid' in adata:
             raise exceptions.StoryDoesNotExist('{0} says: Invalid authorid'.format(self.getSiteDomain()))
-                
+
         asoup = self.make_soup(adata)
 
         lc2 = asoup.find('a', href=re.compile(r'read.php\?storyid='+self.story.getMetadata('storyId')))
         lc2 = lc2.findPrevious('table')
         summry = stripHTML(lc2.find('td',{'class':'highlightcolor2'})).strip()
         self.setDescription(url,summry)
-        
+
         lupdt = lc2.findAll('td',{'class':'highlightcolor1'})[1].string.replace('Last updated','').strip()
         self.story.setMetadata('dateUpdated', makeDate(lupdt, self.dateformat))
 
@@ -160,10 +169,34 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         if chap == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         ## some chapters have a table at the beginning, which we shall remove.
-        tbls = chap.findAll('table')
-        for tbl in tbls:
-            tbl.extract()
+        for tag in chap.findAll('table'):
+            #tag.extract()
+            tag.decompose()
+
+        ## some stories have extra formatting... going to try to remove as much as possible.
+        for tag in chap.findAll('style') + chap.findAll("o:p"):
+            #tag.extract()
+            tag.decompose()
+
+        #strip comments from soup
+        [comment.extract() for comment in chap.findAll(text=lambda text:isinstance(text, Comment))]
+
+        ## these tags seem to cause the h
+        for tag in chap.findAll('o:smarttagtype'):
+            tag.name = 'span'
+            tag.attrs = None     #delte all attributes
+
+        for tag in chap.findAll('p') + chap.findAll('b') + chap.findAll('i') + chap.findAll('em') + chap.findAll('strong') + chap.findAll('span'):
+            tag.attrs = None     #delte all attributes
+            if tag.string == '=':
+                tag.replace_with("'")
+
+        for tag in chap.findAll('span'):
+            tag.attrs = None     #delte all attributes
+            if tag.findAll(True) == None:
+                if tag.string == '=':
+                    tag.replace_with("'")
 
         return self.utf8FromSoup(url,chap)

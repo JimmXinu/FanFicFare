@@ -17,20 +17,30 @@
 ###########################################################################
 ### written by GComyn - 10/06/2016
 ### updated by GComyn = 10/24/2016
+### updated by GComyn - November 25, 2016
+###     Fixed the re.compile problem with the chapters
+###     Removed the slash '\' from the title
+###     Fixed the removal of the extra tags from some of the stories and
+###         removed the attributes from the paragraph and span tags
 ###########################################################################
 '''
-This works, but some of the stories have abysmal formatting, so it would 
+This works, but some of the stories have abysmal formatting, so it would
 probably need to be edited for reading.
 
 I've seen one story that downloaded at 25M, but after editing is only 201K
 after the formatting was corrected.
 
-Right now it is written to download each chapter seperatly, but I may change 
+Right now it is written to download each chapter seperatly, but I may change
 that to get the whole story. It will still have formatting problems, but should
 be able to get the longer stories this way.
 
-Also, the site is notrious for lagging, so some of the longer stories will 
-probably not be downloadable, since this program doesn't wait long enough 
+[Edited November 25, 2016] After looking at the single page story, I've come to
+the conclusion that I (at this time) can't figure out a way to use it to download
+the stories. There is no designation within the page to denote which chapter is
+which. So, I'm going to leave it as is.
+
+Also, the site is notrious for lagging, so some of the longer stories will
+probably not be downloadable, since this program doesn't wait long enough
 for the site to catch up.
 
 '''
@@ -44,6 +54,7 @@ import urllib2
 import sys
 import urlparse
 
+from bs4 import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -63,7 +74,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
                                # Most sites that claim to be
                                # iso-8859-1 (and some that claim to be
                                # utf8) are really windows-1252.
-							
+
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
@@ -111,12 +122,12 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-            
+
         if 'The story does not exist' in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
         # Extract metadata
-        title=soup.title.text.replace('BDSM Library - Story: ','')
+        title=soup.title.text.replace('BDSM Library - Story: ','').replace('\\','')
         self.story.setMetadata('title', title)
 
         # Author
@@ -134,7 +145,6 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
                 else:
                     raise e
             author = soup.find('a', href=re.compile(r"/stories/author.php\?authorid=\d+"))
-            print author
             i += 1
             if i == 20:
                 logger.info('Too Many cycles... exiting')
@@ -149,28 +159,20 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         # The update date is with the chapter links... so we will update it here as well
-        for a in soup.findAll('a'):
-            if '/stories/chapter.php?storyid='+self.story.getMetadata('storyId')+"&chapterid=" in a['href']:
-                value = a.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-                self.chapterUrls.append((stripHTML(a),'http://'+self.getSiteDomain()+a['href']))
-
-        # I can't seem to get the re.compile to work for this. so I'm commenting it out
-        #for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php?storyid='+self.story.getMetadata('storyId')+"&chapterid=\d+$")):
-        #    # just in case there's tags, like <i> in chapter titles.
-        #    self.chapterUrls.append((stripHTML(chapter),'http://'+self.getSiteDomain()+chapter['href']+addurl))
+        for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+"&chapterid=\d+$")):
+            value = chapter.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
+            self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
+            self.chapterUrls.append((stripHTML(chapter),'http://'+self.getSiteDomain()+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        
+
         # Get the MetaData
         # Erotia Tags
         tags = soup.findAll('a',href=re.compile(r'/stories/search.php\?selectedcode'))
         for tag in tags:
             self.story.addToList('eroticatags',tag.text)
-            
-        # Published Date
-        tds = soup.findAll('td')
-        for td in tds:
+
+        for td in soup.findAll('td'):
             if len(td.text)>0:
                 if 'Added on:' in td.text and '<table' not in unicode(td):
                     value = td.text.replace('Added on:','').strip()
@@ -189,7 +191,6 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.
         logger.debug('Getting chapter text from: %s' % url)
-        logger.info('Getting chapter text from: %s' % url)
 
         soup = self.make_soup(self._fetchUrl(url))
         chaptertag = soup.find('div',{'class' : 'storyblock'})
@@ -197,30 +198,25 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         # Some of the stories have the chapters in <pre> sections, so have to check for that
         if chaptertag == None:
             chaptertag = soup.find('pre')
-        
-        try:
-            # BDSM Library basically wraps it's own html around the document,
-            # so we will be removing the script, title and meta content from the 
-            # storyblock
-            scripts = chaptertag.findAll('style')
-            if scripts != None:
-                for script in scripts:
-                    script.extract()
-                    
-            titles = chaptertag.findAll('title')
-            if titles !=None:
-                for title in titles:
-                    title.extract()
-            
-            metas = chaptertag.findAll('meta')
-            if metas !=None:
-                for meta in metas:
-                    meta.extract()
-        except:
-            pass
 
-        if None == chaptertag:
+        if chaptertag == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
-        
+
+        #strip comments from soup
+        [comment.extract() for comment in chaptertag.findAll(text=lambda text:isinstance(text, Comment))]
+
+        # BDSM Library basically wraps it's own html around the document,
+        # so we will be removing the script, title and meta content from the
+        # storyblock
+        for tag in chaptertag.findAll('head') + chaptertag.findAll('style') + chaptertag.findAll('title') + chaptertag.findAll('meta') + chaptertag.findAll('o:p') + chaptertag.findAll('link'):
+            tag.extract()
+
+        for tag in chaptertag.findAll('o:smarttagtype'):
+            tag.name = 'span'
+
+        ## I'm going to take the attributes off all of the tags
+        ## because they usually refer to the style that we removed above.
+        for tag in chaptertag.findAll(True):
+            tag.attrs = None
+
         return self.utf8FromSoup(url,chaptertag)
-                    
