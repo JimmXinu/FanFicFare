@@ -156,6 +156,7 @@ import adapter_lotrgficcom
 import adapter_tomparisdormcom
 import adapter_writingwhimsicalwanderingsnet
 import adapter_sugarquillnet
+import adapter_wwwarea52hkhnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
