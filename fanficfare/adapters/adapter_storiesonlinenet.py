@@ -198,8 +198,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             asoup = self.make_soup(data)
 
             a = asoup.findAll('td', {'class' : 'lc2'})
-            if len(a) < 1:
-                raise exceptions.FailedToDownload("StoriesOnline: Story details not found on Author page(s)--Please use 'Classic' Listing Theme.")
             for lc2 in a:
                 if lc2.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId'))):
                     i=1
@@ -361,13 +359,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(self._fetchUrl(url))
 
-        chaptertag = soup.find('div', {'id' : 'story'})
-        if not chaptertag:
-            logger.debug("div id=story not found, try article")
-            chaptertag = soup.find('article', {'id' : 'story'})
+        # The story text is wrapped in article tags. Most of the page header and
+        # footer are outside of this.
+        chaptertag = soup.find('article')
 
         # some big chapters are split over several pages
-        pager = chaptertag.find('span', {'class' : 'pager'})
+        pager = chaptertag.find('div', {'class' : 'pager'})
 
         self.cleanPage(chaptertag)
 
@@ -377,19 +374,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             urls=urls[:len(urls)-1]
             # logger.debug("pager urls:%s"%urls)
             pager.extract()
-            chaptertag.contents = chaptertag.contents[2:]
 
             for ur in urls:
                 soup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']))
 
-                pagetag = soup.find('div', {'id' : 'story'})
-                if not pagetag:
-                    # logger.debug("div id=story not found, try article")
-                    pagetag = soup.find('article', {'id' : 'story'})
+                pagetag = soup.find('article')
 
                 self.cleanPage(pagetag)
 
-                for tag in pagetag.contents[2:]:
+                for tag in pagetag.contents[1:]:
                     chaptertag.append(tag)
 
 
@@ -400,10 +393,17 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def cleanPage(self,pagetag):
         "Consolidate 'page' clean up code so it can be called."
+#         logger.debug("cleanPage start: {0}".format(pagetag))
+
+        # Strip te header section
+        tag = pagetag.find('header')
+        if tag:
+            logger.debug("remove before header: {0}".format(tag))
+            tag.extract()
 
         # some big chapters are split over several pages
         # remove FIRST pager and everything before it.
-        tag = pagetag.find('span', {'class' : 'pager'})
+        tag = pagetag.find('div', {'class' : 'pager'})
         while tag != None:
             # logger.debug("remove before pager: {0}".format(tag))
             prev = tag.previousSibling
@@ -436,7 +436,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # some big chapters are split over several pages
         # remove LAST pager and everything before it.
         # Only needed on last page.
-        tag = pagetag.find('span', {'class' : 'pager'})
+        tag = pagetag.find('div', {'class' : 'pager'})
         while tag != None:
             # logger.debug("remove after pager: {0}".format(tag))
             nxt = tag.nextSibling
@@ -456,26 +456,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             for a in pagetag.findAll('div', {'class' : 'date'}):
                 a.extract()
 
-        # For single chapter stories, there is a copyright statement. Remove this and everything
-        # before it.
-        copy = pagetag.find('h4', {'class': 'copy'})
-        while copy != None:
-            # logger.debug("before copyright: {0}".format(copy))
-            b = copy.previousSibling
-            copy.extract()
-            copy = b
-
-        # For a story or the last chapter, remove voting form and the in library box
-        a = pagetag.find('div', {'id' : 'vote-form'})
-        if a != None:
-            a.extract()
-        a = pagetag.find('div', {'id' : 'top-header'})
-        if a != None:
-            a.extract()
-        a = pagetag.find('div', {'id' : 'b-man-div'})
-        if a != None:
-            a.extract()
-
         # Kill the vote form and everything after it.
         a = pagetag.find('div', {'class' : 'vform'})
         # logger.debug("Chapter end= '{0}'".format(a))
@@ -484,16 +464,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             a.extract()
             a=b
 
-        # Kill the vote form and everything after it.
+        # For chapters, remove next chapter link and everything after it
         a = pagetag.find('h3', {'class' : 'end'})
         # logger.debug("Chapter end= '{0}'".format(a))
         while a != None:
             b = a.nextSibling
             a.extract()
             a=b
-
-        foot = pagetag.find('footer')
-        if foot != None:
-            foot.extract()
-
 
