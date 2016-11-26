@@ -806,7 +806,7 @@ class Story(Configurable):
         fff_plugin.py and jobs.py
         '''
         orig = description = self.getMetadata("description")
-        logger.debug("description:%s"%description)
+        # logger.debug("description:%s"%description)
         if not description:
             description = ''
         else:
@@ -814,14 +814,14 @@ class Story(Configurable):
                 ## Handles desc with (supposed) html without html->MD
                 ## text->html dance that sanitize_comments_html does.
                 description = sanitize_html(description)
-                logger.debug("desc using sanitize_html")
+                # logger.debug("desc using sanitize_html")
             else:
                 ## because of the html->MD text->html dance, text only
                 ## (or MD/MD-like) descs come out better.
                 description = sanitize_comments_html(description)
-                logger.debug("desc using sanitize_comments_html")
-        if orig != description:
-            logger.debug("\nchanged description\n%s\n%s"%(orig,description))
+                # logger.debug("desc using sanitize_comments_html")
+        # if orig != description:
+        #     logger.debug("\nchanged description\n%s\n%s"%(orig,description))
         return description
 
     # just for less clutter in adapters.
