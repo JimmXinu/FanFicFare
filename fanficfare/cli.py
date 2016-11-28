@@ -175,7 +175,7 @@ def main(argv=None,
                                            options.downloadlist))):
         parser.print_help();
         return
-    
+
     if options.list:
         configuration = get_configuration(options.list,
                                           passed_defaultsini,
@@ -378,8 +378,8 @@ def do_download(arg,
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
         if not options.metaonly and adapter.getConfig('post_process_cmd'):
-            if adapter.getConfig('post_process_apply_filename_safepattern'):
-                metadata = adapter.story.get_filename_safe_metadata()
+            if adapter.getConfig('post_process_safepattern'):
+                metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('post_process_safepattern'))
             else:
                 metadata = adapter.story.getAllMetadata()
             metadata['output_filename'] = output_filename

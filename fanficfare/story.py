@@ -1031,12 +1031,13 @@ class Story(Configurable):
 
         return retval
 
-    def get_filename_safe_metadata(self):
+    def get_filename_safe_metadata(self,pattern=None):
         origvalues = self.getAllMetadata()
         values={}
-        pattern = re_compile(self.getConfig("output_filename_safepattern",
-                                            r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),
-                             "output_filename_safepattern")
+        if not pattern:
+            pattern = re_compile(self.getConfig("output_filename_safepattern",
+                                                r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),
+                                 "output_filename_safepattern")
         for k in origvalues.keys():
             if k == 'formatext': # don't do file extension--we set it anyway.
                 values[k]=self.getMetadata(k)
