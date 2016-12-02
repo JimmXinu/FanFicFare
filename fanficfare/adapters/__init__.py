@@ -113,7 +113,6 @@ import adapter_spikeluvercom
 import adapter_bloodshedversecom
 import adapter_nocturnallightnet
 import adapter_fanfichu
-import adapter_fanfictioncsodaidokhu
 import adapter_fictionmaniatv
 import adapter_tolkienfanfiction
 import adapter_themaplebookshelf
