@@ -398,7 +398,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # Strip te header section
         tag = pagetag.find('header')
         if tag:
-            logger.debug("remove before header: {0}".format(tag))
+            #logger.debug("remove before header: {0}".format(tag))
             tag.extract()
 
         # some big chapters are split over several pages
