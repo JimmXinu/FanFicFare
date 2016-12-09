@@ -168,9 +168,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         params['_xfToken'] = ''
         params['redirect'] = 'https://' + self.getSiteDomain() + '/'
 
-        if not params['password']:
-            return
-
         ## https://forum.questionablequesting.com/login/login
         loginUrl = 'https://' + self.getSiteDomain() + '/login/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
@@ -178,8 +175,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         d = self._fetchUrl(loginUrl, params)
 
-        if "Log Out" not in d :
-            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+        if "Log Out" not in d:
+            logger.info("Failed to login to URL %s as %s" % (self.url,
                                                              params['login']))
             raise exceptions.FailedToLogin(self.url,params['login'])
             return False
