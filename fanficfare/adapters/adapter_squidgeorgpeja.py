@@ -120,8 +120,13 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',author['href'].split('=')[1])
         self.story.setMetadata('authorUrl','https://'+self.host+'/peja/cgi-bin/'+author['href'])
         self.story.setMetadata('author',author.string)
-		
+
         authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+
+        # There are scripts within the metadata sections, so we need to
+        # take them out [GComyn]
+        for tag in authorSoup.findAll('script'):
+            tag.extract()
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
@@ -136,7 +141,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 self.chapterUrls.append((stripHTML(ch),'https://'+self.host+'/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+ch['value']))
         else:
             self.chapterUrls.append((title,url))
-		
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
 
@@ -148,6 +153,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 return ""
 
         # <span class="classification">Rated:</span> NC-17<br /> etc
+
         labels = titleblock.findAll('span',{'class':'classification'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -238,7 +244,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             # I find it hard to care if the series parsing fails
             pass
 
-	
+
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
