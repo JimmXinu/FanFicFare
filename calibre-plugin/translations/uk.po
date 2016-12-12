@@ -2,8 +2,8 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Andrii <dexteritymaster@gmail.com>, 2016
-# Andrii <dexteritymaster@gmail.com>, 2014-2015
+# Андрій М. <dexteritymaster@gmail.com>, 2016
+# Андрій М. <dexteritymaster@gmail.com>, 2014-2015
 # Yuri Chornoivan <yurchor@ukr.net>, 2014
 msgid ""
 msgstr ""

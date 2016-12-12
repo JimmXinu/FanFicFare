@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2016-10-28 22:56+Central Daylight Time\n"
-"PO-Revision-Date: 2016-11-09 06:35+0000\n"
+"PO-Revision-Date: 2016-12-03 09:00+0000\n"
 "Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -219,7 +219,7 @@ msgstr ""
 
 #: config.py:472
 msgid "Force Title into Title Sort?"
-msgstr ""
+msgstr "Tvinga Titel in i Titelsortering?"
 
 #: config.py:473
 msgid ""
@@ -240,7 +240,7 @@ msgstr ""
 
 #: config.py:482 config.py:599
 msgid "Reject Without Confirmation?"
-msgstr ""
+msgstr "Avfärda utan bekräftelse?"
 
 #: config.py:483
 msgid ""
@@ -407,7 +407,7 @@ msgstr ""
 
 #: config.py:589 config.py:663
 msgid "Add Reject URLs"
-msgstr ""
+msgstr "Lägg till Reject webbadresser"
 
 #: config.py:590
 msgid "Add additional URLs to Reject as text."
@@ -439,7 +439,7 @@ msgstr ""
 
 #: config.py:661
 msgid "Reason why I rejected it"
-msgstr ""
+msgstr "Anledningen till att jag avvisade den"
 
 #: config.py:661
 msgid "Title by Author"
