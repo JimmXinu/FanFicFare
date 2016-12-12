@@ -1,19 +1,19 @@
 FanFicFare
 ==========
 
-This is a repository for the FanFicFare project.
+This is the repository for the FanFicFare project.
 
-FanFicFare is the rename and move of the FanFictionDownLoader (AKA
-FFDL, AKA fanficdownloader) project previously hosted as a
-[code.google project].
+FanFicFare is the rename and move of the previous FanFictionDownLoader (AKA
+FFDL, AKA fanficdownloader) project.
 
-This program is available as a calibre plugin, a command-line
-interface, and a web service.
+This program is available as a [calibre
+plugin](http://www.mobileread.com/forums/showthread.php?p=3084025), a
+[command-line interface](https://pypi.python.org/pypi/FanFicFare) (via
+pip), and a [web service](http://fanficfare.appspot.com/).
 
-FanFicFare has now been launched.  New versions, features and updates
-will all be in FanFicFare.
+There's additional info in the project
+[wiki](https://github.com/JimmXinu/FanFicFare/wiki) pages.
 
-There's additional info in the project [wiki] pages.
-
-[code.google project]: http://google-opensource.blogspot.com/2015/03/farewell-to-google-code.html
-[wiki]: https://github.com/JimmXinu/FanFicFare/wiki
+There's also a [FanFicFare
+maillist](https://groups.google.com/group/fanfic-downloader) for
+discussion and announcements.
