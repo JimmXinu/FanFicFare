@@ -132,6 +132,8 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         # formating, so it's a little ugly.
 
         title = authorSoup.find('a',{'href':'viewstory.php?sid='+self.story.getMetadata('storyId')})
+        if not title:
+            raise exceptions.StoryDoesNotExist(url)
         self.story.setMetadata('title',stripHTML(title))
         titleblock=title.parent.parent
 
