@@ -59,16 +59,18 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
         # I'm setting these variables here, because I use them later.
         self.folder = self.parsedUrl.path.split('/',)[1]
         self.authorId = self.parsedUrl.path.split('/',)[2]
-        self.storyId = self.parsedUrl.path.split('/',)[3].replace('.php','')
+        self.storyId = self.parsedUrl.path.split('/',)[3].replace('.php','').replace('.htm','').replace('.html','')
+        self.extension = self.parsedUrl.path.split('.')[1]
 
         self.story.setMetadata('storyId', self.storyId)
         self.story.setMetadata('authorId',self.authorId)
 
         # normalized story URL.
-        self._setURL('http://{0}/{1}/{2}/{3}.php'.format(self.getSiteDomain(),
+        self._setURL('http://{0}/{1}/{2}/{3}.{4}'.format(self.getSiteDomain(),
                                                          self.folder,
                                                          self.story.getMetadata('authorId'),
-                                                         self.story.getMetadata('storyId')))
+                                                         self.story.getMetadata('storyId'),
+                                                         self.extension))
 
 
         # Each adapter needs to have a unique site abbreviation.
@@ -88,7 +90,9 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
         return "http://www.area52hkh.net/[folder]/[author]/[story].php"
 
     def getSiteURLPattern(self):
-        return r"http://www\.area52hkh\.net/as([a-z])/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)\.php"
+#        return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>\S+)\.aspx"
+        return r"http://www\.area52hkh\.net/as([a-z])/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)\.(php|htm|html)"
+#        return r"http://www\.area52hkh\.net/as([a-z])/(?P<author>[^/]+)/([a-zA-Z0-9_-]+)\.php"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -110,119 +114,129 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title and Series
-        a = soup.find('h1')
-        self.story.setMetadata('title',stripHTML(a))
+        if self.extension == 'htm':
+            raise exceptions.StoryDoesNotExist('This story is in a format that has not been coded yet.')
 
-        # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"/author.php\?name=\S+"))
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
+        elif self.extension == 'php':
+            a = soup.find('h1')
+            self.story.setMetadata('title',stripHTML(a))
 
-        # There is only one 'chapter' for each story, so we go with the self.url
-        # and the title of the story for the heading
-        self.chapterUrls.append((self.story.getMetadata('title'),url))
+            # Find authorid and URL from... author url.
+            a = soup.find('a', href=re.compile(r"/author.php\?name=\S+"))
+            self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+            self.story.setMetadata('author',a.string)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
+            # There is only one 'chapter' for each story, so we go with the self.url
+            # and the title of the story for the heading
+            self.chapterUrls.append((self.story.getMetadata('title'),url))
 
-        storya = None
-        authsoup = None
-        storyblock = None
-        authurl = self.story.getMetadata('authorUrl')
+            self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-        ## author can have more than one page of stories.
+            storya = None
+            authsoup = None
+            storyblock = None
+            authurl = self.story.getMetadata('authorUrl')
 
-        while storyblock == None:
-        ## Here is a sample of one of the storyblocks
-            #<div class="story">
-            #<p class="title"><a href="/[folder]/[author]/[story].php" target="story">Story Title</a> &nbsp;&nbsp;&nbsp;<i>Part:</i> 1/3 of Series Title</p>
-            #<table>
-            #    <tr>
-            #        <td class="image"><img src="/_images/show_s.gif" class="icon" alt="SG1" title="SG1"><br></td>
-            #        <td class="detail">
-            #            <i>Date Archived:</i> [Published Date]<br>
-            #            <i>Pairing:</i> [Ships]<br>
-            #            <i>Categories:</i> [Categories]<br>
-            #            <i>Season/Episode:</i>[Season]
-            #        </td>
-            #        <td class="detail">
-            #            <i>Size:</i> [Size]  <br>
-            #            <img src="/_images/info.gif" class="icon" alt="More Info" title="More Info" onmouseover="swap(12575,'block');" onmouseout="swap(12575,'none');">
-            #            <div class="info" id="i12575">
-            #                [[[Text Written here]]]
-            #            </div><br>
-            #            <i>Rating:</i> [Rating]<br>
-            #            <i>Warnings:</i> [warnings]<br>
-            #            <i>Spoilers:</i> [spoilers]
-            #        </td>
-            #    </tr>
-            #</table>
-            #<p class="summary"><i>Summary:</i> [Summary]</p>
-            #</div>
+            ## author can have more than one page of stories.
 
-            # no storya, but do have authsoup--we're looping on author pages.
-            if authsoup != None:
-                # last author link with offset should be the 'Next' link.
-                nextpage = authsoup.find('div',{'id':'links'}).find('a',{'title':'Next'})
-                authurl = u'http://%s/%s' % ( self.getSiteDomain(), nextpage['href'] )
+            while storyblock == None:
+            ## Here is a sample of one of the storyblocks
+                #<div class="story">
+                #<p class="title"><a href="/[folder]/[author]/[story].php" target="story">Story Title</a> &nbsp;&nbsp;&nbsp;<i>Part:</i> 1/3 of Series Title</p>
+                #<table>
+                #    <tr>
+                #        <td class="image"><img src="/_images/show_s.gif" class="icon" alt="SG1" title="SG1"><br></td>
+                #        <td class="detail">
+                #            <i>Date Archived:</i> [Published Date]<br>
+                #            <i>Pairing:</i> [Ships]<br>
+                #            <i>Categories:</i> [Categories]<br>
+                #            <i>Season/Episode:</i>[Season]
+                #        </td>
+                #        <td class="detail">
+                #            <i>Size:</i> [Size]  <br>
+                #            <img src="/_images/info.gif" class="icon" alt="More Info" title="More Info" onmouseover="swap(12575,'block');" onmouseout="swap(12575,'none');">
+                #            <div class="info" id="i12575">
+                #                [[[Text Written here]]]
+                #            </div><br>
+                #            <i>Rating:</i> [Rating]<br>
+                #            <i>Warnings:</i> [warnings]<br>
+                #            <i>Spoilers:</i> [spoilers]
+                #        </td>
+                #    </tr>
+                #</table>
+                #<p class="summary"><i>Summary:</i> [Summary]</p>
+                #</div>
 
-            # Need author page for most of the metadata.
-            logger.debug("fetching author page: (%s)"%authurl)
-            authsoup = self.make_soup(self._fetchUrl(authurl))
+                # no storya, but do have authsoup--we're looping on author pages.
+                if authsoup != None:
+                    # last author link with offset should be the 'Next' link.
+                    nextpage = authsoup.find('div',{'id':'links'}).find('a',{'title':'Next'})
+                    authurl = u'http://%s/%s' % ( self.getSiteDomain(), nextpage['href'] )
 
-            storyas = authsoup.findAll('a', href=re.compile(r'/'+self.folder+'/'+self.story.getMetadata('authorId')+'/'+self.story.getMetadata('storyId')+'.php'))
-            for storya in storyas:
-                storyblock = storya.findParent('div',{'class':'story'})
-                if storyblock != None:
-                    continue
+                # Need author page for most of the metadata.
+                logger.debug("fetching author page: (%s)"%authurl)
+                authsoup = self.make_soup(self._fetchUrl(authurl))
 
-        #checking to see if it is part of a series/bigger story
-        series = storyblock.find('p',{'class':'title'})
+                storyas = authsoup.findAll('a', href=re.compile(r'/'+self.folder+'/'+self.story.getMetadata('authorId')+'/'+self.story.getMetadata('storyId')+'.php'))
+                for storya in storyas:
+                    storyblock = storya.findParent('div',{'class':'story'})
+                    if storyblock != None:
+                        continue
 
-        #Remove the title link, since we already have the title above
-        series.find('a').extract()
+            #checking to see if it is part of a series/bigger story
+            series = storyblock.find('p',{'class':'title'})
 
-        ## I've seen a non-breaking space in some of the storyblocks
-        ## so we are going to remove them.
-        series =  stripHTML(str(series.renderContents()).replace(b"\xc2\xa0",'')).strip()
-        if len(series) > 0:
-            self.story.setMetadata('series',series)
+            #Some storyblocks have images, which interfers with the retreival of the metadata, so I
+            # am going to remove it.
+            for tag in storyblock.find_all('img'):
+                tag.extract()
 
-        ## Now we get the rest of the metadata
-        ### some details have an imbedded div for extra info from the author
-        ### this is being extracted, and put into a Metadata item called 'authorinfo'
-        infodiv = storyblock.find('div',{'class':'info'})
-        if infodiv != None:
-            self.story.setMetadata('authorinfo',stripHTML(infodiv))
+            #Remove the title link, since we already have the title above
+            series.find('a').extract()
 
-        details = storyblock.findAll('i')
-        for detail in details:
-            detail_text = stripHTML(detail)
-            value = detail.nextSibling
-            value_text = value.string.strip()
-            if 'Date Archived' in detail_text:
-                self.story.setMetadata('datePublished', makeDate(value_text, self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(value_text, self.dateformat))
-            elif 'Pairing'  in detail_text:
-                self.story.setMetadata('ships', value_text)
-            elif 'Categories'  in detail_text:
-                self.story.setMetadata('category',value_text)
-            elif 'Season/Episode'  in detail_text:
-                self.story.setMetadata('season',value_text)
-            elif 'Size'  in detail_text:
-                self.story.setMetadata('size',value_text)
-            elif 'Rating'  in detail_text:
-                self.story.setMetadata('rating',value_text)
-            elif 'Warnings'  in detail_text:
-                self.story.setMetadata('warnings',value_text)
-            elif 'Spoilers'  in detail_text:
-                if value_text != 'None':
-                    self.story.setMetadata('spoilers',value_text)
-            elif 'Summary' in detail_text:
-                if not self.getConfig("keep_summary_html"):
-                    value = stripHTML(value).replace('Summary:','').strip()
-                else:
-                    value = str(value).replace('<i>Summary:</i>','').strip()
-                self.setDescription(url, value)
+            ## I've seen a non-breaking space in some of the storyblocks
+            ## so we are going to remove them.
+            series =  stripHTML(str(series.renderContents()).replace(b"\xc2\xa0",'')).strip()
+            if len(series) > 0:
+                self.story.setMetadata('series',series)
+
+            ## Now we get the rest of the metadata
+            ### some details have an imbedded div for extra info from the author
+            ### this is being extracted, and put into a Metadata item called 'authorinfo'
+            infodiv = storyblock.find('div',{'class':'info'})
+            if infodiv != None:
+                self.story.setMetadata('authorinfo',stripHTML(infodiv))
+                infodiv.extract()
+
+            details = storyblock.findAll('i')
+            for detail in details:
+                detail_text = stripHTML(detail)
+                value = detail.nextSibling
+                value_text = value.string.strip()
+                if 'Date Archived' in detail_text:
+                    self.story.setMetadata('datePublished', makeDate(value_text, self.dateformat))
+                    self.story.setMetadata('dateUpdated', makeDate(value_text, self.dateformat))
+                elif 'Pairing'  in detail_text:
+                    self.story.setMetadata('ships', value_text)
+                elif 'Categories'  in detail_text:
+                    self.story.setMetadata('category',value_text)
+                elif 'Season/Episode'  in detail_text:
+                    self.story.setMetadata('season',value_text)
+                elif 'Size'  in detail_text:
+                    self.story.setMetadata('size',value_text)
+                elif 'Rating'  in detail_text:
+                    self.story.setMetadata('rating',value_text)
+                elif 'Warnings'  in detail_text:
+                    self.story.setMetadata('warnings',value_text)
+                elif 'Spoilers'  in detail_text:
+                    if value_text != 'None':
+                        self.story.setMetadata('spoilers',value_text)
+                elif 'Summary' in detail_text:
+                    if not self.getConfig("keep_summary_html"):
+                        value = stripHTML(value).replace('Summary:','').strip()
+                    else:
+                        value = str(value).replace('<i>Summary:</i>','').strip()
+                    self.setDescription(url, value)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
