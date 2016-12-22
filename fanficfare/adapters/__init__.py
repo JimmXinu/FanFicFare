@@ -39,7 +39,6 @@ import adapter_mediaminerorg
 import adapter_potionsandsnitches
 import adapter_tenhawkpresentscom
 import adapter_adastrafanficcom
-import adapter_twcslibrarynet
 import adapter_tthfanficorg
 import adapter_twilightednet
 import adapter_whoficcom
@@ -156,6 +155,7 @@ import adapter_tomparisdormcom
 import adapter_writingwhimsicalwanderingsnet
 import adapter_sugarquillnet
 import adapter_wwwarea52hkhnet
+import adapter_starslibrarynet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
