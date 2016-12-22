@@ -156,6 +156,15 @@ import adapter_writingwhimsicalwanderingsnet
 import adapter_sugarquillnet
 import adapter_wwwarea52hkhnet
 import adapter_starslibrarynet
+import adapter_fanficauthorsnet
+import adapter_fireflyfansnet
+import adapter_fireflypopulliorg
+import adapter_sebklainenet
+import adapter_shriftweborgbfa
+import adapter_trekfanfictionnet
+import adapter_wuxiaworldcom
+import adapter_wwwlushstoriescom
+import adapter_wwwutopiastoriescom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
