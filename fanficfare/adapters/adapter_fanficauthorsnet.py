@@ -152,14 +152,18 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
+        params={}
+        if self.password:
+            params['username'] = self.username
+            params['password'] = self.password
+        else:
+            params['username'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        
+        if not params['username']:
+            raise exceptions.FailedToLogin('You need to have your username and pasword set.',params['username'])
+
         try:
-            params={}
-            if self.password:
-                params['username'] = self.username
-                params['password'] = self.password
-            else:
-                params['username'] = self.getConfig("username")
-                params['password'] = self.getConfig("password")
             data = self._fetchUrl(url+'index/', params, usecache=False)
         except urllib2.HTTPError, e:
             if e.code == 404:
