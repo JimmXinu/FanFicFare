@@ -148,7 +148,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # 'stars' is used instead for RR's 1-5 stars rating.
         stars=soup.find(attrs=dict(property="books:rating:value"))['content']
         self.story.setMetadata('stars',stars)
-        logger.debug(self.story.getMetadata('stars'))
+        logger.debug("stars:(%s)"%self.story.getMetadata('stars'))
 
         warning = soup.find('strong',text='Warning')
         if warning != None:
