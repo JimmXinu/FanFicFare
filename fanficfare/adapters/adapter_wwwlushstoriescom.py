@@ -91,8 +91,16 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>\S+)\.aspx"
+        return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
+    def _fetchUrl(self,url,parameters=None,extrasleep=None,usecache=True):
+        ## lushstories.com sets unescaped cookies with cause
+        ## httplib.py to fail.
+        self.set_cookiejar(self.get_empty_cookiejar())
+        return BaseSiteAdapter._fetchUrl(self,url,
+                                         parameters=parameters,
+                                         extrasleep=extrasleep,
+                                         usecache=usecache)
     ################################################################################################
     def get_page(self, page):
         '''
@@ -151,29 +159,29 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
 
         #Need to get the metadata from the author's story page
         authorurl = self.story.getMetadata('authorUrl')
-        try:
-            adata = self._fetchUrl(authorurl)
-        except (urllib2.HTTPError, UnicodeDecodeError) as e:
-            ## Can't get the author's page, so we use what is on the story page
-            tags = soup.find('div',{'id':'storytags'}).find('a')
-            for tag in tags:
-                self.story.addToList('eroticatags',stripHTML(tag))
-            labels = soup.findAll('label')
-            for label in labels:
-                if label.string == 'Added:':
-                    self.story.setMetadata('datePublished', makeDate(label.nextSibling.string.strip(
-                        ), self.dateformat))
-                elif label.string == 'Words:':
-                    self.story.setMetadata('numWords',label.nextSibling.string.strip())
+        # try:
+        adata = self._fetchUrl(authorurl)
+        # except (urllib2.HTTPError, UnicodeDecodeError) as e:
+        #     ## Can't get the author's page, so we use what is on the story page
+        #     tags = soup.find('div',{'id':'storytags'}).find('a')
+        #     for tag in tags:
+        #         self.story.addToList('eroticatags',stripHTML(tag))
+        #     labels = soup.findAll('label')
+        #     for label in labels:
+        #         if label.string == 'Added:':
+        #             self.story.setMetadata('datePublished', makeDate(label.nextSibling.string.strip(
+        #                 ), self.dateformat))
+        #         elif label.string == 'Words:':
+        #             self.story.setMetadata('numWords',label.nextSibling.string.strip())
 
-            summary = stripHTML(soup.find('div',{'class':'oneliner'}))
-            if len(summary) == 0:
-                summary = '>>>>>>>>>> No Summary Found <<<<<<<<<<'
-            else:
-                summary = stripHTML(summary)
-            self.setDescription(url,summary)
-            self.html = soup
-            return
+        #     summary = stripHTML(soup.find('div',{'class':'oneliner'}))
+        #     if len(summary) == 0:
+        #         summary = '>>>>>>>>>> No Summary Found <<<<<<<<<<'
+        #     else:
+        #         summary = stripHTML(summary)
+        #     self.setDescription(url,summary)
+        #     self.html = soup
+        #     return
 
         asoup = self.make_soup(adata)
 
