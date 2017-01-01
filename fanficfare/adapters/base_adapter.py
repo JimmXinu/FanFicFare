@@ -116,11 +116,12 @@ class BaseSiteAdapter(Configurable):
 
         ## order of preference for decoding.
         self.decode = ["utf8",
-                       "Windows-1252"] # 1252 is a superset of
-                                       # iso-8859-1.  Most sites that
+                       "Windows-1252", # 1252 is a superset of
+                       "iso-8859-1"]   # iso-8859-1.  Most sites that
                                        # claim to be iso-8859-1 (and
                                        # some that claim to be utf8)
                                        # are really windows-1252.
+
         self._setURL(url)
         if not self.validateURL():
             raise InvalidStoryURL(url,
