@@ -594,14 +594,14 @@ def LoopProgressDialog(gui,
                              init_label,
                              win_title,
                              status_prefix)
-    
+
     # Mac OS X gets upset if the finish_function is called from inside
     # the real _LoopProgressDialog class.
-    
+
     # reflect old behavior.
     if not ld.wasCanceled():
         finish_function(book_list)
-        
+
 class _LoopProgressDialog(QProgressDialog):
     '''
     ProgressDialog displayed while fetching metadata for each story.
@@ -813,7 +813,7 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         horz = QHBoxLayout()
         gbl.addLayout(horz)
-        
+
         label = QLabel(_('Output &Format:'))
         horz.addWidget(label)
         self.fileform = QComboBox(self)
@@ -841,7 +841,7 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         horz = QHBoxLayout()
         gbl.addLayout(horz)
-        
+
         self.updatemeta = QCheckBox(_('Update Calibre &Metadata?'),self)
         self.updatemeta.setToolTip(_("Update metadata for existing stories in Calibre from web site?\n(Columns set to 'New Only' in the column tabs will only be set for new books.)"))
         self.updatemeta.setChecked(self.prefs['updatemeta'])
@@ -1134,9 +1134,12 @@ class RejectListDialog(SizePersistedDialog):
         options_layout = QHBoxLayout()
 
         if show_delete:
+            # can't import at file load.
+            from calibre_plugins.fanficfare_plugin.prefs import prefs
+
             self.deletebooks = QCheckBox(_('Delete Books (including books without FanFiction URLs)?'),self)
             self.deletebooks.setToolTip(_("Delete the selected books after adding them to the Rejected URLs list."))
-            self.deletebooks.setChecked(True)
+            self.deletebooks.setChecked(prefs['reject_delete_default'])
             options_layout.addWidget(self.deletebooks)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

@@ -112,6 +112,7 @@ default_prefs['rejectreasons'] = '''Sucked
 Boring
 Dup from another site'''
 default_prefs['reject_always'] = False
+default_prefs['reject_delete_default'] = True
 
 default_prefs['updatemeta'] = True
 default_prefs['bgmeta'] = False

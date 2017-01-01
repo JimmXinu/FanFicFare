@@ -267,6 +267,7 @@ class ConfigWidget(QWidget):
         prefs['do_wordcount'] = prefs_save_options[unicode(self.basic_tab.do_wordcount.currentText())]
         prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
         prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
+        prefs['reject_delete_default'] = self.basic_tab.reject_delete_default.isChecked()
 
         if self.readinglist_tab:
             # lists
@@ -600,6 +601,11 @@ class BasicTab(QWidget):
         self.reject_always.setToolTip(_("Always reject URLs on the Reject List without stopping and asking."))
         self.reject_always.setChecked(prefs['reject_always'])
         self.l.addWidget(self.reject_always)
+
+        self.reject_delete_default = QCheckBox(_('Delete on Reject by Default?'),self)
+        self.reject_delete_default.setToolTip(_("Should the checkbox to delete Rejected books be checked by default?"))
+        self.reject_delete_default.setChecked(prefs['reject_delete_default'])
+        self.l.addWidget(self.reject_delete_default)
 
         topl.addWidget(defs_gb)
 
@@ -1197,8 +1203,7 @@ class OtherTab(QWidget):
 
     def reset_dialogs(self):
         for key in dynamic.keys():
-            if key.startswith('fanfictiondownloader_') and key.endswith('_again') \
-                                                  and dynamic[key] is False:
+            if key.startswith('fff_') and dynamic[key] is False:
                 dynamic[key] = True
         info_dialog(self, _('Done'),
                     _('Confirmation dialogs have all been reset'),
