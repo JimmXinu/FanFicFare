@@ -126,7 +126,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                         # Encountered next label, break. Not as bad as other
                         # e-fiction sites, let's hope this is enough for proper
                         # parsing.
-                        if sibling.name == 'span' and sibling.get('class', None) == 'label':
+                        if sibling.name == 'span' and 'label' in sibling.get('class', []):
                             break
 
                         if keep_summary_html:
