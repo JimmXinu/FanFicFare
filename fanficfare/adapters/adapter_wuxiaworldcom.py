@@ -26,6 +26,7 @@ This will scrape the chapter text and metadata from stories on the site www.wuxi
 '''
 import logging
 import re
+import urllib2
 
 from base_adapter import BaseSiteAdapter, makeDate
 
@@ -35,27 +36,26 @@ from .. import exceptions as exceptions
 logger = logging.getLogger(__name__)
 
 def getClass():
+    ''' Initializing the class '''
     return WuxiaWorldComSiteAdapter
 
 class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
-
+    ''' Adapter for Wuxiaworld.com '''
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.decode = ["utf8",
-                       "Windows-1252",
-                       "iso-8859-1"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
-        self.story.setMetadata('siteabbrev','wux')
+
+        self.story.setMetadata('siteabbrev', 'wux')
+
         self.dateformat = "%Y-%m-%dT%H:%M:%S+00:00"
-        self.is_adult=False
+
+        self.is_adult = False
         self.username = None
         self.password = None
+
         # get storyId from url--url validation guarantees query correct
-        m = re.match(self.getSiteURLPattern(),url)
+        m = re.match(self.getSiteURLPattern(), url)
         if m:
-            self.story.setMetadata('storyId',m.group('id'))
+            self.story.setMetadata('storyId', m.group('id'))
 
             # normalized story URL.
             self._setURL("http://"+self.getSiteDomain()
@@ -81,7 +81,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         # fetch the chapter. From that we will get almost all the
         # metadata and chapter list
 
-        url=self.url
+        url = self.url
         logger.debug("URL: "+url)
 
         try:
@@ -89,13 +89,13 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
         except urllib2.HTTPError, e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
+                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
             else:
                 raise e
 
         soup = self.make_soup(data)
 
-        ## I'm going to remove all of the scripts at the beginning... 
+        ## I'm going to remove all of the scripts at the beginning...
         for tag in soup.find_all('script'):
             tag.extract()
 
@@ -106,15 +106,14 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl', author_url)
         self.story.setMetadata('author', author_name)
 
-        ## get title
-        title = soup.find('header', {'class':'entry-header'}).get_text().encode(
-            'utf-8', 'ignore').title()
+        ## get title, remove ' – Index' if present.
+        title = stripHTML(soup.find('header', {'class':'entry-header'})).replace(u' – Index','')
         self.story.setMetadata('title', title)
 
         datePub = soup.find('meta', {'itemprop':'datePublished'})['content']
         dateUpd = soup.find('meta', {'itemprop':'dateModified'})['content']
-        self.story.setMetadata('datePublished',makeDate(datePub, self.dateformat))
-        self.story.setMetadata('dateUpdated',makeDate(dateUpd, self.dateformat))
+        self.story.setMetadata('datePublished', makeDate(datePub, self.dateformat))
+        self.story.setMetadata('dateUpdated', makeDate(dateUpd, self.dateformat))
 
         ## getting the chapters
         ### Unfortunately, for the active stories, the chapter list is not systematically updated...
@@ -122,21 +121,23 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         ### don't get them...
         ### Also, I'm going to remove the chapters from here after I have them so they won't be
         ## in the summary, which is where I'm going to put the rest of the text.
+
         cdata = soup.find('div', {'itemprop':'articleBody'})
+        #logger.debug('############################ - cdata\n%s\n###########################', cdata)
         chapters = cdata.find_all('a', href=re.compile(
             r'http://'+self.getSiteDomain()+'/'+self.story.getMetadata(
-                    'storyId')+r'/(#)?([a-zA-Z0-9_-]+)(/)?'))
+                'storyId')+r'/(#)?([a-zA-Z0-9_-]+)(/)?'))
         ## some have different chapter links... going to do it again
         if len(chapters) == 0:
             chapters = cdata.find_all('a', href=re.compile(
-                r'http://'+self.getSiteDomain()+'/master-index/([a-zA-Z0-9_-#]+)(/)?'))
+                r'http://'+self.getSiteDomain()+'/master-index/'+r'([#a-zA-Z0-9_-]+)(/)?'))
 
         for chap in chapters:
             if stripHTML(chap).strip() != '':
                 self.chapterUrls.append((stripHTML(chap), chap['href']))
             chap.extract()
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
+        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         ## removing the 'folded' chapter lists..
         for tag in cdata.find_all('div', {'class':'sp-wrap'}):
@@ -144,8 +145,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.setDescription(url, cdata)
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
-        logger.info('Getting chapter text from: %s' % url)
+        #logger.debug('Getting chapter text from: %s', url)
 
         data = self._fetchUrl(url)
 
@@ -155,9 +155,9 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         if not story:
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         #removing the Previous and next chapter links
         for tag in story.find_all('a'):
             tag.extract()
 
-        return self.utf8FromSoup(url,story)
+        return self.utf8FromSoup(url, story)
