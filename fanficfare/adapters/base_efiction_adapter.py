@@ -73,7 +73,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return ['base_efiction',cls.getConfigSection(),cls.getSiteDomain()+cls.getPathToArchive()]
+        return ['base_efiction',cls.getConfigSection()]
     
     @classmethod
     def getAcceptDomains(cls):

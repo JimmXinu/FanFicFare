@@ -29,6 +29,11 @@ class SinfulDreamsComWickedTemptation(BaseEfictionAdapter):
         return '/wicked/temptation'
 
     @classmethod
+    def getConfigSection(cls):
+        "Overriden because [domain/path] section for multiple-adapter domain."
+        return cls.getSiteDomain()+cls.getPathToArchive()
+
+    @classmethod
     def getSiteAbbrev(self):
         return 'snfldrms-wt'
 

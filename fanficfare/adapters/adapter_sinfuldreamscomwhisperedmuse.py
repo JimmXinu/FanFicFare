@@ -29,6 +29,11 @@ class SinfulDreamsComWhisperedMuse(BaseEfictionAdapter):
         return '/whispered/muse'
 
     @classmethod
+    def getConfigSection(cls):
+        "Overriden because [domain/path] section for multiple-adapter domain."
+        return cls.getSiteDomain()+cls.getPathToArchive()
+
+    @classmethod
     def getSiteAbbrev(self):
         return 'snfldrms-wm'
 
