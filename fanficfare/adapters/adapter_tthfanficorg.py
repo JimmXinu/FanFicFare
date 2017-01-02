@@ -42,7 +42,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL.
-            self._setURL("http://"+self.getSiteDomain()\
+            self._setURL("https://"+self.getSiteDomain()\
                          +"/Story-"+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
@@ -55,14 +55,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.tthfanfic.org/Story-1234 http://www.tthfanfic.org/Story-1234/Author+Story+Title.htm http://www.tthfanfic.org/T-99999999/Story-1234-1/Author+Story+Title.htm http://www.tthfanfic.org/story.php?no=12345"
+        return "https://www.tthfanfic.org/Story-1234 https://www.tthfanfic.org/Story-1234/Author+Story+Title.htm https://www.tthfanfic.org/T-99999999/Story-1234-1/Author+Story+Title.htm https://www.tthfanfic.org/story.php?no=12345"
 
     # http://www.tthfanfic.org/T-999999999999/Story-12345-1/Author+Story+Title.htm
     # http://www.tthfanfic.org/Story-12345
     # http://www.tthfanfic.org/Story-12345/Author+Story+Title.htm
     # http://www.tthfanfic.org/story.php?no=12345
     def getSiteURLPattern(self):
-        return r"http://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
+        return r"https?://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 
     def use_pagecache(self):
         '''
@@ -88,7 +88,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if not params['password']:
             return
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/login.php'
+        loginUrl = 'https://' + self.getSiteDomain() + '/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['urealname']))
 
@@ -148,7 +148,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
                         'sitemaxrating':'5'}
                 logger.info("Attempting to get rating cookie for %s" % url)
-                data = self._postUrl("http://"+self.getSiteDomain()+'/setmaxrating.php',params)
+                data = self._postUrl("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
                 data = self._fetchUrl(url,usecache=False)
@@ -161,9 +161,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/AuthorStories-\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[1].split('-')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',stripHTML(a))
-        authorurl = 'http://'+self.host+a['href']
+        authorurl = 'https://'+self.host+a['href']
 
         try:
             # going to pull part of the meta data from *primary* author list page.
@@ -184,7 +184,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     logger.info("Story Not Found on Author List--Assuming needs Adult.")
                     raise exceptions.FailedToDownload("Story Not Found on Author List--Assume needs Adult?")
                     # raise exceptions.AdultCheckRequired(self.url)
-                nextpage = 'http://'+self.host+nextarrow['href']
+                nextpage = 'https://'+self.host+nextarrow['href']
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
                 authordata = self._fetchUrl(nextpage)
                 #logger.info("authsoup:%s"%authorsoup)
@@ -205,14 +205,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if ainfo != None: # indicates multiple authors/contributors.
             try:
                 # going to pull part of the meta data from author list page.
-                infourl = 'http://'+self.host+ainfo['href']
+                infourl = 'https://'+self.host+ainfo['href']
                 logger.debug("**StoryInfo** URL: "+infourl)
                 infodata = self._fetchUrl(infourl)
                 infosoup = self.make_soup(infodata)
 
                 # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
                 #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
-                #     self.story.addToList('authorUrl','http://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
+                #     self.story.addToList('authorUrl','https://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
                 #     self.story.addToList('author',stripHTML(a))
 
                 # second verticaltable is the chapter list.
@@ -220,12 +220,12 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 for a in table.findAll('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
                     autha = a.findNext('a',href=re.compile(r"^/Author-\d+"))
                     self.story.addToList('authorId',autha['href'].split('/')[1].split('-')[1])
-                    self.story.addToList('authorUrl','http://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
+                    self.story.addToList('authorUrl','https://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
                     self.story.addToList('author',stripHTML(autha))
                     # include leading number to match 1. ... 2. ...
                     self.chapterUrls.append(("%d. %s by %s"%(len(self.chapterUrls)+1,
                                                              stripHTML(a),
-                                                             stripHTML(autha)),'http://'+self.host+a['href']))
+                                                             stripHTML(autha)),'https://'+self.host+a['href']))
 
             except urllib2.HTTPError, e:
                 if e.code == 404:
@@ -242,7 +242,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             else:
                 allOptions = select.findAll('option')
                 for o in allOptions:
-                    url = "http://"+self.host+o['value']
+                    url = "https://"+self.host+o['value']
                     # just in case there's tags, like <i> in chapter titles.
                     self.chapterUrls.append((stripHTML(o),url))
 
@@ -313,7 +313,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                      pseries.get_text())
         if m:
             self.setSeries(m.group('series'),m.group('num'))
-            self.story.setMetadata('seriesUrl',"http://"+self.host+pseries.find('a')['href'])
+            self.story.setMetadata('seriesUrl',"https://"+self.host+pseries.find('a')['href'])
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
