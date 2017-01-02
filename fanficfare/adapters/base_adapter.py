@@ -477,6 +477,11 @@ class BaseSiteAdapter(Configurable):
         return 'no such domain'
 
     @classmethod
+    def getSiteURLFragment(self):
+        "Needs to be overriden in case of adapters that share a domain."
+        return self.getSiteDomain()
+    
+    @classmethod
     def getConfigSection(cls):
         "Only needs to be overriden if != site domain."
         return cls.getSiteDomain()

@@ -73,7 +73,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return ['base_efiction',cls.getConfigSection()]
+        return ['base_efiction',cls.getConfigSection(),cls.getSiteDomain()+cls.getPathToArchive()]
     
     @classmethod
     def getAcceptDomains(cls):
@@ -87,6 +87,10 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www\.)?%s%s/%s\?sid=(?P<storyId>\d+)" % (self.getSiteDomain(), self.getPathToArchive(), self.getViewStoryPhpName())
 
+    @classmethod
+    def getSiteURLFragment(self):
+        return self.getSiteDomain()+self.getPathToArchive()
+    
     @classmethod
     def getEncoding(cls):
         """

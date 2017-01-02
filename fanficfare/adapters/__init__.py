@@ -165,6 +165,9 @@ import adapter_trekfanfictionnet
 import adapter_wuxiaworldcom
 import adapter_wwwlushstoriescom
 import adapter_wwwutopiastoriescom
+import adapter_sinfuldreamscomunicornfic
+import adapter_sinfuldreamscomwhisperedmuse
+import adapter_sinfuldreamscomwickedtemptation
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -185,7 +188,9 @@ for x in imports():
         cls = sys.modules[x].getClass()
         __class_list.append(cls)
         for site in cls.getAcceptDomains():
-            __domain_map[site]=cls
+            l = __domain_map.get(site,[])
+            l.append(cls)
+            __domain_map[site]=l
 
 def getNormalStoryURL(url):
     r = getNormalStoryURLSite(url)
@@ -215,7 +220,7 @@ getNormalStoryURL.__dummyconfig = None
 def getAdapter(config,url,anyurl=False):
 
     #logger.debug("trying url:"+url)
-    (cls,fixedurl) = getClassFor(url)
+    (cls,fixedurl) = _get_class_for(url)
     #logger.debug("fixedurl:"+fixedurl)
     if cls:
         if anyurl:
@@ -251,14 +256,14 @@ def getSiteExamples():
     return l
 
 def getConfigSectionsFor(url):
-    (cls,fixedurl) = getClassFor(url)
+    (cls,fixedurl) = _get_class_for(url)
     if cls:
         return cls.getConfigSections()
 
     # No adapter found.
     raise exceptions.UnknownSite( url, [cls.getSiteDomain() for cls in __class_list] )
 
-def getClassFor(url):
+def _get_class_for(url):
     ## fix up leading protocol.
     fixedurl = re.sub(r"(?i)^[htp]+(s?)[:/]+",r"http\1://",url.strip())
     if fixedurl.startswith("//"):
@@ -276,23 +281,34 @@ def getClassFor(url):
     if( domain != parsedUrl.netloc ):
         fixedurl = fixedurl.replace(parsedUrl.netloc,domain)
 
-    cls = getClassFromList(domain)
-    if not cls and domain.startswith("www."):
+    clslst = _get_classlist_fromlist(domain)
+    ## assumes all adapters for a domain will have www or not have www
+    ## but not mixed.
+    if not clslst and domain.startswith("www."):
         domain = domain.replace("www.","")
         #logger.debug("trying site:without www: "+domain)
-        cls = getClassFromList(domain)
+        clslst = _get_classlist_fromlist(domain)
         fixedurl = re.sub(r"^http(s?)://www\.",r"http\1://",fixedurl)
-    if not cls:
+    if not clslst:
         #logger.debug("trying site:www."+domain)
-        cls = getClassFromList("www."+domain)
+        clslst =_get_classlist_fromlist("www."+domain)
         fixedurl = re.sub(r"^http(s?)://",r"http\1://www.",fixedurl)
 
+    cls = None
+    if len(clslst) == 1:
+        cls = clslst[0]
+    elif len(clslst) > 1:
+        for c in clslst:
+            if c.getSiteURLFragment() in fixedurl:
+                cls = c
+                break
+        
     if cls:
         fixedurl = cls.stripURLParameters(fixedurl)
 
     return (cls,fixedurl)
 
-def getClassFromList(domain):
+def _get_classlist_fromlist(domain):
     try:
         return __domain_map[domain]
     except KeyError:
