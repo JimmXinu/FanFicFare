@@ -235,7 +235,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         else: # single author:
             # Find the chapter selector
             select = soup.find('select', { 'name' : 'chapnav' } )
-        	
+
             if select is None:
         	   # no selector found, so it's a one-chapter story.
         	   self.chapterUrls.append((self.story.getMetadata('title'),url))
@@ -330,6 +330,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         except:
             pass
         return self.utf8FromSoup(url,div)
+
+    ## Normalize chapter URLs because a) site has changed from http to
+    ## https and b) in case of title change.  That way updates to
+    ## existing stories don't re-download all chapters.
+    def normalize_chapterurl(self,url):
+        url = re.sub(r"https?://("+self.getSiteDomain()+"/Story-\d+(-\d+)?)(/.*)?$",
+                     r"https://\1",url)
+        return url
 
 def getClass():
     return TwistingTheHellmouthSiteAdapter
