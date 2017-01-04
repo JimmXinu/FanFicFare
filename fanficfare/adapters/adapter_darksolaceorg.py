@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+from ..htmlcleanup import stripHTML
+
 # Software: eFiction
 from base_efiction_adapter import BaseEfictionAdapter
 
@@ -35,6 +37,18 @@ class DarkSolaceOrgAdapter(BaseEfictionAdapter):
     @classmethod
     def getDateFormat(self):
         return "%B %d, %Y"
+
+    def extractChapterUrlsAndMetadata(self):
+        ## Call super of extractChapterUrlsAndMetadata().
+        ## base_efiction leaves the soup in self.html.
+        super(DarkSolaceOrgAdapter, self).extractChapterUrlsAndMetadata()
+
+        ## attempt to fetch rating from title line:
+        ## "Do You Think This Is Love? by Supernatural Beings [PG]"
+        r = stripHTML(self.html.find("div", {"id": "pagetitle"}))
+        if '[' in r and ']' in r:
+            self.story.setMetadata('rating',
+                                   r[r.index('[')+1:r.index(']')])
 
 def getClass():
     return DarkSolaceOrgAdapter
