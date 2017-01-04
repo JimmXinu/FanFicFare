@@ -25,7 +25,6 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
-import sys
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -58,8 +57,18 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         self.is_adult=False
 
         # get storyId from url
-        self.story.setMetadata('storyId',urllib2.quote(self.parsedUrl.path.split('/')[3].replace(
-            '.aspx','')))
+        storyId = self.parsedUrl.path.split('/')[3].replace('.aspx','')
+        if '%' not in storyId:
+            ## assume already escaped if contains %.  Assume needs escaping if it doesn't.
+            try:
+                storyId = urllib2.quote(storyId)
+            except KeyError:
+                ## string from calibre on windows *isn't* utf8, but a
+                ## latin1 of some kind.  This encode would be better
+                ## done somewhere where the code type can be known.
+                storyId = urllib2.quote(storyId.encode("Windows-1252"))
+
+        self.story.setMetadata('storyId',storyId)
 
         ## This site has the category as part of the url, so to normalize the url below, we get it
         ## here
