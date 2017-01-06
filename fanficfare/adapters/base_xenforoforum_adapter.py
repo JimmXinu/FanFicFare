@@ -218,6 +218,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         topsoup = souptag = self.make_soup(data)
 
         h1 = souptag.find('div',{'class':'titleBar'}).h1
+        ## SV has started putting 'Crossover' spans in the title h1.
+        for tag in h1.find_all('span',{'class':'prefix'}):
+            tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
 
         first_post_title = self.getConfig('first_post_title','First Post')
