@@ -63,10 +63,10 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
             try:
                 storyId = urllib2.quote(storyId)
             except KeyError:
-                ## string from calibre on windows *isn't* utf8, but a
-                ## latin1 of some kind.  This encode would be better
-                ## done somewhere where the code type can be known.
-                storyId = urllib2.quote(storyId.encode("Windows-1252"))
+                ## string from calibre is utf8, but lushstories.com
+                ## expects extended chars to be in latin1 / iso-8859-1
+                ## rather than utf8.
+                storyId = urllib2.quote(storyId.encode("iso-8859-1"))
 
         self.story.setMetadata('storyId',storyId)
 
