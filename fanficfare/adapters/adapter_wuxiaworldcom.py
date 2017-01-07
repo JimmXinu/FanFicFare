@@ -27,6 +27,8 @@ This will scrape the chapter text and metadata from stories on the site www.wuxi
 import logging
 import re
 import urllib2
+import urlparse
+import traceback
 
 from base_adapter import BaseSiteAdapter, makeDate
 
@@ -59,7 +61,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
             # normalized story URL.
             self._setURL("http://"+self.getSiteDomain()
-                         +"/"+self.story.getMetadata('storyId'))
+                         +"/"+self.story.getMetadata('storyId')+"/")
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -125,16 +127,17 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         cdata = soup.find('div', {'itemprop':'articleBody'})
         #logger.debug('############################ - cdata\n%s\n###########################', cdata)
         chapters = cdata.find_all('a', href=re.compile(
-            r'http://'+self.getSiteDomain()+'/'+self.story.getMetadata(
-                'storyId')+r'/(#)?([a-zA-Z0-9_-]+)(/)?'))
+            r'^(((https?://)?'+self.getSiteDomain()+')?/'+self.story.getMetadata(
+                'storyId')+r'/)?(#)?([a-zA-Z0-9_ -]+)(/)?$'))
         ## some have different chapter links... going to do it again
         if len(chapters) == 0:
             chapters = cdata.find_all('a', href=re.compile(
-                r'http://'+self.getSiteDomain()+'/master-index/'+r'([#a-zA-Z0-9_-]+)(/)?'))
+                r'https?://'+self.getSiteDomain()+'/master-index/'+r'([#a-zA-Z0-9_ -]+)(/)?'))
 
         for chap in chapters:
             if stripHTML(chap).strip() != '':
-                self.chapterUrls.append((stripHTML(chap), chap['href']))
+                href = urlparse.urljoin(self.url, chap['href'])
+                self.chapterUrls.append((stripHTML(chap), href))
             chap.extract()
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
@@ -147,17 +150,32 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         #logger.debug('Getting chapter text from: %s', url)
 
-        data = self._fetchUrl(url)
+        try:
+            data = self._fetchUrl(url)
+            soup = self.make_soup(data)
+            story = soup.find('div', {'itemprop':'articleBody'})
+            if not story:
+                raise exceptions.FailedToDownload(
+                    "Error downloading Chapter: %s!  Missing required element!" % url)
+            #removing the Previous and next chapter links
+            for tag in story.find_all('a'):
+                tag.extract()
 
-        soup = self.make_soup(data)
-
-        story = soup.find('div', {'itemprop':'articleBody'})
-        if not story:
-            raise exceptions.FailedToDownload(
-                "Error downloading Chapter: %s!  Missing required element!" % url)
-
-        #removing the Previous and next chapter links
-        for tag in story.find_all('a'):
-            tag.extract()
+        except Exception as e:
+            if self.getConfig('continue_on_chapter_error'):
+                story = self.make_soup("""<div>
+<p><b>Error</b></p>
+<p>FanFicFare failed to download this chapter.  Because you have
+<b>continue_on_chapter_error</b> set to <b>true</b>, the download continued.</p>
+<p>Chapter URL:<br>%s</p>
+<p>
+Authors on wuxiaworld.com create their own index pages, so it's not
+uncommon for there to be 404 errors when there are links to chapters
+that haven't been uploaded yet.
+</p>
+<p>Error:<br><pre>%s</pre></p>
+</div>"""%(url,traceback.format_exc()))
+            else:
+                raise
 
         return self.utf8FromSoup(url, story)

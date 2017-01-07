@@ -194,7 +194,7 @@ def get_valid_set_options():
                'internalize_text_links':(None,['epub','html'],boollist),
 
                'capitalize_forumtags':(base_xenforo_list,None,boollist),
-               'continue_on_chapter_error':(base_xenforo_list,None,boollist),
+               'continue_on_chapter_error':(base_xenforo_list+['wuxiaworld.com'],None,boollist),
                'minimum_threadmarks':(base_xenforo_list,None,None),
                'first_post_title':(base_xenforo_list,None,None),
                'always_include_first_post':(base_xenforo_list,None,boollist),
