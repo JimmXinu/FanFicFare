@@ -17,6 +17,7 @@
 ####################################################################################################
 # Adapted by GComyn - December 06, 2016
 # Updated on December 18, 2016 - formatting from linter
+# Updated on January 07, 2017 - fixed metadata capturing after Jimm fixed the UnidecodeError problem
 ####################################################################################################
 ''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
 
@@ -87,6 +88,10 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %b %Y" # XXX
 
+        # since the 'story' is one page, I am going to set the variable to hold the soup from the
+        # story here
+        self.html = ''
+
     ################################################################################################
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -102,6 +107,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
+    ################################################################################################
     def _fetchUrl(self,url,parameters=None,extrasleep=None,usecache=True):
         ## lushstories.com sets unescaped cookies with cause
         ## httplib.py to fail.
@@ -165,61 +171,81 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # The stories on this site are all on one page, so we use the original URL
         self.chapterUrls.append((self.story.getMetadata('title'),self.url))
         self.story.setMetadata('numChapters',len(self.chapterUrls))
+        self.story.setMetadata('status', 'Complete')
 
         #Need to get the metadata from the author's story page
+        # The try/except is still needed, because some author pages are no longer on the site, but
+        # the story is, but the UnicodeDecodeError is no longer needed, so was removed
         authorurl = self.story.getMetadata('authorUrl')
-        # try:
-        adata = self._fetchUrl(authorurl)
-        # except (urllib2.HTTPError, UnicodeDecodeError) as e:
-        #     ## Can't get the author's page, so we use what is on the story page
-        #     tags = soup.find('div',{'id':'storytags'}).find('a')
-        #     for tag in tags:
-        #         self.story.addToList('eroticatags',stripHTML(tag))
-        #     labels = soup.findAll('label')
-        #     for label in labels:
-        #         if label.string == 'Added:':
-        #             self.story.setMetadata('datePublished', makeDate(label.nextSibling.string.strip(
-        #                 ), self.dateformat))
-        #         elif label.string == 'Words:':
-        #             self.story.setMetadata('numWords',label.nextSibling.string.strip())
+        try:
+            adata = self._fetchUrl(authorurl)
+        except (urllib2.HTTPError) as e:
+            ## Can't get the author's page, so we use what is on the story page
+            tags = soup.find('div',{'id':'storytags'}).find('a')
+            if tags:
+                for tag in tags:
+                    self.story.addToList('eroticatags',stripHTML(tag))
+            labels = soup.findAll('label')
+            if labels:
+                for label in labels:
+                    if label.string == 'Added:':
+                        self.story.setMetadata('datePublished', makeDate(label.nextSibling.string.strip(
+                            ), self.dateformat))
+                    elif label.string == 'Words:':
+                        self.story.setMetadata('numWords',label.nextSibling.string.strip())
 
-        #     summary = stripHTML(soup.find('div',{'class':'oneliner'}))
-        #     if len(summary) == 0:
-        #         summary = '>>>>>>>>>> No Summary Found <<<<<<<<<<'
-        #     else:
-        #         summary = stripHTML(summary)
-        #     self.setDescription(url,summary)
-        #     self.html = soup
-        #     return
+            summary = stripHTML(soup.find('div',{'class':'oneliner'}))
+            if len(summary) == 0:
+                summary = '>>>>>>>>>> No Summary Found <<<<<<<<<<'
+            else:
+                summary = stripHTML(summary)
+            self.setDescription(url,summary)
+            # since the 'story' is one page, I am going to save the soup here, so we can use iter
+            # to get the story text in the getChapterText function, instead of having to retrieve
+            # it again.
+            self.html = soup
+            return
 
         asoup = self.make_soup(adata)
 
         ## This is messy and hackish, I know, but at this time I can't think of a better way.
         summary=""
         for story in asoup.findAll('div',{'class':'entrycontent'}):
-            if story.find('a', href=self.url):
-                for p in story.findAll('p'):
-                    if 'Added:' in stripHTML(p):
-                        for i, a in enumerate(p.findAll('a')):
-                            if i == 0:
-                                self.story.setMetadata('category',a.string)
-                            elif 'comments' in a['href']:
-                                pass
+            for link in story.find_all('a'):
+                if '/stories/' in link['href']:
+                    linkh = urllib2.quote(link['href'].encode('utf-8', 'ignore'))
+                    linkh = linkh.replace('%3A', ':')
+#                    print self.url
+#                    print linkh
+                    if self.url == linkh:
+#                        print 'Got here'
+                        for p in story.findAll('p'):
+                            if 'Added:' in stripHTML(p):
+                                for i, a in enumerate(p.findAll('a')):
+                                    if i == 0:
+                                        self.story.setMetadata('category',a.string)
+                                    elif 'comments' in a['href']:
+                                        pass
+                                    else:
+                                        self.story.addToList('eroticatags',a.string)
+                                value = stripHTML(p)
+                                for metad in value.split("|"):
+                                    metad = metad.strip()
+                                    if metad.startswith('Added'):
+                                        value = metad.replace('Added:','').strip()
+                                        self.story.setMetadata('datePublished', makeDate(
+                                            value, self.dateformat))
+                                    elif metad.startswith('Words'):
+                                        self.story.setMetadata('numWords',metad.replace(
+                                            'Words:','').strip())
                             else:
-                                self.story.addToList('eroticatags',a.string)
-                        value = stripHTML(p)
-                        for metad in value.split("|"):
-                            metad = metad.strip()
-                            if metad.startswith('Added'):
-                                value = metad.replace('Added:','').strip()
-                                self.story.setMetadata('datePublished', makeDate(
-                                    value, self.dateformat))
-                            elif metad.startswith('Words'):
-                                self.story.setMetadata('numWords',metad.replace(
-                                    'Words:','').strip())
-                    else:
-                        summary += stripHTML(p)+'. '
+                                summary += stripHTML(p)+'. '
+                        break
+#                    print '---'
+            if self.story.getMetadata('datePublished'):
                 break
+        if not self.story.getMetadata('datePublished'):
+            raise exceptions.StoryDoesNotExist('Metadata No retrieved')
         self.setDescription(url,summary.strip())
 
         # since the 'story' is one page, I am going to save the soup here, so we can use iter
