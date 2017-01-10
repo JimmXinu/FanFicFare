@@ -28,7 +28,6 @@ import logging
 import re
 import urllib2
 import urlparse
-import traceback
 
 from base_adapter import BaseSiteAdapter, makeDate
 
@@ -150,32 +149,14 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         #logger.debug('Getting chapter text from: %s', url)
 
-        try:
-            data = self._fetchUrl(url)
-            soup = self.make_soup(data)
-            story = soup.find('div', {'itemprop':'articleBody'})
-            if not story:
-                raise exceptions.FailedToDownload(
-                    "Error downloading Chapter: %s!  Missing required element!" % url)
-            #removing the Previous and next chapter links
-            for tag in story.find_all('a'):
-                tag.extract()
-
-        except Exception as e:
-            if self.getConfig('continue_on_chapter_error'):
-                story = self.make_soup("""<div>
-<p><b>Error</b></p>
-<p>FanFicFare failed to download this chapter.  Because you have
-<b>continue_on_chapter_error</b> set to <b>true</b>, the download continued.</p>
-<p>Chapter URL:<br>%s</p>
-<p>
-Authors on wuxiaworld.com create their own index pages, so it's not
-uncommon for there to be 404 errors when there are links to chapters
-that haven't been uploaded yet.
-</p>
-<p>Error:<br><pre>%s</pre></p>
-</div>"""%(url,traceback.format_exc()))
-            else:
-                raise
+        data = self._fetchUrl(url)
+        soup = self.make_soup(data)
+        story = soup.find('div', {'itemprop':'articleBody'})
+        if not story:
+            raise exceptions.FailedToDownload(
+                "Error downloading Chapter: %s!  Missing required element!" % url)
+        #removing the Previous and next chapter links
+        for tag in story.find_all('a'):
+            tag.extract()
 
         return self.utf8FromSoup(url, story)

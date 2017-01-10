@@ -17,7 +17,6 @@
 
 import time
 import logging
-import traceback
 logger = logging.getLogger(__name__)
 import re
 import urllib2
@@ -340,76 +339,63 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def getChapterTextNum(self, url, index):
         logger.debug('Getting chapter text from: %s index: %s' % (url,index))
 
-        try:
-            origurl = url
+        origurl = url
 
-            # reader mode shows only threadmarked posts in threadmark
-            # order.  don't use reader mode for /threads/ urls, or
-            # first post when always_include_first_post.
-            if ( self.reader and
-                 self.getConfig("use_reader_mode",True) and
-                 '/threads/' not in url and
-                 (index > 0 or not self.getConfig('always_include_first_post')) ):
-                logger.debug("USE READER MODE")
-                # in case it changes:
-                posts_per_page = self.getConfig("reader_posts_per_page",10)
+        # reader mode shows only threadmarked posts in threadmark
+        # order.  don't use reader mode for /threads/ urls, or
+        # first post when always_include_first_post.
+        if ( self.reader and
+             self.getConfig("use_reader_mode",True) and
+             '/threads/' not in url and
+             (index > 0 or not self.getConfig('always_include_first_post')) ):
+            logger.debug("USE READER MODE")
+            # in case it changes:
+            posts_per_page = self.getConfig("reader_posts_per_page",10)
 
-                # always_include_first_post with threadmarks added an
-                # extra first chapter, we should be past it.
-                if self.getConfig('always_include_first_post'):
-                    index = index - 1
-                reader_page_num = int((index+posts_per_page)/posts_per_page)
-                reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
-                logger.debug("Reader URL to: %s"%reader_url)
-                data = self._fetchUrl(reader_url)
-                topsoup = souptag = self.make_soup(data)
+            # always_include_first_post with threadmarks added an
+            # extra first chapter, we should be past it.
+            if self.getConfig('always_include_first_post'):
+                index = index - 1
+            reader_page_num = int((index+posts_per_page)/posts_per_page)
+            reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
+            logger.debug("Reader URL to: %s"%reader_url)
+            data = self._fetchUrl(reader_url)
+            topsoup = souptag = self.make_soup(data)
 
-                # assumed normalized to /posts/1234/
-                anchorid = "post-"+url.split('/')[-2]
-                logger.debug("anchorid: %s"%anchorid)
+            # assumed normalized to /posts/1234/
+            anchorid = "post-"+url.split('/')[-2]
+            logger.debug("anchorid: %s"%anchorid)
+            souptag = topsoup.find('li',id=anchorid)
+        else:
+            logger.debug("DON'T USE READER MODE")
+            (data,opened) = self._fetchUrlOpened(url)
+            url = opened.geturl()
+            if '#' in origurl and '#' not in url:
+                url = url + origurl[origurl.index('#'):]
+            logger.debug("chapter URL redirected to: %s"%url)
+
+            topsoup = souptag = self.make_soup(data)
+
+            if '#' in url:
+                anchorid = url.split('#')[1]
                 souptag = topsoup.find('li',id=anchorid)
-            else:
-                logger.debug("DON'T USE READER MODE")
-                (data,opened) = self._fetchUrlOpened(url)
-                url = opened.geturl()
-                if '#' in origurl and '#' not in url:
-                    url = url + origurl[origurl.index('#'):]
-                logger.debug("chapter URL redirected to: %s"%url)
 
-                topsoup = souptag = self.make_soup(data)
+        self.handle_spoilers(topsoup,souptag)
 
-                if '#' in url:
-                    anchorid = url.split('#')[1]
-                    souptag = topsoup.find('li',id=anchorid)
+        bq = souptag.find('blockquote')
 
-            self.handle_spoilers(topsoup,souptag)
+        bq.name='div'
 
-            bq = souptag.find('blockquote')
+        for iframe in bq.find_all('iframe'):
+            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
-            bq.name='div'
+        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
-            for iframe in bq.find_all('iframe'):
-                iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-
-            for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
-                qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-
-            ## img alt="[​IMG]" class="bbCodeImage LbImage lazyload
-            ## include lazy load images.
-            for img in bq.find_all('img',{'class':'lazyload'}):
-                img['src'] = img['data-src']
-
-        except Exception as e:
-            if self.getConfig('continue_on_chapter_error'):
-                bq = self.make_soup("""<div>
-<p><b>Error</b></p>
-<p>FanFicFare failed to download this chapter.  Because you have
-<b>continue_on_chapter_error</b> set to <b>true</b> in your personal.ini, the download continued.</p>
-<p>Chapter URL:<br>%s</p>
-<p>Error:<br><pre>%s</pre></p>
-</div>"""%(url,traceback.format_exc()))
-            else:
-                raise
+        ## img alt="[​IMG]" class="bbCodeImage LbImage lazyload
+        ## include lazy load images.
+        for img in bq.find_all('img',{'class':'lazyload'}):
+            img['src'] = img['data-src']
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',bq)

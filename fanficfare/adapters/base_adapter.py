@@ -25,7 +25,7 @@ import urllib2 as u2
 import urlparse as up
 import cookielib as cl
 from functools import partial
-import pickle
+import traceback
 
 import bs4
 
@@ -177,12 +177,6 @@ class BaseSiteAdapter(Configurable):
         this and change it to True.
         '''
         return False
-
-    # def story_load(self,filename):
-    #     d = pickle.load(self.story.metadata,filename)
-    #     self.story.metadata = d['metadata']
-    #     self.chapterUrls = d['chapterlist']
-    #     self.story.metadataDone = True
 
     def _setURL(self,url):
         self.url = url
@@ -395,17 +389,30 @@ class BaseSiteAdapter(Configurable):
                             self.oldchaptersdata[url]['chapterorigtitle'] !=
                             self.oldchaptersdata[url]['chaptertitle']) )
 
-                    if not data:
-                        data = self.getChapterTextNum(url,index)
-                        # if had to fetch and has existing chapters
-                        newchap = bool(self.oldchapters or self.oldchaptersmap)
+                    try:
+                        if not data:
+                            data = self.getChapterTextNum(url,index)
+                            # if had to fetch and has existing chapters
+                            newchap = bool(self.oldchapters or self.oldchaptersmap)
 
-                    if index == 0 and self.getConfig('always_reload_first_chapter'):
-                        data = self.getChapterTextNum(url,index)
-                        # first chapter is rarely marked new
-                        # anyway--only if it's replaced during an
-                        # update.
-                        newchap = False
+                        if index == 0 and self.getConfig('always_reload_first_chapter'):
+                            data = self.getChapterTextNum(url,index)
+                            # first chapter is rarely marked new
+                            # anyway--only if it's replaced during an
+                            # update.
+                            newchap = False
+                    except Exception as e:
+                        if self.getConfig('continue_on_chapter_error'):
+                            data = self.make_soup("""<div>
+<p><b>Error</b></p>
+<p>FanFicFare failed to download this chapter.  Because
+<b>continue_on_chapter_error</b> is set to <b>true</b>, the download continued.</p>
+<p>Chapter URL:<br>%s</p>
+<p>Error:<br><pre>%s</pre></p>
+</div>"""%(url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
+                            title = title+"(FAILED)"
+                        else:
+                            raise
 
                     self.story.addChapter(url,
                                           removeEntities(title),
@@ -480,7 +487,7 @@ class BaseSiteAdapter(Configurable):
     def getSiteURLFragment(self):
         "Needs to be overriden in case of adapters that share a domain."
         return self.getSiteDomain()
-    
+
     @classmethod
     def getConfigSection(cls):
         "Only needs to be overriden if != site domain."

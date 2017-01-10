@@ -360,41 +360,28 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             ## for chapter_urls setting.
             logger.debug('Getting chapter text from: %s' % url)
 
-            try:
-                origurl = url
-                (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
-                url = opened.geturl()
-                if '#' in origurl and '#' not in url:
-                    url = url + origurl[origurl.index('#'):]
-                logger.debug("chapter URL redirected to: %s"%url)
+            origurl = url
+            (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
+            url = opened.geturl()
+            if '#' in origurl and '#' not in url:
+                url = url + origurl[origurl.index('#'):]
+            logger.debug("chapter URL redirected to: %s"%url)
 
-                soup = self.make_soup(data)
+            soup = self.make_soup(data)
 
-                if '#' in url:
-                    anchorid = url.split('#')[1]
-                    soup = soup.find('li',id=anchorid)
+            if '#' in url:
+                anchorid = url.split('#')[1]
+                soup = soup.find('li',id=anchorid)
 
-                bq = soup.find('blockquote')
+            bq = soup.find('blockquote')
 
-                bq.name='div'
+            bq.name='div'
 
-                for iframe in bq.find_all('iframe'):
-                    iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+            for iframe in bq.find_all('iframe'):
+                iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
-                for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
-                    qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-
-            except Exception as e:
-                if self.getConfig('continue_on_chapter_error'):
-                    bq = self.make_soup("""<div>
-<p><b>Error</b></p>
-<p>FanFicFare failed to download this chapter.  Because you have
-<b>continue_on_chapter_error</b> set to <b>true</b> in your personal.ini, the download continued.</p>
-<p>Chapter URL:<br>%s</p>
-<p>Error:<br><pre>%s</pre></p>
-</div>"""%(url,traceback.format_exc()))
-                else:
-                    raise
+            for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+                qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
             return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
 
