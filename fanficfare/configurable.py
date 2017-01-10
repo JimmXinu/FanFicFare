@@ -375,6 +375,7 @@ def get_valid_keywords():
                  'zip_output',
                  'capitalize_forumtags',
                  'continue_on_chapter_error',
+                 'chapter_title_error_mark',
                  'minimum_threadmarks',
                  'first_post_title',
                  'always_include_first_post',

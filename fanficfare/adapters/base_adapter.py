@@ -402,7 +402,7 @@ class BaseSiteAdapter(Configurable):
                             # update.
                             newchap = False
                     except Exception as e:
-                        if self.getConfig('continue_on_chapter_error'):
+                        if self.getConfig('continue_on_chapter_error',False):
                             data = self.make_soup("""<div>
 <p><b>Error</b></p>
 <p>FanFicFare failed to download this chapter.  Because
@@ -410,7 +410,8 @@ class BaseSiteAdapter(Configurable):
 <p>Chapter URL:<br>%s</p>
 <p>Error:<br><pre>%s</pre></p>
 </div>"""%(url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
-                            title = title+"(FAILED)"
+                            title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
+                            url="chapter url removed due to failure"
                         else:
                             raise
 
