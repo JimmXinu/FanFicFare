@@ -74,7 +74,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
         return ['base_efiction',cls.getConfigSection()]
-    
+
     @classmethod
     def getAcceptDomains(cls):
         return [cls.getSiteDomain(),'www.' + cls.getSiteDomain()]
@@ -90,7 +90,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteURLFragment(self):
         return self.getSiteDomain()+self.getPathToArchive()
-    
+
     @classmethod
     def getEncoding(cls):
         """
@@ -260,6 +260,26 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         else:
             return True
 
+    def handleMetadataPairHTML(self, key, valueHTML):
+        """
+        Handles a key-value pair of story metadata.
+
+        Returns straight away if the value is 'None' (that's a string)
+
+        Allows for handling of HTML values before calling
+        handleMetadataPair() to handle string values.
+        """
+        if valueHTML == 'None':
+            return
+        elif key == 'Summary':
+            ## will be de-HTML'd inside setDescription if keep_summary_html:false
+            self.setDescription(self.url, valueHTML)
+        else:
+            ## strip trailing line breaks
+            valueStr = re.sub("<br/>", "", valueHTML)
+            valueStr = stripHTML(valueStr)
+            self.handleMetadataPair(key,valueStr)
+
     def handleMetadataPair(self, key, value):
         """
         Handles a key-value pair of story metadata.
@@ -275,8 +295,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         if value == 'None':
             return
-        elif key == 'Summary':
-            self.setDescription(self.url, value)
         elif 'Genre' in key:
             for val in re.split("\s*,\s*", value):
                 self.story.addToList('genre', val)
@@ -315,7 +333,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             for val in re.split("\s*,\s*", value):
                 self.story.addToList('ships', val)
         elif key == 'Series':
-            ## TODO is not a link in the printable view, so no seriesURL possible 
+            ## TODO is not a link in the printable view, so no seriesURL possible
             self.story.setMetadata('series', value)
         else:
             # Any other metadata found, convert label to lower case
@@ -398,19 +416,15 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 nextEl = nextEl.nextSibling
             key = labelSpan.string.strip()
 
-            ## strip trailing line breaks
-            valueStr = re.sub("<br/>", "", valueStr)
-
             ## strip trailing colons
             key = re.sub("\s*:\s*$", "", key)
 
             ## strip whitespace
             key = key.strip()
-            valueStr = stripHTML(valueStr)
 
-            self.handleMetadataPair(key, valueStr)
+            self.handleMetadataPairHTML(key, valueStr)
 
-        ## Chapter URLs 
+        ## Chapter URLs
 
         # If we didn't bulk-load the whole chapter we now need to load
         # the non-printable HTML version of the landing page (i.e. the story
