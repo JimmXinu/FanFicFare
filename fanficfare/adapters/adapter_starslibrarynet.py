@@ -28,7 +28,7 @@ class StarsLibraryNetAdapter(BaseEfictionAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return [cls.getConfigSection(),'www.twcslibrary.net']
+        return super(StarsLibraryNetAdapter, cls).getConfigSections()+[cls.getConfigSection(),'www.twcslibrary.net']
     
     @classmethod
     def getAcceptDomains(cls):
