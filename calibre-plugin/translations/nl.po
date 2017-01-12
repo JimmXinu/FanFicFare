@@ -3,6 +3,7 @@
 # 
 # Translators:
 # Alex, 2016
+# erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
 # Nathan Follens, 2015
 # Nathan Follens, 2016
 # Rodolfo_Jadon, 2014-2015
@@ -12,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-01-01 14:08+Central Standard Time\n"
-"PO-Revision-Date: 2017-01-02 09:24+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2017-01-11 12:16+0000\n"
+"Last-Translator: erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -144,11 +145,11 @@ msgstr ""
 
 #: config.py:422
 msgid "Default If Story Already Exists?"
-msgstr ""
+msgstr "Standaard als het verhaal reeds bestaat?"
 
 #: config.py:437
 msgid "Default Update Calibre &Metadata?"
-msgstr ""
+msgstr "Standaard update Calibre &Metadata?"
 
 #: config.py:438
 msgid ""
@@ -160,7 +161,7 @@ msgstr ""
 
 #: config.py:442
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr ""
+msgstr "Update standaard de EPUB Cover bij het updaten van de EPUB?"
 
 #: config.py:443
 msgid ""
@@ -231,7 +232,7 @@ msgstr ""
 
 #: config.py:478
 msgid "Check for existing Series Anthology books?"
-msgstr ""
+msgstr "Controle van bestaande Anthologieën serie boeken?"
 
 #: config.py:479
 msgid ""
@@ -253,7 +254,7 @@ msgstr ""
 
 #: config.py:491
 msgid "Check for changed Story URL?"
-msgstr ""
+msgstr "Controleer veranderd verhaal URL?"
 
 #: config.py:492
 msgid ""
@@ -300,7 +301,7 @@ msgstr ""
 
 #: config.py:515
 msgid "Smarten Punctuation (EPUB only)"
-msgstr ""
+msgstr "Slimme interpunctie (enkel EPUB)"
 
 #: config.py:516
 msgid ""
@@ -317,7 +318,7 @@ msgstr ""
 
 #: config.py:525
 msgid "Calculate Word Count:"
-msgstr ""
+msgstr "Bereken aantal woorden:"
 
 #: config.py:538
 msgid "Automatically Convert new/update books?"
@@ -663,11 +664,11 @@ msgstr ""
 
 #: config.py:988
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr ""
+msgstr "Maak plug om covers te maken. Aanvullende instellingen staan hieronder."
 
 #: config.py:995
 msgid "Calibre Generate Cover"
-msgstr ""
+msgstr "Calibre gegenereerde cover"
 
 #: config.py:996
 msgid ""
@@ -678,7 +679,7 @@ msgstr ""
 
 #: config.py:1010
 msgid "Generate Covers Only for New Books"
-msgstr ""
+msgstr "Maak enkel nieuwe covers voor nieuwe boeken"
 
 #: config.py:1011
 msgid ""
@@ -688,7 +689,7 @@ msgstr ""
 
 #: config.py:1017
 msgid "Inject/update the cover inside EPUB"
-msgstr ""
+msgstr "Injecteer/update de cover binnen de EPUB"
 
 #: config.py:1018
 msgid ""
@@ -980,11 +981,11 @@ msgstr "Sla alle fouten op"
 
 #: config.py:1377
 msgid "If unchecked, these errors will not be saved:%s"
-msgstr ""
+msgstr "Wanneer uitgevinkt, zullen deze foutmeldingen niet bewaard worden:%s"
 
 #: config.py:1379 fff_plugin.py:1355 jobs.py:219
 msgid "Not Overwriting, web site is not newer."
-msgstr ""
+msgstr "Niets overschreven, web site is niet nieuwer."
 
 #: config.py:1380 fff_plugin.py:1334 jobs.py:258
 msgid "Already contains %d chapters."
@@ -1063,7 +1064,7 @@ msgstr ""
 
 #: config.py:1477
 msgid "Set Calibre Author URL"
-msgstr ""
+msgstr "Stel de Calibre auteur in van URL"
 
 #: config.py:1478
 msgid "Set Calibre Author URL to Author's URL on story site."
@@ -1071,7 +1072,7 @@ msgstr ""
 
 #: config.py:1482
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr ""
+msgstr "Gebruik de commentaren van de Anthologie? "
 
 #: config.py:1483
 msgid ""
@@ -1081,20 +1082,20 @@ msgstr ""
 
 #: config.py:1488
 msgid "Set Anthology Comments only for new books"
-msgstr ""
+msgstr "Stel de Anthologie commentaren in voor nieuwe boeken"
 
 #: config.py:1489
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
-msgstr ""
+msgstr "Commentaren zal enkel gebruikt worden voor nieuwe Anthologieën, geen updates. Op deze manier, zijn je eigen commentaren gevrijwaard."
 
 #: config.py:1506
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr ""
+msgstr "Deze instellingen staat FanFicFace toe om URL van verhalen te downloaden vanaf je e-mail. Het zal enkel kijken naar URLs van ongelezen e-amails in de map hieronder gespecificeerd."
 
 #: config.py:1511
 msgid "IMAP Server Name"
@@ -1168,7 +1169,7 @@ msgstr ""
 
 #: config.py:1570
 msgid "Update Existing Books Only"
-msgstr ""
+msgstr "Update aleen bestaande boeken"
 
 #: config.py:1571
 msgid ""
@@ -1179,7 +1180,7 @@ msgstr ""
 
 #: config.py:1576
 msgid "Download from Email Immediately"
-msgstr ""
+msgstr "Onmiddellijk downloaden van e-mail."
 
 #: config.py:1577
 msgid ""
@@ -1206,7 +1207,7 @@ msgstr "Uitvoer &Formaat:"
 #: dialogs.py:272 dialogs.py:825
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr ""
+msgstr "Kies output formaat bij het maken. Kan de standaardwaarden aanpassen van de plugin configuratie."
 
 #: dialogs.py:300 dialogs.py:845
 msgid "Update Calibre &Metadata?"
@@ -1220,7 +1221,7 @@ msgstr ""
 
 #: dialogs.py:307 dialogs.py:850
 msgid "Update EPUB Cover?"
-msgstr ""
+msgstr "Update EPUB Cover?"
 
 #: dialogs.py:308 dialogs.py:851
 msgid ""
@@ -1230,7 +1231,7 @@ msgstr ""
 
 #: dialogs.py:370
 msgid "Story URLs for anthology, one per line:"
-msgstr ""
+msgstr "Verhaal URLs for anthologie, één per lijn"
 
 #: dialogs.py:371
 msgid ""
@@ -1240,17 +1241,17 @@ msgstr ""
 
 #: dialogs.py:372
 msgid "If Story Already Exists in Anthology?"
-msgstr ""
+msgstr "Wat als verhaal reeds bestaat in Anthologie?"
 
 #: dialogs.py:373
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
-msgstr ""
+msgstr "Wat te doen als er reeds een bestaand verhaal bestaat met dezelfde URL in de anthologie."
 
 #: dialogs.py:382
 msgid "Story URLs, one per line:"
-msgstr ""
+msgstr "Verhaal URLs, één per lijn"
 
 #: dialogs.py:383
 msgid ""
@@ -1261,13 +1262,13 @@ msgstr ""
 
 #: dialogs.py:384
 msgid "If Story Already Exists?"
-msgstr ""
+msgstr "Wat als het verhaal reeds bestaat?"
 
 #: dialogs.py:385
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
-msgstr ""
+msgstr "Wat te doen als er reeds een verhaal bestaat met dezelfde URL of titel en auteur."
 
 #: dialogs.py:505
 msgid "For Individual Books"
@@ -1275,11 +1276,11 @@ msgstr "Voor individuele boeken"
 
 #: dialogs.py:506
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr ""
+msgstr "Haal de URLs op en ga naar het download dialoogvenster van individuele verhalen"
 
 #: dialogs.py:511
 msgid "For Anthology Epub"
-msgstr ""
+msgstr "Voor Anthologie Epub"
 
 #: dialogs.py:512
 msgid ""
@@ -1452,7 +1453,7 @@ msgstr ""
 
 #: dialogs.py:1140
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr ""
+msgstr "Verwijder boeken (inclusief boeken zonder FanFiction URLs)?"
 
 #: dialogs.py:1141
 msgid "Delete the selected books after adding them to the Rejected URLs list."
@@ -1460,7 +1461,7 @@ msgstr ""
 
 #: dialogs.py:1297
 msgid "Search for string in edit box."
-msgstr ""
+msgstr "Zoek naar text in het zoekvenster"
 
 #: dialogs.py:1300
 msgid "Find:"
@@ -1518,43 +1519,43 @@ msgstr "&Download van URLs"
 
 #: fff_plugin.py:301
 msgid "Download FanFiction Books from URLs"
-msgstr ""
+msgstr "Download FanFiction boeken van URLs"
 
 #: fff_plugin.py:304
 msgid "&Update Existing FanFiction Books"
-msgstr ""
+msgstr "&Update Bestaande FanFiction boeken"
 
 #: fff_plugin.py:309
 msgid "Get Story URLs from &Email"
-msgstr ""
+msgstr "Haal de URLs op van &Email"
 
 #: fff_plugin.py:313 fff_plugin.py:537
 msgid "Get Story URLs from Web Page"
-msgstr ""
+msgstr "Haal de URl's op van web pagina"
 
 #: fff_plugin.py:319
 msgid "&Make Anthology Epub from URLs"
-msgstr ""
+msgstr "&Maak Anthologie Epub van URLs"
 
 #: fff_plugin.py:321
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr ""
+msgstr "Maak FanFiction Anthologie Epub van URLs"
 
 #: fff_plugin.py:324
 msgid "Make Anthology Epub from Web Page"
-msgstr ""
+msgstr "Maak Anthologie Epub van web pagina"
 
 #: fff_plugin.py:326
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr ""
+msgstr "Maak FanFiction Anthologie Epub van web pagina"
 
 #: fff_plugin.py:329
 msgid "Update Anthology Epub"
-msgstr ""
+msgstr "Update Anthologie Epub"
 
 #: fff_plugin.py:331
 msgid "Update FanFiction Anthology Epub"
-msgstr ""
+msgstr "Update FanFiction Anthologie Epub"
 
 #: fff_plugin.py:338
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1578,11 +1579,11 @@ msgstr ""
 
 #: fff_plugin.py:362
 msgid "Remove \"New\" Chapter Marks from Selected books"
-msgstr ""
+msgstr "Verwijder \"Nieuwe\" hoofdstuk markering van geselecteerde boeken"
 
 #: fff_plugin.py:368
 msgid "Get Story URLs from Selected Books"
-msgstr ""
+msgstr "Haal de URL's op van de geselecteerde boeken"
 
 #: fff_plugin.py:373
 msgid "Reject Selected Books"
@@ -1606,7 +1607,7 @@ msgstr ""
 
 #: fff_plugin.py:453
 msgid "FanFicFare Email Settings are not configured."
-msgstr ""
+msgstr "FanFicFare e-mail instellingen zijn niet geconfigureerd."
 
 #: fff_plugin.py:473
 msgid "Fetching Story URLs from Email..."
@@ -1614,11 +1615,11 @@ msgstr ""
 
 #: fff_plugin.py:496 fff_plugin.py:518
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr ""
+msgstr "Geen geldige verhaal URLs gevonden in ongelezen e-mails."
 
 #: fff_plugin.py:512
 msgid "Finished Fetching Story URLs from Email."
-msgstr ""
+msgstr "Ophalen van verhaal URL's van e-mail zijn beëindigd."
 
 #: fff_plugin.py:520
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -1630,7 +1631,7 @@ msgstr ""
 
 #: fff_plugin.py:523
 msgid "Get Story URLs from Email"
-msgstr ""
+msgstr "Haal de verhaal URL's op van e-mail."
 
 #: fff_plugin.py:546
 msgid "Fetching Story URLs from Page..."
@@ -1638,7 +1639,7 @@ msgstr ""
 
 #: fff_plugin.py:550
 msgid "Finished Fetching Story URLs from Page."
-msgstr ""
+msgstr "Ophalen van verhaal URL's van web pagina is beëindigd."
 
 #: fff_plugin.py:556 fff_plugin.py:609
 msgid "List of Story URLs"
@@ -1670,7 +1671,7 @@ msgstr "Lijst van URL's"
 
 #: fff_plugin.py:614
 msgid "No Story URLs found in selected books."
-msgstr ""
+msgstr "Geen verhaal URLs gevonden in geselecteerde boeken."
 
 #: fff_plugin.py:621
 msgid "Can only UnNew books in library"
@@ -1731,7 +1732,7 @@ msgstr ""
 
 #: fff_plugin.py:796 fff_plugin.py:797
 msgid "Cannot Update Anthology"
-msgstr ""
+msgstr "Kan de Anthologie niet updaten"
 
 #: fff_plugin.py:797
 msgid ""
@@ -1741,11 +1742,11 @@ msgstr ""
 
 #: fff_plugin.py:804
 msgid "Fetching Story URLs for Series..."
-msgstr ""
+msgstr "Haal de verhaal URL's op voor series..."
 
 #: fff_plugin.py:814
 msgid "Finished Fetching Story URLs for Series."
-msgstr ""
+msgstr "Ophalen van verhaal URL's van series beëindigd."
 
 #: fff_plugin.py:861
 msgid ""
@@ -1857,7 +1858,7 @@ msgstr "Bent u een volwassene?"
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
-msgstr ""
+msgstr "%s vereist dat je een volwassene bent. Gelieve te bevestigen dat je een volwassen bent:"
 
 #: fff_plugin.py:1167
 msgid "Skip Story?"
@@ -1997,7 +1998,7 @@ msgstr "Slecht"
 
 #: fff_plugin.py:1493 fff_plugin.py:1499
 msgid "FanFicFare download ended"
-msgstr ""
+msgstr "FanFicFare download beëindigd"
 
 #: fff_plugin.py:1493 fff_plugin.py:1499 fff_plugin.py:1743 fff_plugin.py:1749
 msgid "FanFicFare log"
@@ -2005,11 +2006,11 @@ msgstr "FanFicFare logboek"
 
 #: fff_plugin.py:1520
 msgid "Download %s FanFiction Book(s)"
-msgstr ""
+msgstr "Download %s FanFiction boek(en)"
 
 #: fff_plugin.py:1527
 msgid "Starting %d FanFicFare Downloads"
-msgstr ""
+msgstr "Start %d FanFicFare downloads"
 
 #: fff_plugin.py:1562
 msgid "Story Details:"
@@ -2031,7 +2032,7 @@ msgstr ""
 
 #: fff_plugin.py:1619
 msgid "Finished Adding/Updating %d books."
-msgstr ""
+msgstr "Updaten toevoegen/updaten %d boeken beëindigd."
 
 #: fff_plugin.py:1670
 msgid "No Good Stories for Anthology"
@@ -2061,7 +2062,7 @@ msgstr ""
 
 #: fff_plugin.py:1688
 msgid "Proceed with updating this anthology and your library?"
-msgstr ""
+msgstr "Ga verder met het updaten van deze Anthologie en je bibliotheek?"
 
 #: fff_plugin.py:1696 fff_plugin.py:1725
 msgid "Good"
@@ -2069,7 +2070,7 @@ msgstr "Goed"
 
 #: fff_plugin.py:1717
 msgid "Proceed with updating your library?"
-msgstr ""
+msgstr "Ga verder met het updaten van je bibliotheek?"
 
 #: fff_plugin.py:1743 fff_plugin.py:1749
 msgid "FanFicFare download complete"
@@ -2081,15 +2082,15 @@ msgstr "%s boeken samenvoegen."
 
 #: fff_plugin.py:1846
 msgid "FanFicFare Adding/Updating books."
-msgstr ""
+msgstr "FanFicFare toevoegen/updaten boeken."
 
 #: fff_plugin.py:1857
 msgid "Updating calibre for FanFiction stories..."
-msgstr ""
+msgstr "Updaten calibre van FanFiction verhalen..."
 
 #: fff_plugin.py:1858
 msgid "Update calibre for FanFiction stories"
-msgstr ""
+msgstr "Updaten calibre van FanFiction verhalen"
 
 #: fff_plugin.py:1869
 msgid "Adding/Updating %s BAD books."
@@ -2177,7 +2178,7 @@ msgstr "FanFiction verhalen downloaden"
 
 #: jobs.py:90
 msgid "%d of %d stories finished downloading"
-msgstr ""
+msgstr "%d van %d verhalen zijn klaar met downloaden"
 
 #: jobs.py:102
 msgid "Download Results:"
