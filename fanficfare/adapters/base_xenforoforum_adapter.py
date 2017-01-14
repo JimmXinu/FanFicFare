@@ -273,8 +273,21 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # author moved down here to take from post URLs.
         a = souptag.find('h3',{'class':'userText'}).find('a')
         self.story.addToList('authorId',a['href'].split('/')[1])
-        self.story.addToList('authorUrl',self.getURLPrefix()+'/'+a['href'])
+        authorUrl = self.getURLPrefix()+'/'+a['href']
+        self.story.addToList('authorUrl',authorUrl)
         self.story.addToList('author',a.text)
+
+        if self.getConfig('author_avatar_cover'):
+            authorcard = self.make_soup(self._fetchUrl(authorUrl+"?card=1"))
+            coverurl = '/'+authorcard.find('div',{'class':'avatarCropper'}).find('img')['src']
+            self.setCoverImage(self.url,coverurl)
+            ## https://forums.spacebattles.com/members/mp3-1415player.322925/?card=1
+            ## <div class="avatarCropper">
+            ##        <a class="avatar NoOverlay Av322925l" href="members/mp3-1415player.322925/">
+            ##                <img src="data/avatars/l/322/322925.jpg?1471421076" alt="" style="left: 0px; top: -92px; " />
+            ##        </a>
+            ##
+            ## </div>
 
         # Now go hunting for the 'chapter list'.
         bq = souptag.find('blockquote') # assume first posting contains TOC urls.
