@@ -1526,24 +1526,23 @@ class FanFicFarePlugin(InterfaceAction):
         self.gui.jobs_pointer.start()
         self.gui.status_bar.show_message(_('Starting %d FanFicFare Downloads')%len(book_list),3000)
 
-    def update_books_loop(self,book,db=None,
-                     options={'fileform':'epub',
-                              'collision':ADDNEW,
-                              'updatemeta':True,
-                              'bgmeta':False,
-                              'updateepubcover':True}):
+    def get_custom_col_label(self,col):
         custom_columns = self.gui.library_view.model().custom_columns
-        if book['calibre_id'] and prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns:
-            label = custom_columns[prefs['errorcol']]['label']
-            if not book['good'] and (book['showerror'] or prefs['save_all_errors']):
-                #logger.debug("record/update error message column %s %s"%(book['title'],book['url']))
-                self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=label, commit=True) # book['comment']
-            else:
-                self.set_custom(db, book['calibre_id'], '(none)', '', label=label, commit=True) # book['comment']
+        if col and col in custom_columns:
+            return custom_columns[col]['label']
+        else:
+            return None
 
-        if book['calibre_id'] and prefs['lastcheckedcol'] != '' and prefs['lastcheckedcol'] in custom_columns:
-            label = custom_columns[prefs['lastcheckedcol']]['label']
-            self.set_custom(db, book['calibre_id'], 'lastcheckedcol', book['timestamp'], label=label, commit=True)
+    def update_books_loop(self,book,db=None,
+                          options={'fileform':'epub',
+                                   'collision':ADDNEW,
+                                   'updatemeta':True,
+                                   'bgmeta':False,
+                                   'updateepubcover':True},
+                          errorcol_label=None,
+                          lastcheckedcol_label=None):
+
+        self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
         if not book['good']:
             return # only update errorcol on error.
@@ -1834,7 +1833,13 @@ class FanFicFarePlugin(InterfaceAction):
                                              coverjpgpath=coverpath)
 
         options['collision']=OVERWRITEALWAYS
-        self.update_books_loop(mergebook,self.gui.current_db,options)
+        errorcol_label = self.get_custom_col_label(prefs['errorcol'])
+        lastcheckedcol_label = self.get_custom_col_label(prefs['lastcheckedcol'])
+        self.update_books_loop(mergebook,
+                               self.gui.current_db,
+                               options,
+                               errorcol_label=errorcol_label,
+                               lastcheckedcol_label=lastcheckedcol_label)
         self.update_books_finish([mergebook], options=options, showlist=False)
 
     def do_download_list_update(self, payload):
@@ -1844,15 +1849,18 @@ class FanFicFarePlugin(InterfaceAction):
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
 
         self.gui.status_bar.show_message(_('FanFicFare Adding/Updating books.'))
+        errorcol_label = self.get_custom_col_label(prefs['errorcol'])
+        lastcheckedcol_label = self.get_custom_col_label(prefs['lastcheckedcol'])
 
         columns = self.gui.library_view.model().custom_columns
-        if good_list \
-                or prefs['mark'] \
-                or (bad_list and prefs['errorcol'] != '' and prefs['errorcol'] in columns) \
-                or (prefs['lastcheckedcol'] != '' and prefs['lastcheckedcol'] in columns):
+        if good_list or prefs['mark'] or (bad_list and errorcol_label) or lastcheckedcol_label:
             LoopProgressDialog(self.gui,
                                good_list+bad_list,
-                               partial(self.update_books_loop, options=options, db=self.gui.current_db),
+                               partial(self.update_books_loop,
+                                       options=options,
+                                       db=self.gui.current_db,
+                                       errorcol_label=errorcol_label,
+                                       lastcheckedcol_label=lastcheckedcol_label),
                                partial(self.update_books_finish, options=options),
                                init_label=_("Updating calibre for FanFiction stories..."),
                                win_title=_("Update calibre for FanFiction stories"),
@@ -1861,20 +1869,11 @@ class FanFicFarePlugin(InterfaceAction):
     def update_error_column(self,payload):
         '''Update custom error column if configured.'''
         (empty_list,book_list,options)=payload
-        custom_columns = self.gui.library_view.model().custom_columns
-        if prefs['mark'] \
-                or (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns)\
-                or (prefs['lastcheckedcol'] != '' and prefs['lastcheckedcol'] in custom_columns):
+        errorcol_label = self.get_custom_col_label(prefs['errorcol'])
+        lastcheckedcol_label = self.get_custom_col_label(prefs['lastcheckedcol'])
+        if prefs['mark'] or errorcol_label or lastcheckedcol_label:
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
             self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.')%len(book_list))
-            if (prefs['errorcol'] != '' and prefs['errorcol'] in custom_columns):
-                errorcol_label = custom_columns[prefs['errorcol']]['label']
-            else:
-                errorcol_label = None
-            if (prefs['lastcheckedcol'] != '' and prefs['lastcheckedcol'] in custom_columns):
-                lastcheckedcol_label = custom_columns[prefs['lastcheckedcol']]['label']
-            else:
-                lastcheckedcol_label = None
             LoopProgressDialog(self.gui,
                                book_list,
                                partial(self.update_error_column_loop, db=self.gui.current_db, errorcol_label=errorcol_label, lastcheckedcol_label=lastcheckedcol_label),
@@ -1884,12 +1883,22 @@ class FanFicFarePlugin(InterfaceAction):
                                status_prefix=_("Updated"))
 
     def update_error_column_loop(self,book,db=None,errorcol_label=None,lastcheckedcol_label=None):
-        if book['calibre_id'] and errorcol_label and (book['showerror'] or prefs['save_all_errors']):
-            #logger.debug("add/update bad %s %s %s"%(book['title'],book['url'],book['comment']))
-            self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=errorcol_label, commit=True)
-        if book['calibre_id'] and lastcheckedcol_label and (book['showerror'] or prefs['save_all_errors']):
+        if book['calibre_id'] and errorcol_label:
+            if book['showerror'] or prefs['save_all_errors']:
+                logger.debug("update_error_column_loop bad %s %s %s"%(book['title'],book['url'],book['comment']))
+                self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=errorcol_label, commit=True)
+            else:
+                ## if not recording error, clear any existing error, but only if not empty.
+                prev_val = db.get_custom(book['calibre_id'],label=errorcol_label,index_is_id=True)
+                logger.debug("update_error_column_loop prev_val:%s"%prev_val)
+                if prev_val:
+                    logger.debug("update_error_column_loop bad %s %s ''"%(book['title'],book['url']))
+                    self.set_custom(db, book['calibre_id'], '(none)', '', label=errorcol_label, commit=True)
+        if book['calibre_id'] and lastcheckedcol_label:
             #logger.debug("lastcheckedcol %s %s %s"%(book['title'],book['url'],book['timestamp']))
-            self.set_custom(db, book['calibre_id'], 'comment', book['timestamp'], label=lastcheckedcol_label, commit=True)
+            self.set_custom(db, book['calibre_id'], 'timestamp',
+                            book.get('timestamp',datetime.now()), # default to now if not in book.
+                            label=lastcheckedcol_label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
         db = self.gui.current_db
