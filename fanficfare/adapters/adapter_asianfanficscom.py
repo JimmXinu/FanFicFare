@@ -23,12 +23,13 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.decode = ["utf8",
-                       "Windows-1252"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
-							
-							
+                       "Windows-1252"] # 1252 is a superset of
+                                       # iso-8859-1.  Most sites that
+                                       # claim to be iso-8859-1 (and
+                                       # some that claim to be utf8)
+                                       # are really windows-1252.
+
+
         self.username = ""
         self.password = ""
         self.is_adult=False
@@ -76,7 +77,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             params['username'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
-        
+
         params['from_url'] = url
         params['csrf_aff_token'] = data.split('input type="hidden" name="csrf_aff_token" value="')[1].split('"')[0]
         loginUrl = 'https://' + self.getSiteDomain() + '/login/check'
@@ -139,7 +140,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
         self.story.setMetadata('title',stripHTML(a))
-		
+
         # Find authorid and URL from... author url.
         alist = soup.find('div', {'class': 'main-meta__sec'})
         alist = alist.find('span', text='Author(s)')
@@ -194,18 +195,18 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         a = a.find('span',text='Characters')
         if a:
             self.story.addToList('characters', a.nextSibling)
-		
+
         # published on
         a = soup.find('span', text='Published')
         a = a.parent.find('time')
         self.story.setMetadata('datePublished', makeDate(a['datetime'], self.dateformat))
-        
+
         # updated on
         a = soup.find('span', text='Updated')
         if a:
             a = a.parent.find('time')
             self.story.setMetadata('dateUpdated', makeDate(a['datetime'], self.dateformat))
-        
+
         # upvote, subs, and views
         a = soup.find('div',{'class':'title-meta'})
         spans = a.findAll('span', recursive=False)
@@ -213,7 +214,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         self.story.addToList('subscribers', re.search('\(([^)]+)', spans[1].find('span').text).group(1))
         if enumerate(spans) == 2: # views can be private
             self.story.addToList('views', spans[2].find('span').text.split()[0])
-        
+
         # cover art in the form of a div before chapter content
         if get_cover:
             cover_url = ""
