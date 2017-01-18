@@ -3,6 +3,9 @@ import re
 import urllib2
 import urlparse
 
+import logging
+logger = logging.getLogger(__name__)
+
 from bs4 import BeautifulSoup
 from ..htmlcleanup import stripHTML
 
@@ -70,6 +73,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         return url
 
     def extractChapterUrlsAndMetadata(self):
+        logger.debug("URL: "+self.url)
         soup = self._customized_fetch_url(self.url)
 
         # Since no 404 error code we have to raise the exception ourselves.
@@ -83,12 +87,22 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             url = self.READ_URL_TEMPLATE % option['value']
             self.chapterUrls.append((title, url))
 
+        # Reset the storyId to be the first chapter no.  Needed
+        # because emails contain link to later chapters instead.
+        query_data = urlparse.parse_qs(self.chapterUrls[0][1])
+        story_no = query_data['no'][0]
+
+        self.story.setMetadata('storyId', story_no)
+        self._setURL(self.READ_URL_TEMPLATE % story_no)
+        logger.info("updated storyId:%s"%story_no)
+        logger.info("updated storyUrl:%s"%self.url)
+
+        story_no = self.story.getMetadata('storyId')
         # Get the URL to the author's page and find the correct story entry to
         # scrape the metadata
         author_url = urlparse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
         soup = self._customized_fetch_url(author_url)
 
-        story_no = self.story.getMetadata('storyId')
         # Ignore first list_box div, it only contains the author information
         for list_box in soup('div', {'class': 'list_box'})[1:]:
             url = list_box.find('a', {'class': 'fictitle'})['href']
