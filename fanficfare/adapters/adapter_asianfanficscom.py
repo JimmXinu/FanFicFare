@@ -37,7 +37,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
 
-
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
@@ -108,20 +107,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
 
-            if "Are you over 18 years old" in data:
-                if self.is_adult or self.getConfig("is_adult"):
-                    params = {}
-                    params['csrf_aff_token'] = data.split('input type="hidden" name="csrf_aff_token" value="')[1].split('"')[0]
-                    params['is_of_age'] = '1'
-                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
-                    d = self._postUrl(loginUrl,params)
-                    data = self._fetchUrl(url,usecache=False)
-                    if "Are you over 18 years old" in data:
-                        raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-                else:
-                    raise exceptions.AdultCheckRequired(self.url)
-
         except urllib2.HTTPError, e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -136,6 +121,30 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
+
+        # adult check
+        a = soup.find('form',{'action':'/account/toggle_age'})
+        logger.debug("Found adult check")
+        if a:
+            if self.is_adult or self.getConfig("is_adult"):
+                b = a.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
+                if b:
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
+                    self._fetchUrl(loginUrl)
+                else:
+                    params = {}
+                    params['csrf_aff_token'] = a.find('input',{'name':'csrf_aff_token'})['value']
+                    params['is_of_age'] = '1'
+                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
+                    self._postUrl(loginUrl,params)
+                
+                data = self._fetchUrl(url,usecache=False)
+                soup = self.make_soup(data)
+                if "Are you over 18 years old" in data:
+                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
@@ -234,12 +243,13 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         a = soup.find('div', {'id': 'user-submitted-body'})
         if a:
-            newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-
-            b = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
-
-            b.append(a)
-            return self.utf8FromSoup(url,b)
+            if self.getConfig('chapter_start'):
+                newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
+                b = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
+                b.append(a)
+                return self.utf8FromSoup(url,b)
+            else:
+                return self.utf8FromSoup(url,a)
         else:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
