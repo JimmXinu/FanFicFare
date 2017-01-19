@@ -50,7 +50,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
                                              self.getSiteExampleURLs())
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','aff')
+        self.story.setMetadata('siteabbrev','asnff')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
@@ -138,7 +138,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
                     params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
                     loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
                     self._postUrl(loginUrl,params)
-                
+
                 data = self._fetchUrl(url,usecache=False)
                 soup = self.make_soup(data)
                 if "Are you over 18 years old" in data:
@@ -243,7 +243,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         a = soup.find('div', {'id': 'user-submitted-body'})
         if a:
-            if self.getConfig('chapter_start'):
+            if self.getConfig('inject_chapter_title'):
                 newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
                 b = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
                 b.append(a)
@@ -251,7 +251,4 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             else:
                 return self.utf8FromSoup(url,a)
         else:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

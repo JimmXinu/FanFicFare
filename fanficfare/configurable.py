@@ -178,6 +178,8 @@ def get_valid_set_options():
                'clean_chapter_titles':(['literotica.com'],None,boollist),
                'description_in_chapter':(['literotica.com'],None,boollist),
 
+               'inject_chapter_title':(['asianfanfics.com'],None,boollist),
+
                # eFiction Base adapters allow bulk_load
                # kept forgetting to add them, so now it's automatic.
                'bulk_load':(adapters.get_bulk_load_sites(),
@@ -353,6 +355,7 @@ def get_valid_keywords():
                  'use_meta_keywords',
                  'clean_chapter_titles',
                  'description_in_chapter',
+                 'inject_chapter_title',
                  'titlepage_end',
                  'titlepage_entries',
                  'titlepage_entry',
