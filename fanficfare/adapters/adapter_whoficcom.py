@@ -138,7 +138,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                 # which is already set, so skip them [GComyn]
                 pass
             else:
-                if not '<a href=' in mdc:
+                if not 'categories.php' in mdc:
                     description += ' // ' + mdc
                 else:
                     idx = i
