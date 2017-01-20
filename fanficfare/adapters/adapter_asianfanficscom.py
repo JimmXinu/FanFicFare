@@ -122,30 +122,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # adult check
-        a = soup.find('form',{'action':'/account/toggle_age'})
-        logger.debug("Found adult check")
-        if a:
-            if self.is_adult or self.getConfig("is_adult"):
-                b = a.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
-                if b:
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
-                    self._fetchUrl(loginUrl)
-                else:
-                    params = {}
-                    params['csrf_aff_token'] = a.find('input',{'name':'csrf_aff_token'})['value']
-                    params['is_of_age'] = '1'
-                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
-                    self._postUrl(loginUrl,params)
-
-                data = self._fetchUrl(url,usecache=False)
-                soup = self.make_soup(data)
-                if "Are you over 18 years old" in data:
-                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            else:
-                raise exceptions.AdultCheckRequired(self.url)
-
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
         self.story.setMetadata('title',stripHTML(a))
@@ -241,14 +217,40 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        a = soup.find('div', {'id': 'user-submitted-body'})
-        if a:
-            if self.getConfig('inject_chapter_title'):
-                newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-                b = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
-                b.append(a)
-                return self.utf8FromSoup(url,b)
+        # adult check
+        check = soup.find('form',{'action':'/account/toggle_age'})
+        if check:
+            logger.debug("Found adult check")
+            if self.is_adult or self.getConfig("is_adult"):
+                contentFilter = check.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
+                if contentFilter:
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
+                    self._fetchUrl(loginUrl)
+                else:
+                    params = {}
+                    params['csrf_aff_token'] = a.find('input',{'name':'csrf_aff_token'})['value']
+                    params['is_of_age'] = '1'
+                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
+                    self._postUrl(loginUrl,params)
+
+                data = self._fetchUrl(url,usecache=False)
+                soup = self.make_soup(data)
+                if "Are you over 18 years old" in data:
+                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
             else:
-                return self.utf8FromSoup(url,a)
+                raise exceptions.AdultCheckRequired(self.url)
+
+        # grab contents
+        content = soup.find('div', {'id': 'user-submitted-body'})
+        if content:
+            if self.getConfig('inject_chapter_title'):
+                logger.debug("Injecting full-length chapter title")
+                newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
+                newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
+                newTitle.append(content)
+                return self.utf8FromSoup(url,newTitle)
+            else:
+                return self.utf8FromSoup(url,content)
         else:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
