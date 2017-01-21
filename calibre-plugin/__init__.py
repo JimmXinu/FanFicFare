@@ -48,7 +48,7 @@ class FanFicFareBase(InterfaceActionBase):
     description         = _('UI plugin to download FanFiction stories from various sites.')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
-    version             = (2, 8, 4)
+    version             = (2, 8, 5)
     minimum_calibre_version = (1, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
