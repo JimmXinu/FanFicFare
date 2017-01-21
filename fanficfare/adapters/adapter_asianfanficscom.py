@@ -68,7 +68,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain())+r"/story/view/0*(?P<id>\d+)"
 
-    def performLogin(self, url, data):
+    def performLogin(self, url, soup):
         params = {}
         if self.password:
             params['username'] = self.username
@@ -76,9 +76,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             params['username'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
-
         params['from_url'] = url
-        params['csrf_aff_token'] = data.split('input type="hidden" name="csrf_aff_token" value="')[1].split('"')[0]
+        params['csrf_aff_token'] = soup.find('input',{'name':'csrf_aff_token'})['value']
         loginUrl = 'https://' + self.getSiteDomain() + '/login/check'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
@@ -91,6 +90,34 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             return True
 
+    def doAdultCheck(self, url, soup):
+        check = soup.find('form',{'action':'/account/toggle_age'})
+        if check:
+            logger.debug("Found adult check")
+            if self.is_adult or self.getConfig("is_adult"):
+                contentFilter = check.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
+                if contentFilter:
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
+                    self._fetchUrl(loginUrl)
+                else:
+                    params = {}
+                    params['csrf_aff_token'] = check.find('input',{'name':'csrf_aff_token'})['value']
+                    params['is_of_age'] = '1'
+                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
+                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
+                    self._postUrl(loginUrl,params)
+
+                data = self._fetchUrl(url,usecache=False)
+                soup = self.make_soup(data)
+                if "Are you over 18 years old" in data:
+                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+                else:
+                    return soup
+            else:
+                raise exceptions.AdultCheckRequired(self.url)
+        else:
+            return False
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -100,7 +127,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
-
         url = self.url
         logger.info("url: "+url)
 
@@ -113,14 +139,19 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
+        # use BeautifulSoup HTML parser to make everything easier to find.
+        soup = self.make_soup(data)
+
         if self.password or self.getConfig("password"): # it is best to log in whenever possible
-            self.performLogin(url,data)
+            self.performLogin(url,soup)
             data = self._fetchUrl(url,usecache=False)
         else:
             logger.info('Note: Logging in is highly recommended, as this website censors text if not logged in.')
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = self.make_soup(data)
+        # adult check
+        self.checkSoup = self.doAdultCheck(url,soup)
+        if self.checkSoup:
+            soup = self.checkSoup
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
@@ -217,29 +248,11 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        # adult check
-        check = soup.find('form',{'action':'/account/toggle_age'})
-        if check:
-            logger.debug("Found adult check")
-            if self.is_adult or self.getConfig("is_adult"):
-                contentFilter = check.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
-                if contentFilter:
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
-                    self._fetchUrl(loginUrl)
-                else:
-                    params = {}
-                    params['csrf_aff_token'] = a.find('input',{'name':'csrf_aff_token'})['value']
-                    params['is_of_age'] = '1'
-                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
-                    self._postUrl(loginUrl,params)
-
-                data = self._fetchUrl(url,usecache=False)
-                soup = self.make_soup(data)
-                if "Are you over 18 years old" in data:
-                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            else:
-                raise exceptions.AdultCheckRequired(self.url)
+        # have to do adult check here as well because individual chapters can be marked as mature
+        if not self.checkSoup:
+            self.checkSoup = self.doAdultCheck(url,soup)
+            if self.checkSoup:
+                soup = self.checkSoup
 
         # grab contents
         content = soup.find('div', {'id': 'user-submitted-body'})
