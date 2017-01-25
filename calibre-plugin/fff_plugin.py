@@ -1884,7 +1884,7 @@ class FanFicFarePlugin(InterfaceAction):
 
     def update_error_column_loop(self,book,db=None,errorcol_label=None,lastcheckedcol_label=None):
         if book['calibre_id'] and errorcol_label:
-            if book['showerror'] or prefs['save_all_errors']:
+            if not book['good'] and (book['showerror'] or prefs['save_all_errors']):
                 logger.debug("update_error_column_loop bad %s %s %s"%(book['title'],book['url'],book['comment']))
                 self.set_custom(db, book['calibre_id'], 'comment', book['comment'], label=errorcol_label, commit=True)
             else:
