@@ -140,7 +140,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             except urllib2.HTTPError as e:
                 if e.code == 503:
                     raise e
-            except e:
+            except Exception as e:
                 logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(url),sleeptime,unicode(e)))
                 pass
 
