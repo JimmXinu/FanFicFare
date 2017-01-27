@@ -1256,7 +1256,7 @@ class FanFicFarePlugin(InterfaceAction):
                     raise NotGoingToDownload(_("Skipping duplicate story."),"list_remove.png")
 
                 if len(identicalbooks) > 1:
-                    raise NotGoingToDownload(_("More than one identical book by Identifer URL or title/author(s)--can't tell which book to update/overwrite."),"minusminus.png")
+                    raise NotGoingToDownload(_("More than one identical book by Identifier URL or title/author(s)--can't tell which book to update/overwrite."),"minusminus.png")
 
                 ## changed: add new book when CALIBREONLY if none found.
                 if collision in (CALIBREONLY, CALIBREONLYSAVECOL) and not identicalbooks:

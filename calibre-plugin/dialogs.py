@@ -1414,7 +1414,7 @@ class IniTextDialog(SizePersistedDialog):
         cursor.setPosition(start)
 
         # Next we move the Cursor by over the match and pass the KeepAnchor parameter
-        # which will make the cursor select the the match's text
+        # which will make the cursor select the match's text
         cursor.movePosition(cursor.Right,cursor.KeepAnchor,end - start)
 
         # And finally we set this new cursor as the parent's

@@ -748,7 +748,7 @@ class PersonalIniTab(QWidget):
 
         horz = QHBoxLayout()
         vert.addLayout(horz)
-        pass_label = _("If checked, when updating/overwriting an existing book, FanFicFare will have the Calibre Columns available to use in replace_metadata, title_page, etc.<br>Click the button below to see the Calibre Column namess.")%no_trans
+        pass_label = _("If checked, when updating/overwriting an existing book, FanFicFare will have the Calibre Columns available to use in replace_metadata, title_page, etc.<br>Click the button below to see the Calibre Column names.")%no_trans
         self.cal_cols_pass_in = QCheckBox(_('Pass Calibre Columns into FanFicFare on Update/Overwrite')%no_trans,self)
         self.cal_cols_pass_in.setToolTip(pass_label)
         self.cal_cols_pass_in.setChecked(prefs['cal_cols_pass_in'])
@@ -1009,14 +1009,14 @@ class CalibreCoverTab(QWidget):
 
         self.gcnewonly = QCheckBox(_("Generate Covers Only for New Books")%no_trans,self)
         self.gcnewonly.setToolTip(_("Default is to generate a cover any time the calibre metadata is"
-                                    " updated.<br \>Used for both Calibre and Plugin generated covers."))
+                                    " updated.<br />Used for both Calibre and Plugin generated covers."))
         self.gcnewonly.setChecked(prefs['gcnewonly'])
         self.l.addWidget(self.gcnewonly)
         self.gencov_elements.append(self.gcnewonly)
 
         self.gc_polish_cover = QCheckBox(_("Inject/update the cover inside EPUB"),self)
         self.gc_polish_cover.setToolTip(_("Calibre's Polish feature will be used to inject or update the generated"
-                                          " cover into the EPUB ebook file.<br \>Used for both Calibre and Plugin generated covers."))
+                                          " cover into the EPUB ebook file.<br />Used for both Calibre and Plugin generated covers."))
         self.gc_polish_cover.setChecked(prefs['gc_polish_cover'])
         self.l.addWidget(self.gc_polish_cover)
         self.gencov_elements.append(self.gc_polish_cover)
@@ -1080,7 +1080,7 @@ class CalibreCoverTab(QWidget):
 
         self.allow_gc_from_ini = QCheckBox(_('Allow %(gcset)s from %(pini)s to override')%no_trans,self)
         self.allow_gc_from_ini.setToolTip(_("The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based on metadata"
-                                            " rather than site, but it's much more complex.<br \>%(gcset)s is ignored when this is off.")%no_trans)
+                                            " rather than site, but it's much more complex.<br />%(gcset)s is ignored when this is off.")%no_trans)
         self.allow_gc_from_ini.setChecked(prefs['allow_gc_from_ini'])
         self.l.addWidget(self.allow_gc_from_ini)
 
@@ -1374,7 +1374,7 @@ class CustomColumnsTab(QWidget):
         horz.addWidget(self.errorcol)
 
         self.save_all_errors = QCheckBox(_('Save All Errors'),self)
-        self.save_all_errors.setToolTip(_('If unchecked, these errors will not be saved:%s')%(
+        self.save_all_errors.setToolTip(_('If unchecked, these errors will not be saved: %s')%(
                 '\n'+
                 '\n'.join((_("Not Overwriting, web site is not newer."),
                            _("Already contains %d chapters.").replace('%d','X')))))
