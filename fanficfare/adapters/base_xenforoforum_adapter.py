@@ -33,6 +33,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         # save for reader processing.
         self.reader = False
+        self.post_cache = {}
 
         #logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
@@ -190,6 +191,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## same images twice.
         for noscript in soup.find_all('noscript'):
             noscript.extract()
+
+        self.handle_spoilers(soup)
+
+        ## cache posts on page.
+        self.cache_posts(soup)
         return soup
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -259,8 +265,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                         self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
 
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
-
-        self.handle_spoilers(topsoup,souptag)
 
         if threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
@@ -348,9 +352,23 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             logger.debug('No date found in %s'%parenttag,exc_info=True)
             return None
 
+    def cache_posts(self,topsoup):
+        for post in topsoup.find_all('li',id=re.compile('post-[0-9]+')):
+            self.post_cache[post['id']] = post
+
+    def get_cache_post(self,postid):
+        ## saved using original 'post-99999' id for key.
+        if '/posts/' in postid:
+            ## allows chapter urls to be passed in directly.
+            # assumed normalized to /posts/1234/
+            postid = "post-"+postid.split('/')[-2]
+        return self.post_cache.get(postid,None)
+
     # grab the text for an individual chapter.
     def getChapterTextNum(self, url, index):
-        logger.debug('Getting chapter text from: %s index: %s' % (url,index))
+        topsoup = None
+        souptag = None
+        logger.debug('Getting chapter text for: %s index: %s' % (url,index))
 
         origurl = url
 
@@ -363,37 +381,48 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
              (index > 0 or not self.getConfig('always_include_first_post')) ):
             logger.debug("USE READER MODE")
             # in case it changes:
-            posts_per_page = self.getConfig("reader_posts_per_page",10)
+            posts_per_page = int(self.getConfig("reader_posts_per_page",10))
 
             # always_include_first_post with threadmarks added an
             # extra first chapter, we should be past it.
             if self.getConfig('always_include_first_post'):
                 index = index - 1
-            reader_page_num = int((index+posts_per_page)/posts_per_page)
-            reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
-            logger.debug("Reader URL to: %s"%reader_url)
-            data = self._fetchUrl(reader_url)
-            topsoup = souptag = self.make_soup(data)
 
-            # assumed normalized to /posts/1234/
-            anchorid = "post-"+url.split('/')[-2]
-            logger.debug("anchorid: %s"%anchorid)
-            souptag = topsoup.find('li',id=anchorid)
-        else:
+            ## look forward a hardcoded 3 pages max in reader mode.
+            for offset in range(0,3):
+                souptag = self.get_cache_post(url)
+
+                if not souptag:
+                    reader_page_num = int((index+posts_per_page)/posts_per_page) + offset
+                    logger.debug('Reader page offset:%s'%offset)
+                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
+                    logger.debug("Fetch reader URL to: %s"%reader_url)
+                    data = self._fetchUrl(reader_url)
+                    topsoup = self.make_soup(data)
+
+                    # assumed normalized to /posts/1234/
+                    anchorid = "post-"+url.split('/')[-2]
+                    logger.debug("anchorid: %s"%anchorid)
+                    souptag = topsoup.find('li',id=anchorid)
+                if souptag:
+                    break
+
+        if not souptag:
             logger.debug("DON'T USE READER MODE")
-            (data,opened) = self._fetchUrlOpened(url)
-            url = opened.geturl()
-            if '#' in origurl and '#' not in url:
-                url = url + origurl[origurl.index('#'):]
-            logger.debug("chapter URL redirected to: %s"%url)
 
-            topsoup = souptag = self.make_soup(data)
+            souptag = self.get_cache_post(url)
+            if not souptag:
+                (data,opened) = self._fetchUrlOpened(url)
+                url = opened.geturl()
+                if '#' in origurl and '#' not in url:
+                    url = url + origurl[origurl.index('#'):]
+                    logger.debug("chapter URL redirected to: %s"%url)
 
-            if '#' in url:
-                anchorid = url.split('#')[1]
-                souptag = topsoup.find('li',id=anchorid)
+                topsoup = souptag = self.make_soup(data)
 
-        self.handle_spoilers(topsoup,souptag)
+                if '#' in url:
+                    anchorid = url.split('#')[1]
+                    souptag = topsoup.find('li',id=anchorid)
 
         bq = souptag.find('blockquote')
 
@@ -413,15 +442,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',bq)
 
-    def handle_spoilers(self,topsoup,tag):
+    def handle_spoilers(self,topsoup):
         '''
         Modifies tag given as required to do spoiler changes.
         '''
         if self.getConfig('remove_spoilers'):
-            for div in tag.find_all('div',class_='bbCodeSpoilerContainer'):
+            for div in topsoup.find_all('div',class_='bbCodeSpoilerContainer'):
                 div.extract()
         elif self.getConfig('legend_spoilers'):
-            for div in tag.find_all('div',class_='bbCodeSpoilerContainer'):
+            for div in topsoup.find_all('div',class_='bbCodeSpoilerContainer'):
                 div.name='fieldset'
                 legend = topsoup.new_tag('legend')
                 legend.string = stripHTML(div.button.span)
