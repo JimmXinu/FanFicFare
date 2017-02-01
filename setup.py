@@ -21,7 +21,7 @@ setup(
     name="FanFicFare",
 
     # Versions should comply with PEP440.
-    version="2.8.7",
+    version="2.8.8",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
