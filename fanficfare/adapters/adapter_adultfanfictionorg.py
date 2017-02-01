@@ -235,7 +235,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a).replace('\\','').replace('  ',' ').replace('  ',' ').replace('  ',' ').strip())
 
         # Find the chapters:
-        chapters = soup.find('div',{'id':'snav'})
+        chapters = soup.find('div',{'class':'dropdown-content'})
         for i, chapter in enumerate(chapters.findAll('a')):
             self.chapterUrls.append((stripHTML(chapter),self.url+'&chapter='+str(i+1)))
         
