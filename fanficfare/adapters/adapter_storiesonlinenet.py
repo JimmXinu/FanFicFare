@@ -156,7 +156,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
-        elif "Error! Daily Limit Reached" in data:
+        elif "Error! Daily Limit Reached" in data or "Sorry! You have reached your daily limit of" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! Daily Limit Reached")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
