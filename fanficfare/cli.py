@@ -26,7 +26,7 @@ import pprint
 import string
 import sys
 
-version="2.8.9"
+version="2.9.0"
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
