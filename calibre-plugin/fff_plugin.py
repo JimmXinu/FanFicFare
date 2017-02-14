@@ -787,7 +787,7 @@ class FanFicFarePlugin(InterfaceAction):
         urlmapfile = {}
         url_list = []
         for f in filenames:
-            url = get_dcsource(f)
+            url = adapters.getNormalStoryURL(get_dcsource(f))
             if url:
                 urlmapfile[url]=f
                 url_list.append(url)
@@ -807,7 +807,7 @@ class FanFicFarePlugin(InterfaceAction):
         # it's *not* a valid story URL.
         mergeurl = self.get_story_url(db,book_id)
         if mergeurl and not self.is_good_downloader_url(mergeurl):
-            url_list = self.get_urls_from_page(mergeurl)
+            url_list = [ adapters.getNormalStoryURL(url) for url in self.get_urls_from_page(mergeurl) ]
 
         url_list_text = "\n".join(url_list)
 
