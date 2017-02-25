@@ -71,7 +71,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
+        return r"https?:"+re.escape("//"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
