@@ -6,12 +6,13 @@
 # doruk tolga atasoy <doruk.tolga.a@gmail.com>, 2016
 # Emre Deniz, 2014
 # MUSTAFA ANAR <mstf.anar@gmail.com>, 2016
+# Ömer Kaan Gürbüz <omerkaan0101omerkaangrbz@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-01-27 09:12+Central Standard Time\n"
-"PO-Revision-Date: 2017-01-28 09:54+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2017-02-19 13:18+0000\n"
+"Last-Translator: Ömer Kaan Gürbüz <omerkaan0101omerkaangrbz@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/calibre/calibre-plugins/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -503,7 +504,7 @@ msgstr ""
 
 #: config.py:727
 msgid "defaults.ini"
-msgstr ""
+msgstr "defaults.ini"
 
 #: config.py:732
 msgid ""
@@ -513,7 +514,7 @@ msgstr ""
 
 #: config.py:733
 msgid "View Defaults"
-msgstr ""
+msgstr "Varsayılanları gör"
 
 #: config.py:744
 msgid "Calibre Columns"
@@ -603,7 +604,7 @@ msgstr ""
 
 #: config.py:880
 msgid "\"To Read\" Reading Lists"
-msgstr ""
+msgstr "\"Okunacak\"Okuma Listeleri"
 
 #: config.py:891
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
@@ -974,7 +975,7 @@ msgstr ""
 
 #: config.py:1376
 msgid "Save All Errors"
-msgstr ""
+msgstr "Tüm Hataları Kaydet"
 
 #: config.py:1377
 msgid "If unchecked, these errors will not be saved: %s"
@@ -1114,7 +1115,7 @@ msgstr ""
 
 #: config.py:1531
 msgid "IMAP User Password"
-msgstr ""
+msgstr "IMAP Kullanıcı Şifresi"
 
 #: config.py:1532
 msgid ""
@@ -1195,7 +1196,7 @@ msgstr ""
 
 #: dialogs.py:245 dialogs.py:797
 msgid "Show Download Options"
-msgstr ""
+msgstr "Yükleme Seçeneklerini Göster"
 
 #: dialogs.py:264 dialogs.py:817
 msgid "Output &Format:"
@@ -1462,11 +1463,11 @@ msgstr ""
 
 #: dialogs.py:1300
 msgid "Find:"
-msgstr ""
+msgstr "Bul:"
 
 #: dialogs.py:1305
 msgid "Find"
-msgstr ""
+msgstr "Bul"
 
 #: dialogs.py:1315
 msgid "Case sensitive"
@@ -1492,7 +1493,7 @@ msgstr ""
 
 #: dialogs.py:1496
 msgid "Return to Editing"
-msgstr ""
+msgstr "Düzenlemeye Geri Dön"
 
 #: dialogs.py:1500
 msgid "Save Anyway"
@@ -2179,7 +2180,7 @@ msgstr ""
 
 #: jobs.py:102
 msgid "Download Results:"
-msgstr ""
+msgstr "Yükleme Sonuçları:"
 
 #: jobs.py:104
 msgid "Successful:"
