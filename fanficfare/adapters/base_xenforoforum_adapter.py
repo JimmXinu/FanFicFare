@@ -425,6 +425,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     souptag = topsoup.find('li',id=anchorid)
 
         bq = souptag.find('blockquote')
+        if not bq:
+            bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
 
         bq.name='div'
 
