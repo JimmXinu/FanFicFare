@@ -1995,8 +1995,9 @@ class FanFicFarePlugin(InterfaceAction):
                             pass
 
         db.set_metadata(book_id,mi)
-        # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
-        db.set_authors(book_id,book['author']) # author is a list.
+        if not prefs['std_cols_newonly']['authors']:
+            # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
+            db.set_authors(book_id,book['author']) # author is a list.
 
         # do configured column updates here.
         #print("all_metadata: %s"%book['all_metadata'])
