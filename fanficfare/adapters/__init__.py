@@ -49,7 +49,7 @@ import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
 import adapter_nfacommunitycom
-import adapter_midnightwhispersca
+import adapter_midnightwhispers
 import adapter_ksarchivecom
 import adapter_archiveskyehawkecom
 import adapter_squidgeorgpeja

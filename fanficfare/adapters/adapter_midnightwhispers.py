@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@ from base_adapter import BaseSiteAdapter,  makeDate
 # updated to reflect the class below it.  That, plus getSiteDomain()
 # take care of 'Registering'.
 def getClass():
-    return MidnightwhispersCaAdapter # XXX
+    return MidnightwhispersAdapter # XXX
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class MidnightwhispersCaAdapter(BaseSiteAdapter): # XXX
+class MidnightwhispersAdapter(BaseSiteAdapter): # XXX
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -69,14 +69,23 @@ class MidnightwhispersCaAdapter(BaseSiteAdapter): # XXX
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.midnightwhispers.ca' # XXX
+        return 'www.midnightwhispers.net' # XXX
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['www.midnightwhispers.net','www.midnightwhispers.ca']
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['www.midnightwhispers.ca',cls.getSiteDomain()]
 
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://www.midnightwhispers.")+r"(ca|net)"+re.escape("/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
