@@ -127,7 +127,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # get chapter part of url.
                 except:
                     chapcount = 1
-                chapter = url.split('/',)[5]
                 tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
                                                 self.story.getMetadata('storyId'),
                                                 chapcount+1)
