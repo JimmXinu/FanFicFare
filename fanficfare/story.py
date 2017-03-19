@@ -418,6 +418,7 @@ def make_replacements(replace):
             logger.error("Problem with Replacement Line:%s"%repl_line)
             raise exceptions.PersonalIniFailed(e,'replace_metadata unpacking failed',repl_line)
 #            raise
+    # print("replace lines:%s"%len(retval))
     return retval
 
 class Story(Configurable):
@@ -439,6 +440,7 @@ class Story(Configurable):
         # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
         # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
         self.processed_metadata_cache = {}
+        self.processed_metadata_list_cache = {}
 
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
@@ -471,6 +473,7 @@ class Story(Configurable):
                 if ies:
                     iel = []
                     self.in_ex_cludes[ie] = set_in_ex_clude(ies)
+                    # print("%s %s"%(ie,len(self.in_ex_cludes[ie])))
             self.replacements_prepped = True
 
 
@@ -677,14 +680,16 @@ class Story(Configurable):
     def getMetadata(self, key,
                     removeallentities=False,
                     doreplacements=True):
-        value = None
-        if not self.isValidMetaEntry(key):
-            return value
-
         # check for a cached value to speed processing
         if key in self.processed_metadata_cache \
                 and (removeallentities,doreplacements) in self.processed_metadata_cache[key]:
             return self.processed_metadata_cache[key][(removeallentities,doreplacements)]
+
+        value = None
+        if not self.isValidMetaEntry(key):
+            pass # cache not valid entry, too.
+#            return value
+
         elif self.isList(key):
             # join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
             # value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
@@ -854,89 +859,100 @@ class Story(Configurable):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
 
+        # check for a cached value to speed processing
+        if listname in self.processed_metadata_list_cache \
+                and (removeallentities,doreplacements) in self.processed_metadata_list_cache[listname]:
+            return self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)]
+
         if not self.isValidMetaEntry(listname):
-            return retlist
-
-        # includelist prevents infinite recursion of include_in_'s
-        if self.hasConfig("include_in_"+listname) and listname not in includelist:
-            for k in self.getConfigList("include_in_"+listname):
-                ldorepl = doreplacements
-                if k.endswith('.NOREPL'):
-                    k = k[:-len('.NOREPL')]
-                    ldorepl = False
-                retlist.extend(self.getList(k,removeallentities=False,
-                                            doreplacements=ldorepl,includelist=includelist+[listname]))
+            retlist = []
         else:
-
-            if not self.isList(listname):
-                retlist = [self.getMetadata(listname,removeallentities=False,
-                                            doreplacements=doreplacements)]
+            # includelist prevents infinite recursion of include_in_'s
+            if self.hasConfig("include_in_"+listname) and listname not in includelist:
+                for k in self.getConfigList("include_in_"+listname):
+                    ldorepl = doreplacements
+                    if k.endswith('.NOREPL'):
+                        k = k[:-len('.NOREPL')]
+                        ldorepl = False
+                    retlist.extend(self.getList(k,removeallentities=False,
+                                                doreplacements=ldorepl,includelist=includelist+[listname]))
             else:
-                retlist = self.getMetadataRaw(listname)
-                if retlist is None:
-                    retlist = []
 
-        # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
-        # use replace_metadata to change separator first if needed.
-        # ships=>[ ]*(/|&amp;|&)[ ]*=>/
-        if listname == 'ships' and self.getConfig('sort_ships') and doreplacements and retlist:
-            # retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
-            ## empty default of /=>/
-            sort_ships_splits = self.getConfig('sort_ships_splits',"/=>/")
+                if not self.isList(listname):
+                    retlist = [self.getMetadata(listname,removeallentities=False,
+                                                doreplacements=doreplacements)]
+                else:
+                    retlist = self.getMetadataRaw(listname)
+                    if retlist is None:
+                        retlist = []
 
-            for line in sort_ships_splits.splitlines():
-                if line:
-                    ## logger.debug("sort_ships_splits:%s"%line)
-                    ## logger.debug(retlist)
-                    (splitre,splitmerge) = line.split("=>")
-                    splitmerge = splitmerge.replace(SPACE_REPLACE,' ')
+            # reorder ships so b/a and c/b/a become a/b and a/b/c.  Only on '/',
+            # use replace_metadata to change separator first if needed.
+            # ships=>[ ]*(/|&amp;|&)[ ]*=>/
+            if listname == 'ships' and self.getConfig('sort_ships') and doreplacements and retlist:
+                # retlist = [ '/'.join(sorted(x.split('/'))) for x in retlist ]
+                ## empty default of /=>/
+                sort_ships_splits = self.getConfig('sort_ships_splits',"/=>/")
+
+                for line in sort_ships_splits.splitlines():
+                    if line:
+                        ## logger.debug("sort_ships_splits:%s"%line)
+                        ## logger.debug(retlist)
+                        (splitre,splitmerge) = line.split("=>")
+                        splitmerge = splitmerge.replace(SPACE_REPLACE,' ')
+                        newretlist = []
+                        for x in retlist:
+                            curlist = []
+                            for y in re.split(splitre,x):
+                                ## logger.debug("x:(%s) y:(%s)"%(x,y))
+                                ## for SPLIT_META(\,)
+                                if x != y and doreplacements: # doreplacements always true here (currently)
+                                    y = self.doReplacements(y,'ships_CHARS',return_list=True)
+                                else:
+                                    ## needs to be a list to extend curlist.
+                                    y=[x]
+                                curlist.extend(y)
+                                ## logger.debug("curlist:%s"%(curlist,))
+                            newretlist.append( splitmerge.join(sorted(curlist)) )
+
+                        retlist = newretlist
+                        ## logger.debug(retlist)
+
+            if retlist:
+                if doreplacements:
                     newretlist = []
-                    for x in retlist:
-                        curlist = []
-                        for y in re.split(splitre,x):
-                            ## logger.debug("x:(%s) y:(%s)"%(x,y))
-                            ## for SPLIT_META(\,)
-                            if x != y and doreplacements: # doreplacements always true here (currently)
-                                y = self.doReplacements(y,'ships_CHARS',return_list=True)
-                            else:
-                                ## needs to be a list to extend curlist.
-                                y=[x]
-                            curlist.extend(y)
-                            ## logger.debug("curlist:%s"%(curlist,))
-                        newretlist.append( splitmerge.join(sorted(curlist)) )
-
+                    for val in retlist:
+                        newretlist.extend(self.doReplacements(val,listname,return_list=True))
                     retlist = newretlist
-                    ## logger.debug(retlist)
 
-        if retlist:
-            if doreplacements:
-                newretlist = []
-                for val in retlist:
-                    newretlist.extend(self.doReplacements(val,listname,return_list=True))
-                retlist = newretlist
+                if removeallentities:
+                    retlist = map(removeAllEntities,retlist)
 
-            if removeallentities:
-                retlist = map(removeAllEntities,retlist)
+                retlist = filter( lambda x : x!=None and x!='' ,retlist)
 
-            retlist = filter( lambda x : x!=None and x!='' ,retlist)
+            if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
+                                                                                                            removeallentities=False,
+                                                                                                            # to avoid inf loops if genre/cat substs
+                                                                                                            doreplacements=False
+                                                                                                            )) > 1:
+                retlist.append(self.getConfig('add_genre_when_multi_category'))
 
-        if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
-                                                                                                        removeallentities=False,
-                                                                                                        # to avoid inf loops if genre/cat substs
-                                                                                                        doreplacements=False
-                                                                                                        )) > 1:
-            retlist.append(self.getConfig('add_genre_when_multi_category'))
-
-        if retlist:
-            if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
-                # need to retain order for author & authorUrl so the
-                # two match up.
-                return unique_list(retlist)
+            if retlist:
+                if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
+                    # need to retain order for author & authorUrl so the
+                    # two match up.
+                    retlist = unique_list(retlist)
+                else:
+                    # remove dups and sort.
+                    retlist = sorted(list(set(retlist)))
             else:
-                # remove dups and sort.
-                return sorted(list(set(retlist)))
-        else:
-            return []
+                retlist = []
+
+        if listname not in self.processed_metadata_list_cache:
+            self.processed_metadata_list_cache[listname] = {}
+        self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
+
+        return retlist
 
     def getSubjectTags(self, removeallentities=False):
         # set to avoid duplicates subject tags.
