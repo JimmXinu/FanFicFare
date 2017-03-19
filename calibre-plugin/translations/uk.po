@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-01-27 09:12+Central Standard Time\n"
-"PO-Revision-Date: 2017-02-19 18:33+0000\n"
+"PO-Revision-Date: 2017-03-18 14:07+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/calibre/calibre-plugins/language/uk/)\n"
 "MIME-Version: 1.0\n"
@@ -169,7 +169,7 @@ msgstr "Під час кожного сеансу отримання даних 
 
 #: config.py:447
 msgid "Default Background Metadata?"
-msgstr "Типоов отримувати метадані у фоновому режимі?"
+msgstr "Типово отримувати метадані у фоновому режимі?"
 
 #: config.py:448
 msgid ""
@@ -1002,7 +1002,7 @@ msgstr "Якщо позначено, FanFicFare збереже копію усі
 
 #: config.py:1406
 msgid "Last Checked Column:"
-msgstr "Ствопчик часу останньої перевірки:"
+msgstr "Стовпчик часу останньої перевірки:"
 
 #: config.py:1407
 msgid ""
