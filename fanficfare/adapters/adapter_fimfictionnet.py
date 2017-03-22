@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fimficnet')
         self.story.setMetadata('storyId', self.parsedUrl.path.split('/',)[2])
-        self._setURL("http://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
+        self._setURL("https://"+self.getSiteDomain()+"/story/"+self.story.getMetadata('storyId')+"/")
         self.is_adult = False
 
         # The date format will vary from site to site.
@@ -57,7 +57,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.fimfiction.net/story/1234/story-title-here http://www.fimfiction.net/story/1234/ http://www.fimfiction.com/story/1234/1/ http://mobile.fimfiction.net/story/1234/1/story-title-here/chapter-title-here"
+        return "https://www.fimfiction.net/story/1234/story-title-here https://www.fimfiction.net/story/1234/ https://www.fimfiction.com/story/1234/1/ https://mobile.fimfiction.net/story/1234/1/story-title-here/chapter-title-here"
 
     def getSiteURLPattern(self):
         return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
@@ -135,7 +135,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("author", stripHTML(author))
         #No longer seems to be a way to access Fimfiction's internal author ID
         self.story.setMetadata("authorId", self.story.getMetadata("author"))
-        self.story.setMetadata("authorUrl", "http://%s/user/%s" % (self.getSiteDomain(), stripHTML(author)))
+        self.story.setMetadata("authorUrl", "https://%s/user/%s" % (self.getSiteDomain(), stripHTML(author)))
 
         #Rating text is replaced with full words for historical compatibility after the site changed
         #on 2014-10-27
@@ -145,7 +145,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Chapters
         for chapter in storyContentBox.find_all('a',{'class':'chapter_link'}):
-            self.chapterUrls.append((stripHTML(chapter), 'http://'+self.host+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter), 'https://'+self.host+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -176,8 +176,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         storyImage = storyContentBox.find('div', {'class':'story_image'})
         if storyImage:
             coverurl = storyImage.find('a')['href']
-            if coverurl.startswith('//'): # fix for img urls missing 'http:'
-                coverurl = "http:"+coverurl
+            if coverurl.startswith('//'): # fix for img urls missing 'https:'
+                coverurl = "https:"+coverurl
             if get_cover:
                 # try setting from href, if fails, try using the img src
                 if self.setCoverImage(self.url,coverurl)[0] == "failedtoload":
@@ -280,7 +280,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         if not (groupList == None):
             for groupName in groupList.find_all('a'):
-                self.story.addToList("groupsUrl", 'http://'+self.host+groupName["href"])
+                self.story.addToList("groupsUrl", 'https://'+self.host+groupName["href"])
                 self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
 
         #sequels
@@ -289,7 +289,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if header.text.startswith('Sequels'):
                 sequelContainer = header.parent
                 for sequel in sequelContainer.find_all('a', {'class':'story_link'}):
-                    self.story.addToList("sequelsUrl", 'http://'+self.host+sequel["href"])
+                    self.story.addToList("sequelsUrl", 'https://'+self.host+sequel["href"])
                     self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
 
         #author last login
@@ -319,7 +319,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if "This story is a sequel to" in nextSib.string:
                 link = nextSib.nextSibling
                 if link.name == "a":
-                    self.story.setMetadata("prequelUrl", 'http://'+self.host+link["href"])
+                    self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
                     self.story.setMetadata("prequel", stripHTML(link))
         except:
             pass
