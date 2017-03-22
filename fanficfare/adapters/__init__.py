@@ -45,7 +45,6 @@ import adapter_whoficcom
 import adapter_siyecouk
 import adapter_archiveofourownorg
 import adapter_ficbooknet
-import adapter_portkeyorg
 import adapter_mugglenetcom
 import adapter_hpfandomnet
 import adapter_nfacommunitycom
@@ -100,7 +99,6 @@ import adapter_efictionestelielde
 import adapter_pommedesangcom
 import adapter_restrictedsectionorg
 import adapter_imagineeficcom
-import adapter_psychficcom
 import adapter_asr3slashzoneorg
 import adapter_potterheadsanonymouscom
 import adapter_fictionpadcom
