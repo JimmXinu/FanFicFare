@@ -65,7 +65,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
                                              self.getSiteExampleURLs())
-        
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','trekffnet')
 
@@ -136,7 +136,9 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## I'm going to comment this out, because thereis always only one chapter for each story,
         ## so this is really not needed
-#        self.story.setMetadata('numChapters',len(self.chapterUrls))
+        ## And I am uncommenting it because the rest of FFF expects
+        ## there to always be numChapters, even if it's one. --Jimm
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # getting the rest of the metadata... there isn't much here, and the summary can only be
         # gotten on the author's page... so we'll get it to get the information from
@@ -147,7 +149,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         for container in containers:
             if container.find('a', href=url):
                 break
-        
+
         ## Getting the tags
         tags = container.find_all('a', {'rel':'tag'})
         for tag in tags:
@@ -158,7 +160,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         tags = container.find_all('a', {'rel':'category tag'})
         for tag in tags:
             self.story.addToList('category', tag.string)
-        
+
         ## Getting the summary
         summary = container.find('div', {'class':'excerpt'})
         self.setDescription(url, stripHTML(summary))
@@ -180,7 +182,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         words = len(soup.find('div', {'class' : 'entry-content'}).get_text())
         self.story.setMetadata('numWords', words)
 
-        ## That is all of the metadata for this site, and since we are using the 
+        ## That is all of the metadata for this site, and since we are using the
         ## same page for the whole story, I'm going to save th soup to be used
         ## in the getChapterText function
         self.html = soup
