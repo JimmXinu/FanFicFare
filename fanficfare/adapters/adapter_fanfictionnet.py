@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             ## accept m(mobile)url, but use www.
             self.origurl = self.origurl.replace("https://m.","https://www.")
 
-        self.opener.addheaders.append(('Referer',self.origurl))
+        self.get_configuration().opener.addheaders.append(('Referer',self.origurl))
 
     @staticmethod
     def getSiteDomain():

@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2016, Jim Miller'
+__copyright__ = '2017, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 
@@ -1076,12 +1076,13 @@ class FanFicFarePlugin(InterfaceAction):
         adapter.setChaptersRange(book['begin'],book['end'])
         ## save and share cookiejar and pagecache between all
         ## downloads.
+        configuration = adapter.get_configuration()
         if 'pagecache' not in options:
-            options['pagecache'] = adapter.get_empty_pagecache()
-        adapter.set_pagecache(options['pagecache'])
+            options['pagecache'] = configuration.get_empty_pagecache()
+        configuration.set_pagecache(options['pagecache'])
         if 'cookiejar' not in options:
-            options['cookiejar'] = adapter.get_empty_cookiejar()
-        adapter.set_cookiejar(options['cookiejar'])
+            options['cookiejar'] = configuration.get_empty_cookiejar()
+        configuration.set_cookiejar(options['cookiejar'])
 
         if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
             ## Getting metadata from configured column.
@@ -1123,7 +1124,7 @@ class FanFicFarePlugin(InterfaceAction):
                 b = minslp - m
                 slp = min(maxslp,m*float(options['ffnetcount'])+b)
                 #print("m:%s b:%s = %s"%(m,b,slp))
-                adapter.set_sleep(slp)
+                configuration.set_sleep(slp)
 
             if not bgmeta:
                 ## three tries, that's enough if both user/pass & is_adult needed,

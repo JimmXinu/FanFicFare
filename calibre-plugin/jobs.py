@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2016, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2017, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -155,9 +155,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.password = book['password']
             adapter.setChaptersRange(book['begin'],book['end'])
             
-            adapter.load_cookiejar(options['cookiejarfile'])
-            #logger.debug("cookiejar:%s"%adapter.cookiejar)
-            adapter.set_pagecache(options['pagecache'])
+            configuration.load_cookiejar(options['cookiejarfile'])
+            #logger.debug("cookiejar:%s"%configuration.cookiejar)
+            configuration.set_pagecache(options['pagecache'])
             
             story = adapter.getStoryMetadataOnly()
             if not story.getMetadata("series") and 'calibre_series' in book:

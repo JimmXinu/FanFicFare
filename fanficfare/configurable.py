@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,36 @@ import exceptions
 import codecs
 from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
+import time
+import logging
+import urllib
+import urllib2 as u2
+import urlparse as up
+import cookielib as cl
+
+try:
+    from google.appengine.api import apiproxy_stub_map
+    def urlfetch_timeout_hook(service, call, request, response):
+        if call != 'Fetch':
+            return
+        # Make the default deadline 10 seconds instead of 5.
+        if not request.has_deadline():
+            request.set_deadline(10.0)
+
+    apiproxy_stub_map.apiproxy.GetPreCallHooks().Append(
+        'urlfetch_timeout_hook', urlfetch_timeout_hook, 'urlfetch')
+    logger.info("Hook to make default deadline 10.0 installed.")
+except:
+    pass
+    #logger.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
+
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
+from gziphttp import GZipProcessor
+
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
 # [sections] with key:value settings.
@@ -34,6 +64,8 @@ from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 # titlepage_entries: category,genre, status,datePublished
 # [overrides]
 # titlepage_entries: category
+
+logger = logging.getLogger(__name__)
 
 import adapters
 
@@ -458,6 +490,21 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.url_config_set = False
 
+        self.override_sleep = None
+        self.cookiejar = self.get_empty_cookiejar()
+        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+
+        ## order of preference for decoding.
+        self.decode = ["utf8",
+                       "Windows-1252", # 1252 is a superset of
+                       "iso-8859-1"]   # iso-8859-1.  Most sites that
+                                       # claim to be iso-8859-1 (and
+                                       # some that claim to be utf8)
+                                       # are really windows-1252.
+
+        self.pagecache = self.get_empty_pagecache()
+
+
     def addUrlConfigSection(self,url):
         if not self.lightweight: # don't need when just checking for normalized URL.
             # replace if already set once.
@@ -752,11 +799,235 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         return errors
 
+#### methods for fetching.  Moved here from base_adapter when
+#### *_filelist feature was added.
+
+    @staticmethod
+    def get_empty_cookiejar():
+        return cl.LWPCookieJar()
+
+    @staticmethod
+    def get_empty_pagecache():
+        return {}
+
+    def get_cookiejar(self):
+        return self.cookiejar
+
+    def set_cookiejar(self,cj):
+        self.cookiejar = cj
+        saveheaders = self.opener.addheaders
+        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener.addheaders = saveheaders
+
+    def load_cookiejar(self,filename):
+        '''
+        Needs to be called after adapter create, but before any fetchs
+        are done.  Takes file *name*.
+        '''
+        self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
+
+    def get_pagecache(self):
+        return self.pagecache
+
+    def set_pagecache(self,d):
+        self.pagecache=d
+
+    def _get_cachekey(self, url, parameters=None, headers=None):
+        keylist=[url]
+        if parameters != None:
+            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
+        if headers != None:
+            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(headers.items())))
+        return '?'.join(keylist)
+
+    def _has_cachekey(self,cachekey):
+        return self.use_pagecache() and cachekey in self.get_pagecache()
+
+    def _get_from_pagecache(self,cachekey):
+        if self.use_pagecache():
+            return self.get_pagecache().get(cachekey)
+        else:
+            return None
+
+    def _set_to_pagecache(self,cachekey,data,redirectedurl):
+        if self.use_pagecache():
+            self.get_pagecache()[cachekey] = (data,redirectedurl)
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return False
+
+
+## website encoding(s)--in theory, each website reports the character
+## encoding they use for each page.  In practice, some sites report it
+## incorrectly.  Each adapter has a default list, usually "utf8,
+## Windows-1252" or "Windows-1252, utf8".  The special value 'auto'
+## will call chardet and use the encoding it reports if it has +90%
+## confidence.  'auto' is not reliable.
+    def _decode(self,data):
+        if self.getConfig('website_encodings'):
+            decode = self.getConfigList('website_encodings')
+        else:
+            decode = self.decode
+
+        for code in decode:
+            try:
+                #print code
+                if code == "auto":
+                    if not chardet:
+                        logger.info("chardet not available, skipping 'auto' encoding")
+                        continue
+                    detected = chardet.detect(data)
+                    #print detected
+                    if detected['confidence'] > 0.9:
+                        code=detected['encoding']
+                    else:
+                        continue
+                return data.decode(code)
+            except:
+                logger.debug("code failed:"+code)
+                pass
+        logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
+        return "".join([x for x in data if ord(x) < 128])
+
+    # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
+    def _postUrl(self, url,
+                 parameters={},
+                 headers={},
+                 extrasleep=None,
+                 usecache=True):
+        '''
+        When should cache be cleared or not used? logins...
+
+        extrasleep is primarily for ffnet adapter which has extra
+        sleeps.  Passed into fetchs so it can be bypassed when
+        cache hits.
+        '''
+        cachekey=self._get_cachekey(url, parameters, headers)
+        if usecache and self._has_cachekey(cachekey):
+            logger.debug("#####################################\npagecache(POST) HIT: %s"%safe_url(cachekey))
+            data,redirecturl = self._get_from_pagecache(cachekey)
+            return data
+
+        logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
+        self.do_sleep(extrasleep)
+
+        ## u2.Request assumes POST when data!=None.  Also assumes data
+        ## is application/x-www-form-urlencoded.
+        if 'Content-type' not in headers:
+            headers['Content-type']='application/x-www-form-urlencoded'
+        if 'Accept' not in headers:
+            headers['Accept']="text/html,*/*"
+        req = u2.Request(url,
+                         data=urllib.urlencode(parameters),
+                         headers=headers)
+
+        ## Specific UA because too many sites are blocking the default python UA.
+        logger.debug("user_agent:%s"%self.getConfig('user_agent'))
+        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
+                                  ('X-Clacks-Overhead','GNU Terry Pratchett')]
+
+        data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
+        self._set_to_pagecache(cachekey,data,url)
+        return data
+
+    def _fetchUrlRawOpened(self, url,
+                           parameters=None,
+                           extrasleep=None,
+                           usecache=True):
+        '''
+        When should cache be cleared or not used? logins...
+
+        extrasleep is primarily for ffnet adapter which has extra
+        sleeps.  Passed into fetchs so it can be bypassed when
+        cache hits.
+        '''
+        cachekey=self._get_cachekey(url, parameters)
+        if usecache and self._has_cachekey(cachekey):
+            logger.debug("#####################################\npagecache(GET) HIT: %s"%safe_url(cachekey))
+            data,redirecturl = self._get_from_pagecache(cachekey)
+            class FakeOpened:
+                def __init__(self,data,url):
+                    self.data=data
+                    self.url=url
+                def geturl(self): return self.url
+                def read(self): return self.data
+            return (data,FakeOpened(data,redirecturl))
+
+        logger.debug("#####################################\npagecache(GET) MISS: %s"%safe_url(cachekey))
+        self.do_sleep(extrasleep)
+
+        ## Specific UA because too many sites are blocking the default python UA.
+        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
+                                  ## starslibrary.net throws a "HTTP
+                                  ## Error 403: Bad Behavior" over the
+                                  ## X-Clacks-Overhead.  Which is is
+                                  ## both against standard and rather
+                                  ## a dick-move.
+                                  #('X-Clacks-Overhead','GNU Terry Pratchett'),
+                                  ]
+
+        if parameters != None:
+            opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
+        else:
+            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+        data = opened.read()
+        self._set_to_pagecache(cachekey,data,opened.url)
+
+        return (data,opened)
+
+    def set_sleep(self,val):
+        logger.debug("\n===========\n set sleep time %s\n==========="%val)
+        self.override_sleep = val
+
+    def do_sleep(self,extrasleep=None):
+        if extrasleep:
+            time.sleep(float(extrasleep))
+        if self.override_sleep:
+            time.sleep(float(self.override_sleep))
+        elif self.getConfig('slow_down_sleep_time'):
+            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+
+    # parameters is a dict()
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=None):
+
+        excpt=None
+        for sleeptime in [0, 0.5, 4, 9]:
+            time.sleep(sleeptime)
+            try:
+                (data,opened)=self._fetchUrlRawOpened(url,
+                                                      parameters=parameters,
+                                                      usecache=usecache,
+                                                      extrasleep=extrasleep)
+                return (self._decode(data),opened)
+            except u2.HTTPError, he:
+                excpt=he
+                if he.code in (403,404,410):
+                    logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
+                    break # break out on 404
+            except Exception, e:
+                excpt=e
+                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+
+        logger.error("Giving up on %s" %safe_url(url))
+        logger.debug(excpt, exc_info=True)
+        raise(excpt)
+
+
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
 
     def __init__(self, configuration):
         self.configuration = configuration
+
+    def get_configuration(self):
+        return self.configuration
 
     def is_lightweight(self):
         return self.configuration.lightweight
@@ -800,3 +1071,58 @@ class Configurable(object):
             label=entry.title()
         return label
 
+    def do_sleep(self,extrasleep=None):
+        return self.configuration.do_sleep(extrasleep)
+
+    def _postUrl(self, url,
+                 parameters={},
+                 headers={},
+                 extrasleep=None,
+                 usecache=True):
+        return self.configuration._postUrl(url,
+                                           parameters,
+                                           headers,
+                                           extrasleep,
+                                           usecache)
+
+    def _fetchUrlRawOpened(self, url,
+                           parameters=None,
+                           extrasleep=None,
+                           usecache=True):
+        return self.configuration._fetchUrlRawOpened(url,
+                                                     parameters,
+                                                     extrasleep,
+                                                     usecache)
+
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=None):
+        return self.configuration._fetchUrlOpened(url,
+                                                 parameters,
+                                                 usecache,
+                                                 extrasleep)
+
+    def _fetchUrl(self, url,
+                  parameters=None,
+                  usecache=True,
+                  extrasleep=None):
+        return self._fetchUrlOpened(url,
+                                    parameters,
+                                    usecache,
+                                    extrasleep)[0]
+    def _fetchUrlRaw(self, url,
+                     parameters=None,
+                     extrasleep=None,
+                     usecache=True):
+        return self._fetchUrlRawOpened(url,
+                                       parameters,
+                                       extrasleep,
+                                       usecache)[0]
+
+
+# .? for AO3's ']' in param names.
+safe_url_re = re.compile(r'(?P<attr>(password|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
+def safe_url(url):
+    # return url with password attr (if present) obscured.
+    return re.sub(safe_url_re,r'\g<attr>XXXXXXXX\g<amp>',url)

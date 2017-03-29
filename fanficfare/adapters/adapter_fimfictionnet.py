@@ -81,7 +81,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                            comment_url=None,
                            rest={'HttpOnly': None},
                            rfc2109=False)
-        self.get_cookiejar().set_cookie(cookie)
+        self.get_configuration().get_cookiejar().set_cookie(cookie)
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 

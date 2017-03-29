@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
     def _fetchUrl(self,url,parameters=None,extrasleep=None,usecache=True):
         ## lushstories.com sets unescaped cookies with cause
         ## httplib.py to fail.
-        self.set_cookiejar(self.get_empty_cookiejar())
+        self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
         return BaseSiteAdapter._fetchUrl(self,url,
                                          parameters=parameters,
                                          extrasleep=extrasleep,

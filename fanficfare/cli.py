@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import pprint
 import string
 import sys
 
-version="2.9.5"
+version="2.9.6"
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
@@ -281,12 +281,12 @@ def do_download(arg,
     try:
         adapter = adapters.getAdapter(configuration, url)
 
+        ## Share pagecache and cookiejar between multiple downloads.
         if not hasattr(options,'pagecache'):
-            options.pagecache = adapter.get_empty_pagecache()
-            options.cookiejar = adapter.get_empty_cookiejar()
-
-        adapter.set_pagecache(options.pagecache)
-        adapter.set_cookiejar(options.cookiejar)
+            options.pagecache = configuration.get_empty_pagecache()
+            options.cookiejar = configuration.get_empty_cookiejar()
+        configuration.set_pagecache(options.pagecache)
+        configuration.set_cookiejar(options.cookiejar)
 
         adapter.setChaptersRange(options.begin, options.end)
 
