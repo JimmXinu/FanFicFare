@@ -326,7 +326,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <div>
 <h3>Prologue</h3>
 <p>This is a fake adapter for testing purposes.  Different sid's will give different errors:</p>
-<h4>Config(personal.ini)</h4>
 <p>sid&gt;=1000 will use custom test story data from your configuration(personal.ini)</p>
 <p>Hard coded ids:</p>
 <p>http://test1.com?sid=664 - Crazy string title</p>

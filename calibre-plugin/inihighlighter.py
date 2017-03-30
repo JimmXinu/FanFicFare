@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2016, Jim Miller'
+__copyright__ = '2017, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -14,10 +14,6 @@ try:
 except ImportError as e:
     from PyQt4.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
 
-# r'add_to_+key
-
-
-    
 class IniHighlighter(QSyntaxHighlighter):
     '''
     QSyntaxHighlighter class for use with QTextEdit for highlighting
@@ -44,16 +40,16 @@ class IniHighlighter(QSyntaxHighlighter):
 
         # *all* entry keywords -- change known later.
         reentrykeywords = r'('+(r'|'.join([ e % r'[a-zA-Z0-9_]+' for e in entry_keywords ]))+r')'
-        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"\s*[:=]", Qt.darkMagenta ) )
+        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", Qt.darkMagenta ) )
 
         if entries: # separate from known entries so entry named keyword won't be masked.
             # *known* entry keywords
             reentrykeywords = r'('+(r'|'.join([ e % reentries for e in entry_keywords ]))+r')'
-            self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"\s*[:=]", Qt.blue ) )
+            self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", Qt.blue ) )
 
         # *known* keywords
         rekeywords = r'('+(r'|'.join(keywords))+r')'
-        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+rekeywords+r"\s*[:=]", Qt.blue ) )
+        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+rekeywords+r"(_filelist)?\s*[:=]", Qt.blue ) )
 
         # *all* sections -- change known later.
         self.highlightingRules.append( HighlightingRule( r"^\[[^\]]+\].*?$", Qt.red, QFont.Bold, blocknum=1 ) )
