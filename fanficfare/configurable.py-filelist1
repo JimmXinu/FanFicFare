@@ -556,32 +556,19 @@ class Configuration(ConfigParser.SafeConfigParser):
 
     def get_config(self, sections, key, default=""):
         val = default
-
-        val_files = []
-        if not key.endswith("_filelist"):
-            ## <key>_filelist overrides <key>, but add_to_<key> is
-            ## still used.  By using self.get_config_list(),
-            ## add_to_<key>_filelist also works. (But not
-            ## <key>_filelist_filelist--that way lies madness--and
-            ## infinite recursion.)  self.get_config_list() also does
-            ## the list split & clean up.
-            val_files = self.get_config_list(sections, key+"_filelist")
-
-        file_val = False
-        if val_files:
-            val = ''
-            for v in val_files:
-                try:
+        for section in sections:
+            try:
+                val = self.get(section,key+"_filelist")
+                vlist = re.split(r'(?<!\\),',val) # don't split on \,
+                vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
+                val = ''
+                for v in vlist:
                     val = val + self._fetchUrl(v)
-                    file_val = True
-                except:
-                    pass
-            if not file_val:
-                logger.warn("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
-                            (key+"_filelist",key,val_files))
+                ### XXX Get value from files here
+                print "getConfig(%s_filelist)=[%s]%s\nGet value from files here" % (key,section,val)
 
-        if not file_val:
-            for section in sections:
+                break
+            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
                 try:
                     val = self.get(section,key)
                     if val and val.lower() == "false":
@@ -1024,12 +1011,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                         extrasleep=None):
 
         excpt=None
-        if url.startswith("file://"):
-            # only one try for file:s.
-            sleeptimes = [0]
-        else:
-            sleeptimes = [0, 0.5, 4, 9]
-        for sleeptime in sleeptimes:
+        for sleeptime in [0, 0.5, 4, 9]:
             time.sleep(sleeptime)
             try:
                 (data,opened)=self._fetchUrlRawOpened(url,
