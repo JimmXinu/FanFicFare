@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Andreas Dreyer Hysing <andreashysing@gmail.com>, 2016
+# Andreas Dreyer Hysing, 2016
 # John Henningsen <henningsen.teknikk@gmail.com>, 2016
 # Kurt-Håkon Eilertsen <kurt@kheds.com>, 2014
 msgid ""

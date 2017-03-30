@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-01-27 09:12+Central Standard Time\n"
-"PO-Revision-Date: 2017-03-13 03:50+0000\n"
+"PO-Revision-Date: 2017-03-23 02:17+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -151,7 +151,7 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr ""
+msgstr "Igal allalaadimisel pakub FanFicFare võimalust uuendada Calibre metaandmeid (pealkiri, autor, URL, sildid, kohandatud veerud jms) veebisaidilt. <br />See säte määrab, kas see on vaikimisi lülitatud sisse või välja. <br />Veerud, mis on veergude vahelehel määratud valikule 'Ainult uus', määratakse ainult uutele raamatutele."
 
 #: config.py:442
 msgid "Default Update EPUB Cover when Updating EPUB?"
@@ -162,7 +162,7 @@ msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr ""
+msgstr "Igal allalaadimisel pakub FanFicFare valikut EPUBi <i>sees</i> oleva raamatu kaanepildi uuendamiseks veebisaidilt, kui EPUBi uuendatakse.<br />See säte määrab, kas see on vaikimisi lubatud või keelatud."
 
 #: config.py:447
 msgid "Default Background Metadata?"
@@ -1443,7 +1443,7 @@ msgstr "Eemalda valitud URL-id loendist"
 
 #: dialogs.py:1123 dialogs.py:1127
 msgid "This will be added to whatever note you've set for each URL above."
-msgstr ""
+msgstr "See lisatakse mis tahes märkmele, mille oled igale ülal olevale URLile määranud."
 
 #: dialogs.py:1140
 msgid "Delete Books (including books without FanFiction URLs)?"
@@ -1481,7 +1481,7 @@ msgstr "Mine tagasi vigu parandama?"
 
 #: dialogs.py:1457
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr ""
+msgstr "Klõpsa alloleval veal, et minna tagasi redigeerima otse sellele reale:"
 
 #: dialogs.py:1480
 msgid "Click to go to line %s"
@@ -1489,7 +1489,7 @@ msgstr "Klõpsa, et minna reale %s"
 
 #: dialogs.py:1496
 msgid "Return to Editing"
-msgstr ""
+msgstr "Tagasi redigeerima"
 
 #: dialogs.py:1500
 msgid "Save Anyway"
@@ -1577,7 +1577,7 @@ msgstr ""
 
 #: fff_plugin.py:368
 msgid "Get Story URLs from Selected Books"
-msgstr ""
+msgstr "Hangi juttude URLid valitud raamatutest"
 
 #: fff_plugin.py:373
 msgid "Reject Selected Books"
