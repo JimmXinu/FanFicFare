@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
-        self.decode = self.getEncoding()
+        self.set_decode(self.getEncoding())
         storyId = re.compile(self.getSiteURLPattern()).match(self.url).group('storyId')
         self.story.setMetadata('storyId', storyId)
         self._setURL(self.getViewStoryUrl(storyId))

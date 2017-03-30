@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -- coding: utf-8 --
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,12 +42,6 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         logger.debug("AdultFanFictionOrgAdapter.__init__ - url='{0}'".format(url))
-
-        self.decode = ["utf8",
-                       "Windows-1252", "iso-8859-1"] # 1252 is a superset of iso-8859-1.
-                            # Most sites that claim to be
-                            # iso-8859-1 (and some that claim to be
-                            # utf8) are really windows-1252.
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""

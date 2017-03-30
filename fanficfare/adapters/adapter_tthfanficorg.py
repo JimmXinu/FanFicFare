@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,6 +100,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
 # <input type='submit' value='Login' name='loginsubmit'/>
         soup = self.make_soup(self._fetchUrl(loginUrl))
+        ## FYI, this will fail if cookiejar is shared, but
+        ## use_pagecache is false.
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016 FanFicFare team
+# Copyright 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,11 +44,6 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
-        # 1252 is a superset of iso-8859-1.
-        # Most sites that claim to be iso-8859-1 (and some that claim to be utf8)
-        # are really windows-1252. I've put the iso-8859-1 in just to cover the bases [GComyn]
-        self.decode = ["Windows-1252", "utf8", "iso-8859-1"]  
 
         self.is_adult = False
 

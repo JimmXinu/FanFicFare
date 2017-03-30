@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,14 +38,6 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
-        self.decode = ["utf8",
-                       "Windows-1252",
-                       "iso-8859-1"] 
-                        # 1252 is a superset of iso-8859-1.
-                        # Most sites that claim to be
-                        # iso-8859-1 (and some that claim to be
-                        # utf8) are really windows-1252.
 
         self.story.setMetadata('siteabbrev','asscom')
 

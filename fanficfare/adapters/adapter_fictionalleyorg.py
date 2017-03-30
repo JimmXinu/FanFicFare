@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,11 +33,6 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fa')
-        self.decode = ["Windows-1252",
-                       "utf8"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
         self.is_adult=False
 
         # get storyId from url--url validation guarantees query correct

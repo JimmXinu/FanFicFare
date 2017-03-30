@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 FanFicFare team
+# Copyright 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,8 +61,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
-        self.decode = ["utf8"]
 
         self.story.setMetadata('siteabbrev', 'me2in')
         self.story.setMetadata('storyId', self._getDocumentId(self.url))

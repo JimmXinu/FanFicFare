@@ -453,6 +453,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         ConfigParser.SafeConfigParser.__init__(self)
 
         self.lightweight = lightweight
+        self.use_pagecache = False # default to false for old adapters.
 
         self.linenos=dict() # key by section or section,key -> lineno
 
@@ -493,14 +494,6 @@ class Configuration(ConfigParser.SafeConfigParser):
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
         self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
-
-        ## order of preference for decoding.
-        self.decode = ["utf8",
-                       "Windows-1252", # 1252 is a superset of
-                       "iso-8859-1"]   # iso-8859-1.  Most sites that
-                                       # claim to be iso-8859-1 (and
-                                       # some that claim to be utf8)
-                                       # are really windows-1252.
 
         self.pagecache = self.get_empty_pagecache()
 
@@ -841,24 +834,17 @@ class Configuration(ConfigParser.SafeConfigParser):
         return '?'.join(keylist)
 
     def _has_cachekey(self,cachekey):
-        return self.use_pagecache() and cachekey in self.get_pagecache()
+        return self.use_pagecache and cachekey in self.get_pagecache()
 
     def _get_from_pagecache(self,cachekey):
-        if self.use_pagecache():
+        if self.use_pagecache:
             return self.get_pagecache().get(cachekey)
         else:
             return None
 
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
-        if self.use_pagecache():
+        if self.use_pagecache:
             self.get_pagecache()[cachekey] = (data,redirectedurl)
-
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return False
 
 
 ## website encoding(s)--in theory, each website reports the character
@@ -866,13 +852,14 @@ class Configuration(ConfigParser.SafeConfigParser):
 ## incorrectly.  Each adapter has a default list, usually "utf8,
 ## Windows-1252" or "Windows-1252, utf8".  The special value 'auto'
 ## will call chardet and use the encoding it reports if it has +90%
-## confidence.  'auto' is not reliable.
+## confidence.  'auto' is not reliable.  1252 is a superset of
+## iso-8859-1.  Most sites that claim to be iso-8859-1 (and some that
+## claim to be utf8) are really windows-1252.
     def _decode(self,data):
-        if self.getConfig('website_encodings'):
-            decode = self.getConfigList('website_encodings')
-        else:
-            decode = self.decode
-
+        decode = self.getConfigList('website_encodings',
+                                    default=["utf8",
+                                             "Windows-1252",
+                                             "iso-8859-1"])
         for code in decode:
             try:
                 #print code
@@ -1026,6 +1013,11 @@ class Configurable(object):
     def __init__(self, configuration):
         self.configuration = configuration
 
+        ## use_pagecache() is on adapters--not all have been updated
+        ## to deal with caching correctly
+        if hasattr(self, 'use_pagecache'):
+            self.configuration.use_pagecache = self.use_pagecache()
+
     def get_configuration(self):
         return self.configuration
 
@@ -1073,6 +1065,9 @@ class Configurable(object):
 
     def do_sleep(self,extrasleep=None):
         return self.configuration.do_sleep(extrasleep)
+
+    def set_decode(self,decode):
+        self.configuration.decode = decode
 
     def _postUrl(self, url,
                  parameters={},

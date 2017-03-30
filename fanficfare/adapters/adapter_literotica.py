@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,12 +33,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         logger.debug("LiteroticaComAdapter:__init__ - url='%s'" % url)
-
-        self.decode = ["utf8",
-                       "Windows-1252"] # 1252 is a superset of iso-8859-1.
-                            # Most sites that claim to be
-                            # iso-8859-1 (and some that claim to be
-                            # utf8) are really windows-1252.
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','litero')

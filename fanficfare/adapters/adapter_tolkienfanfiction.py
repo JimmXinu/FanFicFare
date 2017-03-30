@@ -39,7 +39,7 @@ Search: http://www.tolkienfanfiction.com/Story_Chapter_Search.php?text=From+Wild
             3: exact phrase
 
 """
-# Copyright 2014 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,8 +94,6 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
-        self.decode = ["ISO-8859-1", "Windows-1252"]
 
         self.story.setMetadata('siteabbrev','tolkien')
 

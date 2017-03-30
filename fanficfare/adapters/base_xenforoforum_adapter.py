@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2016 FanFicFare team
+# Copyright 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,13 +37,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         #logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
-
-        self.decode = ["utf8",
-                       "Windows-1252"] # 1252 is a superset of iso-8859-1.
-                               # Most sites that claim to be
-                               # iso-8859-1 (and some that claim to be
-                               # utf8) are really windows-1252.
-
 
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
