@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
 # Software: eFiction
 from base_efiction_adapter import BaseEfictionAdapter
 
-class NCISFictionNetAdapter(BaseEfictionAdapter):
+class NCISFictionComAdapter(BaseEfictionAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'ncisfiction.net'
+        return 'ncisfiction.com'
+    ## was ncisfiction.net, but some stories changed ID when the site
+    ## moved.
 
     @classmethod
     def getSiteAbbrev(self):
@@ -33,4 +35,4 @@ class NCISFictionNetAdapter(BaseEfictionAdapter):
         return "%m/%d/%Y"
 
 def getClass():
-    return NCISFictionNetAdapter
+    return NCISFictionComAdapter

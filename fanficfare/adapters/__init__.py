@@ -69,7 +69,7 @@ import adapter_onedirectionfanfictioncom
 import adapter_storiesofardacom
 import adapter_samdeanarchivenu
 import adapter_destinysgatewaycom
-import adapter_ncisfictionnet
+import adapter_ncisfictioncom
 import adapter_thealphagatecom
 import adapter_fanfiktionde
 import adapter_ponyfictionarchivenet
