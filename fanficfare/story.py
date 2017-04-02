@@ -766,10 +766,15 @@ class Story(Configurable):
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),
                                                     self.getMetadata('author', removeallentities, doreplacements)))
 
+        self.setMetadata('titleHTML',linkhtml%('title',
+                                               self.getMetadata('storyUrl', removeallentities, doreplacements),
+                                               self.getMetadata('title', removeallentities, doreplacements)))
+
         self.extendList("extratags",self.getConfigList("extratags"))
 
         if self.getMetadataRaw('seriesUrl'):
-            self.setMetadata('seriesHTML',linkhtml%('series',self.getMetadata('seriesUrl', removeallentities, doreplacements),
+            self.setMetadata('seriesHTML',linkhtml%('series',
+                                                    self.getMetadata('seriesUrl', removeallentities, doreplacements),
                                                     self.getMetadata('series', removeallentities, doreplacements)))
         elif self.getMetadataRaw('series'):
             self.setMetadata('seriesHTML',self.getMetadataRaw('series'))

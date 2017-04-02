@@ -257,6 +257,7 @@ def get_valid_scalar_entries():
                  'site',
                  'storyId',
                  'title',
+                 'titleHTML',
                  'storyUrl',
                  'description',
                  'formatname',
