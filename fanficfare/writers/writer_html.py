@@ -38,6 +38,7 @@ class HTMLWriter(BaseStoryWriter):
         self.HTML_FILE_START = string.Template('''<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>${title} by ${author}</title>
 <style type="text/css">
 ${output_css}
