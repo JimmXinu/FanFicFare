@@ -294,7 +294,11 @@ class BaseSiteAdapter(Configurable):
     # Just for series, in case we choose to change how it's stored or represented later.
     def setSeries(self,name,num):
         if self.getConfig('collect_series'):
-            self.story.setMetadata('series','%s [%s]'%(name, int(num)))
+            ## fractional series can come from calibre injected series.
+            num = float(num)
+            if num.is_integer():
+                num = int(num)
+            self.story.setMetadata('series','%s [%s]'%(name, num))
 
     def setDescription(self,url,svalue):
         #print("\n\nsvalue:\n%s\n"%svalue)
