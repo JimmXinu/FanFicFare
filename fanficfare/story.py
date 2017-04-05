@@ -760,7 +760,6 @@ class Story(Configurable):
                     auth=removeAllEntities(auth)
 
                 htmllist.append(linkhtml%('author',aurl,auth))
-            # join_string = self.getConfig("join_string_authorHTML",u", ").replace(SPACE_REPLACE,' ')
             self.setMetadata('authorHTML',self.join_list("join_string_authorHTML",htmllist))
         else:
             self.setMetadata('authorHTML',linkhtml%('author',self.getMetadata('authorUrl', removeallentities, doreplacements),

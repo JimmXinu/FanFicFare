@@ -197,6 +197,7 @@ def get_valid_set_options():
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
+               'use_archived_author':(['archiveofourown.org'],None,boollist),
 
                'force_login':(['phoenixsong.net'],None,boollist),
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
@@ -315,6 +316,7 @@ def get_valid_keywords():
                  'default_cover_image',
                  'description_limit',
                  'do_update_hook',
+                 'use_archived_author',
                  'exclude_notes',
                  'exclude_editor_signature',
                  'extra_logpage_entries',

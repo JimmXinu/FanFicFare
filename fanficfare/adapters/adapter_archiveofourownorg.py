@@ -170,7 +170,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
-		
+
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
@@ -186,6 +186,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         byline = metasoup.find('h3',{'class':'byline'})
         if byline:
             self.story.setMetadata('byline',stripHTML(byline))
+
+        # byline:
+        # <h3 class="byline heading">
+        # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
+        # </h3>
+        # stripped:"Hope Roy [archived by ssa_archivist]"
+
+        m = re.match(r'(?P<author>.*) \[archived by (?P<archivist>.*)\]',stripHTML(byline))
+        if( m and
+            len(alist) == 1 and
+            self.getConfig('use_archived_author') ):
+            self.story.setMetadata('author',m.group('author'))
 
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
@@ -214,26 +226,26 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if a != None:
             self.setDescription(url,a)
             #self.story.setMetadata('description',a.text)
-		
+
         a = metasoup.find('dd',{'class':"rating tags"})
         if a != None:
             self.story.setMetadata('rating',stripHTML(a.text))
-		
+
         d = metasoup.find('dd',{'class':"language"})
         if d != None:
             self.story.setMetadata('language',stripHTML(d.text))
-		
+
         a = metasoup.find('dd',{'class':"fandom tags"})
         fandoms = a.findAll('a',{'class':"tag"})
         for fandom in fandoms:
             self.story.addToList('fandoms',fandom.string)
-		
+
         a = metasoup.find('dd',{'class':"warning tags"})
         if a != None:
             warnings = a.findAll('a',{'class':"tag"})
             for warning in warnings:
                 self.story.addToList('warnings',warning.string)
-		
+
         a = metasoup.find('dd',{'class':"freeform tags"})
         if a != None:
             genres = a.findAll('a',{'class':"tag"})
@@ -246,7 +258,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             for genre in genres:
                 if genre != "Gen":
                     self.story.addToList('ao3categories',genre.string)
-		
+
         a = metasoup.find('dd',{'class':"character tags"})
         if a != None:
             chars = a.findAll('a',{'class':"tag"})
@@ -258,13 +270,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             ships = a.findAll('a',{'class':"tag"})
             for ship in ships:
                 self.story.addToList('ships',ship.string)
-		
+
         a = metasoup.find('dd',{'class':"collections"})
         if a != None:
             collections = a.findAll('a')
             for collection in collections:
                 self.story.addToList('collections',collection.string)
-		
+
         stats = metasoup.find('dl',{'class':'stats'})
         dt = stats.findAll('dt')
         dd = stats.findAll('dd')
@@ -274,19 +286,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
             if 'Words:' in label:
                 self.story.setMetadata('numWords', value)
-				
+
             if 'Comments:' in label:
                 self.story.setMetadata('comments', value)
-				
+
             if 'Kudos:' in label:
                 self.story.setMetadata('kudos', value)
-				
+
             if 'Hits:' in label:
                 self.story.setMetadata('hits', value)
-				
+
             if 'Bookmarks:' in label:
                 self.story.setMetadata('bookmarks', value)
-				
+
             if 'Chapters:' in label:
                 if value.split('/')[0] == value.split('/')[1]:
                     self.story.setMetadata('status', 'Completed')
@@ -300,11 +312,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-				
+
             if 'Completed' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
-		
+
         # Find Series name from series URL.
         ddseries = metasoup.find('dd',{'class':"series"})
 
@@ -328,7 +340,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-		
+
         chapter=self.make_soup('<div class="story"></div>').find('div')
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
@@ -363,27 +375,27 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 if chapnotes != None:
                     append_tag(chapter,'b',"Notes for the Chapter:")
                     chapter.append(chapnotes)
-		
+
         text = soup.find('div', {'class' : "userstuff module"})
         chtext = text.find('h3', {'class' : "landmark heading"})
         if chtext:
             chtext.extract()
         chapter.append(text)
-		
+
         if 'chapterfootnotes' not in exclude_notes:
             chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
                 append_tag(chapter,'b',"Notes for the Chapter:")
                 chapter.append(chapfoot)
-		
+
         if 'authorfootnotes' not in exclude_notes:
             footnotes = soup.find('div', {'id' : "work_endnotes"})
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
                 append_tag(chapter,'b',"Author's Note:")
                 chapter.append(footnotes)
-			
+
         if None == soup:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
