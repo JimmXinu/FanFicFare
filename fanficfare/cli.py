@@ -131,6 +131,9 @@ def main(argv=None,
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
                       help='Show debug and notice output.', )
+    parser.add_option('-p', '--progressbar',
+                      action='store_true', dest='progressbar',
+                      help='Display a simple progress bar while downloading--one dot(.) per network fetch.', )
     parser.add_option('-v', '--version',
                       action='store_true', dest='version',
                       help='Display version and quit.', )
@@ -461,6 +464,9 @@ def get_configuration(url,
         for opt in options.options:
             (var, val) = opt.split('=')
             configuration.set('overrides', var, val)
+
+    if options.progressbar:
+        configuration.set('overrides','progressbar','true')
 
     return configuration
 

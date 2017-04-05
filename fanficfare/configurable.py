@@ -22,6 +22,7 @@ from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
 import time
 import logging
+import sys
 import urllib
 import urllib2 as u2
 import urlparse as up
@@ -913,6 +914,11 @@ class Configuration(ConfigParser.SafeConfigParser):
         logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])
 
+    def _progressbar(self):
+        if self.getConfig('progressbar'):
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url,
                  parameters={},
@@ -951,6 +957,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                                   ('X-Clacks-Overhead','GNU Terry Pratchett')]
 
         data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
+        self._progressbar()
         self._set_to_pagecache(cachekey,data,url)
         return data
 
@@ -1003,6 +1010,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
         else:
             opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+        self._progressbar()
         data = opened.read()
         self._set_to_pagecache(cachekey,data,opened.url)
 
