@@ -114,7 +114,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
 
         # Since this is a site with the entire story on one page and there are no updates, I'm going
         # to set the status to complete.
-        self.story.setMetadata('status', 'Complete')
+        self.story.setMetadata('status', 'Completed')
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)

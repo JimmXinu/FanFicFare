@@ -168,7 +168,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## Since this site doesn't "update" the stories, I'm goig to set the status
         ## to Complete
-        self.story.setMetadata('status', "Complete")
+        self.story.setMetadata('status', "Completed")
 
         ## Getting the number of words
         ## I'm going to but using the entry-content that will be the same

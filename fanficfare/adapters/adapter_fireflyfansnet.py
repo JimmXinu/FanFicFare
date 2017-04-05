@@ -110,7 +110,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # complete
         self.chapterUrls.append((self.story.getMetadata('title'), self.url))
         self.story.setMetadata('numChapters', 1)
-        self.story.setMetadata('status', 'Complete')
+        self.story.setMetadata('status', 'Completed')
 
         ## some stories do not have a summary listed, so I'm setting it here.
         summary = soup.find('span', {'id': 'MainContent_txtItemDescription'})

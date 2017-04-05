@@ -139,7 +139,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         # the status to complete
         self.chapterUrls.append(('',url))
         self.story.setMetadata('numChapters',1)
-        self.story.setMetadata('status', 'Complete')
+        self.story.setMetadata('status', 'Completed')
 
 
         for detail in soup.findAll('li'):

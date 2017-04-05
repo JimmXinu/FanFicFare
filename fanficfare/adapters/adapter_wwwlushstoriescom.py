@@ -167,7 +167,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # The stories on this site are all on one page, so we use the original URL
         self.chapterUrls.append((self.story.getMetadata('title'),self.url))
         self.story.setMetadata('numChapters',len(self.chapterUrls))
-        self.story.setMetadata('status', 'Complete')
+        self.story.setMetadata('status', 'Completed')
 
         #Need to get the metadata from the author's story page
         # The try/except is still needed, because some author pages are no longer on the site, but
