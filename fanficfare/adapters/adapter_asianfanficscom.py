@@ -70,7 +70,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         params['from_url'] = url
         params['csrf_aff_token'] = soup.find('input',{'name':'csrf_aff_token'})['value']
-        loginUrl = 'https://' + self.getSiteDomain() + '/login/check'
+        loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
         d = self._postUrl(loginUrl, params)
