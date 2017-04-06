@@ -227,6 +227,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 description = "%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1]))
                 description = stripHTML(chapterTr.findAll("td")[1])
                 chapterLink = chapterTr.find("td", "fc").find("a")
+                if self.getConfig('chapter_categories_use_all'):
+                    self.story.addToList('category', chapterTr.findAll("td")[2].text)
                 self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
                 pub_date = makeDate(chapterTr.findAll('td')[-1].text, self.dateformat)
                 dates.append(pub_date)
@@ -305,7 +307,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
-        self.story.setMetadata('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
+        # Add the category from the breadcumb. This might duplicate a category already added.
+        self.story.addToList('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
         self.getCategories(soup1)
 #         self.story.setMetadata('description', soup1.find('meta', {'name': 'description'})['content'])
 
