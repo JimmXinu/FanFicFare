@@ -169,19 +169,20 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
 
-        notice = soup.find('div', {'class' : 'notice'})
-        if notice:
-            self.story.setMetadata('notice',unicode(notice))
-
         # Find authorid and URL from... author url.
-        for a in soup.findAll('a', href=re.compile(r"/a/\w+")):
+        nav_section = soup.find('nav')
+        for a in nav_section.findAll('a', {'rel' : 'author'}):
             self.story.addToList('authorId',a['href'].split('/')[2])
             self.story.addToList('authorUrl','http://'+self.host+a['href'])
             self.story.addToList('author',stripHTML(a).replace("'s Page",""))
 
+        # The rest of the metadata is within the article tag.
+        soup = soup.find('article')
+
         # Find the chapters:
         chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+(/.*)?$"))
         if len(chapters) != 0:
+            logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
                 self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['href']))
@@ -192,18 +193,17 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # surprisingly, the detailed page does not give enough details, so go to author's page
         page=0
-        i=0
-        while i == 0:
+        story_found = False
+        while not story_found:
+            page = page + 1
             data = self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page))
             asoup = self.make_soup(data)
 
             a = asoup.findAll('td', {'class' : 'lc2'})
             for lc2 in a:
                 if lc2.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId'))):
-                    i=1
+                    story_found = True
                     break
-                if a[len(a)-1] == lc2:
-                    page=page+1
 
         for cat in lc2.findAll('div', {'class' : 'typediv'}):
             self.story.addToList('genre',cat.text)
@@ -351,6 +351,24 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
         else:
             self.story.setMetadata('status', 'Completed')
+
+        # Remove all the metadata elements to leave and preamble text. This is usually 
+        # a notice or a forward.
+        if len(self.chapterUrls) > 1:
+            header = soup.find('header')
+            header.extract()
+        else:
+            soup = soup.find('header')
+        # Remove some tags based on their class or id
+        elements_to_remove = ['#det-link', '#s-details', '#index-list', '#s-title', '#s-auth', '.copy']
+        if not self.getConfig('include_images'):
+            elements_to_remove.append('img')
+        for element_name in elements_to_remove:
+            elements = soup.select(element_name)
+            for element in elements:
+                element.extract()
+        if len(soup.contents ) > 0 and (len(soup.text.strip()) > 0 or len(soup.find_all('img')) > 0):
+            self.story.setMetadata('notice', self.utf8FromSoup(url, soup))
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
