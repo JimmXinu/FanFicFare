@@ -46,7 +46,6 @@ import adapter_siyecouk
 import adapter_archiveofourownorg
 import adapter_ficbooknet
 import adapter_mugglenetcom
-import adapter_hpfandomnet
 import adapter_nfacommunitycom
 import adapter_midnightwhispers
 import adapter_ksarchivecom
@@ -62,12 +61,9 @@ import adapter_occlumencysycophanthexcom
 import adapter_phoenixsongnet
 import adapter_walkingtheplankorg
 import adapter_ashwindersycophanthexcom
-import adapter_thehexfilesnet
 import adapter_dokugacom
 import adapter_iketernalnet
-import adapter_onedirectionfanfictioncom
 import adapter_storiesofardacom
-import adapter_samdeanarchivenu
 import adapter_destinysgatewaycom
 import adapter_ncisfictioncom
 import adapter_thealphagatecom
@@ -87,7 +83,6 @@ import adapter_dracoandginnycom
 import adapter_scarvesandcoffeenet
 import adapter_thepetulantpoetesscom
 import adapter_wolverineandroguecom
-import adapter_sinfuldesireorg
 import adapter_merlinficdtwinscouk
 import adapter_thehookupzonenet
 import adapter_bloodtiesfancom
@@ -97,7 +92,6 @@ import adapter_efpfanficnet
 import adapter_potterficscom
 import adapter_efictionestelielde
 import adapter_pommedesangcom
-import adapter_restrictedsectionorg
 import adapter_imagineeficcom
 import adapter_asr3slashzoneorg
 import adapter_potterheadsanonymouscom
@@ -134,7 +128,6 @@ import adapter_andromedawebcom
 import adapter_artemisfowlcom
 import adapter_naiceanilmenet
 import adapter_deepinmysoulnet
-import adapter_haremlucifaelcom
 import adapter_kiarepositorymujajinet
 import adapter_fanfictionlucifaelcom
 import adapter_adultfanfictionorg
@@ -142,7 +135,6 @@ import adapter_fictionhuntcom
 import adapter_royalroadl
 import adapter_chosentwofanficcom
 import adapter_bdsmlibrarycom
-import adapter_ficsitecom
 import adapter_asexstoriescom
 import adapter_gluttonyfictioncom
 import adapter_valentchambercom
