@@ -975,7 +975,8 @@ class Configuration(ConfigParser.SafeConfigParser):
     def _fetchUrlRawOpened(self, url,
                            parameters=None,
                            extrasleep=None,
-                           usecache=True):
+                           usecache=True,
+                           referer=None):
         '''
         When should cache be cleared or not used? logins...
 
@@ -1000,11 +1001,12 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         ## Specific UA because too many sites are blocking the default python UA.
         self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
+                                  ('Referer',referer)
                                   ## starslibrary.net throws a "HTTP
                                   ## Error 403: Bad Behavior" over the
-                                  ## X-Clacks-Overhead.  Which is is
-                                  ## both against standard and rather
-                                  ## a dick-move.
+                                  ## X-Clacks-Overhead.  Which both
+                                  ## against standard and rather a
+                                  ## dick-move.
                                   #('X-Clacks-Overhead','GNU Terry Pratchett'),
                                   ]
 
@@ -1034,7 +1036,8 @@ class Configuration(ConfigParser.SafeConfigParser):
     def _fetchUrlOpened(self, url,
                         parameters=None,
                         usecache=True,
-                        extrasleep=None):
+                        extrasleep=None,
+                        referer=None):
 
         excpt=None
         if url.startswith("file://"):
@@ -1048,7 +1051,8 @@ class Configuration(ConfigParser.SafeConfigParser):
                 (data,opened)=self._fetchUrlRawOpened(url,
                                                       parameters=parameters,
                                                       usecache=usecache,
-                                                      extrasleep=extrasleep)
+                                                      extrasleep=extrasleep,
+                                                      referer=referer)
                 return (self._decode(data),opened)
             except u2.HTTPError, he:
                 excpt=he
@@ -1140,37 +1144,45 @@ class Configurable(object):
     def _fetchUrlRawOpened(self, url,
                            parameters=None,
                            extrasleep=None,
-                           usecache=True):
+                           usecache=True,
+                           referer=None):
         return self.configuration._fetchUrlRawOpened(url,
                                                      parameters,
                                                      extrasleep,
-                                                     usecache)
+                                                     usecache,
+                                                     referer=referer)
 
     def _fetchUrlOpened(self, url,
                         parameters=None,
                         usecache=True,
-                        extrasleep=None):
+                        extrasleep=None,
+                        referer=None):
         return self.configuration._fetchUrlOpened(url,
                                                  parameters,
                                                  usecache,
-                                                 extrasleep)
+                                                 extrasleep,
+                                                  referer=referer)
 
     def _fetchUrl(self, url,
                   parameters=None,
                   usecache=True,
-                  extrasleep=None):
+                  extrasleep=None,
+                  referer=None):
         return self._fetchUrlOpened(url,
                                     parameters,
                                     usecache,
-                                    extrasleep)[0]
+                                    extrasleep,
+                                    referer=referer)[0]
     def _fetchUrlRaw(self, url,
                      parameters=None,
                      extrasleep=None,
-                     usecache=True):
+                     usecache=True,
+                     referer=None):
         return self._fetchUrlRawOpened(url,
                                        parameters,
                                        extrasleep,
-                                       usecache)[0]
+                                       usecache,
+                                       referer=referer)[0]
 
 
 # .? for AO3's ']' in param names.
