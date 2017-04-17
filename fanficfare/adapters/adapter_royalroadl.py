@@ -15,21 +15,26 @@
 # limitations under the License.
 #
 
-import time
+from datetime import datetime
+import httplib
 import logging
-logger = logging.getLogger(__name__)
 import re
 import urllib2
-import cookielib as cl
-from datetime import datetime
 
-from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+from ..htmlcleanup import stripHTML
+from base_adapter import BaseSiteAdapter
 
-from base_adapter import BaseSiteAdapter,  makeDate
+logger = logging.getLogger(__name__)
+# Fix "http.client.HTTPException: got more than 100 headers" issue. RoyalRoadL's webserver seems to be misconfigured and
+# sends more than 100 headers for some stories (probably Set-Cookie). This simply increases the maximum header limit to
+# 1000 -- changing this state globally isn't an issue, since it should be backwards-compatible with all other adapters.
+httplib._MAXHEADERS = 1000
+
 
 def getClass():
     return RoyalRoadAdapter
+
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
