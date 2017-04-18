@@ -160,6 +160,22 @@ import adapter_sinfuldreamscomwhisperedmuse
 import adapter_sinfuldreamscomwickedtemptation
 import adapter_asianfanficscom
 import adapter_webnovelcom
+import adapter_deandamagecom
+import adapter_imrightbehindyoucom
+import adapter_mttjustoncenet
+import adapter_narutoficorg
+import adapter_obidalanet
+import adapter_starskyhutcharchivenet
+import adapter_swordborderlineangelcom
+import adapter_tasteofpoisoninkubationnet
+import adapter_thebrokenworldorg
+import adapter_thedelphicexpansecom
+import adapter_thundercatsfansorg
+import adapter_unknowableroomorg
+import adapter_www13hoursorg
+import adapter_wwwaneroticstorycom
+import adapter_gravitytalescom
+
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
