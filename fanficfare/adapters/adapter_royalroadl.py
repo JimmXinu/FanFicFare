@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import contextlib
 from datetime import datetime
 import httplib
 import logging
@@ -26,14 +27,20 @@ from ..htmlcleanup import stripHTML
 from base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
-# Fix "http.client.HTTPException: got more than 100 headers" issue. RoyalRoadL's webserver seems to be misconfigured and
-# sends more than 100 headers for some stories (probably Set-Cookie). This simply increases the maximum header limit to
-# 1000 -- changing this state globally isn't an issue, since it should be backwards-compatible with all other adapters.
-httplib._MAXHEADERS = 1000
 
 
 def getClass():
     return RoyalRoadAdapter
+
+
+# Using a context manager for this guarantees that the original max headers value is restored, even when an uncaught
+# exception is raised
+@contextlib.contextmanager
+def httplib_max_headers(number):
+    original_max_headers = httplib._MAXHEADERS
+    httplib._MAXHEADERS = number
+    yield
+    httplib._MAXHEADERS = original_max_headers
 
 
 # Class name has to be unique.  Our convention is camel case the
@@ -162,13 +169,16 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             self.setCoverImage(url,cover_url)
                     # some content is show as tables, this will preserve them
 
-
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        # Work around "http.client.HTTPException: got more than 100 headers" issue. RoyalRoadL's webserver seems to be
+        # misconfigured and sends more than 100 headers for some stories (probably Set-Cookie). This simply increases
+        # the maximum header limit to 1000 temporarily. Also see: https://github.com/JimmXinu/FanFicFare/pull/174
+        with httplib_max_headers(1000):
+            soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 
