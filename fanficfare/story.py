@@ -1138,7 +1138,7 @@ class Story(Configurable):
                 parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
-                                                       fetch(imgurl))
+                                                       fetch(imgurl,referer=parenturl))
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
@@ -1151,7 +1151,7 @@ class Story(Configurable):
                     removetrans = self.getConfig('remove_transparency')
                     removetrans = removetrans or grayscale or imgtype=="jpg"
                     (data,ext,mime) = convert_image(imgurl,
-                                                    fetch(imgurl),
+                                                    fetch(imgurl,referer=parenturl),
                                                     sizes,
                                                     grayscale,
                                                     removetrans,

@@ -159,6 +159,7 @@ import adapter_sinfuldreamscomunicornfic
 import adapter_sinfuldreamscomwhisperedmuse
 import adapter_sinfuldreamscomwickedtemptation
 import adapter_asianfanficscom
+import adapter_webnovelcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
