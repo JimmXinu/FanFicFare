@@ -33,14 +33,21 @@ def getClass():
     return RoyalRoadAdapter
 
 
-# Using a context manager for this guarantees that the original max headers value is restored, even when an uncaught
-# exception is raised
-@contextlib.contextmanager
-def httplib_max_headers(number):
-    original_max_headers = httplib._MAXHEADERS
-    httplib._MAXHEADERS = number
-    yield
-    httplib._MAXHEADERS = original_max_headers
+# Work around "http.client.HTTPException: got more than 100 headers" issue. Using a context manager for this guarantees
+# that the original max headers value is restored, even when an uncaught exception is raised.
+if hasattr(httplib, '_MAXHEADERS'):
+    @contextlib.contextmanager
+    def httplib_max_headers(number):
+        original_max_headers = httplib._MAXHEADERS
+        httplib._MAXHEADERS = number
+        yield
+        httplib._MAXHEADERS = original_max_headers
+# Google App Engine seems to vendor a modified version of httplib in which the _MAXHEADERS attribute is missing (and
+# also avoids this issue entirely) -- in this case we define a dummy version of the context manager
+else:
+    @contextlib.contextmanager
+    def httplib_max_headers(number):
+        yield
 
 
 # Class name has to be unique.  Our convention is camel case the
