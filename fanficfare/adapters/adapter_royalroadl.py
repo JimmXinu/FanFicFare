@@ -15,21 +15,40 @@
 # limitations under the License.
 #
 
-import time
+import contextlib
+from datetime import datetime
+import httplib
 import logging
-logger = logging.getLogger(__name__)
 import re
 import urllib2
-import cookielib as cl
-from datetime import datetime
 
-from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+from ..htmlcleanup import stripHTML
+from base_adapter import BaseSiteAdapter
 
-from base_adapter import BaseSiteAdapter,  makeDate
+logger = logging.getLogger(__name__)
+
 
 def getClass():
     return RoyalRoadAdapter
+
+
+# Work around "http.client.HTTPException: got more than 100 headers" issue. Using a context manager for this guarantees
+# that the original max headers value is restored, even when an uncaught exception is raised.
+if hasattr(httplib, '_MAXHEADERS'):
+    @contextlib.contextmanager
+    def httplib_max_headers(number):
+        original_max_headers = httplib._MAXHEADERS
+        httplib._MAXHEADERS = number
+        yield
+        httplib._MAXHEADERS = original_max_headers
+# Google App Engine seems to vendor a modified version of httplib in which the _MAXHEADERS attribute is missing (and
+# also avoids this issue entirely) -- in this case we define a dummy version of the context manager
+else:
+    @contextlib.contextmanager
+    def httplib_max_headers(number):
+        yield
+
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
@@ -157,13 +176,16 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             self.setCoverImage(url,cover_url)
                     # some content is show as tables, this will preserve them
 
-
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        # Work around "http.client.HTTPException: got more than 100 headers" issue. RoyalRoadL's webserver seems to be
+        # misconfigured and sends more than 100 headers for some stories (probably Set-Cookie). This simply increases
+        # the maximum header limit to 1000 temporarily. Also see: https://github.com/JimmXinu/FanFicFare/pull/174
+        with httplib_max_headers(1000):
+            soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 
