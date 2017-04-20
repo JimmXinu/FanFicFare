@@ -194,8 +194,10 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             val = val.nextSibling
         self.setDescription(url,svalue)
 
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = info.findAll('b')
+        ## <td><span class="sb"><b>Published:</b> 04/08/2007</td>
+        
+        ## one story had <b>Updated...</b> in the description. Restrict to sub-table
+        labels = info.find('table').findAll('b')
         for labelspan in labels:
             value = labelspan.nextSibling
             label = stripHTML(labelspan)
