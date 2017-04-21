@@ -22,7 +22,6 @@ version_files = [
 save_file='webservice/app.yaml'
 saved_version = None
 
-
 def main(args):
    ## major.minor.micro
     '''
@@ -41,12 +40,18 @@ version="2.3.6"
     
     do_loop(version_files, version_re, version_subs)
 
+    index_files = ['webservice/index.html']
     if saved_version:
-        # index_files = ['index.html']
-        index_files = ['webservice/index.html']
+        ## only do major/minor, always leave micro 0 in index.html.
         index_re = 'http://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
-        index_subs = 'http://%s-%s-%s.fanficfare.appspot.com'%saved_version
+        index_subs = 'http://%s-%s-0.fanficfare.appspot.com'%saved_version[0:2]
         do_loop(index_files, index_re, index_subs)
+
+    release = 'Release'
+    if int(args[-1]) > 0:
+        release = 'Test'
+    print('\ngit add %s'%(" ".join(version_files+index_files)))
+    print('git commit -m "Bump %s Version"'%release)
 
 def do_loop(files, pattern, substring):
     global saved_version
