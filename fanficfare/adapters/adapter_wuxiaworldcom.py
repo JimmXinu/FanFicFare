@@ -142,7 +142,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         ## removing the 'folded' chapter lists..
-        for tag in cdata.find_all('div', {'class':'sp-wrap'}):
+        for tag in cdata.find_all('div', {'class':'sp-wrap'}) + cdata.find_all('span', {'class':'collapseomatic'}) + cdata.find_all('div', {'class':'collapseomatic_content'}):
             tag.extract()
         self.setDescription(url, cdata)
 
