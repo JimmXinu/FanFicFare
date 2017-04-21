@@ -424,6 +424,11 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
             self.handleMetadataPairHTML(key, valueStr)
 
+        ## Retrieving the story notes
+        sn = soup.find('div', {'class':'noteinfo'})
+        if sn:
+            self.story.setMetadata('storynotes', stripHTML(sn))
+
         ## Chapter URLs
 
         # If we didn't bulk-load the whole chapter we now need to load
