@@ -1000,15 +1000,19 @@ class Configuration(ConfigParser.SafeConfigParser):
         self.do_sleep(extrasleep)
 
         ## Specific UA because too many sites are blocking the default python UA.
-        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
-                                  ('Referer',referer)
-                                  ## starslibrary.net throws a "HTTP
-                                  ## Error 403: Bad Behavior" over the
-                                  ## X-Clacks-Overhead.  Which both
-                                  ## against standard and rather a
-                                  ## dick-move.
-                                  #('X-Clacks-Overhead','GNU Terry Pratchett'),
-                                  ]
+        headers = [('User-Agent', self.getConfig('user_agent')),
+                   ## starslibrary.net throws a "HTTP Error 403: Bad
+                   ## Behavior" over the X-Clacks-Overhead.  Which
+                   ## both against standard and rather a dick-move.
+                   #('X-Clacks-Overhead','GNU Terry Pratchett'),
+                   ]
+        if referer:
+            ## hpfanficarchive.com complains about Referer: None.
+            ## Could have defaulted to "" instead, but this way it's
+            ## not present at all
+            headers.append(('Referer',referer))
+
+        self.opener.addheaders = headers
 
         if parameters != None:
             opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
