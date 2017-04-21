@@ -114,6 +114,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('author', parat.replace('Author:', '').strip())
                 self.story.setMetadata('authorId', parat.replace('Author:', '').strip())
                 ## There is no authorUrl for this site, so I'm setting it to the story url
+                ## otherwise it defaults to the file location
                 self.story.setMetadata('authorUrl', url)
             elif parat[:11] == 'Translator:':
                 self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
@@ -126,7 +127,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         ## Getting the ChapterUrls
         chaps = soup.find('div', {'id':'contentsModal'}).find_all('a')
         for chap in chaps:
-            self.chapterUrls.append((stripHTML(chap), 'https:'+chap['href']))
+            ## capitalize to change leading 'chapter' to 'Chapter'.
+            chap_title = stripHTML(chap).capitalize()
+            chap_Url = 'https:'+chap['href']
+            self.chapterUrls.append((chap_title, chap_Url))
         
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
@@ -134,6 +138,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             cover_meta = soup.find('div', {'class':'g_col_4'}).find('img')
             cover_url = 'https:'+cover_meta['src']
             self.setCoverImage(url, cover_url)
+
+        synopsis = soup.find('div', {'class':'det-abt'}).find('p')
+
+        self.setDescription(url, synopsis)
 
         ## There are no published or updated dates listed on this site. I am arbitrarily setting
         ## these dates to the packaged date for now. If anyone else has an idea of how to get
