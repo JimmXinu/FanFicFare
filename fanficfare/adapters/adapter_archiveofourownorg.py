@@ -70,13 +70,17 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         return 'archiveofourown.org'
 
     @classmethod
+    def getAcceptDomains(cls):
+        return ['archiveofourown.org','download.archiveofourown.org']
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return "http://"+cls.getSiteDomain()+"/works/123456 http://"+cls.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+cls.getSiteDomain()+"/works/123456/chapters/78901"
 
     def getSiteURLPattern(self):
         # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
-        return r"https?://"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/0*(?P<id>\d+)"
+        return r"https?://(download\.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/0*(?P<id>\d+)"
 
     ## Login
     def needToLoginCheck(self, data):
