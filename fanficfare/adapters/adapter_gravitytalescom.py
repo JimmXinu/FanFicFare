@@ -35,11 +35,11 @@ logger = logging.getLogger(__name__)
 
 ####################################################################################################
 def getClass():
-    return WWWWebNovelComAdapter
+    return GravityTalesComSiteAdapter
 
 
 ####################################################################################################
-class WWWWebNovelComAdapter(BaseSiteAdapter):
+class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -103,8 +103,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             tag.extract()
         self.story.setMetadata('title',stripHTML(title))
 
-        ## There could be 2 authors listed... probably the "translator" and the actual author.
-        ## I'll get the 'author' from both sections, if there are 2.
         author = stripHTML(bookdetails.h4)
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
@@ -114,57 +112,38 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         bookdesc = bookdetails.find('div', {'class':'desc'})
         addtosys = False
         paras = bookdesc.find_all()
+        synopsis = ''
         for para in paras:
             parat = stripHTML(para)
-            if parat[:7] == 'Author:' and unicode(para)[:3] == '<p>':
-                author2 = parat.replace('Author:', '').strip()
-                if len(self.story.getMetadata('author')) != 0:
-                    author = self.story.getMetadata('author') + ' [' + author2 + ']'
-                else:
-                    author = author2
-                self.story.setMetadata('author', author)
-                self.story.setMetadata('authorId', author)
-                ## There is no authorUrl for this site, so I'm setting it to the story url
-                ## otherwise it defaults to the file location
-                self.story.setMetadata('authorUrl', url)
-            elif parat[:6] == 'Title:' and unicode(para)[:3] == '<p>':
-                if b'\\xa0' in repr(parat):
-                    title = parat[7:]
-                else:
-                    title = parat[6:]
-                ## Doing this incase the user is doing a partial download
-                title_orig = self.story.getMetadata('title')
-                if '(Ch' in title_orig:
-                    title_orig = title_orig[:title_orig.index('(Ch')].strip()
-                self.story.setMetadata('title', title_orig + ' {' + title + '}')
-            elif parat[:7] == 'Genres:' and unicode(para)[:3] == '<p>':
+            ## I had a section of code that took the author name from the list, and added it to
+            ## the author name from the <h4>... and a section that took the title from the list,
+            ## and added it to the title from the <h3>...
+            ## but decided to remove them and let it be added to the synopsis.
+            if parat[:7] == 'Genres:' and unicode(para)[:2] == '<p':
                 genres = parat[8:].split(', ')
                 for genre in genres:
                     self.story.addToList('genre', genre)
-            elif parat[:11] == 'Translator:' and unicode(para)[:3] == '<p>':
+            elif parat[:11] == 'Translator:' and unicode(para)[:2] == '<p':
                 self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
-            elif parat[:7] == 'Status:' and unicode(para)[:3] == '<p>':
+            elif parat[:7] == 'Status:' and unicode(para)[:2] == '<p':
                 status = parat[8:].strip()
                 self.story.setMetadata('status', status)
-            elif parat[:8] == 'Synopsis':
-                if unicode(para)[:3] == '<p>':
-                    # This is so it will be only put into the synopsis once for the paragraph
-                    addtosys = True
-                    synopsis = unicode(para)
-            elif addtosys and unicode(para)[:4] != '<div':
-                if len(unicode(para)) != 7:
-                    ## this will only add those paragraphs that have content
-                    synopsis += ' ' + unicode(para)
+            elif unicode(para)[:2] == '<p' or unicode(para)[:2] == '<h' or unicode(para)[:2] == '<u':
+                synopsis += ' ' + unicode(para)
 
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
 
+        while '<br/> <br/>' in synopsis:
+            synopsis = synopsis.replace('<br/> <br/>', '<br/>')
+
         self.setDescription(url, unicode(synopsis))
 
-        if get_cover:
-            cover_meta = soup.find('div', {'id':'coverImg'})
-            cover_url = cover_meta['style'].replace('background-image: url(', '').replace(');', '')
-            self.setCoverImage(url, cover_url)
+        ## this is constantly being forbidden, so I'm commenting it out for now.
+#        if get_cover:
+#            cover_meta = soup.find('div', {'id':'coverImg'})
+#            cover_url = cover_meta['style'].replace('background-image: url(', '').replace(');', '')
+#            self.setCoverImage(url, cover_url)
 
         ## Getting the ChapterUrls
         ## the chapter list is script generated, so we have to use JSON to get them
@@ -196,12 +175,12 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-		
+
         data = self._fetchUrl(url)
         html = self.make_soup(data)
 
         story = html.find('div', {'id':'chapterContent'})
-			
+
         if story == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
