@@ -18,20 +18,49 @@
 # Adapted by GComyn on April 16, 2017
 
 
-import datetime
 import logging
 import re
 import urllib2
+from datetime import datetime, timedelta
 
-from base_adapter import BaseSiteAdapter, makeDate
+from base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
+UNIX_EPOCHE = datetime.fromtimestamp(0)
 logger = logging.getLogger(__name__)
 
 
 def getClass():
     return WWWWebNovelComAdapter
+
+
+def _parse_relative_date_string(string_):
+    # Keep this explicit instead of replacing parentheses in case we discover a format that is not so easily
+    # translated as a keyword-argument to timedelta. In practice I have only observed hours, weeks and days
+    unit_to_keyword = {
+        'second(s)': 'seconds',
+        'minute(s)': 'minutes',
+        'hour(s)': 'hours',
+        'day(s)': 'days',
+        'week(s)': 'weeks'
+    }
+
+    value, unit_string, rest = string_.split()
+    unit = unit_to_keyword.get(unit_string)
+    if not unit:
+        # This is "just as wrong" as always returning the current date, but prevents unneeded updates each time
+        logger.warn('Failed to parse relative date string: %r, falling back to unix epoche', string_)
+        return UNIX_EPOCHE
+
+    kwargs = {unit: int(value)}
+
+    # "naive" dates without hours and seconds are created in writers.base_writer.writeStory(), so we don't have to strip
+    # hours and minutes from the base date. Using datetime objects would result in a slightly different time (since we
+    # calculate the last updated date based on the current time) during each update, since the seconds and hours change.
+    today = datetime.utcnow()
+    time_ago = timedelta(**kwargs)
+    return today - time_ago
 
 
 class WWWWebNovelComAdapter(BaseSiteAdapter):
@@ -131,18 +160,14 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             self.setCoverImage(url, cover_url)
 
         synopsis = soup.find('div', {'class': 'det-abt'}).find('p')
-
         self.setDescription(url, synopsis)
 
-        # There are no published or updated dates listed on this site. I am arbitrarily setting
-        # these dates to the packaged date for now. If anyone else has an idea of how to get
-        # the original dates, please let me know [GComyn]
-        # I'd like to use the original date of the file, if this is an update, but I'm not proficient
-        # enough with programming to get it at this time. [GComyn]
-        self.story.setMetadata('datePublished', makeDate(datetime.datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"))
-        self.story.setMetadata('dateUpdated', makeDate(datetime.datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"))
+        last_updated_string = soup.select_one('.ml10').string
+        last_updated = _parse_relative_date_string(last_updated_string)
 
-        # We don't know the status of the story from the index page, so we can't update it.
+        # Published date is always unknown, so simply don't set it
+        # self.story.setMetadata('datePublished', UNIX_EPOCHE)
+        self.story.setMetadata('dateUpdated', last_updated)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
@@ -152,7 +177,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         html = self.make_soup(data)
 
         story = html.find('div', {'class': 'cha-content'})
-
         if story is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
