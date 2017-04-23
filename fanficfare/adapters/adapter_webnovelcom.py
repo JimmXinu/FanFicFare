@@ -162,7 +162,9 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         synopsis = soup.find('div', {'class': 'det-abt'}).find('p')
         self.setDescription(url, synopsis)
 
-        last_updated_string = soup.select_one('.ml10').string
+        # First finding .lst-chapter (which is an unique class on the site), and then navigating to the last update date
+        # should be the most robust way of finding the last updated string
+        last_updated_string = soup.find(attrs={'class': 'lst-chapter'}).find_next_sibling('small').string
         last_updated = _parse_relative_date_string(last_updated_string)
 
         # Published date is always unknown, so simply don't set it
