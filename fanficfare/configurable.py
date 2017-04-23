@@ -198,6 +198,7 @@ def get_valid_set_options():
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
+               'always_login':(['archiveofourown.org'],None,boollist),
                'use_archived_author':(['archiveofourown.org'],None,boollist),
 
                'force_login':(['phoenixsong.net'],None,boollist),
@@ -319,6 +320,7 @@ def get_valid_keywords():
                  'description_limit',
                  'do_update_hook',
                  'use_archived_author',
+                 'always_login',
                  'exclude_notes',
                  'exclude_editor_signature',
                  'extra_logpage_entries',
@@ -954,7 +956,6 @@ class Configuration(ConfigParser.SafeConfigParser):
                          headers=headers)
 
         ## Specific UA because too many sites are blocking the default python UA.
-        logger.debug("user_agent:%s"%self.getConfig('user_agent'))
         self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
                                   ('X-Clacks-Overhead','GNU Terry Pratchett')]
 

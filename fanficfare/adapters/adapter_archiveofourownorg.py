@@ -155,8 +155,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
+        # need to log in for this one, or always_login.
+        if self.needToLoginCheck(data) or \
+                ( self.getConfig("always_login") and 'input name="authenticity_token"' in data ):
+            ## except don't log in if already logged in (cached
+            ## responses in calibre job).  already logged in if
+            ## there's no authenticity_token in data.
             self.performLogin(url,data)
             data = self._fetchUrl(url,usecache=False)
             meta = self._fetchUrl(metaurl,usecache=False)
@@ -174,6 +178,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
+
+        if self.getConfig("always_login"):
+            try:
+                self.story.extendList('bookmarktags',
+                                      metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
+            except KeyError:
+                pass
+            self.story.setMetadata('bookmarksummary',
+                                   stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
