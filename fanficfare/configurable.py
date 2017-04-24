@@ -224,6 +224,8 @@ def get_valid_set_options():
                'include_logpage':(None,['epub'],boollist+['smart']),
                'logpage_at_end':(None,['epub'],boollist),
 
+               'calibre_series_meta':(None,['epub'],boollist),
+
                'windows_eol':(None,['txt'],boollist),
 
                'include_images':(None,['epub','html'],boollist),
@@ -346,6 +348,7 @@ def get_valid_keywords():
                  'include_images',
                  'include_logpage',
                  'logpage_at_end',
+                 'calibre_series_meta',
                  'include_subject_tags',
                  'include_titlepage',
                  'include_tocpage',

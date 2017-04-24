@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -398,6 +398,28 @@ div { margin: 0pt; padding: 0pt; }
             metadata.appendChild(newTag(contentdom,"meta",
                                         attrs={"name":"calibre:timestamp",
                                                "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
+
+        series = self.story.getMetadataRaw('series')
+        if series and self.getConfig('calibre_series_meta'):
+            series_index = "0.0"
+            if '[' in series:
+                logger.debug(series)
+                ## assumed "series [series_index]"
+                series_index = series[series.index(' [')+2:-1]
+                series = series[:series.index(' [')]
+
+                ## calibre always outputs a series_index and it's
+                ## always a float with 1 or 2 decimals.  FFF usually
+                ## has either an integer or no index. (injected
+                ## calibre series is the only float at this time)
+                series_index = "%.2f" % float(series_index)
+
+            metadata.appendChild(newTag(contentdom,"meta",
+                                        attrs={"name":"calibre:series",
+                                               "content":series}))
+            metadata.appendChild(newTag(contentdom,"meta",
+                                        attrs={"name":"calibre:series_index",
+                                               "content":series_index}))
 
         if self.getMetadata('description'):
             metadata.appendChild(newTag(contentdom,"dc:description",text=
