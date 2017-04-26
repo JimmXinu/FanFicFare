@@ -177,6 +177,7 @@ import adapter_wwwaneroticstorycom
 import adapter_gravitytalescom
 import adapter_lcfanficcom
 import adapter_noveltrovecom
+import adapter_inkbunnynet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
