@@ -79,7 +79,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return cls.getURLPrefix()+"/threads/some-story-name.123456/ "+cls.getURLPrefix()+"/posts/123456/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
+        ## need to accept http and https still.
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
 
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
@@ -104,8 +105,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
              url.startswith('http://'+self.getSiteDomain()) or
              url.startswith('https://'+self.getSiteDomain()) ) and \
              ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
-            # brute force way to deal with SB's http->https change when hardcoded http urls.
-            url = url.replace('http://'+self.getSiteDomain(),self.getURLPrefix())
+            ## brute force way to deal with SB's http->https change
+            ## when hardcoded http urls.  Now assumes all
+            ## base_xenforoforum sites use https--true as of
+            ## 2017-04-28
+            url = url.replace('http://','https://')
 
             # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
             url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
@@ -159,10 +163,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         params['register'] = '0'
         params['cookie_check'] = '1'
         params['_xfToken'] = ''
-        params['redirect'] = 'https://' + self.getSiteDomain() + '/'
+        params['redirect'] = self.getURLPrefix() + '/'
 
         ## https://forum.questionablequesting.com/login/login
-        loginUrl = 'https://' + self.getSiteDomain() + '/login/login'
+        loginUrl = self.getURLPrefix() + '/login/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['login']))
 
