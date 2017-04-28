@@ -1995,6 +1995,17 @@ class FanFicFarePlugin(InterfaceAction):
                             logger.warn("AttributeError? %s"%col)
                             pass
 
+        ## fix for suppressauthorsort (Force Author into Author Sort)
+        ## option overriding Author-New-Only setting.  not done where
+        ## suppressauthorsort/suppresstitlesort done because that
+        ## would need an additional check for new books.
+        if prefs['std_cols_newonly']['authors']:
+            mi.author_sort = oldmi.author_sort
+
+        ## Ditto for title sort.
+        if prefs['std_cols_newonly']['title']:
+            mi.title_sort = oldmi.title_sort
+
         db.set_metadata(book_id,mi)
         if not prefs['std_cols_newonly']['authors']:
             # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
