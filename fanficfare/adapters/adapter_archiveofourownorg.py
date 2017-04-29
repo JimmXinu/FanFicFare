@@ -41,9 +41,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
 
+        self.full_work_soup = None
+
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
 
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
@@ -355,65 +356,92 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         return len(self.oldchapters)
 
     # grab the text for an individual chapter.
-    def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
+    def getChapterTextNum(self, url, index):
+        logger.debug('Getting chapter text for: %s index: %s' % (url,index))
 
-        chapter=self.make_soup('<div class="story"></div>').find('div')
-        data = self._fetchUrl(url)
-        soup = self.make_soup(data)
+        save_chapter_soup = self.make_soup('<div class="story"></div>')
+        ## use the div because the full soup will also have <html><body>.
+        ## need save_chapter_soup for .new_tag()
+        save_chapter=save_chapter_soup.find('div')
+
+        if self.getConfig("use_view_full_work",True):
+            logger.debug("USE view_full_work")
+            ## Assumed view_adult=true was cookied during metadata
+            if not self.full_work_soup:
+                self.full_work_soup = self.make_soup(self._fetchUrl(self.url+"?view_full_work=true"))
+
+            whole_dl_soup = self.full_work_soup
+            chapter_dl_soup = whole_dl_soup.find('div',{'id':'chapter-%s'%(index+1)})
+            if not chapter_dl_soup:
+                raise exceptions.FailedToDownload("chapter-%s not found in view_full_work"%(index+1))
+        else:
+            whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url))
+            if None == chapter_dl_soup:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         exclude_notes=self.getConfigList('exclude_notes')
 
         def append_tag(elem,tag,string):
             '''bs4 requires tags be added separately.'''
-            new_tag = soup.new_tag(tag)
+            new_tag = save_chapter_soup.new_tag(tag)
             new_tag.string=string
             elem.append(new_tag)
 
-        if 'authorheadnotes' not in exclude_notes:
-            headnotes = soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
+        ## These are the over-all work's 'Notes at the beginning'.
+        ## They only appear on the first chapter in individual chapter
+        ## pages and before chapter-1 div.  Appending removes
+        ## headnotes from whole_dl_soup, so be sure to only do it on
+        ## the first chapter.
+        if 'authorheadnotes' not in exclude_notes and index == 0:
+            headnotes = whole_dl_soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
                 if headnotes != None:
-                    append_tag(chapter,'b',"Author's Note:")
-                    chapter.append(headnotes)
+                    append_tag(save_chapter,'b',"Author's Note:")
+                    save_chapter.append(headnotes)
 
+        ## Can appear on every chapter
         if 'chaptersummary' not in exclude_notes:
-            chapsumm = soup.find('div', {'id' : "summary"})
+            chapsumm = chapter_dl_soup.find('div', {'id' : "summary"})
             if chapsumm != None:
                 chapsumm = chapsumm.find('blockquote')
-                append_tag(chapter,'b',"Summary for the Chapter:")
-                chapter.append(chapsumm)
+                append_tag(save_chapter,'b',"Summary for the Chapter:")
+                save_chapter.append(chapsumm)
 
+        ## Can appear on every chapter
         if 'chapterheadnotes' not in exclude_notes:
-            chapnotes = soup.find('div', {'id' : "notes"})
+            chapnotes = chapter_dl_soup.find('div', {'id' : "notes"})
             if chapnotes != None:
                 chapnotes = chapnotes.find('blockquote')
                 if chapnotes != None:
-                    append_tag(chapter,'b',"Notes for the Chapter:")
-                    chapter.append(chapnotes)
+                    append_tag(save_chapter,'b',"Notes for the Chapter:")
+                    save_chapter.append(chapnotes)
 
-        text = soup.find('div', {'class' : "userstuff module"})
+        text = chapter_dl_soup.find('div', {'class' : "userstuff module"})
         chtext = text.find('h3', {'class' : "landmark heading"})
         if chtext:
             chtext.extract()
-        chapter.append(text)
+        save_chapter.append(text)
 
+        ## Can appear on every chapter
         if 'chapterfootnotes' not in exclude_notes:
-            chapfoot = soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
+            chapfoot = chapter_dl_soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
-                append_tag(chapter,'b',"Notes for the Chapter:")
-                chapter.append(chapfoot)
+                append_tag(save_chapter,'b',"Notes for the Chapter:")
+                save_chapter.append(chapfoot)
 
-        if 'authorfootnotes' not in exclude_notes:
-            footnotes = soup.find('div', {'id' : "work_endnotes"})
+        ## These are the over-all work's 'Notes at the end'.
+        ## They only appear on the last chapter in individual chapter
+        ## pages and after chapter-# div.  Appending removes
+        ## headnotes from whole_dl_soup, so be sure to only do it on
+        ## the last chapter.
+        if 'authorfootnotes' not in exclude_notes and index+1 == len(self.chapterUrls):
+            footnotes = whole_dl_soup.find('div', {'id' : "work_endnotes"})
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
-                append_tag(chapter,'b',"Author's Note:")
-                chapter.append(footnotes)
+                if footnotes:
+                    append_tag(save_chapter,'b',"Author's Note:")
+                    save_chapter.append(footnotes)
 
-        if None == soup:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        return self.utf8FromSoup(url,chapter)
+        return self.utf8FromSoup(url,save_chapter)
