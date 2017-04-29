@@ -71,7 +71,7 @@ def main(argv=None,
     if not parser:
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
-                      help='write story as FORMAT, epub(default), mobi, text or html', metavar='FORMAT')
+                      help='write story as FORMAT, epub(default), mobi, txt or html', metavar='FORMAT')
 
     if passed_defaultsini:
         config_help = 'read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
