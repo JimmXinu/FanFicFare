@@ -4,14 +4,13 @@
 from __future__ import division
 import re
 import sys
-import cgi
 
 try:
     from textwrap import wrap
 except ImportError:  # pragma: no cover
     pass
 
-from html2text.compat import urlparse, HTMLParser
+from html2text.compat import urlparse, HTMLParser, html_escape
 from html2text import config
 
 from html2text.utils import (
@@ -27,10 +26,11 @@ from html2text.utils import (
     list_numbering_start,
     dumb_css_parser,
     escape_md_section,
-    skipwrap
+    skipwrap,
+    pad_tables_in_text
 )
 
-__version__ = (2016, 4, 2)
+__version__ = (2016, 9, 19)
 
 
 # TODO:
@@ -68,6 +68,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.images_with_size = config.IMAGES_WITH_SIZE  # covered in cli
         self.ignore_emphasis = config.IGNORE_EMPHASIS  # covered in cli
         self.bypass_tables = config.BYPASS_TABLES  # covered in cli
+        self.ignore_tables = config.IGNORE_TABLES  # covered in cli
         self.google_doc = False  # covered in cli
         self.ul_item_mark = '*'  # covered in cli
         self.emphasis_mark = '_'  # covered in cli
@@ -77,6 +78,8 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.hide_strikethrough = False  # covered in cli
         self.mark_code = config.MARK_CODE
         self.wrap_links = config.WRAP_LINKS  # covered in cli
+        self.pad_tables = config.PAD_TABLES  # covered in cli
+        self.default_image_alt = config.DEFAULT_IMAGE_ALT  # covered in cli
         self.tag_callback = None
 
         if out is None:  # pragma: no cover
@@ -130,7 +133,11 @@ class HTML2Text(HTMLParser.HTMLParser):
     def handle(self, data):
         self.feed(data)
         self.feed("")
-        return self.optwrap(self.close())
+        markdown = self.optwrap(self.close())
+        if self.pad_tables:
+            return pad_tables_in_text(markdown)
+        else:
+            return markdown
 
     def outtextf(self, s):
         self.outtextlist.append(s)
@@ -142,23 +149,20 @@ class HTML2Text(HTMLParser.HTMLParser):
 
         try:
             nochr = unicode('')
+            unicode_character = unichr
         except NameError:
             nochr = str('')
+            unicode_character = chr
 
         self.pbr()
         self.o('', 0, 'end')
 
         outtext = nochr.join(self.outtextlist)
+
         if self.unicode_snob:
-            try:
-                nbsp = unichr(name2cp('nbsp'))
-            except NameError:
-                nbsp = chr(name2cp('nbsp'))
+            nbsp = unicode_character(name2cp('nbsp'))
         else:
-            try:
-                nbsp = unichr(32)
-            except NameError:
-                nbsp = chr(32)
+            nbsp = unicode_character(32)
         try:
             outtext = outtext.replace(unicode('&nbsp_place_holder;'), nbsp)
         except NameError:
@@ -173,14 +177,14 @@ class HTML2Text(HTMLParser.HTMLParser):
     def handle_charref(self, c):
         charref = self.charref(c)
         if not self.code and not self.pre:
-            charref = cgi.escape(charref)
+            charref = html_escape(charref)
         self.handle_data(charref, True)
 
     def handle_entityref(self, c):
         entityref = self.entityref(c)
         if (not self.code and not self.pre
                 and entityref != '&nbsp_place_holder;'):
-            entityref = cgi.escape(entityref)
+            entityref = html_escape(entityref)
         self.handle_data(entityref, True)
 
     def handle_starttag(self, tag, attrs):
@@ -331,7 +335,10 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.p()
 
         if tag == "br" and start:
-            self.o("  \n")
+            if self.blockquote > 0:
+                self.o("  \n> ")
+            else:
+                self.o("  \n")
 
         if tag == "hr" and start:
             self.p()
@@ -439,7 +446,7 @@ class HTML2Text(HTMLParser.HTMLParser):
             if 'src' in attrs:
                 if not self.images_to_alt:
                     attrs['href'] = attrs['src']
-                alt = attrs.get('alt') or ''
+                alt = attrs.get('alt') or self.default_image_alt
 
                 # If we have images_with_size, write raw html including width,
                 # height, and alt attributes
@@ -541,7 +548,16 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.start = 1
 
         if tag in ["table", "tr", "td", "th"]:
-            if self.bypass_tables:
+            if self.ignore_tables:
+                if tag == 'tr':
+                    if start:
+                        pass
+                    else:
+                        self.soft_br()
+                else:
+                    pass
+
+            elif self.bypass_tables:
                 if start:
                     self.soft_br()
                 if tag in ["td", "th"]:
@@ -556,8 +572,16 @@ class HTML2Text(HTMLParser.HTMLParser):
                         self.o('</{0}>'.format(tag))
 
             else:
-                if tag == "table" and start:
-                    self.table_start = True
+                if tag == "table":
+                    if start:
+                        self.table_start = True
+                        if self.pad_tables:
+                            self.o("<"+config.TABLE_MARKER_FOR_PAD+">")
+                            self.o("  \n")
+                    else:
+                        if self.pad_tables:
+                            self.o("</"+config.TABLE_MARKER_FOR_PAD+">")
+                            self.o("  \n")
                 if tag in ["td", "th"] and start:
                     if self.split_next_td:
                         self.o("| ")
@@ -707,9 +731,6 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.outcount += 1
 
     def handle_data(self, data, entity_char=False):
-        if r'\/script>' in data:
-            self.quiet -= 1
-
         if self.style:
             self.style_def.update(dumb_css_parser(data))
 
@@ -814,7 +835,9 @@ class HTML2Text(HTMLParser.HTMLParser):
         for para in text.split("\n"):
             if len(para) > 0:
                 if not skipwrap(para, self.wrap_links):
-                    result += "\n".join(wrap(para, self.body_width))
+                    result += "\n".join(
+                        wrap(para, self.body_width, break_long_words=False)
+                    )
                     if para.endswith('  '):
                         result += "  \n"
                         newlines = 1
