@@ -354,6 +354,7 @@ def get_valid_keywords():
                  'include_subject_tags',
                  'include_titlepage',
                  'include_tocpage',
+                 'chardet_confidence_limit',
                  'is_adult',
                  'join_string_authorHTML',
                  'keep_style_attr',
@@ -912,9 +913,11 @@ class Configuration(ConfigParser.SafeConfigParser):
                         continue
                     detected = chardet.detect(data)
                     #print detected
-                    if detected['confidence'] > 0.9:
+                    if detected['confidence'] > float(self.getConfig("chardet_confidence_limit",0.9)):
+                        logger.debug("using chardet detected encoding:%s(%s)"%(detected['encoding'],detected['confidence']))
                         code=detected['encoding']
                     else:
+                        logger.debug("chardet confidence too low:%s(%s)"%(detected['encoding'],detected['confidence']))
                         continue
                 return data.decode(code)
             except:
