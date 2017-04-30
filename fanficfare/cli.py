@@ -144,9 +144,27 @@ def main(argv=None,
         print("Version: %s" % version)
         return
 
+    logger = logging.getLogger('fanficfare')
     if not options.debug:
-        logger = logging.getLogger('fanficfare')
         logger.setLevel(logging.WARNING)
+
+
+    try:
+        import bs4
+        logger.debug( "BS4 version: %s"%bs4.__version__)
+        import html5lib
+        logger.debug( "html5lib version: %s"%html5lib.__version__)
+        import html2text
+        logger.debug( "html2text version:")
+        logger.debug( html2text.__version__)
+        import chardet
+        logger.debug( "chardet version: %s"%chardet.__version__)
+        import six
+        logger.debug( "six version: %s"%six.__version__)
+        import webencodings
+        logger.debug( "webencodings version: %s"%webencodings.VERSION)
+    except:
+        pass
 
     list_only = any((options.imaplist,
                      options.siteslist,

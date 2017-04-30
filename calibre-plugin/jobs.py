@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 import traceback
 from datetime import time
 from StringIO import StringIO
-    
+
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
@@ -68,7 +68,7 @@ def do_download_worker(book_list,
         else:
             # was already bad before the subprocess ever started.
             alreadybad.append(book)
-    
+
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
     notification(0.01, _('Downloading FanFiction Stories'))
@@ -98,15 +98,15 @@ def do_download_worker(book_list,
             bad_list = filter(lambda x : not x['good'], book_list)
             good_list = sorted(good_list,key=lambda x : x['listorder'])
             bad_list = sorted(bad_list,key=lambda x : x['listorder'])
-            
+
             logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(url)s %(comment)s" % book for book in good_list+bad_list])))
-            
+
             logger.info("\n"+_("Successful:")+"\n%s\n"%("\n".join([book['url'] for book in good_list])))
             logger.info("\n"+_("Unsuccessful:")+"\n%s\n"%("\n".join([book['url'] for book in bad_list])))
             break
 
     server.close()
-    
+
     # return the book list as the job result
     return book_list
 
@@ -115,20 +115,35 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     Child job, to download story when run as a worker job
     '''
 
+    try:
+        import bs4
+        logger.debug( "BS4 version: %s"%bs4.__version__)
+        import html5lib
+        logger.debug( "html5lib version: %s"%html5lib.__version__)
+        import html2text
+        logger.debug( "html2text version:")
+        logger.debug( html2text.__version__)
+        import chardet
+        logger.debug( "chardet version: %s"%chardet.__version__)
+        import six
+        logger.debug( "six version: %s"%six.__version__)
+    except:
+        pass
+
     from calibre_plugins.fanficfare_plugin import FanFicFareBase
     fffbase = FanFicFareBase(options['plugin_path'])
     with fffbase:
-        
+
         from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
                 OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
         from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
         from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
-        
+
         from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config)
-        
+
         try:
             book['comment'] = _('Download started...')
-            
+
             configuration = get_fff_config(book['url'],
                                             options['fileform'],
                                             options['personal.ini'])
@@ -140,33 +155,33 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 import ssl
                 if hasattr(ssl, '_create_unverified_context'):
                     ssl._create_default_https_context = ssl._create_unverified_context
-    
+
             if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
                 configuration.set("overrides","never_make_cover","true")
-    
+
             # images only for epub, html, even if the user mistakenly
             # turned it on else where.
             if options['fileform'] not in ("epub","html"):
                 configuration.set("overrides","include_images","false")
-            
+
             adapter = adapters.getAdapter(configuration,book['url'])
-            adapter.is_adult = book['is_adult'] 
-            adapter.username = book['username'] 
+            adapter.is_adult = book['is_adult']
+            adapter.username = book['username']
             adapter.password = book['password']
             adapter.setChaptersRange(book['begin'],book['end'])
-            
+
             configuration.load_cookiejar(options['cookiejarfile'])
             #logger.debug("cookiejar:%s"%configuration.cookiejar)
             configuration.set_pagecache(options['pagecache'])
-            
+
             story = adapter.getStoryMetadataOnly()
             if not story.getMetadata("series") and 'calibre_series' in book:
                 adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
-                
+
             # set PI version instead of default.
             if 'version' in options:
                 story.setMetadata('version',options['version'])
-                
+
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("site")
@@ -174,7 +189,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['tags'] = story.getSubjectTags(removeallentities=True)
             book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)
-    
+
             if story.getMetadataRaw('datePublished'):
                 book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
             if story.getMetadataRaw('dateUpdated'):
@@ -183,11 +198,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
             else:
                 book['timestamp'] = datetime.now() # need *something* there for calibre.
-                
+
             writer = writers.getWriter(options['fileform'],configuration,adapter)
-    
+
             outfile = book['outfile']
-    
+
             ## No need to download at all.  Shouldn't ever get down here.
             if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
                 logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
@@ -195,11 +210,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
-                
+
             ## checks were done earlier, it's new or not dup or newer--just write it.
             elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
                     ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
-    
+
                 # preserve logfile even on overwrite.
                 if 'epub_for_update' in book:
                     adapter.logfile = get_update_data(book['epub_for_update'])[6]
@@ -218,19 +233,19 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                             (lastupdated.time() != time.min and fileupdated > lastupdated):
                         raise NotGoingToDownload(_("Not Overwriting, web site is not newer."),'edit-undo.png',showerror=False)
 
-                
+
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
-                
+
                 book['comment'] = _('Download %s completed, %s chapters.')%(options['fileform'],story.getMetadata("numChapters"))
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
-                
+
             ## checks were done earlier, just update it.
             elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
-    
+
                 # update now handled by pre-populating the old images and
                 # chapters in the adapter rather than merging epubs.
                 urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
@@ -243,7 +258,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                  adapter.logfile,
                  adapter.oldchaptersmap,
                  adapter.oldchaptersdata) = get_update_data(book['epub_for_update'])[0:9]
-    
+
                 # dup handling from fff_plugin needed for anthology updates.
                 if options['collision'] == UPDATE:
                     if chaptercount == urlchaptercount:
@@ -260,17 +275,17 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                         raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                     elif chaptercount == 0:
                         raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
-                    
+
                 if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
                         and adapter.getConfig("do_update_hook"):
                     chaptercount = adapter.hookForUpdates(chaptercount)
-    
+
                 logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
                 logger.info("write to %s"%outfile)
-    
+
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
-                
+
                 book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
                     (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
@@ -286,7 +301,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
-                
+
             if options['smarten_punctuation'] and options['fileform'] == "epub" \
                     and calibre_version >= (0, 9, 39):
                 # for smarten punc
@@ -300,23 +315,23 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 opts.update(data)
                 O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
                 opts = O(**opts)
-                
+
                 log = Log(level=Log.DEBUG)
                 polish({outfile:outfile}, opts, log, logger.info)
-            
+
         except NotGoingToDownload as d:
             book['good']=False
             book['showerror']=d.showerror
             book['comment']=unicode(d)
             book['icon'] = d.icon
-    
+
         except Exception as e:
             book['good']=False
             book['comment']=unicode(e)
             book['icon']='dialog_error.png'
             book['status'] = _('Error')
             logger.info("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
-            
+
         #time.sleep(10)
     return book
 
@@ -337,4 +352,4 @@ def inject_cal_cols(book,story,configuration):
             injectini.append("add_to_extra_valid_entries:,"+','.join(extra_valid))
             configuration.readfp(StringIO('\n'.join(injectini)))
             #print("added:\n%s\n"%('\n'.join(injectini)))
-    
+
