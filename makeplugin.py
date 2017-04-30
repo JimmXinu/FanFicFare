@@ -35,8 +35,11 @@ if __name__=="__main__":
                   exclude=exclude)
 
     os.chdir('../included_dependencies')
+    files=['gif.py','bs4','chardet','html2text']
+    # calibre has it's own copies of these that precedence anyway:
+    # 'six.py','html5lib','webencodings'
+    # webencodings is only needed by versions of html5lib after 0.9x7
     # 'a' for append
-    files=['gif.py','six.py','bs4','html5lib','chardet','html2text']
     createZipFile("../"+filename,"a",
                   files,
                   exclude=exclude)
