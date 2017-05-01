@@ -364,7 +364,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## need save_chapter_soup for .new_tag()
         save_chapter=save_chapter_soup.find('div')
 
-        if self.getConfig("use_view_full_work",True):
+        if self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
