@@ -2014,15 +2014,15 @@ class FanFicFarePlugin(InterfaceAction):
         ## option overriding Author-New-Only setting.  not done where
         ## suppressauthorsort/suppresstitlesort done because that
         ## would need an additional check for new books.
-        if prefs['std_cols_newonly']['authors']:
+        if prefs['std_cols_newonly'].get('authors',False):
             mi.author_sort = oldmi.author_sort
 
         ## Ditto for title sort.
-        if prefs['std_cols_newonly']['title']:
+        if prefs['std_cols_newonly'].get('title',False):
             mi.title_sort = oldmi.title_sort
 
         db.set_metadata(book_id,mi)
-        if not prefs['std_cols_newonly']['authors']:
+        if not prefs['std_cols_newonly'].get('authors',False):
             # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
             db.set_authors(book_id,book['author']) # author is a list.
 
