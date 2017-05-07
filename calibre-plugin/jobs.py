@@ -115,21 +115,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     Child job, to download story when run as a worker job
     '''
 
-    try:
-        import bs4
-        logger.debug( "BS4 version: %s"%bs4.__version__)
-        import html5lib
-        logger.debug( "html5lib version: %s"%html5lib.__version__)
-        import html2text
-        logger.debug( "html2text version:")
-        logger.debug( html2text.__version__)
-        import chardet
-        logger.debug( "chardet version: %s"%chardet.__version__)
-        import six
-        logger.debug( "six version: %s"%six.__version__)
-    except:
-        pass
-
     from calibre_plugins.fanficfare_plugin import FanFicFareBase
     fffbase = FanFicFareBase(options['plugin_path'])
     with fffbase:

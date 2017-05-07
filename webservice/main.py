@@ -317,23 +317,6 @@ class AllRecentFilesServer(webapp2.RequestHandler):
         fics = q.fetch(200)
         logging.info("Recent fetched %d downloads for user %s."%(len(fics),user.nickname()))
 
-        try:
-            import bs4
-            logging.debug( "BS4 version: %s"%bs4.__version__)
-            import html5lib
-            logging.debug( "html5lib version: %s"%html5lib.__version__)
-            import html2text
-            logging.debug( "html2text version:")
-            logging.debug( html2text.__version__)
-            import chardet
-            logging.debug( "chardet version: %s"%chardet.__version__)
-            import six
-            logging.debug( "six version: %s"%six.__version__)
-            import webencodings
-            logging.debug( "webencodings version: %s"%webencodings.VERSION)
-        except:
-            pass
-
         sendslugs = []
 
         for fic in fics:

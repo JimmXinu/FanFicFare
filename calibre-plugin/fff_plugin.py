@@ -26,21 +26,6 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    import bs4
-    logger.debug( "BS4 version: %s"%bs4.__version__)
-    import html5lib
-    logger.debug( "html5lib version: %s"%html5lib.__version__)
-    import html2text
-    logger.debug( "html2text version:")
-    logger.debug( html2text.__version__)
-    import chardet
-    logger.debug( "chardet version: %s"%chardet.__version__)
-    import six
-    logger.debug( "six version: %s"%six.__version__)
-except:
-    pass
-
 import os, copy, threading, re, platform, sys
 from StringIO import StringIO
 from functools import partial
