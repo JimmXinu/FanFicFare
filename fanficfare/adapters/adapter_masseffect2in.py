@@ -81,7 +81,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                           cls._makeDocumentUrl('24-1-0-4321')])
 
     def getSiteURLPattern(self):
-        return re.escape(self._makeDocumentUrl('')) + self.DOCUMENT_ID_PATTERN.pattern
+        return 'https?://(?:www\.)?masseffect2.in/publ/' + self.DOCUMENT_ID_PATTERN.pattern
 
     def use_pagecache(self):
         """Allows use of downloaded page cache.  It is essential for this
@@ -368,14 +368,14 @@ class Chapter(object):
         return self._getTextElement()
 
     def getPreviousChapterUrl(self):
-        """Download chapters following `Previous chapter' links.
-        Returns a list of chapters' URLs."""
-        return self._getSiblingChapterUrl({'class': 'fl tal'})
+        link = self._document.find('a', {'title': u'Предыдущая глава'})
+        if link:
+            return link['href']
 
     def getNextChapterUrl(self):
-        """Download chapters following `Next chapter' links.
-        Returns a list of chapters' URLs."""
-        return self._getSiblingChapterUrl({'class': 'tar fr'})
+        link = self._document.find('a', {'title': u'Следующая глава'})
+        if link:
+            return link['href']
 
     def isFromStory(self, storyTitle, prefixThreshold=-1):
         """Check if this chapter is from a story different from the given one.
@@ -409,8 +409,7 @@ class Chapter(object):
 
     def _extractHeading(self):
         """Extract header text from the document."""
-        return stripHTML(
-            self._document.find('div', {'class': 'eTitle'}).string)
+        return stripHTML(self._document.find('h1', {'itemprop': 'headline'}).string)
 
     def __getHeading(self):
         """Lazily parse and return heading."""
@@ -427,8 +426,8 @@ class Chapter(object):
     def _parseAuthor(self):
         """Locate and parse chapter author's information to a dictionary with author's `id' and `name'."""
         try:
-            authorLink = self._getInfoBarElement() \
-                .find('i', {'class': 'icon-user'}) \
+            authorLink = self._document \
+                .find('span', {'class': 'glyphicon-user'}) \
                 .findNextSibling('a')
         except AttributeError:
             raise ParsingError(u'Failed to locate author link.')
@@ -451,10 +450,9 @@ class Chapter(object):
     def _parseDate(self):
         """Locate and parse chapter date."""
         try:
-            dateText = self._getInfoBarElement() \
-                .find('i', {'class': 'icon-eye'}) \
-                .findPreviousSibling(text=True) \
-                .strip(u'| \n')
+            dateText = self._document.find('time', {'itemprop': 'dateCreated'}).text
+            dateText = dateText.replace(u'\n', u'')
+            dateText = dateText.strip()
         except AttributeError:
             raise ParsingError(u'Failed to locate date.')
 
@@ -470,7 +468,7 @@ class Chapter(object):
             elif text == u'Сегодня':
                 return todayInMoscow()
             else:
-                return makeDate(text, '%d.%m.%Y')
+                return makeDate(text, '%d.%m.%Y, %H:%M')
 
         date = parseDateText(dateText)
         return date
@@ -495,18 +493,20 @@ class Chapter(object):
         attributes = {}
         attributesText = u''
         try:
-            starter = self._document \
-                .find('div', {'class': 'comm-div'}) \
-                .findNextSibling('div', {'class': 'cb'})
-            bound = starter.findNextSibling('div', {'class': 'cb'})
+            starter = self._document.find('div', {'class': 'gad'})
+            for item in starter.nextSiblingGenerator():
+                if isinstance(item, bs4.Tag) and (item.name in ['div', 'p']):
+                    starter = item
+                    break
+            bound = starter.findNextSibling('div', {'class': 'clearfix'})
 
             def processElement(element):
                 """Return textual representation an *inline* element of chapter attribute block."""
                 result = u''
                 if isinstance(element, bs4.Tag):
-                    if element.name in ('b', 'strong', 'font', 'br'):
+                    if element.name == 'br':
                         result += u"\n"
-                    if element.name == 's':
+                    elif element.name == 's':
                         result += u"<s>%s</s>" % stripHTML(element)
                     else:
                         result += stripHTML(element)
@@ -514,7 +514,7 @@ class Chapter(object):
                     result += removeEntities(element)
                 return result
 
-            elements = starter.nextSiblingGenerator()
+            elements = starter.childGenerator()
             for element in elements:
                 if isinstance(element, bs4.Tag):
                     if element == bound:
@@ -663,7 +663,7 @@ class Chapter(object):
     def __collectTextElements(self):
         """Return all elements containing parts of chapter text (which may be
         <p>aragraphs, <div>isions or plain text nodes) under a single root."""
-        starter = self._document.find('div', {'id': u'article'})
+        starter = self._document.find('div', {'itemprop': 'articleBody'})
         if starter is None:
             # FIXME: This will occur if the method is called more than once.
             # The reason is elements appended to `root' are removed from the document.
@@ -673,10 +673,8 @@ class Chapter(object):
                 _logger.debug(u"You may not call this function more than once!")
             raise ParsingError(u'Failed to locate text.')
         collection = [starter]
-        for element in starter.nextSiblingGenerator():
+        for element in starter.childGenerator():
             if element is None:
-                break
-            if isinstance(element, bs4.Tag) and element.name == 'tr':
                 break
             collection.append(element)
         root = bs4.Tag(name='td')
@@ -687,18 +685,6 @@ class Chapter(object):
             root = self._excludeEditorSignature(root)
 
         return root
-
-    def _getSiblingChapterUrl(self, selector):
-        """Locate a link to a sibling chapter, either previous or next one, and return its URL."""
-        block = self._document \
-            .find('td', {'class': 'eDetails1'}) \
-            .find('div', selector)
-        if not block:
-            return
-        link = block.find('a')
-        if not link:
-            return
-        return link['href']
 
     # Editor signature always starts with something like this.
     SIGNED_PATTERN = re.compile(u'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
