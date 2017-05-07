@@ -124,8 +124,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         datePublished = datetime.datetime.max
         dateUpdated = datetime.datetime.min
         wordCount = 0
-        # We aim at counting chapters, not chapter parts.
-        chapterCount = 0
         storyInProgress = False
 
         chapters = \
@@ -137,7 +135,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         largestCommonPrefix = _getLargestCommonPrefix(*headings)
         prefixLength = len(largestCommonPrefix)
         storyTitleEnd, chapterTitleStart = prefixLength, prefixLength
-        match = re.search(u'[:\.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
+        match = re.search(u'[:.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
         if match:
             storyTitleEnd -= len(match.group())
             label = match.group('chapter')
@@ -146,8 +144,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         storyTitle = largestCommonPrefix[:storyTitleEnd]
         self.story.setMetadata('title', storyTitle)
 
-        garbagePattern = re.compile(u'(?P<start>^)?[:\.\s]*(?(start)|$)', re.UNICODE)
-        indexPattern = re.compile(u'(?:глава\s)?(?:(?<!\d)(?P<index>\d{1,3})(?=\D|$))', re.IGNORECASE | re.UNICODE)
+        garbagePattern = re.compile(u'(?P<start>^)?[:.\s]*(?(start)|$)', re.UNICODE)
 
         for chapter in chapters:
             url = chapter.getUrl()
@@ -200,14 +197,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                         self.story.extendList('warnings', [warning])
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
-
-                match = re.search(indexPattern, chapterTitle)
-                if match:
-                    index = int(match.group('index'))
-                    chapterCount = max(chapterCount, index)
-                else:
-                    chapterCount += 1
-
                 self.chapterUrls.append((chapterTitle, url))
             except ParsingError, error:
                 raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
@@ -217,7 +206,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
         self.story.setMetadata('numWords', unicode(wordCount))
-        self.story.setMetadata('numChapters', chapterCount)
+        self.story.setMetadata('numChapters', len(chapters))
 
         # Site-specific metadata.
         self.story.setMetadata('language', self.SITE_LANGUAGE)
