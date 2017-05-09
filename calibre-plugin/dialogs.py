@@ -105,7 +105,8 @@ class RejectUrlEntry:
     matchpat=re.compile(r"^(?P<url>[^,]+?)(,(?P<fullnote>(((?P<title>.+?) by (?P<auth>.+?)( - (?P<note>.+))?)|.*)))?$")
 
     def __init__(self,url_or_line,note=None,title=None,auth=None,
-                 addreasontext=None,fromline=False,book_id=None):
+                 addreasontext=None,fromline=False,book_id=None,
+                 normalize=True):
 
         self.url=url_or_line
         self.note=note
@@ -137,7 +138,9 @@ class RejectUrlEntry:
             if addreasontext:
                 self.note = self.note + ' - ' + addreasontext
 
-        self.url = getNormalStoryURL(self.url)
+        if normalize:
+            self.url = getNormalStoryURL(self.url)
+
         self.valid = self.url != None
 
     def to_line(self):

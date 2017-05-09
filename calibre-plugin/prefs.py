@@ -15,6 +15,7 @@ import copy
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
+from calibre_plugins.fanficfare_plugin import __version__ as plugin_version
 from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
 
 SKIP=_('Skip')
@@ -105,6 +106,7 @@ PREFS_KEY_SETTINGS = 'settings'
 # Set defaults used by all.  Library specific settings continue to
 # take from here.
 default_prefs = {}
+default_prefs['last_saved_version'] = (0,0,0)
 default_prefs['personal.ini'] = get_resources('plugin-example.ini')
 default_prefs['cal_cols_pass_in'] = False
 default_prefs['rejecturls'] = ''
@@ -254,6 +256,7 @@ class PrefsFacade():
             del prefs[k]
 
     def save_to_db(self):
+        self['last_saved_version'] = plugin_version
         set_library_config(self._get_prefs(),self._get_db())
 
 prefs = PrefsFacade()

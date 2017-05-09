@@ -25,13 +25,13 @@ saved_version = None
 def main(args):
    ## major.minor.micro
     '''
-    version             = (2, 3, 6)
+__version__ = (2, 3, 6)
     version="2.3.6",
 version: 2-3-06a
 version="2.3.6"
 '''
     version_re = \
-        r'^(?P<prefix>[ ]*)version(?P<infix>[ =:"\\(]+)' \
+        r'^(?P<prefix>[ ]*(__)?)version(?P<infix>(__)?[ =:"\\(]+)' \
         r'(?P<major>[0-9]+)(?P<dot1>[, \\.-]+)' \
         r'(?P<minor>[0-9]+)(?P<dot2>[, \\.-]+)' \
         r'(?P<micro>[0-9]+[a-z]?)(?P<suffix>[",\\)]*\r?\n)$'

@@ -105,12 +105,13 @@ class RejectURLList:
         self.sync_lock = threading.RLock()
         self.listcache = None
 
-    def _read_list_from_text(self,text,addreasontext=''):
+    def _read_list_from_text(self,text,addreasontext='',normalize=True):
         cache = OrderedDict()
 
         #print("_read_list_from_text")
         for line in text.splitlines():
-            rue = RejectUrlEntry(line,addreasontext=addreasontext,fromline=True)
+            rue = RejectUrlEntry(line,addreasontext=addreasontext,
+                                 fromline=True,normalize=normalize)
             #print("rue.url:%s"%rue.url)
             if rue.valid:
                 cache[rue.url] = rue
@@ -118,14 +119,25 @@ class RejectURLList:
 
     def _get_listcache(self):
         if self.listcache == None:
-            self.listcache = self._read_list_from_text(prefs['rejecturls'])
+            #print(self.prefs['last_saved_version'])
+            # Assume saved rejects list is already normalized after
+            # v2.10.9.  If normalization needs to change someday, can
+            # increase this to do it again.
+            normalize = tuple(self.prefs['last_saved_version']) < (2, 10, 9)
+            #print("normalize:%s"%normalize)
+            self.listcache = self._read_list_from_text(self.prefs['rejecturls'],
+                                                       normalize=normalize)
+            if normalize:
+                self._save_list(self.listcache,clearcache=False)
+
         return self.listcache
 
-    def _save_list(self,listcache):
+    def _save_list(self,listcache,clearcache=True):
         #print("_save_list")
         self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
         self.prefs.save_to_db()
-        self.listcache = None
+        if clearcache:
+            self.listcache = None
 
     def clear_cache(self):
         self.listcache = None
