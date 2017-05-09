@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2016, Jim Miller'
+__copyright__ = '2017, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -493,8 +493,8 @@ class BasicTab(QWidget):
         self.checkforurlchange.setChecked(prefs['checkforurlchange'])
         self.l.addWidget(self.checkforurlchange)
 
-        self.lookforurlinhtml = QCheckBox(_("Search EPUB text for Story URL?"),self)
-        self.lookforurlinhtml.setToolTip(_("Look for first valid story URL inside EPUB text if not found in metadata.\nSomewhat risky, could find wrong URL depending on EPUB content.\nAlso finds and corrects bad ffnet URLs from ficsaver.com files."))
+        self.lookforurlinhtml = QCheckBox(_("Search inside ebooks for Story URL?"),self)
+        self.lookforurlinhtml.setToolTip(_("Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\nSomewhat risky, could find wrong URL depending on ebook content."))
         self.lookforurlinhtml.setChecked(prefs['lookforurlinhtml'])
         self.l.addWidget(self.lookforurlinhtml)
 

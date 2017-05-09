@@ -81,8 +81,8 @@ from calibre_plugins.fanficfare_plugin.fanficfare import (
     adapters, exceptions)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
-    get_dcsource, get_dcsource_chaptercount, get_story_url_from_html,
-    reset_orig_chapters_epub, get_cover_data)
+    get_dcsource, get_dcsource_chaptercount, get_story_url_from_epub_html,
+    get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_data)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
@@ -2470,6 +2470,7 @@ class FanFicFarePlugin(InterfaceAction):
             elif path and path.lower().endswith('.epub'):
                 existingepub = path
 
+            link = None
             ## only epub has URL in it--at least where I can easily find it.
             if existingepub:
                 # look for dc:source first, then scan HTML if lookforurlinhtml
@@ -2477,10 +2478,28 @@ class FanFicFarePlugin(InterfaceAction):
                 if link:
                     # print("url from get_dcsource:%s"%link)
                     return link
-                elif prefs['lookforurlinhtml']:
-                    link = get_story_url_from_html(existingepub,self.is_good_downloader_url)
-                    # print("url from get_story_url_from_html:%s"%link)
-                    return link
+
+            ## now also can search html and txt formats.
+            if prefs['lookforurlinhtml']:
+                # print(db.formats(book_id, index_is_id=True))
+                if existingepub:
+                    link = get_story_url_from_epub_html(existingepub,self.is_good_downloader_url)
+                    # print("url from get_story_url_from_epub_html:%s"%link)
+                    if link:
+                        return link
+                if db.has_format(book_id,'ZIP',index_is_id=True):
+                    # print("has zip/html format")
+                    existingziphtml = db.format(book_id,'ZIP',index_is_id=True, as_file=True)
+                    link = get_story_url_from_zip_html(existingziphtml,self.is_good_downloader_url)
+                    # print("url from get_story_url_from_zip_html:%s"%link)
+                    if link:
+                        return link
+                if db.has_format(book_id,'TXT',index_is_id=True):
+                    # print("has txt format")
+                    existingtxt = db.format(book_id,'TXT',index_is_id=True)
+                    links = get_urls_from_text(existingtxt,normalize=True)
+                    if links:
+                        return links[0]
         return None
 
     def is_good_downloader_url(self,url):

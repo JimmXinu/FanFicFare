@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Jim Miller'
+__copyright__ = '2017, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -197,9 +197,8 @@ def get_path_part(n):
         relpath=relpath+"/"
     return relpath
 
-def get_story_url_from_html(inputio,_is_good_url=None):
-
-    #print("get_story_url_from_html called")
+def get_story_url_from_epub_html(inputio,_is_good_url=None):
+    # print("get_story_url_from_epub_html called")
     epub = ZipFile(inputio, 'r') # works equally well with inputio as a path or a blob
 
     ## Find the .opf file.
@@ -216,20 +215,45 @@ def get_story_url_from_html(inputio,_is_good_url=None):
 
     # spin through the manifest--only place there are item tags.
     for item in contentdom.getElementsByTagName("item"):
-        # First, count the 'chapter' files.  FFF uses file0000.xhtml,
-        # but can also update epubs downloaded from Twisting the
-        # Hellmouth, which uses chapter0.html.
-        #print("---- item:%s"%item)
         if( item.getAttribute("media-type") == "application/xhtml+xml" ):
             filehref=relpath+item.getAttribute("href")
             soup = make_soup(epub.read(filehref).decode("utf-8"))
             for link in soup.findAll('a',href=re.compile(r'^http.*')):
                 ahref=link['href']
-                #print("href:(%s)"%ahref)
+                # print("href:(%s)"%ahref)
                 # hack for bad ficsaver ffnet URLs.
                 m = re.match(r"^http://www.fanfiction.net/s(?P<id>\d+)//$",ahref)
                 if m != None:
                     ahref="http://www.fanfiction.net/s/%s/1/"%m.group('id')
+                if _is_good_url == None or _is_good_url(ahref):
+                    return ahref
+    return None
+
+def get_story_url_from_zip_html(inputio,_is_good_url=None):
+    # print("get_story_url_from_zip_html called")
+    zipf = ZipFile(inputio, 'r') # works equally well with inputio as a path or a blob
+
+    # calibre's convert tends to put FFF's title_page towards the end,
+    # shift it to the front to avoid internal links.
+    filelist = zipf.namelist()
+    tpl = [ x for x in filelist if 'title_page' in x ]
+    for x in tpl:
+        filelist.remove(x)
+        filelist.insert(0,x)
+
+    for item in filelist:
+        # print(item)
+        # only .htm, .html and .xhtml (or .xhtm for that matter)
+        if re.match(r".*\.x?html?$", item):
+            # print("matched")
+            try:
+                soup = make_soup(zipf.read(item).decode("utf-8"))
+            except UnicodeDecodeError:
+                # calibre converted to html zip fails with decode.
+                soup = make_soup(zipf.read(item))
+            for link in soup.findAll('a',href=re.compile(r'^http.*')):
+                ahref=link['href']
+                # print("href:(%s)"%ahref)
                 if _is_good_url == None or _is_good_url(ahref):
                     return ahref
     return None
