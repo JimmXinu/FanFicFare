@@ -54,7 +54,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         self.zone = self.parsedUrl.netloc.replace('.fanficauthors.net','')
 
         # normalized story URL.
-        self._setURL('http://{0}.{1}/{2}/'.format(
+        self._setURL('https://{0}.{1}/{2}/'.format(
             self.zone, self.getBaseDomain(), self.story.getMetadata('storyId')))
 
         # Each adapter needs to have a unique site abbreviation.
@@ -108,35 +108,35 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(self):
-        return ("http://aaran-st-vines.nsns.fanficauthors.net/[StoryId]/\n"
-              + "http://abraxan.fanficauthors.net/[StoryId]/\n"
-              + "http://bobmin.fanficauthors.net/[StoryId]/\n"
-              + "http://canoncansodoff.fanficauthors.net/[StoryId]/\n"
-              + "http://chemprof.fanficauthors.net/[StoryId]/\n"
-              + "http://copperbadge.fanficauthors.net/[StoryId]/\n"
-              + "http://crys.fanficauthors.net/[StoryId]/\n"
-              + "http://deluded-musings.fanficauthors.net/[StoryId]/\n"
-              + "http://draco664.fanficauthors.net/[StoryId]/\n"
-              + "http://fp.fanficauthors.net/[StoryId]/\n"
-              + "http://frenchsession.fanficauthors.net/[StoryId]/\n"
-              + "http://ishtar.fanficauthors.net/[StoryId]/\n"
-              + "http://jbern.fanficauthors.net/[StoryId]/\n"
-              + "http://jeconais.fanficauthors.net/[StoryId]/\n"
-              + "http://kinsfire.fanficauthors.net/[StoryId]/\n"
-              + "http://kokopelli.nsns.fanficauthors.net/[StoryId]/\n"
-              + "http://ladya.nsns.fanficauthors.net/[StoryId]/\n"
-              + "http://lorddwar.fanficauthors.net/[StoryId]/\n"
-              + "http://mrintel.nsns.fanficauthors.net/[StoryId]/\n"
-              + "http://musings-of-apathy.fanficauthors.net/[StoryId]/\n"
-              + "http://ruskbyte.fanficauthors.net/[StoryId]/\n"
-              + "http://seelvor.fanficauthors.net/[StoryId]/\n"
-              + "http://tenhawk.fanficauthors.net/[StoryId]/\n"
-              + "http://viridian.fanficauthors.net/[StoryId]/\n"
-              + "http://whydoyouneedtoknow.fanficauthors.net/[StoryId]/\n")
+        return ("https://aaran-st-vines.nsns.fanficauthors.net/[StoryId]/\n"
+              + "https://abraxan.fanficauthors.net/[StoryId]/\n"
+              + "https://bobmin.fanficauthors.net/[StoryId]/\n"
+              + "https://canoncansodoff.fanficauthors.net/[StoryId]/\n"
+              + "https://chemprof.fanficauthors.net/[StoryId]/\n"
+              + "https://copperbadge.fanficauthors.net/[StoryId]/\n"
+              + "https://crys.fanficauthors.net/[StoryId]/\n"
+              + "https://deluded-musings.fanficauthors.net/[StoryId]/\n"
+              + "https://draco664.fanficauthors.net/[StoryId]/\n"
+              + "https://fp.fanficauthors.net/[StoryId]/\n"
+              + "https://frenchsession.fanficauthors.net/[StoryId]/\n"
+              + "https://ishtar.fanficauthors.net/[StoryId]/\n"
+              + "https://jbern.fanficauthors.net/[StoryId]/\n"
+              + "https://jeconais.fanficauthors.net/[StoryId]/\n"
+              + "https://kinsfire.fanficauthors.net/[StoryId]/\n"
+              + "https://kokopelli.nsns.fanficauthors.net/[StoryId]/\n"
+              + "https://ladya.nsns.fanficauthors.net/[StoryId]/\n"
+              + "https://lorddwar.fanficauthors.net/[StoryId]/\n"
+              + "https://mrintel.nsns.fanficauthors.net/[StoryId]/\n"
+              + "https://musings-of-apathy.fanficauthors.net/[StoryId]/\n"
+              + "https://ruskbyte.fanficauthors.net/[StoryId]/\n"
+              + "https://seelvor.fanficauthors.net/[StoryId]/\n"
+              + "https://tenhawk.fanficauthors.net/[StoryId]/\n"
+              + "https://viridian.fanficauthors.net/[StoryId]/\n"
+              + "https://whydoyouneedtoknow.fanficauthors.net/[StoryId]/\n")
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return r'http?://(aaran-st-vines.nsns|abraxan|bobmin|canoncansodoff|chemprof|copperbadge|crys|deluded-musings|draco664|fp|frenchsession|ishtar|jbern|jeconais|kinsfire|kokopelli.nsns|ladya.nsns|lorddwar|mrintel.nsns|musings-of-apathy|ruskbyte|seelvor|tenhawk|viridian|whydoyouneedtoknow)\.fanficauthors\.net/([a-zA-Z0-9_]+)/'
+        return r'https?://(aaran-st-vines.nsns|abraxan|bobmin|canoncansodoff|chemprof|copperbadge|crys|deluded-musings|draco664|fp|frenchsession|ishtar|jbern|jeconais|kinsfire|kokopelli.nsns|ladya.nsns|lorddwar|mrintel.nsns|musings-of-apathy|ruskbyte|seelvor|tenhawk|viridian|whydoyouneedtoknow)\.fanficauthors\.net/([a-zA-Z0-9_]+)/'
 
     ################################################################################################
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
@@ -153,7 +153,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
         
         if not params['username']:
-            raise exceptions.FailedToLogin('You need to have your username and pasword set.',params['username'])
+            raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
 
         try:
             data = self._fetchUrl(url+'index/', params, usecache=False)
@@ -184,7 +184,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',a)
         a = a.replace('-',' ').title()
         self.story.setMetadata('author',a)
-        self.story.setMetadata('authorUrl','http://{0}/'.format(self.parsedUrl.netloc))
+        self.story.setMetadata('authorUrl','https://{0}/'.format(self.parsedUrl.netloc))
         
         loginUrl = self.story.getMetadata('authorUrl')+'account/'
         loginsoup = self.make_soup(self._fetchUrl(loginUrl))
