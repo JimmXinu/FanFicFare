@@ -2051,9 +2051,11 @@ class FanFicFarePlugin(InterfaceAction):
                     self.set_custom(db, book_id, meta, num, label=label, commit=False)
             elif coldef['datatype'] == 'bool' and meta.startswith('status-'):
                 if meta == 'status-C':
-                    val = book['all_metadata']['status'] == 'Completed'
+                    # Complete or Completed.
+                    val = 'complete' in book['all_metadata']['status'].lower()
                 if meta == 'status-I':
-                    val = book['all_metadata']['status'] == 'In-Progress'
+                    # In-Progress, In Progress, or In progress.
+                    val = 'progress' in book['all_metadata']['status'].lower()
                 self.set_custom(db, book_id, meta, val, label=label, commit=False)
 
         configuration = None
