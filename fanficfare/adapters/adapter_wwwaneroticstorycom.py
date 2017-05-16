@@ -129,7 +129,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         self.chapterUrls.append(('1', self.url))
 
         # Setting the status to complete
-        self.story.setMetadata('status', 'Complete')
+        self.story.setMetadata('status', 'Completed')
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
