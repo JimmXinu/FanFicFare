@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-05-10 02:26+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2017-05-13 07:07+0000\n"
+"Last-Translator: Jellby <jellby@yahoo.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -265,13 +265,13 @@ msgstr "Avisar si una actualización cambiará el URL de un libro existente.\nLo
 
 #: config.py:496
 msgid "Search inside ebooks for Story URL?"
-msgstr ""
+msgstr "¿Buscar el URL de historia en el contenido de los libros?"
 
 #: config.py:497
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr ""
+msgstr "Buscar el primer URL de historia válido en el texto del archivo en formato EPUB, ZIP(HTML) o TXT si no se encuentra en los metadatos.\nEsto es algo arriesgado, ya que según el contenido del libro puede encontrarse un URL incorrecto."
 
 #: config.py:501
 msgid "Post Processing Options"
