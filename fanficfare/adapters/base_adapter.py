@@ -466,11 +466,11 @@ class BaseSiteAdapter(Configurable):
     def normalize_chapterurl(self,url):
         return url
 
-def cachedfetch(realfetch,cache,url):
+def cachedfetch(realfetch,cache,url,referer=None):
     if url in cache:
         return cache[url]
     else:
-        return realfetch(url)
+        return realfetch(url,referer=referer)
 
 fullmon = {u"January":u"01", u"February":u"02", u"March":u"03", u"April":u"04", u"May":u"05",
            u"June":u"06","July":u"07", u"August":u"08", u"September":u"09", u"October":u"10",
