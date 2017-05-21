@@ -150,8 +150,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.
-        alist = soup.find('div', {'class': 'main-meta__sec'})
-        alist = alist.find('span', text='Author(s)')
+        mainmeta = soup.find('footer', {'class': 'main-meta'})
+        alist = mainmeta.find('span', text='Author(s)')
         alist = alist.parent.findAll('a', href=re.compile(r"/profile/view/\d+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[-1])
@@ -178,8 +178,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.newestChapterNum = index
 
         # story status
-        a = soup.find('div', {'class': 'main-meta__sec'})
-        a = a.find('span', text='Completed')
+        a = mainmeta.find('span', text='Completed')
         if a:
             self.story.setMetadata('status', 'Completed')
         else:
@@ -191,16 +190,14 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.setDescription(url,a)
 
         # story tags
-        a = soup.find('div', {'class': 'main-meta__sec'})
-        a = a.find('span',text='Tags')
+        a = mainmeta.find('span',text='Tags')
         if a:
             tags = a.parent.findAll('a')
             for tag in tags:
                 self.story.addToList('tags', tag.text)
 
         # story tags
-        a = soup.find('div', {'class': 'main-meta__sec'})
-        a = a.find('span',text='Characters')
+        a = mainmeta.find('span',text='Characters')
         if a:
             self.story.addToList('characters', a.nextSibling)
 
