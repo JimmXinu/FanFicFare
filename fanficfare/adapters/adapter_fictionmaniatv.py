@@ -165,4 +165,6 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         if self.getConfig('non_breaking_spaces'):
             return content.replace(' ', '&nbsp;')
 
+        ## Normally, getChapterText should use self.utf8FromSoup(),
+        ## but this is converting from plain(ish) text. -- JM
         return content

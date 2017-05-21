@@ -1171,9 +1171,9 @@ class Configurable(object):
                         extrasleep=None,
                         referer=None):
         return self.configuration._fetchUrlOpened(url,
-                                                 parameters,
-                                                 usecache,
-                                                 extrasleep,
+                                                  parameters,
+                                                  usecache,
+                                                  extrasleep,
                                                   referer=referer)
 
     def _fetchUrl(self, url,
