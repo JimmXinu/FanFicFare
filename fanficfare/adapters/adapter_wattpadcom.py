@@ -53,10 +53,6 @@ class WattpadComAdapter(BaseSiteAdapter):
         return 'www.wattpad.com'
 
     @classmethod
-    def getAcceptDomains(cls):
-        return ['www.wattpad.com']
-
-    @classmethod
     def getSiteExampleURLs(cls):
         return 'https://www.wattpad.com/story/9999999-story-title https://www.wattpad.com/story/9999999 https://www.wattpad.com/9999999-chapter-is-ok-too'
 
@@ -139,7 +135,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('%s' % url)
         chapterID = re.search(u'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
-        return self._fetchUrl(WattpadComAdapter.API_STORYTEXT % chapterID)
+        return self.utf8FromSoup(url,self._fetchUrl(WattpadComAdapter.API_STORYTEXT % chapterID))
 
 # adapter self-dicovery is not implemented in fanficfare (it existed for the previous project)
 def getClass():
