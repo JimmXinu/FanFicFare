@@ -149,9 +149,13 @@ def no_convert_image(url,data):
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
 
     if ext not in imagetypes:
-        logger.debug("no_convert_image url:%s - no known extension"%url)
-        # doesn't have extension? use jpg.
-        ext='jpg'
+        # not found at end of path, try end of whole URL in case of
+        # parameter.
+        ext = url[url.rfind('.')+1:].lower()
+        if ext not in imagetypes:
+            logger.debug("no_convert_image url:%s - no known extension"%url)
+            # doesn't have extension? use jpg.
+            ext='jpg'
 
     return (data,ext,imagetypes[ext])
 
