@@ -388,9 +388,7 @@ class BaseSiteAdapter(Configurable):
                 #     logger.info("Parsing for normalize_text_links failed...")
 
         try:
-            # as a generator, each tag will be returned even if there's a
-            # mismatch at the end.
-            for t in soup.recursiveChildGenerator(): # findAll(recursive=True):
+            for t in soup.findAll(recursive=True):
                 for attr in self.get_attr_keys(t):
                     if attr not in acceptable_attributes:
                         del t[attr] ## strip all tag attributes except acceptable_attributes
