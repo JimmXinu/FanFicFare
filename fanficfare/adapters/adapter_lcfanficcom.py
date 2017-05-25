@@ -75,7 +75,8 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
 ####################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/stories/(Year|_earliest)/html/[storyId]"
+        return ("http://"+cls.getSiteDomain()+"/stories/2017/html/a-story-name "
+                + "http://"+cls.getSiteDomain()+"/stories/_earliest/html/a-story-name")
 
 ####################################################################################################
     def getSiteURLPattern(self):

@@ -81,7 +81,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.area52hkh.net/[folder]/[author]/[story].php"
+        return "http://www.area52hkh.net/folder/author/astoryname.php"
 
     def getSiteURLPattern(self):
 #        return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>\S+)\.aspx"

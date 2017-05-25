@@ -82,7 +82,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://" + cls.getSiteDomain() + "/archive/#/[storyId].shtml"
+        return "http://" + cls.getSiteDomain() + "/archive/999/astoryname.shtml"
 
     ################################################################################################
     def getSiteURLPattern(self):

@@ -69,7 +69,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 ####################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/novel/[storyId]"
+        return "http://"+cls.getSiteDomain()+"/novel/a-story-name"
 
 ####################################################################################################
     def getSiteURLPattern(self):

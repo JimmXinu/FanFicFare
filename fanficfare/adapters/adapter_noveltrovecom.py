@@ -74,7 +74,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
 ####################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/story/[storyId]/[storyIdText]"
+        return "https://"+cls.getSiteDomain()+"/story/12345/astoryname"
 
 ####################################################################################################
     def getSiteURLPattern(self):

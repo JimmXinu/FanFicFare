@@ -97,7 +97,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(self):
-        return "https://"+self.getSiteDomain()+"/stories/[category]/[storyid].aspx"
+        return "https://"+self.getSiteDomain()+"/stories/category/astoryname.aspx"
 
     ################################################################################################
     def getSiteURLPattern(self):

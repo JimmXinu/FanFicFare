@@ -72,7 +72,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.wuxiaworld.com/[storyId]/"
+        return "http://www.wuxiaworld.com/astoryname-index/"
 
     def getSiteURLPattern(self):
         # http://www.wuxiaworld.com/emperor-index/

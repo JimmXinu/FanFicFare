@@ -75,7 +75,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
     ##########################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"[category]/[author]/[storyId]/"
+        return "https://"+cls.getSiteDomain()+"/category/author/a-story-name/"
 
     ##########################################################################
     def getSiteURLPattern(self):

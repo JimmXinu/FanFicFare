@@ -82,7 +82,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://" + cls.getSiteDomain() + "/archive/#/[storyId].html"
+        return "http://" + cls.getSiteDomain() + "/archive/123/astoryname.html"
 
     ################################################################################################
     def getSiteURLPattern(self):
