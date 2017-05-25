@@ -233,9 +233,17 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             souptag = souptag.find('li',id=anchorid)
         else:
             # try threadmarks if no '#' in , require at least 2.
-            threadmarksa = souptag.find('a',{'class':'threadmarksTrigger'})
-            if threadmarksa:
+            navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # first navdiv only.
+            threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+            ## Loop on threadmark categories.
+            for threadmarksa in threadmarksas:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
+                ## prepend threadmark category name if not 'Threadmarks'
+                prepend = ""
+                tmcat_name = stripHTML(threadmarksa)
+                if tmcat_name != "Threadmarks":
+                    prepend = tmcat_name+" - "
+
                 markas = []
                 ol = soupmarks.find('ol',{'class':'overlayScroll'})
                 if ol:
@@ -259,7 +267,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                         if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
                             self.story.setMetadata('dateUpdated', date)
 
-                        self.chapterUrls.append((name,self.getURLPrefix()+'/'+url))
+                        self.chapterUrls.append((prepend+name,self.getURLPrefix()+'/'+url))
 
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
@@ -396,6 +404,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     logger.debug("Fetch reader URL to: %s"%reader_url)
                     data = self._fetchUrl(reader_url)
                     topsoup = self.make_soup(data)
+
+                    # if no posts at all, break out of loop, we're off the end.
+                    # don't need to remember this, the page is cached.
+                    if not topsoup.find_all('li',id=re.compile(r'post-[0-9]+')):
+                        break
 
                     # assumed normalized to /posts/1234/
                     anchorid = "post-"+url.split('/')[-2]
