@@ -112,6 +112,9 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         summary = soup.find('td', {'colspan' : '3'})
+        summary.name='div' # change td to div.  Makes Calibre
+                           # sanitize_html() happier when description
+                           # is empty.
         self.setDescription(url,summary)
 
         # no convenient way to get word count
@@ -121,11 +124,14 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
                 break
         td=td.nextSibling.nextSibling
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(td).split(': ')[1], self.dateformat))
-        tr=td.parent.nextSibling.nextSibling.nextSibling.nextSibling
-        td=tr.findAll('td')
-        self.story.setMetadata('rating', td[0].string.split(': ')[1])
-        self.story.setMetadata('status', td[2].string.split(': ')[1])
-        self.story.setMetadata('datePublished', makeDate(stripHTML(td[4]).split(': ')[1], self.dateformat))
+        try:
+            tr=td.parent.nextSibling.nextSibling.nextSibling.nextSibling
+            td=tr.findAll('td')
+            self.story.setMetadata('rating', td[0].string.split(': ')[1])
+            self.story.setMetadata('status', td[2].string.split(': ')[1])
+            self.story.setMetadata('datePublished', makeDate(stripHTML(td[4]).split(': ')[1], self.dateformat))
+        except Exception as e:
+            logger.warn("rating, status and/or datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
