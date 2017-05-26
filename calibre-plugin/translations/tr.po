@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Çağla Turhan, 2016
+# Çağla Turhan, 2016-2017
 # doruk tolga atasoy <doruk.tolga.a@gmail.com>, 2016
 # Emre Deniz, 2014
 # MUSTAFA ANAR <mstf.anar@gmail.com>, 2016
@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-05-12 18:06+0000\n"
-"Last-Translator: Necdet Yücel <necdetyucel@gmail.com>\n"
+"PO-Revision-Date: 2017-05-26 13:25+0000\n"
+"Last-Translator: Çağla Turhan\n"
 "Language-Team: Turkish (http://www.transifex.com/calibre/calibre-plugins/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -249,7 +249,7 @@ msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr ""
+msgstr "Mevcut Antoloji Serisi kitaplarıyla hikayeleri otomatik olarak reddet.\nSadece 'Mevcut Antoloji Serisi kitaplarını denetle' açıkken çalışır.\nArka Planda Üstveri Topla seçiliyken çalışmaz."
 
 #: config.py:491
 msgid "Check for changed Story URL?"
@@ -269,7 +269,7 @@ msgstr "Hikaye Adresi ekitaplar içinde aransın mı?"
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr ""
+msgstr "Üstveride bulunamazsa, EPUB, ZIP(HTML) ya da TXT ekitap biçimleri içinde ilk geçerli hikaye URL'sine bak.\nOldukça riskli olsa da, ekitap içeriğine dayanarak hatalı URL'yi bulabilir."
 
 #: config.py:501
 msgid "Post Processing Options"
