@@ -117,7 +117,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
         self.chapterUrls = [(part['title'], part['url']) for part in storyInfo['parts']]
         self.story.setMetadata('numChapters', len(self.chapterUrls))
-        self.setCoverImage(storyInfo['url'], storyInfo['cover'])
+        self.setCoverImage(storyInfo['url'], storyInfo['cover'].replace('-256-','-512-'))
         self.story.setMetadata('language', storyInfo['language']['name'])
 
         # CATEGORIES
@@ -125,8 +125,8 @@ class WattpadComAdapter(BaseSiteAdapter):
             storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(str(c)) for c in storyInfo['categories'] if
                                WattpadComAdapter.CATEGORY_DEFs.has_key(str(c))]
 
-            tags = storyCategories + storyInfo['tags']
-            self.story.setMetadata('tags', tags)
+            self.story.setMetadata('category', storyCategories[0])
+            self.story.setMetadata('tags', storyInfo['tags'])
         except:
             pass
 
