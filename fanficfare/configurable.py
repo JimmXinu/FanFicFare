@@ -311,6 +311,7 @@ def get_valid_keywords():
                  'check_next_chapter',
                  'skip_author_cover',
                  'collect_series',
+                 'comma_entries',
                  'connect_timeout',
                  'convert_images_to',
                  'cover_content',
