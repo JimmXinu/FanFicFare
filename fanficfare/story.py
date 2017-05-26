@@ -703,8 +703,11 @@ class Story(Configurable):
         elif self.metadata.has_key(key):
             value = self.metadata[key]
             if value:
-                if key in ("numWords","numChapters"):
-                    value = commaGroups(unicode(value))
+                if key in ["numWords","numChapters"]+self.getConfigList("comma_entries",[]):
+                    try:
+                        value = commaGroups(unicode(value))
+                    except Exception as e:
+                        logger.warn("Failed to add commas to %s value:(%s) exception(%s)"%(key,value,e))
                 if key in ("dateCreated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
                 if key in ("datePublished","dateUpdated"):
