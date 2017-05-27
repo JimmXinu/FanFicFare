@@ -241,6 +241,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 ## prepend threadmark category name if not 'Threadmarks'
                 prepend = ""
                 tmcat_name = stripHTML(threadmarksa)
+
+                if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
+                    tmcat_name = 'Omake'
+
                 if tmcat_name != "Threadmarks":
                     prepend = tmcat_name+" - "
 

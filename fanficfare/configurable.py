@@ -245,6 +245,7 @@ def get_valid_set_options():
                'author_avatar_cover':(base_xenforo_list,None,boollist),
                'remove_spoilers':(base_xenforo_list,None,boollist),
                'legend_spoilers':(base_xenforo_list,None,boollist),
+               'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -437,6 +438,7 @@ def get_valid_keywords():
                  'reader_posts_per_page',
                  'remove_spoilers',
                  'legend_spoilers',
+                 'apocrypha_to_omake',
                  'normalize_text_links',
                  'internalize_text_links',
                  ])
