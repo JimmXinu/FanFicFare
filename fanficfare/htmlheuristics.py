@@ -24,6 +24,11 @@ import HtmlTagStack as stack
 
 from . import exceptions as exceptions
 
+def logdebug(s):
+    # uncomment for debug output
+    # logger.debug(s)
+    pass
+
 def replace_br_with_p(body):
 
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
@@ -33,12 +38,12 @@ def replace_br_with_p(body):
     if body.find('>') == -1 or body.rfind('<') == -1:
         return body
 
-    # logger.debug(u'---')
-    # logger.debug(u'BODY start.: ' + body[:4000])
-    # logger.debug(u'--')
-    # logger.debug(u'BODY end...: ' + body[-250:])
-    # logger.debug(u'BODY.......: ' + body)
-    # logger.debug(u'---')
+    # logdebug(u'---')
+    # logdebug(u'BODY start.: ' + body[:4000])
+    # logdebug(u'--')
+    # logdebug(u'BODY end...: ' + body[-250:])
+    # logdebug(u'BODY.......: ' + body)
+    # logdebug(u'---')
 
     # clean breaks (<br />), removing whitespaces between them.
     body = re.sub(r'\s*<br[^>]*>\s*', r'<br />', body)
@@ -96,12 +101,12 @@ def replace_br_with_p(body):
     # Nuking breaks trailing paragraps that may be in the body. They are eventually treated as <p><br /></p>
     body = re.sub(r'</p>\s*(<br\ \/>)+\s*', r'</p>\n<p></p>\n', body)
 
-    # logger.debug(u'--- 2 ---')
-    # logger.debug(u'BODY start.: ' + body[:250])
-    # logger.debug(u'--')
-    # logger.debug(u'BODY end...: ' + body[-250:])
-    # logger.debug(u'BODY.......: ' + body)
-    # logger.debug(u'--- 2 ---')
+    # logdebug(u'--- 2 ---')
+    # logdebug(u'BODY start.: ' + body[:250])
+    # logdebug(u'--')
+    # logdebug(u'BODY end...: ' + body[-250:])
+    # logdebug(u'BODY.......: ' + body)
+    # logdebug(u'--- 2 ---')
 
     # Because a leading or trailing non break tag will break the following code, we have to mess around rather badly for a few lines.
     body = body.replace(u'[',u'&squareBracketStart;')
@@ -156,34 +161,34 @@ def replace_br_with_p(body):
 
     averageLineLength = contentLinesSum/contentLines
 
-    logger.debug(u'---')
-    logger.debug(u'Lines.............: ' + unicode(len(lines)))
-    logger.debug(u'contentLines......: ' + unicode(contentLines))
-    logger.debug(u'contentLinesSum...: ' + unicode(contentLinesSum))
-    logger.debug(u'longestLineLength.: ' + unicode(longestLineLength))
-    logger.debug(u'averageLineLength.: ' + unicode(averageLineLength))
-    logger.debug(u'---')
-    logger.debug(u'breaksMaxIndex....: ' + unicode(breaksMaxIndex))
-    logger.debug(u'len(breaksCount)-1: ' + unicode(len(breaksCount)-1))
-    logger.debug(u'breaksMax.........: ' + unicode(breaksMax))
+    logdebug(u'---')
+    logdebug(u'Lines.............: ' + unicode(len(lines)))
+    logdebug(u'contentLines......: ' + unicode(contentLines))
+    logdebug(u'contentLinesSum...: ' + unicode(contentLinesSum))
+    logdebug(u'longestLineLength.: ' + unicode(longestLineLength))
+    logdebug(u'averageLineLength.: ' + unicode(averageLineLength))
+    logdebug(u'---')
+    logdebug(u'breaksMaxIndex....: ' + unicode(breaksMaxIndex))
+    logdebug(u'len(breaksCount)-1: ' + unicode(len(breaksCount)-1))
+    logdebug(u'breaksMax.........: ' + unicode(breaksMax))
 
     if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
         breaksMaxIndex = 0
         breaksMax = breaksCount[0]
 
-    logger.debug(u'---')
-    logger.debug(u'breaks 1: ' + unicode(breaksCount[0]))
-    logger.debug(u'breaks 2: ' + unicode(breaksCount[1]))
-    logger.debug(u'breaks 3: ' + unicode(breaksCount[2]))
-    logger.debug(u'breaks 4: ' + unicode(breaksCount[3]))
-    logger.debug(u'breaks 5: ' + unicode(breaksCount[4]))
-    logger.debug(u'breaks 6: ' + unicode(breaksCount[5]))
-    logger.debug(u'breaks 7: ' + unicode(breaksCount[6]))
-    logger.debug(u'breaks 8: ' + unicode(breaksCount[7]))
-    logger.debug(u'----')
-    logger.debug(u'max found: ' + unicode(breaksMax))
-    logger.debug(u'max Index: ' + unicode(breaksMaxIndex))
-    logger.debug(u'----')
+    logdebug(u'---')
+    logdebug(u'breaks 1: ' + unicode(breaksCount[0]))
+    logdebug(u'breaks 2: ' + unicode(breaksCount[1]))
+    logdebug(u'breaks 3: ' + unicode(breaksCount[2]))
+    logdebug(u'breaks 4: ' + unicode(breaksCount[3]))
+    logdebug(u'breaks 5: ' + unicode(breaksCount[4]))
+    logdebug(u'breaks 6: ' + unicode(breaksCount[5]))
+    logdebug(u'breaks 7: ' + unicode(breaksCount[6]))
+    logdebug(u'breaks 8: ' + unicode(breaksCount[7]))
+    logdebug(u'----')
+    logdebug(u'max found: ' + unicode(breaksMax))
+    logdebug(u'max Index: ' + unicode(breaksMaxIndex))
+    logdebug(u'----')
 
     if breaksMaxIndex > 0 and breaksCount[0] > breaksMax and averageLineLength < 90:
         body = breaksRegexp[0].sub(r'\1 \n\3', body)
@@ -193,13 +198,13 @@ def replace_br_with_p(body):
     for i in range(len(breaksCount)):
         # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
-            logger.debug(unicode(i) + u' <= breaksMaxIndex (' + unicode(breaksMaxIndex) + u')')
+            logdebug(unicode(i) + u' <= breaksMaxIndex (' + unicode(breaksMaxIndex) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
         elif i == breaksMaxIndex+1:
-            logger.debug(unicode(i) + u' == breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(unicode(i) + u' == breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
-            logger.debug(unicode(i) + u' > breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(unicode(i) + u' > breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
     body = breaksRegexp[8].sub(r'</p>\n<hr />\n<p>', body)
@@ -333,8 +338,8 @@ def tag_sanitizer(html):
         is_closed = is_closed_tag(rTag[0]) or is_comment_tag(rTag[0])
 
         # is_comment = is_comment_tag(rTag[0])
-        # logger.debug(u'%s >  isEnd: %s >  isClosed: %s >  isComment: %s'%(name, unicode(is_end), unicode(is_closed), unicode(is_comment)))
-        # logger.debug(u'> %s%s\n'%(rTag[0], rTag[1]))
+        # logdebug(u'%s >  isEnd: %s >  isClosed: %s >  isComment: %s'%(name, unicode(is_end), unicode(is_closed), unicode(is_comment)))
+        # logdebug(u'> %s%s\n'%(rTag[0], rTag[1]))
 
         if name in blockTags:
             body += rTag[0]
