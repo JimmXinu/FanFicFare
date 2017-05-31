@@ -236,6 +236,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # first navdiv only.
             threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
             ## Loop on threadmark categories.
+            threadmark_chapters=[]
             for threadmarksa in threadmarksas:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
                 ## prepend threadmark category name if not 'Threadmarks'
@@ -256,22 +257,25 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     ## SV changed their threadmarks.  Not isolated to
                     ## SV only incase SB or QQ make the same change.
                     markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
-                if len(markas) >= int(self.getConfig('minimum_threadmarks',2)):
-                    threadmark_chaps = True
-                    # remember if reader link found.
-                    self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
 
-                    if self.getConfig('always_include_first_post'):
-                        self.chapterUrls.append((first_post_title,useurl))
+                threadmark_chaps = True
+                # remember if reader link found.
+                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
 
-                    for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
-                        date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
-                        if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
-                            self.story.setMetadata('datePublished', date)
-                        if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
-                            self.story.setMetadata('dateUpdated', date)
+                if self.getConfig('always_include_first_post'):
+                    threadmark_chapters.append((first_post_title,useurl))
 
-                        self.chapterUrls.append((prepend+name,self.getURLPrefix()+'/'+url))
+                for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
+                    date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
+                    if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
+                        self.story.setMetadata('datePublished', date)
+                    if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
+                        self.story.setMetadata('dateUpdated', date)
+
+                    threadmark_chapters.append((prepend+name,self.getURLPrefix()+'/'+url))
+
+            if len(threadmark_chapters) >= int(self.getConfig('minimum_threadmarks',2)):
+                self.chapterUrls = threadmark_chapters
 
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
