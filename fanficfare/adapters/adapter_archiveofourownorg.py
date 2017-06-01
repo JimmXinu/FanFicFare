@@ -52,7 +52,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+            self._setURL('https://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -76,10 +76,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/works/123456 http://"+cls.getSiteDomain()+"/collections/Some_Archive/works/123456 http://"+cls.getSiteDomain()+"/works/123456/chapters/78901"
+        return "https://"+cls.getSiteDomain()+"/works/123456 https://"+cls.getSiteDomain()+"/collections/Some_Archive/works/123456 https://"+cls.getSiteDomain()+"/works/123456/chapters/78901"
 
     def getSiteURLPattern(self):
-        # http://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
+        # https://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
         return r"https?://(download\.)?"+re.escape(self.getSiteDomain())+r"(/collections/[^/]+)?/works/0*(?P<id>\d+)"
 
@@ -105,7 +105,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         #params['utf8'] = u'✓'#u'\x2713' # gets along with out it, and it confuses the encoder.
         params['authenticity_token'] = data.split('input name="authenticity_token" type="hidden" value="')[1].split('"')[0]
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user_sessions'
+        loginUrl = 'https://' + self.getSiteDomain() + '/user_sessions'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['user_session[login]']))
 
@@ -193,12 +193,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl','http://archiveofourown.org/')
+            self.story.setMetadata('authorUrl','https://archiveofourown.org/')
             self.story.setMetadata('authorId','0')
         else:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[-1])
-                self.story.addToList('authorUrl','http://'+self.host+a['href'])
+                self.story.addToList('authorUrl','https://'+self.host+a['href'])
                 self.story.addToList('author',a.text)
 
         byline = metasoup.find('h3',{'class':'byline'})
@@ -228,11 +228,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+chapters[0]['href']+addurl))
+            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+chapters[0]['href']))
         else:
             for index, chapter in enumerate(chapters):
                 # strip just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['href']+addurl))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['href']))
                 # (2013-09-21)
                 date = stripHTML(chapter.findNext('span'))[1:-1]
                 chapterDate = makeDate(date,self.dateformat)
@@ -341,7 +341,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if ddseries:
             for i, a in enumerate(ddseries.findAll('a', href=re.compile(r"/series/\d+"))):
                 series_name = stripHTML(a)
-                series_url = 'http://'+self.host+a['href']
+                series_url = 'https://'+self.host+a['href']
                 series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
                 self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
                 self.story.setMetadata('series%02dUrl'%i,series_url)
@@ -355,8 +355,23 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.oldchapters = self.oldchapters[:self.newestChapterNum]
         return len(self.oldchapters)
 
+    ## Normalize chapter URLs because a) site has changed from http to
+    ## https and b) in case of title change.  That way updates to
+    ## existing stories don't re-download all chapters.
+    def normalize_chapterurl(self,url):
+        url = re.sub(r"https?://("+self.getSiteDomain()+"/works/\d+/chapters/\d+)(\?view_adult=true)?$",
+                     r"https://\1",url)
+        return url
+
     # grab the text for an individual chapter.
     def getChapterTextNum(self, url, index):
+        ## FYI: Chapter urls used to include ?view_adult=true in each
+        ## one.  With cookiejar being passed now, that's not
+        ## necessary.  However, there is a corner case with plugin--If
+        ## a user-required story is attempted after gathering metadata
+        ## for one that needs adult, but not user AND the user doesn't
+        ## enter a valid user, the is_adult cookie from before can be
+        ## lost.
         logger.debug('Getting chapter text for: %s index: %s' % (url,index))
 
         save_chapter_soup = self.make_soup('<div class="story"></div>')
