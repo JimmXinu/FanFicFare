@@ -127,12 +127,13 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',title)
 
         # Find authorid and URL from... author url.
-        author = soup.find('',{'class':'mt-card-social'})
-        author_link = author.findAll('li')[-1]
+        mt_card_social = soup.find('',{'class':'mt-card-social'})
+        author_link = mt_card_social('a')[-1]
         if author_link:
-            authorId = author_link.a['href'].split('=')[-1]
+            authorId = author_link['href'].rsplit('/', 1)[1]
             self.story.setMetadata('authorId', authorId)
-            self.story.setMetadata('authorUrl','http://'+self.host+'/member.php?action=profile&uid='+authorId)
+            self.story.setMetadata('authorUrl','http://'+self.host+'/user/profile/'+authorId)
+
         self.story.setMetadata('author',soup.find(attrs=dict(property="books:author"))['content'])
 
 
