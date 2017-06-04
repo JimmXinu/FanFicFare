@@ -62,7 +62,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         # get storyId from url--url validation guarantees query is only fiction/1234
-        self.story.setMetadata('storyId',re.match('/fiction/(\d+)(:/.+)?$',self.parsedUrl.path).groups()[0])
+        self.story.setMetadata('storyId',re.match('/fiction/(\d+)(/.*)?$',self.parsedUrl.path).groups()[0])
 
 
         # normalized story URL.
@@ -94,7 +94,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         return "https://royalroadl.com/fiction/3056"
 
     def getSiteURLPattern(self):
-        return "https?"+re.escape("://")+r"(www\.|)royalroadl\.com/fiction/\d+$"
+        return "https?"+re.escape("://")+r"(www\.|)royalroadl\.com/fiction/\d+(/.*)?$"
 
     def use_pagecache(self):
         '''
@@ -123,16 +123,17 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
 
         ## Title
-        title=soup.h2.text
+        title = soup.select_one('.fic-header h1[property=name]').text
         self.story.setMetadata('title',title)
 
         # Find authorid and URL from... author url.
-        author = soup.find('',{'class':'mt-card-social'})
-        author_link = author.findAll('li')[-1]
+        mt_card_social = soup.find('',{'class':'mt-card-social'})
+        author_link = mt_card_social('a')[-1]
         if author_link:
-            authorId = author_link.a['href'].split('=')[-1]
+            authorId = author_link['href'].rsplit('/', 1)[1]
             self.story.setMetadata('authorId', authorId)
-            self.story.setMetadata('authorUrl','http://'+self.host+'/member.php?action=profile&uid='+authorId)
+            self.story.setMetadata('authorUrl','http://'+self.host+'/user/profile/'+authorId)
+
         self.story.setMetadata('author',soup.find(attrs=dict(property="books:author"))['content'])
 
 
@@ -152,7 +153,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', self.make_date(dates[-1]))
         self.story.setMetadata('datePublished', self.make_date(dates[0]))
 
-        genre=[tag.text for tag in soup.find('input',{'property':'genre'}).parent.findChildren('span')]
+        genre=[tag.text for tag in soup.find('span',{'property':'genre'}).parent.findChildren('span')]
         if not "Unspecified" in genre:
             for tag in genre:
                 self.story.addToList('genre',tag)
