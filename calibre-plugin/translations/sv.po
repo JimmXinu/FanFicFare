@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-06-01 01:14+0000\n"
+"PO-Revision-Date: 2017-06-04 08:06+0000\n"
 "Last-Translator: Jonatan Nyberg\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -207,7 +207,7 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr ""
+msgstr "Befintliga etiketter sparas och nya etiketter läggs till\n%(cmplt)s och %(inprog)s etiketter kommer fortfarande att uppdateras, om kända.\n%(lul)s-etiketter kommer att uppdateras om %(lus)s i %(is)s.\n(Om etiketter är inställda på \"Endast nya\" i fliken Standardkolumner har detta ingen effekt.)"
 
 #: config.py:468
 msgid "Force Author into Author Sort?"
@@ -217,7 +217,7 @@ msgstr "Tvingar författare in i författarsortering?"
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr ""
+msgstr "Om den är markerad, kommer författar(en/na) att användas för författarsortering, också.\nOm inte markerad, kommer calibre att tillämpa dess inbyggd i algoritmen vilket gör att \"Bob Smith\" sorteras som \"Smith, Bob\" o.s.v."
 
 #: config.py:473
 msgid "Force Title into Title Sort?"
@@ -231,7 +231,7 @@ msgstr ""
 
 #: config.py:478
 msgid "Check for existing Series Anthology books?"
-msgstr ""
+msgstr "Sök efter existerande serier antologi böcker?"
 
 #: config.py:479
 msgid ""
