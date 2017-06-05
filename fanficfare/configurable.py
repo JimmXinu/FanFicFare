@@ -439,6 +439,7 @@ def get_valid_keywords():
                  'remove_spoilers',
                  'legend_spoilers',
                  'apocrypha_to_omake',
+                 'skip_threadmarks_categories',
                  'normalize_text_links',
                  'internalize_text_links',
                  ])

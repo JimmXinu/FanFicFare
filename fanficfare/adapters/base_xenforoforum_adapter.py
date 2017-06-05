@@ -243,6 +243,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 prepend = ""
                 tmcat_name = stripHTML(threadmarksa)
 
+                if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                    continue
+
                 if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                     tmcat_name = 'Omake'
 
