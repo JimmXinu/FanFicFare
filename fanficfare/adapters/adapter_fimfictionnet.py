@@ -16,8 +16,7 @@
 #
 
 import time
-from datetime import date
-from datetime import timedelta
+from datetime import date, datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
@@ -131,11 +130,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(title))
 
         # Author
-        author = storyContentBox.find('div', {'class':'author'}).find('a')
+        author = soup.find('div', {'class':'info-container'}).find('a')
         self.story.setMetadata("author", stripHTML(author))
-        #No longer seems to be a way to access Fimfiction's internal author ID
-        self.story.setMetadata("authorId", self.story.getMetadata("author"))
-        self.story.setMetadata("authorUrl", "https://%s/user/%s" % (self.getSiteDomain(), stripHTML(author)))
+        # /user/288866/Stryker-Shadowpony-Blade
+        self.story.setMetadata("authorId", author['href'].split('/')[2])
+        self.story.setMetadata("authorUrl", "https://%s/user/%s/%s" % (self.getSiteDomain(),
+                                                                       self.story.getMetadata('authorId'),
+                                                                       self.story.getMetadata('author')))
 
         #Rating text is replaced with full words for historical compatibility after the site changed
         #on 2014-10-27
@@ -144,7 +145,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("rating", rating)
 
         # Chapters
-        for chapter in storyContentBox.find_all('a',{'class':'chapter_link'}):
+        for chapter in soup.find('ul',{'class':'chapters'}).find_all('a',{'href':re.compile(r'.*/story/'+self.story.getMetadata('storyId')+r'/.*')}):
             self.chapterUrls.append((stripHTML(chapter), 'https://'+self.host+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
@@ -158,51 +159,51 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         status = status.replace("Incomplete", "In-Progress").replace("Complete", "Completed")
         self.story.setMetadata("status", status)
 
-        # Genres and Warnings
-        # warnings were folded into general categories in the 2014-10-27 site update
-        categories = storyContentBox.find_all('a', {'class':re.compile(r'.*\bstory_category\b.*')})
-        for category in categories:
-            category = stripHTML(category)
-            if category == "Gore" or category == "Sex":
-                self.story.addToList('warnings', category)
-            else:
-                self.story.addToList('genre', category)
-
         # Word count
-        wordCountText = stripHTML(storyContentBox.find('li', {'class':'bottom'}).find('div', {'class':'word_count'}))
+        wordCountText = stripHTML(storyContentBox.find('div', {'class':'chapters-footer'}).find('div', {'class':'word_count'}))
         self.story.setMetadata("numWords", re.sub(r'[^0-9]', '', wordCountText))
 
         # Cover image
-        storyImage = storyContentBox.find('div', {'class':'story_image'})
-        if storyImage:
-            coverurl = storyImage.find('a')['href']
-            if coverurl.startswith('//'): # fix for img urls missing 'https:'
-                coverurl = "https:"+coverurl
-            if get_cover:
-                # try setting from href, if fails, try using the img src
+        if get_cover:
+            storyImage = storyContentBox.find('img', {'class':'lazy-img'})
+            if storyImage:
+                coverurl = storyImage['data-fullsize']
+                # try setting from data-fullsize, if fails, try using data-src
                 if self.setCoverImage(self.url,coverurl)[0] == "failedtoload":
-                    img = storyImage.find('img')
-                    # try src, then data-src, then leave None.
-                    coverurl = img.get('src',img.get('data-src',None))
-                    if coverurl:
-                        self.setCoverImage(self.url,coverurl)
+                    coverurl = storyImage['data-src']
+                    self.setCoverImage(self.url,coverurl)
 
-            coverSource = storyImage.find('a', {'class':'source'})
-            if coverSource:
-                self.story.setMetadata('coverSourceUrl', coverSource['href'])
-                #There's no text associated with the cover source link, so just
-                #reuse the URL. Makes it clear it's an external link leading
-                #outside of the fanfic site, at least.
-                self.story.setMetadata('coverSource', coverSource['href'])
+                coverSource = storyImage.parent.find('a', {'class':'source'})
+                if coverSource:
+                    self.story.setMetadata('coverSourceUrl', coverSource['href'])
+                    # There's no text associated with the cover source
+                    # link, so just reuse the URL. Makes it clear it's
+                    # an external link leading outside of the fanfic
+                    # site, at least.
+                    self.story.setMetadata('coverSource', coverSource['href'])
 
         # fimf has started including extra stuff inside the description div.
-        descdivstr = u"%s"%storyContentBox.find("div", {"class":"description"})
-        hrstr=u"<hr/>"
-        descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+        # specifically, the prequel link
+        description = storyContentBox.find("span", {"class":"description-text"})
+        description.name='div' # change to div, technically, spans
+                               # aren't supposed to contain <p>'s.
+        descdivstr = u"%s"%description # string, but not stripHTML'ed
+        #The link to the prequel is embedded in the description text, so erring
+        #on the side of caution and wrapping this whole thing in a try block.
+        #If anything goes wrong this probably wasn't a valid prequel link.
+        try:
+            if "This story is a sequel to" in stripHTML(description):
+                link = description.find('a') # assume first link.
+                self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
+                self.story.setMetadata("prequel", stripHTML(link))
+                hrstr=u"<hr/>"
+                descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+        except:
+            logger.info("Prequel parsing failed...")
         self.setDescription(self.url,descdivstr)
 
         # Find the newest and oldest chapter dates
-        storyData = storyContentBox.find('div', {'class':'story_data'})
+        storyData = storyContentBox.find('ul', {'class':'chapters'})
         oldestChapter = None
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
@@ -244,12 +245,19 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata("datePublished", pubDate)
 
         # Characters
-        chars = storyContentBox.find("div", {"class":"extra_story_data"})
-        for character in chars.find_all("a", {"class":"character_icon"}):
-            self.story.addToList("characters", character['title'])
+        tags = storyContentBox.find("ul", {"class":"story-tags"})
+        for character in tags.find_all("a", {"class":"tag-character"}):
+            self.story.addToList("characters", stripHTML(character))
+        for genre in tags.find_all("a", {"class":"tag-genre"}):
+            self.story.addToList("genre", stripHTML(genre))
+        # only two warnings I've seen, each with their own class(and color)
+        for gore in tags.find_all("a", {"class":"tag-gore"}):
+            self.story.addToList("warnings", stripHTML(gore))
+        for sex in tags.find_all("a", {"class":"tag-sex"}):
+            self.story.addToList("warnings", stripHTML(sex))
 
         # Likes and dislikes
-        storyToolbar = soup.find('div', {'class':'story-toolbar'})
+        storyToolbar = soup.find('div', {'class':'story-top-toolbar'})
         likes = storyToolbar.find('span', {'class':'likes'})
         if not likes is None:
             self.story.setMetadata("likes", stripHTML(likes))
@@ -293,36 +301,20 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                     self.story.addToList("sequels", stripHTML(sequel).replace(',', ';'))
 
         #author last login
-        userPageHeader = soup.find('div', {'class':re.compile(r'\buser-page-header\b')})
+        userPageHeader = soup.find('div', {'class':'user-page-header'})
         if not userPageHeader == None:
-            infoContainer = userPageHeader.find('div', {'class':re.compile(r'\binfo-container\b')})
+            infoContainer = userPageHeader.find('ul', {'class':'mini-info-box'})
             listItems = infoContainer.find_all('li')
             lastLoginString = stripHTML(listItems[1])
             lastLogin = None
             if "online" in lastLoginString:
                 lastLogin = date.today()
             elif "offline" in lastLoginString:
-                #this regex extracts the number of weeks and the number of days from the last login string.
-                #durations under a day are ignored.
-                #group 1 is weeks, group 2 is days
-                durationGroups = re.match(r"(?:[^0-9]*(\d+?)w)?[^0-9]*(?:(\d+?)d)?", lastLoginString)
-                lastLogin = date.today() - timedelta(days=int(durationGroups.group(2) or 0), weeks=int(durationGroups.group(1) or 0))
+                span = listItems[1].find('span',{'data-time':re.compile(r'^\d+$')})
+                ## <span data-time="1435421997" title="Saturday 27th of June 2015 @4:19pm">Jun 27th, 2015</span>
+                ## No timezone adjustment is done.
+                lastLogin = datetime.fromtimestamp(float(span['data-time']))
             self.story.setMetadata("authorLastLogin", lastLogin)
-
-        #The link to the prequel is embedded in the description text, so erring
-        #on the side of caution and wrapping this whole thing in a try block.
-        #If anything goes wrong this probably wasn't a valid prequel link.
-        try:
-            description = soup.find('div', {'class':'description'})
-            firstHR = description.find("hr")
-            nextSib = firstHR.nextSibling
-            if "This story is a sequel to" in nextSib.string:
-                link = nextSib.nextSibling
-                if link.name == "a":
-                    self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
-                    self.story.setMetadata("prequel", stripHTML(link))
-        except:
-            pass
 
     def ordinal_date_string_to_date(self, datestring):
         datestripped=re.sub(r"(\d+)(st|nd|rd|th)", r"\1", datestring.strip())
@@ -359,7 +351,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         data = self.do_fix_blockquotes(data)
 
-        soup = self.make_soup(data).find('div', {'class' : 'chapter_content'})
+        soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})
         if soup == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
