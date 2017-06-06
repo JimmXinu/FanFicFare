@@ -41,7 +41,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        logger.debug("AdultFanFictionOrgAdapter.__init__ - url='{0}'".format(url))
+        # logger.debug("AdultFanFictionOrgAdapter.__init__ - url='{0}'".format(url))
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""

@@ -282,7 +282,7 @@ def _get_class_for(url):
         fixedurl = "http:%s"%url
     if not fixedurl.startswith("http"):
         fixedurl = "http://%s"%url
-        
+
     ## remove any trailing '#' locations, except for #post-12345 for
     ## XenForo
     if not "#post-" in fixedurl:
@@ -307,14 +307,15 @@ def _get_class_for(url):
         fixedurl = re.sub(r"^http(s?)://",r"http\1://www.",fixedurl)
 
     cls = None
-    if len(clslst) == 1:
-        cls = clslst[0]
-    elif len(clslst) > 1:
-        for c in clslst:
-            if c.getSiteURLFragment() in fixedurl:
-                cls = c
-                break
-        
+    if clslst:
+        if len(clslst) == 1:
+            cls = clslst[0]
+        elif len(clslst) > 1:
+            for c in clslst:
+                if c.getSiteURLFragment() in fixedurl:
+                    cls = c
+                    break
+
     if cls:
         fixedurl = cls.stripURLParameters(fixedurl)
 
