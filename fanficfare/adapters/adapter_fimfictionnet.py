@@ -279,7 +279,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("short_description", stripHTML(descriptionMeta['content']))
 
         #groups
-        if soup.find('button', {'id':'button-view-all-groups'}):
+        groupDiv = soup.find('div', {'class':'groups'})
+        if groupDiv != None and groupDiv.find('div').find('button'):
             groupResponse = self._fetchUrl("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
             groupList = self.make_soup(groupData["content"])
