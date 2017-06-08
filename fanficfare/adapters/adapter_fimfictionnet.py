@@ -279,7 +279,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("short_description", stripHTML(descriptionMeta['content']))
 
         #groups
-        if soup.find('button', {'id':'button-view-all-groups'}):
+        groupDiv = soup.find('div', {'class':'groups'})
+        if groupDiv != None and groupDiv.find('div').find('button'):
             groupResponse = self._fetchUrl("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
             groupList = self.make_soup(groupData["content"])
@@ -313,7 +314,14 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 span = listItems[1].find('span',{'data-time':re.compile(r'^\d+$')})
                 ## <span data-time="1435421997" title="Saturday 27th of June 2015 @4:19pm">Jun 27th, 2015</span>
                 ## No timezone adjustment is done.
-                lastLogin = datetime.fromtimestamp(float(span['data-time']))
+                if span != None:
+                    lastLogin = datetime.fromtimestamp(float(span['data-time']))
+                ## Sometimes, for reasons that are unclear, data-time is not present. Parse the date out of the title instead.
+                else:
+                    span = listItems[1].find('span', title=True)
+                    loginRegex = re.search('([a-zA-Z ]+)([0-9]+)(th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
+                    loginString = loginRegex.group(2) + loginRegex.group(4)
+                    lastLogin = datetime.strptime(loginString, "%d %B %Y")
             self.story.setMetadata("authorLastLogin", lastLogin)
 
     def ordinal_date_string_to_date(self, datestring):
