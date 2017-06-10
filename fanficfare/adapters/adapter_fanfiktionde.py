@@ -48,7 +48,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId') + '/1')
+        self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId') + '/1')
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ffde')
@@ -64,10 +64,10 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050 http://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050/1 http://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050/1/story-name"
+        return "https://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050 https://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050/1 https://"+cls.getSiteDomain()+"/s/46ccbef30000616306614050/1/story-name"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
 
     def use_pagecache(self):
         '''
@@ -146,12 +146,12 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         head = soup.find('div', {'class' : 'story-left'})
         a = head.find('a')
         self.story.setMetadata('authorId',a['href'].split('/')[2])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.find('select').findAll('option'):
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('language','German')
@@ -169,7 +169,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         #find metadata on the author's page
-        asoup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
+        asoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
         tr=asoup.findAll('tr')
         for i in range(1,len(tr)):
             a = tr[i].find('a')
