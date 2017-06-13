@@ -21,6 +21,7 @@
 import logging
 import re
 import urllib2
+import json
 from datetime import datetime, timedelta
 
 from base_adapter import BaseSiteAdapter
@@ -43,7 +44,17 @@ def _parse_relative_date_string(string_):
         'minute(s)': 'minutes',
         'hour(s)': 'hours',
         'day(s)': 'days',
-        'week(s)': 'weeks'
+        'week(s)': 'weeks',
+        'seconds': 'seconds',
+        'minutes': 'minutes',
+        'hours': 'hours',
+        'days': 'days',
+        'weeks': 'weeks',
+        'second': 'seconds',
+        'minute': 'minutes',
+        'hour': 'hours',
+        'day': 'days',
+        'week': 'weeks',
     }
 
     value, unit_string, rest = string_.split()
@@ -123,8 +134,11 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         bookdetails = soup.find('div', {'class': 'g_col_8'})
 
         # Title
-        a = bookdetails.find('h2', {'class': 'lh1d2'})
-        self.story.setMetadata('title', stripHTML(a))
+        title = bookdetails.find('h2', {'class': 'lh1d2'})
+        # done as a loop incase there isn't one, or more than one.
+        for tag in title.find_all('small'):
+            tag.extract()
+        self.story.setMetadata('title', stripHTML(title))
 
         # Find authorid and URL from... author url.
         paras = bookdetails.find_all('p')
@@ -144,12 +158,18 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         category = stripHTML(paras[0].strong).strip()
         self.story.setMetadata('category', category)
 
-        # Getting the ChapterUrls
-        chaps = soup.find('div', {'id': 'contentsModal'}).find_all('a')
-        for chap in chaps:
-            # capitalize to change leading 'chapter' to 'Chapter'.
-            chap_title = stripHTML(chap).capitalize()
-            chap_Url = 'https:' + chap['href']
+        ## get _csrfToken cookie for chapter list fetch
+        csrfToken = None
+        for cookie in self.get_configuration().get_cookiejar():
+            if cookie.name == '_csrfToken':
+                csrfToken = cookie.value
+                break
+
+        ## get chapters from a json API url.
+        jsondata = json.loads(self._fetchUrl("https://"+self.getSiteDomain()+"/apiajax/chapter/GetChapterList?_csrfToken="+csrfToken+"&bookId="+self.story.getMetadata('storyId')))
+        for chap in jsondata["data"]["chapterItems"]:
+            chap_title = 'Chapter ' + unicode(chap['chapterIndex']) + ' - ' + chap['chapterName']
+            chap_Url = url + '/' + chap['chapterId']
             self.chapterUrls.append((chap_title, chap_Url))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
@@ -182,7 +202,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         if story is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
-        for tag in story.find_all('form'):
+        for tag in story.find_all('form') + story.find_all('div',{'class':'cha-bts'}):
             tag.extract()
 
         return self.utf8FromSoup(url, story)
