@@ -66,7 +66,7 @@ try:
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
 
         if normalize_format_name(img.format)=="gif" and GifInfo(StringIO(data),CHECK_IS_ANIMATED).frameCount > 1:
-            raise exceptions.RejectImage("Animated gifs come out purely--not going to use it.")
+            raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
 
         if scaled:
             img.size = (nwidth, nheight)
