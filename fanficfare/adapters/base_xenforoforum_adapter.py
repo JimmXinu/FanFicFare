@@ -239,21 +239,23 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             ## Loop on threadmark categories.
             threadmark_chapters=[]
+            tmcat_num=None
             for threadmarksa in threadmarksas:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
-                tmcat_num = threadmarksa['href'].split('category_id=')[1]
-                ## prepend threadmark category name if not 'Threadmarks'
                 prepend = ""
-                tmcat_name = stripHTML(threadmarksa)
+                if 'category_id' in threadmarksa['href']: ## QQ doesn't have threadmark categories yet.
+                    tmcat_num = threadmarksa['href'].split('category_id=')[1]
+                    ## prepend threadmark category name if not 'Threadmarks'
+                    tmcat_name = stripHTML(threadmarksa)
 
-                if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
-                    continue
+                    if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                        continue
 
-                if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
-                    tmcat_name = 'Omake'
+                    if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
+                        tmcat_name = 'Omake'
 
-                if tmcat_name != "Threadmarks":
-                    prepend = tmcat_name+" - "
+                    if tmcat_name != "Threadmarks":
+                        prepend = tmcat_name+" - "
 
                 markas = []
                 ol = soupmarks.find('ol',{'class':'overlayScroll'})
@@ -272,7 +274,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     threadmark_chapters.append((first_post_title,useurl))
 
                 for (tmcat_index,atag,url,name) in [ (i,x,x['href'],stripHTML(x)) for i,x in enumerate(markas) ]:
-                    self.threadmarks_for_reader[self.normalize_chapterurl(url)] = (tmcat_num,tmcat_index)
+                    if self.reader and tmcat_num:
+                        ## SV & SB have both Reader mode and TM
+                        ## categories.  QQ has neither.  I assume if
+                        ## it gets one in future, it will get both.
+                        self.threadmarks_for_reader[self.normalize_chapterurl(url)] = (tmcat_num,tmcat_index)
                     date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                     if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
                         self.story.setMetadata('datePublished', date)
