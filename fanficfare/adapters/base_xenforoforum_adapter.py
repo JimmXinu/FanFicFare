@@ -34,6 +34,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # save for reader processing.
         self.reader = False
         self.post_cache = {}
+        self.threadmarks_for_reader = {}
 
         #logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
@@ -235,10 +236,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # try threadmarks if no '#' in , require at least 2.
             navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # first navdiv only.
             threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+
             ## Loop on threadmark categories.
             threadmark_chapters=[]
             for threadmarksa in threadmarksas:
                 soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
+                tmcat_num = threadmarksa['href'].split('category_id=')[1]
                 ## prepend threadmark category name if not 'Threadmarks'
                 prepend = ""
                 tmcat_name = stripHTML(threadmarksa)
@@ -268,7 +271,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if self.getConfig('always_include_first_post'):
                     threadmark_chapters.append((first_post_title,useurl))
 
-                for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
+                for (tmcat_index,atag,url,name) in [ (i,x,x['href'],stripHTML(x)) for i,x in enumerate(markas) ]:
+                    self.threadmarks_for_reader[self.normalize_chapterurl(url)] = (tmcat_num,tmcat_index)
                     date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                     if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
                         self.story.setMetadata('datePublished', date)
@@ -409,9 +413,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 souptag = self.get_cache_post(url)
 
                 if not souptag:
-                    reader_page_num = int((index+posts_per_page)/posts_per_page) + offset
+                    (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
+                    reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
                     logger.debug('Reader page offset:%s'%offset)
-                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/reader?page='+unicode(reader_page_num)
+                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
                     logger.debug("Fetch reader URL to: %s"%reader_url)
                     data = self._fetchUrl(reader_url)
                     topsoup = self.make_soup(data)
@@ -425,6 +430,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     anchorid = "post-"+url.split('/')[-2]
                     logger.debug("anchorid: %s"%anchorid)
                     souptag = topsoup.find('li',id=anchorid)
+                else:
+                    logger.debug("post found in cache")
                 if souptag:
                     break
 

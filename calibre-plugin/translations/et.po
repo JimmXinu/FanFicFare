@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-05-10 02:26+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2017-06-12 15:10+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -258,13 +258,13 @@ msgstr "Hoiata, kui uuendamine muudab olemasoleva raamatu URLi.\nSaidi fanfictio
 
 #: config.py:496
 msgid "Search inside ebooks for Story URL?"
-msgstr ""
+msgstr "Otsi e-raamatutest jutu URLi?"
 
 #: config.py:497
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr ""
+msgstr "Otsi formaadis EPUB, ZIP(HTML) või TXT e-raamatutest esimest korrektset jutu URLi, kui seda metaandmetest ei leitud.\nMingil määral riskantne, sõltuvalt e-raamatu sisust võib leida vale URLi."
 
 #: config.py:501
 msgid "Post Processing Options"
