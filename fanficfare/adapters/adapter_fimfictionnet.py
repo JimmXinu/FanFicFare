@@ -231,7 +231,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Date published
         # falls back to oldest chapter date for stories that haven't been officially published yet
-        pubdatetag = storyContentBox.find('span', {'class':'date_approved'})
+        pubdatetag = storyContentBox.find('span', {'class':'approved-date'})
         if pubdatetag is None:
             if oldestChapter is None:
                 #this will only be true when updating metadata for stories that have 0 chapters
@@ -241,7 +241,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata("datePublished", oldestChapter)
         else:
-            pubDate = self.ordinal_date_string_to_date(pubdatetag('span')[1].text)
+            pubDate = self.date_span_tag_to_date(pubdatetag)
             self.story.setMetadata("datePublished", pubDate)
 
         # Characters
@@ -311,18 +311,21 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             if "online" in lastLoginString:
                 lastLogin = date.today()
             elif "offline" in lastLoginString:
-                span = listItems[1].find('span',{'data-time':re.compile(r'^\d+$')})
-                ## <span data-time="1435421997" title="Saturday 27th of June 2015 @4:19pm">Jun 27th, 2015</span>
-                ## No timezone adjustment is done.
-                if span != None:
-                    lastLogin = datetime.fromtimestamp(float(span['data-time']))
-                ## Sometimes, for reasons that are unclear, data-time is not present. Parse the date out of the title instead.
-                else:
-                    span = listItems[1].find('span', title=True)
-                    loginRegex = re.search('([a-zA-Z ]+)([0-9]+)(th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
-                    loginString = loginRegex.group(2) + loginRegex.group(4)
-                    lastLogin = datetime.strptime(loginString, "%d %B %Y")
+                lastLogin = self.date_span_tag_to_date(listItems[1])
             self.story.setMetadata("authorLastLogin", lastLogin)
+
+    def date_span_tag_to_date(self, containingtag):
+        ## <span data-time="1435421997" title="Saturday 27th of June 2015 @4:19pm">Jun 27th, 2015</span>
+        ## No timezone adjustment is done.
+        span = containingtag.find('span',{'data-time':re.compile(r'^\d+$')})
+        if span != None:
+            return datetime.fromtimestamp(float(span['data-time']))
+        ## Sometimes, for reasons that are unclear, data-time is not present. Parse the date out of the title instead.
+        else:
+            span = containingtag.find('span', title=True)
+            dateRegex = re.search('([a-zA-Z ]+)([0-9]+)(th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
+            dateString = dateRegex.group(2) + dateRegex.group(4)
+            return datetime.strptime(dateString, "%d %B %Y")
 
     def ordinal_date_string_to_date(self, datestring):
         datestripped=re.sub(r"(\d+)(st|nd|rd|th)", r"\1", datestring.strip())
