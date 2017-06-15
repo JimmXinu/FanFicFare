@@ -196,8 +196,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 link = description.find('a') # assume first link.
                 self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
                 self.story.setMetadata("prequel", stripHTML(link))
-                hrstr=u"<hr/>"
-                descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+                if not self.getConfig('keep_prequel_in_description',False):
+                    hrstr=u"<hr/>"
+                    descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         except:
             logger.info("Prequel parsing failed...")
         self.setDescription(self.url,descdivstr)
