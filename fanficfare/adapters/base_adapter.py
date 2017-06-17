@@ -479,10 +479,10 @@ def makeDate(string,dateform):
     # just saving bytes.
 
     # fudge english month names for people who's locale is set to
-    # non-english.  All our current sites date in english, even if
-    # there's non-english content. -- ficbook.net now makes that a
-    # lie.  It has to do something even more complicated to get
-    # Russian month names correct everywhere.
+    # non-USenglish.  Most current sites date in english, even if
+    # there's non-english content -- ficbook.net, OTOH, has to do
+    # something even more complicated to get Russian month names
+    # correct everywhere.
     do_abbrev = "%b" in dateform
 
     if u"%B" in dateform or do_abbrev:
