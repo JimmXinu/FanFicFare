@@ -128,6 +128,9 @@ def main(argv=None,
     parser.add_option('-s', '--sites-list',
                       action='store_true', dest='siteslist', default=False,
                       help='Get list of valid story URLs examples.', )
+    parser.add_option('--non-interactive',
+                      action='store_false', dest='interactive', default=sys.stdin.isatty() and sys.stdout.isatty(),
+                      help='Prevent interactive prompts (for scripting).', )
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
                       help='Show debug and notice output.', )
@@ -320,8 +323,12 @@ def do_download(arg,
                         logging.debug('Using PIL')
                     except ImportError:
                         print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
-                        if not sys.stdin.readline().strip().lower().startswith('y'):
-                            return
+                        if options.interactive:
+                            if not sys.stdin.readline().strip().lower().startswith('y'):
+                                return
+                        else:
+                            # for non-interactive, default the response to yes and continue processing
+                            print 'y'
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
@@ -329,6 +336,9 @@ def do_download(arg,
             try:
                 adapter.getStoryMetadataOnly()
             except exceptions.FailedToLogin, f:
+                if not options.interactive:
+                    print 'Login Failed on non-interactive process. Set username and password in personal.ini.'
+                    return
                 if f.passwdonly:
                     print 'Story requires a password.'
                 else:
@@ -338,9 +348,13 @@ def do_download(arg,
                 adapter.password = getpass.getpass(prompt='Password: ')
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
             except exceptions.AdultCheckRequired:
-                print 'Please confirm you are an adult in your locale: (y/n)?'
-                if sys.stdin.readline().strip().lower().startswith('y'):
-                    adapter.is_adult = True
+                if options.interactive:
+                    print 'Please confirm you are an adult in your locale: (y/n)?'
+                    if sys.stdin.readline().strip().lower().startswith('y'):
+                        adapter.is_adult = True
+                else:
+                    print 'Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o is_adult:true to the command.'
+                    return
 
         if options.update and not options.force:
             urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
