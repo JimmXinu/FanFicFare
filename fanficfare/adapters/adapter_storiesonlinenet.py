@@ -237,7 +237,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 series_soup = self.make_soup(self._fetchUrl(seriesUrl))
                 if series_soup:
                     # logger.debug("Retrieving Series - looking for name")
-                    series_name = stripHTML(series_soup.find('span', {'id' : 'ptitle'}))
+                    series_name = stripHTML(series_soup.find('h1', {'id' : 'ptitle'}))
                     series_name = re.sub(r' . a series by.*$','',series_name)
                     # logger.debug("Series name: '%s'" % series_name)
                 self.setSeries(series_name, i)
