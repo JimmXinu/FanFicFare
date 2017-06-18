@@ -2365,10 +2365,10 @@ class FanFicFarePlugin(InterfaceAction):
         uniqueurls = set()
         for i, url in enumerate(urls):
             book = self.convert_url_to_book(url)
-            if book['url'] in uniqueurls:
+            if book['uniqueurl'] in uniqueurls:
                 book['good'] = False
                 book['comment'] = _("Same story already included.")
-            uniqueurls.add(book['url'])
+            uniqueurls.add(book['uniqueurl'])
             book['listorder']=i # BG d/l jobs don't come back in order.
                                 # Didn't matter until anthologies & 'marked' successes
             books.append(book)
@@ -2385,7 +2385,9 @@ class FanFicFarePlugin(InterfaceAction):
         if book['begin'] and not mc.group('comma'):
             book['end'] = book['begin']
 
-        self.set_book_url_and_comment(book,url)
+        self.set_book_url_and_comment(book,url) # normalizes book[url]
+        # for case of trying to download book by sections. url[1-5], url[6-10], etc.
+        book['uniqueurl']="%s[%s-%s]"%(book['url'],book['begin'],book['end'])
         return book
 
     # basic book, plus calibre_id.  Assumed bad until proven
