@@ -154,9 +154,9 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
             elif parat[:7] == 'Editor:':
                 self.story.setMetadata('editor', parat.replace('Editor:', '').strip())
-
-        category = stripHTML(paras[0].strong).strip()
-        self.story.setMetadata('category', category)
+            elif '_tags' in para.get('class', []):
+                category = stripHTML(para.strong).strip()
+                self.story.setMetadata('category', category)
 
         ## get _csrfToken cookie for chapter list fetch
         csrfToken = None
