@@ -43,6 +43,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        # FYI, not the only format used in this file.
         self.dateformat = "%d %b %Y"
 
     @staticmethod
@@ -196,8 +197,9 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 link = description.find('a') # assume first link.
                 self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
                 self.story.setMetadata("prequel", stripHTML(link))
-                hrstr=u"<hr/>"
-                descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+                if not self.getConfig('keep_prequel_in_description',False):
+                    hrstr=u"<hr/>"
+                    descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         except:
             logger.info("Prequel parsing failed...")
         self.setDescription(self.url,descdivstr)
@@ -325,7 +327,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             span = containingtag.find('span', title=True)
             dateRegex = re.search('([a-zA-Z ]+)([0-9]+)(th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
             dateString = dateRegex.group(2) + dateRegex.group(4)
-            return datetime.strptime(dateString, "%d %B %Y")
+            return makeDate(dateString, "%d %B %Y")
 
     def ordinal_date_string_to_date(self, datestring):
         datestripped=re.sub(r"(\d+)(st|nd|rd|th)", r"\1", datestring.strip())
