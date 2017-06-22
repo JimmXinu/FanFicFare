@@ -44,3 +44,14 @@ class FineStoriesComAdapter(StoriesOnlineNetAdapter):
             return True
         else:
             return False
+
+    def getStoryMetadataFromAuthorPage(self):
+        # surprisingly, the detailed page does not give enough details, so go to author's page
+        story_row = self.findStoryRow('div')
+
+        description_element = story_row.find('div', {'class' : 'sdesc'})
+
+        self.parseDescriptionField(description_element)
+
+        misc_element = story_row.find('div', {'class' : 'misc'})
+        self.parseOtherAttributes(misc_element)
