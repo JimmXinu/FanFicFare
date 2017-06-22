@@ -325,7 +325,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         ## Sometimes, for reasons that are unclear, data-time is not present. Parse the date out of the title instead.
         else:
             span = containingtag.find('span', title=True)
-            dateRegex = re.search('([a-zA-Z ]+)([0-9]+)(th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
+            dateRegex = re.search('([a-zA-Z ]+)([0-9]+)(st of|th of|nd of|rd of)([a-zA-Z ]+[0-9]+)', span['title'])
             dateString = dateRegex.group(2) + dateRegex.group(4)
             return makeDate(dateString, "%d %B %Y")
 
