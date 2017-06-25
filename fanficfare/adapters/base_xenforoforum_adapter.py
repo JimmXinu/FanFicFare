@@ -234,7 +234,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             souptag = souptag.find('li',id=anchorid)
         else:
             # try threadmarks if no '#' in , require at least 2.
-            navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # first navdiv only.
+            navdiv = souptag.find('div',{'class':'threadmarkMenus'}) # SB/SV
+            if not navdiv:
+                navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # QQ first navdiv only.
             threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
 
             ## Loop on threadmark categories.
