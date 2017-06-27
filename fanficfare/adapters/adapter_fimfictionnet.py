@@ -364,8 +364,15 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         data = self.do_fix_blockquotes(data)
 
-        soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})
-        if soup == None:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
+        if self.getConfig("include_author_notes",True):
+            soup = self.make_soup(data).find_all('div', {'class':re.compile(r'(.*\bauthors-note\b.*|.*\bchapter-body\b.*)')})
+            if soup == None:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            chapter_divs = [unicode(div) for div in soup]
+            soup = self.make_soup(" ".join(chapter_divs))
+        else:
+            soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})
+            if soup == None:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        
         return self.utf8FromSoup(url,soup)
