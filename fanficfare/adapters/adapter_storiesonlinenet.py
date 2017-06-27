@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import time
 import logging
 logger = logging.getLogger(__name__)
 import re
@@ -191,39 +190,93 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
+        self.getStoryMetadataFromAuthorPage()
+
+        # Some books have a cover in the index page.
+        # Samples are:
+        #     http://storiesonline.net/s/11999
+        #     http://storiesonline.net/s/10823
+        if get_cover:
+            # logger.debug("Looking for the cover image...")
+            cover_url = ""
+            img = soup.find('img')
+            if img:
+                cover_url=img['src']
+            # logger.debug("cover_url: %s"%cover_url)
+            if cover_url:
+                self.setCoverImage(url,cover_url)
+
+        # Remove all the metadata elements to leave and preamble text. This is usually 
+        # a notice or a forward.
+        if len(self.chapterUrls) > 1:
+            header = soup.find('header')
+            header.extract()
+        else:
+            soup = soup.find('header')
+        # Remove some tags based on their class or id
+        elements_to_remove = ['#det-link', '#s-details', '#index-list', '#s-title', '#s-auth', '.copy']
+        if not self.getConfig('include_images'):
+            elements_to_remove.append('img')
+        for element_name in elements_to_remove:
+            elements = soup.select(element_name)
+            for element in elements:
+                element.extract()
+        if len(soup.contents ) > 0 and (len(soup.text.strip()) > 0 or len(soup.find_all('img')) > 0):
+            self.story.setMetadata('notice', self.utf8FromSoup(url, soup))
+
+
+    def getStoryMetadataFromAuthorPage(self):
         # surprisingly, the detailed page does not give enough details, so go to author's page
+        story_row = self.findStoryRow('tr')
+        self.has_universes = False
+
+        title_cell = story_row.find('td', {'class' : 'lc2'})
+        for cat in title_cell.findAll('div', {'class' : 'typediv'}):
+            self.story.addToList('genre',cat.text)
+
+        # in lieu of word count.
+        self.story.setMetadata('size', story_row.find('td', {'class' : 'num'}).text)
+
+        score = story_row.findNext('th', {'class' : 'ynum'}).text
+        if score != '-':
+            self.story.setMetadata('score', score)
+
+        description_element = story_row.findNext('td', {'class' : 'lc4'})
+
+        self.parseDescriptionField(description_element)
+        
+        self.parseOtherAttributes(description_element)
+
+
+    def findStoryRow(self, row_class='tr'):
         page=0
         story_found = False
         while not story_found:
             page = page + 1
             try:
-                data = self._fetchUrl(self.story.getList('authorUrl')[0]+"/"+unicode(page))
+                data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
             except urllib2.HTTPError, e:
                 if e.code == 404:
                     raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to Classic")
             asoup = self.make_soup(data)
 
-            a = asoup.findAll('td', {'class' : 'lc2'})
-            for lc2 in a:
-                if lc2.find('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId'))):
-                    story_found = True
-                    break
+            story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})
+            if story_row:
+                logger.debug("Found story row on page %d" % page)
+                story_found = True
+                self.has_universes = "/universes" in data
+                break
+            
+        return story_row
 
-        for cat in lc2.findAll('div', {'class' : 'typediv'}):
-            self.story.addToList('genre',cat.text)
 
-        # in lieu of word count.
-        self.story.setMetadata('size', lc2.findNext('td', {'class' : 'num'}).text)
-
-        score = lc2.findNext('th', {'class' : 'ynum'}).text
-        if score != '-':
-            self.story.setMetadata('score', score)
-
-        lc4 = lc2.findNext('td', {'class' : 'lc4'})
-        desc = lc4.contents[0]
-
+    def parseDescriptionField(self, description_element):
+        # Parse the description field for the series or universe and the 
+        # actual description.
+        
+        desc = description_element.contents[0]
         try:
-            a = lc4.find('a', href=re.compile(r"/series/\d+/.*"))
+            a = description_element.find('a', href=re.compile(r"/series/\d+/.*"))
             # logger.debug("Looking for series - a='{0}'".format(a))
             if a:
                 # if there's a number after the series name, series_contents is a two element list:
@@ -241,9 +294,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     series_name = re.sub(r' . a series by.*$','',series_name)
                     # logger.debug("Series name: '%s'" % series_name)
                 self.setSeries(series_name, i)
-                desc = lc4.contents[2]
+                desc = description_element.contents[2]
                 # Check if series is in a universe
-                if "/universes" in data:
+                if self.has_universes:
                     universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
                     universes_soup = self.make_soup(self._fetchUrl(universe_url) )
                     # logger.debug("Universe url='{0}'".format(universe_url))
@@ -271,11 +324,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise
             pass
         try:
-            a = lc4.find('a', href=re.compile(r"/universe/\d+/.*"))
+            a = description_element.find('a', href=re.compile(r"/universe/\d+/.*"))
             # logger.debug("Looking for universe - a='{0}'".format(a))
             if a:
                 self.story.setMetadata("universe",stripHTML(a))
-                desc = lc4.contents[2]
+                desc = description_element.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
                 universe_name = stripHTML(a)
                 universeUrl = 'http://'+self.host+a['href']
@@ -302,7 +355,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
 
-        for b in lc4.findAll('b'):
+
+    def parseOtherAttributes(self, other_attribute_element):
+        for b in other_attribute_element.findAll('b'):
             #logger.debug('Getting metadata: "%s"' % b)
             label = b.text
             if label in ['Posted:', 'Concluded:', 'Updated:']:
@@ -314,37 +369,26 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
             if 'Sex' in label:
                 self.story.setMetadata('rating', value)
+            if 'Score' in label and value != '-':
+                self.story.setMetadata('score', value)
 
             if 'Tags' in label or 'Codes' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
-                    self.story.addToList('sitetags',code)
-
+                    self.story.addToList('sitetags', code)
+            if 'Genre' in label:
+                for code in re.split(r'\s*,\s*', value.strip()):
+                    self.story.addToList('genre', code)
+            
             if 'Posted' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
             if 'Concluded' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
-        # Some books have a cover in the index page.
-        # Samples are:
-        #     http://storiesonline.net/s/11999
-        #     http://storiesonline.net/s/10823
-        if get_cover:
-            # logger.debug("Looking for the cover image...")
-            cover_url = ""
-            img = soup.find('img')
-            if img:
-                cover_url=img['src']
-            # logger.debug("cover_url: %s"%cover_url)
-            if cover_url:
-                self.setCoverImage(url,cover_url)
-
-        status = lc4.find('span', {'class' : 'ab'})
-        if  status != None:
+        
+        status = other_attribute_element.find('span', {'class':'ab'})
+        if status != None:
             if 'Incomplete and Inactive' in status.text:
                 self.story.setMetadata('status', 'Incomplete')
             else:
@@ -356,23 +400,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'Completed')
 
-        # Remove all the metadata elements to leave and preamble text. This is usually 
-        # a notice or a forward.
-        if len(self.chapterUrls) > 1:
-            header = soup.find('header')
-            header.extract()
-        else:
-            soup = soup.find('header')
-        # Remove some tags based on their class or id
-        elements_to_remove = ['#det-link', '#s-details', '#index-list', '#s-title', '#s-auth', '.copy']
-        if not self.getConfig('include_images'):
-            elements_to_remove.append('img')
-        for element_name in elements_to_remove:
-            elements = soup.select(element_name)
-            for element in elements:
-                element.extract()
-        if len(soup.contents ) > 0 and (len(soup.text.strip()) > 0 or len(soup.find_all('img')) > 0):
-            self.story.setMetadata('notice', self.utf8FromSoup(url, soup))
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
