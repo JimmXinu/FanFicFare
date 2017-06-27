@@ -248,6 +248,7 @@ def get_valid_set_options():
                'remove_spoilers':(base_xenforo_list,None,boollist),
                'legend_spoilers':(base_xenforo_list,None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
+               'show_chapter_authors':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -443,6 +444,7 @@ def get_valid_keywords():
                  'remove_spoilers',
                  'legend_spoilers',
                  'apocrypha_to_omake',
+                 'show_chapter_authors',
                  'skip_threadmarks_categories',
                  'normalize_text_links',
                  'internalize_text_links',
