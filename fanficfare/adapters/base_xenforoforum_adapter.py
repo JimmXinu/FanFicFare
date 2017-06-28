@@ -20,6 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+from xml.dom.minidom import parseString
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -196,6 +197,41 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         self.cache_posts(soup)
         return soup
 
+    ## extracting threadmarks for chapters has diverged between SV/SB
+    ## and QQ enough to require some differentiation.
+    ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
+    def extract_threadmarks(self,souptag):
+        # try threadmarks if no '#' in url
+        navdiv = souptag.find('div',{'class':'threadmarkMenus'}) # SB/SV
+        if not navdiv:
+            return []
+        threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+
+        ## Loop on threadmark categories.
+        threadmarks=[]
+        tmcat_num=None
+
+        # convenience method.
+        def xml_tag_string(dom,tag):
+            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8")
+
+        for threadmarksa in threadmarksas:
+            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')))
+            # print threadmark_rss_dom.toxml(encoding='utf-8')
+
+            tmcat_num = threadmarksa['href'].split('category_id=')[1]
+            tmcat_name = stripHTML(threadmarksa)
+
+            for tmcat_index, item in enumerate(threadmark_rss_dom.getElementsByTagName("item")):
+                title = xml_tag_string(item,"title")
+                url = xml_tag_string(item,"link")
+                author = xml_tag_string(item,"dc:creator")
+                date = xml_tag_string(item,"pubDate")
+                ## Fri, 23 Jun 2017 16:52:57 +0000
+                date = makeDate(date[5:-6], '%d %b %Y %H:%M:%S') # toss day-of-week and TZ--locales.
+                threadmarks.append({"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author})
+        return threadmarks
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -228,71 +264,63 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         first_post_title = self.getConfig('first_post_title','First Post')
 
-        threadmark_chaps = False
+        use_threadmark_chaps = False
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
             souptag = souptag.find('li',id=anchorid)
         else:
-            # try threadmarks if no '#' in , require at least 2.
-            navdiv = souptag.find('div',{'class':'pageNavLinkGroup'}) # first navdiv only.
-            threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+            # remember if reader link found.
+            self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
+            ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
+            threadmarks = self.extract_threadmarks(souptag)
 
-            ## Loop on threadmark categories.
-            threadmark_chapters=[]
-            tmcat_num=None
-            for threadmarksa in threadmarksas:
-                soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
-                prepend = ""
-                if 'category_id' in threadmarksa['href']: ## QQ doesn't have threadmark categories yet.
-                    tmcat_num = threadmarksa['href'].split('category_id=')[1]
-                    ## prepend threadmark category name if not 'Threadmarks'
-                    tmcat_name = stripHTML(threadmarksa)
-
-                    if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
-                        continue
-
-                    if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
-                        tmcat_name = 'Omake'
-
-                    if tmcat_name != "Threadmarks":
-                        prepend = tmcat_name+" - "
-
-                markas = []
-                ol = soupmarks.find('ol',{'class':'overlayScroll'})
-                if ol:
-                    markas = ol.find_all('a')
-                else:
-                    ## SV changed their threadmarks.  Not isolated to
-                    ## SV only incase SB or QQ make the same change.
-                    markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
-
-                threadmark_chaps = True
-                # remember if reader link found.
-                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
-
+            if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
                 if self.getConfig('always_include_first_post'):
-                    threadmark_chapters.append((first_post_title,useurl))
+                    self.chapterUrls.append((first_post_title,useurl))
 
-                for (tmcat_index,atag,url,name) in [ (i,x,x['href'],stripHTML(x)) for i,x in enumerate(markas) ]:
-                    if self.reader and tmcat_num:
-                        ## SV & SB have both Reader mode and TM
-                        ## categories.  QQ has neither.  I assume if
-                        ## it gets one in future, it will get both.
-                        self.threadmarks_for_reader[self.normalize_chapterurl(url)] = (tmcat_num,tmcat_index)
-                    date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
-                    if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
-                        self.story.setMetadata('datePublished', date)
-                    if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
-                        self.story.setMetadata('dateUpdated', date)
+                use_threadmark_chaps = True
 
-                    threadmark_chapters.append((prepend+name,self.getURLPrefix()+'/'+url))
+                authors={}
+                # spin threadmarks to count different authors.
+                for tm in threadmarks:
+                    if 'author' in tm:
+                        authors[tm['author']]=True
+                    # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author}
+                multi_authors = len(authors) > 1
 
-            if len(threadmark_chapters) >= int(self.getConfig('minimum_threadmarks',2)):
-                self.chapterUrls = threadmark_chapters
+                # spin threadmarks for date, to adjust tmcat_name/prepend.
+                for tm in threadmarks:
+                    # SV/SB: {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author}
+                    # QQ: {'title':name,'url':self.getURLPrefix()+'/'+url,'date':date}
+                    prepend=""
+                    if 'tmcat_name' in tm:
+                        tmcat_name = tm['tmcat_name']
+                        if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                            continue
+                        if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
+                            tmcat_name = 'Omake'
+                        if tmcat_name != "Threadmarks":
+                            prepend = tmcat_name+" - "
+
+                    append=""
+                    if 'author' in tm and multi_authors and self.getConfig('show_chapter_authors',False):
+                        append=" by "+tm['author']
+                    
+                    if 'date' in tm:
+                        date = tm['date']
+                        if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
+                            self.story.setMetadata('datePublished', date)
+                        if not self.story.getMetadataRaw('dateUpdated') or date > self.story.getMetadataRaw('dateUpdated'):
+                            self.story.setMetadata('dateUpdated', date)
+
+                    if 'tmcat_num' in tm and 'tmcat_index' in tm:
+                        self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
+
+                    self.chapterUrls.append((prepend+tm['title']+append,tm['url']))
 
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
-        if threadmark_chaps or self.getConfig('always_use_forumtags'):
+        if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
             for tag in topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'}):
                 tstr = stripHTML(tag)
@@ -409,11 +437,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # in case it changes:
             posts_per_page = int(self.getConfig("reader_posts_per_page",10))
 
-            # always_include_first_post with threadmarks added an
-            # extra first chapter, we should be past it.
-            if self.getConfig('always_include_first_post'):
-                index = index - 1
-
             ## look forward a hardcoded 3 pages max in reader mode.
             for offset in range(0,3):
                 souptag = self.get_cache_post(url)
@@ -421,7 +444,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if not souptag:
                     (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
                     reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
-                    logger.debug('Reader page offset:%s'%offset)
+                    logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
                     reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
                     logger.debug("Fetch reader URL to: %s"%reader_url)
                     data = self._fetchUrl(reader_url)

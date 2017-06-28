@@ -26,7 +26,10 @@ import pprint
 import string
 import sys
 
-version="2.13.0"
+import pickle
+import cookielib as cl
+
+version="2.13.2"
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
@@ -228,6 +231,14 @@ def main(argv=None,
                     #print "URL: (%s)"%url
                     urls.append(url)
 
+    try:
+        with open('global_cache','rb') as jin:
+            options.pagecache = pickle.load(jin) # ,encoding="utf-8"
+        options.cookiejar = cl.LWPCookieJar()
+        options.cookiejar.load('global_cookies')
+    except:
+        print("Didn't load global_cache")
+
     if not list_only:
         if len(urls) < 1:
             print "No valid story URLs found"
@@ -243,6 +254,10 @@ def main(argv=None,
                     if len(urls) == 1:
                         raise
                     print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+
+    with open('global_cache','wb') as jout:
+        pickle.dump(options.pagecache,jout)
+    options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -287,6 +302,7 @@ def do_download(arg,
         ## Share pagecache and cookiejar between multiple downloads.
         if not hasattr(options,'pagecache'):
             options.pagecache = configuration.get_empty_pagecache()
+        if not hasattr(options,'cookiejar'):
             options.cookiejar = configuration.get_empty_cookiejar()
         configuration.set_pagecache(options.pagecache)
         configuration.set_cookiejar(options.cookiejar)
