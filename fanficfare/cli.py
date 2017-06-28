@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from optparse import OptionParser
+from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
@@ -25,6 +25,9 @@ import logging
 import pprint
 import string
 import sys
+
+import pickle
+import cookielib as cl
 
 version="2.13.2"
 
@@ -138,6 +141,13 @@ def main(argv=None,
                       action='store_true', dest='version',
                       help='Display version and quit.', )
 
+    ## undocumented feature for development use.  Save page cache and
+    ## cookies between runs.  Saves in PWD as files global_cache and
+    ## global_cookies
+    parser.add_option('--save-cache',
+                      action='store_true', dest='save_cache',
+                      help=SUPPRESS_HELP, )
+
     options, args = parser.parse_args(argv)
 
     if options.version:
@@ -228,6 +238,15 @@ def main(argv=None,
                     #print "URL: (%s)"%url
                     urls.append(url)
 
+    if options.save_cache:
+        try:
+            with open('global_cache','rb') as jin:
+                options.pagecache = pickle.load(jin) # ,encoding="utf-8"
+            options.cookiejar = cl.LWPCookieJar()
+            options.cookiejar.load('global_cookies')
+        except:
+            print("Didn't load global_cache")
+
     if not list_only:
         if len(urls) < 1:
             print "No valid story URLs found"
@@ -243,6 +262,11 @@ def main(argv=None,
                     if len(urls) == 1:
                         raise
                     print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+
+    if options.save_cache:
+        with open('global_cache','wb') as jout:
+            pickle.dump(options.pagecache,jout)
+        options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -287,6 +311,7 @@ def do_download(arg,
         ## Share pagecache and cookiejar between multiple downloads.
         if not hasattr(options,'pagecache'):
             options.pagecache = configuration.get_empty_pagecache()
+        if not hasattr(options,'cookiejar'):
             options.cookiejar = configuration.get_empty_cookiejar()
         configuration.set_pagecache(options.pagecache)
         configuration.set_cookiejar(options.cookiejar)
