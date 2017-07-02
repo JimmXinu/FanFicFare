@@ -216,7 +216,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8")
 
         for threadmarksa in threadmarksas:
-            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')))
+            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')).encode('utf-8'))
             # print threadmark_rss_dom.toxml(encoding='utf-8')
 
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
