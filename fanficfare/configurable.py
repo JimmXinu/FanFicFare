@@ -774,14 +774,14 @@ class Configuration(ConfigParser.SafeConfigParser):
         allow_all_sections_re = re.compile(r'^(teststory:(defaults|[0-9]+)|https?://.*)$')
         allowedsections = get_valid_sections()
 
-        clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)')
+        clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)$')
 
-        replace_metadata_re = re.compile(r'(add_to_)?replace_metadata')
+        replace_metadata_re = re.compile(r'(add_to_)?replace_metadata$')
         from story import set_in_ex_clude, make_replacements
 
-        custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings')
+        custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings$')
 
-        generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings')
+        generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings$')
 
         valdict = get_valid_set_options()
 

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from optparse import OptionParser
+from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
@@ -29,7 +29,7 @@ import sys
 import pickle
 import cookielib as cl
 
-version="2.13.2"
+version="2.13.4"
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
@@ -141,6 +141,13 @@ def main(argv=None,
                       action='store_true', dest='version',
                       help='Display version and quit.', )
 
+    ## undocumented feature for development use.  Save page cache and
+    ## cookies between runs.  Saves in PWD as files global_cache and
+    ## global_cookies
+    parser.add_option('--save-cache',
+                      action='store_true', dest='save_cache',
+                      help=SUPPRESS_HELP, )
+
     options, args = parser.parse_args(argv)
 
     if options.version:
@@ -231,13 +238,14 @@ def main(argv=None,
                     #print "URL: (%s)"%url
                     urls.append(url)
 
-    try:
-        with open('global_cache','rb') as jin:
-            options.pagecache = pickle.load(jin) # ,encoding="utf-8"
-        options.cookiejar = cl.LWPCookieJar()
-        options.cookiejar.load('global_cookies')
-    except:
-        print("Didn't load global_cache")
+    if options.save_cache:
+        try:
+            with open('global_cache','rb') as jin:
+                options.pagecache = pickle.load(jin) # ,encoding="utf-8"
+            options.cookiejar = cl.LWPCookieJar()
+            options.cookiejar.load('global_cookies')
+        except:
+            print("Didn't load global_cache")
 
     if not list_only:
         if len(urls) < 1:
@@ -255,9 +263,10 @@ def main(argv=None,
                         raise
                     print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
 
-    with open('global_cache','wb') as jout:
-        pickle.dump(options.pagecache,jout)
-    options.cookiejar.save('global_cookies')
+    if options.save_cache:
+        with open('global_cache','wb') as jout:
+            pickle.dump(options.pagecache,jout)
+        options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
 def do_download(arg,
