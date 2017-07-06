@@ -154,34 +154,44 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
+        self.story.setMetadata('numWords',stripHTML(soup.find("span",title="Wörter").parent))
         self.story.setMetadata('language','German')
 
         self.story.setMetadata('datePublished', makeDate(stripHTML(head.find('span',title='erstellt').parent), self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(head.find('span',title='aktualisiert').parent), self.dateformat))
 
-        # second colspan=3 td in head.
+        ## Genre now shares a line with rating.
         genres=stripHTML(head.find('span',class_='fa-angle-right').next_sibling)
-        self.story.extendList('genre',genres[:genres.index('/')].split(', '))
+        self.story.extendList('genre',genres[:genres.index(' / ')].split(', '))
+        self.story.setMetadata('rating', genres[genres.index(' / ')+3:])
 
+        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split(' / ')[2])
+        
         if head.find('span',title='Fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        #find metadata on the author's page
-        asoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
-        tr=asoup.findAll('tr')
-        for i in range(1,len(tr)):
-            a = tr[i].find('a')
-            if '/s/'+self.story.getMetadata('storyId')+'/1/' in a['href']:
-                break
-        self.setDescription(url,a['onmouseover'].split("', '")[1])
+        ## Get description from own URL:
+        ## /?a=v&storyid=46ccbef30000616306614050&s=1
+        descsoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"/?a=v&storyid="+self.story.getMetadata('storyId')+"&s=1"))
+        self.setDescription(url,stripHTML(descsoup))
+        
+        # #find metadata on the author's page
+        # asoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
+        # tr=asoup.findAll('tr')
+        # for i in range(1,len(tr)):
+        #     a = tr[i].find('a')
+        #     if '/s/'+self.story.getMetadata('storyId')+'/1/' in a['href']:
+        #         break
 
-        td = tr[i].findAll('td')
-        self.story.addToList('category',stripHTML(td[2]))
-        self.story.setMetadata('rating', stripHTML(td[5]))
-        self.story.setMetadata('numWords', stripHTML(td[6]))
+        # td = tr[i].findAll('td')
+        # self.story.addToList('category',stripHTML(td[2]))
+        # self.story.setMetadata('rating', stripHTML(td[5]))
+        # self.story.setMetadata('numWords', stripHTML(td[6]))
 
+
+        
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
