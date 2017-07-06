@@ -53,14 +53,8 @@ import adapter_archiveskyehawkecom
 import adapter_squidgeorgpeja
 import adapter_libraryofmoriacom
 import adapter_wraithbaitcom
-import adapter_chaossycophanthexcom
-import adapter_dramioneorg
-import adapter_erosnsapphosycophanthexcom
-import adapter_lumossycophanthexcom
-import adapter_occlumencysycophanthexcom
 import adapter_phoenixsongnet
 import adapter_walkingtheplankorg
-import adapter_ashwindersycophanthexcom
 import adapter_dokugacom
 import adapter_iketernalnet
 import adapter_storiesofardacom
@@ -86,12 +80,10 @@ import adapter_wolverineandroguecom
 import adapter_merlinficdtwinscouk
 import adapter_thehookupzonenet
 import adapter_bloodtiesfancom
-import adapter_indeathnet
 import adapter_qafficcom
 import adapter_efpfanficnet
 import adapter_potterficscom
 import adapter_efictionestelielde
-import adapter_pommedesangcom
 import adapter_imagineeficcom
 import adapter_asr3slashzoneorg
 import adapter_potterheadsanonymouscom
@@ -129,7 +121,6 @@ import adapter_artemisfowlcom
 import adapter_naiceanilmenet
 import adapter_deepinmysoulnet
 import adapter_kiarepositorymujajinet
-import adapter_fanfictionlucifaelcom
 import adapter_adultfanfictionorg
 import adapter_fictionhuntcom
 import adapter_royalroadl
