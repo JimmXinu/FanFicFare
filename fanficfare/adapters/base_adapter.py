@@ -22,6 +22,7 @@ import logging
 import urlparse as up
 from functools import partial
 import traceback
+import copy
 
 import bs4
 
@@ -120,6 +121,8 @@ class BaseSiteAdapter(Configurable):
                     data = None
                     if self.oldchaptersmap:
                         if url in self.oldchaptersmap:
+                            # logger.debug("index:%s title:%s url:%s"%(index,title,url))
+                            # logger.debug(self.oldchaptersmap[url])
                             data = self.utf8FromSoup(None,
                                                      self.oldchaptersmap[url],
                                                      partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
@@ -348,6 +351,12 @@ class BaseSiteAdapter(Configurable):
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
     def utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
+        start = datetime.now()
+        soup = copy.copy(soup) # To prevent side effects by changing
+                               # stuff in soup.  Added to prevent
+                               # image problems when same chapter URL
+                               # included more than once (base_xenforo
+                               # always_include_first_post setting)
         if not fetch:
             fetch=self._fetchUrlRaw
 
@@ -437,6 +446,7 @@ class BaseSiteAdapter(Configurable):
             # soup is more difficult than it first appears.  So cheat.
             retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
 
+        logger.debug("utf8FromSoup time:%s"%(datetime.now() - start))
         return retval
 
     def make_soup(self,data):
