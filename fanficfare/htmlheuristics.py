@@ -21,6 +21,7 @@ import re
 import codecs
 import bs4 as bs
 import HtmlTagStack as stack
+from datetime import datetime
 
 from . import exceptions as exceptions
 
@@ -30,10 +31,16 @@ def logdebug(s):
     pass
 
 def replace_br_with_p(body):
+    start = datetime.now()
+    retval = _replace_br_with_p(body)
+    logger.debug("replace_br_with_p time:%s"%(datetime.now() - start))
+    return retval
 
+def _replace_br_with_p(body):
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a regular space.
-    body = body.replace(u'\xa0', u' ')
+    # .strip() so "\n<div>" at beginning is also recognized.
+    body = body.replace(u'\xa0', u' ').strip()
 
     if body.find('>') == -1 or body.rfind('<') == -1:
         return body
@@ -56,7 +63,7 @@ def replace_br_with_p(body):
 
     # BS is doing some BS on entities, meaning &lt; and &gt; are turned into < and >... a **very** bad idea in html.
     body = re.sub(r'&(.+?);', r'XAMP;\1;', body)
-    
+
     body = soup_up_div(u'<div>' + body + u'</div>')
 
     body = body[body.index('>')+1:body.rindex('<')]
@@ -249,8 +256,15 @@ def replace_br_with_p(body):
     body = re.sub(r'XAMP;(.+?);', r'&\1;', body)
     body = body.strip()
 
+    ## strip off extra <div> nestings that have built up over time.
+    b='<div>'
+    e='</div>'
+    body = body.strip()
+    while body.startswith(b) and body.endswith(e):
+        body = body[len(b):-len(e)].strip()
+
     # re-wrap in div tag.
-    body = u'<div>\n' + body + u'</div>\n'
+    body = u'<div>\n' + body + u'\n</div>\n'
 
     # return body
     return tag_sanitizer(body)
