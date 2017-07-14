@@ -1101,6 +1101,10 @@ class Story(Configurable):
         if is_appengine:
             return (None,None)
 
+        ## Mistakenly ended up with some // in image urls, like:
+        ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
+        ## Removing one /, but not ://
+        url = re.sub(r"([^:])//",r"\1/",url)
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
@@ -1122,13 +1126,13 @@ class Story(Configurable):
                 if parsedUrl.path.endswith("/"):
                     toppath = parsedUrl.path
                 else:
-                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
+                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
                 imgurl = urlparse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
-                     toppath + '/' + url,
+                     toppath + url,
                      '','',''))
-                #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
+                logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
         #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
@@ -1139,8 +1143,8 @@ class Story(Configurable):
         if imgurl not in self.imgurls:
 
             try:
-                if imgurl == 'failedtoload':
-                    raise Exception("Previously failed to load")
+                if imgurl.endswith('failedtoload'):
+                    return ("failedtoload","failedtoload")
 
                 parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
@@ -1157,6 +1161,8 @@ class Story(Configurable):
                         imgtype = "jpg"
                     removetrans = self.getConfig('remove_transparency')
                     removetrans = removetrans or grayscale or imgtype=="jpg"
+                    if 'ffdl-' in imgurl:
+                        raise exceptions.FailedToDownload("ffdl image is internal only...")
                     (data,ext,mime) = convert_image(imgurl,
                                                     fetch(imgurl,referer=parenturl),
                                                     sizes,
@@ -1165,7 +1171,7 @@ class Story(Configurable):
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
             except Exception, e:
-                logger.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
+                logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
             # explicit cover, make the first image.
