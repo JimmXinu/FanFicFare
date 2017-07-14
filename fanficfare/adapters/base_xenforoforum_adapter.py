@@ -305,7 +305,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     append=""
                     if 'author' in tm and multi_authors and self.getConfig('show_chapter_authors',False):
                         append=" by "+tm['author']
-                    
+
                     if 'date' in tm:
                         date = tm['date']
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
@@ -516,3 +516,19 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 div.insert(0,legend)
                 div.button.extract()
 
+    def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
+        if self.getConfig('replace_broken_smilies'):
+            for img in soup.find_all('img',src=re.compile(r'(failedtodownload|clear.png)$')):
+                clses = unicode(img['class']) # stringify.
+                if img.has_attr('alt') and 'mceSmilie' in clses :
+                    ## put a span around the clear image with alt text instead?
+                    ## would need topsoup
+                    img.name='span'
+                    img.string = img['alt'].replace('`','') # no idea why some have `
+                    # not valid attrs on span.
+                    del img['alt']
+                    if img.has_attr('src'):
+                        del img['src']
+                    if img.has_attr('longdesc'):
+                        del img['longdesc']
+        return super(BaseXenForoForumAdapter, self)._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)

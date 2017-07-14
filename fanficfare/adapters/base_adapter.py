@@ -357,6 +357,13 @@ class BaseSiteAdapter(Configurable):
                                # image problems when same chapter URL
                                # included more than once (base_xenforo
                                # always_include_first_post setting)
+        ## _do_utf8FromSoup broken out to separate copy & timing and
+        ## allow for inherit override.
+        retval = self._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
+        logger.debug("utf8FromSoup time:%s"%(datetime.now() - start))
+        return retval
+
+    def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
             fetch=self._fetchUrlRaw
 
@@ -446,7 +453,6 @@ class BaseSiteAdapter(Configurable):
             # soup is more difficult than it first appears.  So cheat.
             retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
 
-        logger.debug("utf8FromSoup time:%s"%(datetime.now() - start))
         return retval
 
     def make_soup(self,data):
