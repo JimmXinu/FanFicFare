@@ -29,7 +29,7 @@ import sys
 import pickle
 import cookielib as cl
 
-version="2.14.0"
+version="2.14.1"
 
 if sys.version_info < (2, 5):
     print 'This program requires Python 2.5 or newer.'
