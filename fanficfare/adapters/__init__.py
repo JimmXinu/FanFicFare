@@ -53,6 +53,7 @@ import adapter_archiveskyehawkecom
 import adapter_squidgeorgpeja
 import adapter_libraryofmoriacom
 import adapter_wraithbaitcom
+import adapter_dramioneorg
 import adapter_phoenixsongnet
 import adapter_walkingtheplankorg
 import adapter_dokugacom
