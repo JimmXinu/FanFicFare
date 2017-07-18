@@ -102,8 +102,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             params['user_session[password]'] = self.getConfig("password")
         params['user_session[remember_me]'] = '1'
         params['commit'] = 'Log in'
-        #params['utf8'] = u'✓'#u'\x2713' # gets along with out it, and it confuses the encoder.
-        params['authenticity_token'] = data.split('input name="authenticity_token" type="hidden" value="')[1].split('"')[0]
+        params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
+
+        # token now comes from meta.
+        # <meta name="csrf-token" content="/Li4mJ1w1AENhQq8EPVIklFwCDP5eaTHNRWPlWkehu2d1iuRzgsOHYGCX+uhjmlKnd1A9VisCdqmeTmBmXZkBg=="/>
+        params['authenticity_token'] = data.split('meta name="csrf-token" content="')[1].split('"')[0]
 
         loginUrl = 'https://' + self.getSiteDomain() + '/user_sessions'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
