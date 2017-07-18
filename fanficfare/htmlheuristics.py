@@ -257,14 +257,13 @@ def _replace_br_with_p(body):
     body = body.strip()
 
     ## strip off extra <div> nestings that have built up over time.
-    b='<div>'
-    e='</div>'
-    body = body.strip()
-    while body.startswith(b) and body.endswith(e):
-        body = body[len(b):-len(e)].strip()
+    # b='<div>'
+    # e='</div>'
+    # while body.startswith(b) and body.endswith(e):
+    #     body = body[len(b):-len(e)].strip()
 
     # re-wrap in div tag.
-    body = u'<div>\n' + body + u'\n</div>\n'
+    body = u'<div>\n' + body + u'</div>\n'
 
     # return body
     return tag_sanitizer(body)
