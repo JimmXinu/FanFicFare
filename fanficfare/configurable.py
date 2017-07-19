@@ -249,6 +249,7 @@ def get_valid_set_options():
                'legend_spoilers':(base_xenforo_list,None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'show_chapter_authors':(base_xenforo_list,None,boollist),
+               'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -448,6 +449,7 @@ def get_valid_keywords():
                  'skip_threadmarks_categories',
                  'normalize_text_links',
                  'internalize_text_links',
+                 'replace_failed_smilies_with_alt_text',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
