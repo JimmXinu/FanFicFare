@@ -519,7 +519,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(failedtoload|clear.png)$')):
-                logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
+                #logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
                 clses = unicode(img['class']) # stringify list.
                 if img.has_attr('alt') and 'mceSmilie' in clses :
                     ## Change the img to a span containing the alt
