@@ -30,18 +30,18 @@ def logdebug(s):
     # logger.debug(s)
     pass
 
+was_run_marker=u'FFF_replace_br_with_p_has_been_run'
 def replace_br_with_p(body):
+    if was_run_marker in body:
+        logger.debug("replace_br_with_p previously applied, skipping.")
+        return body
+
     start = datetime.now()
     retval = _replace_br_with_p(body)
     logger.debug("replace_br_with_p time:%s"%(datetime.now() - start))
     return retval
 
-was_run_marker=u'FFF_replace_br_with_p_has_been_run'
 def _replace_br_with_p(body):
-
-    if was_run_marker in body:
-        logger.debug("replace_br_with_p previously applied, skipping.")
-        return body
 
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a regular space.
