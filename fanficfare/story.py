@@ -133,7 +133,7 @@ except:
                 img.save(outsio,convtype[imgtype])
                 return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
-                logger.debug("image used unchanged")
+                # logger.debug("image used unchanged")
                 return (data,imgtype,imagetypes[imgtype])
 
     except:
@@ -1132,7 +1132,7 @@ class Story(Configurable):
                      parsedUrl.netloc,
                      toppath + url,
                      '','',''))
-                logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
+                # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
         #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
