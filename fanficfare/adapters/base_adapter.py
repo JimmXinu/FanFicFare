@@ -17,6 +17,7 @@
 
 import re
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 import logging
 import urlparse as up
@@ -35,6 +36,19 @@ from ..story import Story
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from ..exceptions import InvalidStoryURL
+
+# quick convenience class
+class TimeKeeper(defaultdict):
+    def __init__(self):
+        defaultdict.__init__(self, timedelta)
+
+    def add(self, name, td):
+        self[name] = self[name] + td
+
+    def __unicode__(self):
+        keys = self.keys()
+        keys.sort()
+        return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 
 class BaseSiteAdapter(Configurable):
 
@@ -71,6 +85,9 @@ class BaseSiteAdapter(Configurable):
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
         self.logfile = None
+
+        ## for doing some performance profiling.
+        self.times = TimeKeeper()
 
         self._setURL(url)
         if not self.validateURL():
@@ -193,6 +210,7 @@ class BaseSiteAdapter(Configurable):
             if self.logfile:
                 self.story.logfile = self.logfile
 
+        logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
@@ -210,6 +228,7 @@ class BaseSiteAdapter(Configurable):
             for index, (title,url) in enumerate(self.chapterUrls):
                 self.chapterUrls[index] = (title,self.normalize_chapterurl(url))
 
+        logger.debug(u"getStoryMetadataOnly times:\n%s"%self.times)
         return self.story
 
     def setStoryMetadata(self,metahtml):
@@ -357,10 +376,11 @@ class BaseSiteAdapter(Configurable):
                                # image problems when same chapter URL
                                # included more than once (base_xenforo
                                # always_include_first_post setting)
+        self.times.add("utf8FromSoup->copy", datetime.now() - start)
         ## _do_utf8FromSoup broken out to separate copy & timing and
         ## allow for inherit override.
         retval = self._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
-        logger.debug("utf8FromSoup time:%s"%(datetime.now() - start))
+        self.times.add("utf8FromSoup", datetime.now() - start)
         return retval
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
@@ -446,7 +466,9 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig("replace_br_with_p") and allow_replace_br_with_p:
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
+            start = datetime.now()
             retval = replace_br_with_p(retval)
+            self.times.add("utf8FromSoup->replace_br_with_p", datetime.now() - start)
 
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the
