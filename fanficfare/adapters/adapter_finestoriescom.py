@@ -27,13 +27,18 @@ def getClass():
 class FineStoriesComAdapter(StoriesOnlineNetAdapter):
 
     @classmethod
-    def getSiteAbbrev(self):
+    def getSiteAbbrev(cls):
         return 'fnst'
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'finestories.com'
+
+    @classmethod
+    def getTheme(cls):
+        ## only one theme is supported.
+        return "Modern"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):

@@ -57,7 +57,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.dateformat = "%Y-%m-%d"
 
     @classmethod
-    def getSiteAbbrev(self):
+    def getSiteAbbrev(cls):
         return 'strol'
 
     @staticmethod # must be @staticmethod, don't remove it.
@@ -71,6 +71,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return re.escape("http://"+self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)((:\d+)?(;\d+)?$|(:i)?$)?"
+
+    @classmethod
+    def getTheme(cls):
+        ## only one theme is supported.
+        return "Classic"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -206,7 +211,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if cover_url:
                 self.setCoverImage(url,cover_url)
 
-        # Remove all the metadata elements to leave and preamble text. This is usually 
+        # Remove all the metadata elements to leave and preamble text. This is usually
         # a notice or a forward.
         if len(self.chapterUrls) > 1:
             header = soup.find('header')
@@ -244,7 +249,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         description_element = story_row.findNext('td', {'class' : 'lc4'})
 
         self.parseDescriptionField(description_element)
-        
+
         self.parseOtherAttributes(description_element)
 
 
@@ -257,7 +262,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
             except urllib2.HTTPError, e:
                 if e.code == 404:
-                    raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to Classic")
+                    raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)
 
             story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})
@@ -266,14 +271,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 story_found = True
                 self.has_universes = "/universes" in data
                 break
-            
+
         return story_row
 
 
     def parseDescriptionField(self, description_element):
-        # Parse the description field for the series or universe and the 
+        # Parse the description field for the series or universe and the
         # actual description.
-        
+
         desc = description_element.contents[0]
         try:
             a = description_element.find('a', href=re.compile(r"/series/\d+/.*"))
@@ -378,7 +383,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if 'Genre' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
                     self.story.addToList('genre', code)
-            
+
             if 'Posted' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
@@ -386,7 +391,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-        
+
         status = other_attribute_element.find('span', {'class':'ab'})
         if status != None:
             if 'Incomplete and Inactive' in status.text:
