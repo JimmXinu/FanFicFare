@@ -237,7 +237,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                     heading = metad.split(':')[0].strip()
                     text = metad.split(':')[1].strip()
                     if heading == 'Status':
-                        self.story.setMetadata('status',text)
+                        self.story.setMetadata('status',text.replace("In progress","In-Progress")) # to match standard.
                     elif heading == 'Rating':
                         self.story.setMetadata('rating',text)
                     elif heading == 'Word count':
