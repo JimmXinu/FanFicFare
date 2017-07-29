@@ -198,14 +198,13 @@ except:
 
 
 try:
-    from calibre.library.comments import sanitize_comments_html, sanitize_html
+    from calibre.library.comments import sanitize_comments_html
 except:
     def sanitize_comments_html(t):
         ## should only be called by Calibre version, so this shouldn't
         ## trip.
         logger.debug("fake sanitize called...")
         return t
-    sanitize_html = sanitize_comments_html
 
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
@@ -826,12 +825,7 @@ class Story(Configurable):
         if not description:
             description = ''
         else:
-            if self.getConfig('keep_summary_html'):
-                ## Handles desc with (supposed) html without html->MD
-                ## text->html dance that sanitize_comments_html does.
-                description = sanitize_html(description)
-                # logger.debug("desc using sanitize_html")
-            else:
+            if not self.getConfig('keep_summary_html'):
                 ## because of the html->MD text->html dance, text only
                 ## (or MD/MD-like) descs come out better.
                 description = sanitize_comments_html(description)
