@@ -183,14 +183,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
 
-        if self.getConfig("always_login"):
-            try:
-                self.story.extendList('bookmarktags',
-                                      metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
-            except KeyError:
-                pass
-            self.story.setMetadata('bookmarksummary',
-                                   stripHTML(metasoup.find('textarea',id='bookmark_notes')))
+        # if self.getConfig("always_login"):
+        #     try:
+        #         self.story.extendList('bookmarktags',
+        #                               metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
+        #     except KeyError:
+        #         pass
+        #     self.story.setMetadata('bookmarksummary',
+        #                            stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
