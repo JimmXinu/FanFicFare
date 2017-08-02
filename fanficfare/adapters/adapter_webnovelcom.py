@@ -182,8 +182,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         synopsis = soup.find('div', {'class': 'det-abt'}).find('p')
         self.setDescription(url, synopsis)
 
-        # First finding .lst-chapter (which is an unique class on the site), and then navigating to the last update date
-        # should be the most robust way of finding the last updated string
         last_updated_string = jsondata['data']['bookInfo']['newChapterTime']
         last_updated = _parse_relative_date_string(last_updated_string)
 
