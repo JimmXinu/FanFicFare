@@ -111,7 +111,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
             raise exceptions.FailedToLogin(url,params['theusername'])
-            return False
         else:
             return True
 
@@ -526,3 +525,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             a.extract()
             a=b
 
+        #remove svg images from chapter
+        for a in pagetag.findAll(src=re.compile("\.svg$")):
+            a.extract()
