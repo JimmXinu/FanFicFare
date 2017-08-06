@@ -198,14 +198,21 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return soup
 
     ## extracting threadmarks for chapters has diverged between SV/SB
-    ## and QQ enough to require some differentiation.
+    ## and QQ/AH enough to require some differentiation.
     ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
     def extract_threadmarks(self,souptag):
         # try threadmarks if no '#' in url
         navdiv = souptag.find('div',{'class':'threadmarkMenus'}) # SB/SV
         if not navdiv:
             return []
-        threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+
+        # was class=threadmarksTrigger.  thread cats are currently
+        # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
+        # be surprised if that changed.  Don't want to do use just
+        # href=re because there's more than one copy on the page; plus
+        # could be included in a post.  Would be easier if <noscript>s
+        # weren't being stripped, but that's a different issue.
+        threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
 
         ## Loop on threadmark categories.
         threadmarks=[]
@@ -220,7 +227,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # print threadmark_rss_dom.toxml(encoding='utf-8')
 
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
-            tmcat_name = stripHTML(threadmarksa)
+            # get from earlier <a> now.
+            tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
 
             for tmcat_index, item in enumerate(threadmark_rss_dom.getElementsByTagName("item")):
                 title = xml_tag_string(item,"title")
