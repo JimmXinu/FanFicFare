@@ -57,6 +57,9 @@ try:
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
+
+        if url.lower().endswith('.svg'):
+            raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
         export = False
         img = Image()
         img.load(data)
