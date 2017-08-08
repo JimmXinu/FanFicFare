@@ -843,6 +843,8 @@ class Story(Configurable):
             self.addToList(listname,v.strip())
 
     def addToList(self,listname,value,condremoveentities=True,clear=False):
+        if listname in self.processed_metadata_list_cache:
+            del self.processed_metadata_list_cache[listname]
         if value==None:
             return
         if condremoveentities:
@@ -863,12 +865,13 @@ class Story(Configurable):
     def getList(self,listname,
                 removeallentities=False,
                 doreplacements=True,
-                includelist=[]):
+                includelist=[],
+                skip_cache=False):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
 
         # check for a cached value to speed processing
-        if listname in self.processed_metadata_list_cache \
+        if not skip_cache and listname in self.processed_metadata_list_cache \
                 and (removeallentities,doreplacements) in self.processed_metadata_list_cache[listname]:
             return self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)]
 
@@ -883,7 +886,8 @@ class Story(Configurable):
                         k = k[:-len('.NOREPL')]
                         ldorepl = False
                     retlist.extend(self.getList(k,removeallentities=False,
-                                                doreplacements=ldorepl,includelist=includelist+[listname]))
+                                                doreplacements=ldorepl,includelist=includelist+[listname],
+                                                skip_cache=True))
             else:
 
                 if not self.isList(listname):
@@ -956,9 +960,10 @@ class Story(Configurable):
             else:
                 retlist = []
 
-        if listname not in self.processed_metadata_list_cache:
-            self.processed_metadata_list_cache[listname] = {}
-        self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
+        if not skip_cache:
+            if listname not in self.processed_metadata_list_cache:
+                self.processed_metadata_list_cache[listname] = {}
+            self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
 
         return retlist
 
