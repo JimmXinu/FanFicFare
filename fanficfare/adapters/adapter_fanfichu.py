@@ -64,7 +64,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         return cls.VIEW_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]) + r'\d+$'
+        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('http','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + '&i=1')
