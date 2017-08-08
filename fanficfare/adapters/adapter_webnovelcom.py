@@ -17,11 +17,11 @@
 
 # Adapted by GComyn on April 16, 2017
 
-
+import json
 import logging
 import re
+import time
 import urllib2
-import json
 from datetime import datetime, timedelta
 
 from base_adapter import BaseSiteAdapter
@@ -75,24 +75,17 @@ def _parse_relative_date_string(string_):
 
 
 class WWWWebNovelComAdapter(BaseSiteAdapter):
+    _GET_VIP_CONTENT_DELAY = 8
+
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
-        self.username = 'NoneGiven'  # if left empty, site doesn't return any message at all.
-        self.password = ''
-        self.is_adult = False
-
         # get storyId from url
         # https://www.webnovel.com/book/6831837102000205
         self.story.setMetadata('storyId', self.parsedUrl.path.split('/')[2])
-
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev', 'wncom')
 
-        # The date format will vary from site to site.
-        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        # There are no dates listed on this site, so am commenting this out
-        # self.dateformat = "%Y-%b-%d"
+        self._csrf_token = None
 
     @staticmethod  # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -108,7 +101,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
     # Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
-
         url = self.url
 
         try:
@@ -159,17 +151,20 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('category', category)
 
         ## get _csrfToken cookie for chapter list fetch
-        csrfToken = None
         for cookie in self.get_configuration().get_cookiejar():
             if cookie.name == '_csrfToken':
-                csrfToken = cookie.value
+                self._csrf_token = csrf_token = cookie.value
                 break
+        else:
+            raise exceptions.FailedToDownload('csrf token could not be found')
 
         ## get chapters from a json API url.
-        jsondata = json.loads(self._fetchUrl("https://"+self.getSiteDomain()+"/apiajax/chapter/GetChapterList?_csrfToken="+csrfToken+"&bookId="+self.story.getMetadata('storyId')))
+        jsondata = json.loads(self._fetchUrl(
+            "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
+                'storyId')))
         for chap in jsondata["data"]["chapterItems"]:
             chap_title = 'Chapter ' + unicode(chap['chapterIndex']) + ' - ' + chap['chapterName']
-            chap_Url = url + '/' + chap['chapterId']
+            chap_Url = url.rstrip('/') + '/' + chap['chapterId']
             self.chapterUrls.append((chap_title, chap_Url))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
@@ -182,9 +177,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         synopsis = soup.find('div', {'class': 'det-abt'}).find('p')
         self.setDescription(url, synopsis)
 
-        # First finding .lst-chapter (which is an unique class on the site), and then navigating to the last update date
-        # should be the most robust way of finding the last updated string
-        last_updated_string = soup.find(attrs={'class': 'lst-chapter'}).find_next_sibling('small').string
+        last_updated_string = jsondata['data']['bookInfo']['newChapterTime']
         last_updated = _parse_relative_date_string(last_updated_string)
 
         # Published date is always unknown, so simply don't set it
@@ -195,14 +188,27 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
-        html = self.make_soup(data)
+        book_id = self.story.getMetadata('storyId')
+        chapter_id = url.split('/')[-1]
+        content_url = 'https://%s/apiajax/chapter/GetContent?_csrfToken=%s&bookId=%s&chapterId=%s&_=%d' % (
+            self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
+        chapter_info = json.loads(self._fetchUrl(content_url))['data']['chapterInfo']
 
-        story = html.find('div', {'class': 'cha-content'})
-        if story is None:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        # Check if chapter is marked as VIP (requires an ad to be watched)
+        if chapter_info['isVip']:
+            content_token_url = 'https://%s/apiajax/chapter/GetChapterContentToken?_csrfToken=%s&bookId=%s&chapterId=%s' % (
+                self.getSiteDomain(), self._csrf_token, self.story.getMetadata('storyId'), chapter_id)
+            content_token = json.loads(self._fetchUrl(content_token_url))['data']['token']
 
-        for tag in story.find_all('form') + story.find_all('div',{'class':'cha-bts'}):
-            tag.extract()
+            content_by_token_url = 'https://%s/apiajax/chapter/GetChapterContentByToken?_csrfToken=%s&token=%s' % (
+                self.getSiteDomain(), self._csrf_token, content_token)
 
-        return self.utf8FromSoup(url, story)
+            # This is actually required or the data/content field will be empty
+            time.sleep(self._GET_VIP_CONTENT_DELAY)
+            content = json.loads(self._fetchUrl(content_by_token_url))['data']['content']
+        else:
+            content = chapter_info['content']
+
+        # Turn raw chapter text into HTML
+        content = content.replace('\r', '').replace('\n', '<br />')
+        return content
