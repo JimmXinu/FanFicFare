@@ -413,9 +413,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if 'authorheadnotes' not in exclude_notes and index == 0:
             headnotes = whole_dl_soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
+                ## Also include ul class='associations'.
+                ulassoc = headnotes.find('ul', {'class' : "associations"})
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
-                if headnotes != None:
+                if headnotes != None or ulassoc != None:
                     append_tag(save_chapter,'b',"Author's Note:")
+                if ulassoc != None:
+                    # fix relative links--all examples so far have been.
+                    for alink in ulassoc.find_all('a'):
+                        if 'http' not in alink['href']:
+                            alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    save_chapter.append(ulassoc)
+                if headnotes != None:
                     save_chapter.append(headnotes)
 
         ## Can appear on every chapter
