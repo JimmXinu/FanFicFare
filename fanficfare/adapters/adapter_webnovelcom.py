@@ -22,6 +22,8 @@ import logging
 import re
 import time
 import urllib2
+import cgi
+
 from datetime import datetime, timedelta
 
 from base_adapter import BaseSiteAdapter
@@ -210,5 +212,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             content = chapter_info['content']
 
         # Turn raw chapter text into HTML
-        content = content.replace('\r', '').replace('\n', '<br />')
+        # Not sure if escaping quotes is actually useful, but rather do it than not
+        content = cgi.escape(content, quote=True).replace('\r', '').replace('\n', '<br />')
         return content
