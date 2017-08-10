@@ -471,4 +471,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     append_tag(save_chapter,'b',"Author's Note:")
                     save_chapter.append(footnotes)
 
+        if 'inspiredlinks' not in exclude_notes and index+1 == len(self.chapterUrls):
+            inspiredlinks = whole_dl_soup.find('div', {'id' : "children"})
+            if inspiredlinks != None:
+                if inspiredlinks:
+                    inspiredlinks.find('h3').name='b' # don't want a big h3 at the end.
+                    # fix relative links--all examples so far have been.
+                    for alink in inspiredlinks.find_all('a'):
+                        if 'http' not in alink['href']:
+                            alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    save_chapter.append(inspiredlinks)
+
         return self.utf8FromSoup(url,save_chapter)
