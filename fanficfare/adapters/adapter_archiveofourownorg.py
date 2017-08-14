@@ -42,6 +42,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         self.full_work_soup = None
+        self.use_full_work_soup = True
 
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
@@ -382,7 +383,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## need save_chapter_soup for .new_tag()
         save_chapter=save_chapter_soup.find('div')
 
-        if self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
+        whole_dl_soup = chapter_dl_soup = None
+
+        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
@@ -391,8 +394,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             whole_dl_soup = self.full_work_soup
             chapter_dl_soup = whole_dl_soup.find('div',{'id':'chapter-%s'%(index+1)})
             if not chapter_dl_soup:
-                raise exceptions.FailedToDownload("chapter-%s not found in view_full_work"%(index+1))
-        else:
+                self.use_full_work_soup = False
+                logger.warn("chapter-%s not found in view_full_work--ending use_view_full_work"%(index+1))
+        if not chapter_dl_soup:
             whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url))
             if None == chapter_dl_soup:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
