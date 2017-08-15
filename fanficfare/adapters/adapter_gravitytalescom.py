@@ -176,11 +176,12 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
         if feedparser:
             # Parse published and updated date from latest RSS feed entry. The RSS feed urls seems to appear due to
-            # some JavaScript on the page, so get the URL by mangling the URL (this is not very robust, but probably good
-            # enough)
+            # some JavaScript on the page, so get the URL by mangling the URL (this is not very robust, but probably
+            # good enough)
             rss_feed_url = url.replace('/novel/', '/feed/')
             feed = feedparser.parse(rss_feed_url)
-            date_updated = datetime.fromtimestamp(time.mktime(feed.entries[0].published_parsed))
+            date_updated = datetime.fromtimestamp(
+                time.mktime(feed.entries[0].published_parsed)) if feed.entries else datetime.now()
         else:
             # Fall back to the previous method of generating the published and update date...
             date_updated = datetime.now()
