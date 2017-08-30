@@ -155,7 +155,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             ## normalize named thread urls, too.
             # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/
-            url = re.sub(r'/threads/(.*\.[0-9]+)/',r'/threads/\1/',url)
+            url = re.sub(r'/threads/.*\.([0-9]+)/',r'/threads/\1/',url)
 
             is_chapter_url = True
         return (is_chapter_url,url)
