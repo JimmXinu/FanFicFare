@@ -32,7 +32,7 @@ def logdebug(s):
 was_run_marker=u'FFF_replace_br_with_p_has_been_run'
 def replace_br_with_p(body):
     if was_run_marker in body:
-        logger.debug("replace_br_with_p previously applied, skipping.")
+        # logger.debug("replace_br_with_p previously applied, skipping.")
         return body
 
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
