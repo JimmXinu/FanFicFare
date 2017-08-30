@@ -99,6 +99,7 @@ titleLabels = {
     'extratags':'Extra Tags',
     'title':'Title',
     'storyUrl':'Story URL',
+    'sectionUrl':'Story URL Section',
     'description':'Summary',
     'author':'Author',
     'authorUrl':'Author URL',
@@ -271,6 +272,7 @@ def get_valid_scalar_entries():
                  'title',
                  'titleHTML',
                  'storyUrl',
+                 'sectionUrl',
                  'description',
                  'formatname',
                  'formatext',
@@ -523,6 +525,19 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.pagecache = self.get_empty_pagecache()
 
+    def section_url_names(self,domain,section_url_f):
+        ## domain is passed as a method to limit the damage if/when an
+        ## adapter screws up _section_url
+        domain = domain.replace('www.','') ## let's not confuse the issue any more than it is.
+        try:
+            ## OrderDict (the default for ConfigParser) has to be
+            ## reconstructed completely because removing and re-adding
+            ## a section would mess up the order.
+            ## assumes _dict and _sections from ConfigParser parent.
+            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in self._sections.viewitems())
+            # logger.debug(self._sections.keys())
+        except e:
+            logger.warn("Failed to perform section_url_names: %s"%e)
 
     def addUrlConfigSection(self,url):
         if not self.lightweight: # don't need when just checking for normalized URL.
@@ -1103,6 +1118,9 @@ class Configurable(object):
         ## to deal with caching correctly
         if hasattr(self, 'use_pagecache'):
             self.configuration.use_pagecache = self.use_pagecache()
+
+    def section_url_names(self,domain,section_url_f):
+        return self.configuration.section_url_names(domain,section_url_f)
 
     def get_configuration(self):
         return self.configuration

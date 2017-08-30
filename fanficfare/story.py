@@ -517,7 +517,7 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"),clear=True)
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
-        if key == 'storyUrl' and value:
+        if key == 'sectionUrl' and value:
             self.addUrlConfigSection(value) # adapter/writer share the
                                             # same configuration.
                                             # ignored if config

@@ -160,6 +160,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             is_chapter_url = True
         return (is_chapter_url,url)
 
+    def _section_url(self,url):
+        ## domain is checked in configuration loop.  Can't check for
+        ## storyId, because this is called before story url has been
+        ## parsed.
+        # logger.debug("pre--url:%s"%url)
+        url = re.sub(r'/threads/.*\.(?P<id>[0-9]+)/',r'/threads/\g<id>/',url)
+        # logger.debug("post-url:%s"%url)
+        return url
 
     def use_pagecache(self):
         '''

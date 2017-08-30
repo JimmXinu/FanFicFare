@@ -86,6 +86,8 @@ class BaseSiteAdapter(Configurable):
         self.calibrebookmark = None
         self.logfile = None
 
+        self.section_url_names(self.getSiteDomain(),self._section_url)
+
         ## for doing some performance profiling.
         self.times = TimeKeeper()
 
@@ -102,12 +104,23 @@ class BaseSiteAdapter(Configurable):
         '''
         return False
 
+    def _section_url(self,url):
+        '''
+        For adapters that have story URLs that can change.  This is
+        applied both to the story URL (saved to metadata as
+        sectionUrl) *and* any domain section names that it matches.
+        So it is the adapter's responsibility to pass through
+        *unchanged* any URLs that aren't its own.
+        '''
+        return url
+
     def _setURL(self,url):
         self.url = url
         self.parsedUrl = up.urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
+        self.story.setMetadata('sectionUrl',self._section_url(self.url),condremoveentities=False)
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
     def setChaptersRange(self,first=None,last=None):
