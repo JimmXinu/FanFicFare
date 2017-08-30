@@ -53,7 +53,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
-                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+self.story.getMetadata('storyId')+'/')
+                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+m.group('title')+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -82,7 +82,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         ## need to accept http and https still.
-        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
 
     def _fetchUrlOpened(self, url,
                         parameters=None,
@@ -154,7 +154,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             ## normalize named thread urls, too.
             # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/
-            url = re.sub(r'/threads/.*\.([0-9]+)/',r'/threads/\1/',url)
+            url = re.sub(r'/threads/(.*\.[0-9]+)/',r'/threads/\1/',url)
 
             is_chapter_url = True
         return (is_chapter_url,url)
@@ -274,6 +274,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 logger.info("use useurl: "+useurl)
             else:
                 raise
+        if '#' not in useurl and 'post' not in useurl:
+            self._setURL(useurl) ## for when threadmarked thread name changes.
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
