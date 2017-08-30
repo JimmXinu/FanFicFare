@@ -53,7 +53,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
-                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+m.group('title')+self.story.getMetadata('storyId')+'/')
+                title = m.group('title') or ""
+                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+title+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
