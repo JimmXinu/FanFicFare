@@ -238,12 +238,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8")
 
         for threadmarksa in threadmarksas:
-            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')).encode('utf-8'))
-            # print threadmark_rss_dom.toxml(encoding='utf-8')
-
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
             # get from earlier <a> now.
             tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
+            ## move skip_threadmarks_categories here to save a fetch
+            ## if skipping anyway.  Will also effect
+            ## minimum_threadmarks below.
+            if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                continue
+            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')).encode('utf-8'))
+            # print threadmark_rss_dom.toxml(encoding='utf-8')
 
             for tmcat_index, item in enumerate(threadmark_rss_dom.getElementsByTagName("item")):
                 title = xml_tag_string(item,"title")
@@ -320,8 +324,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     prepend=""
                     if 'tmcat_name' in tm:
                         tmcat_name = tm['tmcat_name']
-                        if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
-                            continue
                         if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                             tmcat_name = 'Omake'
                         if tmcat_name != "Threadmarks":
