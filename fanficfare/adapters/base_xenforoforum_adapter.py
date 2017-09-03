@@ -287,7 +287,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 logger.info("use useurl: "+useurl)
             else:
                 raise
-        if '#' not in useurl and 'post' not in useurl:
+        if '#' not in useurl and '/posts/' not in useurl:
             self._setURL(useurl) ## for when threadmarked thread name changes.
 
         # use BeautifulSoup HTML parser to make everything easier to find.
