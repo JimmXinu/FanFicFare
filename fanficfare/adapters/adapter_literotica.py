@@ -249,7 +249,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                             chapter = chapter[1:].strip() if separater_char in [":", "-"] else chapter
                             logger.debug('\tChapter: "%s"' % chapter)
                             if chapter.lower().startswith('ch.'):
-                                chapter = chapter[len('ch.'):]
+                                chapter = chapter[len('ch.'):].strip()
                                 try:
                                     chapter_title = 'Chapter %d' % int(chapter)
                                 except:
@@ -263,9 +263,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                             elif separater_char in [":", "-"]:
                                 chapter_title = chapter
     
-    #                 if chapter_title == '':
-    #                     chapter_title = chapterLink.string
-
                 # pages include full URLs.
                 chapurl = chapterLink['href']
                 if chapurl.startswith('//'):
@@ -323,18 +320,17 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         page_soup = self.make_soup(raw_page)
         [comment.extract() for comment in page_soup.findAll(text=lambda text:isinstance(text, Comment))]
         story2 = page_soup.find('div', 'b-story-body-x').div
-#         logger.debug("getPageText- name div div...")
-#         logger.debug(soup)
-#         story2.append(page_soup.new_tag('br'))
-        div = self.utf8FromSoup(url, story2)
-#        logger.debug(div)
+#         logger.debug(story2)
+        # Get the page but do not do the br replacement here if it is enabled.
+        div = self.utf8FromSoup(url, story2, allow_replace_br_with_p=False)
+#         logger.debug(div)
 
         fullhtml = unicode(div)
 #         logger.debug(fullhtml)
-        fullhtml = re.sub(r'<br />\s*<br />', r'</p><p>', fullhtml)
-        fullhtml = re.sub(r'^<div>', r'', fullhtml)
+        # Strip some starting and ending tags,
+        fullhtml = re.sub(r'^<div.*?>', r'', fullhtml)
         fullhtml = re.sub(r'</div>$', r'', fullhtml)
-        fullhtml = re.sub(r'(<p><br/></p>\s+)+$', r'', fullhtml)
+        fullhtml = re.sub(r'<p></p>$', r'', fullhtml)
 #         logger.debug(fullhtml)
         return fullhtml
 
@@ -349,10 +345,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         fullhtml = "" 
         self.getCategories(page_soup)
+        chapter_description = ''
         if self.getConfig("description_in_chapter"):
             chapter_description = page_soup.find("meta", {"name" : "description"})['content']
             logger.debug("\tChapter description: %s" % chapter_description)
-            fullhtml += '<p><b>Description:</b> %s</p><hr />' % chapter_description
+            chapter_description = '<p><b>Description:</b> %s</p><hr />' % chapter_description
         fullhtml += self.getPageText(raw_page, url)
         if pages:
             for page_no in xrange(2, len(page_nums) + 1):
@@ -361,11 +358,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 raw_page = self._fetchUrl(page_url)
                 fullhtml += self.getPageText(raw_page, url)
         
-#        fullhtml = self.utf8FromSoup(url, bs.BeautifulSoup(fullhtml))
-#        fullhtml = re.sub(r'^<div>', r'', fullhtml)
-#        fullhtml = re.sub(r'</div>$', r'', fullhtml)
-#        if None == div:
-#            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+#         logger.debug(fullhtml)
+        page_soup = self.make_soup(fullhtml)
+        fullhtml = self.utf8FromSoup(url, self.make_soup(fullhtml))
+        fullhtml = chapter_description + fullhtml
+        fullhtml = unicode(fullhtml)
 
         return fullhtml
 
