@@ -306,12 +306,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             anchorid = useurl.split('#')[1]
             souptag = souptag.find('li',id=anchorid)
         else:
-            # remember if reader link found.
-            self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
             ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
             threadmarks = self.extract_threadmarks(souptag)
 
             if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
+                # remember if reader link found--only applicable if using threadmarks.
+                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
+
                 if self.getConfig('always_include_first_post'):
                     self.chapterUrls.append((first_post_title,useurl))
 
@@ -515,6 +516,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if '#' in url:
                     anchorid = url.split('#')[1]
                     souptag = topsoup.find('li',id=anchorid)
+
+        # remove <div class="baseHtml noticeContent"> because it can
+        # get confused for post content on first posts.
+        for notice in souptag.find_all('div',{'class':'noticeContent'}):
+            notice.extract()
 
         bq = souptag.find('blockquote')
         if not bq:
