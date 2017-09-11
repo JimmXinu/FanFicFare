@@ -27,6 +27,7 @@ import urllib
 import urllib2 as u2
 import urlparse as up
 import cookielib as cl
+import pickle
 
 try:
     from google.appengine.api import apiproxy_stub_map
@@ -916,7 +917,9 @@ class Configuration(ConfigParser.SafeConfigParser):
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
             self.get_pagecache()[cachekey] = (data,redirectedurl)
-
+        # with open('global_cache','wb') as jout:
+        #     pickle.dump(self.pagecache,jout)
+        # self.cookiejar.save('global_cookies')
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
