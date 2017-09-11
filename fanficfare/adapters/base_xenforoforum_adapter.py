@@ -243,7 +243,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         # convenience method.
         def xml_tag_string(dom,tag):
-            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8")
+            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8").decode('utf-8')
 
         for threadmarksa in threadmarksas:
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
