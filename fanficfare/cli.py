@@ -401,7 +401,8 @@ def do_download(arg,
             # regular download
             if options.metaonly:
                 pprint.pprint(adapter.getStoryMetadataOnly().getAllMetadata())
-                pprint.pprint(adapter.chapterUrls)
+                for i, x in enumerate(adapter.chapterUrls):
+                    pprint.pprint( (i+1,x[0],x[1]) )
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
