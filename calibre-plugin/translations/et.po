@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-08-03 12:03+0000\n"
+"PO-Revision-Date: 2017-09-03 14:00+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -348,13 +348,13 @@ msgstr "FanFicFare'i ülemine plugina nupp käivitab raamatu uuendamise,\nkui ra
 
 #: config.py:557
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr ""
+msgstr "Hoia 'Lisa uus URLi(de)st' dialoog kõige peal?"
 
 #: config.py:558
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr ""
+msgstr "Ütleb OS-ile ja akende haldurile, et nad hoiaks 'Lisa uus URLi(de)st'\ndialoogi kõigi teiste akende peal.  Kasulik URLide sellele lohistamiseks."
 
 #: config.py:562
 msgid "Show estimated time left?"
@@ -579,13 +579,13 @@ msgstr ""
 
 #: config.py:863
 msgid "\"Send to Device\" Reading Lists"
-msgstr ""
+msgstr "\"Saada seadmesse\" lugemisloendid"
 
 #: config.py:864 config.py:867 config.py:881 config.py:884
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr ""
+msgstr "Kui lubatud, lisatakse uued/uuendatud jutud automaatselt nendesse loenditesse."
 
 #: config.py:874
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
@@ -1781,7 +1781,7 @@ msgstr ""
 
 #: fff_plugin.py:968
 msgid "Queuing download for stories..."
-msgstr ""
+msgstr "Juttude allalaadimise lisamine järjekorda..."
 
 #: fff_plugin.py:969
 msgid "Queuing download for stories"

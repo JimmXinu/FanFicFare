@@ -2,155 +2,151 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Alex, 2016
-# erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
-# Mario Moens <marimo.it4u@gmail.com>, 2017
-# Nathan Follens, 2015
-# Nathan Follens, 2016
-# Rodolfo_Jadon, 2014-2015
-# Volluta <volluta@tutanota.com>, 2015
-# W.P.M.E. Hofland <wpme.hofland@gmail.com>, 2015
+# Adolfo Jayme-Barrientos, 2014
+# jmontane, 2014
+# Queralt Iglesias <queralt.ig92@gmail.com>, 2016
+# Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>, 2016-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-08-22 13:52+0000\n"
-"Last-Translator: Mario Moens <marimo.it4u@gmail.com>\n"
-"Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
+"PO-Revision-Date: 2017-09-02 11:29+0000\n"
+"Last-Translator: Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>\n"
+"Language-Team: Catalan (http://www.transifex.com/calibre/calibre-plugins/language/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
-"Language: nl\n"
+"Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: __init__.py:48
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "UI-plugin om FanFiction-verhalen van verschillende sites te downloaden."
+msgstr "Connector d'interfície d'usuari per baixar històries de FanFiction de diferents llocs."
 
 #: __init__.py:122
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Pad naar de calibre-bibliotheek. Standaard wordt het pad gebruikt dat in de instellingen is opgeslagen."
+msgstr "Camí a la biblioteca de calibre. Per defecte s'utilitza el camí emmagatzemat als ajusts."
 
 #: common_utils.py:398
 msgid "Keyboard shortcuts"
-msgstr "Sneltoetsen"
+msgstr "Dreceres de teclat"
 
 #: common_utils.py:444
 msgid "Undefined"
-msgstr "Niet gedefinieerd"
+msgstr "Sense definir"
 
 #: common_utils.py:464
 msgid "Prefs Viewer dialog"
-msgstr "voorkeuren dialoogvenster"
+msgstr "Preferències del diàleg del visualitzador"
 
 #: common_utils.py:465
 msgid "Preferences for: "
-msgstr "Voorkeuren voor:"
+msgstr "Preferències per:"
 
 #: common_utils.py:497
 msgid "Clear"
-msgstr "Wis"
+msgstr "Neteja"
 
 #: common_utils.py:499
 msgid "Clear all settings for this plugin"
-msgstr "Wis alle instellingen van deze plugin"
+msgstr "Neteja tots els ajusts per a aquest connector"
 
 #: common_utils.py:526
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "Bent u zeker dat u uw instellingen in deze bibliotheek voor deze invoegtoepassing/plugin wilt wissen?"
+msgstr "Esteu segur que voleu netejar els vostres ajusts en aquesta biblioteca per a aquest connector?"
 
 #: common_utils.py:527
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr "Instellingen in andere bibliotheken of opgeslagen in een JSON-bestand in uw Calibre plugins-folder worden niet aangeroerd."
+msgstr "No es tocaran cap dels ajusts de les altres biblioteques o dels emmagatzemats en qualsevol fitxer JSON en la vostra carpeta de connectors de calibre."
 
 #: common_utils.py:528
 msgid "You must restart calibre afterwards."
-msgstr "U dient calibre achteraf te herstarten."
+msgstr "Heu de reiniciar el calibre després."
 
 #: common_utils.py:537
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Alle instellingen voor de plugin in deze bibliotheek zijn gewist."
+msgstr ""
 
 #: common_utils.py:538
 msgid "Please restart calibre now."
-msgstr "Herstart calibre nu alstublieft."
+msgstr "Reinicieu ara el calibre."
 
 #: common_utils.py:540
 msgid "Restart calibre now"
-msgstr "Calibre nu herstarten"
+msgstr "Reinicia ara el calibre"
 
 #: config.py:194
 msgid "List of Supported Sites"
-msgstr "Lijst van ondersteunde sites"
+msgstr "Llista dels llocs admesos"
 
 #: config.py:196
 msgid "FAQs"
-msgstr "VGV's"
+msgstr "PMF"
 
 #: config.py:211
 msgid "Basic"
-msgstr "Basis"
+msgstr "Bàsic"
 
 #: config.py:222
 msgid "Calibre Cover"
-msgstr "Calibre-omslag"
+msgstr "Portada de calibre"
 
 #: config.py:230
 msgid "Standard Columns"
-msgstr "Standaardkolommen"
+msgstr "Columnes estàndard"
 
 #: config.py:233
 msgid "Custom Columns"
-msgstr "Eigen kolommen"
+msgstr "Columnes personalitzades"
 
 #: config.py:236
 msgid "Email Settings"
-msgstr "E-mailinstellingen"
+msgstr "Ajusts del correu electrònic"
 
 #: config.py:239
 msgid "Other"
-msgstr "Andere"
+msgstr "Altres"
 
 #: config.py:395
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Deze instellingen besturen de basismogelijkheden van de plug-in -- bezig met downloaden van FanFiction."
+msgstr ""
 
 #: config.py:399
 msgid "Defaults Options on Download"
-msgstr "Standaardopties voor downloaden"
+msgstr "Opcions predeterminades amb la baixada"
 
 #: config.py:403
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr "Bij elke download, geeft FanFicFare een optie weer om een uitvoerformaat te selecteren. <br />Dit bepaalt welke standaard deze optie zal bevatten."
+msgstr ""
 
 #: config.py:405
 msgid "Default Output &Format:"
-msgstr "Standaard uitvoer &formaat:"
+msgstr "&Format de sortida predeterminat:"
 
 #: config.py:420
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "Bij elke download, geeft FanFicFare een optie weer wat er gebeurt indien het verhaal reeds bestaat. <br />dit bepaalt welke standaard deze optie zal bevatten."
+msgstr ""
 
 #: config.py:422
 msgid "Default If Story Already Exists?"
-msgstr "Standaard als het verhaal reeds bestaat?"
+msgstr ""
 
 #: config.py:437
 msgid "Default Update Calibre &Metadata?"
-msgstr "Standaard update Calibre &Metadata?"
+msgstr ""
 
 #: config.py:438
 msgid ""
@@ -162,7 +158,7 @@ msgstr ""
 
 #: config.py:442
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr "Update standaard de EPUB Cover bij het updaten van de EPUB?"
+msgstr ""
 
 #: config.py:443
 msgid ""
@@ -173,7 +169,7 @@ msgstr ""
 
 #: config.py:447
 msgid "Default Background Metadata?"
-msgstr "Standaard achtergrond Metadata?"
+msgstr ""
 
 #: config.py:448
 msgid ""
@@ -187,11 +183,11 @@ msgstr ""
 
 #: config.py:454
 msgid "Updating Calibre Options"
-msgstr "Calibre opties bijwerken"
+msgstr ""
 
 #: config.py:458
 msgid "Delete other existing formats?"
-msgstr "Wis andere aanwezige formaten?"
+msgstr "Voleu suprimir els altres formats existents?"
 
 #: config.py:459
 msgid ""
@@ -201,7 +197,7 @@ msgstr ""
 
 #: config.py:463
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "Bestaande Tags behouden wanneer Metadata wordt geüpdatet? "
+msgstr ""
 
 #: config.py:464
 msgid ""
@@ -213,7 +209,7 @@ msgstr ""
 
 #: config.py:468
 msgid "Force Author into Author Sort?"
-msgstr "Forceer auteur naar auteursortering?"
+msgstr ""
 
 #: config.py:469
 msgid ""
@@ -223,7 +219,7 @@ msgstr ""
 
 #: config.py:473
 msgid "Force Title into Title Sort?"
-msgstr "Forceer titel naar titelsortering?"
+msgstr ""
 
 #: config.py:474
 msgid ""
@@ -233,7 +229,7 @@ msgstr ""
 
 #: config.py:478
 msgid "Check for existing Series Anthology books?"
-msgstr "Controle van bestaande Anthologieën serie boeken?"
+msgstr ""
 
 #: config.py:479
 msgid ""
@@ -244,7 +240,7 @@ msgstr ""
 
 #: config.py:483 config.py:600
 msgid "Reject Without Confirmation?"
-msgstr "Afwijzen zonder bevestiging?"
+msgstr ""
 
 #: config.py:484
 msgid ""
@@ -255,7 +251,7 @@ msgstr ""
 
 #: config.py:491
 msgid "Check for changed Story URL?"
-msgstr "Controleer veranderd verhaal URL?"
+msgstr ""
 
 #: config.py:492
 msgid ""
@@ -275,7 +271,7 @@ msgstr ""
 
 #: config.py:501
 msgid "Post Processing Options"
-msgstr ""
+msgstr "Pocions del postprocessament"
 
 #: config.py:505
 msgid "Mark added/updated books when finished?"
@@ -290,7 +286,7 @@ msgstr ""
 
 #: config.py:510
 msgid "Show Marked books when finished?"
-msgstr "Gemarkeerde boeken achteraf tonen?"
+msgstr ""
 
 #: config.py:511
 msgid ""
@@ -301,7 +297,7 @@ msgstr ""
 
 #: config.py:515
 msgid "Smarten Punctuation (EPUB only)"
-msgstr "Slimme interpunctie (enkel EPUB)"
+msgstr "Puntuació intel·ligent (només EPUB)"
 
 #: config.py:516
 msgid ""
@@ -318,11 +314,11 @@ msgstr ""
 
 #: config.py:525
 msgid "Calculate Word Count:"
-msgstr "Bereken aantal woorden:"
+msgstr ""
 
 #: config.py:538
 msgid "Automatically Convert new/update books?"
-msgstr "Nieuw/bijgewerkte boeken automatisch omzetten?"
+msgstr ""
 
 #: config.py:539
 msgid ""
@@ -333,11 +329,11 @@ msgstr ""
 
 #: config.py:543
 msgid "GUI Options"
-msgstr "GUI instellingen"
+msgstr "Opcions de l'IGU"
 
 #: config.py:547
 msgid "Take URLs from Clipboard?"
-msgstr "URLs overnemen van klembord?"
+msgstr ""
 
 #: config.py:548
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
@@ -365,15 +361,15 @@ msgstr ""
 
 #: config.py:562
 msgid "Show estimated time left?"
-msgstr "Toon verwachte resterende tijd?"
+msgstr "Voleu mostrar el temps restant?"
 
 #: config.py:563
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr "Als een voortgangsbalk wordt getoond, geef een ruw geschatte resterende tijd weer."
+msgstr ""
 
 #: config.py:567
 msgid "Misc Options"
-msgstr "Diverse opties"
+msgstr "Altres opcions"
 
 #: config.py:571
 msgid "Inject calibre Series when none found?"
@@ -398,11 +394,11 @@ msgstr ""
 
 #: config.py:581
 msgid "Reject List"
-msgstr "Afgewezen lijst"
+msgstr ""
 
 #: config.py:585
 msgid "Edit Reject URL List"
-msgstr "Bewerk afgewezen URL lijst"
+msgstr ""
 
 #: config.py:586
 msgid "Edit list of URLs FanFicFare will automatically Reject."
@@ -410,7 +406,7 @@ msgstr ""
 
 #: config.py:590 config.py:669
 msgid "Add Reject URLs"
-msgstr "Voeg afgewezen URL's toe"
+msgstr ""
 
 #: config.py:591
 msgid "Add additional URLs to Reject as text."
@@ -418,7 +414,7 @@ msgstr ""
 
 #: config.py:595
 msgid "Edit Reject Reasons List"
-msgstr "Bewerk afwijs-redenen lijst"
+msgstr ""
 
 #: config.py:596 config.py:659
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -438,23 +434,23 @@ msgstr ""
 
 #: config.py:643
 msgid "Edit Reject URLs List"
-msgstr "Bewerk afgewezen URL's lijst"
+msgstr ""
 
 #: config.py:657
 msgid "Reject Reasons"
-msgstr "Redenen afwijzing"
+msgstr ""
 
 #: config.py:658
 msgid "Customize Reject List Reasons"
-msgstr "Lijst met afwijs-redenen personaliseren"
+msgstr ""
 
 #: config.py:667
 msgid "Reason why I rejected it"
-msgstr "Reden waarom ik dit heb afgewezen"
+msgstr ""
 
 #: config.py:667
 msgid "Title by Author"
-msgstr "Titel door auteur"
+msgstr "Títol per autor"
 
 #: config.py:670
 msgid ""
@@ -482,11 +478,11 @@ msgstr ""
 
 #: config.py:696
 msgid "personal.ini"
-msgstr ""
+msgstr "personal.ini"
 
 #: config.py:703 config.py:807 config.py:808
 msgid "Edit personal.ini"
-msgstr "Bewerk personal.ini"
+msgstr "Edita personal.ini"
 
 #: config.py:708
 msgid ""
@@ -516,7 +512,7 @@ msgstr ""
 
 #: config.py:733
 msgid "View Defaults"
-msgstr "Toon standaarden"
+msgstr "Visualitza els valors predeterminats"
 
 #: config.py:744
 msgid "Calibre Columns"
@@ -541,7 +537,7 @@ msgstr ""
 
 #: config.py:766
 msgid "Show Calibre Column Names"
-msgstr "Toon calibre kolomnamen"
+msgstr ""
 
 #: config.py:775
 msgid ""
@@ -550,7 +546,7 @@ msgstr ""
 
 #: config.py:785
 msgid "Plugin Defaults"
-msgstr "Plugin standaarden"
+msgstr "Valors predeterminats del connector"
 
 #: config.py:786
 msgid "Plugin Defaults (%s) (Read-Only)"
@@ -645,7 +641,7 @@ msgstr ""
 
 #: config.py:938
 msgid "Update Calibre Cover (from EPUB):"
-msgstr "Calibre omslag bijwerken (uit EPUB):"
+msgstr "Actualitza la portada de calibre (des de l'EPUB):"
 
 #: config.py:956
 msgid ""
@@ -656,19 +652,19 @@ msgstr ""
 
 #: config.py:960
 msgid "Generate Calibre Cover:"
-msgstr "Genereer calibre omslag:"
+msgstr "Genera la portada de calibre:"
 
 #: config.py:987
 msgid "Plugin %(gc)s"
-msgstr ""
+msgstr "Connector %(gc)s"
 
 #: config.py:988
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr "Maak plug om covers te maken. Aanvullende instellingen staan hieronder."
+msgstr ""
 
 #: config.py:995
 msgid "Calibre Generate Cover"
-msgstr "Calibre gegenereerde cover"
+msgstr ""
 
 #: config.py:996
 msgid ""
@@ -679,7 +675,7 @@ msgstr ""
 
 #: config.py:1010
 msgid "Generate Covers Only for New Books"
-msgstr "Maak enkel nieuwe covers voor nieuwe boeken"
+msgstr ""
 
 #: config.py:1011
 msgid ""
@@ -689,7 +685,7 @@ msgstr ""
 
 #: config.py:1017
 msgid "Inject/update the cover inside EPUB"
-msgstr "Injecteer/update de cover binnen de EPUB"
+msgstr ""
 
 #: config.py:1018
 msgid ""
@@ -712,7 +708,7 @@ msgstr ""
 
 #: config.py:1050 config.py:1054 config.py:1067
 msgid "Default"
-msgstr "Standaard"
+msgstr ""
 
 #: config.py:1055
 msgid ""
@@ -774,15 +770,15 @@ msgstr ""
 
 #: config.py:1187
 msgid "Keyboard shortcuts..."
-msgstr "Sneltoetsen..."
+msgstr "Dreceres de teclat..."
 
 #: config.py:1188
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr "Bewerk de sneltoetsen voor deze plugin"
+msgstr "Edita les dreceres de teclat associades amb aquest connector"
 
 #: config.py:1192
 msgid "Reset disabled &confirmation dialogs"
-msgstr "Uitgeschakelde &bevestigins-meldingen weer tonen"
+msgstr ""
 
 #: config.py:1193
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
@@ -790,159 +786,159 @@ msgstr ""
 
 #: config.py:1197
 msgid "&View library preferences..."
-msgstr "&Bibliotheekvoorkeuren weergeven..."
+msgstr "&Mostra les preferències de la biblioteca..."
 
 #: config.py:1198
 msgid "View data stored in the library database for this plugin"
-msgstr "Bekijk gegevens opgeslagen in de bibliotheekdatabase voor deze plugin"
+msgstr "Mostra les dades emmagatzemades a la base de dades de la biblioteca per a aquest connector"
 
 #: config.py:1208
 msgid "Done"
-msgstr "Klaar"
+msgstr "Fet"
 
 #: config.py:1209
 msgid "Confirmation dialogs have all been reset"
-msgstr "Bevestigingsdialogen zijn allemaal gereset"
+msgstr "S'han restablert tots els diàlegs de confirmació"
 
 #: config.py:1257
 msgid "Category"
-msgstr "Categorie"
+msgstr "Categoria"
 
 #: config.py:1258
 msgid "Genre"
-msgstr "Genre"
+msgstr "Gènere"
 
 #: config.py:1259
 msgid "Language"
-msgstr "Taal"
+msgstr "Llengua"
 
 #: config.py:1260 fff_plugin.py:1478 fff_plugin.py:1690 fff_plugin.py:1720
 msgid "Status"
-msgstr "Status"
+msgstr "Estat"
 
 #: config.py:1261
 msgid "Status:%(cmplt)s"
-msgstr "Status:%(cmplt)s"
+msgstr "Estat:%(cmplt)s"
 
 #: config.py:1262
 msgid "Status:%(inprog)s"
-msgstr "Status:%(inprog)s"
+msgstr "Estat:%(inprog)s"
 
 #: config.py:1263 config.py:1443
 msgid "Series"
-msgstr "Reeks"
+msgstr "Sèrie"
 
 #: config.py:1264
 msgid "Characters"
-msgstr "Karakters"
+msgstr "Personatges"
 
 #: config.py:1265
 msgid "Relationships"
-msgstr "Relaties"
+msgstr ""
 
 #: config.py:1266
 msgid "Published"
-msgstr "Gepubliceerd"
+msgstr "Publicació"
 
 #: config.py:1267 fff_plugin.py:1868 fff_plugin.py:1884
 msgid "Updated"
-msgstr "Geüpdatet"
+msgstr "Actualització"
 
 #: config.py:1268
 msgid "Created"
-msgstr "Gemaakt"
+msgstr "Creació"
 
 #: config.py:1269
 msgid "Rating"
-msgstr "Waardering"
+msgstr "Valoració"
 
 #: config.py:1270
 msgid "Warnings"
-msgstr "Waarschuwingen"
+msgstr "Advertències"
 
 #: config.py:1271
 msgid "Chapters"
-msgstr "Hoofdstukken"
+msgstr "Capítols"
 
 #: config.py:1272
 msgid "Words"
-msgstr "Woorden"
+msgstr "Paraules"
 
 #: config.py:1273
 msgid "Site"
-msgstr "Site"
+msgstr "Lloc"
 
 #: config.py:1274
 msgid "Story ID"
-msgstr "Verhaal-ID"
+msgstr "Id. de la història"
 
 #: config.py:1275
 msgid "Author ID"
-msgstr "Auteurs-ID"
+msgstr "Id. de l'autor"
 
 #: config.py:1276
 msgid "Extra Tags"
-msgstr "Extra tags"
+msgstr "Etiquetes addicionals"
 
 #: config.py:1277 config.py:1435 dialogs.py:917 dialogs.py:1013
 #: fff_plugin.py:1478 fff_plugin.py:1690 fff_plugin.py:1720
 msgid "Title"
-msgstr "Titel"
+msgstr "Títol"
 
 #: config.py:1278
 msgid "Story URL"
-msgstr "Verhaal-URL"
+msgstr "URL de la història"
 
 #: config.py:1279
 msgid "Description"
-msgstr "Beschrijving"
+msgstr "Descripció"
 
 #: config.py:1280 dialogs.py:917 dialogs.py:1013 fff_plugin.py:1478
 #: fff_plugin.py:1690 fff_plugin.py:1720
 msgid "Author"
-msgstr "Auteur"
+msgstr "Autor"
 
 #: config.py:1281
 msgid "Author URL"
-msgstr "Auteurs-URL"
+msgstr "URL de l'autor"
 
 #: config.py:1282
 msgid "File Format"
-msgstr "Bestandsformaat"
+msgstr "Format del fitxer"
 
 #: config.py:1283
 msgid "File Extension"
-msgstr "Bestandsextensie"
+msgstr "Extensió del fitxer"
 
 #: config.py:1284
 msgid "Site Abbrev"
-msgstr "Site-afkorting"
+msgstr ""
 
 #: config.py:1285
 msgid "FanFicFare Version"
-msgstr "FanFicFare versie"
+msgstr ""
 
 #: config.py:1300
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
-msgstr "Als je eigen kolommen hebt gedefinieerd, zullen ze hieronder worden weergegeven. Kies een metadatawaardesoort om je kolommen automatisch in te vullen."
+msgstr ""
 
 #: config.py:1325
 msgid "Update this %s column(%s) with..."
-msgstr "Update deze %s kolom(%s) met..."
+msgstr ""
 
 #: config.py:1335
 msgid "Values that aren't valid for this enumeration column will be ignored."
-msgstr "Waarden die voor deze opsommingskolom ongeldig zijn worden genegeerd."
+msgstr ""
 
 #: config.py:1335 config.py:1337
 msgid "Metadata values valid for this type of column."
-msgstr "Metadatawaarden geldig voor deze soort van kolom."
+msgstr ""
 
 #: config.py:1340 config.py:1462
 msgid "New Only"
-msgstr "Alleen nieuwe"
+msgstr ""
 
 #: config.py:1341
 msgid ""
@@ -963,11 +959,11 @@ msgstr ""
 
 #: config.py:1357
 msgid "Special column:"
-msgstr "Speciale kolom:"
+msgstr ""
 
 #: config.py:1362
 msgid "Update/Overwrite Error Column:"
-msgstr "Update/overschrijf fout kolom:"
+msgstr ""
 
 #: config.py:1363
 msgid ""
@@ -977,7 +973,7 @@ msgstr ""
 
 #: config.py:1376
 msgid "Save All Errors"
-msgstr "Sla alle fouten op"
+msgstr ""
 
 #: config.py:1377
 msgid "If unchecked, these errors will not be saved: %s"
@@ -985,11 +981,11 @@ msgstr ""
 
 #: config.py:1379 fff_plugin.py:1356 jobs.py:219
 msgid "Not Overwriting, web site is not newer."
-msgstr "Niets overschreven, web site is niet nieuwer."
+msgstr ""
 
 #: config.py:1380 fff_plugin.py:1335 jobs.py:258
 msgid "Already contains %d chapters."
-msgstr "Bevat al %d hoofdstukken."
+msgstr ""
 
 #: config.py:1387
 msgid "Saved Metadata Column:"
@@ -1015,35 +1011,35 @@ msgstr ""
 
 #: config.py:1436
 msgid "Author(s)"
-msgstr "Auteur(s)"
+msgstr "Autor(s)"
 
 #: config.py:1437
 msgid "Publisher"
-msgstr "Uitgever"
+msgstr "Editor"
 
 #: config.py:1438
 msgid "Tags"
-msgstr "Tags"
+msgstr "Etiquetes"
 
 #: config.py:1439
 msgid "Languages"
-msgstr "Talen"
+msgstr "Llengües"
 
 #: config.py:1440
 msgid "Published Date"
-msgstr "Datum van uitgave"
+msgstr "Data de publicació"
 
 #: config.py:1441
 msgid "Date"
-msgstr "Datum"
+msgstr "Data"
 
 #: config.py:1442
 msgid "Comments"
-msgstr "Reacties"
+msgstr "Comentaris"
 
 #: config.py:1444
 msgid "Ids(url id only)"
-msgstr "ID's (alleen URL ID)"
+msgstr ""
 
 #: config.py:1449
 msgid ""
@@ -1064,7 +1060,7 @@ msgstr ""
 
 #: config.py:1477
 msgid "Set Calibre Author URL"
-msgstr "Stel de Calibre auteur in van URL"
+msgstr ""
 
 #: config.py:1478
 msgid "Set Calibre Author URL to Author's URL on story site."
@@ -1072,7 +1068,7 @@ msgstr ""
 
 #: config.py:1482
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr "Gebruik de commentaren van de Anthologie? "
+msgstr ""
 
 #: config.py:1483
 msgid ""
@@ -1082,24 +1078,24 @@ msgstr ""
 
 #: config.py:1488
 msgid "Set Anthology Comments only for new books"
-msgstr "Stel de Anthologie commentaren in voor nieuwe boeken"
+msgstr ""
 
 #: config.py:1489
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
-msgstr "Commentaren zal enkel gebruikt worden voor nieuwe Anthologieën, geen updates. Op deze manier, zijn je eigen commentaren gevrijwaard."
+msgstr ""
 
 #: config.py:1506
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr "Deze instellingen staat FanFicFace toe om URL van verhalen te downloaden vanaf je e-mail. Het zal enkel kijken naar URLs van ongelezen e-amails in de map hieronder gespecificeerd."
+msgstr ""
 
 #: config.py:1511
 msgid "IMAP Server Name"
-msgstr "IMAP server naam"
+msgstr ""
 
 #: config.py:1512
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
@@ -1107,7 +1103,7 @@ msgstr ""
 
 #: config.py:1521
 msgid "IMAP User Name"
-msgstr "IMAP gebruikersnaam"
+msgstr ""
 
 #: config.py:1522
 msgid ""
@@ -1117,7 +1113,7 @@ msgstr ""
 
 #: config.py:1531
 msgid "IMAP User Password"
-msgstr "IMAP gebruikerswachtwoord"
+msgstr ""
 
 #: config.py:1532
 msgid ""
@@ -1147,7 +1143,7 @@ msgstr ""
 
 #: config.py:1558
 msgid "Mark Emails Read"
-msgstr "Markeer emails gelezen"
+msgstr ""
 
 #: config.py:1559
 msgid ""
@@ -1169,7 +1165,7 @@ msgstr ""
 
 #: config.py:1570
 msgid "Update Existing Books Only"
-msgstr "Update aleen bestaande boeken"
+msgstr ""
 
 #: config.py:1571
 msgid ""
@@ -1180,7 +1176,7 @@ msgstr ""
 
 #: config.py:1576
 msgid "Download from Email Immediately"
-msgstr "Onmiddellijk downloaden van e-mail."
+msgstr ""
 
 #: config.py:1577
 msgid ""
@@ -1198,20 +1194,20 @@ msgstr ""
 
 #: dialogs.py:245 dialogs.py:797
 msgid "Show Download Options"
-msgstr "Downloadopties weergeven"
+msgstr "Mostra les opcions de la baixada"
 
 #: dialogs.py:264 dialogs.py:817
 msgid "Output &Format:"
-msgstr "Uitvoer &Formaat:"
+msgstr "&Format de sortida:"
 
 #: dialogs.py:272 dialogs.py:825
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr "Kies output formaat bij het maken. Kan de standaardwaarden aanpassen van de plugin configuratie."
+msgstr ""
 
 #: dialogs.py:300 dialogs.py:845
 msgid "Update Calibre &Metadata?"
-msgstr "Calibre &Metadata bijwerken?"
+msgstr "Voleu actualitzar les metadades de calibre?"
 
 #: dialogs.py:301 dialogs.py:846
 msgid ""
@@ -1221,7 +1217,7 @@ msgstr ""
 
 #: dialogs.py:307 dialogs.py:850
 msgid "Update EPUB Cover?"
-msgstr "Update EPUB Cover?"
+msgstr "Voleu actualitzar la portada de l'EPUB?"
 
 #: dialogs.py:308 dialogs.py:851
 msgid ""
@@ -1231,7 +1227,7 @@ msgstr ""
 
 #: dialogs.py:370
 msgid "Story URLs for anthology, one per line:"
-msgstr "Verhaal URLs for anthologie, één per lijn"
+msgstr ""
 
 #: dialogs.py:371
 msgid ""
@@ -1241,17 +1237,17 @@ msgstr ""
 
 #: dialogs.py:372
 msgid "If Story Already Exists in Anthology?"
-msgstr "Wat als verhaal reeds bestaat in Anthologie?"
+msgstr ""
 
 #: dialogs.py:373
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
-msgstr "Wat te doen als er reeds een bestaand verhaal bestaat met dezelfde URL in de anthologie."
+msgstr ""
 
 #: dialogs.py:382
 msgid "Story URLs, one per line:"
-msgstr "Verhaal URLs, één per lijn"
+msgstr ""
 
 #: dialogs.py:383
 msgid ""
@@ -1262,25 +1258,25 @@ msgstr ""
 
 #: dialogs.py:384
 msgid "If Story Already Exists?"
-msgstr "Wat als het verhaal reeds bestaat?"
+msgstr ""
 
 #: dialogs.py:385
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
-msgstr "Wat te doen als er reeds een verhaal bestaat met dezelfde URL of titel en auteur."
+msgstr ""
 
 #: dialogs.py:505
 msgid "For Individual Books"
-msgstr "Voor individuele boeken"
+msgstr ""
 
 #: dialogs.py:506
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr "Haal de URLs op en ga naar het download dialoogvenster van individuele verhalen"
+msgstr ""
 
 #: dialogs.py:511
 msgid "For Anthology Epub"
-msgstr "Voor Anthologie Epub"
+msgstr ""
 
 #: dialogs.py:512
 msgid ""
@@ -1290,103 +1286,103 @@ msgstr ""
 
 #: dialogs.py:516 dialogs.py:570 dialogs.py:617 dialogs.py:1540
 msgid "Cancel"
-msgstr "Annuleren"
+msgstr "Cancel·la"
 
 #: dialogs.py:548 dialogs.py:1528
 msgid "Password"
-msgstr "Wachtwoord"
+msgstr "Contrasenya"
 
 #: dialogs.py:549
 msgid "Author requires a password for this story(%s)."
-msgstr "Auteur vereist een wachtwoord voor dit verhaal(%s)."
+msgstr ""
 
 #: dialogs.py:554
 msgid "User/Password"
-msgstr "Gebruiker/wachtwoord"
+msgstr "Usuari i contrasenya"
 
 #: dialogs.py:555
 msgid "%s requires you to login to download this story."
-msgstr "%s vereist dat je inlogt om dit verhaal te downloaden."
+msgstr ""
 
 #: dialogs.py:557
 msgid "User:"
-msgstr "Gebruiker:"
+msgstr "Usuari:"
 
 #: dialogs.py:561
 msgid "Password:"
-msgstr "Wachtwoord:"
+msgstr "Contrasenya:"
 
 #: dialogs.py:566 dialogs.py:739 dialogs.py:1536
 msgid "OK"
-msgstr "OK"
+msgstr "D’acord"
 
 #: dialogs.py:588 dialogs.py:612 fff_plugin.py:973
 msgid "Fetching metadata for stories..."
-msgstr "Bezig met ophalen van metadata voor verhalen..."
+msgstr ""
 
 #: dialogs.py:589 dialogs.py:613 fff_plugin.py:974
 msgid "Downloading metadata for stories"
-msgstr "Bezig met downloaden van metadata voor verhalen"
+msgstr ""
 
 #: dialogs.py:590 dialogs.py:614 fff_plugin.py:975
 msgid "Fetched metadata for"
-msgstr "Metadata opgehaald voor"
+msgstr ""
 
 #: dialogs.py:644
 msgid " - %s estimated until done"
-msgstr " - %s geschat tot einde"
+msgstr ""
 
 #: dialogs.py:668 fff_plugin.py:1185
 msgid "Skipped"
-msgstr "Overgeslaan"
+msgstr ""
 
 #: dialogs.py:699
 msgid "%d day"
-msgstr "%d dag"
+msgstr "%d dia"
 
 #: dialogs.py:699
 msgid "%d days"
-msgstr "%d dagen"
+msgstr "%d dies"
 
 #: dialogs.py:700
 msgid "%d hour"
-msgstr "%d uur"
+msgstr "%d hora"
 
 #: dialogs.py:700
 msgid "%d hours"
-msgstr "%d uren"
+msgstr "%d hores"
 
 #: dialogs.py:701
 msgid "%d minute"
-msgstr "%d minuut"
+msgstr "%d minut"
 
 #: dialogs.py:701
 msgid "%d minutes"
-msgstr "%d minuten"
+msgstr "%d minuts"
 
 #: dialogs.py:702
 msgid "%d second"
-msgstr "%d seconde"
+msgstr "%d segon"
 
 #: dialogs.py:702
 msgid "%d seconds"
-msgstr "%d seconden"
+msgstr "%d segons"
 
 #: dialogs.py:717
 msgid "less than 1 second"
-msgstr "minder dan 1 seconde"
+msgstr "menys d'1 segon"
 
 #: dialogs.py:734 fff_plugin.py:387 fff_plugin.py:390
 msgid "About FanFicFare"
-msgstr "Over FanFicFare"
+msgstr "Quant a FanFicFare"
 
 #: dialogs.py:788
 msgid "Remove selected books from the list"
-msgstr "Geselecteerde boeken uit de lijst verwijderen"
+msgstr ""
 
 #: dialogs.py:830
 msgid "Update Mode:"
-msgstr "Update-modus:"
+msgstr "Mode d'actualització:"
 
 #: dialogs.py:833
 msgid ""
@@ -1395,7 +1391,7 @@ msgstr ""
 
 #: dialogs.py:855
 msgid "Background Metadata?"
-msgstr "Achtergrond metadata?"
+msgstr ""
 
 #: dialogs.py:856
 msgid ""
@@ -1407,19 +1403,19 @@ msgstr ""
 
 #: dialogs.py:917 fff_plugin.py:1478 fff_plugin.py:1690 fff_plugin.py:1720
 msgid "Comment"
-msgstr "Reageer"
+msgstr "Comentari"
 
 #: dialogs.py:985
 msgid "Are you sure you want to remove this book from the list?"
-msgstr "Ben je zeker dat je dit boek uit de lijst wil verwijderen?"
+msgstr ""
 
 #: dialogs.py:987
 msgid "Are you sure you want to remove the selected %d books from the list?"
-msgstr "Ben je zeker dat je de geselecteerde %d boeken uit de lijst wil verwijderen?"
+msgstr ""
 
 #: dialogs.py:1013
 msgid "Note"
-msgstr "Noot"
+msgstr "Nota"
 
 #: dialogs.py:1052
 msgid "Select or Edit Reject Note."
@@ -1427,15 +1423,15 @@ msgstr ""
 
 #: dialogs.py:1061
 msgid "Are you sure you want to remove this URL from the list?"
-msgstr "Weet u zeker dat u deze URL van de lijst wilt verwijderen?"
+msgstr ""
 
 #: dialogs.py:1063
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
-msgstr "Weet u zeker dat u de %d geselecteerde URLs van de lijst wilt verwijderen?"
+msgstr ""
 
 #: dialogs.py:1081
 msgid "List of Books to Reject"
-msgstr "Lijst met boeken om af te wijzen"
+msgstr ""
 
 #: dialogs.py:1094
 msgid ""
@@ -1445,7 +1441,7 @@ msgstr ""
 
 #: dialogs.py:1108
 msgid "Remove selected URLs from the list"
-msgstr "Verwijder geselecteerde URLs van de lijst"
+msgstr ""
 
 #: dialogs.py:1123 dialogs.py:1127
 msgid "This will be added to whatever note you've set for each URL above."
@@ -1453,7 +1449,7 @@ msgstr ""
 
 #: dialogs.py:1140
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "Verwijder boeken (inclusief boeken zonder FanFiction URLs)?"
+msgstr ""
 
 #: dialogs.py:1141
 msgid "Delete the selected books after adding them to the Rejected URLs list."
@@ -1461,19 +1457,19 @@ msgstr ""
 
 #: dialogs.py:1297
 msgid "Search for string in edit box."
-msgstr "Zoek naar text in het zoekvenster"
+msgstr ""
 
 #: dialogs.py:1300
 msgid "Find:"
-msgstr "Zoeken:"
+msgstr "Troba:"
 
 #: dialogs.py:1305
 msgid "Find"
-msgstr "Zoeken"
+msgstr "Troba"
 
 #: dialogs.py:1315
 msgid "Case sensitive"
-msgstr "Hoofdlettergevoelig"
+msgstr "Distingeix les majúscules de les minúscules"
 
 #: dialogs.py:1316
 msgid ""
@@ -1483,27 +1479,27 @@ msgstr ""
 
 #: dialogs.py:1345
 msgid "Go back to fix errors?"
-msgstr "Terug gaan om fouten te herstellen?"
+msgstr "Voleu tornar per corregir els errors?"
 
 #: dialogs.py:1457
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr ""
+msgstr "Feu clic a un error a continuació per tornar directament a l'edició en aquesta línia:"
 
 #: dialogs.py:1480
 msgid "Click to go to line %s"
-msgstr "Klik om naar lijn %s te gaan"
+msgstr "Feu clic per anar a la línia %s"
 
 #: dialogs.py:1496
 msgid "Return to Editing"
-msgstr "Terug naar bewerken"
+msgstr "Torna a l'edició"
 
 #: dialogs.py:1500
 msgid "Save Anyway"
-msgstr "Toch opslaan"
+msgstr "Desa de totes maneres"
 
 #: dialogs.py:1529
 msgid "Enter Email Password for %s:"
-msgstr "Voer E-mail wachtwoord in voor %s:"
+msgstr "Introduïu la contrasenya del correu electrònic per %s:"
 
 #: fff_plugin.py:137 fff_plugin.py:168
 msgid "FanFicFare"
@@ -1511,51 +1507,51 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:138
 msgid "Download FanFiction stories from various web sites"
-msgstr "FanFiction-verhalen downloaden van verschillende websites"
+msgstr ""
 
 #: fff_plugin.py:299
 msgid "&Download from URLs"
-msgstr "&Download van URLs"
+msgstr "Baixa &dels URL"
 
 #: fff_plugin.py:301
 msgid "Download FanFiction Books from URLs"
-msgstr "Download FanFiction boeken van URLs"
+msgstr ""
 
 #: fff_plugin.py:304
 msgid "&Update Existing FanFiction Books"
-msgstr "&Update Bestaande FanFiction boeken"
+msgstr ""
 
 #: fff_plugin.py:309
 msgid "Get Story URLs from &Email"
-msgstr "Haal de URLs op van &Email"
+msgstr ""
 
 #: fff_plugin.py:313 fff_plugin.py:537
 msgid "Get Story URLs from Web Page"
-msgstr "Haal de URl's op van web pagina"
+msgstr ""
 
 #: fff_plugin.py:319
 msgid "&Make Anthology Epub from URLs"
-msgstr "&Maak Anthologie Epub van URLs"
+msgstr ""
 
 #: fff_plugin.py:321
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr "Maak FanFiction Anthologie Epub van URLs"
+msgstr ""
 
 #: fff_plugin.py:324
 msgid "Make Anthology Epub from Web Page"
-msgstr "Maak Anthologie Epub van web pagina"
+msgstr ""
 
 #: fff_plugin.py:326
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr "Maak FanFiction Anthologie Epub van web pagina"
+msgstr ""
 
 #: fff_plugin.py:329
 msgid "Update Anthology Epub"
-msgstr "Update Anthologie Epub"
+msgstr ""
 
 #: fff_plugin.py:331
 msgid "Update FanFiction Anthology Epub"
-msgstr "Update FanFiction Anthologie Epub"
+msgstr ""
 
 #: fff_plugin.py:338
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1579,23 +1575,23 @@ msgstr ""
 
 #: fff_plugin.py:362
 msgid "Remove \"New\" Chapter Marks from Selected books"
-msgstr "Verwijder \"Nieuwe\" hoofdstuk markering van geselecteerde boeken"
+msgstr ""
 
 #: fff_plugin.py:368
 msgid "Get Story URLs from Selected Books"
-msgstr "Haal de URL's op van de geselecteerde boeken"
+msgstr ""
 
 #: fff_plugin.py:373
 msgid "Reject Selected Books"
-msgstr "Geselecteerde boeken afwijzen"
+msgstr ""
 
 #: fff_plugin.py:381
 msgid "&Configure FanFicFare"
-msgstr "FanFicFare &instellen"
+msgstr "&Configura FanFicFare"
 
 #: fff_plugin.py:384
 msgid "Configure FanFicFare"
-msgstr "FanFicFare instellen"
+msgstr "Configura FanFicFare"
 
 #: fff_plugin.py:439
 msgid "Cannot Update Reading Lists from Device View"
@@ -1607,7 +1603,7 @@ msgstr ""
 
 #: fff_plugin.py:453
 msgid "FanFicFare Email Settings are not configured."
-msgstr "FanFicFare e-mail instellingen zijn niet geconfigureerd."
+msgstr ""
 
 #: fff_plugin.py:473
 msgid "Fetching Story URLs from Email..."
@@ -1615,11 +1611,11 @@ msgstr ""
 
 #: fff_plugin.py:496 fff_plugin.py:518
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr "Geen geldige verhaal URLs gevonden in ongelezen e-mails."
+msgstr ""
 
 #: fff_plugin.py:512
 msgid "Finished Fetching Story URLs from Email."
-msgstr "Ophalen van verhaal URL's van e-mail zijn beëindigd."
+msgstr ""
 
 #: fff_plugin.py:520
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -1631,7 +1627,7 @@ msgstr ""
 
 #: fff_plugin.py:523
 msgid "Get Story URLs from Email"
-msgstr "Haal de verhaal URL's op van e-mail."
+msgstr ""
 
 #: fff_plugin.py:546
 msgid "Fetching Story URLs from Page..."
@@ -1639,11 +1635,11 @@ msgstr ""
 
 #: fff_plugin.py:550
 msgid "Finished Fetching Story URLs from Page."
-msgstr "Ophalen van verhaal URL's van web pagina is beëindigd."
+msgstr ""
 
 #: fff_plugin.py:556 fff_plugin.py:609
 msgid "List of Story URLs"
-msgstr "Lijst van verhaal-URL's"
+msgstr ""
 
 #: fff_plugin.py:557
 msgid "No Valid Story URLs found on given page."
@@ -1655,23 +1651,23 @@ msgstr ""
 
 #: fff_plugin.py:591
 msgid "Collecting URLs for stories..."
-msgstr "Bezig met verzamelen van URL's voor verhalen..."
+msgstr ""
 
 #: fff_plugin.py:592
 msgid "Get URLs for stories"
-msgstr "Verzamel URL's voor verhalen"
+msgstr ""
 
 #: fff_plugin.py:593 fff_plugin.py:705 fff_plugin.py:898
 msgid "URL retrieved"
-msgstr "URL opgehaald"
+msgstr ""
 
 #: fff_plugin.py:613
 msgid "List of URLs"
-msgstr "Lijst van URL's"
+msgstr "Llista dels URL"
 
 #: fff_plugin.py:614
 msgid "No Story URLs found in selected books."
-msgstr "Geen verhaal URLs gevonden in geselecteerde boeken."
+msgstr ""
 
 #: fff_plugin.py:621
 msgid "Can only UnNew books in library"
@@ -1707,7 +1703,7 @@ msgstr ""
 
 #: fff_plugin.py:739
 msgid "Proceed to Remove?"
-msgstr "Doorgaan met verwijderen?"
+msgstr ""
 
 #: fff_plugin.py:739
 msgid ""
@@ -1716,23 +1712,23 @@ msgstr ""
 
 #: fff_plugin.py:761
 msgid "Cannot Make Anthologys without %s"
-msgstr ""
+msgstr "No es poden fer les antologies sense %s"
 
 #: fff_plugin.py:765 fff_plugin.py:875
 msgid "Cannot Update Books from Device View"
-msgstr ""
+msgstr "No es poden actualitzar els llibres des de la vista del dispositiu"
 
 #: fff_plugin.py:769
 msgid "Can only update 1 anthology at a time"
-msgstr ""
+msgstr "Només es pot actualitzar 1 antologia alhora"
 
 #: fff_plugin.py:778
 msgid "Can only Update Epub Anthologies"
-msgstr ""
+msgstr "Només es poden actualitzar les antologies dels EPUB"
 
 #: fff_plugin.py:796 fff_plugin.py:797
 msgid "Cannot Update Anthology"
-msgstr "Kan de Anthologie niet updaten"
+msgstr "No es pot actualitzar l'antologia"
 
 #: fff_plugin.py:797
 msgid ""
@@ -1742,11 +1738,11 @@ msgstr ""
 
 #: fff_plugin.py:804
 msgid "Fetching Story URLs for Series..."
-msgstr "Haal de verhaal URL's op voor series..."
+msgstr ""
 
 #: fff_plugin.py:814
 msgid "Finished Fetching Story URLs for Series."
-msgstr "Ophalen van verhaal URL's van series beëindigd."
+msgstr ""
 
 #: fff_plugin.py:861
 msgid ""
@@ -1760,15 +1756,15 @@ msgstr ""
 
 #: fff_plugin.py:864
 msgid "Update anyway?"
-msgstr "Toch bijwerken?"
+msgstr "Voleu actualitzar igualment?"
 
 #: fff_plugin.py:865
 msgid "Stories Removed"
-msgstr "Verhalen verwijderd"
+msgstr ""
 
 #: fff_plugin.py:882
 msgid "No Selected Books to Update"
-msgstr "Geen boeken geselecteerd om bij te werken"
+msgstr ""
 
 #: fff_plugin.py:896
 msgid "Collecting stories for update..."
@@ -1780,7 +1776,7 @@ msgstr ""
 
 #: fff_plugin.py:907
 msgid "Update Existing List"
-msgstr "Bestaande lijst bijwerken"
+msgstr ""
 
 #: fff_plugin.py:967
 msgid "Start queuing downloading for %s stories."
@@ -1808,7 +1804,7 @@ msgstr ""
 
 #: fff_plugin.py:996 fff_plugin.py:1002
 msgid "Reject URL?"
-msgstr "URL afwijzen?"
+msgstr ""
 
 #: fff_plugin.py:1003 fff_plugin.py:1021
 msgid "<b>%s</b> is on your Reject URL list:"
@@ -1828,11 +1824,11 @@ msgstr ""
 
 #: fff_plugin.py:1011
 msgid "Rejected"
-msgstr "Afgewezen"
+msgstr ""
 
 #: fff_plugin.py:1014
 msgid "Remove Reject URL?"
-msgstr "Verwijder afgewezen URL?"
+msgstr ""
 
 #: fff_plugin.py:1020
 msgid "Remove URL from Reject List?"
@@ -1848,21 +1844,21 @@ msgstr ""
 
 #: fff_plugin.py:1068
 msgid "Cannot update non-epub format."
-msgstr "Kan "
+msgstr ""
 
 #: fff_plugin.py:1144
 msgid "Are You an Adult?"
-msgstr "Bent u een volwassene?"
+msgstr ""
 
 #: fff_plugin.py:1145
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
-msgstr "%s vereist dat je een volwassene bent. Gelieve te bevestigen dat je een volwassen bent:"
+msgstr ""
 
 #: fff_plugin.py:1168
 msgid "Skip Story?"
-msgstr "Verhaal overslaan?"
+msgstr ""
 
 #: fff_plugin.py:1174
 msgid "Skip Anthology Story?"
@@ -1884,11 +1880,11 @@ msgstr ""
 
 #: fff_plugin.py:1195
 msgid "Add"
-msgstr "Toevoegen"
+msgstr "Afegeix"
 
 #: fff_plugin.py:1228
 msgid "Meta"
-msgstr "Meta"
+msgstr ""
 
 #: fff_plugin.py:1257
 msgid "Skipping duplicate story."
@@ -1902,7 +1898,7 @@ msgstr ""
 
 #: fff_plugin.py:1271
 msgid "Update"
-msgstr "Updaten"
+msgstr "Actualitza"
 
 #: fff_plugin.py:1279 fff_plugin.py:1286
 msgid "Change Story URL?"
@@ -1932,7 +1928,7 @@ msgstr ""
 
 #: fff_plugin.py:1293 fff_plugin.py:1300
 msgid "Download as New Book?"
-msgstr "Downloaden als nieuw boek?"
+msgstr "Voleu baixar-ho com un llibre nou?"
 
 #: fff_plugin.py:1301
 msgid ""
@@ -1960,11 +1956,11 @@ msgstr ""
 
 #: fff_plugin.py:1314
 msgid "Different URL"
-msgstr "Andere URL"
+msgstr "URL diderent"
 
 #: fff_plugin.py:1319 jobs.py:194
 msgid "Metadata collected."
-msgstr "Metadata verzameld."
+msgstr ""
 
 #: fff_plugin.py:1337 jobs.py:260
 msgid ""
@@ -1984,7 +1980,7 @@ msgstr ""
 
 #: fff_plugin.py:1475 fff_plugin.py:1686 fff_plugin.py:1716
 msgid "See log for details."
-msgstr "Zie log voor details."
+msgstr "Vegeu el registre per als detalls."
 
 #: fff_plugin.py:1476
 msgid ""
@@ -1994,31 +1990,31 @@ msgstr ""
 
 #: fff_plugin.py:1483 fff_plugin.py:1698 fff_plugin.py:1732
 msgid "Bad"
-msgstr "Slecht"
+msgstr ""
 
 #: fff_plugin.py:1494 fff_plugin.py:1500
 msgid "FanFicFare download ended"
-msgstr "FanFicFare download beëindigd"
+msgstr ""
 
 #: fff_plugin.py:1494 fff_plugin.py:1500 fff_plugin.py:1743 fff_plugin.py:1749
 msgid "FanFicFare log"
-msgstr "FanFicFare logboek"
+msgstr "Registre de FanFicFare"
 
 #: fff_plugin.py:1521
 msgid "Download %s FanFiction Book(s)"
-msgstr "Download %s FanFiction boek(en)"
+msgstr ""
 
 #: fff_plugin.py:1528
 msgid "Starting %d FanFicFare Downloads"
-msgstr "Start %d FanFicFare downloads"
+msgstr ""
 
 #: fff_plugin.py:1562
 msgid "Story Details:"
-msgstr "Verhaaldetails:"
+msgstr ""
 
 #: fff_plugin.py:1565
 msgid "Error Updating Metadata"
-msgstr "Fout tijdens metadata bijwerken"
+msgstr "Error en pujar les metadades"
 
 #: fff_plugin.py:1566
 msgid ""
@@ -2032,7 +2028,7 @@ msgstr ""
 
 #: fff_plugin.py:1619
 msgid "Finished Adding/Updating %d books."
-msgstr "Updaten toevoegen/updaten %d boeken beëindigd."
+msgstr ""
 
 #: fff_plugin.py:1670
 msgid "No Good Stories for Anthology"
@@ -2062,35 +2058,35 @@ msgstr ""
 
 #: fff_plugin.py:1688
 msgid "Proceed with updating this anthology and your library?"
-msgstr "Ga verder met het updaten van deze Anthologie en je bibliotheek?"
+msgstr ""
 
 #: fff_plugin.py:1696 fff_plugin.py:1725
 msgid "Good"
-msgstr "Goed"
+msgstr ""
 
 #: fff_plugin.py:1717
 msgid "Proceed with updating your library?"
-msgstr "Ga verder met het updaten van je bibliotheek?"
+msgstr ""
 
 #: fff_plugin.py:1743 fff_plugin.py:1749
 msgid "FanFicFare download complete"
-msgstr "FanFicFare download compleet"
+msgstr "S'ha completat la baixada de FanFicFare"
 
 #: fff_plugin.py:1763
 msgid "Merging %s books."
-msgstr "%s boeken samenvoegen."
+msgstr "Fusió de %s llibres."
 
 #: fff_plugin.py:1852
 msgid "FanFicFare Adding/Updating books."
-msgstr "FanFicFare toevoegen/updaten boeken."
+msgstr ""
 
 #: fff_plugin.py:1866
 msgid "Updating calibre for FanFiction stories..."
-msgstr "Updaten calibre van FanFiction verhalen..."
+msgstr ""
 
 #: fff_plugin.py:1867
 msgid "Update calibre for FanFiction stories"
-msgstr "Updaten calibre van FanFiction verhalen"
+msgstr ""
 
 #: fff_plugin.py:1877
 msgid "Adding/Updating %s BAD books."
@@ -2106,11 +2102,11 @@ msgstr ""
 
 #: fff_plugin.py:1922
 msgid "Adding format to book failed for some reason..."
-msgstr "Het toevoegen "
+msgstr ""
 
 #: fff_plugin.py:1925 jobs.py:317
 msgid "Error"
-msgstr "Fout"
+msgstr "Error"
 
 #: fff_plugin.py:2273
 msgid ""
@@ -2142,63 +2138,63 @@ msgstr ""
 
 #: fff_plugin.py:2428
 msgid "No story URL found."
-msgstr "Geen verhaal-URL gevonden."
+msgstr ""
 
 #: fff_plugin.py:2431
 msgid "Not Found"
-msgstr "Niet gevonden"
+msgstr "No s'ha trobat"
 
 #: fff_plugin.py:2437
 msgid "URL is not a valid story URL."
-msgstr "URL is geen geldige verhaal-URL."
+msgstr ""
 
 #: fff_plugin.py:2440
 msgid "Bad URL"
-msgstr "Slechte URL"
+msgstr ""
 
 #: fff_plugin.py:2594
 msgid "Anthology containing:"
-msgstr "Bloemlezing bevat:"
+msgstr "Antologia que contingui:"
 
 #: fff_plugin.py:2596
 msgid "%s by %s"
-msgstr "%s door %s"
+msgstr "%s per %s"
 
 #: fff_plugin.py:2638
 msgid " Anthology"
-msgstr "Antologie"
+msgstr " Antologia"
 
 #: fff_plugin.py:2681
 msgid "(was set, removed for security)"
-msgstr "(was ingesteld, voor veiligheid verwijderd)"
+msgstr ""
 
 #: jobs.py:74
 msgid "Downloading FanFiction Stories"
-msgstr "FanFiction verhalen downloaden"
+msgstr ""
 
 #: jobs.py:90
 msgid "%d of %d stories finished downloading"
-msgstr "%d van %d verhalen zijn klaar met downloaden"
+msgstr ""
 
 #: jobs.py:102
 msgid "Download Results:"
-msgstr "Downloadresultaten:"
+msgstr "Resultats de la baixada:"
 
 #: jobs.py:104
 msgid "Successful:"
-msgstr "Gelukt:"
+msgstr "Reeixida:"
 
 #: jobs.py:105
 msgid "Unsuccessful:"
-msgstr "Mislukt:"
+msgstr "No reeixida:"
 
 #: jobs.py:130
 msgid "Download started..."
-msgstr "Download gestart..."
+msgstr "S'ha iniciat la baixada..."
 
 #: jobs.py:226
 msgid "Download %s completed, %s chapters."
-msgstr "Download %s voltooid, %s hoofdstukken."
+msgstr ""
 
 #: jobs.py:251
 msgid "Already contains %d chapters.  Reuse as is."
@@ -2206,4 +2202,4 @@ msgstr ""
 
 #: jobs.py:274
 msgid "Update %s completed, added %s chapters for %s total."
-msgstr ""
+msgstr "S'ha completat l'actualització de «%s», s'han afegit %s capítols per un total de %s."
