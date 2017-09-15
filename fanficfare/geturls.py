@@ -42,30 +42,6 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     try:
         adapter = adapters.getAdapter(configuration,url,anyurl=True)
         
-        # special stuff to log into archiveofourown.org, if possible.
-        # Unlike most that show the links to 'adult' stories, but protect
-        # them, AO3 doesn't even show them if not logged in.  Only works
-        # with saved user/pass--not going to prompt for list.
-        ## Sept 2017 - AO3 doesn't appear to require view_adult or
-        ## login to see 'adult' links in list now.
-        ## 'Restricted' (user-only) stories/lists will not work.  I
-        ## tried, but couldn't get login working from here for unknown
-        ## reasons.
-        # if 'archiveofourown.org' in url:
-        #     if adapter.getConfig("username"):
-        #         if adapter.getConfig("is_adult"):
-        #             if '?' in url:
-        #                 addurl = "&view_adult=true"
-        #             else:
-        #                 addurl = "?view_adult=true"
-        #         else:
-        #             addurl=""
-        #         # just to get an authenticity_token.
-        #         data = adapter._fetchUrl(url+addurl)
-        #         # login the session.
-        #         adapter.performLogin(url,data)
-        #         # get the list page with logged in session.
-                
         if 'fimfiction.net' in url and adapter.getConfig("is_adult"):
             data = adapter._fetchUrl(url)
             adapter.set_adult_cookie()
