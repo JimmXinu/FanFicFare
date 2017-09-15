@@ -93,6 +93,9 @@ def main(argv=None,
     parser.add_option('-m', '--meta-only',
                       action='store_true', dest='metaonly',
                       help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
+    parser.add_option('--json-meta',
+                      action='store_true', dest='jsonmeta',
+                      help='When used with --meta-only, output metadata as JSON.  No effect without --meta-only flag', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
@@ -400,9 +403,16 @@ def do_download(arg,
         else:
             # regular download
             if options.metaonly:
-                pprint.pprint(adapter.getStoryMetadataOnly().getAllMetadata())
+                metadata = adapter.getStoryMetadataOnly().getAllMetadata()
+                metadata['zchapters'] = []
                 for i, x in enumerate(adapter.chapterUrls):
-                    pprint.pprint( (i+1,x[0],x[1]) )
+                    metadata['zchapters'].append((i+1,x[0],x[1]))
+                if options.jsonmeta:
+                    import json
+                    print json.dumps(metadata, sort_keys=True,
+                                     indent=2, separators=(',', ':'))
+                else:
+                    pprint.pprint(metadata)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
