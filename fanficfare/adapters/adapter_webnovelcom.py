@@ -16,13 +16,13 @@
 #
 
 # Adapted by GComyn on April 16, 2017
-
+import HTMLParser
+import cgi
 import json
 import logging
 import re
 import time
 import urllib2
-
 from datetime import datetime, timedelta
 
 from base_adapter import BaseSiteAdapter
@@ -31,6 +31,7 @@ from ..htmlcleanup import stripHTML
 
 UNIX_EPOCHE = datetime.fromtimestamp(0)
 logger = logging.getLogger(__name__)
+_html_parser = HTMLParser.HTMLParser()
 
 
 def getClass():
@@ -73,6 +74,9 @@ def _parse_relative_date_string(string_):
     today = datetime.utcnow()
     time_ago = timedelta(**kwargs)
     return today - time_ago
+
+
+_unescape_html = _html_parser.unescape
 
 
 class WWWWebNovelComAdapter(BaseSiteAdapter):
@@ -210,7 +214,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         else:
             content = chapter_info['content']
 
+        # First unescape all HTML entities in the chapter content and then escape them again: we can't be sure if
+        # webnovel.com has processed the HTML entities already or not (seemingly story-by-story basis)
+        content = cgi.escape(_unescape_html(content))
+
         # Turn raw chapter text into HTML
-        # Not sure if escaping quotes is actually useful, but rather do it than not
         content = content.replace('\r', '').replace('\n', '<br />')
         return content
