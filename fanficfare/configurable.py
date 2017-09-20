@@ -1098,13 +1098,13 @@ class Configuration(ConfigParser.SafeConfigParser):
             except u2.HTTPError, he:
                 excpt=he
                 if he.code in (403,404,410):
-                    logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
+                    logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
             except Exception, e:
                 excpt=e
-                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+                logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
 
-        logger.error("Giving up on %s" %safe_url(url))
+        logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)
         raise(excpt)
 
