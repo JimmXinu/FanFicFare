@@ -133,13 +133,15 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             tag.extract()
         self.story.setMetadata('title', stripHTML(title))
 
+        # TODO: This should be more robust...
         # Find authorid and URL from... author url.
         paras = bookdetails.find_all('p')
         for para in paras:
             parat = stripHTML(para)
             if parat[:7] == 'Author:':
-                self.story.setMetadata('author', parat.replace('Author:', '').strip())
-                self.story.setMetadata('authorId', parat.replace('Author:', '').strip())
+                author = parat.split('Author:', 1)[1].split(u'\xb7', 1)[0].strip()
+                self.story.setMetadata('author', author)
+                self.story.setMetadata('authorId', author)
                 # There is no authorUrl for this site, so I'm setting it to the story url
                 # otherwise it defaults to the file location
                 self.story.setMetadata('authorUrl', url)
