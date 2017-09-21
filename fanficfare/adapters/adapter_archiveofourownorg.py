@@ -134,7 +134,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             ## changed to a scheme where the on-page CSRF token is
             ## passed to a token_dispenser.json URL to get the token
             ## then passed to login.
-            raise exceptions.AccessDenied("AO3 doesn't allow download of (%s) without login and user/password login by automated tools such as FanFicFare is blocked by AO3 site." % self.url)
+            raise exceptions.AccessDenied("AO3 doesn't allow download of (%s) by tools such as FanFicFare. Automated user/password login is blocked by AO3." % self.url)
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
