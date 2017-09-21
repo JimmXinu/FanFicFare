@@ -61,7 +61,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
 
     return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
 
-def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None):
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None,email=False):
     urls = collections.OrderedDict()
 
     if not configuration:
@@ -79,17 +79,8 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
             #logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             #logger.debug("1 urlhref:%s"%href)
-            # this (should) catch normal story links, some javascript
-            # 'are you old enough' links, and 'Report This' links.
-            if 'story.php' in a['href']:
-                #logger.debug("trying:%s"%a['href'])
-                m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
-                if m != None:
-                    href = form_url(a['href'] if '//' in a['href'] else url,
-                                    m.group('sid'))
-                    
+            href = cleanup_url(href,email)
             try:
-                href = href.replace('&index=1','')
                 #logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
                 #logger.debug("found adapter")
@@ -105,8 +96,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     # most user readable metadata, if not normalized
     return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
 
-
-def get_urls_from_text(data,configuration=None,normalize=False):
+def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     urls = collections.OrderedDict()
     try:
         data = unicode(data)
@@ -117,14 +107,8 @@ def get_urls_from_text(data,configuration=None,normalize=False):
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
     
     for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
-        # this (should) catch normal story links, some javascript
-        # 'are you old enough' links, and 'Report This' links.
-        if 'story.php' in href:
-            m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
-            if m != None:
-                href = form_url(href,m.group('sid'))
+        href = cleanup_url(href,email)
         try:
-            href = href.replace('&index=1','')
             adapter = adapters.getAdapter(configuration,href)
             if adapter.story.getMetadata('storyUrl') not in urls:
                 urls[adapter.story.getMetadata('storyUrl')] = [href]
@@ -165,6 +149,23 @@ def form_url(parenturl,url):
                   '','',''))
      return returl
        
+def cleanup_url(href,email=False):
+    ## used to perform some common URL clean up.
+
+    # this (should) catch normal story links, some javascript 'are you
+    # old enough' links, and 'Report This' links.
+    if 'story.php' in href: ## various eFiction and similar.
+        m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
+        if m != None:
+            href = form_url(href,m.group('sid'))
+    elif email and '/threads/' in href:
+        ## xenforo emails, toss unread and page/post urls.  Emails are
+        ## only sent for thread updates, I believe.  Email only so
+        ## get_urls_from_page can still get post URLs.
+        href = re.sub(r"/(unread|page-\d+)(#post-\d+)?",r"/",href)
+    href = href.replace('&index=1','')
+    return href
+
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     logger.debug("get_urls_from_imap srv:(%s)"%srv)
@@ -211,9 +212,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
             #logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
             except Exception as e:
                 logger.error("Failed to read email content: %s"%e,exc_info=True)
         #logger.debug "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
