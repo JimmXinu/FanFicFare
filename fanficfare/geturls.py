@@ -25,7 +25,7 @@ import urlparse
 import logging
 logger = logging.getLogger(__name__)
 
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup
 from gziphttp import GZipProcessor
 
 import adapters
@@ -41,11 +41,30 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     adapter = None
     try:
         adapter = adapters.getAdapter(configuration,url,anyurl=True)
-        
+
+        # special stuff to log into archiveofourown.org, if possible.
+        # Unlike most that show the links to 'adult' stories, but protect
+        # them, AO3 doesn't even show them if not logged in.  Only works
+        # with saved user/pass--not going to prompt for list.
+        if 'archiveofourown.org' in url:
+            if adapter.getConfig("username"):
+                if adapter.getConfig("is_adult"):
+                    if '?' in url:
+                        addurl = "&view_adult=true"
+                    else:
+                        addurl = "?view_adult=true"
+                else:
+                    addurl=""
+                # just to get an authenticity_token.
+                data = adapter._fetchUrl(url+addurl)
+                # login the session.
+                adapter.performLogin(url,data)
+                # get the list page with logged in session.
+
         if 'fimfiction.net' in url and adapter.getConfig("is_adult"):
             data = adapter._fetchUrl(url)
             adapter.set_adult_cookie()
-    
+
         # this way it uses User-Agent or other special settings.  Only AO3
         # is doing login.
         data = adapter._fetchUrl(url,usecache=False)
@@ -73,7 +92,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     if restrictsearch:
         soup = soup.find(*restrictsearch)
         #logger.debug("restrict search:%s"%soup)
-    
+
     for a in soup.findAll('a'):
         if a.has_attr('href'):
             #logger.debug("a['href']:%s"%a['href'])
@@ -105,7 +124,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
-    
+
     for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
         href = cleanup_url(href,email)
         try:
@@ -125,7 +144,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
 def form_url(parenturl,url):
      url = url.strip() # ran across an image with a space in the
                        # src. Browser handled it, so we'd better, too.
- 
+
      if "//" in url or parenturl == None:
          returl = url
      else:
@@ -148,7 +167,7 @@ def form_url(parenturl,url):
                   toppath + '/' + url,
                   '','',''))
      return returl
-       
+
 def cleanup_url(href,email=False):
     ## used to perform some common URL clean up.
 
@@ -179,32 +198,32 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
                                # However, it does check and won't
                                # quote strings that already start and
                                # end with ", so this is safe.
-    
+
     result, data = mail.uid('search', None, "UNSEEN")
-    
+
     #logger.debug("result:%s"%result)
     #logger.debug("data:%s"%data)
     urls=set()
-    
+
     #latest_email_uid = data[0].split()[-1]
     for email_uid in data[0].split():
 
         result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
-    
+
         #logger.debug("result:%s"%result)
         #logger.debug("data:%s"%data)
-    
+
         raw_email = data[0][1]
-        
+
     #raw_email = data[0][1] # here's the body, which is raw text of the whole email
     # including headers and alternate payloads
-    
+
         email_message = email.message_from_string(raw_email)
-     
+
         #logger.debug "To:%s"%email_message['To']
         #logger.debug "From:%s"%email_message['From']
         #logger.debug "Subject:%s"%email_message['Subject']
-    
+
     #    logger.debug("payload:%s"%email_message.get_payload())
 
         urllist=[]
@@ -223,7 +242,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
             r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
             #logger.debug("seen result:%s->%s"%(email_uid,r))
-                
+
         [ urls.add(x) for x in urllist ]
-    
+
     return urls

@@ -20,6 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -92,6 +93,41 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             return False
 
+    def performLogin(self, url, data):
+
+        params = {}
+        if self.password:
+            params['user_session[login]'] = self.username
+            params['user_session[password]'] = self.password
+        else:
+            params['user_session[login]'] = self.getConfig("username")
+            params['user_session[password]'] = self.getConfig("password")
+        params['user_session[remember_me]'] = '1'
+        params['commit'] = 'Log in'
+        params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
+
+        # token now comes from meta.
+        # <meta name="csrf-token" content="/Li4mJ1w1AENhQq8EPVIklFwCDP5eaTHNRWPlWkehu2d1iuRzgsOHYGCX+uhjmlKnd1A9VisCdqmeTmBmXZkBg=="/>
+        #params['authenticity_token'] = data.split('meta name="csrf-token" content="')[1].split('"')[0]
+        # authenticity_token now comes from a completely separate json call.
+        token_json = json.loads(self._fetchUrl('https://' + self.getSiteDomain() + "/token_dispenser.json"))
+        params['authenticity_token'] = token_json['token']
+
+        loginUrl = 'https://' + self.getSiteDomain() + '/user_sessions'
+        logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                            params['user_session[login]']))
+
+        d = self._postUrl(loginUrl, params)
+        #logger.info(d)
+
+        if "Successfully logged in" not in d : #Member Account
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['user_session[login]']))
+            raise exceptions.FailedToLogin(url,params['user_session[login]'])
+            return False
+        else:
+            return True
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -128,13 +164,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
             raise exceptions.StoryDoesNotExist(self.url)
 
-        if self.needToLoginCheck(data):
-            ## AO3 login mechanism removed due to vastly increased
-            ## complexity.  Rather than a token on the html page, AO3
-            ## changed to a scheme where the on-page CSRF token is
-            ## passed to a token_dispenser.json URL to get the token
-            ## then passed to login.
-            raise exceptions.AccessDenied("AO3 doesn't allow download of (%s) by tools such as FanFicFare. Automated user/password login is blocked by AO3." % self.url)
+        # need to log in for this one, or always_login.
+        if self.needToLoginCheck(data) or \
+                ( self.getConfig("always_login") and 'href="/logout"' not in data ):
+            ## except don't log in if already logged in (cached
+            ## responses in calibre job).  already logged in if
+            ## there's no authenticity_token in data.
+            self.performLogin(url,data)
+            data = self._fetchUrl(url,usecache=False)
+            meta = self._fetchUrl(metaurl,usecache=False)
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -149,6 +187,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
+
+        if self.getConfig("always_login"):
+            try:
+                self.story.extendList('bookmarktags',
+                                      metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
+            except KeyError:
+                pass
+            self.story.setMetadata('bookmarksummary',
+                                   stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))

@@ -202,6 +202,7 @@ def get_valid_set_options():
 			   'include_author_notes':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
+               'always_login':(['archiveofourown.org'],None,boollist),
                'use_archived_author':(['archiveofourown.org'],None,boollist),
                'use_view_full_work':(['archiveofourown.org'],None,boollist),
 
@@ -332,6 +333,7 @@ def get_valid_keywords():
                  'do_update_hook',
                  'use_archived_author',
                  'use_view_full_work',
+                 'always_login',
                  'exclude_notes',
                  'exclude_editor_signature',
                  'extra_logpage_entries',
