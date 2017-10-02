@@ -923,7 +923,8 @@ class Story(Configurable):
                                 else:
                                     ## needs to be a list to extend curlist.
                                     y=[x]
-                                curlist.extend(y)
+                                if y[0]: ## skip if empty
+                                    curlist.extend(y)
                                 ## logger.debug("curlist:%s"%(curlist,))
                             newretlist.append( splitmerge.join(sorted(curlist)) )
 
