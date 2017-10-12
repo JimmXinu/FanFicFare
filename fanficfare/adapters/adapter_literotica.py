@@ -133,7 +133,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             #strip comments from soup
             [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
         except urllib2.HTTPError, e:
-            if e.code == 404:
+            if e.code in [404, 410]:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
@@ -158,7 +158,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
 #            logger.debug(soupAuth)
         except urllib2.HTTPError, e:
-            if e.code == 404:
+            if e.code in [404, 410]:
                 raise exceptions.StoryDoesNotExist(authorurl)
             else:
                 raise e
