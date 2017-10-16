@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-09-20 06:01+0000\n"
+"PO-Revision-Date: 2017-10-16 08:34+0000\n"
 "Last-Translator: Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>\n"
 "Language-Team: Catalan (http://www.transifex.com/calibre/calibre-plugins/language/ca/)\n"
 "MIME-Version: 1.0\n"
@@ -1956,7 +1956,7 @@ msgstr ""
 
 #: fff_plugin.py:1314
 msgid "Different URL"
-msgstr "URL diderent"
+msgstr "URL diferent"
 
 #: fff_plugin.py:1319 jobs.py:194
 msgid "Metadata collected."
