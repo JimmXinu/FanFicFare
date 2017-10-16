@@ -153,10 +153,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', self.make_date(dates[-1]))
         self.story.setMetadata('datePublished', self.make_date(dates[0]))
 
-        genre=[tag.text for tag in soup.find('span',{'property':'genre'}).parent.findChildren('span')]
-        if not "Unspecified" in genre:
-            for tag in genre:
-                self.story.addToList('genre',tag)
+        if soup.find('span',{'property':'genre'}): # not all stories have genre
+            genre=[tag.text for tag in soup.find('span',{'property':'genre'}).parent.findChildren('span')]
+            if not "Unspecified" in genre:
+                for tag in genre:
+                    self.story.addToList('genre',tag)
 
         # 'rating' in FFF speak means G, PG, Teen, Restricted, etc.
         # 'stars' is used instead for RR's 1-5 stars rating.
