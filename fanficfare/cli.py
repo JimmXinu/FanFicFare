@@ -42,6 +42,8 @@ if sys.version_info >= (2, 7):
     loghandler.setFormatter(logging.Formatter('(=====)(levelname)s:%(message)s'))
     rootlogger.addHandler(loghandler)
 
+logger = logging.getLogger('fanficfare')
+
 try:
     # running under calibre
     from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
@@ -157,7 +159,6 @@ def main(argv=None,
         print("Version: %s" % version)
         return
 
-    logger = logging.getLogger('fanficfare')
     if not options.debug:
         logger.setLevel(logging.WARNING)
 
@@ -336,16 +337,13 @@ def do_download(arg,
         if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
             try:
                 from calibre.utils.magick import Image
-                logging.debug('Using calibre.utils.magick')
             except ImportError:
                 try:
                     ## Pillow is a more current fork of PIL library
                     from PIL import Image
-                    logging.debug('Using Pillow')
                 except ImportError:
                     try:
                         import Image
-                        logging.debug('Using PIL')
                     except ImportError:
                         print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
                         if not sys.stdin.readline().strip().lower().startswith('y'):
@@ -474,7 +472,6 @@ def get_configuration(url,
     if options.configfile:
         conflist.extend(options.configfile)
 
-    logging.debug('reading %s config file(s), if present' % conflist)
     configuration.read(conflist)
 
     try:
