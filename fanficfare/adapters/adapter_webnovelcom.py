@@ -16,6 +16,7 @@
 #
 
 # Adapted by GComyn on April 16, 2017
+import cgi
 import json
 import logging
 import re
@@ -216,4 +217,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         # Content is raw text, so convert paired newlines into paragraphs like the website
         content = content.replace('\r', '')
-        return re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
+        content = cgi.escape(content)
+        content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
+        return content
