@@ -114,7 +114,6 @@ class FanFicFareBase(InterfaceActionBase):
         with self: # so the sys.path was modified appropriately
             # I believe there's no performance hit loading these here when
             # CLI--it would load everytime anyway.
-            from StringIO import StringIO
             from calibre.library import db
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
@@ -136,6 +135,6 @@ class FanFicFareBase(InterfaceActionBase):
 
             fff_main(argv[1:],
                      parser=parser,
-                     passed_defaultsini=StringIO(get_resources("fanficfare/defaults.ini")),
-                     passed_personalini=StringIO(fff_prefs["personal.ini"]),
+                     passed_defaultsini=get_resources("fanficfare/defaults.ini"),
+                     passed_personalini=fff_prefs["personal.ini"],
                      )

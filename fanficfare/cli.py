@@ -19,6 +19,7 @@ from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
+from StringIO import StringIO
 import ConfigParser
 import getpass
 import logging
@@ -444,7 +445,7 @@ def get_configuration(url,
     except exceptions.UnknownSite, e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
-            configuration = Configuration('test1.com', options.format)
+            configuration = Configuration(['unknown'], options.format)
         else:
             raise e
 
@@ -454,7 +455,9 @@ def get_configuration(url,
     homepath2 = join(expanduser('~'), '.fanficfare')
 
     if passed_defaultsini:
-        configuration.readfp(passed_defaultsini)
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_defaultsini))
     else:
         # don't need to check existance for our selves.
         conflist.append(join(dirname(__file__), 'defaults.ini'))
@@ -463,7 +466,9 @@ def get_configuration(url,
         conflist.append('defaults.ini')
 
     if passed_personalini:
-        configuration.readfp(passed_personalini)
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_personalini))
 
     conflist.append(join(homepath, 'personal.ini'))
     conflist.append(join(homepath2, 'personal.ini'))
