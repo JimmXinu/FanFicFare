@@ -455,12 +455,12 @@ def get_configuration(url,
 
     if passed_defaultsini:
         configuration.readfp(passed_defaultsini)
-
-    # don't need to check existance for our selves.
-    conflist.append(join(dirname(__file__), 'defaults.ini'))
-    conflist.append(join(homepath, 'defaults.ini'))
-    conflist.append(join(homepath2, 'defaults.ini'))
-    conflist.append('defaults.ini')
+    else:
+        # don't need to check existance for our selves.
+        conflist.append(join(dirname(__file__), 'defaults.ini'))
+        conflist.append(join(homepath, 'defaults.ini'))
+        conflist.append(join(homepath2, 'defaults.ini'))
+        conflist.append('defaults.ini')
 
     if passed_personalini:
         configuration.readfp(passed_personalini)
