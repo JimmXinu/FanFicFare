@@ -82,6 +82,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         # get storyId from url
         # https://www.webnovel.com/book/6831837102000205
         self.story.setMetadata('storyId', self.parsedUrl.path.split('/')[2])
+
+        # normalized story URL.
+        self._setURL('https://' + self.getSiteDomain() + '/book/'+self.story.getMetadata('storyId'))
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev', 'wncom')
 
