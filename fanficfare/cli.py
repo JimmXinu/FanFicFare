@@ -380,7 +380,7 @@ def do_download(arg,
                     if sys.stdin.readline().strip().lower().startswith('y'):
                         adapter.is_adult = True
                 else:
-                    print 'Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o is_adult:true to the command.'
+                    print 'Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.'
                     return
 
         if options.update and not options.force:
