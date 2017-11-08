@@ -177,6 +177,7 @@ import adapter_noveltrovecom
 import adapter_inkbunnynet
 import adapter_alternatehistorycom
 import adapter_wattpadcom
+import adapter_lightnovelgatecom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
