@@ -161,7 +161,6 @@ import adapter_deandamagecom
 import adapter_imrightbehindyoucom
 import adapter_mttjustoncenet
 import adapter_narutoficorg
-import adapter_obidalanet
 import adapter_starskyhutcharchivenet
 import adapter_swordborderlineangelcom
 import adapter_tasteofpoisoninkubationnet
