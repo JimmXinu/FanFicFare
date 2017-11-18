@@ -384,7 +384,7 @@ def do_download(arg,
                     return
 
         if options.update and not options.force:
-            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
+            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters').replace(',',''))
 
             if chaptercount == urlchaptercount and not options.metaonly:
                 print '%s already contains %d chapters.' % (output_filename, chaptercount)
