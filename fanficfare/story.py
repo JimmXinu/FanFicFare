@@ -1090,7 +1090,6 @@ class Story(Configurable):
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,parenturl,url,fetch,cover=False,coverexclusion=None):
-
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
@@ -1107,7 +1106,8 @@ class Story(Configurable):
         ## Mistakenly ended up with some // in image urls, like:
         ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
         ## Removing one /, but not ://
-        url = re.sub(r"([^:])//",r"\1/",url)
+        if not url.startswith("file"): # keep file:///
+            url = re.sub(r"([^:])//",r"\1/",url)
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
