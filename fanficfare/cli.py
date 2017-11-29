@@ -411,6 +411,12 @@ def do_download(arg,
                 if not options.update and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
                     adapter.hookForUpdates(chaptercount)
 
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                else:
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
+
                 write_story(configuration, adapter, 'epub')
 
         else:
@@ -426,6 +432,13 @@ def do_download(arg,
                                      indent=2, separators=(',', ':'))
                 else:
                     pprint.pprint(metadata)
+
+            if not options.metaonly and adapter.getConfig('pre_process_cmd'):
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                else:
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
