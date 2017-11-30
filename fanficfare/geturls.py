@@ -181,7 +181,7 @@ def cleanup_url(href,email=False):
         ## xenforo emails, toss unread and page/post urls.  Emails are
         ## only sent for thread updates, I believe.  Email only so
         ## get_urls_from_page can still get post URLs.
-        href = re.sub(r"/(unread|page-\d+)(#post-\d+)?",r"/",href)
+        href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?",r"/",href)
     href = href.replace('&index=1','')
     return href
 
