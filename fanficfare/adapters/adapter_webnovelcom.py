@@ -142,7 +142,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         for para in paras:
             parat = stripHTML(para)
             if parat[:7] == 'Author:':
-                author = parat.split('Author:', 1)[1].split(u'\xb7', 1)[0].strip()
+                author = parat.split('Author:', 1)[1].split(u'|', 1)[0].strip()
                 self.story.setMetadata('author', author)
                 self.story.setMetadata('authorId', author)
                 # There is no authorUrl for this site, so I'm setting it to the story url
