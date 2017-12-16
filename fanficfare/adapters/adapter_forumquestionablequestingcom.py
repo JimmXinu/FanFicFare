@@ -39,8 +39,11 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
     ## extracting threadmarks for chapters has diverged between SV/SB
     ## and QQ enough to require some differentiation.
     def extract_threadmarks(self,souptag):
+        threadmarks=[]
         # try threadmarks if no '#' in url
         navdiv = souptag.find('div',{'class':'threadmarkMenus'})
+        if not navdiv:
+            return threadmarks
         # was class=threadmarksTrigger.  thread cats are currently
         # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
         # be surprised if that changed.  Don't want to do use just
@@ -49,7 +52,6 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
         # weren't being stripped, but that's a different issue.
         threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
         ## Loop on threadmark categories.
-        threadmarks=[]
         tmcat_num=None
 
         for threadmarksa in threadmarksas:
