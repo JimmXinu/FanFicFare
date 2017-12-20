@@ -169,16 +169,29 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         if status: # apparently this site can have stories with neither In-Progress or Complete.
             self.story.setMetadata('status',status.string)
 
-        section = soup.findAll('span', {'class' : 'General'})[1]
+        try:
+            # explicit.site and .site have some differences now...
+            section = soup.findAll('span', {'class' : 'General'})[1]
+            self.story.setMetadata('rating', section.previousSibling.previousSibling.string)
 
-        self.story.setMetadata('rating', section.previousSibling.previousSibling.string)
+            value = section.nextSibling
+            svalue = ""
+            while 'label' not in defaultGetattr(value,'class'):
+                svalue += unicode(value)
+                value = value.nextSibling
+            self.setDescription(url,svalue)
 
-        value = section.nextSibling
-        svalue = ""
-        while 'label' not in defaultGetattr(value,'class'):
-            svalue += unicode(value)
-            value = value.nextSibling
-        self.setDescription(url,svalue)
+        except:
+            # find rating in data
+            # <br /> &bull; Mature &bull; <br />
+            lead = "<br /> &bull; "
+            trail = " &bull; <br />"
+            rating = data[data.index(lead)+len(lead):data.index(trail)]
+            if len(rating)<20: # minor sanity check.
+                self.story.setMetadata('rating',rating)
+            descstr = data[data.index(trail)+len(trail):] # from desc on
+            descstr = descstr[:descstr.index('<span class="label">')] # remove after desc.
+            self.setDescription(url,descstr)
 
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})

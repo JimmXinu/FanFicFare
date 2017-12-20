@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-06-12 15:10+0000\n"
+"PO-Revision-Date: 2017-10-03 21:57+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -348,13 +348,13 @@ msgstr "FanFicFare'i ülemine plugina nupp käivitab raamatu uuendamise,\nkui ra
 
 #: config.py:557
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr ""
+msgstr "Hoia 'Lisa uus URLi(de)st' dialoog kõige peal?"
 
 #: config.py:558
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr ""
+msgstr "Ütleb OS-ile ja akende haldurile, et nad hoiaks 'Lisa uus URLi(de)st'\ndialoogi kõigi teiste akende peal.  Kasulik URLide sellele lohistamiseks."
 
 #: config.py:562
 msgid "Show estimated time left?"
@@ -570,22 +570,22 @@ msgstr ""
 
 #: config.py:857
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
-msgstr ""
+msgstr "Lisa uued/uuendatud jutud \"Saada seadmesse\" lugemisloendi(te)sse."
 
 #: config.py:858
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
-msgstr ""
+msgstr "Automaatselt saada uued/uuendatud jutud nendesse loenditesse pluginas %(rl)s."
 
 #: config.py:863
 msgid "\"Send to Device\" Reading Lists"
-msgstr ""
+msgstr "\"Saada seadmesse\" lugemisloendid"
 
 #: config.py:864 config.py:867 config.py:881 config.py:884
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr ""
+msgstr "Kui lubatud, lisatakse uued/uuendatud jutud automaatselt nendesse loenditesse."
 
 #: config.py:874
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
@@ -1200,7 +1200,7 @@ msgstr "Väljundformaat:"
 #: dialogs.py:272 dialogs.py:825
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr ""
+msgstr "Vali väljundformaat, mis luua. Võib seada vaikesätted plugina seadistusest."
 
 #: dialogs.py:300 dialogs.py:845
 msgid "Update Calibre &Metadata?"
@@ -1781,11 +1781,11 @@ msgstr ""
 
 #: fff_plugin.py:968
 msgid "Queuing download for stories..."
-msgstr ""
+msgstr "Juttude allalaadimise lisamine järjekorda..."
 
 #: fff_plugin.py:969
 msgid "Queuing download for stories"
-msgstr ""
+msgstr "Juttude allalaadimise lisamine järjekorda"
 
 #: fff_plugin.py:970
 msgid "Queued download for"
@@ -2109,7 +2109,7 @@ msgstr "Viga"
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr ""
+msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama lugemisloendeid, aga plugin %s pole enam installitud?"
 
 #: fff_plugin.py:2285
 msgid ""
@@ -2121,13 +2121,13 @@ msgstr ""
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr ""
+msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama lugemisloendit '%s', aga sellenimelist loendit pole olemas?"
 
 #: fff_plugin.py:2301
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr ""
+msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama \"Saada seadmesse\" lugemisloendeid, aga sa pole ühtegi loendit loonud?"
 
 #: fff_plugin.py:2368
 msgid "Same story already included."

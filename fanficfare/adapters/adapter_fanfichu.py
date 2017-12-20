@@ -1,5 +1,20 @@
 # coding=utf-8
 
+# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import re
 import urllib2
 import urlparse
@@ -26,7 +41,7 @@ class FanficHuAdapter(BaseSiteAdapter):
     SITE_DOMAIN = 'fanfic.hu'
     SITE_LANGUAGE = 'Hungarian'
 
-    BASE_URL = 'http://' + SITE_DOMAIN + '/merengo/'
+    BASE_URL = 'https://' + SITE_DOMAIN + '/merengo/'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%s'
 
     DATE_FORMAT = '%m/%d/%Y'
@@ -64,7 +79,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         return cls.VIEW_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]) + r'\d+$'
+        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('https','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + '&i=1')

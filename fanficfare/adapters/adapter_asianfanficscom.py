@@ -73,7 +73,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
-        d = self._postUrl(loginUrl, params)
+        d = self._postUrl(loginUrl, params, usecache=False)
 
         if params['username'] not in d: # check if username is mentioned in output (logged in as, var visitorName, etc.)
             logger.info("Failed to login to URL %s as %s" % (loginUrl, params['username']))
@@ -134,9 +134,11 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        if self.password or self.getConfig("password"): # it is best to log in whenever possible
+        # it is best to log in whenever possible, unless already logged in from cache..
+        if self.password or self.getConfig("password") and "Logout" not in data:
             self.performLogin(url,soup)
             data = self._fetchUrl(url,usecache=False)
+            soup = self.make_soup(data)
         else:
             logger.info('Note: Logging in is highly recommended, as this website censors text if not logged in.')
 

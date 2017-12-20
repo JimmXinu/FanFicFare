@@ -391,7 +391,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         # title and author
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
         if pagetitleDiv.find('a') is None:
-            raise execeptions.FailedToDownload("Couldn't find title and author")
+            raise exceptions.FailedToDownload("Couldn't find title and author")
         self.story.setMetadata('title', pagetitleDiv.find("a").string)
         authorLink = pagetitleDiv.findAll("a")[1]
         self.story.setMetadata('author', authorLink.string)

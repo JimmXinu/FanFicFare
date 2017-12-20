@@ -23,7 +23,7 @@ save_file='webservice/app.yaml'
 saved_version = None
 
 def main(args):
-   ## major.minor.micro
+   ## major minor micro
     '''
 __version__ = (2, 3, 6)
     version="2.3.6",
@@ -51,7 +51,7 @@ version="2.3.6"
     if int(args[-1]) > 0:
         release = 'Test'
     print('\ngit add %s'%(" ".join(version_files+index_files)))
-    print('git commit -m "Bump %s Version"'%release)
+    print('git commit -m "Bump %s Version %s"'%(release,'.'.join(args)))
 
 def do_loop(files, pattern, substring):
     global saved_version

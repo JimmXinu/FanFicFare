@@ -78,6 +78,9 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         # http://www.wuxiaworld.com/emperor-index/
         return r"http(s)?://www\.wuxiaworld\.com/(?P<id>[^/]+)(/)?"
 
+    def use_pagecache(self):
+        return True
+
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter. From that we will get almost all the
         # metadata and chapter list
@@ -156,7 +159,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
         #removing the Previous and next chapter links
-        for tag in story.find_all('a'):
+        for tag in story.find_all('a',text=re.compile(r'(Previous|Next) Chapter')):
             tag.extract()
 
         return self.utf8FromSoup(url, story)

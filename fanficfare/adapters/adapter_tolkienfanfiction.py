@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 """
 FFDL Adapter for TolkienFanFiction.com.
@@ -39,20 +53,6 @@ Search: http://www.tolkienfanfiction.com/Story_Chapter_Search.php?text=From+Wild
             3: exact phrase
 
 """
-# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 
 import time
 import logging
@@ -128,7 +128,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             try:
                 chapterHtml = _fix_broken_markup(self._fetchUrl(self.url))
                 chapterSoup = self.make_soup(chapterHtml)
-                indexLink = chapterSoup.find("a", text="[Index]").parent
+                indexLink = chapterSoup.find("a", text="[Index]")
                 self._normalizeURL('http://' + self.getSiteDomain() + '/' + indexLink.get('href'))
             except urllib2.HTTPError, e:
                 if e.code == 404:
@@ -147,11 +147,9 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
                 raise e
 
         # chapterUrls
-        for pfLink in soup.findAll("a", text='[PF] '):
-            chapterLink = pfLink.parent.findNext("a")
+        # http://tolkienfanfiction.com/Story_Read_Chapter.php?CHid=5358
+        for chapterLink in soup.findAll("a", href=re.compile(r'Story_Read_Chapter\.php\?CHid=[0-9]+')):
             chapterTitle = chapterLink.string
-            if self.getConfig('strip_chapter_numeral'):
-                chapterTitle = re.sub("^\d+:", "", chapterTitle)
             chapterUrl = 'http://' + self.host + '/' + chapterLink['href']
             self.chapterUrls.append((chapterTitle, chapterUrl))
             numChapters = len(self.chapterUrls)

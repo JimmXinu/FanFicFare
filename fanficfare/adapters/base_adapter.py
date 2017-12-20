@@ -17,11 +17,13 @@
 
 import re
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 import logging
 import urlparse as up
 from functools import partial
 import traceback
+import copy
 
 import bs4
 
@@ -34,6 +36,19 @@ from ..story import Story
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 from ..exceptions import InvalidStoryURL
+
+# quick convenience class
+class TimeKeeper(defaultdict):
+    def __init__(self):
+        defaultdict.__init__(self, timedelta)
+
+    def add(self, name, td):
+        self[name] = self[name] + td
+
+    def __unicode__(self):
+        keys = self.keys()
+        keys.sort()
+        return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 
 class BaseSiteAdapter(Configurable):
 
@@ -71,6 +86,11 @@ class BaseSiteAdapter(Configurable):
         self.calibrebookmark = None
         self.logfile = None
 
+        self.section_url_names(self.getSiteDomain(),self._section_url)
+
+        ## for doing some performance profiling.
+        self.times = TimeKeeper()
+
         self._setURL(url)
         if not self.validateURL():
             raise InvalidStoryURL(url,
@@ -84,12 +104,23 @@ class BaseSiteAdapter(Configurable):
         '''
         return False
 
+    def _section_url(self,url):
+        '''
+        For adapters that have story URLs that can change.  This is
+        applied both to the story URL (saved to metadata as
+        sectionUrl) *and* any domain section names that it matches.
+        So it is the adapter's responsibility to pass through
+        *unchanged* any URLs that aren't its own.
+        '''
+        return url
+
     def _setURL(self,url):
         self.url = url
         self.parsedUrl = up.urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
+        self.story.setMetadata('sectionUrl',self._section_url(self.url),condremoveentities=False)
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
     def setChaptersRange(self,first=None,last=None):
@@ -120,6 +151,8 @@ class BaseSiteAdapter(Configurable):
                     data = None
                     if self.oldchaptersmap:
                         if url in self.oldchaptersmap:
+                            # logger.debug("index:%s title:%s url:%s"%(index,title,url))
+                            # logger.debug(self.oldchaptersmap[url])
                             data = self.utf8FromSoup(None,
                                                      self.oldchaptersmap[url],
                                                      partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
@@ -190,6 +223,7 @@ class BaseSiteAdapter(Configurable):
             if self.logfile:
                 self.story.logfile = self.logfile
 
+        # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
@@ -207,6 +241,7 @@ class BaseSiteAdapter(Configurable):
             for index, (title,url) in enumerate(self.chapterUrls):
                 self.chapterUrls[index] = (title,self.normalize_chapterurl(url))
 
+        # logger.debug(u"getStoryMetadataOnly times:\n%s"%self.times)
         return self.story
 
     def setStoryMetadata(self,metahtml):
@@ -348,6 +383,20 @@ class BaseSiteAdapter(Configurable):
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
     def utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
+        start = datetime.now()
+        soup = copy.copy(soup) # To prevent side effects by changing
+                               # stuff in soup.  Added to prevent
+                               # image problems when same chapter URL
+                               # included more than once (base_xenforo
+                               # always_include_first_post setting)
+        self.times.add("utf8FromSoup->copy", datetime.now() - start)
+        ## _do_utf8FromSoup broken out to separate copy & timing and
+        ## allow for inherit override.
+        retval = self._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
+        self.times.add("utf8FromSoup", datetime.now() - start)
+        return retval
+
+    def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
             fetch=self._fetchUrlRaw
 
@@ -430,7 +479,9 @@ class BaseSiteAdapter(Configurable):
         if self.getConfig("replace_br_with_p") and allow_replace_br_with_p:
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
+            start = datetime.now()
             retval = replace_br_with_p(retval)
+            self.times.add("utf8FromSoup->replace_br_with_p", datetime.now() - start)
 
         if self.getConfig('replace_hr'):
             # replacing a self-closing tag with a container tag in the

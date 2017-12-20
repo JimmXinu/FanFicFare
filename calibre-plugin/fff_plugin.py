@@ -1026,6 +1026,30 @@ class FanFicFarePlugin(InterfaceAction):
                     rejecturllist.remove(url)
         return False
 
+    def get_story_metadata_only(self,adapter):
+        url = adapter.url
+        ## three tries, that's enough if both user/pass & is_adult needed,
+        ## or a couple tries of one or the other
+        for x in range(0,2):
+            try:
+                adapter.getStoryMetadataOnly(get_cover=False)
+            except exceptions.FailedToLogin, f:
+                logger.warn("Login Failed, Need Username/Password.")
+                userpass = UserPassDialog(self.gui,url,f)
+                userpass.exec_() # exec_ will make it act modal
+                if userpass.status:
+                    adapter.username = userpass.user.text()
+                    adapter.password = userpass.passwd.text()
+
+            except exceptions.AdultCheckRequired:
+                if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
+                                   _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
+                                   show_copy_button=False):
+                    adapter.is_adult=True
+
+        # let other exceptions percolate up.
+        return adapter.getStoryMetadataOnly(get_cover=False)
+
     # @do_cprofile
     def prep_download_loop(self,book,
                            options={'fileform':'epub',
@@ -1110,7 +1134,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             # let other exceptions percolate up.
             # bgmeta doesn't work with CALIBREONLY.
-            story = adapter.getStoryMetadataOnly(get_cover=False)
+            story = self.get_story_metadata_only(adapter)
             bgmeta = False
         else:
             # reduce foreground sleep time for ffnet when few books.
@@ -1127,27 +1151,7 @@ class FanFicFarePlugin(InterfaceAction):
                 configuration.set_sleep(slp)
 
             if not bgmeta:
-                ## three tries, that's enough if both user/pass & is_adult needed,
-                ## or a couple tries of one or the other
-                for x in range(0,2):
-                    try:
-                        adapter.getStoryMetadataOnly(get_cover=False)
-                    except exceptions.FailedToLogin, f:
-                        logger.warn("Login Failed, Need Username/Password.")
-                        userpass = UserPassDialog(self.gui,url,f)
-                        userpass.exec_() # exec_ will make it act modal
-                        if userpass.status:
-                            adapter.username = userpass.user.text()
-                            adapter.password = userpass.passwd.text()
-
-                    except exceptions.AdultCheckRequired:
-                        if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
-                                           _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
-                                           show_copy_button=False):
-                            adapter.is_adult=True
-
-                # let other exceptions percolate up.
-                story = adapter.getStoryMetadataOnly(get_cover=False)
+                story = self.get_story_metadata_only(adapter)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
                 book['url'] = story.getMetadata('storyUrl')

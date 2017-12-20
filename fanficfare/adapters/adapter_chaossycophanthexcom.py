@@ -45,7 +45,7 @@ class ChaosSycophantHexComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-		
+
 
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -139,12 +139,12 @@ class ChaosSycophantHexComAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-				
+
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-		
+
         labels = soup.findAll('span',{'class':'label'})
-		
+
         value = labels[0].previousSibling
         svalue = ""
         while value != None:
@@ -154,7 +154,7 @@ class ChaosSycophantHexComAdapter(BaseSiteAdapter):
             svalue += unicode(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
-		
+
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string

@@ -45,7 +45,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-		
+
 
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -141,7 +141,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
         asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-		
+
         try:
             # in case link points somewhere other than the first chapter
             a = soup.findAll('option')[1]['value']
@@ -150,13 +150,13 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
             soup = self.make_soup(self._fetchUrl(url))
         except:
             pass
-		
+
         for info in asoup.findAll('table', {'class' : 'border'}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
                 self.story.setMetadata('title',stripHTML(a))
                 break
-		
+
 
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
@@ -178,12 +178,12 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
                 return d.name
             except:
                 return ""
-				
+
         cats = info.findAll('a',href=re.compile('categories.php'))
         for cat in cats:
             self.story.addToList('category',cat.string)
-					
-			
+
+
         a = info.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         val = a.nextSibling
         svalue = ""
@@ -212,7 +212,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
                 for genre in genres:
                     if genre != 'none':
                         self.story.addToList('genre',genre)
-						
+
             if 'Characters' in label:
                 chars = value.string.split(', ')
                 for char in chars:
@@ -244,7 +244,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
-		
+
         data = self._fetchUrl(url)
         data = data.replace('<div align="left"', '<div align="left">')
 

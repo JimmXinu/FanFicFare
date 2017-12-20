@@ -4,6 +4,7 @@
 # Translators:
 # Alex, 2016
 # erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
+# Mario Moens <marimo.it4u@gmail.com>, 2017
 # Nathan Follens, 2015
 # Nathan Follens, 2016
 # Rodolfo_Jadon, 2014-2015
@@ -13,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-05-10 02:26+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2017-09-20 06:01+0000\n"
+"Last-Translator: Mario Moens <marimo.it4u@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,7 +44,7 @@ msgstr "Niet gedefinieerd"
 
 #: common_utils.py:464
 msgid "Prefs Viewer dialog"
-msgstr ""
+msgstr "voorkeuren dialoogvenster"
 
 #: common_utils.py:465
 msgid "Preferences for: "
@@ -61,13 +62,13 @@ msgstr "Wis alle instellingen van deze plugin"
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr ""
+msgstr "Bent u zeker dat u uw instellingen in deze bibliotheek voor deze invoegtoepassing/plugin wilt wissen?"
 
 #: common_utils.py:527
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr ""
+msgstr "Instellingen in andere bibliotheken of opgeslagen in een JSON-bestand in uw Calibre plugins-folder worden niet aangeroerd."
 
 #: common_utils.py:528
 msgid "You must restart calibre afterwards."
@@ -131,7 +132,7 @@ msgstr "Standaardopties voor downloaden"
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr ""
+msgstr "Bij elke download, geeft FanFicFare een optie weer om een uitvoerformaat te selecteren. <br />Dit bepaalt welke standaard deze optie zal bevatten."
 
 #: config.py:405
 msgid "Default Output &Format:"
@@ -141,7 +142,7 @@ msgstr "Standaard uitvoer &formaat:"
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr ""
+msgstr "Bij elke download, geeft FanFicFare een optie weer wat er gebeurt indien het verhaal reeds bestaat. <br />dit bepaalt welke standaard deze optie zal bevatten."
 
 #: config.py:422
 msgid "Default If Story Already Exists?"

@@ -20,6 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
+import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -42,6 +43,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         self.full_work_soup = None
+        self.use_full_work_soup = True
 
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
@@ -102,8 +104,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             params['user_session[password]'] = self.getConfig("password")
         params['user_session[remember_me]'] = '1'
         params['commit'] = 'Log in'
-        #params['utf8'] = u'✓'#u'\x2713' # gets along with out it, and it confuses the encoder.
-        params['authenticity_token'] = data.split('input name="authenticity_token" type="hidden" value="')[1].split('"')[0]
+        params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
+
+        # token now comes from meta.
+        # <meta name="csrf-token" content="/Li4mJ1w1AENhQq8EPVIklFwCDP5eaTHNRWPlWkehu2d1iuRzgsOHYGCX+uhjmlKnd1A9VisCdqmeTmBmXZkBg=="/>
+        #params['authenticity_token'] = data.split('meta name="csrf-token" content="')[1].split('"')[0]
+        # authenticity_token now comes from a completely separate json call.
+        token_json = json.loads(self._fetchUrl('https://' + self.getSiteDomain() + "/token_dispenser.json"))
+        params['authenticity_token'] = token_json['token']
 
         loginUrl = 'https://' + self.getSiteDomain() + '/user_sessions'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
@@ -158,7 +166,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         # need to log in for this one, or always_login.
         if self.needToLoginCheck(data) or \
-                ( self.getConfig("always_login") and 'input name="authenticity_token"' in data ):
+                ( self.getConfig("always_login") and 'href="/logout"' not in data ):
             ## except don't log in if already logged in (cached
             ## responses in calibre job).  already logged in if
             ## there's no authenticity_token in data.
@@ -379,7 +387,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## need save_chapter_soup for .new_tag()
         save_chapter=save_chapter_soup.find('div')
 
-        if self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
+        whole_dl_soup = chapter_dl_soup = None
+
+        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
@@ -388,8 +398,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             whole_dl_soup = self.full_work_soup
             chapter_dl_soup = whole_dl_soup.find('div',{'id':'chapter-%s'%(index+1)})
             if not chapter_dl_soup:
-                raise exceptions.FailedToDownload("chapter-%s not found in view_full_work"%(index+1))
-        else:
+                self.use_full_work_soup = False
+                logger.warn("chapter-%s not found in view_full_work--ending use_view_full_work"%(index+1))
+        if not chapter_dl_soup:
             whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url))
             if None == chapter_dl_soup:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
@@ -410,9 +421,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if 'authorheadnotes' not in exclude_notes and index == 0:
             headnotes = whole_dl_soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
+                ## Also include ul class='associations'.
+                ulassoc = headnotes.find('ul', {'class' : "associations"})
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
-                if headnotes != None:
+                if headnotes != None or ulassoc != None:
                     append_tag(save_chapter,'b',"Author's Note:")
+                if ulassoc != None:
+                    # fix relative links--all examples so far have been.
+                    for alink in ulassoc.find_all('a'):
+                        if 'http' not in alink['href']:
+                            alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    save_chapter.append(ulassoc)
+                if headnotes != None:
                     save_chapter.append(headnotes)
 
         ## Can appear on every chapter
@@ -458,5 +478,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 if footnotes:
                     append_tag(save_chapter,'b',"Author's Note:")
                     save_chapter.append(footnotes)
+
+        if 'inspiredlinks' not in exclude_notes and index+1 == len(self.chapterUrls):
+            inspiredlinks = whole_dl_soup.find('div', {'id' : "children"})
+            if inspiredlinks != None:
+                if inspiredlinks:
+                    inspiredlinks.find('h3').name='b' # don't want a big h3 at the end.
+                    # fix relative links--all examples so far have been.
+                    for alink in inspiredlinks.find_all('a'):
+                        if 'http' not in alink['href']:
+                            alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    save_chapter.append(inspiredlinks)
 
         return self.utf8FromSoup(url,save_chapter)

@@ -29,11 +29,16 @@ def logdebug(s):
     # logger.debug(s)
     pass
 
+was_run_marker=u'FFF_replace_br_with_p_has_been_run'
 def replace_br_with_p(body):
+    if was_run_marker in body:
+        # logger.debug("replace_br_with_p previously applied, skipping.")
+        return body
 
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a regular space.
-    body = body.replace(u'\xa0', u' ')
+    # .strip() so "\n<div>" at beginning is also recognized.
+    body = body.replace(u'\xa0', u' ').strip()
 
     if body.find('>') == -1 or body.rfind('<') == -1:
         return body
@@ -56,7 +61,7 @@ def replace_br_with_p(body):
 
     # BS is doing some BS on entities, meaning &lt; and &gt; are turned into < and >... a **very** bad idea in html.
     body = re.sub(r'&(.+?);', r'XAMP;\1;', body)
-    
+
     body = soup_up_div(u'<div>' + body + u'</div>')
 
     body = body[body.index('>')+1:body.rindex('<')]
@@ -250,16 +255,18 @@ def replace_br_with_p(body):
     body = body.strip()
 
     # re-wrap in div tag.
-    body = u'<div>\n' + body + u'</div>\n'
-
-    # return body
-    return tag_sanitizer(body)
+    body = u'<div id="' +was_run_marker+ u'">\n' + body + u'</div>\n'
+    # return body after tag_sanitizer with 'replace_br_with_p done' marker.
+    ## marker included twice becaues the comment & id could each be
+    ## removed by different 'clean ups'.  I hope it's less likely both
+    ## will be.
+    return u'<!-- ' +was_run_marker+ u' -->\n' + tag_sanitizer(body)
 
 def is_valid_block(block):
     return unicode(block).find('<') == 0 and unicode(block).find('<!') != 0
 
 def soup_up_div(body):
-    blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
+    blockTags = ['address', 'aside', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
     recurseTags = ['blockquote', 'div', 'noscript']
 
     tag = body[:body.index('>')+1]

@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-06-19 19:04+0000\n"
-"Last-Translator: Ömer Kaan Gürbüz <omerkaan0101omerkaangrbz@gmail.com>\n"
+"PO-Revision-Date: 2017-09-20 06:01+0000\n"
+"Last-Translator: Çağla Turhan\n"
 "Language-Team: Turkish (http://www.transifex.com/calibre/calibre-plugins/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -359,7 +359,7 @@ msgstr "'URL(ler)'den yeni ekleme yap' iletisi en üstte tutulsun mu ?"
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr ""
+msgstr "'URL(ler)den Yeni Ekle' diyaloğunu diğer tüm pencerelerin üstünde tutması için İşletim Sistemini ve Windows Yöneticisini görevlendirir."
 
 #: config.py:562
 msgid "Show estimated time left?"
@@ -375,13 +375,13 @@ msgstr "Çeşitli Seçenekler"
 
 #: config.py:571
 msgid "Inject calibre Series when none found?"
-msgstr ""
+msgstr "Hiçbir şey bulunmadığında calibre Serisini ekle?"
 
 #: config.py:572
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
-msgstr ""
+msgstr "Herhangi bir seri bulunmazsa, calibre serisi ekle (eğer varsa) böylece\no seri HayranKurgusu başlık sayfasında (kapakta değil) belirir."
 
 #: config.py:576
 msgid "Search by Title/Author(s) for If Story Already Exists?"
@@ -392,7 +392,7 @@ msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
-msgstr ""
+msgstr "<i>Eğer Hikaye Halihazırda Bulunuyorsa</i>kontrol edilirken, HayranKurgusu ilk olarak URL Belirleyicisi tarafından eşleşir."
 
 #: config.py:581
 msgid "Reject List"
@@ -404,7 +404,7 @@ msgstr "Reddedilen Adres Listesini Düzenle"
 
 #: config.py:586
 msgid "Edit list of URLs FanFicFare will automatically Reject."
-msgstr ""
+msgstr "URLlerin HayranKurgu liste düzenlemesi otomatik olarak Reddedilir."
 
 #: config.py:590 config.py:669
 msgid "Add Reject URLs"
@@ -412,31 +412,31 @@ msgstr "Reddedilen Adreslere Ekle"
 
 #: config.py:591
 msgid "Add additional URLs to Reject as text."
-msgstr ""
+msgstr "İlave URLleri Reddete metin olarak ekle."
 
 #: config.py:595
 msgid "Edit Reject Reasons List"
-msgstr ""
+msgstr "Reddetme Gerekçeleri Listesini düzenle"
 
 #: config.py:596 config.py:659
 msgid "Customize the Reasons presented when Rejecting URLs"
-msgstr ""
+msgstr "URLleri Reddederken Sunulan Gerekçeleri özelleştir"
 
 #: config.py:601
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr ""
+msgstr "URLleri daima Reddet Listesinden durmadan ve sormadan reddet."
 
 #: config.py:605
 msgid "Delete on Reject by Default?"
-msgstr ""
+msgstr "Varsayılan tarafından Reddet ile sil?"
 
 #: config.py:606
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr ""
+msgstr "Reddedilen kitapları sil onay kutucuğu varsayılan tarafından kontrol edilmeli mi?"
 
 #: config.py:643
 msgid "Edit Reject URLs List"
-msgstr ""
+msgstr "URLlerin Listesini Reddeti düzenle"
 
 #: config.py:657
 msgid "Reject Reasons"
@@ -452,35 +452,35 @@ msgstr "Neden reddettiğime dair sebep"
 
 #: config.py:667
 msgid "Title by Author"
-msgstr ""
+msgstr "Yazara göre sırala"
 
 #: config.py:670
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
-msgstr ""
+msgstr "URLleri Reddet ekle. <b>http://...,not</b> ya da <b>http://...,yazara göre sırala - not</b> <br>Geçersiz URLler göz ardı edilecek."
 
 #: config.py:671
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
-msgstr ""
+msgstr "Her sıraya bir URL:\n<b>http://...,not</b>\n<b>http://...,yazara göre sırala - not</b>"
 
 #: config.py:673 dialogs.py:1126
 msgid "Add this reason to all URLs added:"
-msgstr ""
+msgstr "Eklenen tüm URLlere bu gerekçeyi ekle:"
 
 #: config.py:689
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
-msgstr ""
+msgstr "Bu ayarlar, hem ekitapta hangi üstverinin görüntüleneceği konusunda detaylı kontrol sağlarken hem de farklı siteler için %(isa)s ve %(u)s/%(p)s belirlemenizde yardımcı olacak."
 
 #: config.py:696
 msgid "personal.ini"
-msgstr ""
+msgstr "kisisel.ini"
 
 #: config.py:703 config.py:807 config.py:808
 msgid "Edit personal.ini"
@@ -490,17 +490,17 @@ msgstr "personal.ini'yi düzenle"
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
-msgstr ""
+msgstr "HayranKurgusu artık bul, renk kodlaması ve kisisel.ini düzenlemesi için hata denetimi içeriyor. Kırmızı genellikle hatayı belirtiyor."
 
 #: config.py:716
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "\"Güvenli\" kisisel.ini'yi görüntüle"
 
 #: config.py:721 config.py:798
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr ""
+msgstr "Kendi kisisel.ini hesabınızı kullanıcı adı ve şifre olmadan görüntüleyin. Kendi kisisel.ini ayarlarınızı başkalarıyla güvenli bir şekilde paylaşmak için."
 
 #: config.py:727
 msgid "defaults.ini"
@@ -510,7 +510,7 @@ msgstr "defaults.ini"
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
-msgstr ""
+msgstr "Tüm eklentilerin konfigüre edilebilir ayarlarını \nve onların varsayılan ayarlarını görüntüle."
 
 #: config.py:733
 msgid "View Defaults"
@@ -518,7 +518,7 @@ msgstr "Varsayılanları gör"
 
 #: config.py:744
 msgid "Calibre Columns"
-msgstr ""
+msgstr "Calibre Sütunları"
 
 #: config.py:751
 msgid ""

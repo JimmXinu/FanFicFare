@@ -25,7 +25,7 @@ import urlparse
 import logging
 logger = logging.getLogger(__name__)
 
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup
 from gziphttp import GZipProcessor
 
 import adapters
@@ -41,7 +41,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     adapter = None
     try:
         adapter = adapters.getAdapter(configuration,url,anyurl=True)
-        
+
         # special stuff to log into archiveofourown.org, if possible.
         # Unlike most that show the links to 'adult' stories, but protect
         # them, AO3 doesn't even show them if not logged in.  Only works
@@ -60,11 +60,11 @@ def get_urls_from_page(url,configuration=None,normalize=False):
                 # login the session.
                 adapter.performLogin(url,data)
                 # get the list page with logged in session.
-                
+
         if 'fimfiction.net' in url and adapter.getConfig("is_adult"):
             data = adapter._fetchUrl(url)
             adapter.set_adult_cookie()
-    
+
         # this way it uses User-Agent or other special settings.  Only AO3
         # is doing login.
         data = adapter._fetchUrl(url,usecache=False)
@@ -80,7 +80,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
 
     return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
 
-def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None):
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None,email=False):
     urls = collections.OrderedDict()
 
     if not configuration:
@@ -92,23 +92,14 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     if restrictsearch:
         soup = soup.find(*restrictsearch)
         #logger.debug("restrict search:%s"%soup)
-    
+
     for a in soup.findAll('a'):
         if a.has_attr('href'):
             #logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             #logger.debug("1 urlhref:%s"%href)
-            # this (should) catch normal story links, some javascript
-            # 'are you old enough' links, and 'Report This' links.
-            if 'story.php' in a['href']:
-                #logger.debug("trying:%s"%a['href'])
-                m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",a['href'])
-                if m != None:
-                    href = form_url(a['href'] if '//' in a['href'] else url,
-                                    m.group('sid'))
-                    
+            href = cleanup_url(href,email)
             try:
-                href = href.replace('&index=1','')
                 #logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
                 #logger.debug("found adapter")
@@ -124,8 +115,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
     # most user readable metadata, if not normalized
     return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
 
-
-def get_urls_from_text(data,configuration=None,normalize=False):
+def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     urls = collections.OrderedDict()
     try:
         data = unicode(data)
@@ -134,16 +124,10 @@ def get_urls_from_text(data,configuration=None,normalize=False):
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
-    
+
     for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
-        # this (should) catch normal story links, some javascript
-        # 'are you old enough' links, and 'Report This' links.
-        if 'story.php' in href:
-            m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
-            if m != None:
-                href = form_url(href,m.group('sid'))
+        href = cleanup_url(href,email)
         try:
-            href = href.replace('&index=1','')
             adapter = adapters.getAdapter(configuration,href)
             if adapter.story.getMetadata('storyUrl') not in urls:
                 urls[adapter.story.getMetadata('storyUrl')] = [href]
@@ -160,7 +144,7 @@ def get_urls_from_text(data,configuration=None,normalize=False):
 def form_url(parenturl,url):
      url = url.strip() # ran across an image with a space in the
                        # src. Browser handled it, so we'd better, too.
- 
+
      if "//" in url or parenturl == None:
          returl = url
      else:
@@ -183,7 +167,24 @@ def form_url(parenturl,url):
                   toppath + '/' + url,
                   '','',''))
      return returl
-       
+
+def cleanup_url(href,email=False):
+    ## used to perform some common URL clean up.
+
+    # this (should) catch normal story links, some javascript 'are you
+    # old enough' links, and 'Report This' links.
+    if 'story.php' in href: ## various eFiction and similar.
+        m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
+        if m != None:
+            href = form_url(href,m.group('sid'))
+    elif email and '/threads/' in href:
+        ## xenforo emails, toss unread and page/post urls.  Emails are
+        ## only sent for thread updates, I believe.  Email only so
+        ## get_urls_from_page can still get post URLs.
+        href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?",r"/",href)
+    href = href.replace('&index=1','')
+    return href
+
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     logger.debug("get_urls_from_imap srv:(%s)"%srv)
@@ -197,32 +198,32 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
                                # However, it does check and won't
                                # quote strings that already start and
                                # end with ", so this is safe.
-    
+
     result, data = mail.uid('search', None, "UNSEEN")
-    
+
     #logger.debug("result:%s"%result)
     #logger.debug("data:%s"%data)
     urls=set()
-    
+
     #latest_email_uid = data[0].split()[-1]
     for email_uid in data[0].split():
 
         result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
-    
+
         #logger.debug("result:%s"%result)
         #logger.debug("data:%s"%data)
-    
+
         raw_email = data[0][1]
-        
+
     #raw_email = data[0][1] # here's the body, which is raw text of the whole email
     # including headers and alternate payloads
-    
+
         email_message = email.message_from_string(raw_email)
-     
+
         #logger.debug "To:%s"%email_message['To']
         #logger.debug "From:%s"%email_message['From']
         #logger.debug "Subject:%s"%email_message['Subject']
-    
+
     #    logger.debug("payload:%s"%email_message.get_payload())
 
         urllist=[]
@@ -230,9 +231,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
             #logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
             except Exception as e:
                 logger.error("Failed to read email content: %s"%e,exc_info=True)
         #logger.debug "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
@@ -241,7 +242,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
             r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
             #logger.debug("seen result:%s->%s"%(email_uid,r))
-                
+
         [ urls.add(x) for x in urllist ]
-    
+
     return urls

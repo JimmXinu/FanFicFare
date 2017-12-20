@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import re
 from ..htmlcleanup import stripHTML
 
 from base_xenforoforum_adapter import BaseXenForoForumAdapter
@@ -38,16 +39,41 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
     ## extracting threadmarks for chapters has diverged between SV/SB
     ## and QQ enough to require some differentiation.
     def extract_threadmarks(self,souptag):
-        # try threadmarks if no '#' in url
-        navdiv = souptag.find('div',{'class':'pageNavLinkGroup'})
-        threadmarksa = navdiv.find('a',{'class':'threadmarksTrigger'})
-        ## Loop on threadmark categories.
         threadmarks=[]
-        if threadmarksa:
+        # try threadmarks if no '#' in url
+        navdiv = souptag.find('div',{'class':'threadmarkMenus'})
+        if not navdiv:
+            return threadmarks
+        # was class=threadmarksTrigger.  thread cats are currently
+        # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
+        # be surprised if that changed.  Don't want to do use just
+        # href=re because there's more than one copy on the page; plus
+        # could be included in a post.  Would be easier if <noscript>s
+        # weren't being stripped, but that's a different issue.
+        threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
+        ## Loop on threadmark categories.
+        tmcat_num=None
+
+        for threadmarksa in threadmarksas:
+            tmcat_num = threadmarksa['href'].split('category_id=')[1]
+            # get from earlier <a> now.
+            tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
+            prepend = ""
+            if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                continue
+
+            if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
+                tmcat_name = 'Omake'
+
+            if tmcat_name != "Threadmarks":
+                prepend = tmcat_name+" - "
+
             soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
             markas = []
-            markas = soupmarks.find('div',{'class':'threadmarks'}).find_all('a',{'class':'PreviewTooltip'})
-            for (atag,url,name) in [ (x,x['href'],stripHTML(x)) for x in markas ]:
+            markas = soupmarks.find('div',{'class':'threadmarkList'}).find_all('a',{'class':'PreviewTooltip'})
+            for tmcat_index, atag in enumerate(markas):
+                url,name = atag['href'],stripHTML(atag)
                 date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
-                threadmarks.append({'title':name,'url':self.getURLPrefix()+'/'+url,'date':date})
+                threadmarks.append({"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,'title':name,'url':self.getURLPrefix()+'/'+url,'date':date})
+
         return threadmarks

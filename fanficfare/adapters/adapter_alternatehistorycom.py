@@ -15,15 +15,15 @@
 # limitations under the License.
 #
 
-from base_xenforoforum_adapter import BaseXenForoForumAdapter
+from adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
 
 def getClass():
     return WWWAlternatehistoryComAdapter
 
-class WWWAlternatehistoryComAdapter(BaseXenForoForumAdapter):
+class WWWAlternatehistoryComAdapter(QuestionablequestingComAdapter):
 
     def __init__(self, config, url):
-        BaseXenForoForumAdapter.__init__(self, config, url)
+        QuestionablequestingComAdapter.__init__(self, config, url)
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ah')

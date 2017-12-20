@@ -53,7 +53,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
-                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+self.story.getMetadata('storyId')+'/')
+                title = m.group('title') or ""
+                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+title+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -82,7 +83,21 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         ## need to accept http and https still.
-        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
+
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=2.0,
+                        referer=None):
+        ## We've been requested by the site(s) admin to rein in hits.
+        ## This is in additional to what ever the slow_down_sleep_time
+        ## setting is.
+        return BaseSiteAdapter._fetchUrlOpened(self,url,
+                                               parameters=parameters,
+                                               usecache=usecache,
+                                               extrasleep=extrasleep,
+                                               referer=referer)
 
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
@@ -145,6 +160,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             is_chapter_url = True
         return (is_chapter_url,url)
 
+    def _section_url(self,url):
+        ## domain is checked in configuration loop.  Can't check for
+        ## storyId, because this is called before story url has been
+        ## parsed.
+        # logger.debug("pre--url:%s"%url)
+        url = re.sub(r'/threads/.*\.(?P<id>[0-9]+)/',r'/threads/\g<id>/',url)
+        # logger.debug("post-url:%s"%url)
+        return url
 
     def use_pagecache(self):
         '''
@@ -198,14 +221,21 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return soup
 
     ## extracting threadmarks for chapters has diverged between SV/SB
-    ## and QQ enough to require some differentiation.
+    ## and QQ/AH enough to require some differentiation.
     ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
     def extract_threadmarks(self,souptag):
         # try threadmarks if no '#' in url
         navdiv = souptag.find('div',{'class':'threadmarkMenus'}) # SB/SV
         if not navdiv:
             return []
-        threadmarksas = navdiv.find_all('a',{'class':'threadmarksTrigger'})
+
+        # was class=threadmarksTrigger.  thread cats are currently
+        # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
+        # be surprised if that changed.  Don't want to do use just
+        # href=re because there's more than one copy on the page; plus
+        # could be included in a post.  Would be easier if <noscript>s
+        # weren't being stripped, but that's a different issue.
+        threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
 
         ## Loop on threadmark categories.
         threadmarks=[]
@@ -213,14 +243,19 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         # convenience method.
         def xml_tag_string(dom,tag):
-            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8")
+            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8").decode('utf-8')
 
         for threadmarksa in threadmarksas:
+            tmcat_num = threadmarksa['href'].split('category_id=')[1]
+            # get from earlier <a> now.
+            tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
+            ## move skip_threadmarks_categories here to save a fetch
+            ## if skipping anyway.  Will also effect
+            ## minimum_threadmarks below.
+            if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
+                continue
             threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')).encode('utf-8'))
             # print threadmark_rss_dom.toxml(encoding='utf-8')
-
-            tmcat_num = threadmarksa['href'].split('category_id=')[1]
-            tmcat_name = stripHTML(threadmarksa)
 
             for tmcat_index, item in enumerate(threadmark_rss_dom.getElementsByTagName("item")):
                 title = xml_tag_string(item,"title")
@@ -252,6 +287,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 logger.info("use useurl: "+useurl)
             else:
                 raise
+        if '#' not in useurl and '/posts/' not in useurl:
+            self._setURL(useurl) ## for when threadmarked thread name changes.
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
@@ -269,12 +306,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             anchorid = useurl.split('#')[1]
             souptag = souptag.find('li',id=anchorid)
         else:
-            # remember if reader link found.
-            self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
             ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
             threadmarks = self.extract_threadmarks(souptag)
 
             if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
+                # remember if reader link found--only applicable if using threadmarks.
+                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
+
                 if self.getConfig('always_include_first_post'):
                     self.chapterUrls.append((first_post_title,useurl))
 
@@ -295,8 +333,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     prepend=""
                     if 'tmcat_name' in tm:
                         tmcat_name = tm['tmcat_name']
-                        if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
-                            continue
                         if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                             tmcat_name = 'Omake'
                         if tmcat_name != "Threadmarks":
@@ -305,7 +341,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     append=""
                     if 'author' in tm and multi_authors and self.getConfig('show_chapter_authors',False):
                         append=" by "+tm['author']
-                    
+
                     if 'date' in tm:
                         date = tm['date']
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
@@ -481,6 +517,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     anchorid = url.split('#')[1]
                     souptag = topsoup.find('li',id=anchorid)
 
+        # remove <div class="baseHtml noticeContent"> because it can
+        # get confused for post content on first posts.
+        for notice in souptag.find_all('div',{'class':'noticeContent'}):
+            notice.extract()
+
         bq = souptag.find('blockquote')
         if not bq:
             bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
@@ -516,3 +557,20 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 div.insert(0,legend)
                 div.button.extract()
 
+    def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
+        if self.getConfig('replace_failed_smilies_with_alt_text'):
+            for img in soup.find_all('img',src=re.compile(r'(failedtoload|clear.png)$')):
+                #logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
+                clses = unicode(img['class']) # stringify list.
+                if img.has_attr('alt') and 'mceSmilie' in clses :
+                    ## Change the img to a span containing the alt
+                    ## text, remove attrs.  This is a one-way change.
+                    img.name='span'
+                    img.string = img['alt'].replace('`','') # no idea why some have `
+                    # not valid attrs on span.
+                    del img['alt']
+                    if img.has_attr('src'):
+                        del img['src']
+                    if img.has_attr('longdesc'):
+                        del img['longdesc']
+        return super(BaseXenForoForumAdapter, self)._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)

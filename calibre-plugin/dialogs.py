@@ -51,6 +51,8 @@ else:
             return [convert_qvariant(i) for i in x.toList()]
         return x.toPyObject()
 
+from calibre.gui2 import gprefs
+show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
 
@@ -247,7 +249,6 @@ class AddNewDialog(SizePersistedDialog):
 
         self.groupbox = QGroupBox(_("Show Download Options"))
         self.groupbox.setCheckable(True)
-        self.groupbox.setChecked(False)
         self.groupbox.setFlat(True)
         #print("style:%s"%self.groupbox.styleSheet())
         self.groupbox.setStyleSheet(gpstyle)
@@ -260,8 +261,9 @@ class AddNewDialog(SizePersistedDialog):
         self.gbf.setLayout(self.gbl)
         self.l.addWidget(self.groupbox)
 
-        self.gbf.setVisible(False)
-        self.groupbox.toggled.connect(self.gbf.setVisible)
+        self.groupbox.setChecked(gprefs.get(show_download_options,False))
+        self.gbf.setVisible(gprefs.get(show_download_options,False))
+        self.groupbox.toggled.connect(self.click_show_download_options)
 
         horz = QHBoxLayout()
         label = QLabel(_('Output &Format:'))
@@ -332,6 +334,10 @@ class AddNewDialog(SizePersistedDialog):
         self.button_box.rejected.connect(self.reject)
         self.l.addWidget(self.button_box)
 
+    def click_show_download_options(self,x):
+        self.gbf.setVisible(x)
+        gprefs[show_download_options] = x
+
     # invoke the
     def ok_clicked(self):
         self.dialog_closing(None) # save persistent size.
@@ -386,6 +392,9 @@ class AddNewDialog(SizePersistedDialog):
             self.url.setToolTip(_('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.'))
             self.collisionlabel.setText(_('If Story Already Exists?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL or title and author."))
+            self.groupbox.setChecked(gprefs.get(show_download_options,False))
+            self.gbf.setVisible(gprefs.get(show_download_options,False))
+            self.groupbox.toggled.connect(self.click_show_download_options)
 
         # Need to re-able after hiding/showing
         self.setAcceptDrops(True)
@@ -799,20 +808,20 @@ class UpdateExistingDialog(SizePersistedDialog):
 
         groupbox = QGroupBox(_("Show Download Options"))
         groupbox.setCheckable(True)
-        groupbox.setChecked(False)
+        groupbox.setChecked(gprefs.get(show_download_options,False))
         groupbox.setFlat(True)
         groupbox.setStyleSheet(gpstyle)
 
-        gbf = QFrame()
+        self.gbf = QFrame()
         gbl = QVBoxLayout()
-        gbl.addWidget(gbf)
+        gbl.addWidget(self.gbf)
         groupbox.setLayout(gbl)
         gbl = QVBoxLayout()
-        gbf.setLayout(gbl)
+        self.gbf.setLayout(gbl)
         options_layout.addWidget(groupbox)
 
-        gbf.setVisible(False)
-        groupbox.toggled.connect(gbf.setVisible)
+        self.gbf.setVisible(gprefs.get(show_download_options,False))
+        groupbox.toggled.connect(self.click_show_download_options)
 
         horz = QHBoxLayout()
         gbl.addLayout(horz)
@@ -870,6 +879,10 @@ class UpdateExistingDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
         self.books_table.populate_table(books)
+
+    def click_show_download_options(self,x):
+        self.gbf.setVisible(x)
+        gprefs[show_download_options] = x
 
     def set_collisions(self):
         prev=self.collision.currentText()

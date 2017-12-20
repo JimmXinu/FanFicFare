@@ -181,7 +181,7 @@ class DramioneOrgAdapter(BaseSiteAdapter):
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-		
+
         genres=soup.findAll('a', {'class' : "tag-1"})
         for genre in genres:
             self.story.addToList('genre',genre.string)

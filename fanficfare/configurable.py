@@ -27,6 +27,7 @@ import urllib
 import urllib2 as u2
 import urlparse as up
 import cookielib as cl
+import pickle
 
 try:
     from google.appengine.api import apiproxy_stub_map
@@ -99,6 +100,7 @@ titleLabels = {
     'extratags':'Extra Tags',
     'title':'Title',
     'storyUrl':'Story URL',
+    'sectionUrl':'Story URL Section',
     'description':'Summary',
     'author':'Author',
     'authorUrl':'Author URL',
@@ -249,6 +251,7 @@ def get_valid_set_options():
                'legend_spoilers':(base_xenforo_list,None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'show_chapter_authors':(base_xenforo_list,None,boollist),
+               'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                }
 
     return dict(valdict)
@@ -270,6 +273,7 @@ def get_valid_scalar_entries():
                  'title',
                  'titleHTML',
                  'storyUrl',
+                 'sectionUrl',
                  'description',
                  'formatname',
                  'formatext',
@@ -448,6 +452,7 @@ def get_valid_keywords():
                  'skip_threadmarks_categories',
                  'normalize_text_links',
                  'internalize_text_links',
+                 'replace_failed_smilies_with_alt_text',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
@@ -521,6 +526,19 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.pagecache = self.get_empty_pagecache()
 
+    def section_url_names(self,domain,section_url_f):
+        ## domain is passed as a method to limit the damage if/when an
+        ## adapter screws up _section_url
+        domain = domain.replace('www.','') ## let's not confuse the issue any more than it is.
+        try:
+            ## OrderDict (the default for ConfigParser) has to be
+            ## reconstructed completely because removing and re-adding
+            ## a section would mess up the order.
+            ## assumes _dict and _sections from ConfigParser parent.
+            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in self._sections.viewitems())
+            # logger.debug(self._sections.keys())
+        except e:
+            logger.warn("Failed to perform section_url_names: %s"%e)
 
     def addUrlConfigSection(self,url):
         if not self.lightweight: # don't need when just checking for normalized URL.
@@ -899,7 +917,9 @@ class Configuration(ConfigParser.SafeConfigParser):
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
             self.get_pagecache()[cachekey] = (data,redirectedurl)
-
+        # with open('global_cache','wb') as jout:
+        #     pickle.dump(self.pagecache,jout)
+        # self.cookiejar.save('global_cookies')
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
@@ -1080,13 +1100,13 @@ class Configuration(ConfigParser.SafeConfigParser):
             except u2.HTTPError, he:
                 excpt=he
                 if he.code in (403,404,410):
-                    logger.warn("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
+                    logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
             except Exception, e:
                 excpt=e
-                logger.warn("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+                logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
 
-        logger.error("Giving up on %s" %safe_url(url))
+        logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)
         raise(excpt)
 
@@ -1101,6 +1121,9 @@ class Configurable(object):
         ## to deal with caching correctly
         if hasattr(self, 'use_pagecache'):
             self.configuration.use_pagecache = self.use_pagecache()
+
+    def section_url_names(self,domain,section_url_f):
+        return self.configuration.section_url_names(domain,section_url_f)
 
     def get_configuration(self):
         return self.configuration

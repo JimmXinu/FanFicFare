@@ -57,6 +57,9 @@ try:
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
+
+        if url.lower().endswith('.svg'):
+            raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
         export = False
         img = Image()
         img.load(data)
@@ -133,7 +136,7 @@ except:
                 img.save(outsio,convtype[imgtype])
                 return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
-                logger.debug("image used unchanged")
+                # logger.debug("image used unchanged")
                 return (data,imgtype,imagetypes[imgtype])
 
     except:
@@ -198,14 +201,13 @@ except:
 
 
 try:
-    from calibre.library.comments import sanitize_comments_html, sanitize_html
+    from calibre.library.comments import sanitize_comments_html
 except:
     def sanitize_comments_html(t):
         ## should only be called by Calibre version, so this shouldn't
         ## trip.
         logger.debug("fake sanitize called...")
         return t
-    sanitize_html = sanitize_comments_html
 
 # The list comes from ffnet, the only multi-language site we support
 # at the time of writing.  Values are taken largely from pycountry,
@@ -515,7 +517,7 @@ class Story(Configurable):
             self.addToList('lastupdate',value.strftime("Last Update Year/Month: %Y/%m"),clear=True)
             self.addToList('lastupdate',value.strftime("Last Update: %Y/%m/%d"))
 
-        if key == 'storyUrl' and value:
+        if key == 'sectionUrl' and value:
             self.addUrlConfigSection(value) # adapter/writer share the
                                             # same configuration.
                                             # ignored if config
@@ -826,12 +828,7 @@ class Story(Configurable):
         if not description:
             description = ''
         else:
-            if self.getConfig('keep_summary_html'):
-                ## Handles desc with (supposed) html without html->MD
-                ## text->html dance that sanitize_comments_html does.
-                description = sanitize_html(description)
-                # logger.debug("desc using sanitize_html")
-            else:
+            if not self.getConfig('keep_summary_html'):
                 ## because of the html->MD text->html dance, text only
                 ## (or MD/MD-like) descs come out better.
                 description = sanitize_comments_html(description)
@@ -846,6 +843,8 @@ class Story(Configurable):
             self.addToList(listname,v.strip())
 
     def addToList(self,listname,value,condremoveentities=True,clear=False):
+        if listname in self.processed_metadata_list_cache:
+            del self.processed_metadata_list_cache[listname]
         if value==None:
             return
         if condremoveentities:
@@ -866,12 +865,13 @@ class Story(Configurable):
     def getList(self,listname,
                 removeallentities=False,
                 doreplacements=True,
-                includelist=[]):
+                includelist=[],
+                skip_cache=False):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
 
         # check for a cached value to speed processing
-        if listname in self.processed_metadata_list_cache \
+        if not skip_cache and listname in self.processed_metadata_list_cache \
                 and (removeallentities,doreplacements) in self.processed_metadata_list_cache[listname]:
             return self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)]
 
@@ -886,7 +886,8 @@ class Story(Configurable):
                         k = k[:-len('.NOREPL')]
                         ldorepl = False
                     retlist.extend(self.getList(k,removeallentities=False,
-                                                doreplacements=ldorepl,includelist=includelist+[listname]))
+                                                doreplacements=ldorepl,includelist=includelist+[listname],
+                                                skip_cache=True))
             else:
 
                 if not self.isList(listname):
@@ -922,7 +923,8 @@ class Story(Configurable):
                                 else:
                                     ## needs to be a list to extend curlist.
                                     y=[x]
-                                curlist.extend(y)
+                                if y[0]: ## skip if empty
+                                    curlist.extend(y)
                                 ## logger.debug("curlist:%s"%(curlist,))
                             newretlist.append( splitmerge.join(sorted(curlist)) )
 
@@ -959,9 +961,10 @@ class Story(Configurable):
             else:
                 retlist = []
 
-        if listname not in self.processed_metadata_list_cache:
-            self.processed_metadata_list_cache[listname] = {}
-        self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
+        if not skip_cache:
+            if listname not in self.processed_metadata_list_cache:
+                self.processed_metadata_list_cache[listname] = {}
+            self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
 
         return retlist
 
@@ -1087,7 +1090,6 @@ class Story(Configurable):
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,parenturl,url,fetch,cover=False,coverexclusion=None):
-
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
@@ -1101,6 +1103,11 @@ class Story(Configurable):
         if is_appengine:
             return (None,None)
 
+        ## Mistakenly ended up with some // in image urls, like:
+        ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
+        ## Removing one /, but not ://
+        if not url.startswith("file"): # keep file:///
+            url = re.sub(r"([^:])//",r"\1/",url)
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
@@ -1122,13 +1129,13 @@ class Story(Configurable):
                 if parsedUrl.path.endswith("/"):
                     toppath = parsedUrl.path
                 else:
-                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
+                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
                 imgurl = urlparse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
-                     toppath + '/' + url,
+                     toppath + url,
                      '','',''))
-                #print("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
+                # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
         #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
@@ -1139,8 +1146,8 @@ class Story(Configurable):
         if imgurl not in self.imgurls:
 
             try:
-                if imgurl == 'failedtoload':
-                    raise Exception("Previously failed to load")
+                if imgurl.endswith('failedtoload'):
+                    return ("failedtoload","failedtoload")
 
                 parsedUrl = urlparse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
@@ -1157,6 +1164,8 @@ class Story(Configurable):
                         imgtype = "jpg"
                     removetrans = self.getConfig('remove_transparency')
                     removetrans = removetrans or grayscale or imgtype=="jpg"
+                    if 'ffdl-' in imgurl:
+                        raise exceptions.FailedToDownload("ffdl image is internal only...")
                     (data,ext,mime) = convert_image(imgurl,
                                                     fetch(imgurl,referer=parenturl),
                                                     sizes,
@@ -1165,7 +1174,7 @@ class Story(Configurable):
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
             except Exception, e:
-                logger.info("Failed to load or convert image, skipping:\n%s\nException: %s"%(imgurl,e))
+                logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
             # explicit cover, make the first image.

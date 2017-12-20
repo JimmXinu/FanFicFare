@@ -41,7 +41,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
 
 
     @staticmethod
@@ -57,7 +57,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         return "http://www.harrypotterfanfiction.com/viewstory.php?psid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"
+        return r"https?"+re.escape("://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -99,7 +99,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?showuid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         ## hpcom doesn't give us total words--but it does give
@@ -118,7 +118,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             #javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?chapterid=433441&i=1'
             # just in case there's tags, like <i> in chapter titles.
             chpt=re.sub(r'^.*?(\?chapterid=\d+).*?',r'\1',chapter['href'])
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/viewstory.php'+chpt))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/viewstory.php'+chpt))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 

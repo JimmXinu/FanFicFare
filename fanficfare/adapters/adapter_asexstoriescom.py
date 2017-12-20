@@ -132,7 +132,8 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             for page in chapterTable:
                 chapterTitle = page.string
                 chapterUrl = urlparse.urljoin(self.url, page['href'])
-                self.chapterUrls.append((chapterTitle, chapterUrl))
+                if chapterUrl.startswith(self.url): # there are other URLs in the pages block now.
+                    self.chapterUrls.append((chapterTitle, chapterUrl))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 

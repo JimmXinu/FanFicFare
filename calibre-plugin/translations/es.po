@@ -8,13 +8,13 @@
 # Enrique Medina <medina9304@gmail.com>, 2016
 # Jellby <jellby@yahoo.com>, 2014-2017
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
-# juanda097 <juanda097@openmailbox.org>, 2016
+# juanda097 <juanda097@protonmail.ch>, 2016
 # JimmXinu <retiefjimm@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-05-13 07:07+0000\n"
+"PO-Revision-Date: 2017-09-20 06:01+0000\n"
 "Last-Translator: Jellby <jellby@yahoo.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"

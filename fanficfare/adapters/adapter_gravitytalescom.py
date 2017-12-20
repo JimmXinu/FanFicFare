@@ -21,17 +21,28 @@
 import logging
 import json
 import re
-import sys  # ## used for debug purposes
 import time
 import urllib2
-import datetime
+from datetime import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+logger = logging.getLogger(__name__)
+
+try:
+    # If feedparser ever becomes an included dependency for FanFicFare
+    import feedparser
+except ImportError:
+    try:
+        # A version of feedparser is available in the Calibre plugin version
+        from calibre.web.feeds import feedparser
+    except ImportError:
+        # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
+        feedparser = None
+
+from base_adapter import BaseSiteAdapter
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-logger = logging.getLogger(__name__)
 
 ####################################################################################################
 def getClass():
@@ -163,14 +174,21 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
                         self.chapterUrls.append((chaptitle,chapUrl))
                 self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-        ## There are no published or updated dates listed on this site. I am arbitrarily setting
-        ## these dates to the packaged date for now. If anyone else has an idea of how to get
-        ## the original dates, please let me know [GComyn]
-        ### I'd like to use the original date of the file, if this is an update, but I'm not proficient
-        ### enough with programming to get it at this time. [GComyn]
-        self.story.setMetadata('datePublished', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
-        self.story.setMetadata('dateUpdated', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
+        if feedparser:
+            # Parse published and updated date from latest RSS feed entry. The RSS feed urls seems to appear due to
+            # some JavaScript on the page, so get the URL by mangling the URL (this is not very robust, but probably
+            # good enough)
+            rss_feed_url = url.replace('/novel/', '/feed/')
+            feed = feedparser.parse(rss_feed_url)
+            date_updated = datetime.fromtimestamp(
+                time.mktime(feed.entries[0].published_parsed)) if feed.entries else datetime.now()
+        else:
+            # Fall back to the previous method of generating the published and update date...
+            date_updated = datetime.now()
 
+        # Since the original published date isn't available, we'll simply use the updated date
+        self.story.setMetadata('datePublished', date_updated)
+        self.story.setMetadata('dateUpdated', date_updated)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

@@ -320,7 +320,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         #time.sleep(10)
     return book
 
-## calibre's columns for an existing book are pased in and injected
+## calibre's columns for an existing book are passed in and injected
 ## into the story's metadata.  For convenience, we also add labels and
 ## valid_entries for them in a special [injected] section that has
 ## even less precedence than [defaults]

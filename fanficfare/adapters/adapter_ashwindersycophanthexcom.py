@@ -45,7 +45,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-		
+
 
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -141,7 +141,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
         asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-		
+
         try:
             # in case link points somewhere other than the first chapter
             a = soup.findAll('option')[1]['value']
@@ -150,13 +150,13 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             soup = self.make_soup(self._fetchUrl(url))
         except:
             pass
-		
+
         for info in asoup.findAll('table', {'width' : '100%', 'bordercolor' : re.compile(r'#')}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
                 self.story.setMetadata('title',stripHTML(a))
                 break
-		
+
 
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
@@ -178,11 +178,11 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
                 return d.name
             except:
                 return ""
-				
+
         cats = info.findAll('a',href=re.compile('categories.php'))
         for cat in cats:
             self.story.addToList('category',cat.string)
-					
+
         a = info.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         val = a.nextSibling
         svalue = ""
@@ -195,7 +195,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         self.setDescription(url,svalue)
 
         ## <td><span class="sb"><b>Published:</b> 04/08/2007</td>
-        
+
         ## one story had <b>Updated...</b> in the description. Restrict to sub-table
         labels = info.find('table').findAll('b')
         for labelspan in labels:
@@ -239,7 +239,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
-		
+
         data = self._fetchUrl(url)
 
         soup = self.make_soup(data) # some chapters seem to be hanging up on those tags, so it is safer to close them

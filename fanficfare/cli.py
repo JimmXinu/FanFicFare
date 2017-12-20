@@ -19,6 +19,7 @@ from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
+from StringIO import StringIO
 import ConfigParser
 import getpass
 import logging
@@ -29,10 +30,10 @@ import sys
 import pickle
 import cookielib as cl
 
-version="2.13.4"
+version="2.20.0"
 
-if sys.version_info < (2, 5):
-    print 'This program requires Python 2.5 or newer.'
+if sys.version_info < (2, 5) or sys.version_info > (3,0):
+    print('This program requires Python 2.5 or newer.  Python 3 is not supported.')
     sys.exit(1)
 
 if sys.version_info >= (2, 7):
@@ -41,6 +42,8 @@ if sys.version_info >= (2, 7):
     loghandler = logging.NullHandler()
     loghandler.setFormatter(logging.Formatter('(=====)(levelname)s:%(message)s'))
     rootlogger.addHandler(loghandler)
+
+logger = logging.getLogger('fanficfare')
 
 try:
     # running under calibre
@@ -93,6 +96,9 @@ def main(argv=None,
     parser.add_option('-m', '--meta-only',
                       action='store_true', dest='metaonly',
                       help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
+    parser.add_option('--json-meta',
+                      action='store_true', dest='jsonmeta',
+                      help='When used with --meta-only, output metadata as JSON.  No effect without --meta-only flag', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
@@ -131,6 +137,9 @@ def main(argv=None,
     parser.add_option('-s', '--sites-list',
                       action='store_true', dest='siteslist', default=False,
                       help='Get list of valid story URLs examples.', )
+    parser.add_option('--non-interactive',
+                      action='store_false', dest='interactive', default=sys.stdin.isatty() and sys.stdout.isatty(),
+                      help='Prevent interactive prompts (for scripting).', )
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
                       help='Show debug and notice output.', )
@@ -154,7 +163,6 @@ def main(argv=None,
         print("Version: %s" % version)
         return
 
-    logger = logging.getLogger('fanficfare')
     if not options.debug:
         logger.setLevel(logging.WARNING)
 
@@ -333,20 +341,21 @@ def do_download(arg,
         if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
             try:
                 from calibre.utils.magick import Image
-                logging.debug('Using calibre.utils.magick')
             except ImportError:
                 try:
                     ## Pillow is a more current fork of PIL library
                     from PIL import Image
-                    logging.debug('Using Pillow')
                 except ImportError:
                     try:
                         import Image
-                        logging.debug('Using PIL')
                     except ImportError:
                         print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
-                        if not sys.stdin.readline().strip().lower().startswith('y'):
-                            return
+                        if options.interactive:
+                            if not sys.stdin.readline().strip().lower().startswith('y'):
+                                return
+                        else:
+                            # for non-interactive, default the response to yes and continue processing
+                            print 'y'
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
@@ -354,6 +363,9 @@ def do_download(arg,
             try:
                 adapter.getStoryMetadataOnly()
             except exceptions.FailedToLogin, f:
+                if not options.interactive:
+                    print 'Login Failed on non-interactive process. Set username and password in personal.ini.'
+                    return
                 if f.passwdonly:
                     print 'Story requires a password.'
                 else:
@@ -363,12 +375,16 @@ def do_download(arg,
                 adapter.password = getpass.getpass(prompt='Password: ')
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
             except exceptions.AdultCheckRequired:
-                print 'Please confirm you are an adult in your locale: (y/n)?'
-                if sys.stdin.readline().strip().lower().startswith('y'):
-                    adapter.is_adult = True
+                if options.interactive:
+                    print 'Please confirm you are an adult in your locale: (y/n)?'
+                    if sys.stdin.readline().strip().lower().startswith('y'):
+                        adapter.is_adult = True
+                else:
+                    print 'Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.'
+                    return
 
         if options.update and not options.force:
-            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters'))
+            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters').replace(',',''))
 
             if chaptercount == urlchaptercount and not options.metaonly:
                 print '%s already contains %d chapters.' % (output_filename, chaptercount)
@@ -395,13 +411,34 @@ def do_download(arg,
                 if not options.update and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
                     adapter.hookForUpdates(chaptercount)
 
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                else:
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
+
                 write_story(configuration, adapter, 'epub')
 
         else:
             # regular download
             if options.metaonly:
-                pprint.pprint(adapter.getStoryMetadataOnly().getAllMetadata())
-                pprint.pprint(adapter.chapterUrls)
+                metadata = adapter.getStoryMetadataOnly().getAllMetadata()
+                metadata['zchapters'] = []
+                for i, x in enumerate(adapter.chapterUrls):
+                    metadata['zchapters'].append((i+1,x[0],x[1]))
+                if options.jsonmeta:
+                    import json
+                    print json.dumps(metadata, sort_keys=True,
+                                     indent=2, separators=(',', ':'))
+                else:
+                    pprint.pprint(metadata)
+
+            if not options.metaonly and adapter.getConfig('pre_process_cmd'):
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                else:
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
@@ -435,7 +472,7 @@ def get_configuration(url,
     except exceptions.UnknownSite, e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
-            configuration = Configuration('test1.com', options.format)
+            configuration = Configuration(['unknown'], options.format)
         else:
             raise e
 
@@ -445,16 +482,20 @@ def get_configuration(url,
     homepath2 = join(expanduser('~'), '.fanficfare')
 
     if passed_defaultsini:
-        configuration.readfp(passed_defaultsini)
-
-    # don't need to check existance for our selves.
-    conflist.append(join(dirname(__file__), 'defaults.ini'))
-    conflist.append(join(homepath, 'defaults.ini'))
-    conflist.append(join(homepath2, 'defaults.ini'))
-    conflist.append('defaults.ini')
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_defaultsini))
+    else:
+        # don't need to check existance for our selves.
+        conflist.append(join(dirname(__file__), 'defaults.ini'))
+        conflist.append(join(homepath, 'defaults.ini'))
+        conflist.append(join(homepath2, 'defaults.ini'))
+        conflist.append('defaults.ini')
 
     if passed_personalini:
-        configuration.readfp(passed_personalini)
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_personalini))
 
     conflist.append(join(homepath, 'personal.ini'))
     conflist.append(join(homepath2, 'personal.ini'))
@@ -463,7 +504,6 @@ def get_configuration(url,
     if options.configfile:
         conflist.extend(options.configfile)
 
-    logging.debug('reading %s config file(s), if present' % conflist)
     configuration.read(conflist)
 
     try:
