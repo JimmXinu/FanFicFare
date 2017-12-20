@@ -252,11 +252,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.addToList("characters", stripHTML(character))
         for genre in tags.find_all("a", {"class":"tag-genre"}):
             self.story.addToList("genre", stripHTML(genre))
-        # only two warnings I've seen, each with their own class(and color)
-        for gore in tags.find_all("a", {"class":"tag-gore"}):
-            self.story.addToList("warnings", stripHTML(gore))
-        for sex in tags.find_all("a", {"class":"tag-sex"}):
-            self.story.addToList("warnings", stripHTML(sex))
+        for series in tags.find_all("a", {"class":"tag-series"}):
+            #using 'fandoms' as the identifier to standardize with archiveofourown.org
+            self.story.addToList("fandoms", stripHTML(series))
+        for warning in tags.find_all("a", {"class":"tag-warning"}):
+            self.story.addToList("warnings", stripHTML(warning))
+        for content in tags.find_all("a", {"class":"tag-content"}):
+            self.story.addToList("content", stripHTML(content))
 
         # Likes and dislikes
         storyToolbar = soup.find('div', {'class':'story-top-toolbar'})
@@ -282,8 +284,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("short_description", stripHTML(descriptionMeta['content']))
 
         #groups
-        groupDiv = soup.find('div', {'class':'groups'})
-        if groupDiv != None and groupDiv.find('div').find('button'):
+        groupButton = soup.find('button', {'data-click':'showAll'})
+        if groupButton != None and groupButton.find('i', {'class':'fa-search-plus'}):
             groupResponse = self._fetchUrl("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
             groupList = self.make_soup(groupData["content"])
@@ -291,9 +293,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             groupList = soup.find('ul', {'id':'story-groups-list'})
 
         if not (groupList == None):
-            for groupName in groupList.find_all('a'):
-                self.story.addToList("groupsUrl", 'https://'+self.host+groupName["href"])
-                self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
+            for groupContent in groupList.find_all('a'):
+                self.story.addToList("groupsUrl", 'https://'+self.host+groupContent["href"])
+                groupName = groupContent.find('span', {"class":"group-name"})
+                if groupName != None:
+                    self.story.addToList("groups",stripHTML(groupName).replace(',', ';'))
+                else:
+                    self.story.addToList("groups",stripHTML(groupContent).replace(',', ';'))
 
         #sequels
         for header in soup.find_all('h1', {'class':'header-stories'}):
