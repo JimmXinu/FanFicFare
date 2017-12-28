@@ -36,6 +36,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.storyId = unicode(self.getStoryId(url))
+        self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
         self.story.setMetadata('storyId', self.storyId)
         self._setURL('https://www.wattpad.com/story/%s' % self.storyId)
 
