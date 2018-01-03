@@ -114,6 +114,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
         # Find the chapters:
+        pubdate = None
         chapters = soup.find('ul', {'class' : 'table-of-contents'})
         if chapters != None:
             chapters=chapters.findAll('a', href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"/\d+#part_content$"))
@@ -122,7 +123,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 chapter=chapters[x]
                 churl='https://'+self.host+chapter['href']
                 self.chapterUrls.append((stripHTML(chapter),churl))
-                if x == 0:
+                ## First chapter doesn't always have a date, skip it.
+                if pubdate == None and chapter.parent.find('span'):
                     pubdate = translit.translit(stripHTML(chapter.parent.find('span')))
                     # pubdate = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
                 if x == len(chapters)-1:
