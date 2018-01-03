@@ -124,6 +124,10 @@ class BaseSiteAdapter(Configurable):
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
     def setChaptersRange(self,first=None,last=None):
+        if not first:
+            first = self.getConfig("first_chapter",default=None)
+        if not last:
+            last = self.getConfig("last_chapter",default=None)
         if first:
             self.chapterFirst=int(first)-1
         if last:
