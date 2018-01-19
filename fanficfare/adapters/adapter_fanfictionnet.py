@@ -109,8 +109,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Unable to locate story" in data:
             raise exceptions.StoryDoesNotExist(url)
 
-        # some times "Chapter not found...", sometimes "Chapter text not found..."
-        if "not found. Please check to see you are not using an outdated url." in data:
+        # some times "Chapter not found...", sometimes "Chapter text
+        # not found..." or "Story does not have any chapters"
+        if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
         if self.getConfig('check_next_chapter'):
