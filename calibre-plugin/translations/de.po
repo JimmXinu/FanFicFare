@@ -3,7 +3,7 @@
 # 
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2016
-# ILB, 2014-2016
+# ILB, 2014-2017
 # jumo, 2016
 # Sebastian Keller <Haggard@gmx.de>, 2015
 # Simon_Schuette <simonschuette@arcor.de>, 2014-2016
@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-09-20 06:01+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2018-01-18 17:51+0000\n"
+"Last-Translator: ILB\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -265,13 +265,13 @@ msgstr "Sie werden gewarnt, wenn eine Aktualisierung die URL eines vorhandenen B
 
 #: config.py:496
 msgid "Search inside ebooks for Story URL?"
-msgstr ""
+msgstr "Soll im ebook nach der StoryURL gesucht werden?"
 
 #: config.py:497
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr ""
+msgstr "Sucht nach der ersten gültigen Story-URL in EPUB-, ZIP- (HTML) oder TXT-E-Book-Formaten, wenn sie nicht in Metadaten gefunden werden\nEtwas riskant, es könnte je nach E-Book-Inhalt eine falsche URL gefunden werden."
 
 #: config.py:501
 msgid "Post Processing Options"
@@ -430,11 +430,11 @@ msgstr "Generell URLs die auf Ablehnungsliste stehen zurückweisen, ohne nachzuf
 
 #: config.py:605
 msgid "Delete on Reject by Default?"
-msgstr ""
+msgstr "Automatisch löschen, wenn standardmäßig abgelehnt wird?"
 
 #: config.py:606
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr ""
+msgstr "Soll das Kontrollkästchen zum Löschen abgelehnter Bücher standardmäßig aktiviert werden?"
 
 #: config.py:643
 msgid "Edit Reject URLs List"
@@ -520,24 +520,24 @@ msgstr "Ansicht der Standardeinstellungen"
 
 #: config.py:744
 msgid "Calibre Columns"
-msgstr "Calible Spalten"
+msgstr "Calibre-Spalten"
 
 #: config.py:751
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
-msgstr ""
+msgstr "Wenn diese Option aktiviert ist, verfügt FanFicFare beim Aktualisieren / Überschreiben eines vorhandenen Buchs über die Calibre-Spalten, die in replace_metadata, title_page usw. verwendet werden können.\nKlicken Sie auf die Schaltfläche, um die Calibre-Spalten-Namen anzuzeigen."
 
 #: config.py:752
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
-msgstr ""
+msgstr " Calibre Spalten in FanFicFare beim Updaten/Überschreiben verwenden"
 
 #: config.py:765
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
-msgstr ""
+msgstr "FanFicFare kann die Calibre Spalten in den Download/Update-Prozess weitergeben.\nDies zeigt Ihnen die verfügbaren Spalten nach Namen."
 
 #: config.py:766
 msgid "Show Calibre Column Names"
@@ -685,7 +685,7 @@ msgstr "Erstellt Cover nur für Neue Bücher"
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
-msgstr ""
+msgstr "Standardmäßig wird jedes Mal, wenn die Calibre-Metadaten aktualisiert werden, ein Cover generiert.\nWird für Calibre- und Plugin-generierte Cover verwendet."
 
 #: config.py:1017
 msgid "Inject/update the cover inside EPUB"
@@ -1005,13 +1005,13 @@ msgstr ""
 
 #: config.py:1406
 msgid "Last Checked Column:"
-msgstr ""
+msgstr "Zuletzt überprüfte Spalte:"
 
 #: config.py:1407
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
-msgstr ""
+msgstr "Erfasst, wann FanFicFare das letzte Mal aktualisiert oder auf Updates überprüft wurde\n(Nur Datumsspalten.)"
 
 #: config.py:1436
 msgid "Author(s)"
@@ -1072,13 +1072,13 @@ msgstr ""
 
 #: config.py:1482
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr ""
+msgstr "Bücher-Kommentare in Anthology-Kommentare einbeziehen?"
 
 #: config.py:1483
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
-msgstr ""
+msgstr "Fügt alle Kommentare der zusammengeführten Bücher in den Kommentar des neuen Buches ein."
 
 #: config.py:1488
 msgid "Set Anthology Comments only for new books"
@@ -1095,7 +1095,7 @@ msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr ""
+msgstr "Diese Einstellungen ermöglichen es FanFicFare URLs aus Ihrem E-Mail-Konto abzurufen. Es wird nur nach Story-URLs in ungelesenen E-Mails in dem unten angegebenen Ordner gesucht."
 
 #: config.py:1511
 msgid "IMAP Server Name"
@@ -1157,7 +1157,7 @@ msgstr "Wenn aktiviert, werden eMails als gelesen markiert, wenn sie irgendwelch
 
 #: config.py:1564
 msgid "Discard URLs on Reject List"
-msgstr ""
+msgstr "URLs in der Ablehnungsliste werden abgewiesen."
 
 #: config.py:1565
 msgid ""
@@ -1165,7 +1165,7 @@ msgid ""
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
 " normal Reject URL dialog.<br>The Emails will still be marked Read if "
 "configured to."
-msgstr ""
+msgstr "Wenn diese Option aktiviert ist, verwirft FanFicFare die URLs (aus E-Mails) von Storys automatisch, die sich auf der Liste der abgelehnten URLs befinden. Andernfalls werden sie angezeigt und Sie sehen den normalen Reject-URL-Dialog. Die E-Mails werden weiterhin als gelesen markiert angezeigt."
 
 #: config.py:1570
 msgid "Update Existing Books Only"
@@ -1176,7 +1176,7 @@ msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
-msgstr ""
+msgstr "Wenn diese Option aktiviert ist, verwirft FanFicFare die URLs (aus Mails) von Storys automatisch, die sich noch niAndernfalls werden alle neuen und bestehenden Story-URLs verwendet. Die E-Mails werden weiterhin als gelesen markiert angezeigt."
 
 #: config.py:1576
 msgid "Download from Email Immediately"
@@ -1186,7 +1186,7 @@ msgstr "Aus E-Mail sofort herunterladen"
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
-msgstr ""
+msgstr "Wenn diese Option aktiviert ist, startet FanFicFare sofort mit dem Herunterladen von Story-URLs aus E-Mails. Andernfalls wird das übliche Dialogfeld Download von URLs angezeigt."
 
 #: config.py:1582
 msgid ""
@@ -1619,15 +1619,15 @@ msgstr "Es wurden keine gültigen StoryURLs in den ungelesenen eMails gefunden."
 
 #: fff_plugin.py:512
 msgid "Finished Fetching Story URLs from Email."
-msgstr ""
+msgstr "Das Abrufen der StoryURL´s aus den Mails ist abgeschlossen."
 
 #: fff_plugin.py:520
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
-msgstr ""
+msgstr "(%d StoryURLs´ wurden übersprungen, da auf der Ablehnungsliste)"
 
 #: fff_plugin.py:522
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
-msgstr ""
+msgstr "(%d Story URLs übersprungen, kein vorhandenes Buch in der Bibliothek) "
 
 #: fff_plugin.py:523
 msgid "Get Story URLs from Email"
@@ -1898,7 +1898,7 @@ msgstr "Doppelte Story überspringen."
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
-msgstr ""
+msgstr "Mehr als ein identisches Buch mit ID-URL oder Titel / Autor (en) - es kann nicht festgestellt werden, welches Buch aktualisiert / überschrieben werden soll."
 
 #: fff_plugin.py:1271
 msgid "Update"
