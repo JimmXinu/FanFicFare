@@ -84,7 +84,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', self.parsedUrl.path.split('/')[2])
 
         # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/book/'+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/book/' + self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev', 'wncom')
@@ -169,6 +169,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
         for chap in jsondata["data"]["chapterItems"]:
+            # Only allow free and VIP type 1 chapters
+            if chap['isVip'] not in {0, 1}:
+                continue
+
             chap_title = 'Chapter ' + unicode(chap['chapterIndex']) + ' - ' + chap['chapterName']
             chap_Url = url.rstrip('/') + '/' + chap['chapterId']
             self.chapterUrls.append((chap_title, chap_Url))
@@ -200,8 +204,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
         chapter_info = json.loads(self._fetchUrl(content_url))['data']['chapterInfo']
 
-        # Check if chapter is marked as VIP (requires an ad to be watched)
-        if chapter_info['isVip']:
+        # Check if chapter is marked as VIP type 1 (requires an ad to be watched)
+        if chapter_info['isVip'] == 1:
             content_token_url = 'https://%s/apiajax/chapter/GetChapterContentToken?_csrfToken=%s&bookId=%s&chapterId=%s' % (
                 self.getSiteDomain(), self._csrf_token, self.story.getMetadata('storyId'), chapter_id)
             content_token = json.loads(self._fetchUrl(content_token_url))['data']['token']
