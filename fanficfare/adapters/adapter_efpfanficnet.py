@@ -47,7 +47,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','efp')
@@ -59,14 +59,14 @@ class EFPFanFicNet(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.efpfanfic.net'
+        return 'efpfanfic.net'
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -88,7 +88,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Invia'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?sid='+self.story.getMetadata('storyId')
+        loginUrl = 'https://' + self.getSiteDomain() + '/user.php?sid='+self.story.getMetadata('storyId')
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -137,7 +137,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapter selector
@@ -149,7 +149,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         else:
             allOptions = select.findAll('option', {'value' : re.compile(r'viewstory')})
             for o in allOptions:
-                url = u'http://%s/%s' % ( self.getSiteDomain(),
+                url = u'https://%s/%s' % ( self.getSiteDomain(),
                                           o['value'])
                 # just in case there's tags, like <i> in chapter titles.
                 title = stripHTML(o)
@@ -179,7 +179,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             # no storya, but do have authsoup--we're looping on author pages.
             if authsoup != None:
                 # last author link with offset should be the 'next' link.
-                authurl = u'http://%s/%s' % ( self.getSiteDomain(),
+                authurl = u'https://%s/%s' % ( self.getSiteDomain(),
                                               authsoup.findAll('a',href=re.compile(r'viewuser\.php\?uid=\d+&catid=&offset='))[-1]['href'] )
 
             # Need author page for most of the metadata.
@@ -268,7 +268,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?ssid=\d+&i=1"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
