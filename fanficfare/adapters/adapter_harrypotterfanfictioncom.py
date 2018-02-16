@@ -133,16 +133,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         table = soup.find('table',{'class':'storymaininfo'})
         if table:
             metastr = stripHTML(unicode(table)).replace('\n',' ').replace('\t',' ')
-            # Rating: 12+ Story Reviews: 3
-            # Chapters: 3
-            # Characters: Andromeda, Ted, Bellatrix, R. Lestrange, Lucius, Narcissa, OC
-            # Genre(s): Fluff, Romance, Young Adult Era: OtherPairings: Other Pairing, Lucius/Narcissa
-            # Status: Completed
-            # First Published: 2010.09.02
-            # Last Published Chapter: 2010.09.28
-            # Last Updated: 2010.09.28
-            # Favorite Story Of: 1 users
-            # Warnings: Scenes of a Mild Sexual Nature
 
             m = re.match(r".*?Status: Completed.*?",metastr)
             if m:
@@ -150,7 +140,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('status','In-Progress')
 
-            m = re.match(r".*?Rating: (.+?) Story Reviews.*?",metastr)
+            m = re.match(r".*?Rating: (.+?)Story",metastr)
             if m:
                 self.story.setMetadata('rating', m.group(1))
 
@@ -164,9 +154,14 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 for g in m.group(1).split(','):
                     self.story.addToList('characters',g)
 
-            m = re.match(r".*?Warnings: (.+).*?",metastr)
+            m = re.match(r".*?Pairings: (.+?) +Status",metastr)
             if m:
-                for w in m.group(1).split(','):
+                for g in m.group(1).split(','):
+                    self.story.addToList('ships',g)
+
+            m = re.match(r".*?(Warnings|Advisory): (.+).*?",metastr)
+            if m:
+                for w in m.group(2).split(','):
                     if w != 'Now Warnings':
                         self.story.addToList('warnings',w)
 
