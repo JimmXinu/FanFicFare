@@ -115,6 +115,25 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         else:
             return True
 
+    def setSiteMaxRating(self,url,data=None,soup=None):
+        if not data:
+            data = self._fetchUrl(url)
+            soup = self.make_soup(data)
+
+        if self.is_adult or self.getConfig("is_adult"):
+            form = soup.find('form', {'id':'sitemaxratingform'})
+            # if is_adult and rating isn't already set to FR21, set it so.
+            if not form.find('option',{'value':'5'}).get('selected'):
+                params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
+                        'sitemaxrating':'5'}
+                logger.info("Attempting to get rating cookie for %s" % url)
+                data = self._postUrl("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
+                # refetch story page.
+                ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
+                data = self._fetchUrl(url,usecache=False)
+                soup = self.make_soup(data)
+        return (data,soup)
+
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter.  From that we will get almost all the
         # metadata and chapter list
@@ -143,18 +162,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if "<h2>Story Not Found</h2>" in data:
             raise exceptions.StoryDoesNotExist(url)
 
-        if self.is_adult or self.getConfig("is_adult"):
-            form = soup.find('form', {'id':'sitemaxratingform'})
-            # if is_adult and rating isn't already set to FR21, set it so.
-            if not form.find('option',{'value':'5'}).get('selected'):
-                params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
-                        'sitemaxrating':'5'}
-                logger.info("Attempting to get rating cookie for %s" % url)
-                data = self._postUrl("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
-                # refetch story page.
-                ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
-                data = self._fetchUrl(url,usecache=False)
-                soup = self.make_soup(data)
+        ## conditionally set sitemaxrating
+        (data,soup) = self.setSiteMaxRating(url,data,soup)
 
         if "NOTE: This story is rated FR21 which is above your chosen filter level." in data:
             raise exceptions.AdultCheckRequired(self.url)

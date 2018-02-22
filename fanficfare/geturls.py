@@ -65,8 +65,13 @@ def get_urls_from_page(url,configuration=None,normalize=False):
             data = adapter._fetchUrl(url)
             adapter.set_adult_cookie()
 
-        # this way it uses User-Agent or other special settings.  Only AO3
-        # is doing login.
+        if 'tthfanfic.org' in url and adapter.getConfig("is_adult"):
+            ## Simple fetch works in testing, but actual pages use a
+            ## POST and has a 'ctkn' value, so we do too.
+            # adapter._fetchUrl("https://www.tthfanfic.org/setmaxrating.php?sitemaxrating=5")
+            adapter.setSiteMaxRating(url)
+
+        # this way it uses User-Agent or other special settings.
         data = adapter._fetchUrl(url,usecache=False)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
