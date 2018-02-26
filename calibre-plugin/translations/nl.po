@@ -4,6 +4,7 @@
 # Translators:
 # Alex, 2016
 # erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
+# Herman van der Vaart <vaarttuig@gmail.com>, 2018
 # Mario Moens <marimo.it4u@gmail.com>, 2017
 # Nathan Follens, 2015
 # Nathan Follens, 2016
@@ -14,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-09-20 06:01+0000\n"
-"Last-Translator: Mario Moens <marimo.it4u@gmail.com>\n"
+"PO-Revision-Date: 2018-02-26 15:13+0000\n"
+"Last-Translator: Herman van der Vaart <vaarttuig@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -158,7 +159,7 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr ""
+msgstr "Bij elke download biedt FanFicFare een optie om Calibre metadata (titel, auteur, URL, tags, aangepaste kolommen, enz.) van de website bij te werken. <br />Hiermee wordt de standaard ingesteld op aan of uit.<br /> Kolommen die zijn ingesteld als 'Alleen Nieuw' in de kolomtabs, worden alleen ingesteld voor nieuwe boeken."
 
 #: config.py:442
 msgid "Default Update EPUB Cover when Updating EPUB?"
@@ -169,7 +170,7 @@ msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr ""
+msgstr "Bij elke download biedt FanFicFare de optie om de boekomslag<i> in </i>de EPUB vanaf de website bij te werken wanneer de EPUB wordt bijgewerkt.<br /> Hiermee wordt ingesteld of dit standaard wordt in- of uitgeschakeld."
 
 #: config.py:447
 msgid "Default Background Metadata?"
@@ -183,7 +184,7 @@ msgid ""
 "adult--stories that need those will just fail.<br />Only available for "
 "Update/Overwrite of existing books in case URL given isn't canonical or "
 "matches to existing book by Title/Author."
-msgstr ""
+msgstr "Bij elke download biedt FanFicFare een optie om metagegevens van sites te verzamelen in een achtergrondproces.<br /> Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent - zullen verhalen die dit nodig hebben, gewoon falen.<br /> Alleen beschikbaar voor het bijwerken / overschrijven van bestaande boeken in het geval de gegeven URL niet canoniek is of overeenkomt met  titel / auteur van bestaand boek."
 
 #: config.py:454
 msgid "Updating Calibre Options"
@@ -197,7 +198,7 @@ msgstr "Wis andere aanwezige formaten?"
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
-msgstr ""
+msgstr "Selecteer dit om alle andere e-boekformaten automatisch te verwijderen bij het bijwerken van een bestaand boek.\nHandig als je zowel een Nook (epub) als Kindle (mobi) hebt, bijvoorbeeld."
 
 #: config.py:463
 msgid "Keep Existing Tags when Updating Metadata?"
@@ -209,7 +210,7 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr ""
+msgstr "Bestaande tags zullen worden bewaard en nieuwe tags toegevoegd. \n%(cmplt)sen%(inprog)s tags, indien bekend, zullen nog steeds worden bijgewerkt. \n%(lul)sTags worden bijgewerkt als%(lus)s in%(is)s. \n(Als Tags is ingesteld op 'Alleen Nieuw' op het tabblad Standaardkolommen, heeft dit geen effect.)"
 
 #: config.py:468
 msgid "Force Author into Author Sort?"
@@ -219,7 +220,7 @@ msgstr "Forceer auteur naar auteursortering?"
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr ""
+msgstr "Indien aangevinkt, zal de auteur (s) zoals gegeven ook worden gebruikt voor het Auteur Sorteren.\nIndien niet aangevinkt, zal calibre het ingebouwde algoritme toepassen waardoor 'Bob Smith' sorteert als 'Smith, Bob', etc."
 
 #: config.py:473
 msgid "Force Title into Title Sort?"
@@ -229,7 +230,7 @@ msgstr "Forceer titel naar titelsortering?"
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
-msgstr ""
+msgstr "Indien aangevinkt, zal de titel zoals gegeven ook worden gebruikt voor het Titel Sorteren. \nAls dit niet is aangevinkt, zal calibre het ingebouwde algoritme toepassen waardoor 'De Titel' sorteert als 'Titel, De', etc."
 
 #: config.py:478
 msgid "Check for existing Series Anthology books?"
@@ -240,7 +241,7 @@ msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr ""
+msgstr "Controleer voor bestaande series bloemlezing-boeken de URL van elk nieuw verhaal voordat je het downloadt. \nAanbieden om het downloaden over te slaan als een bloemlezing serie is gevonden.\nWerkt niet wanneer Collect Metadata in achtergrond is geselecteerd."
 
 #: config.py:483 config.py:600
 msgid "Reject Without Confirmation?"
@@ -251,7 +252,7 @@ msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr ""
+msgstr "Verwerp automatisch verhalen met bestaande series bloemlezing-boeken.\n Werkt alleen als 'Zoeken naar bestaande bloemlezing boeken' is ingeschakeld. \nWerkt niet wanneer Collect Metadata in achtergrond is geselecteerd."
 
 #: config.py:491
 msgid "Check for changed Story URL?"
@@ -261,32 +262,32 @@ msgstr "Controleer veranderd verhaal URL?"
 msgid ""
 "Warn you if an update will change the URL of an existing book.\n"
 "fanfiction.net URLs will change from http to https silently."
-msgstr ""
+msgstr "Waarschuwt u als een update de URL van een bestaand boek zal wijzigen.\nfanfiction.net URL's veranderen geruisloos van http naar https."
 
 #: config.py:496
 msgid "Search inside ebooks for Story URL?"
-msgstr ""
+msgstr "Zoeken in e-boeken naar Story URL?"
 
 #: config.py:497
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr ""
+msgstr "Zoek naar de eerste geldige Story-URL in EPUB-, ZIP (HTML) of TXT ebook-formaten indien niet gevonden in metadata.\nEnigszins riskant, zou een verkeerde URL kunnen vinden afhankelijk van de inhoud van het e-boek."
 
 #: config.py:501
 msgid "Post Processing Options"
-msgstr ""
+msgstr "Postverwerkingsopties"
 
 #: config.py:505
 msgid "Mark added/updated books when finished?"
-msgstr ""
+msgstr "Markeer toegevoegde / bijgewerkte boeken na beëindiging?"
 
 #: config.py:506
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr ""
+msgstr "Markeer toegevoegde/bijgewerkte boeken na beëindiging. Gebruik met de onderstaande optie.\nU kunt ook handmatig zoeken naar 'marked: fff_success'. \n'gemarkeerd: fff_failed' is ook beschikbaar, of zoek 'gemarkeerd: fff' voor beide."
 
 #: config.py:510
 msgid "Show Marked books when finished?"
@@ -297,7 +298,7 @@ msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr ""
+msgstr "Toon gemarkeerde toegevoegde/bijgewerkte boeken alleen na beëindiging.\n U kunt ook handmatig zoeken naar 'marked: fff_success'. \n'gemarkeerd: fff_failed' is ook beschikbaar, of zoek 'gemarkeerd: fff' voor beide."
 
 #: config.py:515
 msgid "Smarten Punctuation (EPUB only)"
@@ -307,14 +308,14 @@ msgstr "Slimme interpunctie (enkel EPUB)"
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
-msgstr ""
+msgstr "Voer slimme-interpunctie uit vanuit Calibre's \"Polijst boek\" functie op elke EPUB-download en update."
 
 #: config.py:521
 msgid ""
 "Calculate Word Counts using Calibre internal methods.\n"
 "Many sites include Word Count, but many do not.\n"
 "This will count the words in each book and include it as if it came from the site."
-msgstr ""
+msgstr "Bereken woordtellingen met behulp van de interne methoden van Calibre.\nVeel sites bevatten Word Count, maar veel ook niet.\nDit telt de woorden in elk boek en neemt het op alsof het van de site komt."
 
 #: config.py:525
 msgid "Calculate Word Count:"
@@ -329,7 +330,7 @@ msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
-msgstr ""
+msgstr " Automatisch aanroepen van calibre Convert voor nieuwe/update-boeken.\nConverteert naar het huidige uitvoerformaat zoals gekozen in Calibre's\nVoorkeuren-> Gedragsinstellingen."
 
 #: config.py:543
 msgid "GUI Options"
@@ -341,27 +342,27 @@ msgstr "URLs overnemen van klembord?"
 
 #: config.py:548
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
-msgstr ""
+msgstr "Vooraf invullen URL's van geldige URL's in het klembord bij het toevoegen van nieuw."
 
 #: config.py:552
 msgid "Default to Update when books selected?"
-msgstr ""
+msgstr "Standaard updaten wanneer boeken zijn geselecteerd?"
 
 #: config.py:553
 msgid ""
 "The top FanFicFare plugin button will start Update if\n"
 "books are selected.  If unchecked, it will always bring up 'Add New'."
-msgstr ""
+msgstr "De bovenste knop van de FanFicFare plug-in start Update als\nboeken zijn geselecteerd. Indien niet aangevinkt, wordt altijd 'Nieuw toevoegen' weergegeven."
 
 #: config.py:557
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr ""
+msgstr "De dialoog 'Nieuw toevoegen van URL(' s) ' bovenaan houden?"
 
 #: config.py:558
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr ""
+msgstr "Instrueert het OS en vensterbeheerder de dialoog 'Nieuw toevoegen van URL(' s) '\nboven alle andere vensters te houden. Handig om URL's naartoe te slepen."
 
 #: config.py:562
 msgid "Show estimated time left?"
@@ -377,24 +378,24 @@ msgstr "Diverse opties"
 
 #: config.py:571
 msgid "Inject calibre Series when none found?"
-msgstr ""
+msgstr "Calibre serie toevoegen als er geen gevonden is?"
 
 #: config.py:572
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
-msgstr ""
+msgstr "Als er geen serie wordt gevonden, voeg dan de Calibre serie toe (als die er is)\nzodat deze op de titelpagina van FanFicFare verschijnt (niet de omslag)."
 
 #: config.py:576
 msgid "Search by Title/Author(s) for If Story Already Exists?"
-msgstr ""
+msgstr "Zoeken op titel/auteur(s) voor het geval verhaal al bestaat?"
 
 #: config.py:577
 msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
-msgstr ""
+msgstr "Bij de controle<i> of verhaal al bestaat</i>, zal FanFicFare eerst vergelijken op URL-identificatie. Maar als het niet wordt gevonden, kan het ook naar bestaande boeken zoeken op titel en auteur(s)."
 
 #: config.py:581
 msgid "Reject List"
@@ -406,7 +407,7 @@ msgstr "Bewerk afgewezen URL lijst"
 
 #: config.py:586
 msgid "Edit list of URLs FanFicFare will automatically Reject."
-msgstr ""
+msgstr "Bewerk lijst met URL's die FanFicFare automatisch weigert."
 
 #: config.py:590 config.py:669
 msgid "Add Reject URLs"
@@ -414,7 +415,7 @@ msgstr "Voeg afgewezen URL's toe"
 
 #: config.py:591
 msgid "Add additional URLs to Reject as text."
-msgstr ""
+msgstr "Voeg extra te weigeren URL's toe als tekst."
 
 #: config.py:595
 msgid "Edit Reject Reasons List"
@@ -422,19 +423,19 @@ msgstr "Bewerk afwijs-redenen lijst"
 
 #: config.py:596 config.py:659
 msgid "Customize the Reasons presented when Rejecting URLs"
-msgstr ""
+msgstr "Pas de voorgestelde redenen aan voor het verwerpen van URL's"
 
 #: config.py:601
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr ""
+msgstr "Altijd URL's op de lijst met afwijzingen verwerpen zonder te stoppen en te vragen."
 
 #: config.py:605
 msgid "Delete on Reject by Default?"
-msgstr ""
+msgstr "Standaard wissen bij weigering?"
 
 #: config.py:606
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr ""
+msgstr "Moet het selectievakje om verworpen boeken te verwijderen standaard worden aangevinkt?"
 
 #: config.py:643
 msgid "Edit Reject URLs List"
@@ -460,29 +461,29 @@ msgstr "Titel door auteur"
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
-msgstr ""
+msgstr "Voeg te weigeren URL's toe. Gebruik:<b> http: //...,note</b> of <b>http: //...,title by author - note</b><br> Ongeldige verhaal-URL's worden genegeerd."
 
 #: config.py:671
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
-msgstr ""
+msgstr "Een URL per regel:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"
 
 #: config.py:673 dialogs.py:1126
 msgid "Add this reason to all URLs added:"
-msgstr ""
+msgstr "Voeg deze reden toe aan alle toegevoegde URL's:"
 
 #: config.py:689
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
-msgstr ""
+msgstr "Deze instellingen bieden meer gedetailleerde controle over welke metagegevens in het e-boek worden getoond en laten u ook%(isa)s en%(u)s / %(p)s voor verschillende sites instellen."
 
 #: config.py:696
 msgid "personal.ini"
-msgstr ""
+msgstr "personal.ini"
 
 #: config.py:703 config.py:807 config.py:808
 msgid "Edit personal.ini"
@@ -492,27 +493,27 @@ msgstr "Bewerk personal.ini"
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
-msgstr ""
+msgstr "FanFicFare bevat nu zoeken, kleurcodering en foutcontrole voor het bewerken van personal.ini. Rood geeft over het algemeen fouten aan."
 
 #: config.py:716
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "Bekijk \"Safe\" personal.ini"
 
 #: config.py:721 config.py:798
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr ""
+msgstr "Bekijk uw personal.ini met verwijderde gebruikersnamen en wachtwoorden. Voor het veilig delen van uw persoonlijke.ini-instellingen met anderen."
 
 #: config.py:727
 msgid "defaults.ini"
-msgstr ""
+msgstr "defaults.ini"
 
 #: config.py:732
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
-msgstr ""
+msgstr "Bekijk alle te wijzigen instellingen van de plug-in en hun standaardwaarden."
 
 #: config.py:733
 msgid "View Defaults"
@@ -520,24 +521,24 @@ msgstr "Toon standaarden"
 
 #: config.py:744
 msgid "Calibre Columns"
-msgstr ""
+msgstr "Calibre kolommen"
 
 #: config.py:751
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
-msgstr ""
+msgstr "Indien aangevinkt, zal FanFicFare bij het bijwerken / overschrijven van een bestaand boek de Calibre kolommen beschikbaar hebben om te gebruiken in replace_metadata, title_page, etc. <br> Klik op de knop hieronder om de Calibre kolomnamen te zien."
 
 #: config.py:752
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
-msgstr ""
+msgstr "Voeg kolommen van Caliber in in FanFicFare bij bijwerken / overschrijven"
 
 #: config.py:765
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
-msgstr ""
+msgstr "FanFicFare kan de Calibre kolommen doorgeven aan het download / update-proces.<br> Dit toont je ​​de kolommen die op naam beschikbaar zijn."
 
 #: config.py:766
 msgid "Show Calibre Column Names"
@@ -546,7 +547,7 @@ msgstr "Toon calibre kolomnamen"
 #: config.py:775
 msgid ""
 "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
-msgstr ""
+msgstr "Wijzigingen worden alleen opgeslagen wanneer u op 'OK' klikt bij het verlaten van aanpassen FanFicFare ."
 
 #: config.py:785
 msgid "Plugin Defaults"
@@ -554,79 +555,79 @@ msgstr "Plugin standaarden"
 
 #: config.py:786
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr ""
+msgstr "Plugin standaarden (%s) (alleen-lezen)"
 
 #: config.py:797
 msgid "View 'Safe' personal.ini"
-msgstr ""
+msgstr "Bekijk 'Veilig' personal.ini"
 
 #: config.py:831
 msgid "Calibre Column Entry Names"
-msgstr ""
+msgstr "Calibre kolominvoernamen"
 
 #: config.py:832
 msgid "Label (entry_name)"
-msgstr ""
+msgstr "Label (invoernaam)"
 
 #: config.py:852
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
-msgstr ""
+msgstr "Deze instellingen bieden integratie met de %(rl)s plug-in. %(rl)s kan automatisch naar apparaten verzenden en aangepaste kolommen wijzigen. Om bruikbaar te zijn, moet je de lijsten in %(rl)s maken en configureren."
 
 #: config.py:857
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
-msgstr ""
+msgstr "Voeg nieuwe / bijgewerkte verhalen toe aan de leeslijst(en) van \"Verzenden naar apparaat\"."
 
 #: config.py:858
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
-msgstr ""
+msgstr "Voeg automatisch nieuwe / bijgewerkte verhalen toe aan deze lijsten in de %(rl)splug-in."
 
 #: config.py:863
 msgid "\"Send to Device\" Reading Lists"
-msgstr ""
+msgstr "Leeslijst(en) van \"Verzenden naar apparaat\"."
 
 #: config.py:864 config.py:867 config.py:881 config.py:884
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr ""
+msgstr "Indien ingeschakeld, worden nieuwe / bijgewerkte verhalen automatisch aan deze lijsten toegevoegd."
 
 #: config.py:874
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
-msgstr ""
+msgstr "Voeg nieuwe / bijgewerkte verhalen toe aan de leeslijst(en) van \"Te Lezen\"."
 
 #: config.py:875
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
-msgstr ""
+msgstr "Voeg automatisch nieuwe / bijgewerkte verhalen toe aan deze lijsten in de %(rl)splug-in.\nBiedt ook een menuoptie om verhalen uit de lijsten \"Te lezen\" te verwijderen."
 
 #: config.py:880
 msgid "\"To Read\" Reading Lists"
-msgstr ""
+msgstr "\"Te lezen\" leeslijst"
 
 #: config.py:891
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
-msgstr ""
+msgstr "Plaats verhalen, die zijn gemarkeerd als \"Gelezen\", terug op de leeslijst(en) van \"Verzenden naar apparaat\"."
 
 #: config.py:892
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
-msgstr ""
+msgstr "Menu-optie om te verwijderen uit \"Te Lezen\" -lijsten zal ook verhalen terugplaatsen op \"Verzenden naar apparaat\" Leeslijst (en)"
 
 #: config.py:896
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
-msgstr ""
+msgstr "Automatisch verwijderen van \"Nieuw\" hoofdstukmarkeringen bij het markeren van boeken \"Gelezen\"."
 
 #: config.py:897
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
-msgstr ""
+msgstr "Menuoptie om te verwijderen uit \"Te Lezen\" -lijsten zal ook \"(nieuw)\" hoofdstukmarkeringen verwijderen die zijn aangemaakt door de instelling <i>mark_new_chapters</i> in personal.ini."
 
 #: config.py:925
 msgid ""
