@@ -233,7 +233,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 # update now handled by pre-populating the old images and
                 # chapters in the adapter rather than merging epubs.
-                urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
+                #urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
+                # returns int adjusted for start-end range.
+                urlchaptercount = story.getChapterCount()
                 (url,
                  chaptercount,
                  adapter.oldchapters,

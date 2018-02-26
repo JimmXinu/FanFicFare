@@ -679,6 +679,15 @@ class Story(Configurable):
 
         # self.metadata = json.loads(s, object_hook=datetime_decoder)
 
+    def getChapterCount(self):
+        ## returns chapter count adjusted for start-end range.
+        url_chapters = value = int(self.getMetadata("numChapters").replace(',',''))
+        if self.chapter_first:
+            value = url_chapters - (int(self.chapter_first) - 1)
+        if self.chapter_last:
+            value = value - (url_chapters - int(self.chapter_last))
+        return value
+
     def getMetadataRaw(self,key):
         if self.isValidMetaEntry(key) and self.metadata.has_key(key):
             return self.metadata[key]
@@ -717,7 +726,6 @@ class Story(Configurable):
                 if isinstance(value, (datetime.date, datetime.datetime, datetime.time)) and self.hasConfig(key+"_format"):
                     # logger.info("DATE: %s"%key)
                     value = value.strftime(self.getConfig(key+"_format"))
-
                 if key == "title" and (self.chapter_first or self.chapter_last) and self.getConfig("title_chapter_range_pattern"):
                     first = self.chapter_first or "1"
                     last = self.chapter_last or self.getMetadata("numChapters")

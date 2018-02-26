@@ -1333,7 +1333,9 @@ class FanFicFarePlugin(InterfaceAction):
                         (epuburl,chaptercount) = \
                             get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
                                                                          index_is_id=True)))
-                        urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
+                        #urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
+                        # returns int adjusted for start-end range.
+                        urlchaptercount = story.getChapterCount()
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
                                 raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
