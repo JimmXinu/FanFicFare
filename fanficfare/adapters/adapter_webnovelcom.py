@@ -43,7 +43,7 @@ HTML_TAGS = {
     'wbr'
 
     # TinyMCE-specific annotations, let's ignore these just like previously
-    'anno', 'annotation'}
+    'anno', 'annotations'}
 
 logger = logging.getLogger(__name__)
 pseudo_html_regex = re.compile(r'(<+(?!/?(%s)>).*?>+)' % '|'.join(HTML_TAGS), re.IGNORECASE)
