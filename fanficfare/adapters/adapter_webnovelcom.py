@@ -40,7 +40,10 @@ HTML_TAGS = {
     'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select',
     'small', 'source', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td',
     'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'u', 'ul', 'var', 'video',
-    'wbr'}
+    'wbr'
+
+    # TinyMCE-specific annotations, let's ignore these just like previously
+    'anno', 'annotation'}
 
 logger = logging.getLogger(__name__)
 pseudo_html_regex = re.compile(r'(<+(?!/?(%s)>).*?>+)' % '|'.join(HTML_TAGS), re.IGNORECASE)
@@ -240,6 +243,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         # Content is HTML, so return it directly
         if chapter_info['isRichFormat']:
+            if self.getConfig('fix_pseudo_html', False):
+                return content
+
+            # Attempt to fix pseudo HTML
             fixed_content = fix_pseudo_html(content)
             if content != fixed_content:
                 diff = difflib.unified_diff(
@@ -247,7 +254,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                     real_html_regex.split(fixed_content),
                     n=0, lineterm='')
                 logger.warning('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
-
             return fixed_content
 
         # Content is raw text, so convert paired newlines into paragraphs like the website
