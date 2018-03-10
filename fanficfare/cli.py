@@ -428,12 +428,6 @@ def do_download(arg,
                 metadata['zchapters'] = []
                 for i, x in enumerate(adapter.chapterUrls):
                     metadata['zchapters'].append((i+1,x[0],x[1]))
-                if options.jsonmeta:
-                    import json
-                    print json.dumps(metadata, sort_keys=True,
-                                     indent=2, separators=(',', ':'))
-                else:
-                    pprint.pprint(metadata)
 
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
                 if adapter.getConfig('pre_process_safepattern'):
@@ -443,6 +437,15 @@ def do_download(arg,
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
+            
+            if options.metaonly:
+                metadata['output_filename'] = output_filename
+                if options.jsonmeta:
+                    import json
+                    print json.dumps(metadata, sort_keys=True,
+                                     indent=2, separators=(',', ':'))
+                else:
+                    pprint.pprint(metadata)
 
         if not options.metaonly and adapter.getConfig('post_process_cmd'):
             if adapter.getConfig('post_process_safepattern'):
