@@ -454,6 +454,7 @@ def get_valid_keywords():
                  'normalize_text_links',
                  'internalize_text_links',
                  'replace_failed_smilies_with_alt_text',
+                 'fix_pseudo_html'
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
