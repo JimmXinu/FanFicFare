@@ -243,7 +243,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         # Content is HTML, so return it directly
         if chapter_info['isRichFormat']:
-            if self.getConfig('fix_pseudo_html', False):
+            if not self.getConfig('fix_pseudo_html', False):
                 return content
 
             # Attempt to fix pseudo HTML
@@ -253,7 +253,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                     real_html_regex.split(content),
                     real_html_regex.split(fixed_content),
                     n=0, lineterm='')
-                logger.warning('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
+                logger.info('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
             return fixed_content
 
         # Content is raw text, so convert paired newlines into paragraphs like the website
