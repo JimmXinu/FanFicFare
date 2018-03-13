@@ -13,58 +13,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-####################################################################################################
-### Adapted by GComyn on December 14. 2016
-###=================================================================================================
-### Tested with the CLI and it works for all of the stories I tested
-### Tested with Calibre, but coulnd't get past an encoding error...
-###=================================================================================================
-### I have started to use lines of # on the line just before a function so they are easier to find.
-####################################################################################################
-'''
-This will scrape the chapter text and metadata from stories on the site www.wuxiaworld.com
-'''
+
+# Adapted by GComyn on December 14. 2016
+
+import json
 import logging
 import re
 import urllib2
 import urlparse
 
 from base_adapter import BaseSiteAdapter, makeDate
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 logger = logging.getLogger(__name__)
 
+
 def getClass():
-    ''' Initializing the class '''
     return WuxiaWorldComSiteAdapter
 
+
 class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
-    ''' Adapter for Wuxiaworld.com '''
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-
         self.story.setMetadata('siteabbrev', 'wux')
-
-        self.dateformat = "%Y-%m-%dT%H:%M:%S+00:00"
-
-        self.is_adult = False
-        self.username = None
-        self.password = None
+        self._dateformat = '%Y-%m-%dT%H:%M:%S+00:00'
 
         # get storyId from url--url validation guarantees query correct
-        m = re.match(self.getSiteURLPattern(), url)
-        if m:
-            self.story.setMetadata('storyId', m.group('id'))
+        match = re.match(self.getSiteURLPattern(), url)
+        if not match:
+            raise exceptions.InvalidStoryURL(url, self.getSiteDomain(), self.getSiteExampleURLs())
 
-            # normalized story URL.
-            self._setURL("http://"+self.getSiteDomain()
-                         +"/"+self.story.getMetadata('storyId')+"/")
-        else:
-            raise exceptions.InvalidStoryURL(url,
-                                             self.getSiteDomain(),
-                                             self.getSiteExampleURLs())
+        story_id = match.group('id')
+        self.story.setMetadata('storyId', story_id)
+        self._setURL('http://%s/novel/%s' % (self.getSiteDomain(), story_id))
 
     @staticmethod
     def getSiteDomain():
@@ -72,94 +54,68 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.wuxiaworld.com/astoryname-index/"
+        return 'http://%s/novel/story-name' % cls.getSiteDomain()
 
     def getSiteURLPattern(self):
-        # http://www.wuxiaworld.com/emperor-index/
-        return r"http(s)?://www\.wuxiaworld\.com/(?P<id>[^/]+)(/)?"
+        return r'http(s)?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
     def use_pagecache(self):
         return True
 
+    def _parse_linked_data(self, soup):
+        # See https://json-ld.org
+        tag = soup.find('script', type='application/ld+json')
+        if not tag:
+            return {}
+        return json.loads(tag.string)
+
+    def _parse_date(self, text):
+        # Strip microseconds from date
+        text = re.sub(r'\.\d{3}\+', '+', text)
+        return makeDate(text, self._dateformat)
+
     def extractChapterUrlsAndMetadata(self):
-        # fetch the chapter. From that we will get almost all the
-        # metadata and chapter list
-
-        url = self.url
-        logger.debug("URL: "+url)
-
+        logger.debug('URL: %s', self.url)
         try:
-            data = self._fetchUrl(url)
-
-        except urllib2.HTTPError, e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-            else:
-                raise e
+            data = self._fetchUrl(self.url)
+        except urllib2.HTTPError, exception:
+            if exception.code == 404:
+                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
+            raise exception
 
         soup = self.make_soup(data)
-
-        ## I'm going to remove all of the scripts at the beginning...
-        for tag in soup.find_all('script'):
-            tag.extract()
-
-        ## getting Author
-        author_name = soup.find('span', {'itemprop':'author'}).find('meta')['content']
-        author_url = soup.find('meta', {'property':'article:author'})['content']
-        self.story.setMetadata('authorId', author_name.lower())
-        self.story.setMetadata('authorUrl', author_url)
+        ld = self._parse_linked_data(soup)
+        author_name = ld['author']['name']
         self.story.setMetadata('author', author_name)
+        self.story.setMetadata('authorId', author_name.lower())
+        self.story.setMetadata('title', ld['headline'])
+        self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
+        self.story.setMetadata('tags', [stripHTML(a) for a in soup.select('.media-body .tags a')])
+        self.setCoverImage(self.url, ld['image'])
 
-        ## get title, remove ' – Index' if present.
-        title = stripHTML(soup.find('header', {'class':'entry-header'})).replace(u' – Index','')
-        self.story.setMetadata('title', title)
-
-        datePub = soup.find('meta', {'itemprop':'datePublished'})['content']
-        dateUpd = soup.find('meta', {'itemprop':'dateModified'})['content']
-        self.story.setMetadata('datePublished', makeDate(datePub, self.dateformat))
-        self.story.setMetadata('dateUpdated', makeDate(dateUpd, self.dateformat))
-
-        ## getting the chapters
-        ### Unfortunately, for the active stories, the chapter list is not systematically updated...
-        ### The 'author' has to enter the chapters on this page, so if they are not up to date we
-        ### don't get them...
-        ### Also, I'm going to remove the chapters from here after I have them so they won't be
-        ## in the summary, which is where I'm going to put the rest of the text.
-
-        cdata = soup.find('div', {'itemprop':'articleBody'})
-        #logger.debug('############################ - cdata\n%s\n###########################', cdata)
-        chapters = cdata.find_all('a', href=re.compile(
-            r'^(((https?://)?'+self.getSiteDomain()+')?/'+self.story.getMetadata(
-                'storyId')+r'/)?(#)?([a-zA-Z0-9_ -]+)(/)?$'))
-        ## some have different chapter links... going to do it again
-        if len(chapters) == 0:
-            chapters = cdata.find_all('a', href=re.compile(
-                r'https?://'+self.getSiteDomain()+'/master-index/'+r'([#a-zA-Z0-9_ -]+)(/)?'))
-
-        for chap in chapters:
-            if stripHTML(chap).strip() != '':
-                href = urlparse.urljoin(self.url, chap['href'])
-                self.chapterUrls.append((stripHTML(chap), href))
-            chap.extract()
+        for a in soup.select('#accordion .chapter-item > a'):
+            title = stripHTML(a)
+            url = urlparse.urljoin(self.url, a['href'])
+            self.chapterUrls.append((title, url))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
-        ## removing the 'folded' chapter lists..
-        for tag in cdata.find_all('div', {'class':'sp-wrap'}) + cdata.find_all('span', {'class':'collapseomatic'}) + cdata.find_all('div', {'class':'collapseomatic_content'}):
-            tag.extract()
-        self.setDescription(url, cdata)
+        last_chapter_data = self._fetchUrl(self.chapterUrls[-1][1])
+        last_chapter_soup = self.make_soup(last_chapter_data)
+        last_chapter_ld = self._parse_linked_data(last_chapter_soup)
+        self.story.setMetadata('dateUpdated', self._parse_date(last_chapter_ld['datePublished']))
+
+        description = stripHTML(soup.select_one('.section-content .p-15 > .fr-view'))
+        self.setDescription(self.url, description)
 
     def getChapterText(self, url):
-        #logger.debug('Getting chapter text from: %s', url)
-
+        logger.debug('Getting chapter text from: %s', url)
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
-        story = soup.find('div', {'itemprop':'articleBody'})
-        if not story:
-            raise exceptions.FailedToDownload(
-                "Error downloading Chapter: %s!  Missing required element!" % url)
-        #removing the Previous and next chapter links
-        for tag in story.find_all('a',text=re.compile(r'(Previous|Next) Chapter')):
-            tag.extract()
+        content = soup.select_one('.section-content .fr-view')
 
-        return self.utf8FromSoup(url, story)
+        # Remove next- and previous-chapter links
+        for a in content.select('.chapter-nav'):
+            a.decompose()
+
+        return self.utf8FromSoup(url, content)
