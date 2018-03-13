@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2018-02-26 15:13+0000\n"
+"PO-Revision-Date: 2018-02-26 17:44+0000\n"
 "Last-Translator: Herman van der Vaart <vaarttuig@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -634,7 +634,7 @@ msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
-msgstr ""
+msgstr "De Calibre-omslagafbeelding voor een gedownload boek kan afkomstig zijn van de verhalenwebsite (als EPUB en afbeeldingen zijn ingeschakeld), ofwel van de ingebouwde willekeurige covergenerator van Caliber of de %(gc)splug-in."
 
 #: config.py:933
 msgid ""
@@ -642,7 +642,7 @@ msgid ""
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
 "Cover in EPUB could be from site or previously injected into the EPUB.\n"
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
-msgstr ""
+msgstr "Werkt de afbeelding van de Calibre-boekomslag bij vanuit EPUB wanneer Calibre metagegevens worden bijgewerkt.\nZoekt niet naar nieuwe afbeeldingen bij 'Update Calibre Metadata Only'. \nDe omslag in EPUB kan van de site zijn of eerder zijn ingevoegd in de EPUB.\nDit gebeurt voordat u de omslag genereert, dus %(gc)s(Plugin) gebruikt de afbeelding indien daartoe geconfigureerd."
 
 #: config.py:938
 msgid "Update Calibre Cover (from EPUB):"
@@ -653,7 +653,7 @@ msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Defaults to 'Yes, Always' for backward compatibility and because "
 "%(gc)s(Plugin) will only run if configured for Default or site."
-msgstr ""
+msgstr "Genereert een Caliber-boekomslag wanneer Calibre metagegevens worden bijgewerkt. <br />Standaard is 'Ja, Altijd' voor achterwaartse compatibiliteit en omdat %(gc)s(Plugin) alleen wordt uitgevoerd als deze is geconfigureerd voor Standaard of site."
 
 #: config.py:960
 msgid "Generate Calibre Cover:"
@@ -661,7 +661,7 @@ msgstr "Genereer calibre omslag:"
 
 #: config.py:987
 msgid "Plugin %(gc)s"
-msgstr ""
+msgstr "Plug-in %(gc)s"
 
 #: config.py:988
 msgid "Use plugin to create covers.  Additional settings are below."
@@ -676,7 +676,7 @@ msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
-msgstr ""
+msgstr "Voer Calibre's Metadata bewerken omslag genereren functie uit om een ​​willekeurige cover te maken elke keer dat een verhaal wordt gedownload of bijgewerkt. <br />Klik met de rechtermuisknop of lang-klik op de knop 'Genereer omslag' in Calibre's Metadata bewerken om aan te passen."
 
 #: config.py:1010
 msgid "Generate Covers Only for New Books"
@@ -686,7 +686,7 @@ msgstr "Maak enkel nieuwe covers voor nieuwe boeken"
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
-msgstr ""
+msgstr "Standaard is om een ​​omslag te genereren iedere keer dat de Calibre metadata wordt bijgewerkt. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
 
 #: config.py:1017
 msgid "Inject/update the cover inside EPUB"
@@ -697,11 +697,11 @@ msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
-msgstr ""
+msgstr "Calibre's Polijst functie wordt gebruikt om de gegenereerde cover in het EPUB-e-boekbestand in te voegen of bij te werken. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
 
 #: config.py:1024
 msgid "%(gc)s(Plugin) Settings"
-msgstr ""
+msgstr "%(gc)s(Plug-in) Instellingen"
 
 #: config.py:1032
 msgid ""
@@ -709,7 +709,7 @@ msgid ""
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
 "can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting"
 " by site and/or one to use by Default."
-msgstr ""
+msgstr "De %(gc)splug-in kan omslagafbeeldingen voor boeken maken met verschillende metagegevens (inclusief bestaande omslagafbeelding). Als je %(gc)sgeïnstalleerd hebt, kan FanFicFare %(gc)sdraaien op nieuwe  downloads en updates van metadata. Kies een %(gc)sinstelling per site en/of een om standaard te gebruiken."
 
 #: config.py:1050 config.py:1054 config.py:1067
 msgid "Default"
@@ -719,35 +719,35 @@ msgstr "Standaard"
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
-msgstr ""
+msgstr "Bij Metagegevens-update, voer %(gc)s uit met deze instelling, als er  hieronder geen specifiekere instelling is."
 
 #: config.py:1058
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
-msgstr ""
+msgstr "Bij Metagegevens-update, voer %(gc)s uit met deze instelling voor %(site)s verhalen."
 
 #: config.py:1081
 msgid "Allow %(gcset)s from %(pini)s to override"
-msgstr ""
+msgstr "Laat %(gcset)s van %(pini)s overschrijven"
 
 #: config.py:1082
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
 " ignored when this is off."
-msgstr ""
+msgstr "De %(pini)sparameter %(gcset)s staat u toe een %(gc)s instelling te kiezen op basis van metagegevens in plaats van een site, maar dit is veel complexer. <br />%(gcset)swordt genegeerd als dit uit staat."
 
 #: config.py:1120
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
-msgstr ""
+msgstr "Deze instellingen bieden integratie met de %(cp)s plug-in. %(cp)s kan automatisch aangepaste kolommen bijwerken met statistieken op pagina-, woord- en leesniveau. U moet de kolommen in %(cp)s eerst maken en configureren."
 
 #: config.py:1125
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
-msgstr ""
+msgstr "Als een van de onderstaande instellingen is aangevinkt wordt, zodra verhalen worden toegevoegd of bijgewerkt, de %(cp)s plug-in aangeroepen om de gekozen statistieken bij te werken."
 
 #: config.py:1131
 msgid "Which column and algorithm to use are configured in %(cp)s."
