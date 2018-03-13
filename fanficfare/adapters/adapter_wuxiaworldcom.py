@@ -37,7 +37,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev', 'wux')
-        self._dateformat = "%Y-%m-%dT%H:%M:%S+00:00"
+        self._dateformat = '%Y-%m-%dT%H:%M:%S+00:00'
 
         # get storyId from url--url validation guarantees query correct
         match = re.match(self.getSiteURLPattern(), url)
@@ -54,10 +54,10 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://%s/novel/story-name" % cls.getSiteDomain()
+        return 'http://%s/novel/story-name' % cls.getSiteDomain()
 
     def getSiteURLPattern(self):
-        return r"http(s)?://%s/novel/(?P<id>[^/]+)(/)?" % re.escape(self.getSiteDomain())
+        return r'http(s)?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
     def use_pagecache(self):
         return True
