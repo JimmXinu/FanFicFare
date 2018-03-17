@@ -71,7 +71,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     def _parse_date(self, text):
         # Strip microseconds from date
-        text = re.sub(r'\.\d{3}\+', '+', text)
+        text = re.sub(r'\.\d+\+', '+', text)
         return makeDate(text, self._dateformat)
 
     def extractChapterUrlsAndMetadata(self):
