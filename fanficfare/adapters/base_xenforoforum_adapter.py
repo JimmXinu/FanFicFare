@@ -220,15 +220,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         self.cache_posts(soup)
         return soup
 
-    ## extracting threadmarks for chapters has diverged between SV/SB
-    ## and QQ/AH enough to require some differentiation.
-    ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
+    ## Moved over from adapter_forumquestionablequestingcom when SB/SV
+    ## threadmark.rss became 'most recent 10 in reverse order'.
     def extract_threadmarks(self,souptag):
+        threadmarks=[]
         # try threadmarks if no '#' in url
-        navdiv = souptag.find('div',{'class':'threadmarkMenus'}) # SB/SV
+        navdiv = souptag.find('div',{'class':'threadmarkMenus'})
         if not navdiv:
-            return []
-
+            return threadmarks
         # was class=threadmarksTrigger.  thread cats are currently
         # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
         # be surprised if that changed.  Don't want to do use just
@@ -236,35 +235,31 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # could be included in a post.  Would be easier if <noscript>s
         # weren't being stripped, but that's a different issue.
         threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
-
         ## Loop on threadmark categories.
-        threadmarks=[]
         tmcat_num=None
-
-        # convenience method.
-        def xml_tag_string(dom,tag):
-            return dom.getElementsByTagName(tag)[0].firstChild.data.encode("utf-8").decode('utf-8')
 
         for threadmarksa in threadmarksas:
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
             # get from earlier <a> now.
             tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
-            ## move skip_threadmarks_categories here to save a fetch
-            ## if skipping anyway.  Will also effect
-            ## minimum_threadmarks below.
+            prepend = ""
             if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
                 continue
-            threadmark_rss_dom = parseString(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href'].replace('threadmarks','threadmarks.rss')).encode('utf-8'))
-            # print threadmark_rss_dom.toxml(encoding='utf-8')
 
-            for tmcat_index, item in enumerate(threadmark_rss_dom.getElementsByTagName("item")):
-                title = xml_tag_string(item,"title")
-                url = xml_tag_string(item,"link")
-                author = xml_tag_string(item,"dc:creator")
-                date = xml_tag_string(item,"pubDate")
-                ## Fri, 23 Jun 2017 16:52:57 +0000
-                date = makeDate(date[5:-6], '%d %b %Y %H:%M:%S') # toss day-of-week and TZ--locales.
-                threadmarks.append({"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author})
+            if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
+                tmcat_name = 'Omake'
+
+            if tmcat_name != "Threadmarks":
+                prepend = tmcat_name+" - "
+
+            soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
+            markas = []
+            markas = soupmarks.find('div',{'class':'threadmarkList'}).find_all('a',{'class':'PreviewTooltip'})
+            for tmcat_index, atag in enumerate(markas):
+                url,name = atag['href'],stripHTML(atag)
+                date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
+                threadmarks.append({"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,'title':name,'url':self.getURLPrefix()+'/'+url,'date':date})
+
         return threadmarks
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -328,8 +323,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 # spin threadmarks for date, to adjust tmcat_name/prepend.
                 for tm in threadmarks:
-                    # SV/SB: {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author}
-                    # QQ: {'title':name,'url':self.getURLPrefix()+'/'+url,'date':date}
+                    # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date}
                     prepend=""
                     if 'tmcat_name' in tm:
                         tmcat_name = tm['tmcat_name']
