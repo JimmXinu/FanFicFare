@@ -332,10 +332,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                         if tmcat_name != "Threadmarks":
                             prepend = tmcat_name+" - "
 
-                    append=""
-                    if 'author' in tm and multi_authors and self.getConfig('show_chapter_authors',False):
-                        append=" by "+tm['author']
-
                     if 'date' in tm:
                         date = tm['date']
                         if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
@@ -346,7 +342,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if 'tmcat_num' in tm and 'tmcat_index' in tm:
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
-                    self.chapterUrls.append((prepend+tm['title']+append,tm['url']))
+                    self.chapterUrls.append((prepend+tm['title'],tm['url']))
 
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
