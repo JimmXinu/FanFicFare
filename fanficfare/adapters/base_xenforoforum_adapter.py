@@ -313,14 +313,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 use_threadmark_chaps = True
 
-                authors={}
-                # spin threadmarks to count different authors.
-                for tm in threadmarks:
-                    if 'author' in tm:
-                        authors[tm['author']]=True
-                    # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date,"author":author}
-                multi_authors = len(authors) > 1
-
                 # spin threadmarks for date, to adjust tmcat_name/prepend.
                 for tm in threadmarks:
                     # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date}
