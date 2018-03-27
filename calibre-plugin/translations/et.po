@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Maidur, 2016-2017
+# Maidur, 2016-2018
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2017-10-03 21:57+0000\n"
+"PO-Revision-Date: 2018-03-25 10:12+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -206,23 +206,23 @@ msgstr ""
 
 #: config.py:468
 msgid "Force Author into Author Sort?"
-msgstr ""
+msgstr "Sunni Autor väljale Autor,sort?"
 
 #: config.py:469
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr ""
+msgstr "Kui märgistatud, siis kasutatakse autori(te) nimesid muutmata kujul ka autori sortimise väljal.\nKui märgistamata, siis rakendab calibre oma sisseehitatud algoritmi, mis muudab nt. nime 'Bob Smith' sortimisväärtuseks 'Smith, Bob' jne."
 
 #: config.py:473
 msgid "Force Title into Title Sort?"
-msgstr ""
+msgstr "Sunni Pealkiri väljale Pealkiri,järg?"
 
 #: config.py:474
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
-msgstr ""
+msgstr "Kui märgistatud, siis kasutatakse pealkirja muutmata kujul ka pealkirja sortimise väljal.\nKui märgistamata, siis rakendab calibre oma sisseehitatud algoritmi, mis muudab nt. pealkirja 'The Title' sortimisväärtuseks 'Title, The' jne."
 
 #: config.py:478
 msgid "Check for existing Series Anthology books?"

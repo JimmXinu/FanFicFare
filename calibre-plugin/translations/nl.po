@@ -4,8 +4,10 @@
 # Translators:
 # Alex, 2016
 # erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
-# Herman van der Vaart <vaarttuig@gmail.com>, 2018
+# Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
+# Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
 # Mario Moens <marimo.it4u@gmail.com>, 2017
+# M. de Boer <de.boer.melle@gmail.com>, 2018
 # Nathan Follens, 2015
 # Nathan Follens, 2016
 # Rodolfo_Jadon, 2014-2015
@@ -15,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2017-05-09 11:44+Central Daylight Time\n"
-"PO-Revision-Date: 2018-02-26 17:44+0000\n"
-"Last-Translator: Herman van der Vaart <vaarttuig@gmail.com>\n"
+"PO-Revision-Date: 2018-03-19 22:40+0000\n"
+"Last-Translator: Herman L.M. van der Vaart <vaarttuig@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -751,27 +753,27 @@ msgstr "Als een van de onderstaande instellingen is aangevinkt wordt, zodra verh
 
 #: config.py:1131
 msgid "Which column and algorithm to use are configured in %(cp)s."
-msgstr ""
+msgstr "Welke kolom en welk algoritme moeten worden gebruikt zijn geconfigureerd in %(cp)s."
 
 #: config.py:1141
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
-msgstr ""
+msgstr "Overschrijft het aantal woorden uit FanFicFare metagegevens als deze is ingesteld om dezelfde aangepaste kolom bij te werken"
 
 #: config.py:1146
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
-msgstr ""
+msgstr "Voer alleen de woordtelling van Count Page uit wanneer gecontroleerd<i>en</i>FanFicFare-metadata nog geen woordentelling heeft. Als dit wordt gebruikt met één van de andere pagina tellingen, wordt de paginatelling-plug-in tweemaal aangeroepen."
 
 #: config.py:1182
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
-msgstr ""
+msgstr "Deze bedieningselementen zijn geen plug-in-instellingen als zodanig, maar gemaksknoppen voor het instellen van sneltoetsen voor het toetsenbord en alle FanFicFare bevestiging vensters weer terug verkrijgen."
 
 #: config.py:1187
 msgid "Keyboard shortcuts..."
@@ -787,7 +789,7 @@ msgstr "Uitgeschakelde &bevestigins-meldingen weer tonen"
 
 #: config.py:1193
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
-msgstr ""
+msgstr "Herstel alle 'toon me opnieuw' dialogen voor de FanFicFare plug-in"
 
 #: config.py:1197
 msgid "&View library preferences..."
@@ -949,18 +951,18 @@ msgstr "Alleen nieuwe"
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Schrijf naar %s(%s) alleen voor nieuwe\nboeken, geen updates van bestaande boeken."
 
 #: config.py:1352
 msgid "Allow %(ccset)s from %(pini)s to override"
-msgstr ""
+msgstr "Laat van %(ccset)svan %(pini)s overschrijven"
 
 #: config.py:1353
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
-msgstr ""
+msgstr "De %(pini)sparameter %(ccset)sstaat u toe aangepaste kolommen in te stellen op sitespecifieke waarden die niet voor alle sites gelden. <br />%(ccset)swordt genegeerd als dit uit staat."
 
 #: config.py:1357
 msgid "Special column:"
@@ -974,7 +976,7 @@ msgstr "Update/overschrijf fout kolom:"
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
-msgstr ""
+msgstr "Wanneer een update of overschrijving van een bestaand artikel mislukt, noteert u de reden in deze kolom.\n(Alleen tekst- en lange tekstkolommen.)"
 
 #: config.py:1376
 msgid "Save All Errors"
@@ -982,7 +984,7 @@ msgstr "Sla alle fouten op"
 
 #: config.py:1377
 msgid "If unchecked, these errors will not be saved: %s"
-msgstr ""
+msgstr "Als dit niet is aangevinkt, worden deze fouten niet opgeslagen: %s"
 
 #: config.py:1379 fff_plugin.py:1356 jobs.py:219
 msgid "Not Overwriting, web site is not newer."
@@ -994,7 +996,7 @@ msgstr "Bevat al %d hoofdstukken."
 
 #: config.py:1387
 msgid "Saved Metadata Column:"
-msgstr ""
+msgstr "Opgeslagen metagegevens kolom:"
 
 #: config.py:1388
 msgid ""
@@ -1002,17 +1004,17 @@ msgid ""
 "the book is downloaded or updated.<br/>The metadata from this column can "
 "later be used to update custom columns without having to request the "
 "metadata from the server again.<br/>(Long Text columns only.)"
-msgstr ""
+msgstr "Indien ingesteld, zal FanFicFare een kopie van alle metadata opslaan in deze kolom wanneer het boek wordt gedownload of bijgewerkt. <br/>De metagegevens uit deze kolom kunnen later worden gebruikt om aangepaste kolommen bij te werken zonder opnieuw de metagegevens van de server op te vragen.<br/> (alleen kolommen.)"
 
 #: config.py:1406
 msgid "Last Checked Column:"
-msgstr ""
+msgstr "Laatst aangevinkte kolom:"
 
 #: config.py:1407
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
-msgstr ""
+msgstr "Neem de laatste keer op dat FanFicFare is bijgewerkt of gecontroleerd op updates.\n(Alleen datumkolommen.)"
 
 #: config.py:1436
 msgid "Author(s)"
@@ -1051,17 +1053,17 @@ msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
-msgstr ""
+msgstr "De standaard calibre metagegevens kolommen worden hieronder vermeld. U kunt kiezen of FanFicFare elke kolom automatisch zal vullen bij updates of alleen voor nieuwe boeken."
 
 #: config.py:1463
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Schrijf naar %s Alleen voor nieuwe\nboeken, geen updates van bestaande boeken."
 
 #: config.py:1472
 msgid "Other Standard Column Options"
-msgstr ""
+msgstr "Andere standaard kolomopties"
 
 #: config.py:1477
 msgid "Set Calibre Author URL"
@@ -1069,7 +1071,7 @@ msgstr "Stel de Calibre auteur in van URL"
 
 #: config.py:1478
 msgid "Set Calibre Author URL to Author's URL on story site."
-msgstr ""
+msgstr "Stel Calibre Auteur URL in op de URL van de auteur op de verhalensite."
 
 #: config.py:1482
 msgid "Include Books' Comments in Anthology Comments?"
@@ -1079,7 +1081,7 @@ msgstr "Gebruik de commentaren van de Anthologie? "
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
-msgstr ""
+msgstr "Voeg alle opmerkingen van de samengevoegde boeken toe aan de opmerkingen van het nieuwe boek.\nStandaard is alleen een lijst met opgenomen titels."
 
 #: config.py:1488
 msgid "Set Anthology Comments only for new books"
@@ -1104,7 +1106,7 @@ msgstr "IMAP server naam"
 
 #: config.py:1512
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
-msgstr ""
+msgstr "Naam van IMAP-server -- IMAP4 moet SSL toestaan. Bijvoorbeeld: imap.gmail.com"
 
 #: config.py:1521
 msgid "IMAP User Name"
@@ -1114,7 +1116,7 @@ msgstr "IMAP gebruikersnaam"
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
-msgstr ""
+msgstr "Naam van IMAP-gebruiker. Bijvoorbeeld: uwnaam@gmail.com\nHoud er rekening mee dat Gmail-accounts eerst IMAP moeten hebben ingeschakeld in Gmail-instellingen."
 
 #: config.py:1531
 msgid "IMAP User Password"
@@ -1124,27 +1126,27 @@ msgstr "IMAP gebruikerswachtwoord"
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
-msgstr ""
+msgstr "MAP-wachtwoord. Als je hem leeg laat, vraagt ​​FanFicFare je om je wachtwoord wanneer je de functie gebruikt."
 
 #: config.py:1542
 msgid "Remember Password for Session (when not saved above)"
-msgstr ""
+msgstr "Onthoud wachtwoord voor sessie (indien niet opgeslagen hierboven)"
 
 #: config.py:1543
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
-msgstr ""
+msgstr "Indien aangevinkt en er geen wachtwoord hierboven is ingevoerd, onthoudt FanFicFare uw wachtwoord totdat u calibre sluit of de bibliotheken wijzigt."
 
 #: config.py:1548
 msgid "IMAP Folder Name"
-msgstr ""
+msgstr "IMAP map naam"
 
 #: config.py:1549
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
-msgstr ""
+msgstr "Naam van de IMAP map om nieuwe e-mails te zoeken. De map (of het label) moet al bestaan. Gebruik INBOX voor uw standaard inbox."
 
 #: config.py:1558
 msgid "Mark Emails Read"
@@ -1154,11 +1156,11 @@ msgstr "Markeer emails gelezen"
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
-msgstr ""
+msgstr "Indien aangevinkt, zullen e-mails worden gemarkeerd als gelezen als ze verhaal-URL's bevatten."
 
 #: config.py:1564
 msgid "Discard URLs on Reject List"
-msgstr ""
+msgstr "Verwijder URL's op de lijst met afwijzingen"
 
 #: config.py:1565
 msgid ""
@@ -1166,7 +1168,7 @@ msgid ""
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
 " normal Reject URL dialog.<br>The Emails will still be marked Read if "
 "configured to."
-msgstr ""
+msgstr "Indien aangevinkt, verwijdert FanFicFare de verhaal-URL's van e-mails die zich op uw lijst met afgekeurde URL's bevinden.<br>Anders worden ze weergegeven en ziet u het normale dialoogvenster Geweigerde URL.<br> De e-mails worden nog steeds gemarkeerd als Gelezen indien geconfigureerd."
 
 #: config.py:1570
 msgid "Update Existing Books Only"
@@ -1177,7 +1179,7 @@ msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
-msgstr ""
+msgstr "Indien aangevinkt, verwijdert FanFicFare de verhaal-URL's van e-mails die zich nog niet in uw bibliotheek bevinden.<br>Anders worden alle URL's van het verhaal, nieuw en bestaand gebruikt.<br>De e-mails worden nog steeds gemarkeerd als Gelezen indien geconfigureerd."
 
 #: config.py:1576
 msgid "Download from Email Immediately"
@@ -1187,7 +1189,7 @@ msgstr "Onmiddellijk downloaden van e-mail."
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
-msgstr ""
+msgstr "Indien aangevinkt, begint FanFicFare gelijk met het downloaden van verhaal-URL's uit e-mails. Anders verschijnt het gebruikelijke dialoogvenster Downloaden van URL's."
 
 #: config.py:1582
 msgid ""
@@ -1195,7 +1197,7 @@ msgid ""
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
 "malicious code cannot get your email password once you've entered it. "
 "<br>Use this feature at your own risk. </b>"
-msgstr ""
+msgstr "<b>Het is het veiligst als u een afzonderlijk e-mailaccount maakt dat u alleen gebruikt voor kennisgevingen over uw verhaalupdates. FanFicFare en calibre kunnen niet garanderen dat schadelijke code uw e-mailwachtwoord,  zodra eenmaal ingevoerd, niet kan krijgen.<br> Gebruik deze functie op eigen risico.</b>"
 
 #: dialogs.py:245 dialogs.py:797
 msgid "Show Download Options"
@@ -1218,7 +1220,7 @@ msgstr "Calibre &Metadata bijwerken?"
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
-msgstr ""
+msgstr "Metadata voor bestaande verhalen in Calibre bijwerken van website? (Kolommen ingesteld als 'Alleen Nieuw' in de kolomtabbladen worden alleen ingesteld voor nieuwe boeken.)"
 
 #: dialogs.py:307 dialogs.py:850
 msgid "Update EPUB Cover?"
@@ -1228,7 +1230,7 @@ msgstr "Update EPUB Cover?"
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
-msgstr ""
+msgstr "Werk de omslagafbeelding bij van de site of van de standaardinstellingen (indien gevonden)<i>in</i> de EPUB wanneer EPUB wordt bijgewerkt."
 
 #: dialogs.py:370
 msgid "Story URLs for anthology, one per line:"
@@ -1238,7 +1240,7 @@ msgstr "Verhaal URLs for anthologie, één per lijn"
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
-msgstr ""
+msgstr "URL's voor verhalen die in de bloemlezing moeten worden opgenomen, één per regel.\nNeemt URL's van het klembord, maar alleen geldige URL's."
 
 #: dialogs.py:372
 msgid "If Story Already Exists in Anthology?"
@@ -1259,7 +1261,7 @@ msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
-msgstr ""
+msgstr "URL's voor verhalen, één per regel.\nNeemt URL's van het klembord, maar alleen geldige URL's.\nVoeg [1,5] toe na de URL om de download te beperken tot hoofdstukken 1-5."
 
 #: dialogs.py:384
 msgid "If Story Already Exists?"
@@ -1287,7 +1289,7 @@ msgstr "Voor Anthologie Epub"
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
-msgstr ""
+msgstr "Ontvang URL's en ga naar dialoogvenster voor Bloemlezing download. Vereist %s plugin."
 
 #: dialogs.py:516 dialogs.py:570 dialogs.py:617 dialogs.py:1540
 msgid "Cancel"
@@ -1392,7 +1394,7 @@ msgstr "Update-modus:"
 #: dialogs.py:833
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
-msgstr ""
+msgstr "Wat voor soort update om uit te voeren. Kan standaard instellen vanuit de plug-in configuratie."
 
 #: dialogs.py:855
 msgid "Background Metadata?"
@@ -1404,7 +1406,7 @@ msgid ""
 "control to you quicker while updating, but you won't be asked for "
 "username/passwords or if you are an adult--stories that need those will just"
 " fail."
-msgstr ""
+msgstr "Verzamel metadata van sites in een achtergrondproces. <br />Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent zullen verhalen die dit nodig hebben, gewoon falen"
 
 #: dialogs.py:917 fff_plugin.py:1478 fff_plugin.py:1690 fff_plugin.py:1720
 msgid "Comment"
@@ -1424,7 +1426,7 @@ msgstr "Noot"
 
 #: dialogs.py:1052
 msgid "Select or Edit Reject Note."
-msgstr ""
+msgstr "Selecteer of Bewerk Weigeren Opmerking."
 
 #: dialogs.py:1061
 msgid "Are you sure you want to remove this URL from the list?"
@@ -1442,7 +1444,7 @@ msgstr "Lijst met boeken om af te wijzen"
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
-msgstr ""
+msgstr "FFF onthoudt deze URL's en toont de notitie met aanbod om ze te weigeren als u ze later opnieuw probeert te downloaden."
 
 #: dialogs.py:1108
 msgid "Remove selected URLs from the list"
@@ -1450,7 +1452,7 @@ msgstr "Verwijder geselecteerde URLs van de lijst"
 
 #: dialogs.py:1123 dialogs.py:1127
 msgid "This will be added to whatever note you've set for each URL above."
-msgstr ""
+msgstr "Dit wordt toegevoegd aan de betreffende notitie die u voor elke bovenstaande URL heeft ingesteld."
 
 #: dialogs.py:1140
 msgid "Delete Books (including books without FanFiction URLs)?"
@@ -1458,7 +1460,7 @@ msgstr "Verwijder boeken (inclusief boeken zonder FanFiction URLs)?"
 
 #: dialogs.py:1141
 msgid "Delete the selected books after adding them to the Rejected URLs list."
-msgstr ""
+msgstr "Verwijder de geselecteerde boeken nadat ze zijn toegevoegd aan de lijst met geweigerde URL's."
 
 #: dialogs.py:1297
 msgid "Search for string in edit box."
@@ -1480,7 +1482,7 @@ msgstr "Hoofdlettergevoelig"
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
-msgstr ""
+msgstr "Zoeken naar hoofdlettergevoelige reeks; Behandel Harry, HARRY en harry niet allemaal hetzelfde."
 
 #: dialogs.py:1345
 msgid "Go back to fix errors?"
@@ -1488,7 +1490,7 @@ msgstr "Terug gaan om fouten te herstellen?"
 
 #: dialogs.py:1457
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr ""
+msgstr "Klik op een fout hieronder om terug te gaan naar Bewerken rechtstreeks op die regel :"
 
 #: dialogs.py:1480
 msgid "Click to go to line %s"
@@ -1560,23 +1562,23 @@ msgstr "Update FanFiction Anthologie Epub"
 
 #: fff_plugin.py:338
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
-msgstr ""
+msgstr "Markeren als ongelezen: voeg toe aan de lijsten \"Te lezen\" en \"Verzenden naar apparaat\""
 
 #: fff_plugin.py:340
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
-msgstr ""
+msgstr "Markeren als Gelezen: Verwijderen van \" Te Lezen\" en toevoegen aan \"Verzenden naar apparaat\" lijsten"
 
 #: fff_plugin.py:342 fff_plugin.py:347
 msgid "Mark Read: Remove from \"To Read\" Lists"
-msgstr ""
+msgstr "Markeren als Gelezen: verwijder uit \"Te lezen\" lijsten"
 
 #: fff_plugin.py:344
 msgid "Add to \"Send to Device\" Lists"
-msgstr ""
+msgstr "Toevoegen aan \"Verzenden naar apparaat\" lijsten"
 
 #: fff_plugin.py:346
 msgid "Mark Unread: Add to \"To Read\" Lists"
-msgstr ""
+msgstr "Markeren als ongelezen: voeg toe aan de \"Te lezen\" lijsten"
 
 #: fff_plugin.py:362
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1600,11 +1602,11 @@ msgstr "FanFicFare instellen"
 
 #: fff_plugin.py:439
 msgid "Cannot Update Reading Lists from Device View"
-msgstr ""
+msgstr "Kan leeslijsten niet bijwerken vanuit Apparaat View"
 
 #: fff_plugin.py:443
 msgid "No Selected Books to Update Reading Lists"
-msgstr ""
+msgstr "Geen boeken geselecteerd om Leeslijsten bij te werken"
 
 #: fff_plugin.py:453
 msgid "FanFicFare Email Settings are not configured."
@@ -1612,7 +1614,7 @@ msgstr "FanFicFare e-mail instellingen zijn niet geconfigureerd."
 
 #: fff_plugin.py:473
 msgid "Fetching Story URLs from Email..."
-msgstr ""
+msgstr "Haal verhaal URL's op uit E-mail..."
 
 #: fff_plugin.py:496 fff_plugin.py:518
 msgid "No Valid Story URLs Found in Unread Emails."
@@ -1624,11 +1626,11 @@ msgstr "Ophalen van verhaal URL's van e-mail zijn beëindigd."
 
 #: fff_plugin.py:520
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
-msgstr ""
+msgstr "(%dVerhaal-URL's overgeslagen, in lijst met geweigerde URL's)"
 
 #: fff_plugin.py:522
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
-msgstr ""
+msgstr "(%dVerhaal-URL's overgeslagen, geen bestaand boek in Bibliotheek)"
 
 #: fff_plugin.py:523
 msgid "Get Story URLs from Email"
@@ -1636,7 +1638,7 @@ msgstr "Haal de verhaal URL's op van e-mail."
 
 #: fff_plugin.py:546
 msgid "Fetching Story URLs from Page..."
-msgstr ""
+msgstr "Haal verhaal URL's op van pagina..."
 
 #: fff_plugin.py:550
 msgid "Finished Fetching Story URLs from Page."
@@ -1648,11 +1650,11 @@ msgstr "Lijst van verhaal-URL's"
 
 #: fff_plugin.py:557
 msgid "No Valid Story URLs found on given page."
-msgstr ""
+msgstr "Geen geldige verhaal URLs gevonden op gegeven pagina."
 
 #: fff_plugin.py:573 fff_plugin.py:626
 msgid "No Selected Books to Get URLs From"
-msgstr ""
+msgstr "Geen boeken geselecteerd om URL's uit te halen"
 
 #: fff_plugin.py:591
 msgid "Collecting URLs for stories..."
@@ -1676,35 +1678,35 @@ msgstr "Geen verhaal URLs gevonden in geselecteerde boeken."
 
 #: fff_plugin.py:621
 msgid "Can only UnNew books in library"
-msgstr ""
+msgstr "Kan alleen boeken in de bibliotheek strippen van \"Nieuw\""
 
 #: fff_plugin.py:638
 msgid "UnNewing books..."
-msgstr ""
+msgstr "Boeken strippen van \"Nieuw\" ..."
 
 #: fff_plugin.py:639
 msgid "UnNew Books"
-msgstr ""
+msgstr "Boeken gestript van \"Nieuw\""
 
 #: fff_plugin.py:640
 msgid "Books UnNewed"
-msgstr ""
+msgstr "Boeken gestript van \"Nieuw\""
 
 #: fff_plugin.py:680 fff_plugin.py:1649
 msgid "Starting auto conversion of %d books."
-msgstr ""
+msgstr "Automatische conversie starten van %d boeken."
 
 #: fff_plugin.py:695
 msgid "No Selected Books have URLs to Reject"
-msgstr ""
+msgstr "Geen van geselecteerde boeken hebben te weigeren URL's"
 
 #: fff_plugin.py:703
 msgid "Collecting URLs for Reject List..."
-msgstr ""
+msgstr "URL's verzamelen voor lijst met afwijzingen..."
 
 #: fff_plugin.py:704
 msgid "Get URLs for Reject List"
-msgstr ""
+msgstr "URL's ontvangen voor lijst met afwijzigingen"
 
 #: fff_plugin.py:739
 msgid "Proceed to Remove?"
@@ -1713,23 +1715,23 @@ msgstr "Doorgaan met verwijderen?"
 #: fff_plugin.py:739
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr ""
+msgstr "FanFicFare-URL's afwijzen: geen van de geselecteerde boeken heeft FanFiction-URL's."
 
 #: fff_plugin.py:761
 msgid "Cannot Make Anthologys without %s"
-msgstr ""
+msgstr "Kan geen Bloemlezingen maken zonder %s"
 
 #: fff_plugin.py:765 fff_plugin.py:875
 msgid "Cannot Update Books from Device View"
-msgstr ""
+msgstr "Kan geen boeken bijwerken vanuit Apparaat View"
 
 #: fff_plugin.py:769
 msgid "Can only update 1 anthology at a time"
-msgstr ""
+msgstr "Kan slechts 1 bloemlezing per keer bijwerken"
 
 #: fff_plugin.py:778
 msgid "Can only Update Epub Anthologies"
-msgstr ""
+msgstr "Kan alleen Epub Bloemlezingen bijwerken"
 
 #: fff_plugin.py:796 fff_plugin.py:797
 msgid "Cannot Update Anthology"
@@ -1739,7 +1741,7 @@ msgstr "Kan de Anthologie niet updaten"
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
-msgstr ""
+msgstr "Boek is geen FanFicFare-bloemlezing of bevat boek (en) zonder geldige verhaal-URL's."
 
 #: fff_plugin.py:804
 msgid "Fetching Story URLs for Series..."
@@ -1753,11 +1755,11 @@ msgstr "Ophalen van verhaal URL's van series beëindigd."
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
-msgstr ""
+msgstr "Er zijn %d verhalen in de huidige bloemlezing die <b>niet</b> bewaard zullen worden als je doorgaat."
 
 #: fff_plugin.py:862
 msgid "Story URLs that will be removed:"
-msgstr ""
+msgstr "Verhaal URL's die verwijderd zullen worden:"
 
 #: fff_plugin.py:864
 msgid "Update anyway?"
@@ -1773,11 +1775,11 @@ msgstr "Geen boeken geselecteerd om bij te werken"
 
 #: fff_plugin.py:896
 msgid "Collecting stories for update..."
-msgstr ""
+msgstr "Verhalen verzamelen voor bewerking ..."
 
 #: fff_plugin.py:897
 msgid "Get stories for updates"
-msgstr ""
+msgstr "Verhalen ontvangen voor bewerkingen"
 
 #: fff_plugin.py:907
 msgid "Update Existing List"
@@ -1785,27 +1787,27 @@ msgstr "Bestaande lijst bijwerken"
 
 #: fff_plugin.py:967
 msgid "Start queuing downloading for %s stories."
-msgstr ""
+msgstr "Begin met wachtrij voor downloaden van %s verhalen."
 
 #: fff_plugin.py:968
 msgid "Queuing download for stories..."
-msgstr ""
+msgstr "Download voor verhalen in wachtrij plaatsen ..."
 
 #: fff_plugin.py:969
 msgid "Queuing download for stories"
-msgstr ""
+msgstr "Download voor verhalen in wachtrij plaatsen"
 
 #: fff_plugin.py:970
 msgid "Queued download for"
-msgstr ""
+msgstr "Wachtende download voor"
 
 #: fff_plugin.py:972
 msgid "Started fetching metadata for %s stories."
-msgstr ""
+msgstr "Begonnen met het ophalen van metagegevens voor %s verhalen."
 
 #: fff_plugin.py:986
 msgid "No valid story URLs entered."
-msgstr ""
+msgstr "Geen geldige verhaal-URL's ingevoerd."
 
 #: fff_plugin.py:996 fff_plugin.py:1002
 msgid "Reject URL?"
@@ -1813,19 +1815,19 @@ msgstr "URL afwijzen?"
 
 #: fff_plugin.py:1003 fff_plugin.py:1021
 msgid "<b>%s</b> is on your Reject URL list:"
-msgstr ""
+msgstr "<b>%s</b> staat op uw lijst met af te keuren URL's:"
 
 #: fff_plugin.py:1005
 msgid "Click '<b>Yes</b>' to Reject."
-msgstr ""
+msgstr "klik '<b>Ja</b>' om te verwerpen"
 
 #: fff_plugin.py:1006 fff_plugin.py:1177
 msgid "Click '<b>No</b>' to download anyway."
-msgstr ""
+msgstr "Klik '<b>Nee</b>' om toch te downloaden."
 
 #: fff_plugin.py:1008
 msgid "Story on Reject URLs list (%s)."
-msgstr ""
+msgstr "Verhaal op afgewezen URL's lijst (%s)"
 
 #: fff_plugin.py:1011
 msgid "Rejected"
@@ -1837,15 +1839,15 @@ msgstr "Verwijder afgewezen URL?"
 
 #: fff_plugin.py:1020
 msgid "Remove URL from Reject List?"
-msgstr ""
+msgstr "Verwijder URL van de Afwijs lijst?"
 
 #: fff_plugin.py:1023
 msgid "Click '<b>Yes</b>' to remove it from the list,"
-msgstr ""
+msgstr "Klik '<b>Ja</b>' om het van de lijst te verwijderen,"
 
 #: fff_plugin.py:1024
 msgid "Click '<b>No</b>' to leave it on the list."
-msgstr ""
+msgstr "Klik '<b>Nee</b>' om het op de lijst te houden."
 
 #: fff_plugin.py:1068
 msgid "Cannot update non-epub format."
@@ -1867,21 +1869,21 @@ msgstr "Verhaal overslaan?"
 
 #: fff_plugin.py:1174
 msgid "Skip Anthology Story?"
-msgstr ""
+msgstr "Sla Bloemlezingsverhaal over?"
 
 #: fff_plugin.py:1175
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
-msgstr ""
+msgstr "\"<b>%s</b>\" is in reeks \"<b><a href=\"%s\">%s</a></b>\" waarvoor je een bloemlezing hebt."
 
 #: fff_plugin.py:1176
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr ""
+msgstr "Klik op '<b>Ja</b>' om over te slaan."
 
 #: fff_plugin.py:1179
 msgid "Story in Series Anthology(%s)."
-msgstr ""
+msgstr "Verhaal in reeks Bloemlezing (%s)."
 
 #: fff_plugin.py:1195
 msgid "Add"
@@ -1893,13 +1895,13 @@ msgstr "Meta"
 
 #: fff_plugin.py:1257
 msgid "Skipping duplicate story."
-msgstr ""
+msgstr "Dubbel verhaal overslaan."
 
 #: fff_plugin.py:1260
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
-msgstr ""
+msgstr "Meer dan één identiek boek op Identifier-URL of titel / auteur (s) - kan niet bepalen welk boek moet worden bijgewerkt / overschreven."
 
 #: fff_plugin.py:1271
 msgid "Update"
@@ -1907,29 +1909,29 @@ msgstr "Updaten"
 
 #: fff_plugin.py:1279 fff_plugin.py:1286
 msgid "Change Story URL?"
-msgstr ""
+msgstr "Verhaal URL wijzigen?"
 
 #: fff_plugin.py:1287
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
-msgstr ""
+msgstr "<b>%s</b> door <b>%s</b> staat al in uw bibliotheek met een andere bron-URL:"
 
 #: fff_plugin.py:1288
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr ""
+msgstr "in bibliotheek: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
 #: fff_plugin.py:1289 fff_plugin.py:1303
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr ""
+msgstr "Nieuwe URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
 #: fff_plugin.py:1290
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr ""
+msgstr "Klik '<b>Ja</b>' om het boek met nieuwe URL bij te werken/te overschrijven."
 
 #: fff_plugin.py:1291
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
-msgstr ""
+msgstr "Klik op '<b>Nee</b>' om het bijwerken / overschrijven van dit boek over te slaan."
 
 #: fff_plugin.py:1293 fff_plugin.py:1300
 msgid "Download as New Book?"
@@ -1939,25 +1941,25 @@ msgstr "Downloaden als nieuw boek?"
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
-msgstr ""
+msgstr "<b>%s</b> door <b>%s</b> is reeds in uw bibliotheek met een andere bron URL."
 
 #: fff_plugin.py:1302
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
-msgstr ""
+msgstr "Je hebt ervoor gekozen om het bestaande boek niet bij te werken. Wil je een nieuw boek toevoegen voor deze URL?"
 
 #: fff_plugin.py:1304
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr ""
+msgstr "Klik '<b>Ja</b>'voor een nieuw boek met nieuwe URL."
 
 #: fff_plugin.py:1305
 msgid "Click '<b>No</b>' to skip URL."
-msgstr ""
+msgstr "Klik op '<b>Nee</b>' om URL over te slaan."
 
 #: fff_plugin.py:1311
 msgid "Update declined by user due to differing story URL(%s)"
-msgstr ""
+msgstr "Update geweigerd door gebruiker vanwege verschillend verhaal URL(%s)"
 
 #: fff_plugin.py:1314
 msgid "Different URL"
@@ -1971,17 +1973,17 @@ msgstr "Metadata verzameld."
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
-msgstr ""
+msgstr "Bestaande epub bevat %d hoofdstukken, de website slechts %d. Gebruik Overschrijven om de update te forceren."
 
 #: fff_plugin.py:1339 jobs.py:262
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
-msgstr ""
+msgstr "FanFicFare herkent geen hoofdstukken in de bestaande epub, epub is waarschijnlijk van een andere bron. Gebruik Overschrijven om de update te forceren."
 
 #: fff_plugin.py:1474
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
-msgstr ""
+msgstr "Geen van de <b>%d</b> gegeven URL's/verhalen kan/moet worden gedownload."
 
 #: fff_plugin.py:1475 fff_plugin.py:1686 fff_plugin.py:1716
 msgid "See log for details."
@@ -1991,7 +1993,7 @@ msgstr "Zie log voor details."
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
-msgstr ""
+msgstr "Doorgaan met het bijwerken van uw bibliotheek (Fout of laatst gecontroleerde kolommen, indien geconfigureerd)?"
 
 #: fff_plugin.py:1483 fff_plugin.py:1698 fff_plugin.py:1732
 msgid "Bad"
@@ -2025,11 +2027,11 @@ msgstr "Fout tijdens metadata bijwerken"
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
-msgstr ""
+msgstr "Er is een fout opgetreden terwijl FanFicFare de metadata van calibre aan het bijwerken was<a href='%s'>%s</a>."
 
 #: fff_plugin.py:1567
 msgid "The ebook has been updated, but the metadata has not."
-msgstr ""
+msgstr " Het e-boek is bijgewerkt, maar de metagegevens niet."
 
 #: fff_plugin.py:1619
 msgid "Finished Adding/Updating %d books."
@@ -2037,29 +2039,29 @@ msgstr "Updaten toevoegen/updaten %d boeken beëindigd."
 
 #: fff_plugin.py:1670
 msgid "No Good Stories for Anthology"
-msgstr ""
+msgstr "Geen goede verhalen voor Bloemlezing"
 
 #: fff_plugin.py:1671
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
-msgstr ""
+msgstr "Geen goede verhalen/updates gedownload, het maken/bijwerken van Bloemlezing is afgebroken."
 
 #: fff_plugin.py:1676 fff_plugin.py:1715
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
-msgstr ""
+msgstr "FanFicFare vond <b>%s</b> goede en <b>%s</b> slechte updates."
 
 #: fff_plugin.py:1683
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
-msgstr ""
+msgstr "Weet u zeker dat u wilt doorgaan met het maken/bijwerken van deze Bloemlezing?"
 
 #: fff_plugin.py:1684
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
-msgstr ""
+msgstr "Alle mislukte updates, zullen <b>niet</b> worden opgenomen in de bloemlezing."
 
 #: fff_plugin.py:1685
 msgid "However, if there's an older version, it will still be included."
-msgstr ""
+msgstr "Echter, als er een oudere versie is, dan wordt deze nog steeds opgenomen."
 
 #: fff_plugin.py:1688
 msgid "Proceed with updating this anthology and your library?"
@@ -2095,15 +2097,15 @@ msgstr "Updaten calibre van FanFiction verhalen"
 
 #: fff_plugin.py:1877
 msgid "Adding/Updating %s BAD books."
-msgstr ""
+msgstr "Toevoegen/bijwerken %s BAD boeken."
 
 #: fff_plugin.py:1882
 msgid "Updating calibre for BAD FanFiction stories..."
-msgstr ""
+msgstr "Caliber aan het updaten voor BAD FanFiction-verhalen ..."
 
 #: fff_plugin.py:1883
 msgid "Update calibre for BAD FanFiction stories"
-msgstr ""
+msgstr "Caliber updaten voor BAD FanFiction-verhalen ..."
 
 #: fff_plugin.py:1922
 msgid "Adding format to book failed for some reason..."
@@ -2117,29 +2119,29 @@ msgstr "Fout"
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr ""
+msgstr "Je hebt FanFicFare geconfigureerd om \"Lees-lijsten\" automatisch bij te werken, maar is de plug-in niet meer geïnstalleerd?"
 
 #: fff_plugin.py:2285
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr ""
+msgstr "Je hebt FanFicFare geconfigureerd om \"Te lezen\"-leeslijsten automatisch bij te werken, maar heb je geen lijsten ingesteld?"
 
 #: fff_plugin.py:2295 fff_plugin.py:2313
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr ""
+msgstr "Je hebt FanFicFare geconfigureerd om Lees-lijst '%s' automatisch bij te werken, maar heb je geen gelijknamige lijst?"
 
 #: fff_plugin.py:2301
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr ""
+msgstr "Je hebt FanFicFare geconfigureerd om \"Zend naar apparaat\"-leeslijsten automatisch bij te werken, maar heb je geen lijsten ingesteld?"
 
 #: fff_plugin.py:2368
 msgid "Same story already included."
-msgstr ""
+msgstr "Zelfde verhaal is reeds inbegrepen."
 
 #: fff_plugin.py:2428
 msgid "No story URL found."
@@ -2203,8 +2205,8 @@ msgstr "Download %s voltooid, %s hoofdstukken."
 
 #: jobs.py:251
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr ""
+msgstr "Bevat al %d hoofdstukken. Hergebruik bestaand."
 
 #: jobs.py:274
 msgid "Update %s completed, added %s chapters for %s total."
-msgstr ""
+msgstr "Bijwerken %s voltooid, %s hoofdstukken van %s totaal  toegevoegd."
