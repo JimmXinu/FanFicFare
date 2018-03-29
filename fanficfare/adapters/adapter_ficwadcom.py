@@ -49,7 +49,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         return "http://ficwad.com/story/1234"
 
     def getSiteURLPattern(self):
-        return re.escape(r"http://"+self.getSiteDomain())+"/story/\d+?$"
+        return "https?"+re.escape(r"://"+self.getSiteDomain())+"/story/\d+?$"
 
     def performLogin(self,url):
         params = {}
