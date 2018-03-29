@@ -46,10 +46,10 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://ficwad.com/story/1234"
+        return "https://ficwad.com/story/1234"
 
     def getSiteURLPattern(self):
-        return re.escape(r"http://"+self.getSiteDomain())+"/story/\d+?$"
+        return r"https?:"+re.escape(r"//"+self.getSiteDomain())+"/story/\d+?$"
 
     def performLogin(self,url):
         params = {}
@@ -61,7 +61,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             params['username'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/account/login'
+        loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
         d = self._postUrl(loginUrl,params,usecache=False)
@@ -113,7 +113,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if storya : # if there's a story link in the divstory header, this is a chapter page.
             # normalize story URL on chapter list.
             self.story.setMetadata('storyId',storya['href'].split('/',)[2])
-            url = "http://"+self.getSiteDomain()+storya['href']
+            url = "https://"+self.getSiteDomain()+storya['href']
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
             try:
@@ -140,7 +140,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/a/"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
         # description
@@ -212,7 +212,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 else:
                     #print "chapterli.h4.a (%s)"%chapterli.h4.a
                     self.chapterUrls.append((chapterli.h4.a.string,
-                                             u'http://%s%s'%(self.getSiteDomain(),
+                                             u'https://%s%s'%(self.getSiteDomain(),
                                                              chapterli.h4.a['href'])))
         #print "self.chapterUrls:%s"%self.chapterUrls
         self.story.setMetadata('numChapters',len(self.chapterUrls))
