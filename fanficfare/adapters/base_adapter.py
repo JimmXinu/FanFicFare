@@ -456,7 +456,7 @@ class BaseSiteAdapter(Configurable):
                         t['class']=t.name
                         t.name='div'
                     # removes paired, but empty non paragraph tags.
-                    if t.name not in ('p') and t.string != None and len(t.string.strip()) == 0 :
+                    if t.name not in self.getConfigList('keep_empty_tags',['p','td','th']) and t.string != None and len(t.string.strip()) == 0 :
                         t.extract()
 
                     # remove script tags cross the board.
