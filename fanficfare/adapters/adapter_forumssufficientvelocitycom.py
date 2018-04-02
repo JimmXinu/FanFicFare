@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2015 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import re
 
 from base_xenforoforum_adapter import BaseXenForoForumAdapter
 
@@ -32,3 +34,11 @@ class ForumsSufficientVelocityComAdapter(BaseXenForoForumAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'forums.sufficientvelocity.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),'sufficientvelocity.com']
+
+    def getSiteURLPattern(self):
+        ## sufficientvelocity.com URLs without 'forums.' also work for SV, but not SB.
+        return super(ForumsSufficientVelocityComAdapter, self).getSiteURLPattern().replace(re.escape("forums."),r"(forums\.)?")
