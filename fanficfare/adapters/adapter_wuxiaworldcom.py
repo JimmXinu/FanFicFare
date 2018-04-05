@@ -91,7 +91,14 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', ld['headline'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
         self.story.setMetadata('tags', [stripHTML(a) for a in soup.select('.media-body .tags a')])
-        self.setCoverImage(self.url, ld['image'])
+
+        cover_url = ld['image']
+        if not cover_url:
+            img = soup.select_one('.media-novel-index .media-left img')
+            if img:
+                cover_url = img['src']
+        if cover_url:
+            self.setCoverImage(self.url, cover_url)
 
         for a in soup.select('#accordion .chapter-item > a'):
             title = stripHTML(a)
