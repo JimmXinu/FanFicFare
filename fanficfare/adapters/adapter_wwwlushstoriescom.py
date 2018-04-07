@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 # Updated on December 18, 2016 - formatting from linter
 # Updated on January 07, 2017 - fixed metadata capturing after Jimm fixed the UnidecodeError problem
 ####################################################################################################
-''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
 
 import time
 import logging
@@ -158,8 +157,8 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # Find authorid and URL from... author url.
         # (fetch multiple authors)
         a = soup.find('a',{'class':'avatar'})
-        self.story.setMetadata('authorId',a['href'].replace('/',''))
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href']+'/stories')
+        self.story.setMetadata('authorId',a['href'].split('/')[-1])
+        self.story.setMetadata('authorUrl',a['href']+'/stories')
         a = soup.find('a',{'class':'author'})
         self.story.setMetadata('author',a.string)
 
