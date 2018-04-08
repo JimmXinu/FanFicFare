@@ -90,7 +90,16 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author_name.lower())
         self.story.setMetadata('title', ld['headline'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
-        self.story.setMetadata('tags', [stripHTML(a) for a in soup.select('.media-body .tags a')])
+        
+        tags = [stripHTML(a) for a in soup.select('.media-body .tags a')]
+        for tag in tags:
+            if 'Completed' == tag:
+                self.story.setMetadata('status', 'Completed')
+                tags.remove('Completed')
+            elif 'Ongoing' == tag:
+                self.story.setMetadata('status', 'In-Progress')
+                tags.remove('Ongoing')
+        self.story.setMetadata('tags', tags)
 
         cover_url = ld['image']
         if not cover_url:

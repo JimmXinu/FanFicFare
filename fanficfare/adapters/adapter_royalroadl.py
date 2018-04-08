@@ -159,6 +159,16 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                 for tag in genre:
                     self.story.addToList('genre',tag)
 
+        for label in [stripHTML(a) for a in soup.find_all('span', {'class':'label'})]:
+            if 'COMPLETED' == label:
+                self.story.setMetadata('status', 'Completed')
+            elif ('ONGOING' == label) or ('HIATUS' == label):
+                self.story.setMetadata('status', 'In-Progress')
+            elif 'Fan Fiction' == label:
+                self.story.addToList('category', 'FanFiction')
+            elif 'Original' == label:
+                self.story.addToList('category', 'Original')
+
         # 'rating' in FFF speak means G, PG, Teen, Restricted, etc.
         # 'stars' is used instead for RR's 1-5 stars rating.
         stars=soup.find(attrs=dict(property="books:rating:value"))['content']
