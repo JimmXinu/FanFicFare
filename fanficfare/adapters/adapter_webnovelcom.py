@@ -192,14 +192,15 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         jsondata = json.loads(self._fetchUrl(
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
-        for chap in jsondata["data"]["chapterItems"]:
-            # Only allow free and VIP type 1 chapters
-            if chap['isVip'] not in {0, 1}:
-                continue
+        for volume in jsondata["data"]["volumeItems"]:
+            for chap in volume["chapterItems"]:
+                # Only allow free and VIP type 1 chapters
+                if chap['isVip'] not in {0, 1}:
+                    continue
 
-            chap_title = 'Chapter ' + unicode(chap['chapterIndex']) + ' - ' + chap['chapterName']
-            chap_Url = url.rstrip('/') + '/' + chap['chapterId']
-            self.chapterUrls.append((chap_title, chap_Url))
+                chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
+                chap_Url = url.rstrip('/') + '/' + chap['id']
+                self.chapterUrls.append((chap_title, chap_Url))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
