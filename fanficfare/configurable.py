@@ -251,7 +251,8 @@ def get_valid_set_options():
                'legend_spoilers':(base_xenforo_list,None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
-               'fix_pseudo_html': (['webnovel.com'], None, boollist)
+               'fix_pseudo_html': (['webnovel.com'], None, boollist),
+               'fix_excess_space': (['lightnovelgate.com'], ['epub', 'html'], boollist)
                }
 
     return dict(valdict)
@@ -453,7 +454,8 @@ def get_valid_keywords():
                  'normalize_text_links',
                  'internalize_text_links',
                  'replace_failed_smilies_with_alt_text',
-                 'fix_pseudo_html'
+                 'fix_pseudo_html',
+                 'fix_excess_space'
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
