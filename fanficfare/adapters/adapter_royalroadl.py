@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -102,6 +102,30 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
+
+    def make_soup(self,data):
+        soup = super(RoyalRoadAdapter, self).make_soup(data)
+        self.handle_spoilers(soup)
+        return soup
+
+    def handle_spoilers(self,topsoup):
+        '''
+        Modifies tag given as required to do spoiler changes.
+        '''
+        if self.getConfig('remove_spoilers'):
+            for div in topsoup.find_all('div',class_='spoiler'):
+                div.extract()
+        elif self.getConfig('legend_spoilers'):
+            for div in topsoup.find_all('div',class_='spoiler'):
+                div.name='fieldset'
+                legend = topsoup.new_tag('legend')
+                smalltext = div.find('div',class_='smalltext')
+                legend.string = stripHTML(smalltext)
+                smalltext.extract()
+                div.insert(0,legend)
+                for inner in div.find_all('div',class_='spoiler-inner'):
+                    del inner['style']
+                #div.button.extract()
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):

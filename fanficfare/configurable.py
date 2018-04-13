@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -247,8 +247,8 @@ def get_valid_set_options():
                'always_use_forumtags':(base_xenforo_list,None,boollist),
                'use_reader_mode':(base_xenforo_list,None,boollist),
                'author_avatar_cover':(base_xenforo_list,None,boollist),
-               'remove_spoilers':(base_xenforo_list,None,boollist),
-               'legend_spoilers':(base_xenforo_list,None,boollist),
+               'remove_spoilers':(base_xenforo_list+['royalroadl.com'],None,boollist),
+               'legend_spoilers':(base_xenforo_list+['royalroadl.com'],None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
