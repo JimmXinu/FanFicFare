@@ -120,8 +120,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                 div.name='fieldset'
                 legend = topsoup.new_tag('legend')
                 smalltext = div.find('div',class_='smalltext')
-                legend.string = stripHTML(smalltext)
-                smalltext.extract()
+                if smalltext:
+                    legend.string = stripHTML(smalltext)
+                    smalltext.extract()
                 div.insert(0,legend)
                 for inner in div.find_all('div',class_='spoiler-inner'):
                     del inner['style']
