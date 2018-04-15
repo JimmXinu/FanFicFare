@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Fanficdownloader team
+# Copyright 2017 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import urlparse
 from base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
-from ..htmlcleanup import removeEntities, stripHTML
+from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
 from .. import exceptions as exceptions
 
 logger = logging.getLogger(__name__)
@@ -163,19 +163,6 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         cdata.find('h2').extract()
         self.setDescription(url, cdata)
 
-    def fixExcessSpace(self, data):
-        # For easier extra space removing (when combining p an br)
-        data = removeEntities(data)
-
-        # Sometimes we don't have even tags like <p> or <br/>, so lets create <p> instead of two new_line
-        data = re.sub(r"\n[ \s]*\n", "\n<p>", data, flags=re.UNICODE)
-
-        # Combining all consequence of p and br to one <p>
-        # bs4 will create </p> on his own, so don't worry
-        data = re.sub(r"[ \s]*(</?p\b[^>]*>[ \s]*|<br\b[^>]*>[ \s]*)+", "\n<p>", data, flags=re.UNICODE)
-
-        return data
-
     def getChapterText(self, url):
         data = self._fetchUrl(url)
 
@@ -183,7 +170,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         data = data.decode('utf-8','ignore').encode('utf-8')
 
         if self.getConfig('fix_excess_space', True):
-            data = self.fixExcessSpace(data)
+            data = fix_excess_space(data)
 
         soup = self.make_soup(data)
 

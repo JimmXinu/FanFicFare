@@ -23,13 +23,12 @@ import logging
 import re
 import time
 import urllib2
-from datetime import datetime, timedelta
 
 from base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
+from ..dateutils import parse_relative_date_string
 
-UNIX_EPOCHE = datetime.fromtimestamp(0)
 HTML_TAGS = (
     'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi',
     'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col',
@@ -49,47 +48,8 @@ logger = logging.getLogger(__name__)
 pseudo_html_regex_format = r'(<+(?!/?(%s)>).*?>+)'
 real_html_regex = re.compile(r'</?(?:%s)(?:\s.*?)?\s*>' % '|'.join(HTML_TAGS), re.IGNORECASE)
 
-
 def getClass():
     return WWWWebNovelComAdapter
-
-
-def parse_relative_date_string(string_):
-    # Keep this explicit instead of replacing parentheses in case we discover a format that is not so easily
-    # translated as a keyword-argument to timedelta. In practice I have only observed hours, weeks and days
-    unit_to_keyword = {
-        'second(s)': 'seconds',
-        'minute(s)': 'minutes',
-        'hour(s)': 'hours',
-        'day(s)': 'days',
-        'week(s)': 'weeks',
-        'seconds': 'seconds',
-        'minutes': 'minutes',
-        'hours': 'hours',
-        'days': 'days',
-        'weeks': 'weeks',
-        'second': 'seconds',
-        'minute': 'minutes',
-        'hour': 'hours',
-        'day': 'days',
-        'week': 'weeks',
-    }
-
-    value, unit_string, rest = string_.split()
-    unit = unit_to_keyword.get(unit_string)
-    if not unit:
-        # This is "just as wrong" as always returning the current date, but prevents unneeded updates each time
-        logger.warn('Failed to parse relative date string: %r, falling back to unix epoche', string_)
-        return UNIX_EPOCHE
-
-    kwargs = {unit: int(value)}
-
-    # "naive" dates without hours and seconds are created in writers.base_writer.writeStory(), so we don't have to strip
-    # hours and minutes from the base date. Using datetime objects would result in a slightly different time (since we
-    # calculate the last updated date based on the current time) during each update, since the seconds and hours change.
-    today = datetime.utcnow()
-    time_ago = timedelta(**kwargs)
-    return today - time_ago
 
 
 def fix_pseudo_html(pseudo_html, whitelist_tags=()):

@@ -118,7 +118,20 @@ def removeEntities(text):
     
     # &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
     return text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
-    
+
+def fix_excess_space(text):
+    # For easier extra space removing (when combining p an br)
+    text = removeEntities(text)
+
+    # Sometimes we don't have even tags like <p> or <br/>, so lets create <p> instead of two new_line
+    text = re.sub(r"\n[ \s]*\n", "\n<p>", text, flags=re.UNICODE)
+
+    # Combining all consequence of p and br to one <p>
+    # bs4 will create </p> on his own, so don't worry
+    text = re.sub(r"[ \s]*(</?p\b[^>]*>[ \s]*|<br\b[^>]*>[ \s]*)+", "\n<p>", text, flags=re.UNICODE)
+
+    return text
+
 # entity list from http://code.google.com/p/doctype/wiki/CharacterEntitiesConsistent
 entities = { '&aacute;' : 'á',
          '&Aacute;' : 'Á',
