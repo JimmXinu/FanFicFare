@@ -320,18 +320,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         page_soup = self.make_soup(raw_page)
         [comment.extract() for comment in page_soup.findAll(text=lambda text:isinstance(text, Comment))]
         story2 = page_soup.find('div', 'b-story-body-x').div
-#         logger.debug(story2)
-        # Get the page but do not do the br replacement here if it is enabled.
-        div = self.utf8FromSoup(url, story2, allow_replace_br_with_p=False)
-#         logger.debug(div)
+#         logger.debug('getPageText - story2: %s' % story2)
 
-        fullhtml = unicode(div)
+        fullhtml = unicode(story2)
 #         logger.debug(fullhtml)
         # Strip some starting and ending tags,
         fullhtml = re.sub(r'^<div.*?>', r'', fullhtml)
         fullhtml = re.sub(r'</div>$', r'', fullhtml)
         fullhtml = re.sub(r'<p></p>$', r'', fullhtml)
-#         logger.debug(fullhtml)
+#         logger.debug('getPageText - fullhtml: %s' % fullhtml)
         return fullhtml
 
     def getChapterText(self, url):
