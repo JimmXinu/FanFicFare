@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 UNIX_EPOCHE = datetime.fromtimestamp(0)
 
+## Currently used by adapter_webnovelcom & adapter_wwwnovelallcom
+
 def parse_relative_date_string(string_):
     # Keep this explicit instead of replacing parentheses in case we discover a format that is not so easily
     # translated as a keyword-argument to timedelta. In practice I have only observed hours, weeks and days

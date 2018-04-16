@@ -119,6 +119,10 @@ def removeEntities(text):
     # &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
     return text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
 
+## Currently used(optionally) by adapter_lightnovelgatecom and
+## adapter_wwwnovelallcom only.  I hesitate to put the option in
+## base_adapter.make_soup for all adapters due to concerns about it
+## maybe breaking metadata parsing as it changes tags.
 def fix_excess_space(text):
     # For easier extra space removing (when combining p an br)
     text = removeEntities(text)
