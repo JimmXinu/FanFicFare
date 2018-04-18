@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import sys
 import pickle
 import cookielib as cl
 
-version="2.24.7"
+version="2.24.8"
 
 if sys.version_info < (2, 5) or sys.version_info > (3,0):
     print('This program requires Python 2.5 or newer.  Python 3 is not supported.')
