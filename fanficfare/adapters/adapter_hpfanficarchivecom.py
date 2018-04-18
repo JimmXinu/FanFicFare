@@ -101,7 +101,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        a = soup.find('div', id="mainpage").find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/stories/'+a['href'])
         self.story.setMetadata('author',a.string)
