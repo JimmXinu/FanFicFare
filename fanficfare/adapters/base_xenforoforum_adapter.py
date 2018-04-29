@@ -158,6 +158,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             url = re.sub(r'/threads/.*\.([0-9]+)/',r'/threads/\1/',url)
 
             is_chapter_url = True
+
+            ## One person once put a threadmarks URL directly in an
+            ## index post and now we have to exclude it.
+            if re.match(r".*/threads/[0-9]+/threadmarks",url):
+                is_chapter_url = False
+
         return (is_chapter_url,url)
 
     def _section_url(self,url):
