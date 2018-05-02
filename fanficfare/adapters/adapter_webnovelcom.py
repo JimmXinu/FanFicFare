@@ -127,25 +127,26 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             tag.extract()
         self.story.setMetadata('title', stripHTML(title))
 
-        # TODO: This should be more robust...
-        # Find authorid and URL from... author url.
-        paras = bookdetails.find_all('p')
-        for para in paras:
-            parat = stripHTML(para)
-            if parat[:7] == 'Author:':
-                author = parat.split('Author:', 1)[1].split(u'|', 1)[0].strip()
-                self.story.setMetadata('author', author)
-                self.story.setMetadata('authorId', author)
-                # There is no authorUrl for this site, so I'm setting it to the story url
-                # otherwise it defaults to the file location
-                self.story.setMetadata('authorUrl', url)
-            elif parat[:11] == 'Translator:':
-                self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
-            elif parat[:7] == 'Editor:':
-                self.story.setMetadata('editor', parat.replace('Editor:', '').strip())
-            elif '_tags' in para.get('class', []):
-                category = stripHTML(para.strong).strip()
-                self.story.setMetadata('category', category)
+        meta_tag = bookdetails.find('address').p
+        meta_txt = stripHTML(meta_tag)
+
+        def parse_meta(mt,label,setmd):
+            if label in mt:
+                data = mt.split(label,1)[1].split(u'|', 1)[0].strip()
+                if data:
+                    # print("setting %s to %s"%(setmd, data))
+                    self.story.setMetadata(setmd, data)
+
+        parse_meta(meta_txt,'Author:','author')
+        self.story.setMetadata('authorId', self.story.getMetadata('author'))
+        # There is no authorUrl for this site, so I'm setting it to the story url
+        # otherwise it defaults to the file location
+        self.story.setMetadata('authorUrl', url)
+        parse_meta(meta_txt,'Translator:','translator')
+        parse_meta(meta_txt,'Editor:','editor')
+
+        cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
+        self.story.extendList('category',[cat.string for cat in cats])
 
         ## get _csrfToken cookie for chapter list fetch
         for cookie in self.get_configuration().get_cookiejar():
@@ -159,6 +160,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         jsondata = json.loads(self._fetchUrl(
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
+        # print json.dumps(jsondata, sort_keys=True,
+        #                  indent=2, separators=(',', ':'))
         for volume in jsondata["data"]["volumeItems"]:
             for chap in volume["chapterItems"]:
                 # Only allow free and VIP type 1 chapters
