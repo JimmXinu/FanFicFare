@@ -148,6 +148,11 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
         self.story.extendList('category',[cat.string for cat in cats])
 
+        poptags = soup.find('p',{'class':'pop-tags'})
+        if poptags:
+            sitetags = poptags.find_all('a',href=re.compile(r'/tag/list'))
+            self.story.extendList('sitetags',[sitetag.string for sitetag in sitetags])
+
         ## get _csrfToken cookie for chapter list fetch
         for cookie in self.get_configuration().get_cookiejar():
             if cookie.name == '_csrfToken':
@@ -179,8 +184,12 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             cover_url = 'https:' + cover_meta['src']
             self.setCoverImage(url, cover_url)
 
-        synopsis = soup.find('div', {'class': 'det-abt'}).find('p')
+        detabt = soup.find('div', {'class': 'det-abt'})
+        synopsis = detabt.find('p')
         self.setDescription(url, synopsis)
+        rating = detabt.find('span',{'class': 'vam'})
+        if rating:
+            self.story.setMetadata('rating',rating.string)
 
         last_updated_string = jsondata['data']['bookInfo']['newChapterTime']
         last_updated = parse_relative_date_string(last_updated_string)
