@@ -40,10 +40,10 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+"\d+$"
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -76,7 +76,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
@@ -208,7 +208,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         a = metadata.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
         if a != None:
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
             try:
                 # use BeautifulSoup HTML parser to make everything easier to find.
                 seriessoup = self.make_soup(self._fetchUrl(series_url))
