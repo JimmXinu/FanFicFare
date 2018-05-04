@@ -37,7 +37,7 @@ class GluttonyFictionComAdapter(BaseEfictionAdapter):
     def getDateFormat(self):
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        return "%d/%m/%y"
+        return "%m/%d/%Y"
 
 ##################################################################################
 ### The Efiction Base Adapter uses the Bulk story to retrieve the metadata, but
