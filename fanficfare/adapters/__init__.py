@@ -34,7 +34,6 @@ import adapter_fictionalleyorg
 import adapter_fictionpresscom
 import adapter_ficwadcom
 import adapter_fimfictionnet
-import adapter_harrypotterfanfictioncom
 import adapter_mediaminerorg
 import adapter_potionsandsnitches
 import adapter_tenhawkpresentscom
@@ -66,7 +65,6 @@ import adapter_iketernalnet
 import adapter_storiesofardacom
 import adapter_destinysgatewaycom
 import adapter_ncisfictioncom
-import adapter_thealphagatecom
 import adapter_fanfiktionde
 import adapter_ponyfictionarchivenet
 import adapter_ncisficcom
