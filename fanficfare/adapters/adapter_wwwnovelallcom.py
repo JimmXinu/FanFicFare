@@ -70,8 +70,8 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
             # normalized story URL.
             self._setURL("https://"+self.getSiteDomain()
-                         +"/novel/"+self.story.getMetadata('storyId')
-                         +".html")
+                         + "/novel/"+self.story.getMetadata('storyId')
+                         + ".html")
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -155,7 +155,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             self.story.setMetadata('released', released.find_next_sibling('a').string.strip())
 
         ## getting follows
-        follows = soup.find('num', {"id":"follow_num"})
+        follows = soup.find('num', {"id": "follow_num"})
         if follows:
             self.story.setMetadata('follows', follows.string)
 
@@ -202,7 +202,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                 cdates.append(makeDate(dt, '%b %d, %Y'))
             # <a href="https://www.novelall.com/chapter/Stellar-Transformation-Volume-18-Chapter-45-part2/616971/" title="Stellar Transformation Volume 18 Chapter 45 part2">
             a = li.find('a')
-            ctitle = a['title'].replace(title, '').strip()
+            ctitle = re.sub(r"^%s(.+)$" % re.escape(title), r"\1", a['title'], 0, re.UNICODE | re.IGNORECASE).strip()
             self.chapterUrls.append((ctitle, a['href']))
 
         cdates.sort()
