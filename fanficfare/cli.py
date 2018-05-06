@@ -437,7 +437,7 @@ def do_download(arg,
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
-            
+
             if options.metaonly:
                 metadata['output_filename'] = output_filename
                 if options.jsonmeta:

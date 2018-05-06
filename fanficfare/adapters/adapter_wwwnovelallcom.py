@@ -70,8 +70,8 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
             # normalized story URL.
             self._setURL("https://"+self.getSiteDomain()
-                         +"/novel/"+self.story.getMetadata('storyId')
-                         +".html")
+                         + "/novel/"+self.story.getMetadata('storyId')
+                         + ".html")
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -88,6 +88,13 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # https://www.novelall.com/novel/Castle-of-Black-Iron.html
         return r"https://www\.novelall\.com/novel/(?P<id>[^\.]+)\.html"
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     def extractChapterUrlsAndMetadata(self):
         if self.is_adult or self.getConfig("is_adult"):
@@ -148,7 +155,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             self.story.setMetadata('released', released.find_next_sibling('a').string.strip())
 
         ## getting follows
-        follows = soup.find('num', {"id":"follow_num"})
+        follows = soup.find('num', {"id": "follow_num"})
         if follows:
             self.story.setMetadata('follows', follows.string)
 
@@ -195,7 +202,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                 cdates.append(makeDate(dt, '%b %d, %Y'))
             # <a href="https://www.novelall.com/chapter/Stellar-Transformation-Volume-18-Chapter-45-part2/616971/" title="Stellar Transformation Volume 18 Chapter 45 part2">
             a = li.find('a')
-            ctitle = a['title'].replace(title, '').strip()
+            ctitle = re.sub(r"^%s(.+)$" % re.escape(title), r"\1", a['title'], 0, re.UNICODE | re.IGNORECASE).strip()
             self.chapterUrls.append((ctitle, a['href']))
 
         cdates.sort()
@@ -207,8 +214,9 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         data = self._fetchUrl(url)
 
-        # Sometimes we get invalid characters
-        data = data.decode('utf-8','ignore').encode('utf-8')
+        # remove unnecessary <br> created to add space between advert
+        data = re.sub(r"<br><script", "<script", data)
+        data = re.sub(r"script><br>", "script>", data)
 
         if self.getConfig('fix_excess_space', False):
             data = fix_excess_space(data)
