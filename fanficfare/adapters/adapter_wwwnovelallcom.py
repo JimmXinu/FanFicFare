@@ -214,6 +214,10 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         data = self._fetchUrl(url)
 
+        # remove unnecessary <br> created to add space between advert
+        data = re.sub(r"<br><script", "<script", data)
+        data = re.sub(r"script><br>", "script>", data)
+
         if self.getConfig('fix_excess_space', False):
             data = fix_excess_space(data)
 
