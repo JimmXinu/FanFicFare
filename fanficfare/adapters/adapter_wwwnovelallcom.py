@@ -89,6 +89,13 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         # https://www.novelall.com/novel/Castle-of-Black-Iron.html
         return r"https://www\.novelall\.com/novel/(?P<id>[^\.]+)\.html"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     def extractChapterUrlsAndMetadata(self):
         if self.is_adult or self.getConfig("is_adult"):
             addurl = "?waring=1"
@@ -206,9 +213,6 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         data = self._fetchUrl(url)
-
-        # Sometimes we get invalid characters
-        data = data.decode('utf-8','ignore').encode('utf-8')
 
         if self.getConfig('fix_excess_space', False):
             data = fix_excess_space(data)

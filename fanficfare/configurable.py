@@ -940,6 +940,9 @@ class Configuration(ConfigParser.SafeConfigParser):
         for code in decode:
             try:
                 #print code
+                errors=None
+                if ':' in code:
+                    (code,errors)=code.split(':')
                 if code == "auto":
                     if not chardet:
                         logger.info("chardet not available, skipping 'auto' encoding")
@@ -952,7 +955,10 @@ class Configuration(ConfigParser.SafeConfigParser):
                     else:
                         logger.debug("chardet confidence too low:%s(%s)"%(detected['encoding'],detected['confidence']))
                         continue
-                return data.decode(code)
+                if errors == 'ignore': # only allow ignore.
+                    return data.decode(code,errors='ignore')
+                else:
+                    return data.decode(code)
             except:
                 logger.debug("code failed:"+code)
                 pass
