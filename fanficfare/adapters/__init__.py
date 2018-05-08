@@ -200,6 +200,18 @@ for x in imports():
             l.append(cls)
             __domain_map[site]=l
 
+def get_url_chapter_range(url_in):
+    # Allow chapter range with URL.
+    # like test1.com?sid=5[4-6] or [4,6]
+    mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>[,-])?(?P<end>\d+)?\])?$",url_in)
+    #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
+    url = mc.group('url')
+    ch_begin = mc.group('begin')
+    ch_end = mc.group('end')
+    if ch_begin and not mc.group('comma'):
+        ch_end = ch_begin
+    return url,ch_begin,ch_end
+
 def getNormalStoryURL(url):
     r = getNormalStoryURLSite(url)
     if r:

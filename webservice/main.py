@@ -353,14 +353,8 @@ class FanfictionDownloader(UserConfigServer):
             return
 
         # Allow chapter range with URL.
-        # test1.com?sid=5[4-6]
-        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>[,-])?(?P<end>\d+)?\])?$",url)
-        #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
-        url = mc.group('url')
-        ch_begin = mc.group('begin')
-        ch_end = mc.group('end')
-        if ch_begin and not mc.group('comma'):
-            ch_end = ch_begin
+        # like test1.com?sid=5[4-6] or [4,6]
+        url,ch_begin,ch_end = adapters.get_url_chapter_range(url)
 
         logging.info("Queuing Download: %s" % url)
         login = self.request.get('login')

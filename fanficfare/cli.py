@@ -78,7 +78,6 @@ def main(argv=None,
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='write story as FORMAT, epub(default), mobi, txt or html', metavar='FORMAT')
-
     if passed_defaultsini:
         config_help = 'read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
     else:
@@ -86,10 +85,11 @@ def main(argv=None,
     parser.add_option('-c', '--config',
                       action='append', dest='configfile', default=None,
                       help=config_help, metavar='CONFIG')
+    range_help = '  --begin and --end will be overridden by a chapter range on the STORYURL like STORYURL[1-2], STORYURL[-3], STORYURL[3-] or STORYURL[3]'
     parser.add_option('-b', '--begin', dest='begin', default=None,
-                      help='Begin with Chapter START', metavar='START')
+                      help='Begin with Chapter START.'+range_help, metavar='START')
     parser.add_option('-e', '--end', dest='end', default=None,
-                      help='End with Chapter END', metavar='END')
+                      help='End with Chapter END.'+range_help, metavar='END')
     parser.add_option('-o', '--option',
                       action='append', dest='options',
                       help='set an option NAME=VALUE', metavar='NAME=VALUE')
@@ -314,6 +314,11 @@ def do_download(arg,
                                       output_filename)
 
     try:
+        # Allow chapter range with URL.
+        # like test1.com?sid=5[4-6] or [4,6]
+        # Overrides CLI options if present.
+        url,ch_begin,ch_end = adapters.get_url_chapter_range(url)
+
         adapter = adapters.getAdapter(configuration, url)
 
         ## Share pagecache and cookiejar between multiple downloads.
@@ -324,7 +329,11 @@ def do_download(arg,
         configuration.set_pagecache(options.pagecache)
         configuration.set_cookiejar(options.cookiejar)
 
-        adapter.setChaptersRange(options.begin, options.end)
+        # url[begin-end] overrides CLI option if present.
+        if ch_begin or ch_end:
+            adapter.setChaptersRange(ch_begin, ch_end)
+        else:
+            adapter.setChaptersRange(options.begin, options.end)
 
         # check for updating from URL (vs from file)
         if options.update and not chaptercount:

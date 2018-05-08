@@ -2382,14 +2382,9 @@ class FanFicFarePlugin(InterfaceAction):
 
     def convert_url_to_book(self, url):
         book = self.make_book()
-        # look here for [\d,\d] at end of url, and remove?
-        mc = re.match(r"^(?P<url>.*?)(?:\[(?P<begin>\d+)?(?P<comma>[,-])?(?P<end>\d+)?\])?$",url)
-        #print("url:(%s) begin:(%s) end:(%s)"%(mc.group('url'),mc.group('begin'),mc.group('end')))
-        url = mc.group('url')
-        book['begin'] = mc.group('begin')
-        book['end'] = mc.group('end')
-        if book['begin'] and not mc.group('comma'):
-            book['end'] = book['begin']
+        # Allow chapter range with URL.
+        # like test1.com?sid=5[4-6] or [4,6]
+        url,book['begin'],book['end'] = adapters.get_url_chapter_range(url)
 
         self.set_book_url_and_comment(book,url) # normalizes book[url]
         # for case of trying to download book by sections. url[1-5], url[6-10], etc.
