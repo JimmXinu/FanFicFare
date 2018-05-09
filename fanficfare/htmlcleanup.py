@@ -72,7 +72,7 @@ def removeAllEntities(text):
     # Remove &lt; &lt; and &amp;
     return removeEntities(text).replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
 
-def removeEntities(text):    
+def removeEntities(text, space_only=False):
     if text is None:
         return u""
     
@@ -101,6 +101,9 @@ def removeEntities(text):
     # reverse sort will put entities with ; before the same one without, when valid.
     for e in reversed(sorted(entities.keys())):
         v = entities[e]
+        if space_only and re.match(r"^[^\s]$", v, re.UNICODE | re.S):
+            # if not space
+            continue
         try:
             text = text.replace(e, v)
         except UnicodeDecodeError, ex:
@@ -125,7 +128,7 @@ def removeEntities(text):
 ## maybe breaking metadata parsing as it changes tags.
 def fix_excess_space(text):
     # For easier extra space removing (when combining p an br)
-    text = removeEntities(text)
+    text = removeEntities(text, space_only=True)
 
     # Sometimes we don't have even tags like <p> or <br/>, so lets create <p> instead of two new_line
     text = re.sub(r"\n[ \s]*\n", "\n<p>", text, flags=re.UNICODE)

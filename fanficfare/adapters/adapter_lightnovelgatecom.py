@@ -166,9 +166,6 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         data = self._fetchUrl(url)
 
-        # Sometimes we get invalid characters
-        data = data.decode('utf-8','ignore').encode('utf-8')
-
         if self.getConfig('fix_excess_space', True):
             data = fix_excess_space(data)
 
