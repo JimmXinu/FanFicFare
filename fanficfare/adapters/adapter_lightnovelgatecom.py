@@ -151,11 +151,21 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         ## getting chapters
         cdata = soup.select('.chapter-list .row')
         cdata.reverse()
+        cdates = []
 
         for row in cdata:
+            # <span>May-08-18</span>
+            dt = row.find_all('span')[-1].string
+            cdates.append(makeDate(dt, '%b-%d-%y'))
             clink = row.find('a')
             self.chapterUrls.append((clink.string, clink['href']))
 
+        cdates.sort()
+        # dateUpdated in upper part show only date of last chapter, but if 
+        # chapter in middle will be updated - it will be ignored. So we select
+        # dates manually
+        self.story.setMetadata('dateUpdated', cdates[-1])
+        self.story.setMetadata('datePublished', cdates[0])
         self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         ## getting description
@@ -165,9 +175,6 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         data = self._fetchUrl(url)
-
-        # Sometimes we get invalid characters
-        data = data.decode('utf-8','ignore').encode('utf-8')
 
         if self.getConfig('fix_excess_space', True):
             data = fix_excess_space(data)
