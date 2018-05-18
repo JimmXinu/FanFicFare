@@ -15,6 +15,12 @@
 # limitations under the License.
 #
 
+import logging
+import sys
+
+logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
+                    stream=sys.stdout, level=logging.DEBUG)
+
 try:
     # just a way to switch between web service and CLI/PI
     import google.appengine.api

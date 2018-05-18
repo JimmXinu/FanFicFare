@@ -303,7 +303,7 @@ div { margin: 0pt; padding: 0pt; }
         ## not on an open stream.  OTOH, I suspect we would have had
         ## problems with closing and opening again to change the
         ## compression type anyway.
-        zipio = io.StringIO()
+        zipio = io.BytesIO()
 
         ## mimetype must be first file and uncompressed.  Python 2.5
         ## ZipFile can't change compression type file-by-file, so we
@@ -577,8 +577,8 @@ div { margin: 0pt; padding: 0pt; }
         contentxml = contentdom.toxml(encoding='utf-8')
 
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
-                                        '<meta name="cover" content="%s"/>'%coverimgid)
+        contentxml = contentxml.replace('<meta content="%s" name="cover"/>' % coverimgid,
+                                        '<meta name="cover" content="%s"/>' % coverimgid)
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()

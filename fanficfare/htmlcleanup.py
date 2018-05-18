@@ -67,7 +67,7 @@ def conditionalRemoveEntities(value):
         return removeEntities(value).strip()
     else:
         return value
-        
+
 def removeAllEntities(text):
     # Remove &lt; &lt; and &amp;
     return removeEntities(text).replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
@@ -75,24 +75,16 @@ def removeAllEntities(text):
 def removeEntities(text, space_only=False):
     if text is None:
         return ""
-    
+
     if not isinstance(text,str):
         return str(text)
-    
-    try:
-        t = text.decode('utf-8')
-    except (UnicodeEncodeError,UnicodeDecodeError) as e:
-        try:
-            t = text.encode ('ascii', 'xmlcharrefreplace') 
-        except (UnicodeEncodeError,UnicodeDecodeError) as e:
-            t = text
-    text = t 
+
     # replace numeric versions of [&<>] with named versions,
     # then replace named versions with actual characters,
     text = re.sub(r'&#0*38;','&amp;',text)
     text = re.sub(r'&#0*60;','&lt;',text)
     text = re.sub(r'&#0*62;','&gt;',text)
-    
+
     # replace remaining &#000; entities with unicode value, such as &#039; -> '
     text = _replaceNumberEntities(text)
 
@@ -118,7 +110,7 @@ def removeEntities(text, space_only=False):
     # this point, there should be *no* real entities left, so find
     # these not-entities and removing them here should be safe.
     text = _replaceNotEntities(text)
-    
+
     # &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
     return text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
 
