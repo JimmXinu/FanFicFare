@@ -92,7 +92,7 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-				
+
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
         # the title search to troubleshoot.
@@ -166,12 +166,12 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
         warnings = smalldiv.findAll('a',href=re.compile(r'browse.php\?type=class(&amp;)type_id=2(&amp;)classid=\d+'))
         for warning in warnings:
             self.story.addToList('warnings',warning.string)
-            			
+
         date=soup.find('div',{'class' : 'bottom'})
         pd=date.find(text=re.compile("Published:")).string.split(': ')
         self.story.setMetadata('datePublished', makeDate(stripHTML(pd[1].split(' U')[0]), self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(pd[2]), self.dateformat))
-		
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         pub=0
@@ -229,4 +229,4 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
- 
+

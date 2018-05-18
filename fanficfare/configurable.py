@@ -24,7 +24,6 @@ import time
 import logging
 import sys
 import urllib.request, urllib.parse, urllib.error
-import urllib2 as u2
 import urllib.parse as up
 import http.cookiejar as cl
 import pickle
@@ -199,7 +198,7 @@ def get_valid_set_options():
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
-			   'include_author_notes':(['fimfiction.net'],None,boollist),
+               'include_author_notes':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
                'always_login':(['archiveofourown.org'],None,boollist),
@@ -354,7 +353,7 @@ def get_valid_keywords():
                  'find_chapters',
                  'fix_fimf_blockquotes',
                  'keep_prequel_in_description',
-				 'include_author_notes',
+                 'include_author_notes',
                  'force_login',
                  'generate_cover_settings',
                  'grayscale_images',
@@ -525,7 +524,7 @@ class Configuration(configparser.SafeConfigParser):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
 
         self.pagecache = self.get_empty_pagecache()
 
@@ -884,7 +883,7 @@ class Configuration(configparser.SafeConfigParser):
     def set_cookiejar(self,cj):
         self.cookiejar = cj
         saveheaders = self.opener.addheaders
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
 
     def load_cookiejar(self,filename):
@@ -992,13 +991,13 @@ class Configuration(configparser.SafeConfigParser):
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
-        ## u2.Request assumes POST when data!=None.  Also assumes data
+        ## urllib.request.Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
         if 'Content-type' not in headers:
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
-        req = u2.Request(url,
+        req = urllib.request.Request(url,
                          data=urllib.parse.urlencode(parameters),
                          headers=headers)
 
@@ -1106,7 +1105,7 @@ class Configuration(configparser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except u2.HTTPError as he:
+            except urllib.error.HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(str(safe_url(url)),str(he)))

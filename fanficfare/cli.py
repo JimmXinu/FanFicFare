@@ -32,10 +32,6 @@ import http.cookiejar as cl
 
 version="2.25.6"
 
-if sys.version_info < (2, 5) or sys.version_info > (3,0):
-    print('This program requires Python 2.5 or newer.  Python 3 is not supported.')
-    sys.exit(1)
-
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficfare/__init__.py so it works in calibre, too.
     rootlogger = logging.getLogger()

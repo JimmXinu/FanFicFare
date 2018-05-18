@@ -735,7 +735,7 @@ div { margin: 0pt; padding: 0pt; }
         if self.story.calibrebookmark:
             outputepub.writestr("META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
 
-	# declares all the files created by Windows.  otherwise, when
+        # declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.
         for zf in outputepub.filelist:
             zf.create_system = 0
