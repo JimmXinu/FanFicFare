@@ -19,13 +19,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ArchiveOfOurOwnOrgAdapter
@@ -104,7 +104,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             params['user_session[password]'] = self.getConfig("password")
         params['user_session[remember_me]'] = '1'
         params['commit'] = 'Log in'
-        params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
+        params['utf8'] = '\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
 
         # token now comes from meta.
         # <meta name="csrf-token" content="/Li4mJ1w1AENhQq8EPVIklFwCDP5eaTHNRWPlWkehu2d1iuRzgsOHYGCX+uhjmlKnd1A9VisCdqmeTmBmXZkBg=="/>
@@ -155,7 +155,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
                 raise exceptions.AdultCheckRequired(self.url)
 
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return EFPFanFicNet
@@ -110,7 +110,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -149,7 +149,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         else:
             allOptions = select.findAll('option', {'value' : re.compile(r'viewstory')})
             for o in allOptions:
-                url = u'https://%s/%s' % ( self.getSiteDomain(),
+                url = 'https://%s/%s' % ( self.getSiteDomain(),
                                           o['value'])
                 # just in case there's tags, like <i> in chapter titles.
                 title = stripHTML(o)
@@ -179,7 +179,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             # no storya, but do have authsoup--we're looping on author pages.
             if authsoup != None:
                 # last author link with offset should be the 'next' link.
-                authurl = u'https://%s/%s' % ( self.getSiteDomain(),
+                authurl = 'https://%s/%s' % ( self.getSiteDomain(),
                                               authsoup.findAll('a',href=re.compile(r'viewuser\.php\?uid=\d+&catid=&offset='))[-1]['href'] )
 
             # Need author page for most of the metadata.

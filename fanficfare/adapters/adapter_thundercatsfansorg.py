@@ -18,7 +18,7 @@
 from ..htmlcleanup import stripHTML
 
 # Software: eFiction
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class ThundercatsFansOrgSiteAdapter(BaseEfictionAdapter):
 

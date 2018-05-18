@@ -17,7 +17,7 @@
 
 import re
 
-from base_xenforoforum_adapter import BaseXenForoForumAdapter
+from .base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 def getClass():
     return ForumsSufficientVelocityComAdapter

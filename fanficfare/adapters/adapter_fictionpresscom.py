@@ -19,11 +19,11 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 
 ## They're from the same people and pretty much identical.
-from adapter_fanfictionnet import FanFictionNetSiteAdapter
+from .adapter_fanfictionnet import FanFictionNetSiteAdapter
 
 class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
 

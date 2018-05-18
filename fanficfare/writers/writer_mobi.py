@@ -17,9 +17,9 @@
 
 import logging
 import string
-import StringIO
+import io
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
@@ -128,7 +128,7 @@ ${value}<br />
             NO_TITLE_ENTRY    = self.MOBI_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.MOBI_TITLE_PAGE_END
         
-        titlepageIO = StringIO.StringIO()
+        titlepageIO = io.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -189,7 +189,7 @@ ${value}<br />
 def newTag(dom,name,attrs=None,text=None):
     tag = dom.createElement(name)
     if( attrs is not None ):
-        for attr in attrs.keys():
+        for attr in list(attrs.keys()):
             tag.setAttribute(attr,attrs[attr])
     if( text is not None ):
         tag.appendChild(dom.createTextNode(text))

@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return PretenderCenterComAdapter
@@ -91,7 +91,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -111,7 +111,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -166,7 +166,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ""
                 while 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

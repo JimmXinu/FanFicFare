@@ -19,7 +19,7 @@ import logging
 import string
 from textwrap import wrap
 
-from base_writer import *
+from .base_writer import *
 
 from html2text import html2text
 
@@ -41,7 +41,7 @@ class KludgeStringIO():
             pass
         self.buflist.append(s)
     def getvalue(self):
-        return u''.join(self.buflist)
+        return ''.join(self.buflist)
     def close(self):
         pass
 
@@ -59,7 +59,7 @@ class TextWriter(BaseStoryWriter):
         
         BaseStoryWriter.__init__(self, config, story)
         
-        self.TEXT_FILE_START = string.Template(u'''
+        self.TEXT_FILE_START = string.Template('''
 
 
 ${title}
@@ -69,38 +69,38 @@ by ${author}
 
 ''')
 
-        self.TEXT_TITLE_PAGE_START = string.Template(u'''
+        self.TEXT_TITLE_PAGE_START = string.Template('''
 ''')
 
-        self.TEXT_TITLE_ENTRY = string.Template(u'''${label}: ${value}
+        self.TEXT_TITLE_ENTRY = string.Template('''${label}: ${value}
 ''')
 
-        self.TEXT_TITLE_PAGE_END = string.Template(u'''
+        self.TEXT_TITLE_PAGE_END = string.Template('''
 
 
 ''')
 
-        self.TEXT_TOC_PAGE_START = string.Template(u'''
+        self.TEXT_TOC_PAGE_START = string.Template('''
 
 TABLE OF CONTENTS
 
 ''')
 
-        self.TEXT_TOC_ENTRY = string.Template(u'''
+        self.TEXT_TOC_ENTRY = string.Template('''
 ${chapter}
 ''')
                           
-        self.TEXT_TOC_PAGE_END = string.Template(u'''
+        self.TEXT_TOC_PAGE_END = string.Template('''
 ''')
 
-        self.TEXT_CHAPTER_START = string.Template(u'''
+        self.TEXT_CHAPTER_START = string.Template('''
 
 \t${chapter}
 
 ''')
-        self.TEXT_CHAPTER_END = string.Template(u'')
+        self.TEXT_CHAPTER_END = string.Template('')
 
-        self.TEXT_FILE_END = string.Template(u'''
+        self.TEXT_FILE_END = string.Template('''
 
 End file.
 ''')
@@ -176,15 +176,15 @@ End file.
                 if first:
                     first=False
                 else:
-                    result += u"\n"
+                    result += "\n"
                 result += line
-            result += u"\n"
+            result += "\n"
         return result 
 
     ## The appengine will return unix line endings.
     def lineends(self, txt):
         txt = txt.replace('\r','')
         if self.getConfig("windows_eol"):
-            txt = txt.replace('\n',u'\r\n')
+            txt = txt.replace('\n','\r\n')
         return txt
                        

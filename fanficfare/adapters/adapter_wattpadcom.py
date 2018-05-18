@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from __future__ import absolute_import
+
 
 import json
 import logging
@@ -35,7 +35,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.storyId = unicode(self.getStoryId(url))
+        self.storyId = str(self.getStoryId(url))
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
         self.story.setMetadata('storyId', self.storyId)
         self._setURL('https://www.wattpad.com/story/%s' % self.storyId)
@@ -124,7 +124,7 @@ class WattpadComAdapter(BaseSiteAdapter):
         # CATEGORIES
         try:
             storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(str(c)) for c in storyInfo['categories'] if
-                               WattpadComAdapter.CATEGORY_DEFs.has_key(str(c))]
+                               str(c) in WattpadComAdapter.CATEGORY_DEFs]
 
             self.story.setMetadata('category', storyCategories[0])
             self.story.setMetadata('tags', storyInfo['tags'])
@@ -135,7 +135,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('%s' % url)
-        chapterID = re.search(u'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
+        chapterID = re.search('https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
         return self.utf8FromSoup(url,self.make_soup(self._fetchUrl(WattpadComAdapter.API_STORYTEXT % chapterID)))
 
 # adapter self-dicovery is not implemented in fanficfare (it existed for the previous project)

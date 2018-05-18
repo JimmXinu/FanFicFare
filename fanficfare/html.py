@@ -5,8 +5,8 @@
 
 import re
 import sys
-import StringIO
-import urllib
+import io
+import urllib.request, urllib.parse, urllib.error
 
 from bs4 import BeautifulSoup
 
@@ -57,12 +57,12 @@ class HtmlProcessor:
 
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
-      ref = urllib.unquote(original_ref[1:]) # remove leading '#'
+      ref = urllib.parse.unquote(original_ref[1:]) # remove leading '#'
       # Find the position of ref in the utf-8 document.
       # TODO(chatham): Using regexes and looking for name= would be better.
       newpos = assembled_text.rfind(ref.encode('utf-8'))
       if newpos == -1:
-        print >>sys.stderr, 'Could not find anchor "%s"' % original_ref
+        print('Could not find anchor "%s"' % original_ref, file=sys.stderr)
         continue
       newpos += len(ref) + 2  # don't point into the middle of the <a name> tag
       old_filepos = 'filepos="%.10d"' % anchor_num
@@ -75,7 +75,7 @@ class HtmlProcessor:
     '''Replace <pre> tags with HTML-ified text.'''
     pres = self._soup.findAll('pre')
     for pre in pres:
-      pre.replaceWith(self._FixPreContents(unicode(pre.contents[0])))
+      pre.replaceWith(self._FixPreContents(str(pre.contents[0])))
 
   def _FixPreContents(self, text):
     if self.unfill:
@@ -110,7 +110,7 @@ class HtmlProcessor:
     # as NoneType.
     content = []
     if self._soup.body is not None:
-      content = [unicode(c) for c in self._soup.body.contents]
+      content = [str(c) for c in self._soup.body.contents]
     return '\n'.join(content)
 
   def CleanHtml(self):

@@ -19,13 +19,13 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 # This function is called by the downloader in all adapter_*.py files
 # in this dir to register the adapter class.  So it needs to be
@@ -144,7 +144,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -240,7 +240,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         chnum = 0
         for li in list:
             chnum += 1
-            chTitle = unicode(chnum) + '. ' + li.a.b.string.strip()
+            chTitle = str(chnum) + '. ' + li.a.b.string.strip()
             chURL = makeAbsoluteURL(li.a['href'])
             chapters.append((chTitle,chURL))
             #Get reviews, add to total
@@ -258,7 +258,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         mb = list.parent
         #get the div before that, will either be the description, or the google ad bar
         mb = mb.findPreviousSibling('div')
-        if 'google_ad_client' in unicode(mb):
+        if 'google_ad_client' in str(mb):
             #couldn't find description, leaving it blank
             pass
         else:

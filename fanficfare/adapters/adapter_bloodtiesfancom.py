@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # By virtue of being recent and requiring both is_adult and user/pass,
 # adapter_fanficcastletvnet.py is the best choice for learning to
@@ -150,7 +150,7 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -184,7 +184,7 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -239,7 +239,7 @@ class BloodTiesFansComAdapter(BaseSiteAdapter): # XXX
                 ## Everything until the next strong tag.
                 svalue = ""
                 while not isinstance(value,Tag) or value.name != 'strong':
-                    svalue += unicode(value)
+                    svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

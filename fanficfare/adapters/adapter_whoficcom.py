@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class WhoficComSiteAdapter(BaseSiteAdapter):
 
@@ -60,7 +60,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             soup = self.make_soup(self._fetchUrl(url))
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -179,7 +179,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         if charsearch in chars:
             chars = chars[metadatachunks[idx+1].index(charsearch)+len(charsearch):]
             for c in chars.split(','):
-                if c.strip() != u'None':
+                if c.strip() != 'None':
                     self.story.addToList('characters',c)
 
         # the next line is stuff with ' - ' separators *and* names--with tags.

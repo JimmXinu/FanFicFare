@@ -27,9 +27,9 @@ This will scrape the chapter text and metadata from stories on the site trekfanf
 '''
 import logging
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -91,7 +91,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:

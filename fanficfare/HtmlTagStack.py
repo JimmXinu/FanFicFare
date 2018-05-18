@@ -6,35 +6,35 @@ import codecs
 stack = []
 
 def get_end_tag(tag):
-    if len(tag) > 0 and tag.find(u'<') > -1 and tag.rfind(u'>') > -1:
+    if len(tag) > 0 and tag.find('<') > -1 and tag.rfind('>') > -1:
         return re.sub(r'.*<([^\ >]+).*', r'</\1>', tag)
-    return u''
+    return ''
 
 def get_tag_name(tag):
-    if len(tag) > 0 and tag.find(u'<') > -1 and tag.rfind(u'>') > -1:
+    if len(tag) > 0 and tag.find('<') > -1 and tag.rfind('>') > -1:
         return re.sub(r'</*([^\ >]+).*', r'\1', tag)
-    return u''
+    return ''
 
 def push(tag):
-    if len(tag) > 0 and tag.find(u'<') > -1 and tag.rfind(u'>') > -1:
+    if len(tag) > 0 and tag.find('<') > -1 and tag.rfind('>') > -1:
         stack.append(tag)
 
 def pop():
     if len(stack) > 0:
         return stack.pop()
-    return u''
+    return ''
 
 def pop_end_tag():
-    return unicode(get_end_tag(pop()))
+    return str(get_end_tag(pop()))
 
 def spool_end():
-    html = u''
+    html = ''
     for tag in reversed(stack):
         html += get_end_tag(tag)
     return html
 
 def spool_start():
-    html = u''
+    html = ''
     for item in stack:
         html += item
     return html
@@ -48,7 +48,7 @@ def get_last():
     # return t
     if len(stack) > 0:
         return stack[len(stack)-1]
-    return u''
+    return ''
 
 def flush():
     del stack[:]

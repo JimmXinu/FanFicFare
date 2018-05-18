@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return QafFicComAdapter
@@ -88,7 +88,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -108,7 +108,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -174,7 +174,7 @@ class QafFicComAdapter(BaseSiteAdapter):
                 svalue = ""
                 while value and 'classification' not in defaultGetattr(value,'class'):
                     if "Featured Stories" not in value:
-                        svalue += unicode(value)
+                        svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

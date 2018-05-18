@@ -17,7 +17,7 @@
 
 # Software: eFiction
 import re
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class FanNationAdapter(BaseEfictionAdapter):
 

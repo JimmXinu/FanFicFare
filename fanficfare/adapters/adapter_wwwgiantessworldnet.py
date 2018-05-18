@@ -18,7 +18,7 @@
 ### Adapted by GComyn - November 18, 2016
 ###########################################################################
 # Software: eFiction
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class WWWGiantessworldNetAdapter(BaseEfictionAdapter):
 

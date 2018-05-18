@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 
 from .. import exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tst1')
-        self.crazystring = u"tests:[bare amp(&) qt(&#39;) amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&T) L(&pound;) Onna(女)]"
+        self.crazystring = "tests:[bare amp(&) qt(&#39;) amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&T) L(&pound;) Onna(女)]"
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         self.username=''
@@ -117,12 +117,12 @@ class TestSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(self.url,self.username)
 
         if idstr == '664':
-            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring)
+            self.story.setMetadata('title',"Test Story Title "+idstr+self.crazystring)
             self.story.setMetadata('author','Test Author aa bare amp(&) quote(&#39;) amp(&amp;)')
         else:
-            self.story.setMetadata(u'title',"Test Story Title "+idstr)
+            self.story.setMetadata('title',"Test Story Title "+idstr)
             self.story.setMetadata('author','Test Author aa')
-        self.setDescription(self.url,u'<div>Description '+self.crazystring+u''' Done
+        self.setDescription(self.url,'<div>Description '+self.crazystring+''' Done
 <p>
 Some more longer description.  "I suck at summaries!"  "Better than it sounds!"  "My first fic"
 </div>''')
@@ -230,30 +230,30 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.addToList('warnings','Violence')
 
         if idstr == '80':
-            self.story.addToList('category',u'Rizzoli &amp; Isles')
+            self.story.addToList('category','Rizzoli &amp; Isles')
             self.story.addToList('characters','J. Rizzoli')
         elif idstr == '81':
-            self.story.addToList('category',u'Pitch Perfect')
+            self.story.addToList('category','Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
         elif idstr == '82':
             self.story.addToList('characters','Henry (Once Upon a Time)')
-            self.story.addToList('category',u'Once Upon a Time (TV)')
+            self.story.addToList('category','Once Upon a Time (TV)')
         elif idstr == '83':
-            self.story.addToList('category',u'Rizzoli &amp; Isles')
+            self.story.addToList('category','Rizzoli &amp; Isles')
             self.story.addToList('characters','J. Rizzoli')
-            self.story.addToList('category',u'Pitch Perfect')
+            self.story.addToList('category','Pitch Perfect')
             self.story.addToList('characters','Chloe B.')
             self.story.addToList('ships','Chloe B. &amp; J. Rizzoli')
         elif idstr == '90':
             self.story.setMetadata('characters','Henry (Once Upon a Time)')
-            self.story.setMetadata('category',u'Once Upon a Time (TV)')
+            self.story.setMetadata('category','Once Upon a Time (TV)')
         else:
             self.story.addToList('category','Harry Potter')
             self.story.addToList('category','Furbie')
             self.story.addToList('category','Crossover')
-            self.story.addToList('category',u'Puella Magi Madoka Magica/魔法少女まどか★マギカ')
-            self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
-            self.story.addToList('category',u'Once Upon a Time (TV)')
+            self.story.addToList('category','Puella Magi Madoka Magica/魔法少女まどか★マギカ')
+            self.story.addToList('category','Magical Girl Lyrical Nanoha')
+            self.story.addToList('category','Once Upon a Time (TV)')
             self.story.addToList('characters','Bob Smith')
             self.story.addToList('characters','George Johnson')
             self.story.addToList('characters','Fred Smythe')
@@ -285,7 +285,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.setMetadata('metaB','01245')
         self.story.setMetadata('metaC','The mighty metaC!')
 
-        self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
+        self.chapterUrls = [('Prologue '+self.crazystring,self.url+"&chapter=1"),
                             ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
                             ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
                             ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
@@ -322,7 +322,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             time.sleep(1.0)
 
         if "chapter=1" in url :
-            text=u'''
+            text='''
 <div>
 <h3>Prologue</h3>
 <p>This is a fake adapter for testing purposes.  Different sid's will give different errors:</p>
@@ -345,7 +345,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 </div>
 '''
         elif self.story.getMetadata('storyId') == '0':
-            text=u'''<div>
+            text='''<div>
 <h3>45. Pronglet Returns to Hogwarts: Chapter 7</h3>
 <br />
     eyes… but I’m not convinced we should automatically<br />
@@ -388,12 +388,12 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
 
         else:
-            text=u'''
+            text='''
 <div>
 <h3 extra="value">Chapter title from site</h3>
 <p>chapter URL:'''+url+'''</p>
 <p>Timestamp:'''+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'''</p>
-<p>Lorem '''+self.crazystring+u''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Lorem '''+self.crazystring+''' <i>italics</i>, <b>bold</b>, <u>underline</u> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
 Puella Magi Madoka Magica/魔法少女まどか★マギカ
 <!-- a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a --><br/>

@@ -23,10 +23,10 @@ import json
 import re
 import sys  # ## used for debug purposes
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -88,7 +88,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

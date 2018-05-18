@@ -11,7 +11,7 @@ import re, os, traceback
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
-from StringIO import StringIO
+from io import StringIO
 
 import bs4
 
@@ -78,7 +78,7 @@ def get_update_data(inputio,
             except Exception as e:
                 ## Calibre's Polish Book corrupts sub-book covers.
                 logger.warn("Cover (x)html file %s not found"%href)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warn("Exception: %s"%(str(e)))
 
             try:
                 # remove all .. and the path part above it, if present.
@@ -94,7 +94,7 @@ def get_update_data(inputio,
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
                 logger.warn("Cover Image %s not found"%src)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warn("Exception: %s"%(str(e)))
 
     filecount = 0
     soups = [] # list of xhmtl blocks
@@ -136,9 +136,9 @@ def get_update_data(inputio,
                                 # don't report u'OEBPS/failedtoload',
                                 # it indicates a failed download
                                 # originally.
-                                if newsrc != u'OEBPS/failedtoload':
+                                if newsrc != 'OEBPS/failedtoload':
                                     logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
+                                    logger.warn("Exception: %s"%(str(e)),exc_info=True)
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
@@ -334,7 +334,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                     if h3_tag and h3_tag.string == chaptertitle:
                         h3_tag.string.replace_with(chapterorigtitle)
 
-                    data = unicode(soup)
+                    data = str(soup)
 
                     entrychanged = ( origdata != data )
                     changed = changed or entrychanged
@@ -356,7 +356,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                 # possibly binary data, thus no .encode().
                 outputepub.writestr(zf,data)
 
-    for tocnm, tocdom in unmerge_tocncxdoms.items():
+    for tocnm, tocdom in list(unmerge_tocncxdoms.items()):
         outputepub.writestr(tocnm,tocdom.toxml(encoding='utf-8'))
 
     outputepub.writestr('toc.ncx',tocncxdom.toxml(encoding='utf-8'))
@@ -368,7 +368,7 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     # only *actually* write if changed.
     if changed:
-        if isinstance(outfile,basestring):
+        if isinstance(outfile,str):
             with open(outfile,"wb") as outputio:
                 outputio.write(zipio.getvalue())
         else:
@@ -407,7 +407,7 @@ def make_soup(data):
     ## soup and re-soup because BS4/html5lib is more forgiving of
     ## incorrectly nested tags that way.
     soup = bs4.BeautifulSoup(data,'html5lib')
-    soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+    soup = bs4.BeautifulSoup(str(soup),'html5lib')
 
     for ns in soup.find_all('fff_hide_noscript'):
         ns.name = 'noscript'

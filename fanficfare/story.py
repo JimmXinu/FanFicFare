@@ -17,7 +17,7 @@
 
 import os, re
 from collections import namedtuple
-import urlparse
+import urllib.parse
 import string
 import json
 import datetime
@@ -25,18 +25,18 @@ from math import floor
 from functools import partial
 import logging
 logger = logging.getLogger(__name__)
-import urlparse as up
+import urllib.parse as up
 
 import bs4
 
-import exceptions
-from htmlcleanup import conditionalRemoveEntities, removeAllEntities
-from configurable import Configurable, re_compile
+from . import exceptions
+from .htmlcleanup import conditionalRemoveEntities, removeAllEntities
+from .configurable import Configurable, re_compile
 
 Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
 
-SPACE_REPLACE=u'\s'
-SPLIT_META=u'\,'
+SPACE_REPLACE='\s'
+SPLIT_META='\,'
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none
@@ -51,7 +51,7 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from StringIO import StringIO
+    from io import StringIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
@@ -80,7 +80,7 @@ try:
 
         if removetrans and img.has_transparent_pixels():
             canvas = Image()
-            canvas.create_canvas(int(img.size[0]), int(img.size[1]), unicode(background))
+            canvas.create_canvas(int(img.size[0]), int(img.size[1]), str(background))
             canvas.compose(img)
             img = canvas
             export = True
@@ -100,7 +100,7 @@ except:
     # No calibre routines, try for PIL for CLI.
     try:
         import Image
-        from StringIO import StringIO
+        from io import StringIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
@@ -254,59 +254,59 @@ langs = {
 
     ## These are from/for AO3:
 
-    u'العربية':'ar',
-    u'беларуская':'be',
-    u'Български език':'bg',
-    u'Català':'ca',
-    u'Čeština':'cs',
-    u'Cymraeg':'cy',
-    u'Dansk':'da',
-    u'Deutsch':'de',
-    u'Ελληνικά':'el',
-    u'English':'en',
-    u'Esperanto':'eo',
-    u'Español':'es',
-    u'eesti keel':'et',
-    u'فارسی':'fa',
-    u'Suomi':'fi',
-    u'Wikang Filipino':'fil',
-    u'Français':'fr',
-    u'Gaeilge':'ga',
-    u'Gàidhlig':'gd',
-    u'עִבְרִית':'he',
-    u'हिन्दी':'hi',
-    u'Hrvatski':'hr',
-    u'Magyar':'hu',
-    u'Bahasa Indonesia':'id',
-    u'Íslenska':'is',
-    u'Italiano':'it',
-    u'日本語':'ja',
-    u'한국말':'ko',
-    u'Lingua latina':'la',
-    u'Lietuvių':'lt',
-    u'Latviešu valoda':'lv',
-    u'मराठी':'mr',
-    u'بهاس ملايو ':'ms',
-    u'Nederlands':'nl',
-    u'Norsk':'no',
-    u'ਪੰਜਾਬੀ':'pa',
-    u'Polski':'pl',
-    u'Português':'pt',
-    u'Quenya':'qya',
-    u'Română':'ro',
-    u'Русский':'ru',
-    u'Slovenčina':'sk',
-    u'Shqip':'sq',
-    u'српски':'sr',
-    u'Svenska':'sv',
-    u'ไทย':'th',
-    u'tlhIngan-Hol':'tlh', # Klingon. Has a real ISO 639-2 code.
+    'العربية':'ar',
+    'беларуская':'be',
+    'Български език':'bg',
+    'Català':'ca',
+    'Čeština':'cs',
+    'Cymraeg':'cy',
+    'Dansk':'da',
+    'Deutsch':'de',
+    'Ελληνικά':'el',
+    'English':'en',
+    'Esperanto':'eo',
+    'Español':'es',
+    'eesti keel':'et',
+    'فارسی':'fa',
+    'Suomi':'fi',
+    'Wikang Filipino':'fil',
+    'Français':'fr',
+    'Gaeilge':'ga',
+    'Gàidhlig':'gd',
+    'עִבְרִית':'he',
+    'हिन्दी':'hi',
+    'Hrvatski':'hr',
+    'Magyar':'hu',
+    'Bahasa Indonesia':'id',
+    'Íslenska':'is',
+    'Italiano':'it',
+    '日本語':'ja',
+    '한국말':'ko',
+    'Lingua latina':'la',
+    'Lietuvių':'lt',
+    'Latviešu valoda':'lv',
+    'मराठी':'mr',
+    'بهاس ملايو ':'ms',
+    'Nederlands':'nl',
+    'Norsk':'no',
+    'ਪੰਜਾਬੀ':'pa',
+    'Polski':'pl',
+    'Português':'pt',
+    'Quenya':'qya',
+    'Română':'ro',
+    'Русский':'ru',
+    'Slovenčina':'sk',
+    'Shqip':'sq',
+    'српски':'sr',
+    'Svenska':'sv',
+    'ไทย':'th',
+    'tlhIngan-Hol':'tlh', # Klingon. Has a real ISO 639-2 code.
     #'Thermian':'', # Alien language from Galaxy Quest.
-    u'Türkçe':'fr',
-    u'українська':'uk',
-    u'Tiếng Việt':'vi',
-    u'中文':'zh',
-    u'Bahasa Malaysia':'zsm',
+    'Türkçe':'fr',
+    'українська':'uk',
+    'Tiếng Việt':'vi',
+    '中文':'zh',
+    'Bahasa Malaysia':'zsm',
 }
 
 class InExMatch:
@@ -332,7 +332,7 @@ class InExMatch:
             (self.keys,self.match) = line.split("!=")
             self.match = self.match.replace(SPACE_REPLACE,' ')
             self.negate = True
-        self.keys = map( lambda x: x.strip(), self.keys.split(",") )
+        self.keys = [x.strip() for x in self.keys.split(",")]
 
     # For conditional, only one key
     def is_key(self,key):
@@ -366,7 +366,7 @@ class InExMatch:
             s='~'
         else:
             s='='
-        return u'InExMatch(%s %s%s %s)'%(self.keys,f,s,self.match)
+        return 'InExMatch(%s %s%s %s)'%(self.keys,f,s,self.match)
 
 ## metakey[,metakey]=~pattern
 ## metakey[,metakey]==string
@@ -406,7 +406,7 @@ def make_replacements(replace):
             if "=>" in line:
                 parts = line.split("=>")
                 if len(parts) > 2:
-                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    metakeys = [x.strip() for x in parts[0].split(",")]
                     (regexp,replacement)=parts[1:]
                 else:
                     (regexp,replacement)=parts
@@ -488,7 +488,7 @@ class Story(Configurable):
         self.chapter_last=last
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
+        return self.getConfig("join_string_"+key,", ").replace(SPACE_REPLACE,' ').join(map(str, [ x for x in vallist if x is not None ]))
 
     def setMetadata(self, key, value, condremoveentities=True):
 
@@ -546,7 +546,7 @@ class Story(Configurable):
                         # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
                         #         match,value,condmatch,condval,keyfound,found))
                     if keyfndnow:
-                        found = isinstance(value,basestring) and match.is_match(value)
+                        found = isinstance(value,str) and match.is_match(value)
                     if found:
                         # print("match:%s %s\n\tkeyfndnow:%s\n\tfound:%s"%(
                         #         match,value,keyfndnow,found))
@@ -572,7 +572,7 @@ class Story(Configurable):
             #print("replacement tuple:%s"%replaceline)
             (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
-                    and isinstance(value,basestring) \
+                    and isinstance(value,str) \
                     and regexp.search(value):
                 doreplace=True
                 if condkey and condkey != key: # prevent infinite recursion.
@@ -608,8 +608,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
-            retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
+            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist))
 
         if return_list:
             return retlist
@@ -619,7 +619,7 @@ class Story(Configurable):
     # for saving an html-ified copy of metadata.
     def dump_html_metadata(self):
         lines=[]
-        for k,v in sorted(self.metadata.iteritems()):
+        for k,v in sorted(self.metadata.items()):
             classes=['metadata']
             if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
                 classes.append("datetime")
@@ -671,7 +671,7 @@ class Story(Configurable):
             elif 'int' in tag['class']:
                 val = int(tag.string)
             else:
-                val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
+                val = str("\n".join([ str(c) for c in tag.contents ]))
 
             #logger.debug("key(%s)=val(%s)"%(tag['id'],val))
             if val:
@@ -689,7 +689,7 @@ class Story(Configurable):
         return value
 
     def getMetadataRaw(self,key):
-        if self.isValidMetaEntry(key) and self.metadata.has_key(key):
+        if self.isValidMetaEntry(key) and key in self.metadata:
             return self.metadata[key]
 
     def getMetadata(self, key,
@@ -711,12 +711,12 @@ class Story(Configurable):
             value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
-        elif self.metadata.has_key(key):
+        elif key in self.metadata:
             value = self.metadata[key]
             if value:
                 if key in ["numWords","numChapters"]+self.getConfigList("comma_entries",[]):
                     try:
-                        value = commaGroups(unicode(value))
+                        value = commaGroups(str(value))
                     except Exception as e:
                         logger.warn("Failed to add commas to %s value:(%s) exception(%s)"%(key,value,e))
                 if key in ("dateCreated"):
@@ -867,7 +867,7 @@ class Story(Configurable):
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
         return self.isListType(listname) or \
-            ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
+            ( self.isValidMetaEntry(listname) and listname in self.metadata \
                   and isinstance(self.metadata[listname],list) )
 
     def getList(self,listname,
@@ -947,9 +947,9 @@ class Story(Configurable):
                     retlist = newretlist
 
                 if removeallentities:
-                    retlist = map(removeAllEntities,retlist)
+                    retlist = list(map(removeAllEntities,retlist))
 
-                retlist = filter( lambda x : x!=None and x!='' ,retlist)
+                retlist = [x for x in retlist if x!=None and x!='']
 
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
@@ -983,7 +983,7 @@ class Story(Configurable):
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
 
         # metadata all go into dc:subject tags, but only if they are configured.
-        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
+        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).items():
             if name+'.SPLIT' in tags_list:
                 flist=[]
                 if isinstance(value,list):
@@ -1076,7 +1076,7 @@ class Story(Configurable):
             pattern = re_compile(self.getConfig("output_filename_safepattern",
                                                 r"(^\.|/\.|[^a-zA-Z0-9_\. \[\]\(\)&'-]+)"),
                                  "output_filename_safepattern")
-        for k in origvalues.keys():
+        for k in list(origvalues.keys()):
             if k == 'formatext': # don't do file extension--we set it anyway.
                 values[k]=self.getMetadata(k)
             else:
@@ -1119,15 +1119,15 @@ class Story(Configurable):
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
-            parsedUrl = urlparse.urlparse(parenturl)
+            parsedUrl = urllib.parse.urlparse(parenturl)
             if url.startswith("//") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      '',
                      url,
                      '','',''))
             elif url.startswith("/") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      url,
@@ -1138,7 +1138,7 @@ class Story(Configurable):
                     toppath = parsedUrl.path
                 else:
                     toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                imgurl = urlparse.urlunparse(
+                imgurl = urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      toppath + url,
@@ -1157,14 +1157,14 @@ class Story(Configurable):
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
 
-                parsedUrl = urlparse.urlparse(imgurl)
+                parsedUrl = urllib.parse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl,referer=parenturl))
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
-                    except Exception, e:
+                    except Exception as e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
                     grayscale = self.getConfig('grayscale_images')
                     imgtype = self.getConfig('convert_images_to')
@@ -1181,7 +1181,7 @@ class Story(Configurable):
                                                     removetrans,
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
-            except Exception, e:
+            except Exception as e:
                 logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
@@ -1235,7 +1235,7 @@ class Story(Configurable):
         return retlist
 
     def __str__(self):
-        return "Metadata: " +unicode(self.metadata)
+        return "Metadata: " +str(self.metadata)
 
 def commaGroups(s):
     groups = []

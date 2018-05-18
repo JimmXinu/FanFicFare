@@ -17,7 +17,7 @@
 
 import logging
 logger = logging.getLogger(__name__)
-from adapter_storiesonlinenet import StoriesOnlineNetAdapter
+from .adapter_storiesonlinenet import StoriesOnlineNetAdapter
 
 def getClass():
     return FineStoriesComAdapter

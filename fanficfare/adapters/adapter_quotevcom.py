@@ -1,12 +1,12 @@
 #  -*- coding: utf-8 -*-
 
 import re
-import urlparse
-import urllib2
+import urllib.parse
+import urllib.request, urllib.error, urllib.parse
 import datetime
 
 from .. import exceptions
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 
 SITE_DOMAIN = 'quotev.com'
@@ -18,7 +18,7 @@ def getClass():
 
 
 def get_url_path_segments(url):
-    return tuple(filter(None, url.split('/')[3:]))
+    return tuple([_f for _f in url.split('/')[3:] if _f])
 
 
 class QuotevComAdapter(BaseSiteAdapter):
@@ -51,7 +51,7 @@ class QuotevComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         try:
             data = self._fetchUrl(self.url)
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             else:
@@ -68,11 +68,11 @@ class QuotevComAdapter(BaseSiteAdapter):
         
         authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
-            print("div:%s"%authdiv)
+            print(("div:%s"%authdiv))
             for a in authdiv.find_all('a'):
                 self.story.addToList('author', a.get_text())
                 self.story.addToList('authorId', a['href'].split('/')[-1])
-                self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
+                self.story.addToList('authorUrl', urllib.parse.urljoin(self.url, a['href']))
         if not self.story.getList('author'):
             self.story.addToList('author','Anonymous')
             self.story.addToList('authorUrl','http://www.quotev.com')
@@ -81,7 +81,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         self.setDescription(self.url, soup.find('div', id='qdesct'))
         imgmeta = soup.find('meta',{'property':"og:image" })
         if imgmeta:
-            self.coverurl = self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))[1]
+            self.coverurl = self.setCoverImage(self.url, urllib.parse.urljoin(self.url, imgmeta['content']))[1]
 
         for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/stories/c/')}):
             self.story.addToList('category', a.get_text())
@@ -96,12 +96,12 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         metadiv = elements[0].parent.parent
         # print stripHTML(metadiv)
-        if u'· completed ·' in stripHTML(metadiv):
+        if '· completed ·' in stripHTML(metadiv):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')        
 
-        data = filter(None, (x.strip() for x in stripHTML(metadiv).split(u'\xb7')))
+        data = [_f for _f in (x.strip() for x in stripHTML(metadiv).split('\xb7')) if _f]
 
         for datum in data:
             parts = datum.split()
@@ -122,7 +122,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         for a in soup.find('div', id='rselect')('a'):
             if 'javascript' not in a['href']:
-                self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
+                self.chapterUrls.append((a.get_text(), urllib.parse.urljoin(self.url, a['href'])))
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))
         

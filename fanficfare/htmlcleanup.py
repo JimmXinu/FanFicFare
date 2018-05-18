@@ -30,7 +30,7 @@ def _unirepl(match):
         s = match.group(1)
     try:
         value = int(s, radix)
-        retval = "%s%s"%(unichr(value),match.group(2))
+        retval = "%s%s"%(chr(value),match.group(2))
     except:
         # This way, at least if there's more of entities out there
         # that fail, it doesn't blow the entire download.
@@ -56,14 +56,14 @@ def _replaceNotEntities(data):
     return p.sub(r'&\1', data)
 
 def stripHTML(soup):
-    if isinstance(soup,basestring) or hasattr(soup, 'bs3'):
+    if isinstance(soup,str) or hasattr(soup, 'bs3'):
         return removeAllEntities(re.sub(r'<[^>]+>','',"%s" % soup)).strip()
     else:
         # bs4 already converts all the entities to UTF8 chars.
         return soup.get_text(strip=True)
 
 def conditionalRemoveEntities(value):
-    if isinstance(value,basestring):
+    if isinstance(value,str):
         return removeEntities(value).strip()
     else:
         return value
@@ -74,17 +74,17 @@ def removeAllEntities(text):
 
 def removeEntities(text, space_only=False):
     if text is None:
-        return u""
+        return ""
     
-    if not isinstance(text,basestring):
-        return unicode(text)
+    if not isinstance(text,str):
+        return str(text)
     
     try:
         t = text.decode('utf-8')
-    except (UnicodeEncodeError,UnicodeDecodeError), e:
+    except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 
-        except (UnicodeEncodeError,UnicodeDecodeError), e:
+        except (UnicodeEncodeError,UnicodeDecodeError) as e:
             t = text
     text = t 
     # replace numeric versions of [&<>] with named versions,
@@ -106,7 +106,7 @@ def removeEntities(text, space_only=False):
             continue
         try:
             text = text.replace(e, v)
-        except UnicodeDecodeError, ex:
+        except UnicodeDecodeError as ex:
             # for the pound symbol in constants.py
             text = text.replace(e, v.decode('utf-8'))
 

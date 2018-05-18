@@ -19,7 +19,7 @@
 ###################################################################################################
 
 # Software: eFiction
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class SebklaineNeteOrgSiteAdapter(BaseEfictionAdapter):
 

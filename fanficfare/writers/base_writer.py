@@ -19,7 +19,7 @@ import re
 import os.path
 import datetime
 import string
-import StringIO
+import io
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
@@ -213,7 +213,7 @@ class BaseStoryWriter(Configurable):
                                                  # above, it will only
                                                  # fetch once.
         if self.getConfig('zip_output'):
-            out = StringIO.StringIO()
+            out = io.StringIO()
             self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
             self.zipout.writestr(self.getBaseFileName(),out.getvalue())

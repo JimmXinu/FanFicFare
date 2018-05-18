@@ -21,10 +21,10 @@
 import logging
 import re
 import sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from datetime import datetime, timedelta
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
@@ -101,7 +101,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

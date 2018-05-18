@@ -20,7 +20,7 @@ import string
 
 import bs4
 
-from base_writer import *
+from .base_writer import *
 
 class HTMLWriter(BaseStoryWriter):
 
@@ -107,7 +107,7 @@ ${output_css}
         self._write(out,FILE_START.substitute(self.story.getAllMetadata()))
 
         if self.getConfig('include_images') and self.story.cover:
-            self._write(out,COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
+            self._write(out,COVER.substitute(dict(list(self.story.getAllMetadata().items())+list({'coverimg':self.story.cover}.items()))))
 
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
@@ -150,7 +150,7 @@ ${output_css}
                             alink['href']=chapurlmap[alink['href']]
                             changed=True
                     if changed:
-                        chap_data = unicode(soup)
+                        chap_data = str(soup)
                         # Don't want html, head or body tags in
                         # chapter html--bs4 insists on adding them.
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)

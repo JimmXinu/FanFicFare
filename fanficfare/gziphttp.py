@@ -1,10 +1,10 @@
 ## Borrowed from http://techknack.net/python-urllib2-handlers/
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from gzip import GzipFile
-from StringIO import StringIO
+from io import StringIO
 
-class GZipProcessor(urllib2.BaseHandler):
+class GZipProcessor(urllib.request.BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests
     """
     def http_request(self, req):

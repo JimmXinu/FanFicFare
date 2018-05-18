@@ -19,14 +19,14 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
-import httplib, urllib
+import http.client, urllib.request, urllib.parse, urllib.error
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FicwadComSiteAdapter(BaseSiteAdapter):
 
@@ -96,7 +96,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             if "<h4>Featured Story</h4>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -118,7 +118,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             self._setURL(url)
             try:
                 soup = self.make_soup(self._fetchUrl(url))
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
@@ -162,7 +162,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         ## perhaps not the most efficient way to parse this, using
         ## regexps for each rather than something more complex, but
         ## IMO, it's more readable and amenable to change.
-        metastr = stripHTML(unicode(metap)).replace('\n',' ').replace('\t',' ').replace(u'\u00a0',' ')
+        metastr = stripHTML(str(metap)).replace('\n',' ').replace('\t',' ').replace('\u00a0',' ')
 
         m = re.match(r".*?Rating: (.+?) -.*?",metastr)
         if m:
@@ -212,7 +212,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 else:
                     #print "chapterli.h4.a (%s)"%chapterli.h4.a
                     self.chapterUrls.append((chapterli.h4.a.string,
-                                             u'https://%s%s'%(self.getSiteDomain(),
+                                             'https://%s%s'%(self.getSiteDomain(),
                                                              chapterli.h4.a['href'])))
         #print "self.chapterUrls:%s"%self.chapterUrls
         self.story.setMetadata('numChapters',len(self.chapterUrls))

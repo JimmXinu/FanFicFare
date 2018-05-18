@@ -19,8 +19,8 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import urlparse
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 import time
 import os
 
@@ -28,7 +28,7 @@ from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 class MCStoriesComSiteAdapter(BaseSiteAdapter):
 
@@ -86,7 +86,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -101,7 +101,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
 
         # Author
         author = soup1.find('h3', class_='byline').a
-        authorurl = urlparse.urljoin(self.url, author['href'])
+        authorurl = urllib.parse.urljoin(self.url, author['href'])
         self.story.setMetadata('author', author.text)
         self.story.setMetadata('authorUrl', authorurl)
         authorid = os.path.splitext(os.path.basename(authorurl))[0]
@@ -143,13 +143,13 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
                 if chapterCell is not None:
                     link = chapterCell.a
                     chapterTitle = link.text
-                    chapterUrl = urlparse.urljoin(self.url, link['href'])
+                    chapterUrl = urllib.parse.urljoin(self.url, link['href'])
                     self.chapterUrls.append((chapterTitle, chapterUrl))
         else:
             # Single chapter
             chapterDiv = soup1.find('div', class_='chapter')
             chapterTitle = chapterDiv.a.text
-            chapterUrl = urlparse.urljoin(self.url, chapterDiv.a['href'])
+            chapterUrl = urllib.parse.urljoin(self.url, chapterDiv.a['href'])
             self.chapterUrls = [(chapterTitle, chapterUrl)]
 
         self.story.setMetadata('numChapters', len(self.chapterUrls))

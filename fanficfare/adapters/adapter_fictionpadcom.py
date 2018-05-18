@@ -19,7 +19,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import json
 
@@ -27,7 +27,7 @@ import json
 #from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FictionPadSiteAdapter(BaseSiteAdapter):
 
@@ -123,7 +123,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             data = data[:data.rindex(";")]
             data = data.replace('tables:','"tables":')
             tables = json.loads(data)['tables']
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -161,7 +161,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         self.story.setMetadata('rating', story_ver['maturity_level'])
-        self.story.setMetadata('numWords', unicode(story_ver['word_count']))
+        self.story.setMetadata('numWords', str(story_ver['word_count']))
 
         for i in tables['fandoms']:
             self.story.addToList('category',i['name'])
@@ -183,10 +183,10 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
         if not url:
-            data = u"<em>This chapter has no text.</em>"
+            data = "<em>This chapter has no text.</em>"
         else:
             data = self._fetchUrl(url)
-        soup = self.make_soup(u"<div id='story'>"+data+u"</div>")
+        soup = self.make_soup("<div id='story'>"+data+"</div>")
         return self.utf8FromSoup(url,soup)
 
 def getClass():
