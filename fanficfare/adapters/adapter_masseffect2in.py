@@ -19,11 +19,11 @@ import bs4
 import datetime
 import logging
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 
 _logger = logging.getLogger(__name__)
@@ -55,9 +55,9 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         3) editor signatures an an option to remove them.
     """
 
-    WORD_PATTERN = re.compile(u'\w+', re.UNICODE)
-    DOCUMENT_ID_PATTERN = re.compile(u'\d+-\d+-\d+-\d+')
-    SITE_LANGUAGE = u'Russian'
+    WORD_PATTERN = re.compile('\w+', re.UNICODE)
+    DOCUMENT_ID_PATTERN = re.compile('\d+-\d+-\d+-\d+')
+    SITE_LANGUAGE = 'Russian'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -77,7 +77,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return u' '.join([cls._makeDocumentUrl('19-1-0-1234'),
+        return ' '.join([cls._makeDocumentUrl('19-1-0-1234'),
                           cls._makeDocumentUrl('24-1-0-4321')])
 
     def getSiteURLPattern(self):
@@ -114,7 +114,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
         try:
             startingChapter = self._makeChapter(self.url)
-        except urllib2.HTTPError, error:
+        except urllib.error.HTTPError as error:
             if error.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             raise
@@ -135,7 +135,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         largestCommonPrefix = _getLargestCommonPrefix(*headings)
         prefixLength = len(largestCommonPrefix)
         storyTitleEnd, chapterTitleStart = prefixLength, prefixLength
-        match = re.search(u'[:.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
+        match = re.search('[:.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
         if match:
             storyTitleEnd -= len(match.group())
             label = match.group('chapter')
@@ -144,12 +144,12 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         storyTitle = largestCommonPrefix[:storyTitleEnd]
         self.story.setMetadata('title', storyTitle)
 
-        garbagePattern = re.compile(u'(?P<start>^)?[:.\s]*(?(start)|$)', re.UNICODE)
+        garbagePattern = re.compile('(?P<start>^)?[:.\s]*(?(start)|$)', re.UNICODE)
 
         for chapter in chapters:
             url = chapter.getUrl()
             self._chapters[url] = chapter
-            _logger.debug(u"Processing chapter `%s'.", url)
+            _logger.debug("Processing chapter `%s'.", url)
 
             try:
                 authorName = chapter.getAuthorName()
@@ -159,8 +159,8 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                     if authorId:
                         authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
                     else:
-                        authorId = u''
-                        authorUrl = u''
+                        authorId = ''
+                        authorUrl = ''
                     self.story.extendList('authorId', [authorId])
                     self.story.extendList('authorUrl', [authorUrl])
 
@@ -196,16 +196,16 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                     if warning:
                         self.story.extendList('warnings', [warning])
 
-                chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
+                chapterTitle = re.sub(garbagePattern, '', chapter.getHeading()[chapterTitleStart:])
                 self.chapterUrls.append((chapterTitle, url))
-            except ParsingError, error:
-                raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
+            except ParsingError as error:
+                raise exceptions.FailedToDownload("Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
         self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
-        self.story.setMetadata('numWords', unicode(wordCount))
+        self.story.setMetadata('numWords', str(wordCount))
         self.story.setMetadata('numChapters', len(chapters))
 
         # Site-specific metadata.
@@ -214,7 +214,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         """Grabs the text for an individual chapter."""
         if url not in self._chapters:
-            raise exceptions.FailedToDownload(u"No chapter `%s' present!" % url)
+            raise exceptions.FailedToDownload("No chapter `%s' present!" % url)
         chapter = self._chapters[url]
         return self.utf8FromSoup(url, chapter.getTextElement())
 
@@ -237,7 +237,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             adultRatings = self.getConfigList('adult_ratings')
             if not adultRatings:
                 raise exceptions.PersonalIniFailed(
-                    u"Missing `adult_ratings' setting", u"MassEffect2.in", u"?")
+                    "Missing `adult_ratings' setting", "MassEffect2.in", "?")
             adultRatings = set(adultRatings)
             self._parsingConfiguration['adultRatings'] = adultRatings
 
@@ -245,10 +245,10 @@ class MassEffect2InAdapter(BaseSiteAdapter):
             if ratingTitleDescriptions:
                 ratingTitles = {}
                 for ratingDescription in ratingTitleDescriptions:
-                    parts = ratingDescription.split(u'=')
+                    parts = ratingDescription.split('=')
                     if len(parts) < 2:
                         _logger.warning(
-                            u"Invalid `rating_titles' setting, missing `=' in `%s'."
+                            "Invalid `rating_titles' setting, missing `=' in `%s'."
                             % ratingDescription)
                         continue
                     labels = parts[:-1]
@@ -262,7 +262,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 self._parsingConfiguration['ratingTitles'] = ratingTitles
             else:
                 raise exceptions.PersonalIniFailed(
-                    u"Missing `rating_titles' setting", u"MassEffect2.in", u"?")
+                    "Missing `rating_titles' setting", "MassEffect2.in", "?")
 
             self._parsingConfiguration['excludeEditorSignature'] = \
                 self.getConfig('exclude_editor_signature', False)
@@ -273,7 +273,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         """Extract document ID from MassEffect2.in URL."""
         match = re.search(self.DOCUMENT_ID_PATTERN, url)
         if not match:
-            raise ValueError(u"Failed to extract document ID from `'" % url)
+            raise ValueError("Failed to extract document ID from `'" % url)
         documentId = url[match.start():match.end()]
         return documentId
 
@@ -357,12 +357,12 @@ class Chapter(object):
         return self._getTextElement()
 
     def getPreviousChapterUrl(self):
-        link = self._document.find('a', {'title': u'Предыдущая глава'})
+        link = self._document.find('a', {'title': 'Предыдущая глава'})
         if link:
             return link['href']
 
     def getNextChapterUrl(self):
-        link = self._document.find('a', {'title': u'Следующая глава'})
+        link = self._document.find('a', {'title': 'Следующая глава'})
         if link:
             return link['href']
 
@@ -373,7 +373,7 @@ class Chapter(object):
         optimum, zero inhibits the check, and positive value adjusts threshold."""
 
         def getFirstWord(string):
-            match = re.search(u'^\s*\w+', string, re.UNICODE)
+            match = re.search('^\s*\w+', string, re.UNICODE)
             return string[match.start():match.end()]
 
         thisStoryTitle = self.getHeading()
@@ -419,10 +419,10 @@ class Chapter(object):
                 .find('span', {'class': 'glyphicon-user'}) \
                 .findNextSibling('a')
         except AttributeError:
-            raise ParsingError(u'Failed to locate author link.')
-        match = re.search(u'(8-\d+)', authorLink['onclick'])
+            raise ParsingError('Failed to locate author link.')
+        match = re.search('(8-\d+)', authorLink['onclick'])
         if not match:
-            raise ParsingError(u'Failed to extract author ID.')
+            raise ParsingError('Failed to extract author ID.')
         authorId = match.group(0)
         authorName = stripHTML(authorLink.text)
         return {
@@ -440,10 +440,10 @@ class Chapter(object):
         """Locate and parse chapter date."""
         try:
             dateText = self._document.find('time', {'itemprop': 'dateCreated'}).text
-            dateText = dateText.replace(u'\n', u'')
+            dateText = dateText.replace('\n', '')
             dateText = dateText.strip()
         except AttributeError:
-            raise ParsingError(u'Failed to locate date.')
+            raise ParsingError('Failed to locate date.')
 
         # The site uses Europe/Moscow (MSK, UTC+0300) server time.
         def todayInMoscow():
@@ -452,9 +452,9 @@ class Chapter(object):
             return today
 
         def parseDateText(text):
-            if text == u'Вчера':
+            if text == 'Вчера':
                 return todayInMoscow() - datetime.timedelta(days=1)
-            elif text == u'Сегодня':
+            elif text == 'Сегодня':
                 return todayInMoscow()
             else:
                 return makeDate(text, '%d.%m.%Y, %H:%M')
@@ -467,7 +467,7 @@ class Chapter(object):
         if not self._infoBar:
             self._infoBar = self._document.find('td', {'class': 'eDetails2'})
             if not self._infoBar:
-                raise ParsingError(u'No informational bar found.')
+                raise ParsingError('No informational bar found.')
         return self._infoBar
 
     def __getAttributes(self):
@@ -480,7 +480,7 @@ class Chapter(object):
         """Parse chapter attribute block and return it as a dictionary with standard entries."""
 
         attributes = {}
-        attributesText = u''
+        attributesText = ''
         try:
             starter = self._document.find('div', {'class': 'gad'})
             for item in starter.nextSiblingGenerator():
@@ -491,12 +491,12 @@ class Chapter(object):
 
             def processElement(element):
                 """Return textual representation an *inline* element of chapter attribute block."""
-                result = u''
+                result = ''
                 if isinstance(element, bs4.Tag):
                     if element.name == 'br':
-                        result += u"\n"
+                        result += "\n"
                     elif element.name == 's':
-                        result += u"<s>%s</s>" % stripHTML(element)
+                        result += "<s>%s</s>" % stripHTML(element)
                     else:
                         result += stripHTML(element)
                 else:
@@ -510,7 +510,7 @@ class Chapter(object):
                         break
                     else:
                         if element.name in ('div', 'p'):
-                            attributesText += u"\n"
+                            attributesText += "\n"
                             for child in element.childGenerator():
                                 attributesText += processElement(child)
                             continue
@@ -527,19 +527,19 @@ class Chapter(object):
                             attributes['rating'] = rating
                             break
         except AttributeError or TypeError:
-            raise ParsingError(u'Failed to locate and collect attributes.')
+            raise ParsingError('Failed to locate and collect attributes.')
 
-        separators = u"\r\n :;."
-        freestandingText = u''
-        for line in attributesText.split(u'\n'):
-            if line.count(u':') != 1:
+        separators = "\r\n :;."
+        freestandingText = ''
+        for line in attributesText.split('\n'):
+            if line.count(':') != 1:
                 freestandingText += line
                 continue
-            key, value = line.split(u':', 1)
+            key, value = line.split(':', 1)
             key = key.strip(separators).lower()
             value = value.strip().strip(separators)
             parsed = self._parseAttribute(key, value)
-            for parsedKey, parsedValue in parsed.iteritems():
+            for parsedKey, parsedValue in parsed.items():
                 attributes[parsedKey] = parsedValue
 
         freestandingText = freestandingText.strip()
@@ -547,12 +547,12 @@ class Chapter(object):
             attributes['summary'] = freestandingText
 
         if 'rating' not in attributes:
-            _logger.warning(u"Failed to locate or recognize rating for `%s'!", self.getUrl())
+            _logger.warning("Failed to locate or recognize rating for `%s'!", self.getUrl())
 
         return attributes
 
     # Most, but not all, URLs of rating icons match this.
-    RATING_LABEL_PATTERN = re.compile(u'/(?P<rating>[ERATINnG]+)\.png$')
+    RATING_LABEL_PATTERN = re.compile('/(?P<rating>[ERATINnG]+)\.png$')
 
     def _parseRatingFromImage(self, element):
         """Given an image element, try to parse story rating from it."""
@@ -571,7 +571,7 @@ class Chapter(object):
                     'isAdult': label in self._configuration['adultRatings']
                 }
             else:
-                _logger.warning(u"No title found for rating label `%s'!" % label)
+                _logger.warning("No title found for rating label `%s'!" % label)
         # TODO: conduct a research on such abnormal URLs.
         elif source == 'http://www.masseffect2.in/_fr/10/1360399.png':
             label = 'Nn'
@@ -584,7 +584,7 @@ class Chapter(object):
     # Various `et cetera' and `et al' forms in Russian texts.
     # Intended to be used with whole strings!
     ETC_PATTERN = re.compile(
-        u'''[и&]\s(?:
+        '''[и&]\s(?:
               (?:т\.?\s?[пд]?\.?)|
               (?:др(?:угие|\.)?)|
               (?:пр(?:очие|\.)?)|
@@ -596,7 +596,7 @@ class Chapter(object):
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
 
     # `Author's Notes' and its variants in Russian.
-    ANNOTATION_PATTERN = re.compile(u'аннотация|описание|(?:(?:за|при)мечание\s)?(?:от\s)?автора', re.UNICODE)
+    ANNOTATION_PATTERN = re.compile('аннотация|описание|(?:(?:за|при)мечание\s)?(?:от\s)?автора', re.UNICODE)
 
     def _parseAttribute(self, key, value):
         """
@@ -607,23 +607,23 @@ class Chapter(object):
         def refineCharacter(name):
             """Refines character name from stop-words and distortions."""
             strippedName = name.strip()
-            nameOnly = re.sub(self.ETC_PATTERN, u'', strippedName)
+            nameOnly = re.sub(self.ETC_PATTERN, '', strippedName)
             # TODO: extract canonical name (even ME-specific?).
             canonicalName = nameOnly
             return canonicalName
 
-        if re.match(u'жанры?', key, re.UNICODE):
-            genres = filter(bool, map(unicode.strip, re.split(u'[,;/]', value)))
+        if re.match('жанры?', key, re.UNICODE):
+            genres = list(filter(bool, list(map(str.strip, re.split('[,;/]', value)))))
             return {'genres': genres}
-        elif key == u'статус':
-            isInProgress = value == u'в процессе'
+        elif key == 'статус':
+            isInProgress = value == 'в процессе'
             return {'isInProgress': isInProgress}
-        elif key == u'персонажи':
-            participants = map(refineCharacter, re.split(u'[,;]', value))
+        elif key == 'персонажи':
+            participants = list(map(refineCharacter, re.split('[,;]', value)))
             characters = []
             pairings = []
             for participant in participants:
-                if u'/' in participant:
+                if '/' in participant:
                     pairings.append(participant)
                 else:
                     characters.append(participant)
@@ -631,16 +631,16 @@ class Chapter(object):
                 'characters': characters,
                 'pairings': pairings
             }
-        elif key == u'предупреждение':
+        elif key == 'предупреждение':
             return {'warning': value}
         elif re.match(self.ANNOTATION_PATTERN, key):
-            if not value.endswith(u'.'):
-                value += u'.'
+            if not value.endswith('.'):
+                value += '.'
             # Capitalize would make value[1:] lowercase, which we don't want.
             value = value[:1].upper() + value[1:]
             return {'summary': value}
         else:
-            _logger.info(u"Unrecognized attribute `%s' ignored.", key)
+            _logger.info("Unrecognized attribute `%s' ignored.", key)
             return {}
 
     def _getTextElement(self):
@@ -659,8 +659,8 @@ class Chapter(object):
             # BS 4.4 implements cloning via `copy.copy()', but supporting it for BS 4.3
             # would be error-prone (due to relying on BS internals) and is not needed.
             if self._textElement:
-                _logger.debug(u"You may not call this function more than once!")
-            raise ParsingError(u'Failed to locate text.')
+                _logger.debug("You may not call this function more than once!")
+            raise ParsingError('Failed to locate text.')
         collection = [starter]
         for element in starter.childGenerator():
             if element is None:
@@ -676,7 +676,7 @@ class Chapter(object):
         return root
 
     # Editor signature always starts with something like this.
-    SIGNED_PATTERN = re.compile(u'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
+    SIGNED_PATTERN = re.compile('отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
 
     def _excludeEditorSignature(self, root):
         """Exclude editor signature from within `root' element."""
@@ -700,7 +700,7 @@ def _getLargestCommonPrefix(*args):
     """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
-    from itertools import takewhile, izip
-    toLower = lambda xs: map(lambda x: x.lower(), xs)
+    from itertools import takewhile
+    toLower = lambda xs: [x.lower() for x in xs]
     allSame = lambda xs: len(set(toLower(xs))) == 1
-    return u''.join([i[0] for i in takewhile(allSame, izip(*args))])
+    return ''.join([i[0] for i in takewhile(allSame, zip(*args))])

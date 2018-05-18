@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # By virtue of being recent and requiring both is_adult and user/pass,
 # adapter_fanficcastletvnet.py is the best choice for learning to
@@ -147,7 +147,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -222,7 +222,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             if 'Eingestuft' in label:
                 self.story.setMetadata('rating', value)
 
-            if u'Wörter' in label:
+            if 'Wörter' in label:
                 self.story.setMetadata('numWords', value)
 
             if 'Kategorie' in label:
@@ -241,7 +241,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
                 else:
                     self.story.setMetadata('status', 'In-Progress')
 
-            if u'Veröffentlicht' in label:
+            if 'Veröffentlicht' in label:
                 self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
 
             if 'Aktualisiert' in label:

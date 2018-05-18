@@ -19,13 +19,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from xml.dom.minidom import parseString
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 logger = logging.getLogger(__name__)
 
@@ -278,7 +278,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             (data,opened) = self._fetchUrlOpened(useurl)
             useurl = opened.geturl()
             logger.info("use useurl: "+useurl)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             elif e.code == 403:
@@ -391,7 +391,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             self.chapterUrls.append((first_post_title,useurl))
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
-                if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
+                if is_chapter_url and name != "\u2191": # skip quote links as indicated by up arrow character.
                     self.chapterUrls.append((name,url))
                     if url == useurl and first_post_title == self.chapterUrls[0][0] \
                             and not self.getConfig('always_include_first_post',False):
@@ -469,7 +469,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
                     reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
                     logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
-                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
+                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+str(reader_page_num)
                     logger.debug("Fetch reader URL to: %s"%reader_url)
                     data = self._fetchUrl(reader_url)
                     topsoup = self.make_soup(data)
@@ -549,7 +549,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(failedtoload|clear.png)$')):
                 #logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
-                clses = unicode(img['class']) # stringify list.
+                clses = str(img['class']) # stringify list.
                 if img.has_attr('alt') and 'mceSmilie' in clses :
                     ## Change the img to a span containing the alt
                     ## text, remove attrs.  This is a one-way change.

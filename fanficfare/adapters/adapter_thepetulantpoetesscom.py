@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ThePetulantPoetessComAdapter
@@ -112,7 +112,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -156,7 +156,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         index = 1
         found = 0
         while found == 0:
-            asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&page="+unicode(index)))
+            asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&page="+str(index)))
 
             for info in asoup.findAll('td', {'class' : 'highlightcolor1'}):
                 a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))

@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return HPFanficArchiveComAdapter
@@ -78,7 +78,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -127,11 +127,11 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             val = labelspan.nextSibling
-            value = unicode('')
+            value = str('')
             while val and not 'label' in defaultGetattr(val,'class'):
                 # print("val:%s"%val)
                 if not isinstance(val,Comment):
-                    value += unicode(val)
+                    value += str(val)
                 val = val.nextSibling
             label = labelspan.string
             # print("label:%s\nvalue:%s"%(label,value))

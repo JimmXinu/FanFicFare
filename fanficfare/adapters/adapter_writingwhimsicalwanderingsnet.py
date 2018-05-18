@@ -20,14 +20,14 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return WritingWhimsicalwanderingsNetAdapter
@@ -81,10 +81,10 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
             addurl = '&ageconsent=ok&warning=4'
         else:
             addurl= ''
-            
+
         try:
             data = self._fetchUrl(url+addurl)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -115,10 +115,10 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-		## This site's metadata is not very well formatted... so we have to cludge a bit..
-		## The only ones I see that are, are Relationships and Warnings... 
+        ## This site's metadata is not very well formatted... so we have to cludge a bit..
+        ## The only ones I see that are, are Relationships and Warnings...
         ## However, the categories, characters, and warnings are all links, so we can get them easier
-        
+
         ## Categories don't have a proper label, but do use links, so...
         cats = soup.findAll('a',href=re.compile(r'browse.php\?type=categories'))
         catstext = [cat.string for cat in cats]
@@ -137,7 +137,7 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
         for warning in warningstext:
             if warning != None:
                 self.story.addToList('warnings',warning.string)
-        
+
         ## Relationships do have a proper label, but we will use links anyway
         ## this is actually tag information ... m/f, gen, m/m and such.
         ## so I'm putting them in the extratags section.
@@ -154,7 +154,7 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
         while '||||||||' in metad:
             metad = metad.replace('||||||||','|||||||')
         metad = stripHTML(metad)
-        
+
         for mdata in metad.split('|||||||'):
             mdata = mdata.strip()
             if mdata.startswith('Summary:'):
@@ -200,7 +200,7 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
             except:
                 self.setSeries(series_name,0)
                 pass
-        
+
         storynotes = soup.find('blockquote')
         if storynotes != None:
             storynotes = stripHTML(storynotes).replace('Story Notes:','')

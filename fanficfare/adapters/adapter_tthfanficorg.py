@@ -19,20 +19,20 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','tth')
-        self.dateformat = u"%d\u00a0%b\u00a0%y" # &nbsp; becomes \u00a0 with bs4/html5lib.
+        self.dateformat = "%d\u00a0%b\u00a0%y" # &nbsp; becomes \u00a0 with bs4/html5lib.
         self.is_adult=False
         self.username = None
         self.password = None
@@ -151,7 +151,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #print("data:%s"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code in (404,410):
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -201,7 +201,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 #logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -238,7 +238,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                                                              stripHTML(a),
                                                              stripHTML(autha)),'https://'+self.host+a['href']))
 
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(url)
                 else:
@@ -248,8 +248,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             select = soup.find('select', { 'name' : 'chapnav' } )
 
             if select is None:
-        	   # no selector found, so it's a one-chapter story.
-        	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+               # no selector found, so it's a one-chapter story.
+               self.chapterUrls.append((self.story.getMetadata('title'),url))
             else:
                 allOptions = select.findAll('option')
                 for o in allOptions:

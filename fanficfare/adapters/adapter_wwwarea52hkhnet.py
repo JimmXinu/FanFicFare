@@ -28,12 +28,12 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return WWWArea52HKHNetAdapter
@@ -96,7 +96,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -165,7 +165,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
                 if authsoup != None:
                     # last author link with offset should be the 'Next' link.
                     nextpage = authsoup.find('div',{'id':'links'}).find('a',{'title':'Next'})
-                    authurl = u'http://%s/%s' % ( self.getSiteDomain(), nextpage['href'] )
+                    authurl = 'http://%s/%s' % ( self.getSiteDomain(), nextpage['href'] )
 
                 # Need author page for most of the metadata.
                 logger.debug("fetching author page: (%s)"%authurl)

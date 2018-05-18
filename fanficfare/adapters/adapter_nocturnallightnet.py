@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import re
-import urllib2
-import urlparse
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 
 from bs4.element import Tag
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 
@@ -47,7 +47,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except urllib.error.HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.
@@ -87,10 +87,10 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
 
         chapter_anchors = soup('a', href=lambda href: href and href.startswith('/fanfiction/story/'))
         for chapter_anchor in chapter_anchors:
-            url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
+            url = urllib.parse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.chapterUrls.append((chapter_anchor.string, url))
 
-        author_url = urlparse.urljoin(self.BASE_URL, author_anchor['href'])
+        author_url = urllib.parse.urljoin(self.BASE_URL, author_anchor['href'])
         soup = self._customized_fetch_url(author_url)
         story_id = self.story.getMetadata('storyId')
         for listbox in soup('div', {'class': 'listbox'}):
@@ -113,7 +113,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         for b_tag in listbox('b'):
             key = b_tag.string.strip(':')
             try:
-                value = b_tag.nextSibling.string.replace('&bull;', '').replace(u'•','').strip(': ')
+                value = b_tag.nextSibling.string.replace('&bull;', '').replace('•','').strip(': ')
             # This can happen with some fancy markup in the summary. Just
             # ignore this error and set value to None, the summary parsing
             # takes care of this
@@ -151,7 +151,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('rating', value)
 
             elif key == 'Chapters':
-                print("cahpter value:%s"%value)
+                print(("cahpter value:%s"%value))
                 self.story.setMetadata('numChapters', int(value))
 
                 # Also parse reviews number which lies right after the chapters

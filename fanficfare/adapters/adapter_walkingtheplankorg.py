@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return WalkingThePlankOrgAdapter
@@ -86,7 +86,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -135,7 +135,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-				
+
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -145,7 +145,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ""
                 while 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += str(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
@@ -158,7 +158,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
 
             if 'Read' in label:
                 self.story.setMetadata('reads', value)
-                
+
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]

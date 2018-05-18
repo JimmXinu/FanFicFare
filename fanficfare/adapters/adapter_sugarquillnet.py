@@ -30,14 +30,14 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return SugarQuillNetAdapter
@@ -89,7 +89,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -122,13 +122,13 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-		## This site doesn't have much metadata, so we will get what we can.
+        ## This site doesn't have much metadata, so we will get what we can.
         ## The metadata is all on the author's page, so we have to get it to parse.
         author_Url = self.story.getMetadata('authorUrl').replace('&amp;','&')
         logger.debug('Getting the author page: {0}'.format(author_Url))
         try:
             adata = self._fetchUrl(author_Url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code in 404:
                 raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
             elif e.code == 410:

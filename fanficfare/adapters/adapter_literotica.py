@@ -19,14 +19,14 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import urlparse
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 class LiteroticaSiteAdapter(BaseSiteAdapter):
 
@@ -132,7 +132,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code in [404, 410]:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -143,7 +143,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # author
         a = soup1.find("span", "b-story-user-y")
-        self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'][0])
+        self.story.setMetadata('authorId', urllib.parse.parse_qs(a.a['href'].split('?')[1])['uid'][0])
         authorurl = a.a['href']
         if authorurl.startswith('//'):
             authorurl = self.parsedUrl.scheme+':'+authorurl
@@ -157,7 +157,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             #strip comments from soup
             [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
 #            logger.debug(soupAuth)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code in [404, 410]:
                 raise exceptions.StoryDoesNotExist(authorurl)
             else:
@@ -322,7 +322,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         story2 = page_soup.find('div', 'b-story-body-x').div
 #         logger.debug('getPageText - story2: %s' % story2)
 
-        fullhtml = unicode(story2)
+        fullhtml = str(story2)
 #         logger.debug(fullhtml)
         # Strip some starting and ending tags,
         fullhtml = re.sub(r'^<div.*?>', r'', fullhtml)
@@ -349,7 +349,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             chapter_description = '<p><b>Description:</b> %s</p><hr />' % chapter_description
         fullhtml += self.getPageText(raw_page, url)
         if pages:
-            for page_no in xrange(2, len(page_nums) + 1):
+            for page_no in range(2, len(page_nums) + 1):
                 page_url = url +  "?page=%s" % page_no
                 logger.debug("page_url= %s" % page_url)
                 raw_page = self._fetchUrl(page_url)
@@ -359,7 +359,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         page_soup = self.make_soup(fullhtml)
         fullhtml = self.utf8FromSoup(url, self.make_soup(fullhtml))
         fullhtml = chapter_description + fullhtml
-        fullhtml = unicode(fullhtml)
+        fullhtml = str(fullhtml)
 
         return fullhtml
 

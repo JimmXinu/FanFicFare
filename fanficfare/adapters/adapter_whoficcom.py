@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class WhoficComSiteAdapter(BaseSiteAdapter):
 
@@ -60,7 +60,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             soup = self.make_soup(self._fetchUrl(url))
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -80,18 +80,18 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	
+
         if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+           # no selector found, so it's a one-chapter story.
+           self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
-    	   allOptions = select.findAll('option')
-    	   for o in allOptions:
-    	     url = self.url + "&chapter=%s" % o['value']
+           allOptions = select.findAll('option')
+           for o in allOptions:
+             url = self.url + "&chapter=%s" % o['value']
              # just in case there's tags, like <i> in chapter titles.
-    	     title = "%s" % o
+             title = "%s" % o
              title = re.sub(r'<[^>]+>','',title)
-    	     self.chapterUrls.append((title,url))
+             self.chapterUrls.append((title,url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -119,17 +119,17 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
         metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br/>')
-        
+
         # Some stories have a <br/> inside the description, which
-        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5. 
-        # so we have to process through the metadatachunks to get the description, 
+        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5.
+        # so we have to process through the metadatachunks to get the description,
         # then the next metadata chunk [GComyn]
 
         # process metadata for this story.
         description = metadatachunks[1]
         for i, mdc in enumerate(metadatachunks):
             if i==0 or i==1:
-                # 0 is the title section, and 1 is always the description, 
+                # 0 is the title section, and 1 is always the description,
                 # which is already set, so skip them [GComyn]
                 pass
             else:
@@ -179,7 +179,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         if charsearch in chars:
             chars = chars[metadatachunks[idx+1].index(charsearch)+len(charsearch):]
             for c in chars.split(','):
-                if c.strip() != u'None':
+                if c.strip() != 'None':
                     self.story.addToList('characters',c)
 
         # the next line is stuff with ' - ' separators *and* names--with tags.

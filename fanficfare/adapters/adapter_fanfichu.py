@@ -16,10 +16,10 @@
 #
 
 import re
-import urllib2
-import urlparse
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 
@@ -31,9 +31,9 @@ def getClass():
 
 
 def _get_query_data(url):
-    components = urlparse.urlparse(url)
-    query_data = urlparse.parse_qs(components.query)
-    return dict((key, data[0]) for key, data in query_data.items())
+    components = urllib.parse.urlparse(url)
+    query_data = urllib.parse.parse_qs(components.query)
+    return dict((key, data[0]) for key, data in list(query_data.items()))
 
 
 class FanficHuAdapter(BaseSiteAdapter):
@@ -49,7 +49,7 @@ class FanficHuAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        query_data = urlparse.parse_qs(self.parsedUrl.query)
+        query_data = urllib.parse.parse_qs(self.parsedUrl.query)
         story_id = query_data['sid'][0]
 
         self.story.setMetadata('storyId', story_id)
@@ -61,7 +61,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except urllib.error.HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.
@@ -96,10 +96,10 @@ class FanficHuAdapter(BaseSiteAdapter):
             chapter_options.pop(0)
 
         for option in chapter_options:
-            url = urlparse.urljoin(self.url, option['value'])
+            url = urllib.parse.urljoin(self.url, option['value'])
             self.chapterUrls.append((option.string, url))
 
-        author_url = urlparse.urljoin(self.BASE_URL, soup.find('a', href=lambda href: href and href.startswith('viewuser.php?uid='))['href'])
+        author_url = urllib.parse.urljoin(self.BASE_URL, soup.find('a', href=lambda href: href and href.startswith('viewuser.php?uid='))['href'])
         soup = self._customized_fetch_url(author_url)
 
         story_id = self.story.getMetadata('storyId')
@@ -126,7 +126,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         query_data = _get_query_data(author_anchor['href'])
         self.story.setMetadata('author', author_anchor.string)
         self.story.setMetadata('authorId', query_data['uid'])
-        self.story.setMetadata('authorUrl', urlparse.urljoin(self.BASE_URL, author_anchor['href']))
+        self.story.setMetadata('authorUrl', urllib.parse.urljoin(self.BASE_URL, author_anchor['href']))
         self.story.setMetadata('reviews', anchors[3].string)
 
         if self.getConfig('keep_summary_html'):

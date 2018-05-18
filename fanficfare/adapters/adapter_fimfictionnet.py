@@ -20,14 +20,14 @@ from datetime import date, datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import cookielib as cl
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar as cl
 import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FimFictionNetSiteAdapter
@@ -97,7 +97,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             data = self.do_fix_blockquotes(self._fetchUrl(self.url,
                                                           usecache=(not self.is_adult)))
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -188,7 +188,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         description = storyContentBox.find("span", {"class":"description-text"})
         description.name='div' # change to div, technically, spans
                                # aren't supposed to contain <p>'s.
-        descdivstr = u"%s"%description # string, but not stripHTML'ed
+        descdivstr = "%s"%description # string, but not stripHTML'ed
         #The link to the prequel is embedded in the description text, so erring
         #on the side of caution and wrapping this whole thing in a try block.
         #If anything goes wrong this probably wasn't a valid prequel link.
@@ -198,8 +198,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata("prequelUrl", 'https://'+self.host+link["href"])
                 self.story.setMetadata("prequel", stripHTML(link))
                 if not self.getConfig('keep_prequel_in_description',False):
-                    hrstr=u"<hr/>"
-                    descdivstr = u'<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
+                    hrstr="<hr/>"
+                    descdivstr = '<div class="description">'+descdivstr[descdivstr.index(hrstr)+len(hrstr):]
         except:
             logger.info("Prequel parsing failed...")
         self.setDescription(self.url,descdivstr)
@@ -375,7 +375,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             soup = self.make_soup(data).find_all('div', {'class':re.compile(r'(.*\bauthors-note\b.*|.*\bchapter-body\b.*)')})
             if soup == None:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            chapter_divs = [unicode(div) for div in soup]
+            chapter_divs = [str(div) for div in soup]
             soup = self.make_soup(" ".join(chapter_divs))
         else:
             soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})

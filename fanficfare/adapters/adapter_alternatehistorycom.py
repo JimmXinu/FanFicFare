@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
+from .adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
 
 def getClass():
     return WWWAlternatehistoryComAdapter

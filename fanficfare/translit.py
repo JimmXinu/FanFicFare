@@ -10,11 +10,11 @@ def is_consonant(letter):
     return not is_syllable(letter)
 def romanize(letter):
     try:
-        unicode(letter)
+        str(letter)
     except UnicodeEncodeError:
         pass
     else:
-        return unicode(letter)
+        return str(letter)
     unid = unicodedata.name(letter)
     exceptions = {"NUMERO SIGN": "No", "LEFT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "DASH": "-"}
     for name_contains in exceptions:
@@ -34,7 +34,7 @@ def romanize(letter):
     if all(map(is_syllable, unid)):
         return func(unid)
     else:
-        return func(filter(is_consonant, unid))
+        return func(list(filter(is_consonant, unid)))
 def translit(text):
     output = ""
     for letter in text:

@@ -2,7 +2,7 @@
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
     
-import StringIO
+import io
 import struct
 import time
 import random
@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from html import HtmlProcessor
+from .html import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html
@@ -57,12 +57,12 @@ class Converter:
     self._refresh_url = refresh_url
 
   def ConvertString(self, s):
-    out = StringIO.StringIO()
+    out = io.StringIO()
     self._ConvertStringToFile(s, out)
     return out.getvalue()
 
   def ConvertStrings(self, html_strs):
-    out = StringIO.StringIO()
+    out = io.StringIO()
     self._ConvertStringsToFile(html_strs, out)
     return out.getvalue()
 
@@ -125,7 +125,7 @@ class Converter:
     try:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
-    except Exception, e:
+    except Exception as e:
       logger.error('Error %s', e)
       #logger.debug('Details: %s' % html_strs)
 
@@ -305,7 +305,7 @@ class Header:
             }
     # Turn string type names into EXTH typeids.
     r = []
-    for key, value in data.items():
+    for key, value in list(data.items()):
       typeid = EXTH_HEADER_FIELDS[key]
       length_encoding_len = 8
       r.append(struct.pack('>LL', typeid, len(value) + length_encoding_len,) + value)

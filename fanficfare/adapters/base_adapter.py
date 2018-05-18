@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 import logging
-import urlparse as up
+import urllib.parse as up
 from functools import partial
 import traceback
 import copy
@@ -46,9 +46,9 @@ class TimeKeeper(defaultdict):
         self[name] = self[name] + td
 
     def __unicode__(self):
-        keys = self.keys()
+        keys = list(self.keys())
         keys.sort()
-        return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
+        return "\n".join([ "%s: %s"%(k,self[k]) for k in keys ])
 
 class BaseSiteAdapter(Configurable):
 
@@ -141,7 +141,7 @@ class BaseSiteAdapter(Configurable):
 
             ## one-off step to normalize old chapter URLs if present.
             if self.oldchaptersmap:
-                self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
+                self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in list(self.oldchaptersmap.items()))
 
             for index, (title,url) in enumerate(self.chapterUrls):
                 #logger.debug("index:%s"%index)
@@ -341,7 +341,7 @@ class BaseSiteAdapter(Configurable):
 
     def setDescription(self,url,svalue):
         #print("\n\nsvalue:\n%s\n"%svalue)
-        strval = u"%s"%svalue # works for either soup or string
+        strval = "%s"%svalue # works for either soup or string
         if self.hasConfig('description_limit'):
             if self.getConfig('keep_summary_html'):
                 # remove extra whitespaces since HTML ignores them anyway.
@@ -354,7 +354,7 @@ class BaseSiteAdapter(Configurable):
 
         #print(u"[[[[[\n\n%s\n\n]]]]]]]]"%svalue) # works for either soup or string
         if self.getConfig('keep_summary_html'):
-            if isinstance(svalue,basestring):
+            if isinstance(svalue,str):
                 # bs4/html5lib add html, header and body tags, which
                 # we don't want.  utf8FromSoup will strip the body tags for us.
                 svalue = bs4.BeautifulSoup(svalue,"html5lib").body
@@ -376,11 +376,11 @@ class BaseSiteAdapter(Configurable):
         if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
             # bs3
             #print "bs3 attrs:%s"%soup._getAttrMap().keys()
-            return soup._getAttrMap().keys()
+            return list(soup._getAttrMap().keys())
         elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
             #print "bs4 attrs:%s"%soup.attrs.keys()
             # bs4
-            return soup.attrs.keys()
+            return list(soup.attrs.keys())
         return []
 
     # This gives us a unicode object, not just a string containing bytes.
@@ -463,11 +463,11 @@ class BaseSiteAdapter(Configurable):
                     if t.name=='script':
                         t.extract()
 
-        except AttributeError, ae:
+        except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
 
-        retval = unicode(soup)
+        retval = str(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
             # if the <img> tag doesn't have a div or a p around it,
@@ -507,7 +507,7 @@ class BaseSiteAdapter(Configurable):
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
         soup = bs4.BeautifulSoup(data,'html5lib')
-        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        soup = bs4.BeautifulSoup(str(soup),'html5lib')
 
         for ns in soup.find_all('fff_hide_noscript'):
             ns.name = 'noscript'
@@ -525,9 +525,9 @@ def cachedfetch(realfetch,cache,url,referer=None):
     else:
         return realfetch(url,referer=referer)
 
-fullmon = {u"January":u"01", u"February":u"02", u"March":u"03", u"April":u"04", u"May":u"05",
-           u"June":u"06","July":u"07", u"August":u"08", u"September":u"09", u"October":u"10",
-           u"November":u"11", u"December":u"12" }
+fullmon = {"January":"01", "February":"02", "March":"03", "April":"04", "May":"05",
+           "June":"06","July":"07", "August":"08", "September":"09", "October":"10",
+           "November":"11", "December":"12" }
 
 def makeDate(string,dateform):
     # Surprise!  Abstracting this turned out to be more useful than
@@ -540,9 +540,9 @@ def makeDate(string,dateform):
     # correct everywhere.
     do_abbrev = "%b" in dateform
 
-    if u"%B" in dateform or do_abbrev:
-        dateform = dateform.replace(u"%B",u"%m").replace(u"%b",u"%m")
-        for (name,num) in fullmon.items():
+    if "%B" in dateform or do_abbrev:
+        dateform = dateform.replace("%B","%m").replace("%b","%m")
+        for (name,num) in list(fullmon.items()):
             if do_abbrev:
                 name = name[:3] # first three for abbrev
             if name in string:
@@ -553,11 +553,11 @@ def makeDate(string,dateform):
     # dateform, look for 'pm' in string, remove am/pm from string and
     # add 12 hours if pm found.
     add_hours = False
-    if u"%p" in dateform:
-        dateform = dateform.replace(u"%p",u"")
+    if "%p" in dateform:
+        dateform = dateform.replace("%p","")
         if 'pm' in string or 'PM' in string:
             add_hours = True
-        string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
+        string = string.replace("AM","").replace("PM","").replace("am","").replace("pm","")
 
     date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
 

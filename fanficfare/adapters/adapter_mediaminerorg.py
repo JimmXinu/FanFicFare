@@ -19,13 +19,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
@@ -108,7 +108,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 logger.error("404 on %s"%url)
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -121,7 +121,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ## title:
         ## <h1 id="post-title">A, A' Fan Fiction &#10095; Mmmmm</h1>
         titletext = stripHTML(soup.find("h1",{"id":"post-title"}))
-        titletext = titletext[titletext.index(u'❯')+2:]
+        titletext = titletext[titletext.index('❯')+2:]
         # print("title:(%s)"%titletext)
         self.story.setMetadata('title',titletext)
 

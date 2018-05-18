@@ -20,14 +20,14 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from .. import translit
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 
 def getClass():
@@ -77,12 +77,12 @@ class FicBookNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-				
+
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -93,9 +93,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 adult_div.extract()
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-        
+
         # Now go hunting for all the meta data and the chapter list.
-		
+
         ## Title
         a = soup.find('section',{'class':'chapter-info'}).find('h1')
         # kill '+' marks if present.
@@ -145,20 +145,20 @@ class FicBookNetAdapter(BaseSiteAdapter):
         pubdate=pubdate.split(',')[0]
         update=update.split(',')[0]
 
-        fullmon = {"yanvarya":"01", u"января":"01",
-           "fievralya":"02", u"февраля":"02",
-           "marta":"03", u"марта":"03",
-           "aprielya":"04", u"апреля":"04",
-           "maya":"05", u"мая":"05",
-           "iyunya":"06", u"июня":"06",
-           "iyulya":"07", u"июля":"07",
-           "avghusta":"08", u"августа":"08",
-           "sentyabrya":"09", u"сентября":"09",
-           "oktyabrya":"10", u"октября":"10",
-           "noyabrya":"11", u"ноября":"11",
-           "diekabrya":"12", u"декабря":"12" }
+        fullmon = {"yanvarya":"01", "января":"01",
+           "fievralya":"02", "февраля":"02",
+           "marta":"03", "марта":"03",
+           "aprielya":"04", "апреля":"04",
+           "maya":"05", "мая":"05",
+           "iyunya":"06", "июня":"06",
+           "iyulya":"07", "июля":"07",
+           "avghusta":"08", "августа":"08",
+           "sentyabrya":"09", "сентября":"09",
+           "oktyabrya":"10", "октября":"10",
+           "noyabrya":"11", "ноября":"11",
+           "diekabrya":"12", "декабря":"12" }
 
-        for (name,num) in fullmon.items():
+        for (name,num) in list(fullmon.items()):
             if name in pubdate:
                 pubdate = pubdate.replace(name,num)
             if name in update:
@@ -180,21 +180,21 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
 
         dlinfo = soup.find('dl',{'class':'info'})
-        
+
         i=0
         fandoms = dlinfo.find('dd').findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
         if i > 1:
-            self.story.addToList('genre', u'Кроссовер')
+            self.story.addToList('genre', 'Кроссовер')
 
         for genre in dlinfo.findAll('a',href=re.compile(r'/genres/')):
             self.story.addToList('genre',stripHTML(genre))
 
         ratingdt = dlinfo.find('dt',text='Рейтинг:')
         self.story.setMetadata('rating', stripHTML(ratingdt.next_sibling))
-            
+
         # meta=table.findAll('a', href=re.compile(r'/ratings/'))
         # i=0
         # for m in meta:
@@ -206,23 +206,23 @@ class FicBookNetAdapter(BaseSiteAdapter):
         #             i=2
         #         self.story.addToList('genre', m.find('b').text)
         #     elif i == 2:
-        #         self.story.addToList('warnings', m.find('b').text)		
+        #         self.story.addToList('warnings', m.find('b').text)
 
         if dlinfo.find('span', {'style' : 'color: green'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-		
+
 
         tags = dlinfo.findAll('dt')
         for tag in tags:
             label = translit.translit(tag.text)
-            if 'Piersonazhi:' in label or u'Персонажи:' in label:
+            if 'Piersonazhi:' in label or 'Персонажи:' in label:
                 chars=stripHTML(tag.next_sibling).split(', ')
                 for char in chars:
                     self.story.addToList('characters',char)
                 break
-				
+
         summary=soup.find('div', {'class' : 'urlize'})
         self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)

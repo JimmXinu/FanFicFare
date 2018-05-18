@@ -18,7 +18,7 @@
 import re
 from ..htmlcleanup import stripHTML
 
-from base_xenforoforum_adapter import BaseXenForoForumAdapter
+from .base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 def getClass():
     return QuestionablequestingComAdapter

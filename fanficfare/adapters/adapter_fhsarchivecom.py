@@ -17,7 +17,7 @@
 
 # Software: eFiction
 import re
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class FHSArchiveComAdapter(BaseEfictionAdapter):
 
@@ -44,7 +44,7 @@ class FHSArchiveComAdapter(BaseEfictionAdapter):
                     return
                 else:
                     # toss numbers only.
-                    self.story.addToList('warnings', filter(lambda x : not x.isdigit() , val))
+                    self.story.addToList('warnings', [x for x in val if not x.isdigit()])
 
     #     elif 'Categories' in key:
     #         for val in re.split("\s*>\s*", value):

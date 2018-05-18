@@ -19,13 +19,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 
 def getClass():
@@ -80,7 +80,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -102,20 +102,20 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',author['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+author['href'])
         self.story.setMetadata('author',author.string)
-		
+
         authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-		
+
         chapter=soup.find('select',{'name':'chapter'}).findAll('option')
-	
+
         for i in range(1,len(chapter)):
             ch=chapter[i]
             self.chapterUrls.append((stripHTML(ch),ch['value']))
-		
+
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-		
+
         box=soup.find('div', {'class': "container borderridge"})
         sum=box.find('span').text
         self.setDescription(url,sum)
@@ -123,7 +123,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         boxes=soup.findAll('div', {'class': "container bordersolid"})
         for box in boxes:
             if box.find('b') != None and box.find('b').text == "History and Story Information":
-			
+
                 for b in box.findAll('b'):
                     if "words" in b.nextSibling:
                         self.story.setMetadata('numWords', b.text)
@@ -133,29 +133,29 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
                         self.story.setMetadata('dateUpdated', makeDate(stripHTML(b.text), self.dateformat))
                     if "fandom" in b.nextSibling:
                         self.story.addToList('category', b.text)
-						
+
                 for br in box.findAll('br'):
                     br.replaceWith('split')
                 genre=box.text.split("Genre:")[1].split("split")[0]
                 if not "Unspecified" in genre:
                     self.story.addToList('genre',genre)
-			
-			
+
+
             if box.find('span') != None and box.find('span').text == "WARNING":
-			
+
                 rating=box.findAll('span')[1]
                 rating.find('br').replaceWith('split')
                 rating=rating.text.replace("This story is rated",'').split('split')[0]
                 self.story.setMetadata('rating',rating)
                 logger.debug(self.story.getMetadata('rating'))
-			
+
                 warnings=box.find('ol')
                 if warnings != None:
                     warnings=warnings.text.replace(']', '').replace('[', '').split('  ')
                     for warning in warnings:
                         self.story.addToList('warnings',warning)
-	
-	
+
+
         for asoup in authorSoup.findAll('div', {'class':"story bordersolid"}):
             if asoup.find('a')['href'] == 'story.php?no='+self.story.getMetadata('storyId'):
                 if '[ Completed ]' in asoup.text:
@@ -167,8 +167,8 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
                     if not "None" in char:
                         self.story.addToList('characters',char)
                 break
-	
-	
+
+
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

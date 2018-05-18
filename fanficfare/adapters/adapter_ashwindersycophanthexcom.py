@@ -20,13 +20,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return AshwinderSycophantHexComAdapter
@@ -115,7 +115,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -190,7 +190,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             val = val.nextSibling
         val = val.nextSibling
         while not defaultGetattr(val) == 'table':
-            svalue += unicode(val)
+            svalue += str(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
 

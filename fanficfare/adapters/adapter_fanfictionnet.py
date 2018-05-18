@@ -19,13 +19,13 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-from urllib import unquote_plus
+import urllib.request, urllib.error, urllib.parse
+from urllib.parse import unquote_plus
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
              "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
@@ -100,7 +100,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #logger.debug("\n===================\n%s\n===================\n"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -135,11 +135,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
-            except urllib2.HTTPError as e:
+            except urllib.error.HTTPError as e:
                 if e.code == 503:
                     raise e
             except Exception as e:
-                logger.warn("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
+                logger.warn("Caught an exception reading URL: %s Exception %s."%(str(url),str(e)))
                 pass
 
         # Find authorid and URL from... author url.
@@ -329,16 +329,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         select = soup.find('select', { 'name' : 'chapter' } )
 
         if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+           # no selector found, so it's a one-chapter story.
+           self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
             allOptions = select.findAll('option')
             for o in allOptions:
-                url = u'https://%s/s/%s/%s/' % ( self.getSiteDomain(),
+                url = 'https://%s/s/%s/%s/' % ( self.getSiteDomain(),
                                                  self.story.getMetadata('storyId'),
                                                  o['value'])
                 # just in case there's tags, like <i> in chapter titles.
-                title = u"%s" % o
+                title = "%s" % o
                 title = re.sub(r'<[^>]+>','',title)
                 self.chapterUrls.append((title,url))
 

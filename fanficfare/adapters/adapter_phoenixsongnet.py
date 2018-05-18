@@ -19,13 +19,13 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2, urllib, cookielib
+import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, http.cookiejar
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return PhoenixSongNetAdapter
@@ -76,7 +76,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
     def performLogin(self, url):
         params = {}
-		
+
         if self.password:
             params['txtusername'] = self.username
             params['txtpassword'] = self.password
@@ -111,7 +111,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             if self.getConfig('force_login'):
                 self.performLogin(url)
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -168,10 +168,10 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
                             date = b.nextSibling.string.split(': ')[1].split(',')
                             self.story.setMetadata('dateUpdated', makeDate(date[0]+date[1], self.dateformat))
                 i = i+1
-				
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))        	
-				
+
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
+
         asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 
         info = asoup.find('a', href=re.compile(r'fanfiction/story/'+self.story.getMetadata('storyId')+"/$"))
@@ -182,13 +182,13 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
             if 'Rating' in b.string:
                 self.story.setMetadata('rating', val.string.split(': ')[1])
-				
+
             if 'Words' in b.string:
                 self.story.setMetadata('numWords', val.string.split(': ')[1])
-				
+
             if 'Setting' in b.string:
                 self.story.addToList('category', val.string.split(': ')[1])
-				
+
             if 'Status' in b.string:
                 if 'Completed' in val:
                     val = 'Completed'
@@ -201,9 +201,9 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
                 info.find('br').extract()
                 self.setDescription(url,info)
                 break
-	
-	
-	# grab the text for an individual chapter.
+
+
+    # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
@@ -215,7 +215,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             if "This is for problems with the formatting or the layout of the chapter." in stripHTML(p):
                 break
             chapter.append(p)
-			
+
         for a in chapter.findAll('div'):
             a.extract()
         for a in chapter.findAll('table'):

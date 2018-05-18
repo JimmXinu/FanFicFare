@@ -22,7 +22,7 @@ import logging
 import json
 import re
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ except ImportError:
         # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
         feedparser = None
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -94,7 +94,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
@@ -130,17 +130,17 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
             ## the author name from the <h4>... and a section that took the title from the list,
             ## and added it to the title from the <h3>...
             ## but decided to remove them and let it be added to the synopsis.
-            if parat[:7] == 'Genres:' and unicode(para)[:2] == '<p':
+            if parat[:7] == 'Genres:' and str(para)[:2] == '<p':
                 genres = parat[8:].split(', ')
                 for genre in genres:
                     self.story.addToList('genre', genre)
-            elif parat[:11] == 'Translator:' and unicode(para)[:2] == '<p':
+            elif parat[:11] == 'Translator:' and str(para)[:2] == '<p':
                 self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
-            elif parat[:7] == 'Status:' and unicode(para)[:2] == '<p':
+            elif parat[:7] == 'Status:' and str(para)[:2] == '<p':
                 status = parat[8:].strip()
                 self.story.setMetadata('status', status)
-            elif unicode(para)[:2] == '<p' or unicode(para)[:2] == '<h' or unicode(para)[:2] == '<u':
-                synopsis += ' ' + unicode(para)
+            elif str(para)[:2] == '<p' or str(para)[:2] == '<h' or str(para)[:2] == '<u':
+                synopsis += ' ' + str(para)
 
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
@@ -148,7 +148,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         while '<br/> <br/>' in synopsis:
             synopsis = synopsis.replace('<br/> <br/>', '<br/>')
 
-        self.setDescription(url, unicode(synopsis))
+        self.setDescription(url, str(synopsis))
 
         ## this is constantly being forbidden, so I'm commenting it out for now.
 #        if get_cover:
@@ -159,14 +159,14 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         ## Getting the ChapterUrls
         ## the chapter list is script generated, so we have to use JSON to get them
         for script in soup.find_all('script'):
-            scriptt = unicode(script)
+            scriptt = str(script)
             if 'ChapterGroupList' in scriptt:
                 scriptt = scriptt[scriptt.index('novelId')+8:]
                 scriptt = scriptt[:scriptt.index(',')].strip()
                 mchaplist = self._fetchUrl('http://'+self.getSiteDomain()+'/api/novels/chaptergroups/'+scriptt)
                 mchaplistj = json.loads(mchaplist)
                 for mchapg in mchaplistj:
-                    gchaplist = self._fetchUrl('http://'+self.getSiteDomain()+'/api/novels/chaptergroup/'+unicode(mchapg['ChapterGroupId']))
+                    gchaplist = self._fetchUrl('http://'+self.getSiteDomain()+'/api/novels/chaptergroup/'+str(mchapg['ChapterGroupId']))
                     gchaplistj = json.loads(gchaplist)
                     for chap in gchaplistj:
                         chaptitle = chap['Name']

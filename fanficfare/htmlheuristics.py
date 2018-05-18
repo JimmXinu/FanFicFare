@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 import re
 import codecs
 import bs4 as bs
-import HtmlTagStack as stack
+from . import HtmlTagStack as stack
 
 from . import exceptions as exceptions
 
@@ -29,7 +29,7 @@ def logdebug(s):
     # logger.debug(s)
     pass
 
-was_run_marker=u'FFF_replace_br_with_p_has_been_run'
+was_run_marker='FFF_replace_br_with_p_has_been_run'
 def replace_br_with_p(body):
     if was_run_marker in body:
         # logger.debug("replace_br_with_p previously applied, skipping.")
@@ -38,7 +38,7 @@ def replace_br_with_p(body):
     # Ascii character (and Unicode as well) xA0 is a non-breaking space, ascii code 160.
     # However, Python Regex does not recognize it as a whitespace, so we'll be changing it to a regular space.
     # .strip() so "\n<div>" at beginning is also recognized.
-    body = body.replace(u'\xa0', u' ').strip()
+    body = body.replace('\xa0', ' ').strip()
 
     if body.find('>') == -1 or body.rfind('<') == -1:
         return body
@@ -62,7 +62,7 @@ def replace_br_with_p(body):
     # BS is doing some BS on entities, meaning &lt; and &gt; are turned into < and >... a **very** bad idea in html.
     body = re.sub(r'&(.+?);', r'XAMP;\1;', body)
 
-    body = soup_up_div(u'<div>' + body + u'</div>')
+    body = soup_up_div('<div>' + body + '</div>')
 
     body = body[body.index('>')+1:body.rindex('<')]
 
@@ -84,7 +84,7 @@ def replace_br_with_p(body):
         blocksList.insert(0, match)
 
     for match in blocksList:
-        group4 =  match.group(4).replace(u'<br />', u'{br /}')
+        group4 =  match.group(4).replace('<br />', '{br /}')
         body = body[:match.start(4)] + group4 + body[match.end(4):]
 
     # change surrounding div to a p and remove attrs Top surrounding
@@ -114,9 +114,9 @@ def replace_br_with_p(body):
     # logdebug(u'--- 2 ---')
 
     # Because a leading or trailing non break tag will break the following code, we have to mess around rather badly for a few lines.
-    body = body.replace(u'[',u'&squareBracketStart;')
-    body = body.replace(u']',u'&squareBracketEnd;')
-    body = body.replace(u'<br />',u'[br /]')
+    body = body.replace('[','&squareBracketStart;')
+    body = body.replace(']','&squareBracketEnd;')
+    body = body.replace('<br />','[br /]')
 
     breaksRegexp = [
         re.compile(r'([^\]])(\[br\ \/\])([^\[])'),
@@ -147,7 +147,7 @@ def replace_br_with_p(body):
             breaksMax = breaksCount[i]
             breaksMaxIndex = i
 
-    lines = body.split(u'[br /]')
+    lines = body.split('[br /]')
     contentLines = 0;
     contentLinesSum = 0;
     longestLineLength = 0;
@@ -166,34 +166,34 @@ def replace_br_with_p(body):
 
     averageLineLength = contentLinesSum/contentLines
 
-    logdebug(u'---')
-    logdebug(u'Lines.............: ' + unicode(len(lines)))
-    logdebug(u'contentLines......: ' + unicode(contentLines))
-    logdebug(u'contentLinesSum...: ' + unicode(contentLinesSum))
-    logdebug(u'longestLineLength.: ' + unicode(longestLineLength))
-    logdebug(u'averageLineLength.: ' + unicode(averageLineLength))
-    logdebug(u'---')
-    logdebug(u'breaksMaxIndex....: ' + unicode(breaksMaxIndex))
-    logdebug(u'len(breaksCount)-1: ' + unicode(len(breaksCount)-1))
-    logdebug(u'breaksMax.........: ' + unicode(breaksMax))
+    logdebug('---')
+    logdebug('Lines.............: ' + str(len(lines)))
+    logdebug('contentLines......: ' + str(contentLines))
+    logdebug('contentLinesSum...: ' + str(contentLinesSum))
+    logdebug('longestLineLength.: ' + str(longestLineLength))
+    logdebug('averageLineLength.: ' + str(averageLineLength))
+    logdebug('---')
+    logdebug('breaksMaxIndex....: ' + str(breaksMaxIndex))
+    logdebug('len(breaksCount)-1: ' + str(len(breaksCount)-1))
+    logdebug('breaksMax.........: ' + str(breaksMax))
 
     if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
         breaksMaxIndex = 0
         breaksMax = breaksCount[0]
 
-    logdebug(u'---')
-    logdebug(u'breaks 1: ' + unicode(breaksCount[0]))
-    logdebug(u'breaks 2: ' + unicode(breaksCount[1]))
-    logdebug(u'breaks 3: ' + unicode(breaksCount[2]))
-    logdebug(u'breaks 4: ' + unicode(breaksCount[3]))
-    logdebug(u'breaks 5: ' + unicode(breaksCount[4]))
-    logdebug(u'breaks 6: ' + unicode(breaksCount[5]))
-    logdebug(u'breaks 7: ' + unicode(breaksCount[6]))
-    logdebug(u'breaks 8: ' + unicode(breaksCount[7]))
-    logdebug(u'----')
-    logdebug(u'max found: ' + unicode(breaksMax))
-    logdebug(u'max Index: ' + unicode(breaksMaxIndex))
-    logdebug(u'----')
+    logdebug('---')
+    logdebug('breaks 1: ' + str(breaksCount[0]))
+    logdebug('breaks 2: ' + str(breaksCount[1]))
+    logdebug('breaks 3: ' + str(breaksCount[2]))
+    logdebug('breaks 4: ' + str(breaksCount[3]))
+    logdebug('breaks 5: ' + str(breaksCount[4]))
+    logdebug('breaks 6: ' + str(breaksCount[5]))
+    logdebug('breaks 7: ' + str(breaksCount[6]))
+    logdebug('breaks 8: ' + str(breaksCount[7]))
+    logdebug('----')
+    logdebug('max found: ' + str(breaksMax))
+    logdebug('max Index: ' + str(breaksMaxIndex))
+    logdebug('----')
 
     if breaksMaxIndex > 0 and breaksCount[0] > breaksMax and averageLineLength < 90:
         body = breaksRegexp[0].sub(r'\1 \n\3', body)
@@ -203,25 +203,25 @@ def replace_br_with_p(body):
     for i in range(len(breaksCount)):
         # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
-            logdebug(unicode(i) + u' <= breaksMaxIndex (' + unicode(breaksMaxIndex) + u')')
+            logdebug(str(i) + ' <= breaksMaxIndex (' + str(breaksMaxIndex) + ')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
         elif i == breaksMaxIndex+1:
-            logdebug(unicode(i) + u' == breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(str(i) + ' == breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + ')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
-            logdebug(unicode(i) + u' > breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(str(i) + ' > breaksMaxIndex+1 (' + str(breaksMaxIndex+1) + ')')
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
     body = breaksRegexp[8].sub(r'</p>\n<hr />\n<p>', body)
 
     # Reverting the square brackets
-    body = body.replace(u'[', u'<')
-    body = body.replace(u']', u'>')
-    body = body.replace(u'&squareBracketStart;', u'[')
-    body = body.replace(u'&squareBracketEnd;', u']')
+    body = body.replace('[', '<')
+    body = body.replace(']', '>')
+    body = body.replace('&squareBracketStart;', '[')
+    body = body.replace('&squareBracketEnd;', ']')
 
-    body = body.replace(u'{p}', u'<p>')
-    body = body.replace(u'{/p}', u'</p>')
+    body = body.replace('{p}', '<p>')
+    body = body.replace('{/p}', '</p>')
 
     # If for some reason, a third break makes its way inside the paragraph, preplace that with the empty paragraph for the additional linespaing.
     body = re.sub(r'<p>\s*(<br\ \/>)+', r'<p><br /></p>\n<p>', body)
@@ -250,20 +250,20 @@ def replace_br_with_p(body):
     # Remove empty tag pairs
     body = re.sub(r'\s*<(\S+)[^>]*>\s*</\1>', r'', body)
 
-    body = body.replace(u'{br /}', u'<br />')
+    body = body.replace('{br /}', '<br />')
     body = re.sub(r'XAMP;(.+?);', r'&\1;', body)
     body = body.strip()
 
     # re-wrap in div tag.
-    body = u'<div id="' +was_run_marker+ u'">\n' + body + u'</div>\n'
+    body = '<div id="' +was_run_marker+ '">\n' + body + '</div>\n'
     # return body after tag_sanitizer with 'replace_br_with_p done' marker.
     ## marker included twice becaues the comment & id could each be
     ## removed by different 'clean ups'.  I hope it's less likely both
     ## will be.
-    return u'<!-- ' +was_run_marker+ u' -->\n' + tag_sanitizer(body)
+    return '<!-- ' +was_run_marker+ ' -->\n' + tag_sanitizer(body)
 
 def is_valid_block(block):
-    return unicode(block).find('<') == 0 and unicode(block).find('<!') != 0
+    return str(block).find('<') == 0 and str(block).find('<!') != 0
 
 def soup_up_div(body):
     blockTags = ['address', 'aside', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
@@ -272,23 +272,23 @@ def soup_up_div(body):
     tag = body[:body.index('>')+1]
     tagend = body[body.rindex('<'):]
 
-    body = body.replace(u'<br />', u'[br /]')
+    body = body.replace('<br />', '[br /]')
 
     # bs4 insists on wrapping *all* new soups in <html><body> if they
     # don't already have them.  This way we have just the div.
     soup = bs.BeautifulSoup('<div id="soup_up_div">'+body+'</div>','html5lib').find('div',id="soup_up_div")
 
-    body = u''
+    body = ''
     lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
 
     for i in soup.contents[0]:
-        if unicode(i).strip().__len__() > 0:
-            s = unicode(i)
+        if str(i).strip().__len__() > 0:
+            s = str(i)
             if  type(i) == bs.Tag:
                 if  i.name in blockTags:
                     if lastElement > 1:
                         body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
-                        body += u'{/p}'
+                        body += '{/p}'
 
                     lastElement = 1
 
@@ -299,7 +299,7 @@ def soup_up_div(body):
                 else:
                     if lastElement == 1:
                         body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
-                        body += u'{p}'
+                        body += '{p}'
 
                     lastElement = 2
                     body += s
@@ -310,16 +310,16 @@ def soup_up_div(body):
             else:
                 if lastElement == 1:
                     body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
-                    body += u'{p}'
+                    body += '{p}'
 
                 lastElement = 3
                 body += s
 
     if lastElement > 1:
         body = body.strip(r'\s*(\[br\ \/\]\s*)*\s*')
-        body += u'{/p}'
+        body += '{/p}'
 
-    body = body.replace(u'[br /]', u'<br />')
+    body = body.replace('[br /]', '<br />')
 
     return tag + body + tagend
 
@@ -336,7 +336,7 @@ def is_closed_tag(tag):
 def tag_sanitizer(html):
     blockTags = ['address', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'pre', 'table', 'ul']
 
-    body = u''
+    body = ''
     tags = re.findall(r'(<[^>]+>)([^<]*)', html)
 
     for rTag in tags:
@@ -351,7 +351,7 @@ def tag_sanitizer(html):
         if name in blockTags:
             body += rTag[0]
             body += rTag[1]
-        elif name == u'p':
+        elif name == 'p':
             if is_end:
                 body += stack.spool_end()
                 body += rTag[0]

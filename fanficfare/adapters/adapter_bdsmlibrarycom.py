@@ -49,16 +49,16 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import sys
-import urlparse
+import urllib.parse
 
 from bs4 import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return BDSMLibraryComSiteAdapter
@@ -110,7 +110,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(self.url)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -132,7 +132,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
             try:
                 data = self._fetchUrl(self.url)
                 soup = self.make_soup(data)
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
@@ -144,7 +144,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
                 sys.exit()
 
 
-        authorurl = urlparse.urljoin(self.url, author['href'])
+        authorurl = urllib.parse.urljoin(self.url, author['href'])
         self.story.setMetadata('author', author.text)
         self.story.setMetadata('authorUrl', authorurl)
         authorid = author['href'].split('=')[1]
@@ -167,16 +167,16 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         for td in soup.findAll('td'):
             if len(td.text)>0:
-                if 'Added on:' in td.text and '<table' not in unicode(td):
+                if 'Added on:' in td.text and '<table' not in str(td):
                     value = td.text.replace('Added on:','').strip()
                     self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-                elif 'Synopsis:' in td.text and '<table' not in unicode(td):
+                elif 'Synopsis:' in td.text and '<table' not in str(td):
                     value = td.text.replace('\n','').replace('Synopsis:','').strip()
                     self.setDescription(self.url,stripHTML(value))
-                elif 'Size:' in td.text and '<table' not in unicode(td):
+                elif 'Size:' in td.text and '<table' not in str(td):
                     value = td.text.replace('\n','').replace('Size:','').strip()
                     self.story.setMetadata('size',stripHTML(value))
-                elif 'Comments:' in td.text and '<table' not in unicode(td):
+                elif 'Comments:' in td.text and '<table' not in str(td):
                     value = td.text.replace('\n','').replace('Comments:','').strip()
                     self.story.setMetadata('comments',stripHTML(value))
 

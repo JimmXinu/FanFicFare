@@ -23,10 +23,10 @@ import json
 import re
 import sys  # ## used for debug purposes
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -89,7 +89,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
@@ -143,7 +143,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('rating', rated.replace('Rated', '').replace(':', '').strip())
             summaryblock.p.decompose()
 
-        synopsis = unicode(summaryblock.body).strip()
+        synopsis = str(summaryblock.body).strip()
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
 
