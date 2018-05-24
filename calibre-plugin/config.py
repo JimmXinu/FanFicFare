@@ -501,7 +501,7 @@ class BasicTab(QWidget):
         self.l.addLayout(horz)
 
         self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)
-        self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book.\nfanfiction.net URLs will change from http to https silently."))
+        self.checkforurlchange.setToolTip(_("Warn you if an update will change the URL of an existing book(normally automatic and silent).\nURLs may be changed from http to https silently if the site changed."))
         self.checkforurlchange.setChecked(prefs['checkforurlchange'])
         self.l.addWidget(self.checkforurlchange)
 

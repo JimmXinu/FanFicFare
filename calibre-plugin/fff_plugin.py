@@ -1276,11 +1276,18 @@ class FanFicFarePlugin(InterfaceAction):
 
                 if book_id and mi: # book_id and mi only set if matched by title/author.
                     liburl = self.get_story_url(db,book_id)
-                    if book['url'] != liburl and prefs['checkforurlchange'] and \
+                    if book['url'] != liburl and \
                         not (book['url'].replace('https','http') == liburl): # several sites have been changing to
                                                                              # https now.  Don't flag when that's the only change.
-                        # special case for ffnet urls change to https.
-                        if not question_dialog(self.gui, _('Change Story URL?'),'''
+                        tags = db.get_tags(book_id)
+                        flag_tag = "FFF Frozen URL" # not translated so it works across languages.
+                        if flag_tag in tags:
+                            book['comment'] = _("Update declined due to differing story URL(%s)(%s tag present)")%(liburl,flag_tag)
+                            book['good']=False
+                            book['icon']='rotate-right.png'
+                            book['status'] = _('Different URL')
+                            return
+                        if prefs['checkforurlchange'] and not question_dialog(self.gui, _('Change Story URL?'),'''
                                                   <h3>%s</h3>
                                                   <p>%s</p>
                                                   <p>%s</p>
