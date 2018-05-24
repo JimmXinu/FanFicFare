@@ -26,6 +26,10 @@ class StarsLibraryNetAdapter(BaseEfictionAdapter):
     def getSiteDomain():
         return 'starslibrary.net'
 
+    @classmethod
+    def getProtocol(self):
+        return "https"
+
     ## starslibrary.net is a replacement for pre-existing twcslibrary.net.
     @classmethod
     def getConfigSections(cls):

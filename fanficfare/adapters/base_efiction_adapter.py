@@ -137,8 +137,15 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         return "%d %b %Y"
 
     @classmethod
+    def getProtocol(self):
+        """
+        Some, but not all site now require https.
+        """
+        return "http"
+
+    @classmethod
     def getUrlForPhp(self, php):
-        return "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), php)
+        return "%s://%s%s/%s" % (self.getProtocol(),self.getSiteDomain(), self.getPathToArchive(), php)
 
     @classmethod
     def getViewStoryUrl(self, storyId):
