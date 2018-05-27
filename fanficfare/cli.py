@@ -153,7 +153,7 @@ def main(argv=None,
     ## undocumented feature for development use.  Save page cache and
     ## cookies between runs.  Saves in PWD as files global_cache and
     ## global_cookies
-    parser.add_option('--save-cache',
+    parser.add_option('--save-cache', '--save_cache',
                       action='store_true', dest='save_cache',
                       help=SUPPRESS_HELP, )
 
