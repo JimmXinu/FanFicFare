@@ -121,7 +121,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         bookdetails = soup.find('div', {'class': 'g_col_8'})
 
         # Title
-        title = bookdetails.find('h2', {'class': 'lh1d2'})
+        title = bookdetails.find('h2', {'class': 'pt8'})
         # done as a loop incase there isn't one, or more than one.
         for tag in title.find_all('small'):
             tag.extract()
@@ -146,7 +146,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         parse_meta(meta_txt,'Editor:','editor')
 
         cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
-        self.story.extendList('category',[cat.string for cat in cats])
+        print cats
+        self.story.extendList('category',[stripHTML(cat) for cat in cats])
 
         poptags = soup.find('p',{'class':'pop-tags'})
         if poptags:
