@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 #
 
 # Adapted by GComyn on April 24, 2017
-
+# Updated by GComyn on June 11, 2018
 
 import logging
 import re
@@ -44,8 +44,19 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.is_adult = False
 
         # get storyId from url
-        # https://inkbunny.net/submissionview.php?id=1342100
-        self.story.setMetadata('storyId', self.parsedUrl.query.split('=')[1])
+        # https://inkbunny.net/submissionview.php?id=1342100 --- old style story url
+        # https://inkbunny.net/s/1234567 --  new style story url
+        # get storyId from url--url validation guarantees query correct
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            self.story.setMetadata('storyId',m.group('id'))
+            # normalized story URL. gets rid of chapter if there, left with chapter index URL
+            nurl = "https://"+self.getSiteDomain()+"/s/"+self.story.getMetadata('storyId')
+            self._setURL(nurl)
+        else:
+            raise exceptions.InvalidStoryURL(url,
+                                             self.getSiteDomain(),
+                                             self.getSiteExampleURLs())
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev', 'ibnet')
@@ -64,10 +75,13 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return 'https://' + cls.getSiteDomain() + '/submissionview.php?id=1234567'
+        return 'https://' + cls.getSiteDomain() + '/s/=1234567'
 
     def getSiteURLPattern(self):
-        return r'https://' + re.escape(self.getSiteDomain()) + r'/submissionview.php\?id=([0-9]+)'
+        # https://inkbunny.net/s/1234567
+        # or old form:
+        # https://inkbunny.net/submissionview.php?id=1234567
+        return r'https://' + re.escape(self.getSiteDomain()) + r'/(submissionview.php\?id=|s/)(?P<id>\d+)'
 
     def performLogin(self,url,soup):
         params = {
@@ -130,14 +144,14 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', stripHTML(title))
 
         # Get Author
-        author = soup.find_all('table')[3].a
+        author = soup.find_all('table')[4].a
         self.story.setMetadata('author', stripHTML(author))
         self.story.setMetadata('authorId', stripHTML(author))
-        self.story.setMetadata('authorUrl', 'https://'+self.getSiteDomain()+'/'+author['href'])
+        self.story.setMetadata('authorUrl', 'https://{}/{}'.format(self.getSiteDomain(),author['href']))
 
         # This is the block that holds the metadata
         bookdetails = soup.find('div', {'class': 'elephant elephant_bottom elephant_white'}).find('div', {'class':'content'})
-        
+
         ## Getting the summary
         synopsis = bookdetails.span
 
@@ -147,7 +161,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.setDescription(url, stripHTML(synopsis))
 
         #Getting Keywords/Genres
-        keywords = bookdetails.find('div', {'id':'kw_scroll'}).find_next_siblings('div')[0].find_all('a')
+        keywords = bookdetails.find('div', {'id':'kw_scroll'}).find_next_siblings('div')[0].div.div.find_all('a')
         for kword in keywords:
             self.story.addToList('genre', stripHTML(kword))
 
@@ -160,11 +174,12 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('rating', rating)
                 break
 
-        ## Getting the update date
+        ## Getting the Published/Update date
         updated = stripHTML(bookdetails.find('span', {'id':'submittime_exact'}))
         updated = updated[:updated.index(':')+3].strip()
         self.story.setMetadata('dateUpdated', makeDate(updated, self.dateformat))
-        
+        self.story.setMetadata('datePublished', makeDate(updated, self.dateformat))
+
         # This is a 1 story/page site, so we set the chapterUrls up with the story url and title
         self.chapterUrls.append((self.story.getMetadata('title'), url))
 
@@ -184,6 +199,6 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
         story = self.soup.find('div', {'id': 'storysectionbar'})
         if story is None:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s No text block found -- non-story URL?" % url)
 
-        return self.utf8FromSoup(url, story) 
+        return self.utf8FromSoup(url, story)
