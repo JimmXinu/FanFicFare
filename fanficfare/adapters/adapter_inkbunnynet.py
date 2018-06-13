@@ -83,6 +83,13 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         # https://inkbunny.net/submissionview.php?id=1234567
         return r'https://' + re.escape(self.getSiteDomain()) + r'/(submissionview.php\?id=|s/)(?P<id>\d+)'
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     def performLogin(self,url,soup):
         params = {
             'token':soup.find("input",{"name":"token"})['value'],
@@ -144,10 +151,11 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', stripHTML(title))
 
         # Get Author
-        author = soup.find_all('table')[4].a
-        self.story.setMetadata('author', stripHTML(author))
-        self.story.setMetadata('authorId', stripHTML(author))
-        self.story.setMetadata('authorUrl', 'https://{}/{}'.format(self.getSiteDomain(),author['href']))
+        authortag = soup.find_all('table')[4].find('a',href=re.compile(r'/gallery/'))
+        author = authortag['href'].split('/')[-1] # no separate ID
+        self.story.setMetadata('author', author)
+        self.story.setMetadata('authorId', author)
+        self.story.setMetadata('authorUrl', 'https://{}/{}'.format(self.getSiteDomain(),author))
 
         # This is the block that holds the metadata
         bookdetails = soup.find('div', {'class': 'elephant elephant_bottom elephant_white'}).find('div', {'class':'content'})
