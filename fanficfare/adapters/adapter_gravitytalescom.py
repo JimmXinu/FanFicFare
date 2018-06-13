@@ -19,7 +19,6 @@
 ####################################################################################################
 
 import logging
-import json
 import re
 import time
 import urllib2
@@ -106,7 +105,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## This is the block that holds the metadata
-        bookdetails = soup.find('div', {'id':'contentElement'})
+        bookdetails = soup.find('div', {'class':'main-content'})
 
         ## Title
         title = bookdetails.h3
@@ -157,22 +156,16 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 #            self.setCoverImage(url, cover_url)
 
         ## Getting the ChapterUrls
-        ## the chapter list is script generated, so we have to use JSON to get them
-        for script in soup.find_all('script'):
-            scriptt = unicode(script)
-            if 'ChapterGroupList' in scriptt:
-                scriptt = scriptt[scriptt.index('novelId')+8:]
-                scriptt = scriptt[:scriptt.index(',')].strip()
-                mchaplist = self._fetchUrl('http://'+self.getSiteDomain()+'/api/novels/chaptergroups/'+scriptt)
-                mchaplistj = json.loads(mchaplist)
-                for mchapg in mchaplistj:
-                    gchaplist = self._fetchUrl('http://'+self.getSiteDomain()+'/api/novels/chaptergroup/'+unicode(mchapg['ChapterGroupId']))
-                    gchaplistj = json.loads(gchaplist)
-                    for chap in gchaplistj:
-                        chaptitle = chap['Name']
-                        chapUrl = url + '/' + chap['Slug']
-                        self.chapterUrls.append((chaptitle,chapUrl))
-                self.story.setMetadata('numChapters',len(self.chapterUrls))
+        ## fetch from separate chapters url.
+        chap_url = self.story.getMetadata('storyUrl')+"/chapters"
+        chap_soup = self.make_soup(self._fetchUrl(chap_url))
+        found_chaps = {}
+        for alink in chap_soup.find_all('a',href=re.compile(self.getSiteDomain())): # ignore anchor links
+            ## Some stories have that same chapters in different sections
+            if alink['href'] not in found_chaps:
+                self.chapterUrls.append((stripHTML(alink),alink['href']))
+                found_chaps[alink['href']] = alink['href']
+        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         if feedparser:
             # Parse published and updated date from latest RSS feed entry. The RSS feed urls seems to appear due to
