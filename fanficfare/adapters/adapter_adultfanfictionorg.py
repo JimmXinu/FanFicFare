@@ -23,6 +23,7 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import sys
+import urllib2
 from bs4 import UnicodeDammit
 
 from ..htmlcleanup import stripHTML
