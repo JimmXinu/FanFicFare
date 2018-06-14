@@ -240,7 +240,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             # TODO handle '../../' and so on
             if img['src'].startswith('/'):
                 img['src'] = img['src'][1:]
-            img['src'] = "http://%s%s/%s" % (self.getSiteDomain(), self.getPathToArchive(), img['src'])
+            img['src'] = "%s://%s%s/%s" % (self.getProtocol(),self.getSiteDomain(), self.getPathToArchive(), img['src'])
 
         return soup
 
