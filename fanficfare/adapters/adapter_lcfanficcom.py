@@ -82,6 +82,13 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://"+re.escape(self.getSiteDomain())+r"/stories/([0-9]+|_earliest)/html/*(?P<id>[^/]+)"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
 ####################################################################################################
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
@@ -124,13 +131,13 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         authorUrl = author.find('a')
         ## Some stories do not have an author page, so I'm using the story Url
         if not authorUrl:
-            author = stripHTML(author)[3:].strip()
-            authorId = author[:author.index('<')].strip()
             authorUrl = url
         else:
-            author = stripHTML(author)[3:].strip()
-            authorId = author[:author.index('<')].strip()
             authorUrl = authorUrl['href']
+        author = stripHTML(author)[3:] # discard leading 'By '
+        author = re.sub(r' <[^>]+>','',author) # discard email in <>
+        author = re.sub(r' \([^\)]+\)','',author) # discard email in ()
+        authorId = author
 
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', authorId)
