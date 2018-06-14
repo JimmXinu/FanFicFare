@@ -983,6 +983,8 @@ class Configuration(ConfigParser.SafeConfigParser):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
+        if self.getConfig('force_https'): ## For developer testing only.
+            url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters, headers)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache(POST) HIT: %s"%safe_url(cachekey))
@@ -1032,6 +1034,8 @@ class Configuration(ConfigParser.SafeConfigParser):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
+        if self.getConfig('force_https'): ## For developer testing only.
+            url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey):
             logger.debug("#####################################\npagecache(GET) HIT: %s"%safe_url(cachekey))
