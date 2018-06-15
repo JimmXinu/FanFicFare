@@ -27,7 +27,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'voe'
     SITE_DOMAIN = 'voracity2.e-fic.com'
 
-    BASE_URL = 'http://' + SITE_DOMAIN + '/'
+    BASE_URL = 'https://' + SITE_DOMAIN + '/'
     LOGIN_URL = BASE_URL + 'user.php?action=login'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%d'
     METADATA_URL_SUFFIX = '&index=1'
@@ -98,7 +98,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         return cls.VIEW_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]) + r'\d+$'
+        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('https','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX)

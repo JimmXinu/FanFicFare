@@ -54,7 +54,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/archive/' +m.group('cat') +
+            self._setURL('https://' + self.getSiteDomain() + '/archive/' +m.group('cat') +
              '/' + self.story.getMetadata('storyId') +'.shtml')
         else:
             raise exceptions.InvalidStoryURL(url,
@@ -82,11 +82,11 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://" + cls.getSiteDomain() + "/archive/999/astoryname.shtml"
+        return "https://" + cls.getSiteDomain() + "/archive/999/astoryname.shtml"
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+r'/archive/(?P<cat>\d+)/(?P<id>\S+)\.shtml'
+        return r"https?://"+re.escape(self.getSiteDomain())+r'/archive/(?P<cat>\d+)/(?P<id>\S+)\.shtml'
 
     ################################################################################################
     def get_page(self, page):
@@ -159,7 +159,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         # Some stories list multiple authors, but the search engine only uses 1 author, and since
         # we can't tell how many 'words' are in each name, I'm going to do a work around.
         author_name = mdata.split('  ')[0].strip()
-        author_url = ('http://'+self.getSiteDomain()+'/cgi-bin/search.cgi?Author={}&SortBy=0'+
+        author_url = ('https://'+self.getSiteDomain()+'/cgi-bin/search.cgi?Author={}&SortBy=0'+
                       '&SortOrder=0&NumToList=0&FastSearch=0&ShortResults=0').format(author_name)
         story_found = False
         while not story_found:
@@ -167,7 +167,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
             adata = self.get_page(author_url)
             if 'No stories found for your search choices.' in adata:
                 author_name = ' '.join(author_name.split()[:-1])
-                author_url = ('http://'+self.getSiteDomain(
+                author_url = ('https://'+self.getSiteDomain(
                                     )+'/cgi-bin/search.cgi?Author={}&SortBy=0'+
                                         '&SortOrder=0&NumToList=0&FastSearch=0' +
                                         '&ShortResults=0').format(author_name)
@@ -206,14 +206,14 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
             if label == 'Series Title:':
                 ## there is no way to tell which number of the series the story is, so we won't
                 # put a number
-                series_url = 'http://'+self.getSiteDomain()+'/'+link['href']
+                series_url = 'https://'+self.getSiteDomain()+'/'+link['href']
                 self.story.setMetadata('series', link.get_text())
                 self.story.setMetadata('seriesUrl', series_url)
             elif label == 'Prequel to:':
-                value = link.string + ' (' + 'http://'+self.getSiteDomain()+link['href'] + ')'
+                value = link.string + ' (' + 'https://'+self.getSiteDomain()+link['href'] + ')'
                 self.story.setMetadata('prequelto', value)
             elif label == 'Sequel to:':
-                value = link.string + ' (' + 'http://'+self.getSiteDomain()+link['href'] + ')'
+                value = link.string + ' (' + 'https://'+self.getSiteDomain()+link['href'] + ')'
                 self.story.setMetadata('sequelto', value)
 
         # Some stories have alot of text in the "summary", and I've tried to keep down on creating

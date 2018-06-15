@@ -46,7 +46,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
 
     @staticmethod
@@ -55,10 +55,10 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     def use_pagecache(self):
         '''
@@ -107,13 +107,13 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = div.find('a', href=re.compile(r"viewuser.php"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in div.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -213,7 +213,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self_make_soup(self._fetchUrl(series_url))

@@ -24,6 +24,13 @@ class TheDelphicExpanseComAdapter(BaseEfictionAdapter):
     ''' This adapter will download stories from the
        'Taste of Poison, the Fanfiction of Arsenic Jade' site '''
 
+    @classmethod
+    def getProtocol(self):
+        """
+        Some, but not all site now require https.
+        """
+        return "https"
+
     @staticmethod
     def getSiteDomain():
         return 'www.thedelphicexpanse.com'

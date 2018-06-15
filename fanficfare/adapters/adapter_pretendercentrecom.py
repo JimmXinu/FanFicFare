@@ -47,7 +47,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/missingpieces/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/missingpieces/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ptdc')
@@ -67,10 +67,10 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/missingpieces/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/missingpieces/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+"(www\.)?"+re.escape(self.getSiteDomain()+"/missingpieces/viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www\.)?"+re.escape(self.getSiteDomain()+"/missingpieces/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -135,13 +135,13 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/missingpieces/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/missingpieces/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/missingpieces/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/missingpieces/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -213,7 +213,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/missingpieces/'+a['href']
+            series_url = 'https://'+self.host+'/missingpieces/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

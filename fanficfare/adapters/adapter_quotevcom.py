@@ -10,7 +10,7 @@ from base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 
 SITE_DOMAIN = 'quotev.com'
-STORY_URL_TEMPLATE = 'http://www.quotev.com/story/%s'
+STORY_URL_TEMPLATE = 'https://www.quotev.com/story/%s'
 
 
 def getClass():
@@ -41,8 +41,8 @@ class QuotevComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         pattern = re.escape(STORY_URL_TEMPLATE.rsplit('%', 1)[0]) + r'(.+?)($|&|/)'
-        pattern = pattern.replace(r'http\:', r'https?\:')
-        pattern = pattern.replace(r'https?\:\/\/www\.', r'https?\:\/\/(www\.)?')
+        pattern = pattern.replace(r'https', r'https?')
+        pattern = pattern.replace(r'www\.', r'(www\.)?')
         return pattern
 
     def use_pagecache(self):
@@ -75,7 +75,7 @@ class QuotevComAdapter(BaseSiteAdapter):
                 self.story.addToList('authorUrl', urlparse.urljoin(self.url, a['href']))
         if not self.story.getList('author'):
             self.story.addToList('author','Anonymous')
-            self.story.addToList('authorUrl','http://www.quotev.com')
+            self.story.addToList('authorUrl','https://www.quotev.com')
             self.story.addToList('authorId','0')
 
         self.setDescription(self.url, soup.find('div', id='qdesct'))

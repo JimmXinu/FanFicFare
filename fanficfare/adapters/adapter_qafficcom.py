@@ -47,7 +47,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/atp/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/atp/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','atp')
@@ -63,10 +63,10 @@ class QafFicComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/atp/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/atp/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/atp/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/atp/viewstory.php?sid=")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -130,7 +130,7 @@ class QafFicComAdapter(BaseSiteAdapter):
 
         aut = a.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/atp/'+aut['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/atp/'+aut['href'])
         self.story.setMetadata('author',aut.string)
         aut.extract()
 
@@ -141,7 +141,7 @@ class QafFicComAdapter(BaseSiteAdapter):
         if chapters != None:
             for chapter in chapters.findAll('option'):
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/atp/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/atp/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
         else:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
 
@@ -223,7 +223,7 @@ class QafFicComAdapter(BaseSiteAdapter):
             if list.find('a', href=re.compile(r"series.php")) != None:
                 for series in asoup.findAll('a', href=re.compile(r"series.php\?seriesid=\d+")):
                     # Find Series name from series URL.
-                    series_url = 'http://'+self.host+'/atp/'+series['href']
+                    series_url = 'https://'+self.host+'/atp/'+series['href']
                     # use BeautifulSoup HTML parser to make everything easier to find.
                     seriessoup = self.make_soup(self._fetchUrl(series_url))
                     storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))

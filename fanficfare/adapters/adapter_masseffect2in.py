@@ -157,7 +157,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                     self.story.extendList('author', [authorName])
                     authorId = chapter.getAuthorId()
                     if authorId:
-                        authorUrl = 'http://%s/index/%s' % (self.getSiteDomain(), authorId)
+                        authorUrl = 'https://%s/index/%s' % (self.getSiteDomain(), authorId)
                     else:
                         authorId = u''
                         authorUrl = u''
@@ -280,7 +280,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
     @classmethod
     def _makeDocumentUrl(cls, documentId):
         """Make a chapter URL given a document ID."""
-        return 'http://%s/publ/%s' % (cls.getSiteDomain(), documentId)
+        return 'https://%s/publ/%s' % (cls.getSiteDomain(), documentId)
 
 
 class Chapter(object):
@@ -573,7 +573,7 @@ class Chapter(object):
             else:
                 _logger.warning(u"No title found for rating label `%s'!" % label)
         # TODO: conduct a research on such abnormal URLs.
-        elif source == 'http://www.masseffect2.in/_fr/10/1360399.png':
+        elif '/_fr/10/1360399.png' in source:
             label = 'Nn'
             return {
                 'label': 'Nn',

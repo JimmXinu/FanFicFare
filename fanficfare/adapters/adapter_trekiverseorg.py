@@ -45,7 +45,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
         # normalized story URL.
-        self._setURL("http://"+self.getSiteDomain()\
+        self._setURL("https://"+self.getSiteDomain()\
                          +"/efiction/viewstory.php?sid="+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
@@ -66,10 +66,10 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/efiction/viewstory.php?sid=1234 http://efiction."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/efiction/viewstory.php?sid=1234 https://efiction."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r'(http://trekiverse\.org/efiction/viewstory\.php\?sid=\d+|http://efiction\.trekiverse\.org/viewstory\.php\?sid=\d+)'
+        return r'(https?://trekiverse\.org/efiction/viewstory\.php\?sid=\d+|https?://efiction\.trekiverse\.org/viewstory\.php\?sid=\d+)'
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -92,7 +92,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/efiction/user.php?action=login'
+        loginUrl = 'https://' + self.getSiteDomain() + '/efiction/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -171,7 +171,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         a = soup.find('div', {'id' : 'pagetitle'})
         aut = a.find('a', href=re.compile(r"^viewuser\.php\?uid="))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/efiction/'+aut['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/efiction/'+aut['href'])
         self.story.setMetadata('author',aut.string)
 
         ttl = a.find('a', href=re.compile(r'^viewstory.php\?sid=%s$'%self.story.getMetadata('storyId')))
@@ -185,11 +185,11 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         if len(chapters)==0:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: No php/html chapters found.")
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/efiction/'+chapters[0]['href']))
+            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+'/efiction/'+chapters[0]['href']))
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/efiction/'+chapter['href']))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/efiction/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -282,7 +282,7 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/efiction/'+a['href']
+            series_url = 'https://'+self.host+'/efiction/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

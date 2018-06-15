@@ -51,7 +51,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL. gets rid of chapter if there, left with chapter index URL
-            nurl = "http://"+self.getSiteDomain()+"/historias/"+self.story.getMetadata('storyId')
+            nurl = "https://"+self.getSiteDomain()+"/historias/"+self.story.getMetadata('storyId')
             self._setURL(nurl)
         else:
             raise exceptions.InvalidStoryURL(url,
@@ -69,15 +69,15 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.potterfics.com/historias/12345 http://www.potterfics.com/historias/12345/capitulo-1 "
+        return "https://www.potterfics.com/historias/12345 https://www.potterfics.com/historias/12345/capitulo-1 "
 
     def getSiteURLPattern(self):
-        #http://www.potterfics.com/historias/127583
-        #http://www.potterfics.com/historias/127583/capitulo-1
-        #http://www.potterfics.com/historias/127583/capitulo-4
-        #http://www.potterfics.com/historias/92810              -> Complete story
-        #http://www.potterfics.com/historias/111194             -> Complete, single chap
-        p = re.escape("http://"+self.getSiteDomain()+"/historias/")+\
+        #https://www.potterfics.com/historias/127583
+        #https://www.potterfics.com/historias/127583/capitulo-1
+        #https://www.potterfics.com/historias/127583/capitulo-4
+        #https://www.potterfics.com/historias/92810              -> Complete story
+        #https://www.potterfics.com/historias/111194             -> Complete, single chap
+        p = r"https?://"+re.escape(self.getSiteDomain()+"/historias/")+\
             r"(?P<id>\d+)(/capitulo-(?P<ch>\d+))?/?$"
         return p
 
@@ -101,7 +101,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
             params['login_password'] = self.getConfig("password")
         params['login_ck'] = '1'
 
-        loginUrl = 'http://www.potterfics.com/secciones/usuarios/login.php'
+        loginUrl = 'https://www.potterfics.com/secciones/usuarios/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['login_usuario']))
         d = self._postUrl(loginUrl,params)
@@ -117,10 +117,10 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
 
-        #this converts '/historias/12345' to 'http://www.potterfics.com/historias/12345'
+        #this converts '/historias/12345' to 'https://www.potterfics.com/historias/12345'
         def makeAbsoluteURL(url):
             if url[0] == '/':
-                url = 'http://'+self.getSiteDomain()+url
+                url = 'https://'+self.getSiteDomain()+url
             return url
 
         #use this to get month numbers from Spanish months

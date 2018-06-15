@@ -66,7 +66,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/fiction/'+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/fiction/'+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','rylrdl')
@@ -157,7 +157,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         if author_link:
             authorId = author_link['href'].rsplit('/', 1)[1]
             self.story.setMetadata('authorId', authorId)
-            self.story.setMetadata('authorUrl','http://'+self.host+'/user/profile/'+authorId)
+            self.story.setMetadata('authorUrl','https://'+self.host+'/user/profile/'+authorId)
 
         self.story.setMetadata('author',soup.find(attrs=dict(property="books:author"))['content'])
 
@@ -165,7 +165,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         chapters = soup.find('table',{'id':'chapters'}).find('tbody')
         tds = [tr.findAll('td')[0] for tr in chapters.findAll('tr')]
         for td in tds:
-            chapterUrl = 'http://' + self.getSiteDomain() + td.a['href']
+            chapterUrl = 'https://' + self.getSiteDomain() + td.a['href']
             self.chapterUrls.append((stripHTML(td.text), chapterUrl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))

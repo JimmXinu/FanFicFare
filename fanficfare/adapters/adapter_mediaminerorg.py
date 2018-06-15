@@ -60,7 +60,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
                                       self.getSiteExampleURLs())
 
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/fanfic/s/'+cattitle+'/'+urltitle+'/'+self.story.getMetadata('storyId'))
+            self._setURL('https://' + self.getSiteDomain() + '/fanfic/s/'+cattitle+'/'+urltitle+'/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -76,20 +76,20 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfic/s/category-name/story-title/123456 http://"+cls.getSiteDomain()+"/fanfic/c/category-name/story-title/123456/987612"
+        return "https://"+cls.getSiteDomain()+"/fanfic/s/category-name/story-title/123456 https://"+cls.getSiteDomain()+"/fanfic/c/category-name/story-title/123456/987612"
 
     def getSiteURLPattern(self):
         ## old urls
-        ## http://www.mediaminer.org/fanfic/view_st.php/76882
+        ## https://www.mediaminer.org/fanfic/view_st.php/76882
         ## new urls
-        ## http://www.mediaminer.org/fanfic/s/ghosts-from-the-past/72
-        ## http://www.mediaminer.org/fanfic/c/ghosts-from-the-past/chapter-2/72/174
-        ## http://www.mediaminer.org/fanfic/s/robtech-final-missions/61553
-        ## http://www.mediaminer.org/fanfic/c/robtech-final-missions/robotech-final-missions-oneshot/61553/189830
+        ## https://www.mediaminer.org/fanfic/s/ghosts-from-the-past/72
+        ## https://www.mediaminer.org/fanfic/c/ghosts-from-the-past/chapter-2/72/174
+        ## https://www.mediaminer.org/fanfic/s/robtech-final-missions/61553
+        ## https://www.mediaminer.org/fanfic/c/robtech-final-missions/robotech-final-missions-oneshot/61553/189830
         ## even newer urls
-        ## http://www.mediaminer.org/fanfic/s/gundam-wing-fan-fiction/the-preventer-operatives/171000
-        ## http://www.mediaminer.org/fanfic/c/gundam-wing-fan-fiction/the-preventer-operatives/171000/608822
-        return re.escape("http://"+self.getSiteDomain())+r"/fanfic/"+\
+        ## https://www.mediaminer.org/fanfic/s/gundam-wing-fan-fiction/the-preventer-operatives/171000
+        ## https://www.mediaminer.org/fanfic/c/gundam-wing-fan-fiction/the-preventer-operatives/171000/608822
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/fanfic/"+\
             r"((s/(?P<cattitle4>[^/]+)/(?P<urltitle4>[^/]+)/(?P<id4>\d+))|"+\
             r"((c/(?P<cattitle5>[^/]+)/(?P<urltitle5>[^/]+)/(?P<id5>\d+))/\d+)|"+\
             r"(s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
@@ -138,7 +138,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"/user_info.php/\d+"))
         self.story.setMetadata('authorId',a['href'].split('/')[-1])
-        self.story.setMetadata('authorUrl','http://'+self.host+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
         # save date from first for later.
@@ -147,7 +147,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Find the chapters - one-shot now have chapter list, too.
         chap_p = soup.find('p',{'style':'margin-left:10px;'})
         for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
-            self.chapterUrls.append((name,'http://'+self.host+aurl))
+            self.chapterUrls.append((name,'https://'+self.host+aurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 

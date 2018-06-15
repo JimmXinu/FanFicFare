@@ -46,7 +46,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
         story_id = match.group('id')
         self.story.setMetadata('storyId', story_id)
-        self._setURL('http://%s/novel/%s' % (self.getSiteDomain(), story_id))
+        self._setURL('https://%s/novel/%s' % (self.getSiteDomain(), story_id))
 
     @staticmethod
     def getSiteDomain():
@@ -54,10 +54,10 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return 'http://%s/novel/story-name' % cls.getSiteDomain()
+        return 'https://%s/novel/story-name' % cls.getSiteDomain()
 
     def getSiteURLPattern(self):
-        return r'http(s)?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
+        return r'https?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
     def use_pagecache(self):
         return True

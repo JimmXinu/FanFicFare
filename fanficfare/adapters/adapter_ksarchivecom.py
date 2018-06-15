@@ -52,13 +52,13 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ksa') # XXX
 
         # The date format will vary from site to site.
-        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        # https://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b/%d/%Y" # XXX
 
     @classmethod
@@ -72,10 +72,10 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return "http://(www.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -160,13 +160,13 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         pagetitle = soup.find('div',id='pagetitle')
         for a in pagetitle.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+")):
             self.story.addToList('authorId',a['href'].split('=')[1])
-            self.story.addToList('authorUrl','http://'+self.host+'/'+a['href'])
+            self.story.addToList('authorUrl','https://'+self.host+'/'+a['href'])
             self.story.addToList('author',stripHTML(a))
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -286,7 +286,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = stripHTML(a)
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

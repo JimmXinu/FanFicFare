@@ -47,7 +47,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','hpffa')
@@ -63,7 +63,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"https?:"+re.escape("//"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
@@ -103,13 +103,13 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('div', id="mainpage").find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/stories/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/stories/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/stories/'+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/stories/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -186,7 +186,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/stories/'+a['href']
+            series_url = 'https://'+self.host+'/stories/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

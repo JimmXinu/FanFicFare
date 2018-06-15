@@ -75,7 +75,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only storyid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-        self._setURL('http://{0}/stories/story.php?storyid={1}'.format(self.getSiteDomain(), self.story.getMetadata('storyId')))
+        self._setURL('https://{0}/stories/story.php?storyid={1}'.format(self.getSiteDomain(), self.story.getMetadata('storyId')))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','bdsmlib')
@@ -91,10 +91,10 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/stories/story.php?storyid=1234"
+        return "https://"+cls.getSiteDomain()+"/stories/story.php?storyid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/stories/story.php?storyid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/stories/story.php?storyid=")+r"\d+$"
 
     def use_pagecache(self):
         '''
@@ -155,7 +155,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+"&chapterid=\d+$")):
             value = chapter.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
             self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.getSiteDomain()+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.getSiteDomain()+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 

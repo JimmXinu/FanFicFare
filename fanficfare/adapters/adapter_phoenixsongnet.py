@@ -46,7 +46,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/fanfiction/story/' +self.story.getMetadata('storyId')+'/')
+        self._setURL('https://' + self.getSiteDomain() + '/fanfiction/story/' +self.story.getMetadata('storyId')+'/')
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','phs')
@@ -62,10 +62,10 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/fanfiction/story/1234/"
+        return "https://"+cls.getSiteDomain()+"/fanfiction/story/1234/"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/fanfiction/story/")+r"\d+/?$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/fanfiction/story/")+r"\d+/?$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -86,7 +86,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         #params['remember'] = '1'
         params['login'] = 'Login'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/users/processlogin.php'
+        loginUrl = 'https://' + self.getSiteDomain() + '/users/processlogin.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['txtusername']))
         d = self._fetchUrl(loginUrl, params)
@@ -136,7 +136,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.  /fanfiction/stories.php?psid=125
         a = b.find('a', href=re.compile(r"/fanfiction/stories.php\?psid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
@@ -152,17 +152,17 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             i = 0
             chapters = chapters.findAll('option')
             for chapter in chapters:
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['value']))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['value']))
                 if i == 0:
                     self.story.setMetadata('storyId',chapter['value'].split('/')[3])
-                    head = self.make_soup(self._fetchUrl('http://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self._fetchUrl('https://'+self.host+chapter['value'])).findAll('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
                             self.story.setMetadata('datePublished', makeDate(date[0]+date[1], self.dateformat))
 
                 if  i == (len(chapters)-1):
-                    head = self.make_soup(self._fetchUrl('http://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self._fetchUrl('https://'+self.host+chapter['value'])).findAll('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
