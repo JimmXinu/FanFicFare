@@ -35,7 +35,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL.
-            self._setURL('http://' + self.getSiteDomain() + '/story/view/'+self.story.getMetadata('storyId'))
+            self._setURL('https://' + self.getSiteDomain() + '/story/view/'+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -55,7 +55,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/story/view/123456 http://"+cls.getSiteDomain()+"/story/view/123456/story-title-here http://"+cls.getSiteDomain()+"/story/view/123456/1"
+        return "https://"+cls.getSiteDomain()+"/story/view/123456 https://"+cls.getSiteDomain()+"/story/view/123456/story-title-here https://"+cls.getSiteDomain()+"/story/view/123456/1"
 
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain())+r"/story/view/0*(?P<id>\d+)"
@@ -89,14 +89,14 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             if self.is_adult or self.getConfig("is_adult"):
                 contentFilter = check.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
                 if contentFilter:
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/mark_over_18'
+                    loginUrl = 'https://' + self.getSiteDomain() + '/account/mark_over_18'
                     self._fetchUrl(loginUrl)
                 else:
                     params = {}
                     params['csrf_aff_token'] = check.find('input',{'name':'csrf_aff_token'})['value']
                     params['is_of_age'] = '1'
                     params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
-                    loginUrl = 'http://' + self.getSiteDomain() + '/account/toggle_age'
+                    loginUrl = 'https://' + self.getSiteDomain() + '/account/toggle_age'
                     self._postUrl(loginUrl,params)
 
                 data = self._fetchUrl(url,usecache=False)
@@ -157,7 +157,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         alist = alist.parent.findAll('a', href=re.compile(r"/profile/view/\d+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[-1])
-            self.story.addToList('authorUrl','http://'+self.host+a['href'])
+            self.story.addToList('authorUrl','https://'+self.host+a['href'])
             self.story.addToList('author',a.text)
 
         newestChapter = None
@@ -168,7 +168,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(chapters))
         for index, chapter in enumerate(chapters):
             if chapter.text != 'Foreword': # skip the foreword
-                self.chapterUrls.append((stripHTML(chapter.text),'http://' + self.getSiteDomain() + chapter['value'])) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
+                self.chapterUrls.append((stripHTML(chapter.text),'https://' + self.getSiteDomain() + chapter['value'])) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
         # find timestamp
         a = soup.find('span', text='Updated')
         if a == None:

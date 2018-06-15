@@ -47,7 +47,7 @@ class HLFictionNetAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','hlf')
@@ -63,10 +63,10 @@ class HLFictionNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -98,7 +98,7 @@ class HLFictionNetAdapter(BaseSiteAdapter):
 
         aut = a.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+aut['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+aut['href'])
         self.story.setMetadata('author',aut.string)
         aut.extract()
 
@@ -109,7 +109,7 @@ class HLFictionNetAdapter(BaseSiteAdapter):
         if chapters != None:
             for chapter in chapters.findAll('option'):
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
         else:
             self.chapterUrls.append((self.story.getMetadata('title'),url))
 
@@ -191,7 +191,7 @@ class HLFictionNetAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = list.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

@@ -47,7 +47,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
 
 
 
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','wb')
@@ -63,10 +63,10 @@ class WraithBaitComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -114,7 +114,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         alist = pt.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('=')[1])
-            self.story.addToList('authorUrl','http://'+self.host+'/'+a['href'])
+            self.story.addToList('authorUrl','https://'+self.host+'/'+a['href'])
             self.story.addToList('author',a.string)
 
         rating=pt.text.split('[')[1].split(']')[0]
@@ -133,7 +133,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             else:
                 add = ""
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter)+add,'http://'+self.host+'/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter)+add,'https://'+self.host+'/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -193,7 +193,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

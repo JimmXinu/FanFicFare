@@ -71,7 +71,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
 
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('http://' + self.getSiteDomain() + '/fanfics/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/fanfics/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','swf') # XXX
@@ -87,10 +87,10 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(self):
-        return "http://"+self.getSiteDomain()+"/fanfics/viewstory.php?sid=1234"
+        return "https://"+self.getSiteDomain()+"/fanfics/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/fanfics/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/fanfics/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -113,7 +113,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/fanfics/user.php?action=login'
+        loginUrl = 'https://' + self.getSiteDomain() + '/fanfics/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -182,7 +182,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         alist = soup.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('=')[1])
-            self.story.addToList('authorUrl','http://'+self.host+'/fanfics/'+a['href'])
+            self.story.addToList('authorUrl','https://'+self.host+'/fanfics/'+a['href'])
             self.story.addToList('author',a.string)
 
 
@@ -195,7 +195,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/fanfics/'+chapter['href']+addurl))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/fanfics/'+chapter['href']+addurl))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -279,7 +279,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/fanfics/'+a['href']
+            series_url = 'https://'+self.host+'/fanfics/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

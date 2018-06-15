@@ -67,7 +67,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId', m.group('id'))
 
             # normalized story URL.
-            self._setURL("http://"+self.getSiteDomain()
+            self._setURL("https://"+self.getSiteDomain()
                          +"/novel/"+self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
@@ -80,11 +80,11 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://lightnovelgate.com/novel/astoryname"
+        return "https://lightnovelgate.com/novel/astoryname"
 
     def getSiteURLPattern(self):
         # http://lightnovelgate.com/novel/stellar_transformation
-        return r"http://lightnovelgate\.com/novel/(?P<id>[^/]+)"
+        return r"https?://lightnovelgate\.com/novel/(?P<id>[^/]+)"
 
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter. From that we will get almost all the

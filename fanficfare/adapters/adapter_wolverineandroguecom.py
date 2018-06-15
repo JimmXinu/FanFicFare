@@ -46,7 +46,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/wrfa/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/wrfa/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','wrfa')
@@ -62,10 +62,10 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/wrfa/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/wrfa/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/wrfa/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/wrfa/viewstory.php?sid=")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -101,7 +101,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = pt.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/wrfa/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/wrfa/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         rating=pt.text.split('(')[1].split(')')[0]
@@ -110,7 +110,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/wrfa/'+chapter['href']))
+            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/wrfa/'+chapter['href']))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -178,7 +178,7 @@ class WolverineAndRogueComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/wrfa/'+a['href']
+            series_url = 'https://'+self.host+'/wrfa/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))

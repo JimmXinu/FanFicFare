@@ -27,7 +27,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'bvc'
     SITE_DOMAIN = 'bloodshedverse.com'
 
-    BASE_URL = 'http://' + SITE_DOMAIN + '/'
+    BASE_URL = 'https://' + SITE_DOMAIN + '/'
     READ_URL_TEMPLATE = BASE_URL + 'stories.php?go=read&no=%s'
 
     STARTED_DATETIME_FORMAT = '%m/%d/%Y'
@@ -65,7 +65,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         return cls.READ_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.BASE_URL + 'stories.php?go=') + r'(read|chapters)\&(amp;)?no=\d+$'
+        return r'https?://' + re.escape(self.SITE_DOMAIN + '/stories.php?go=') + r'(read|chapters)\&(amp;)?no=\d+$'
 
     # Override stripURLParameters so the "no" parameter won't get stripped
     @classmethod
