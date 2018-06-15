@@ -151,7 +151,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', stripHTML(title))
 
         # Get Author
-        authortag = soup.find_all('table')[4].find('a',href=re.compile(r'/gallery/'))
+        authortag = soup.find('table',{'class':'pooltable'}).find('a',href=re.compile(r'/gallery/'))
         author = authortag['href'].split('/')[-1] # no separate ID
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
