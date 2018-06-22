@@ -653,6 +653,12 @@ class FanFicFarePlugin(InterfaceAction):
                                                dir=tdir)
             book['changed']=reset_orig_chapters_epub(tmp,unnewtmp)
             if book['changed']:
+                try:
+                    # Remove before adding so the previous version is in the
+                    # OS Trash (on Windows, at least)
+                    db.remove_format(book['calibre_id'],'EPUB', index_is_id=True)
+                except:
+                    pass
                 db.add_format_with_hooks(book['calibre_id'],
                                          'EPUB',
                                          unnewtmp,
@@ -1929,6 +1935,12 @@ class FanFicFarePlugin(InterfaceAction):
         else:
             book['added'] = False
 
+        try:
+            # Remove before adding so the previous version is in the
+            # OS Trash (on Windows, at least)
+            db.remove_format(book_id,options['fileform'], index_is_id=True)
+        except:
+            pass
         if not db.add_format_with_hooks(book_id,
                                         options['fileform'],
                                         book['outfile'], index_is_id=True):
