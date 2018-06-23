@@ -47,7 +47,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ash')
@@ -67,7 +67,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://archive.skyehawke.com/story.php?no=1234 https://www.skyehawke.com/archive/story.php?no=1234  https://skyehawke.com/archive/story.php?no=1234"
+        return "http://archive.skyehawke.com/story.php?no=1234 http://www.skyehawke.com/archive/story.php?no=1234  http://skyehawke.com/archive/story.php?no=1234"
 
     def getSiteURLPattern(self):
         return r"https?://(archive|www)\.skyehawke\.com/(archive/)?story\.php\?no=\d+$"
@@ -100,7 +100,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         author = a.find('a')
         self.story.setMetadata('authorId',author['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','https://'+self.host+'/'+author['href'])
+        self.story.setMetadata('authorUrl','http://'+self.host+'/'+author['href'])
         self.story.setMetadata('author',author.string)
 		
         authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
