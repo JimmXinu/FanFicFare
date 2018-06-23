@@ -1,6 +1,6 @@
 # ffd-retief-hrd fanficfare
 application: fanficfare
-version: 2-26-5
+version: 2-26-6
 runtime: python27
 api_version: 1
 threadsafe: true
