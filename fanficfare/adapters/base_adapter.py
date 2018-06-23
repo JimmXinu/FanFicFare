@@ -49,7 +49,7 @@ class TimeKeeper(defaultdict):
         keys = self.keys()
         keys.sort()
         return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
-
+import inspect
 class BaseSiteAdapter(Configurable):
 
     @classmethod
@@ -75,6 +75,7 @@ class BaseSiteAdapter(Configurable):
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.now())
+        self.story.setMetadata('adapter_classes',";".join([ c.__name__ for c in inspect.getmro(self.__class__)]))
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
