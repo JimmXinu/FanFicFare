@@ -75,7 +75,6 @@ class BaseSiteAdapter(Configurable):
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.now())
-        self.story.setMetadata('adapter_classes',";".join([ c.__name__ for c in inspect.getmro(self.__class__)]))
         self.chapterUrls = [] # tuples of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
@@ -91,6 +90,14 @@ class BaseSiteAdapter(Configurable):
 
         ## for doing some performance profiling.
         self.times = TimeKeeper()
+
+        ## Save class inheritence list in metadata.  Must be added to
+        ## extra_valid_entries to use.
+        cl = [ c.__name__ for c in inspect.getmro(self.__class__)[::-1] ]
+        cl.remove('object') # remove a few common-to-all classes
+        cl.remove('BaseSiteAdapter')
+        cl.remove('Configurable')
+        self.story.extendList('adapter_classes',cl)
 
         self._setURL(url)
         if not self.validateURL():
