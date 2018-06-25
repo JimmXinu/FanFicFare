@@ -32,6 +32,7 @@ import bs4
 import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
+from htmlheuristics import was_run_marker
 
 Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
 
@@ -831,7 +832,7 @@ class Story(Configurable):
         For calibre version so this code can be consolidated between
         fff_plugin.py and jobs.py
         '''
-        orig = description = self.getMetadata("description")
+        description = self.getMetadata("description")
         # logger.debug("description:%s"%description)
         if not description:
             description = ''
@@ -840,9 +841,10 @@ class Story(Configurable):
                 ## because of the html->MD text->html dance, text only
                 ## (or MD/MD-like) descs come out better.
                 description = sanitize_comments_html(description)
-                # logger.debug("desc using sanitize_comments_html")
-        # if orig != description:
-        #     logger.debug("\nchanged description\n%s\n%s"%(orig,description))
+        # lengthy FFF_replace_br_with_p_has_been_run" causes
+        # problems with EpubSplit and EpubMerge comments
+        description = description.replace(u'<!-- ' +was_run_marker+ u' -->\n',u'')
+        description = description.replace(u'<div id="' +was_run_marker+ u'">\n',u'<div>')
         return description
 
     # just for less clutter in adapters.
