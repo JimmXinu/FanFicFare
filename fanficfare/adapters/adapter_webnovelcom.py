@@ -127,7 +127,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             tag.extract()
         self.story.setMetadata('title', stripHTML(title))
 
-        detail_txt = stripHTML(bookdetails.find('p', {'class': '_detail'}))
+        detail_txt = stripHTML(bookdetails.find('p', {'class': re.compile('detail')}))
         if "Completed" in detail_txt:
             self.story.setMetadata('status', 'Completed')
         else:
