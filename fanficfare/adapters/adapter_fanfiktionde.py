@@ -166,9 +166,18 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('rating', genres[genres.index(' / ')+3:])
 
         self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split(' / ')[2])
-        
+
+        try:
+            self.story.setMetadata('native_status', head.find_all('span',{'class':'titled-icon'})[3]['title'])
+        except e:
+            logger.debug("Failed to find native status:%s"%e)
+
         if head.find('span',title='Fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
+        elif head.find('span',title='Pausiert'):
+            self.story.setMetadata('status', 'Paused')
+        elif head.find('span',title='Abgebrochen'):
+            self.story.setMetadata('status', 'Cancelled')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
@@ -176,7 +185,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         ## /?a=v&storyid=46ccbef30000616306614050&s=1
         descsoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"/?a=v&storyid="+self.story.getMetadata('storyId')+"&s=1"))
         self.setDescription(url,stripHTML(descsoup))
-        
+
         # #find metadata on the author's page
         # asoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
         # tr=asoup.findAll('tr')
@@ -191,7 +200,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         # self.story.setMetadata('numWords', stripHTML(td[6]))
 
 
-        
+
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
