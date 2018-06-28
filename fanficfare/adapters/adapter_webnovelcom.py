@@ -152,7 +152,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         parse_meta(meta_txt,'Editor:','editor')
 
         cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
-        print cats
         self.story.extendList('category',[stripHTML(cat) for cat in cats])
 
         poptags = soup.find('p',{'class':'pop-tags'})
@@ -177,7 +176,11 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         for volume in jsondata["data"]["volumeItems"]:
             for chap in volume["chapterItems"]:
                 # Only allow free and VIP type 1 chapters
-                if chap['isVip'] not in {0, 1}:
+                if chap['isVip'] not in [0]: # removed VIP type 1
+                                             # chapter (ad-wall'ed)
+                                             # because the ad-wall
+                                             # bypass code stopped
+                                             # working. --JM
                     continue
 
                 chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
