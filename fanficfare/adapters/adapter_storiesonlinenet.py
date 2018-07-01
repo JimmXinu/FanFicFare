@@ -47,7 +47,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
@@ -67,10 +67,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010"
+        return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010 https://"+cls.getSiteDomain()+"/s/1234 https://"+cls.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)((:\d+)?(;\d+)?$|(:i)?$)?"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)((:\d+)?(;\d+)?$|(:i)?$)?"
 
     @classmethod
     def getTheme(cls):
@@ -98,7 +98,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             params['theusername'] = self.getConfig("username")
             params['thepassword'] = self.getConfig("password")
         params['rememberMe'] = '1'
-        params['page'] = 'http://'+self.getSiteDomain()+'/'
+        params['page'] = 'https://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
 
         loginUrl = 'https://' + self.getSiteDomain() + '/sol-secure/login.php'
@@ -181,7 +181,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         alist = authfrom.findAll('a', {'rel' : 'author'})
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[2])
-            self.story.addToList('authorUrl','http://'+self.host+a['href'])
+            self.story.addToList('authorUrl','https://'+self.host+a['href'])
             self.story.addToList('author',stripHTML(a).replace("'s Page",""))
 
         # The rest of the metadata is within the article tag.
@@ -193,9 +193,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['href']))
+                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['href']))
         else:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/s/'+self.story.getMetadata('storyId')))
+            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+'/s/'+self.story.getMetadata('storyId')))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -203,8 +203,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # Some books have a cover in the index page.
         # Samples are:
-        #     http://storiesonline.net/s/11999
-        #     http://storiesonline.net/s/10823
+        #     https://storiesonline.net/s/11999
+        #     https://storiesonline.net/s/10823
         if get_cover:
             # logger.debug("Looking for the cover image...")
             cover_url = ""
@@ -292,7 +292,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # [<a href="...">Title</a>, u' (2)']
                 series_contents = a.parent.contents
                 i = 0 if len(series_contents) == 1 else series_contents[1].strip(' ()')
-                seriesUrl = 'http://'+self.host+a['href']
+                seriesUrl = 'https://'+self.host+a['href']
                 self.story.setMetadata('seriesUrl',seriesUrl)
                 series_name = stripHTML(a)
                 # logger.debug("Series name= %s" % series_name)
@@ -325,7 +325,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                             if story_a:
                                 # logger.debug("Story is in a series that is in a universe! The universe is '%s'" % universe_name)
                                 self.story.setMetadata("universe", universe_name)
-                                self.story.setMetadata('universeUrl','http://'+self.host+ '/library/universe.php?id=' + universe_id)
+                                self.story.setMetadata('universeUrl','https://'+self.host+ '/library/universe.php?id=' + universe_id)
                                 break
                     else:
                         logger.debug("No universe page")
@@ -340,7 +340,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 desc = description_element.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
                 universe_name = stripHTML(a)
-                universeUrl = 'http://'+self.host+a['href']
+                universeUrl = 'https://'+self.host+a['href']
                 # logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
                 universe_soup = self.make_soup(self._fetchUrl(universeUrl))
                 logger.debug("Retrieving Universe - have page")
@@ -362,7 +362,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise
             pass
 
-        self.setDescription('http://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
+        self.setDescription('https://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
 
 
     def parseOtherAttributes(self, other_attribute_element):
@@ -434,7 +434,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             pager.extract()
 
             for ur in urls:
-                soup = self.make_soup(self._fetchUrl("http://"+self.getSiteDomain()+ur['href']))
+                soup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+ur['href']))
 
                 pagetag = soup.find('article')
 
