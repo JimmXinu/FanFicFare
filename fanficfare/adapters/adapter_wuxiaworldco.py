@@ -32,7 +32,7 @@ def getClass():
 
 
 class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
-    DATE_FORMAT = '%d/%m/%Y %I:%M:%S %p'
+    DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -73,6 +73,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
         info = soup.select_one('#info')
         self.story.setMetadata('title', stripHTML(info.h1))
+        self.setCoverImage(self.url, soup.select_one('#fmimg > img')['src'])
 
         info_paragraphs = info('p')
         # Unicode strings because '：' isn't ':', but \xef\xbc\x9a
