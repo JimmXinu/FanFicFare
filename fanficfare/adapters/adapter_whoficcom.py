@@ -80,18 +80,18 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'chapter' } )
-    	
+
         if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+            # no selector found, so it's a one-chapter story.
+            self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
-    	   allOptions = select.findAll('option')
-    	   for o in allOptions:
-    	     url = self.url + "&chapter=%s" % o['value']
-             # just in case there's tags, like <i> in chapter titles.
-    	     title = "%s" % o
-             title = re.sub(r'<[^>]+>','',title)
-    	     self.chapterUrls.append((title,url))
+        allOptions = select.findAll('option')
+        for o in allOptions:
+            url = self.url + "&chapter=%s" % o['value']
+            # just in case there's tags, like <i> in chapter titles.
+            title = "%s" % o
+            title = re.sub(r'<[^>]+>','',title)
+            self.chapterUrls.append((title,url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
@@ -119,17 +119,17 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
         metadata = a.findParent('td')
         metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br/>')
-        
+
         # Some stories have a <br/> inside the description, which
-        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5. 
-        # so we have to process through the metadatachunks to get the description, 
+        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5.
+        # so we have to process through the metadatachunks to get the description,
         # then the next metadata chunk [GComyn]
 
         # process metadata for this story.
         description = metadatachunks[1]
         for i, mdc in enumerate(metadatachunks):
             if i==0 or i==1:
-                # 0 is the title section, and 1 is always the description, 
+                # 0 is the title section, and 1 is always the description,
                 # which is already set, so skip them [GComyn]
                 pass
             else:

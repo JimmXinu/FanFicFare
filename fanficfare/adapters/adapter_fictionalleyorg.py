@@ -194,13 +194,13 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
-	# find <!-- headerend --> & <!-- footerstart --> and
-	# replaced with matching div pair for easier parsing.
-	# Yes, it's an evil kludge, but what can ya do?  Using
-	# something other than div prevents soup from pairing
-	# our div with poor html inside the story text.
+        # find <!-- headerend --> & <!-- footerstart --> and
+        # replaced with matching div pair for easier parsing.
+        # Yes, it's an evil kludge, but what can ya do?  Using
+        # something other than div prevents soup from pairing
+        # our div with poor html inside the story text.
         crazy = "crazytagstringnobodywouldstumbleonaccidently"
-	data = data.replace('<!-- headerend -->','<'+crazy+' id="storytext">').replace('<!-- footerstart -->','</'+crazy+'>')
+        data = data.replace('<!-- headerend -->','<'+crazy+' id="storytext">').replace('<!-- footerstart -->','</'+crazy+'>')
 
         # problems with some stories confusing Soup.  This is a nasty
         # hack, but it works.

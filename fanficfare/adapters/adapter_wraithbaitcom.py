@@ -92,7 +92,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-				
+
         if "for adults only" in data:
             raise exceptions.AdultCheckRequired(self.url)
 
@@ -146,32 +146,32 @@ class WraithBaitComAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-		
+
         info = soup.find('div', {'class' : 'small'})
-		
+
         word=info.find(text=re.compile("Word count:")).split(':')
         self.story.setMetadata('numWords', word[1])
-		
+
         cats = info.findAll('a',href=re.compile(r'browse.php\?type=categories&id=\d'))
         for cat in cats:
             if "General" != cat.string:
                 self.story.addToList('category',cat.string)
-				
+
         chars = info.findAll('a',href=re.compile(r'browse.php\?type=characters&charid=\d'))
         for char in chars:
             self.story.addToList('characters',char.string)
-			
+
         completed=info.find(text=re.compile("Completed: Yes"))
         if completed != None:
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-			
+
         date=soup.find('div',{'class' : 'bottom'})
         pd=date.find(text=re.compile("Published:")).string.split(': ')
         self.story.setMetadata('datePublished', makeDate(stripHTML(pd[1].split(' U')[0]), self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(pd[2]), self.dateformat))
-		
+
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})
         pub=0
@@ -209,7 +209,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         except:
             # I find it hard to care if the series parsing fails
             pass
-			
+
         info.extract()
         summary = soup.find('div', {'class' : 'content'})
         self.setDescription(url,summary)

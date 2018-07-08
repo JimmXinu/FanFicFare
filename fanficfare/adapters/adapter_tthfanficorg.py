@@ -248,8 +248,8 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             select = soup.find('select', { 'name' : 'chapnav' } )
 
             if select is None:
-        	   # no selector found, so it's a one-chapter story.
-        	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+                # no selector found, so it's a one-chapter story.
+                self.chapterUrls.append((self.story.getMetadata('title'),url))
             else:
                 allOptions = select.findAll('option')
                 for o in allOptions:

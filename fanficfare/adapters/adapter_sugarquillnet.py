@@ -122,7 +122,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
-		## This site doesn't have much metadata, so we will get what we can.
+        ## This site doesn't have much metadata, so we will get what we can.
         ## The metadata is all on the author's page, so we have to get it to parse.
         author_Url = self.story.getMetadata('authorUrl').replace('&amp;','&')
         logger.debug('Getting the author page: {0}'.format(author_Url))
