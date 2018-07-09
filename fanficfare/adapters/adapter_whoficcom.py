@@ -85,13 +85,13 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             # no selector found, so it's a one-chapter story.
             self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
-        allOptions = select.findAll('option')
-        for o in allOptions:
-            url = self.url + "&chapter=%s" % o['value']
-            # just in case there's tags, like <i> in chapter titles.
-            title = "%s" % o
-            title = re.sub(r'<[^>]+>','',title)
-            self.chapterUrls.append((title,url))
+            allOptions = select.findAll('option')
+            for o in allOptions:
+                url = self.url + "&chapter=%s" % o['value']
+                # just in case there's tags, like <i> in chapter titles.
+                title = "%s" % o
+                title = re.sub(r'<[^>]+>','',title)
+                self.chapterUrls.append((title,url))
 
         self.story.setMetadata('numChapters',len(self.chapterUrls))
 
