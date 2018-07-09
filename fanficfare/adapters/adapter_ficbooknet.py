@@ -82,7 +82,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-				
+
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -93,9 +93,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 adult_div.extract()
             else:
                 raise exceptions.AdultCheckRequired(self.url)
-        
+
         # Now go hunting for all the meta data and the chapter list.
-		
+
         ## Title
         a = soup.find('section',{'class':'chapter-info'}).find('h1')
         # kill '+' marks if present.
@@ -180,7 +180,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
 
         dlinfo = soup.find('dl',{'class':'info'})
-        
+
         i=0
         fandoms = dlinfo.find('dd').findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
@@ -194,7 +194,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         ratingdt = dlinfo.find('dt',text='Рейтинг:')
         self.story.setMetadata('rating', stripHTML(ratingdt.next_sibling))
-            
+
         # meta=table.findAll('a', href=re.compile(r'/ratings/'))
         # i=0
         # for m in meta:
@@ -206,13 +206,13 @@ class FicBookNetAdapter(BaseSiteAdapter):
         #             i=2
         #         self.story.addToList('genre', m.find('b').text)
         #     elif i == 2:
-        #         self.story.addToList('warnings', m.find('b').text)		
+        #         self.story.addToList('warnings', m.find('b').text)
 
         if dlinfo.find('span', {'style' : 'color: green'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
-		
+
 
         tags = dlinfo.findAll('dt')
         for tag in tags:
@@ -222,7 +222,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 for char in chars:
                     self.story.addToList('characters',char)
                 break
-				
+
         summary=soup.find('div', {'class' : 'urlize'})
         self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)

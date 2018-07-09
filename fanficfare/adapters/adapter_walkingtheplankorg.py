@@ -135,7 +135,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
                 return d[k]
             except:
                 return ""
-				
+
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
@@ -158,7 +158,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
 
             if 'Read' in label:
                 self.story.setMetadata('reads', value)
-                
+
             if 'Categories' in label:
                 cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]

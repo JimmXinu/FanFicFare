@@ -142,10 +142,10 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         # Find the chapter selector
         select = soup.find('select', { 'name' : 'sid' } )
-    	
+
         if select is None:
-    	   # no selector found, so it's a one-chapter story.
-    	   self.chapterUrls.append((self.story.getMetadata('title'),url))
+            # no selector found, so it's a one-chapter story.
+            self.chapterUrls.append((self.story.getMetadata('title'),url))
         else:
             allOptions = select.findAll('option', {'value' : re.compile(r'viewstory')})
             for o in allOptions:
