@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import re
+
 from base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 def getClass():
@@ -33,3 +35,12 @@ class ForumsSpacebattlesComAdapter(BaseXenForoForumAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'forums.spacebattles.com'
 
+    @classmethod
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),
+                cls.getSiteDomain().replace('forums.','forum.')]
+
+    def getSiteURLPattern(self):
+        ## SB accepts forums.spacebattles.com and forum.spacebattles.com
+        ## We will use forums. as canonical for all
+        return super(ForumsSpacebattlesComAdapter, self).getSiteURLPattern().replace(re.escape("forums."),r"forums?\.")

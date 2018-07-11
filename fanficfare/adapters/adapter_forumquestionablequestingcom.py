@@ -35,3 +35,13 @@ class QuestionablequestingComAdapter(BaseXenForoForumAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'forum.questionablequesting.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),
+                cls.getSiteDomain().replace('forum.','')]
+
+    def getSiteURLPattern(self):
+        ## QQ accepts forum.questionablequesting.com and questionablequesting.com
+        ## We will use forum. as canonical for all
+        return super(QuestionablequestingComAdapter, self).getSiteURLPattern().replace(re.escape("forum."),r"(forum\.)?")

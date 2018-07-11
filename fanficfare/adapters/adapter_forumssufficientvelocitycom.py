@@ -37,8 +37,12 @@ class ForumsSufficientVelocityComAdapter(BaseXenForoForumAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return [cls.getSiteDomain(),'sufficientvelocity.com']
+        return [cls.getSiteDomain(),
+                cls.getSiteDomain().replace('forums.','forum.'),
+                cls.getSiteDomain().replace('forums.','')]
 
     def getSiteURLPattern(self):
-        ## sufficientvelocity.com URLs without 'forums.' also work for SV, but not SB.
-        return super(ForumsSufficientVelocityComAdapter, self).getSiteURLPattern().replace(re.escape("forums."),r"(forums\.)?")
+        ## SV accepts forums.sufficientvelocity.com, forum.sufficientvelocity.com and sufficientvelocity.com
+        ## all of which redirect to forums.
+        ## We will use forums. as canonical for all
+        return super(ForumsSufficientVelocityComAdapter, self).getSiteURLPattern().replace(re.escape("forums."),r"(forums?\.)?")
