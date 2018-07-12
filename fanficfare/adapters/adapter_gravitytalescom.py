@@ -163,9 +163,8 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         for alink in chap_soup.find_all('a',href=re.compile(self.getSiteDomain())): # ignore anchor links
             ## Some stories have that same chapters in different sections
             if alink['href'] not in found_chaps:
-                self.chapterUrls.append((stripHTML(alink),alink['href']))
+                self.add_chapter(alink,alink['href'])
                 found_chaps[alink['href']] = alink['href']
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         if feedparser:
             # Parse published and updated date from latest RSS feed entry. The RSS feed urls seems to appear due to

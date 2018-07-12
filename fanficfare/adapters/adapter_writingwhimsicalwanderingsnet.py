@@ -111,9 +111,8 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+            self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         ## This site's metadata is not very well formatted... so we have to cludge a bit..
         ## The only ones I see that are, are Relationships and Warnings...

@@ -101,11 +101,10 @@ class TwilightArchivesComAdapter(BaseSiteAdapter):
         chapters=soup.find('ol', {'class' : 'chapters'})
         if chapters != None:
             for chapter in chapters.findAll('a', href=re.compile(r'/read/'+self.story.getMetadata('storyId')+"/\d+$")):
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['href']))
+                self.add_chapter(chapter,'http://'+self.host+chapter['href'])
         else:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
 # rated, genre, warnings, seires
 

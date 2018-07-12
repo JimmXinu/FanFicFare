@@ -122,9 +122,8 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         for a in soup.find('div', id='rselect')('a'):
             if 'javascript' not in a['href']:
-                self.chapterUrls.append((a.get_text(), urlparse.urljoin(self.url, a['href'])))
+                self.add_chapter(a.get_text(), urlparse.urljoin(self.url, a['href']))
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
         
     def getChapterText(self, url):
         data = self._fetchUrl(url)

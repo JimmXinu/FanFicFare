@@ -135,10 +135,9 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters:
-        ## This site is a 1 story/page site, so I'm setting the chapterUrls to the entered url and
+        ## This site is a 1 story/page site, so I'm setting the chapter to the entered url and
         # the status to complete
-        self.chapterUrls.append(('',url))
-        self.story.setMetadata('numChapters',1)
+        self.add_chapter('',url)
         self.story.setMetadata('status', 'Completed')
 
 

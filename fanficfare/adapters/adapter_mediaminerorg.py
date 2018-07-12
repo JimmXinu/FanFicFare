@@ -147,9 +147,8 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # Find the chapters - one-shot now have chapter list, too.
         chap_p = soup.find('p',{'style':'margin-left:10px;'})
         for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
-            self.chapterUrls.append((name,'https://'+self.host+aurl))
+            self.add_chapter(name,'https://'+self.host+aurl)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # category
         # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>

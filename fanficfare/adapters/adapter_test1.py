@@ -76,18 +76,13 @@ class TestSiteAdapter(BaseSiteAdapter):
                         self.story.setMetadata(key,self.get_config(sections,key).decode('utf-8').replace('{{storyId}}',idstr))
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
-            self.chapterUrls = []
             if self.has_config(sections,'chapter_urls'):
                 for l in self.get_config(sections,'chapter_urls').splitlines() :
                     if l:
-                        self.chapterUrls.append( (l[1+l.index(','):],l[:l.index(',')]) )
+                        self.add_chapter(l[1+l.index(','):],l[:l.index(',')])
             else:
                 for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
-                    self.chapterUrls.append( (chap,self.url+"&chapter=%d"%j) )
-            # self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
-            #                 ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
-            #                 ]
-            self.story.setMetadata('numChapters',len(self.chapterUrls))
+                    self.add_chapter(chap,self.url+"&chapter=%d"%j)
 
             return
 
@@ -285,33 +280,34 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         self.story.setMetadata('metaB','01245')
         self.story.setMetadata('metaC','The mighty metaC!')
 
-        self.chapterUrls = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
-                            ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
-                            ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
-                            ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
-                            ('Chapter 4',self.url+"&chapter=5"),
-                            ('Chapter 5',self.url+"&chapter=6"),
-                            ('Chapter 6',self.url+"&chapter=7"),
-                            ('Chapter 7',self.url+"&chapter=8"),
-                            ('Chapter 8',self.url+"&chapter=9"),
-                            #('Chapter 9',self.url+"&chapter=0"),
-                            #('Chapter 0',self.url+"&chapter=a"),
-                            #('Chapter a',self.url+"&chapter=b"),
-                            #('Chapter b',self.url+"&chapter=c"),
-                            #('Chapter c',self.url+"&chapter=d"),
-                            #('Chapter d',self.url+"&chapter=e"),
-                            #('Chapter e',self.url+"&chapter=f"),
-                            #('Chapter f',self.url+"&chapter=g"),
-                            #('Chapter g',self.url+"&chapter=h"),
-                            #('Chapter h',self.url+"&chapter=i"),
-                            #('Chapter i',self.url+"&chapter=j"),
-                            #('Chapter j',self.url+"&chapter=k"),
-                            #('Chapter k',self.url+"&chapter=l"),
-                            #('Chapter l',self.url+"&chapter=m"),
-                            #('Chapter m',self.url+"&chapter=n"),
-                            #('Chapter n',self.url+"&chapter=o"),
-                            ]
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
+        chapters = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
+                    ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
+                    ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
+                    ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
+                    ('Chapter 4',self.url+"&chapter=5"),
+                    ('Chapter 5',self.url+"&chapter=6"),
+                    ('Chapter 6',self.url+"&chapter=7"),
+                    ('Chapter 7',self.url+"&chapter=8"),
+                    ('Chapter 8',self.url+"&chapter=9"),
+                    #('Chapter 9',self.url+"&chapter=0"),
+                    #('Chapter 0',self.url+"&chapter=a"),
+                    #('Chapter a',self.url+"&chapter=b"),
+                    #('Chapter b',self.url+"&chapter=c"),
+                    #('Chapter c',self.url+"&chapter=d"),
+                    #('Chapter d',self.url+"&chapter=e"),
+                    #('Chapter e',self.url+"&chapter=f"),
+                    #('Chapter f',self.url+"&chapter=g"),
+                    #('Chapter g',self.url+"&chapter=h"),
+                    #('Chapter h',self.url+"&chapter=i"),
+                    #('Chapter i',self.url+"&chapter=j"),
+                    #('Chapter j',self.url+"&chapter=k"),
+                    #('Chapter k',self.url+"&chapter=l"),
+                    #('Chapter l',self.url+"&chapter=m"),
+                    #('Chapter m',self.url+"&chapter=n"),
+                    #('Chapter n',self.url+"&chapter=o"),
+                    ]
+        for c in chapters:
+            self.add_chapter(c[0],c[1])
 
 
     def getChapterText(self, url):

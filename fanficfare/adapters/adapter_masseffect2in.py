@@ -197,7 +197,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                         self.story.extendList('warnings', [warning])
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
-                self.chapterUrls.append((chapterTitle, url))
+                self.add_chapter(chapterTitle, url)
             except ParsingError, error:
                 raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 

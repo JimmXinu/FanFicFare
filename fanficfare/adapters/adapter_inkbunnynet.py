@@ -188,10 +188,9 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', makeDate(updated, self.dateformat))
         self.story.setMetadata('datePublished', makeDate(updated, self.dateformat))
 
-        # This is a 1 story/page site, so we set the chapterUrls up with the story url and title
-        self.chapterUrls.append((self.story.getMetadata('title'), url))
+        # This is a 1 story/page site, so we set the chapter up with the story url and title
+        self.add_chapter(self.story.getMetadata('title'), url)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         if get_cover:
             cover_img = soup.find('img', {'id':'magicbox'})

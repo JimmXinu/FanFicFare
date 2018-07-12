@@ -118,13 +118,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # Find the chapters (from soup, not authsoup):
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/siye/'+chapter['href']))
+            self.add_chapter(chapter,'http://'+self.host+'/siye/'+chapter['href'])
 
-        if self.chapterUrls:
-            self.story.setMetadata('numChapters',len(self.chapterUrls))
-        else:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
-            self.story.setMetadata('numChapters',1)
+        if self.num_chapters() < 1:
+            self.add_chapter(self.story.getMetadata('title'),url)
 
         # The stuff we can get from the chapter list/one-shot page are
         # in the first table with 95% width.

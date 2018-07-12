@@ -116,8 +116,7 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', makeDate(storyInfo['modifyDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
         self.story.setMetadata('datePublished', makeDate(storyInfo['createDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
 
-        self.chapterUrls = [(part['title'], part['url']) for part in storyInfo['parts']]
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
+        [self.add_chapter(part['title'], part['url']) for part in storyInfo['parts']]
         self.setCoverImage(storyInfo['url'], storyInfo['cover'].replace('-256-','-512-'))
         self.story.setMetadata('language', storyInfo['language']['name'])
 

@@ -88,7 +88,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         chapter_anchors = soup('a', href=lambda href: href and href.startswith('/fanfiction/story/'))
         for chapter_anchor in chapter_anchors:
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
-            self.chapterUrls.append((chapter_anchor.string, url))
+            self.add_chapter(chapter_anchor.string, url)
 
         author_url = urlparse.urljoin(self.BASE_URL, author_anchor['href'])
         soup = self._customized_fetch_url(author_url)
@@ -108,7 +108,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         # No chapter anchors found in the original story URL, so the story has
         # only a single chapter.
         if not chapter_anchors:
-            self.chapterUrls.append((title, self.url))
+            self.add_chapter(title, self.url)
 
         for b_tag in listbox('b'):
             key = b_tag.string.strip(':')

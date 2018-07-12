@@ -142,6 +142,25 @@ class BaseSiteAdapter(Configurable):
             self.chapterLast=int(last)-1
         self.story.set_chapters_range(first,last)
 
+    def add_chapter(self,title,url):
+        self.chapterUrls.append((stripHTML(title),url))
+        self.story.setMetadata('numChapters', self.num_chapters())
+
+    def num_chapters(self):
+        return len(self.chapterUrls)
+
+    def get_chapter(self,i,attr):
+        if attr == 'url':
+            return self.chapterUrls[i][1]
+        return None
+
+    def get_chapters(self):
+        return copy.copy(self.chapterUrls)
+
+    def del_chapter(self,i):
+        del self.chapterUrls[i]
+        self.story.setMetadata('numChapters', self.num_chapters())
+
     # Does the download the first time it's called.
     def getStory(self):
         if not self.storyDone:
@@ -327,7 +346,7 @@ class BaseSiteAdapter(Configurable):
         return self.extractChapterUrlsAndMetadata()
 
     def extractChapterUrlsAndMetadata(self):
-        "Needs to be overriden in each adapter class.  Populates self.story metadata and self.chapterUrls"
+        "Needs to be overriden in each adapter class.  Populates self.story metadata"
         pass
 
     def getChapterTextNum(self, url, index):

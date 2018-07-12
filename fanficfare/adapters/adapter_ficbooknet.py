@@ -122,7 +122,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             for x in range(0,len(chapters)):
                 chapter=chapters[x]
                 churl='https://'+self.host+chapter['href']
-                self.chapterUrls.append((stripHTML(chapter),churl))
+                self.add_chapter(chapter,churl)
                 ## First chapter doesn't always have a date, skip it.
                 if pubdate == None and chapter.parent.find('span'):
                     pubdate = translit.translit(stripHTML(chapter.parent.find('span')))
@@ -131,7 +131,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                     update = translit.translit(stripHTML(chapter.parent.find('span')))
                     # update = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
         else:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
             pubdate=translit.translit(stripHTML(soup.find('div',{'class':'title-area'}).find('span')))
             update=pubdate

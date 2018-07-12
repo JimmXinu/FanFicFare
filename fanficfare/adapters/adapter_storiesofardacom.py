@@ -104,12 +104,11 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         # Find the chapters: chapterview.asp?sid=7000&cid=30919
         chapters=soup.findAll('a', href=re.compile(r'chapterview.asp\?sid='+self.story.getMetadata('storyId')+"&cid=\d+$"))
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/'+chapters[0]['href']))
+            self.add_chapter(self.story.getMetadata('title'),'http://'+self.host+'/'+chapters[0]['href'])
         else:
             for chapter in chapters:
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+                self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         summary = soup.find('td', {'colspan' : '3'})
         summary.name='div' # change td to div.  Makes Calibre

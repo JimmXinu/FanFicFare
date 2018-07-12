@@ -161,13 +161,12 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
         if len(chapters) == 0:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+                self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.

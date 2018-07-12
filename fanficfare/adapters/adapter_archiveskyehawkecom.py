@@ -109,9 +109,8 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
         for i in range(1,len(chapter)):
             ch=chapter[i]
-            self.chapterUrls.append((stripHTML(ch),ch['value']))
+            self.add_chapter(ch,ch['value'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.

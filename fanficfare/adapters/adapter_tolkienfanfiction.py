@@ -146,13 +146,12 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        # chapterUrls
         # http://tolkienfanfiction.com/Story_Read_Chapter.php?CHid=5358
         for chapterLink in soup.findAll("a", href=re.compile(r'Story_Read_Chapter\.php\?CHid=[0-9]+')):
             chapterTitle = chapterLink.string
             chapterUrl = 'http://' + self.host + '/' + chapterLink['href']
-            self.chapterUrls.append((chapterTitle, chapterUrl))
-            numChapters = len(self.chapterUrls)
+            self.add_chapter(chapterTitle, chapterUrl)
+            numChapters = self.num_chapters()
             self.story.setMetadata('numChapters', numChapters)
         logger.debug('Number of Chapters: %s' % numChapters)
 

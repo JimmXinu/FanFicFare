@@ -193,11 +193,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['href']))
+                self.add_chapter(chapter,'https://'+self.host+chapter['href'])
         else:
-            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+'/s/'+self.story.getMetadata('storyId')))
+            self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/s/'+self.story.getMetadata('storyId'))
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         self.getStoryMetadataFromAuthorPage()
 
@@ -217,7 +216,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # Remove all the metadata elements to leave and preamble text. This is usually
         # a notice or a forward.
-        if len(self.chapterUrls) > 1:
+        if self.num_chapters() > 1:
             header = soup.find('header')
             header.extract()
         else:

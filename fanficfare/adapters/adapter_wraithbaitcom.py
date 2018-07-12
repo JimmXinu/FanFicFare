@@ -133,9 +133,8 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             else:
                 add = ""
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter)+add,'https://'+self.host+'/'+chapter['href']+addurl))
+            self.add_chapter(stripHTML(chapter)+add,'https://'+self.host+'/'+chapter['href']+addurl)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.

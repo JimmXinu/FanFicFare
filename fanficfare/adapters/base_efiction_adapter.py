@@ -452,7 +452,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 chapterLink = b.findNext("a")
                 chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
                 if chapterLink.string !='Back to index':
-                    self.chapterUrls.append((chapterLink.string, chapterLink['href']))
+                    self.add_chapter(chapterLink.string, chapterLink['href'])
 
         ## Store reference to soup for getChapterText
         self.html = soup

@@ -118,9 +118,8 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         for chapter in chapters:
             if chapter.string == 'Default':
                 chapter.string = 'Chapter 1'
-            self.chapterUrls.append((chapter.string, '{0}&chapno={1}'.format(self.url,chapter['value'])))
+            self.add_chapter(chapter.string, '{0}&chapno={1}'.format(self.url,chapter['value']))
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         ## This site doesn't have much metadata, so we will get what we can.
         ## The metadata is all on the author's page, so we have to get it to parse.

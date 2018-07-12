@@ -167,8 +167,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         ## This is a 1 story/page site, so we'll keep the soup fo the getChapterText function
         ## the chapterUrl nd numChapters need to be set as well
         self.html = data
-        self.chapterUrls.append((self.story.getMetadata('title'),url))
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
+        self.add_chapter(self.story.getMetadata('title'),url)
 
 
     # grab the text for an individual chapter.

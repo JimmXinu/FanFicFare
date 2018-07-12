@@ -324,7 +324,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
 
                 if self.getConfig('always_include_first_post'):
-                    self.chapterUrls.append((first_post_title,useurl))
+                    self.add_chapter(first_post_title,useurl)
 
                 use_threadmark_chaps = True
 
@@ -353,7 +353,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if tm.get('words',None):
                         words = words + tm['words']
 
-                    self.chapterUrls.append((prepend+tm['title'],tm['url']))
+                    self.add_chapter(prepend+tm['title'],tm['url'])
                 if words and self.getConfig('use_threadmark_wordcounts',True):
                     self.story.setMetadata('numWords',words)
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
@@ -401,16 +401,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
 
-        if not self.chapterUrls:
-            self.chapterUrls.append((first_post_title,useurl))
+        if self.num_chapters < 1:
+            self.add_chapter(first_post_title,useurl)
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
                 if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
-                    self.chapterUrls.append((name,url))
-                    if url == useurl and first_post_title == self.chapterUrls[0][0] \
+                    self.add_chapter(name,url)
+                    if url == useurl and first_post_title == self.get_chapter(0,'url') \
                             and not self.getConfig('always_include_first_post',False):
                         # remove "First Post" if included in list.
-                        del self.chapterUrls[0]
+                        self.del_chapter(0)
 
             # Didn't use threadmarks, so take created/updated dates
             # from the 'first' posting created and updated.
@@ -422,8 +422,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             date = self.make_date(souptag.find('div',{'class':'editDate'}))
             if date:
                 self.story.setMetadata('dateUpdated', date)
-
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
     def make_date(self,parenttag): # forums use a BS thing where dates
                                    # can appear different if recent.

@@ -126,13 +126,12 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # This site has each story on one page, so there are no chapters to get. Will use original
         ## url since we can't get the chapter without this, I'm leaving it in.
-        self.chapterUrls.append((self.story.getMetadata('title'), url))
+        self.add_chapter(self.story.getMetadata('title'), url)
 
         ## I'm going to comment this out, because thereis always only one chapter for each story,
         ## so this is really not needed
         ## And I am uncommenting it because the rest of FFF expects
         ## there to always be numChapters, even if it's one. --Jimm
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # getting the rest of the metadata... there isn't much here, and the summary can only be
         # gotten on the author's page... so we'll get it to get the information from

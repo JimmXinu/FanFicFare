@@ -130,8 +130,8 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # alternative is to get the num of chaps from the last
         # indiated chapter list instead.
         for i in range(1,1+int(self.story.getMetadata('numChapters'))):
-            self.chapterUrls.append(("Chapter "+unicode(i),"http://"+self.getSiteDomain()\
-                                         +"/read/"+self.story.getMetadata('storyId')+"/%s"%i))
+            self.add_chapter("Chapter "+unicode(i),"http://"+self.getSiteDomain()\
+                                 +"/read/"+self.story.getMetadata('storyId')+"/%s"%i)
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)

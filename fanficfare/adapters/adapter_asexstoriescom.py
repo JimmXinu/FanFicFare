@@ -117,12 +117,9 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         description = description.encode('utf-8','ignore').strip()[0:150].decode('utf-8','ignore')
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
         
-        # Get chapter URLs
-        self.chapterUrls = []
-
         ### The first 'chapter' is not listed in the links, so we have to
         ### add it before the rest of the pages, if any
-        self.chapterUrls.append(('1', self.url))
+        self.add_chapter('1', self.url)
 
         chapterTable = soup1.find('div',{'class':'pages'}).findAll('a')
 
@@ -133,9 +130,8 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
                 chapterTitle = page.string
                 chapterUrl = urlparse.urljoin(self.url, page['href'])
                 if chapterUrl.startswith(self.url): # there are other URLs in the pages block now.
-                    self.chapterUrls.append((chapterTitle, chapterUrl))
+                    self.add_chapter(chapterTitle, chapterUrl)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)

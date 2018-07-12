@@ -131,7 +131,6 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         if updatedate is not None: self.story.setMetadata('dateUpdated', updatedate)
 
         # Get chapter URLs
-        self.chapterUrls = []
         chapterTable = soup1.find('table', class_='index')
 
         if chapterTable is not None:
@@ -144,15 +143,14 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
                     link = chapterCell.a
                     chapterTitle = link.text
                     chapterUrl = urlparse.urljoin(self.url, link['href'])
-                    self.chapterUrls.append((chapterTitle, chapterUrl))
+                    self.add_chapter(chapterTitle, chapterUrl)
         else:
             # Single chapter
             chapterDiv = soup1.find('div', class_='chapter')
             chapterTitle = chapterDiv.a.text
             chapterUrl = urlparse.urljoin(self.url, chapterDiv.a['href'])
-            self.chapterUrls = [(chapterTitle, chapterUrl)]
+            self.add_chapter(chapterTitle, chapterUrl)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         logger.debug("Story: <%s>", self.story)
 

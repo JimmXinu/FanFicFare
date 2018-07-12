@@ -83,7 +83,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         if select is None:
             # no selector found, so it's a one-chapter story.
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
         else:
             allOptions = select.findAll('option')
             for o in allOptions:
@@ -91,9 +91,8 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                 # just in case there's tags, like <i> in chapter titles.
                 title = "%s" % o
                 title = re.sub(r'<[^>]+>','',title)
-                self.chapterUrls.append((title,url))
+                self.add_chapter(title,url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         ## Whofic.com puts none of the other meta data in the chapters
         ## or even the story chapter index page.  Need to scrape the

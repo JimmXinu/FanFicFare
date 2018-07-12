@@ -128,14 +128,13 @@ class UnknowableRoomOrgSiteAdapter(BaseSiteAdapter):
         for chapter in soup.find('select').find_all('option', value=re.compile(
             '/'+self.story.getMetadata('storyId')+r'/\d+')):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+chapter['value']))
+            self.add_chapter(chapter,'http://'+self.host+chapter['value'])
 
         ## One chapter stories do not have a listing for the chapters, so we have to check to make
-        ## sure, and if there aren't any chapterUrls, we set it to the Url entered.
-        if len(self.chapterUrls) == 0:
-            self.chapterUrls.append((self.story.getMetadata('title'), url))
+        ## sure, and if there aren't any chapters, we set it to the Url entered.
+        if self.num_chapters() == 0:
+            self.add_chapter(self.story.getMetadata('title'), url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # Most of the metadata can be gotten from the story page, but it can all be gotten from the
         # author's fic page, so we are going to get it from there. Unless there is no author page,

@@ -110,9 +110,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 chapter_words+=int(tdstr)
             chapter = tr.find('a')
             chpt=re.sub(r'^.*?(\?chapterid=\d+).*?',r'\1',chapter['href'])
-            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/viewstory.php'+chpt))
+            self.add_chapter(chapter,'https://'+self.host+'/viewstory.php'+chpt)
         #self.story.setMetadata('numWords',unicode(words))
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         ## Finding the metadata is a bit of a pain.  Desc is the only thing this color.
         desctable= soup.find('table',{'bgcolor':'#f0e8e8'})

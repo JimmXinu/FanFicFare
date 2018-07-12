@@ -151,9 +151,8 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         for chapter in soup.find('select').findAll('option'):
-            self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
+            self.add_chapter(chapter,'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('numWords',stripHTML(soup.find("span",title="Wörter").parent))
         self.story.setMetadata('language','German')
 

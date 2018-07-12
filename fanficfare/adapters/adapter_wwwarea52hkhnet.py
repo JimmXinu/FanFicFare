@@ -122,9 +122,8 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
             # There is only one 'chapter' for each story, so we go with the self.url
             # and the title of the story for the heading
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
 
-            self.story.setMetadata('numChapters',len(self.chapterUrls))
 
             storya = None
             authsoup = None

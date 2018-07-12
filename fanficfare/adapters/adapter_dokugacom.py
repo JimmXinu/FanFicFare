@@ -164,13 +164,12 @@ class DokugaComAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters = soup.find('select').findAll('option')
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/1'))
+            self.add_chapter(self.story.getMetadata('title'),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/1')
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles. /fanfiction/story/7406/1
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value']))
+                self.add_chapter(chapter,'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         asoup = self.make_soup(self._fetchUrl(alink))
 

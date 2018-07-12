@@ -232,9 +232,8 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters = soup.find('div',{'class':'dropdown-content'})
         for i, chapter in enumerate(chapters.findAll('a')):
-            self.chapterUrls.append((stripHTML(chapter),self.url+'&chapter='+str(i+1)))
+            self.add_chapter(chapter,self.url+'&chapter='+str(i+1))
         
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"profile.php\?no=\d+"))

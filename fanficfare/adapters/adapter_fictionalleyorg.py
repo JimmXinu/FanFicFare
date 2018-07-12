@@ -128,14 +128,13 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl',authora['href'])
 
         if len(chapterlinklist) == 1:
-            self.chapterUrls.append((self.story.getMetadata('title'),chapterlinklist[0]['href']))
+            self.add_chapter(self.story.getMetadata('title'),chapterlinklist[0]['href'])
         else:
             # Find the chapters:
             for chapter in chapterlinklist:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),chapter['href']))
+                self.add_chapter(chapter,chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         ## Go scrape the rest of the metadata from the author's page.
         data = self._fetchUrl(self.story.getMetadata('authorUrl'))

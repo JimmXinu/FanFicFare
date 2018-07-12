@@ -111,9 +111,8 @@ class EfictionEstelielDeAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+            self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.

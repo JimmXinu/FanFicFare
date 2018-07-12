@@ -187,9 +187,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
 
         if isSingleStory:
-#             self.chapterUrls = [(soup1.h1.string, self.url)]
-#             self.story.setMetadata('title', soup1.h1.string)
-
             self.story.setMetadata('title', storyLink.text.strip('/'))
             logger.debug('Title: "%s"' % storyLink.text.strip('/'))
             self.story.setMetadata('description', urlTr.findAll("td")[1].text)
@@ -198,7 +195,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             date = urlTr.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
-            self.chapterUrls = [(storyLink.text, self.url)]
+            self.add_chapter(storyLink.text, self.url)
             averrating = stripHTML(storyLink.parent)
             ## title (0.00)
             averrating = averrating[averrating.rfind('(')+1:averrating.rfind(')')]
@@ -218,7 +215,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
             ## Walk the chapters
             chapterTr = seriesTr.nextSibling
-            self.chapterUrls = []
             dates = []
             descriptions = []
             ratings = []
@@ -242,7 +238,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                         chapter = chapterLink.text[len(seriesTitle):].strip()
                         logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
-                            chapter_title = 'Chapter %d' % (len(self.chapterUrls) + 1)
+                            chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
                         else:
                             separater_char = chapter[0]
                             logger.debug('\tseparater_char: "%s"' % separater_char)
@@ -271,7 +267,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 logger.debug("Chapter Title: " + chapter_title)
                 logger.debug("Chapter description: " + description)
                 chapters.append((chapter_title, chapurl, description, pub_date))
-#                 self.chapterUrls.append((chapter_title, chapurl))
+#                 self.add_chapter(chapter_title, chapurl)
                 numrating = stripHTML(chapterLink.parent)
                 ## title (0.00)
                 numrating = numrating[numrating.rfind('(')+1:numrating.rfind(')')]
@@ -282,7 +278,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
             chapters = sorted(chapters, key=lambda chapter: chapter[3])
             for i, chapter in enumerate(chapters):
-                self.chapterUrls.append((chapter[0], chapter[1]))
+                self.add_chapter(chapter[0], chapter[1])
                 descriptions.append("%d. %s" % (i + 1, chapter[2]))
             ## Set the oldest date as publication date, the newest as update date
             dates.sort()
@@ -297,12 +293,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
 
         # normalize on first chapter URL.
-        self._setURL(self.chapterUrls[0][1])
+        self._setURL(self.get_chapter(0,'url'))
 
         # reset storyId to first chapter.
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         # Add the category from the breadcumb. This might duplicate a category already added.
         self.story.addToList('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)

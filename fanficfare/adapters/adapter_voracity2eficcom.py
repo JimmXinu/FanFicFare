@@ -225,7 +225,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
             chapter_anchor = b_tag.a
             title = chapter_anchor.string
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
-            self.chapterUrls.append((title, url))
+            self.add_chapter(title, url)
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX

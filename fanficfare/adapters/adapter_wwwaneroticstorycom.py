@@ -122,16 +122,11 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         description = description.encode('utf-8','ignore').strip()[0:350].decode('utf-8','ignore')+'...'
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
         
-        # Get chapter URLs
-        self.chapterUrls = []
-
         ### This is a 1 page/ 1 story site, so the only chapterurl is the current story
-        self.chapterUrls.append(('1', self.url))
+        self.add_chapter('1', self.url)
 
         # Setting the status to complete
         self.story.setMetadata('status', 'Completed')
-
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         ## Getting the date Posted and setting the Published and Updated metadata
         datePosted = soup1.find('span', {'class':'data divided'}).text.replace('on', '').strip()

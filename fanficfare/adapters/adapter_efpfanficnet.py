@@ -145,7 +145,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         if select is None:
             # no selector found, so it's a one-chapter story.
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
         else:
             allOptions = select.findAll('option', {'value' : re.compile(r'viewstory')})
             for o in allOptions:
@@ -153,13 +153,12 @@ class EFPFanFicNet(BaseSiteAdapter):
                                           o['value'])
                 # just in case there's tags, like <i> in chapter titles.
                 title = stripHTML(o)
-                self.chapterUrls.append((title,url))
+                self.add_chapter(title,url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('language','Italian')
 
         # normalize story URL to first chapter if later chapter URL was given:
-        url = self.chapterUrls[0][1].replace('&i=1','')
+        url = self.get_chapter(0,'url').replace('&i=1','')
         logger.debug("Normalizing to URL: "+url)
         self._setURL(url)
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])

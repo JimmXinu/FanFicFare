@@ -109,11 +109,10 @@ class HLFictionNetAdapter(BaseSiteAdapter):
         if chapters != None:
             for chapter in chapters.findAll('option'):
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value']))
+                self.add_chapter(chapter,'https://'+self.host+'/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+chapter['value'])
         else:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 

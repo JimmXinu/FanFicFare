@@ -234,9 +234,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     self.story.addToList('authorUrl','https://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
                     self.story.addToList('author',stripHTML(autha))
                     # include leading number to match 1. ... 2. ...
-                    self.chapterUrls.append(("%d. %s by %s"%(len(self.chapterUrls)+1,
-                                                             stripHTML(a),
-                                                             stripHTML(autha)),'https://'+self.host+a['href']))
+                    self.add_chapter("%d. %s by %s"%(self.num_chapters()+1,
+                                                     stripHTML(a),
+                                                     stripHTML(autha)),'https://'+self.host+a['href'])
 
             except urllib2.HTTPError, e:
                 if e.code == 404:
@@ -249,15 +249,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
             if select is None:
                 # no selector found, so it's a one-chapter story.
-                self.chapterUrls.append((self.story.getMetadata('title'),url))
+                self.add_chapter(self.story.getMetadata('title'),url)
             else:
                 allOptions = select.findAll('option')
                 for o in allOptions:
                     url = "https://"+self.host+o['value']
                     # just in case there's tags, like <i> in chapter titles.
-                    self.chapterUrls.append((stripHTML(o),url))
+                    self.add_chapter(o,url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         verticaltable = soup.find('table', {'class':'verticaltable'})
 

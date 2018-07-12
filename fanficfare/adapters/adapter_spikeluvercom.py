@@ -204,7 +204,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
 
             title = stripHTML(chapter_anchor)
             url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
-            self.chapterUrls.append((title, url))
+            self.add_chapter(title, url)
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX

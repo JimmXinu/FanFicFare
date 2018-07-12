@@ -155,9 +155,8 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+"&chapterid=\d+$")):
             value = chapter.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
             self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
-            self.chapterUrls.append((stripHTML(chapter),'https://'+self.getSiteDomain()+chapter['href']))
+            self.add_chapter(chapter,'https://'+self.getSiteDomain()+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # Get the MetaData
         # Erotia Tags

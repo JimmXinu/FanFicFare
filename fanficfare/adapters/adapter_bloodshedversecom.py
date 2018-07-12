@@ -85,11 +85,11 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         for option in soup.find('select', {'name': 'chapter'}):
             title = stripHTML(option)
             url = self.READ_URL_TEMPLATE % option['value']
-            self.chapterUrls.append((title, url))
+            self.add_chapter(title, url)
 
         # Reset the storyId to be the first chapter no.  Needed
         # because emails contain link to later chapters instead.
-        query_data = urlparse.parse_qs(self.chapterUrls[0][1])
+        query_data = urlparse.parse_qs(self.get_chapter(0,'url'))
         story_no = query_data['no'][0]
 
         self.story.setMetadata('storyId', story_no)

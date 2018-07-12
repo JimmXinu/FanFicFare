@@ -92,9 +92,8 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         for a in soup.select('#list a'):
             url = urlparse.urljoin(self.url, a['href'])
             title = stripHTML(a)
-            self.chapterUrls.append((title, url))
+            self.add_chapter(title, url)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)

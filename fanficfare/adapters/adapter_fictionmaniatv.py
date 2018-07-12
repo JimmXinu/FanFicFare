@@ -79,7 +79,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
             if key == 'Title':
                 self.story.setMetadata('title', value)
-                self.chapterUrls.append((value, self.url))
+                self.add_chapter(value, self.url)
 
             elif key == 'File Name':
                 self.story.setMetadata('fileName', value)

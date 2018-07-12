@@ -141,16 +141,15 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters=soup.find('select', {'name' : 'sid'})
         if chapters == None:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
         else:
             for chapter in chapters.findAll('option', value=re.compile(r"viewstory.php\?sid=\d+&i=1")):
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['value']))
+                self.add_chapter(chapter,'http://'+self.host+'/'+chapter['value'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # make sure that the story id is from the first chapter
-        self.story.setMetadata('storyId',self.chapterUrls[0][1].split('=')[1].split('&')[0])
+        self.story.setMetadata('storyId',self.get_chapter(0,'url').split('=')[1].split('&')[0])
 
         #locate the story on author's page
         index = 1

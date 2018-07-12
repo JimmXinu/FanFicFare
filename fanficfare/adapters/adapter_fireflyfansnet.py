@@ -108,7 +108,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # way to determine if there are other chapters to the same story, so you have
         # to download them one at a time yourself. I'm also setting the status to
         # complete
-        self.chapterUrls.append((self.story.getMetadata('title'), self.url))
+        self.add_chapter(self.story.getMetadata('title'), self.url)
         self.story.setMetadata('numChapters', 1)
         self.story.setMetadata('status', 'Completed')
 

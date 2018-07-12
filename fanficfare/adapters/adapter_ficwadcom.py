@@ -202,7 +202,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         storylistul = soup.find('ul',{'class':'storylist'})
         if not storylistul:
             # no list found, so it's a one-chapter story.
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
         else:
             chapterlistlis = storylistul.findAll('li')
             for chapterli in chapterlistlis:
@@ -211,12 +211,9 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                     raise exceptions.FailedToLogin(url,self.username)
                 else:
                     #print "chapterli.h4.a (%s)"%chapterli.h4.a
-                    self.chapterUrls.append((chapterli.h4.a.string,
-                                             u'https://%s%s'%(self.getSiteDomain(),
-                                                             chapterli.h4.a['href'])))
-        #print "self.chapterUrls:%s"%self.chapterUrls
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
-
+                    self.add_chapter(chapterli.h4.a.string,
+                                     u'https://%s%s'%(self.getSiteDomain(),
+                                                      chapterli.h4.a['href']))
         return
 
 

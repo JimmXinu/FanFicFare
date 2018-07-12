@@ -166,9 +166,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         tds = [tr.findAll('td')[0] for tr in chapters.findAll('tr')]
         for td in tds:
             chapterUrl = 'https://' + self.getSiteDomain() + td.a['href']
-            self.chapterUrls.append((stripHTML(td.text), chapterUrl))
+            self.add_chapter(td.text, chapterUrl)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # this is forum based so it's a bit ugly
         description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})

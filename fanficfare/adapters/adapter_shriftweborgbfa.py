@@ -129,7 +129,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
 
         # This site has the entire story on one page, so we will be using the normalized URL as
         # the chapterUrl and the Title as the chapter Title
-        self.chapterUrls.append((self.story.getMetadata('title'), url))
+        self.add_chapter(self.story.getMetadata('title'), url)
 
         ## i would take this out, as it is not really needed, but the calibre plugin uses it,
         ## so it's staying

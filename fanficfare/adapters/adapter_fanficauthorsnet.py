@@ -223,9 +223,8 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                     else:
                         chapter_title = stripHTML(unicode(chapter))
                     chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
-                    self.chapterUrls.append((chapter_title, chapter_Url))
+                    self.add_chapter(chapter_title, chapter_Url)
             
-            self.story.setMetadata('numChapters', len(self.chapterUrls))
             genres = ("Drama","Romance")
             gotgenre = False
             ## Getting the Metadata that is there

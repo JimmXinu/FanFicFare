@@ -97,7 +97,7 @@ class FanficHuAdapter(BaseSiteAdapter):
 
         for option in chapter_options:
             url = urlparse.urljoin(self.url, option['value'])
-            self.chapterUrls.append((option.string, url))
+            self.add_chapter(option.string, url)
 
         author_url = urlparse.urljoin(self.BASE_URL, soup.find('a', href=lambda href: href and href.startswith('viewuser.php?uid='))['href'])
         soup = self._customized_fetch_url(author_url)

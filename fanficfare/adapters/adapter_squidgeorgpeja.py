@@ -135,11 +135,10 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         chapterselect=soup.find('select',{'name':'chapter'})
         if chapterselect:
             for ch in chapterselect.findAll('option'):
-                self.chapterUrls.append((stripHTML(ch),'https://'+self.host+'/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+ch['value']))
+                self.add_chapter(ch,'https://'+self.host+'/peja/cgi-bin/viewstory.php?sid='+self.story.getMetadata('storyId')+'&chapter='+ch['value'])
         else:
-            self.chapterUrls.append((title,url))
+            self.add_chapter(title,url)
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
 
         # utility method

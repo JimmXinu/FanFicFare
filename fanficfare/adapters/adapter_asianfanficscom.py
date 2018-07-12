@@ -168,7 +168,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(chapters))
         for index, chapter in enumerate(chapters):
             if chapter.text != 'Foreword': # skip the foreword
-                self.chapterUrls.append((stripHTML(chapter.text),'https://' + self.getSiteDomain() + chapter['value'])) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
+                self.add_chapter(chapter.text,'https://' + self.getSiteDomain() + chapter['value']) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
         # find timestamp
         a = soup.find('span', text='Updated')
         if a == None:

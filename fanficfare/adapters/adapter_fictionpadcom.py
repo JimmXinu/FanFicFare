@@ -176,9 +176,8 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
             chtitle = "Chapter %d"%c['number']
             if c['title']:
                 chtitle += " - %s"%c['title']
-            self.chapterUrls.append((chtitle,c['body_url']))
+            self.add_chapter(chtitle,c['body_url'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)

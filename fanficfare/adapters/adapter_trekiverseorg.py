@@ -185,13 +185,12 @@ class TrekiverseOrgAdapter(BaseSiteAdapter):
         if len(chapters)==0:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: No php/html chapters found.")
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+'/efiction/'+chapters[0]['href']))
+            self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/efiction/'+chapters[0]['href'])
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+'/efiction/'+chapter['href']))
+                self.add_chapter(chapter,'https://'+self.host+'/efiction/'+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.

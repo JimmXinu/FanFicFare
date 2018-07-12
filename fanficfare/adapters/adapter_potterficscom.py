@@ -235,19 +235,16 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #we can go back to the table cell we found before
         #get its last element and work backwards to find the last ordered list on the page
         list = cell.contents[len(cell)-1].findPrevious('ol')
-        chapters = []
         revs = 0
         chnum = 0
         for li in list:
             chnum += 1
             chTitle = unicode(chnum) + '. ' + li.a.b.string.strip()
             chURL = makeAbsoluteURL(li.a['href'])
-            chapters.append((chTitle,chURL))
+            self.add_chapter(chTitle,chURL)
             #Get reviews, add to total
             revs += int(li.div.a.string.split()[0])
 
-        self.chapterUrls.extend(chapters)
-        self.story.setMetadata('numChapters', len(chapters))
         self.story.setMetadata('reviews', revs)
 
         #Now for the description... this may be tricky...

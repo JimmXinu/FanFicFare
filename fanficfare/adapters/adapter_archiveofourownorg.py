@@ -236,11 +236,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
-            self.chapterUrls.append((self.story.getMetadata('title'),'https://'+self.host+chapters[0]['href']))
+            self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+chapters[0]['href'])
         else:
             for index, chapter in enumerate(chapters):
                 # strip just in case there's tags, like <i> in chapter titles.
-                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['href']))
+                self.add_chapter(chapter,'https://'+self.host+chapter['href'])
                 # (2013-09-21)
                 date = stripHTML(chapter.findNext('span'))[1:-1]
                 chapterDate = makeDate(date,self.dateformat)
@@ -389,7 +389,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         whole_dl_soup = chapter_dl_soup = None
 
-        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and len(self.chapterUrls) > 1:
+        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and self.num_chapters() > 1:
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
@@ -471,7 +471,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## pages and after chapter-# div.  Appending removes
         ## headnotes from whole_dl_soup, so be sure to only do it on
         ## the last chapter.
-        if 'authorfootnotes' not in exclude_notes and index+1 == len(self.chapterUrls):
+        if 'authorfootnotes' not in exclude_notes and index+1 == self.num_chapters():
             footnotes = whole_dl_soup.find('div', {'id' : "work_endnotes"})
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
@@ -479,7 +479,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     append_tag(save_chapter,'b',"Author's Note:")
                     save_chapter.append(footnotes)
 
-        if 'inspiredlinks' not in exclude_notes and index+1 == len(self.chapterUrls):
+        if 'inspiredlinks' not in exclude_notes and index+1 == self.num_chapters():
             inspiredlinks = whole_dl_soup.find('div', {'id' : "children"})
             if inspiredlinks != None:
                 if inspiredlinks:

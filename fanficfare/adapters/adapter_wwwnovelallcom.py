@@ -203,13 +203,12 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             # <a href="https://www.novelall.com/chapter/Stellar-Transformation-Volume-18-Chapter-45-part2/616971/" title="Stellar Transformation Volume 18 Chapter 45 part2">
             a = li.find('a')
             ctitle = re.sub(r"^%s(.+)$" % re.escape(title), r"\1", a['title'], 0, re.UNICODE | re.IGNORECASE).strip()
-            self.chapterUrls.append((ctitle, a['href']))
+            self.add_chapter(ctitle, a['href'])
 
         cdates.sort()
         self.story.setMetadata('datePublished', cdates[0])
         self.story.setMetadata('dateUpdated', cdates[-1])
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
     def getChapterText(self, url):
         data = self._fetchUrl(url)

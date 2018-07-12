@@ -114,10 +114,9 @@ class NationalLibraryNetAdapter(BaseSiteAdapter):
             if len(chapters) > 0:
                 for chapter in chapters:
                     # just in case there's tags, like <i> in chapter titles.
-                    self.chapterUrls.append((stripHTML(chapter),'http://'+self.host+'/'+chapter['href']))
+                    self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
                 break
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
         self.story.setMetadata('status', 'Completed')
 
         # <span class="label">Rated:</span> NC-17<br /> etc

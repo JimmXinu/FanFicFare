@@ -142,7 +142,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters = soup.find('select')
         if chapters == None:
-            self.chapterUrls.append((self.story.getMetadata('title'),url))
+            self.add_chapter(self.story.getMetadata('title'),url)
             for b in soup.findAll('b'):
                 if b.text == "Updated":
                     date = b.nextSibling.string.split(': ')[1].split(',')
@@ -152,7 +152,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             i = 0
             chapters = chapters.findAll('option')
             for chapter in chapters:
-                self.chapterUrls.append((stripHTML(chapter),'https://'+self.host+chapter['value']))
+                self.add_chapter(chapter,'https://'+self.host+chapter['value'])
                 if i == 0:
                     self.story.setMetadata('storyId',chapter['value'].split('/')[3])
                     head = self.make_soup(self._fetchUrl('https://'+self.host+chapter['value'])).findAll('b')
@@ -170,7 +170,6 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
                 i = i+1
 
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 

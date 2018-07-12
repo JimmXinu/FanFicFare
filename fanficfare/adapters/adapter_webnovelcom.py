@@ -185,9 +185,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
                 chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
                 chap_Url = url.rstrip('/') + '/' + chap['id']
-                self.chapterUrls.append((chap_title, chap_Url))
+                self.add_chapter(chap_title, chap_Url)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
         if get_cover:
             cover_meta = soup.find('div', {'class': 'g_col_4'}).find('img')

@@ -147,9 +147,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Chapters
         for chapter in soup.find('ul',{'class':'chapters'}).find_all('a',{'href':re.compile(r'.*/story/'+self.story.getMetadata('storyId')+r'/.*')}):
-            self.chapterUrls.append((stripHTML(chapter), 'https://'+self.host+chapter['href']))
+            self.add_chapter(chapter, 'https://'+self.host+chapter['href'])
 
-        self.story.setMetadata('numChapters',len(self.chapterUrls))
 
         # Status
         # In the case of Fimfiction, possible statuses are 'Completed', 'Incomplete', 'On Hiatus' and 'Cancelled'

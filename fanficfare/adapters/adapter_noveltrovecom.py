@@ -136,8 +136,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
         ## This is a 1 story/page site, so we'll keep the soup for the getChapterText function
         ## the chapterUrl and numChapters need to be set as well
         self.html = soup
-        self.chapterUrls.append((self.story.getMetadata('title'), url))
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
+        self.add_chapter(self.story.getMetadata('title'), url)
         self.story.setMetadata('status', 'Completed')
 
         ## Getting the non-standard title page entries

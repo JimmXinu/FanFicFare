@@ -112,11 +112,10 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         for a in soup.select('#accordion .chapter-item > a'):
             title = stripHTML(a)
             url = urlparse.urljoin(self.url, a['href'])
-            self.chapterUrls.append((title, url))
+            self.add_chapter(title, url)
 
-        self.story.setMetadata('numChapters', len(self.chapterUrls))
 
-        last_chapter_data = self._fetchUrl(self.chapterUrls[-1][1])
+        last_chapter_data = self._fetchUrl(self.get_chapter(-1,'url'))
         last_chapter_soup = self.make_soup(last_chapter_data)
         last_chapter_ld = self._parse_linked_data(last_chapter_soup)
         self.story.setMetadata('dateUpdated', self._parse_date(last_chapter_ld['datePublished']))
