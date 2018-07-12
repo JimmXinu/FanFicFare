@@ -264,7 +264,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             for tmcat_index, atag in enumerate(markas):
                 url,name = atag['href'],stripHTML(atag)
                 date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
-                threadmarks.append({"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,'title':name,'url':self.getURLPrefix()+'/'+url,'date':date})
+                if atag.parent.has_attr('data-words'):
+                    words = int(atag.parent['data-words'])
+                else:
+                    words = None
+                threadmarks.append({"tmcat_name":tmcat_name,
+                                    "tmcat_num":tmcat_num,
+                                    "tmcat_index":tmcat_index,
+                                    "title":name,
+                                    "url":self.getURLPrefix()+"/"+url,"date":date,
+                                    "words":words})
 
         return threadmarks
 
@@ -320,6 +329,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 use_threadmark_chaps = True
 
                 # spin threadmarks for date, to adjust tmcat_name/prepend.
+                words = 0
                 for tm in threadmarks:
                     # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date}
                     prepend=""
@@ -340,8 +350,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if 'tmcat_num' in tm and 'tmcat_index' in tm:
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
-                    self.chapterUrls.append((prepend+tm['title'],tm['url']))
+                    if tm.get('words',None):
+                        words = words + tm['words']
 
+                    self.chapterUrls.append((prepend+tm['title'],tm['url']))
+                if words and self.getConfig('use_threadmark_wordcounts',True):
+                    self.story.setMetadata('numWords',words)
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
