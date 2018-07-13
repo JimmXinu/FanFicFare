@@ -16,7 +16,7 @@
 #
 
 import os, re
-from collections import namedtuple
+import copy
 import urlparse
 import string
 import json
@@ -33,8 +33,6 @@ import exceptions
 from htmlcleanup import conditionalRemoveEntities, removeAllEntities
 from configurable import Configurable, re_compile
 from htmlheuristics import was_run_marker
-
-Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -439,7 +437,7 @@ class Story(Configurable):
             self.metadata = {'version':'4.4'}
         self.replacements = []
         self.in_ex_cludes = {}
-        self.chapters = [] # chapters will be namedtuple of Chapter(url,title,html,etc)
+        self.chapters = [] # chapters will be dict containing(url,title,html,etc)
         self.chapter_first = None
         self.chapter_last = None
         self.imgurls = []
@@ -1014,10 +1012,18 @@ class Story(Configurable):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
-        self.chapters.append( Chapter(url,title,html,title,title,newchap) )
+        self.chapters.append({'url':url,
+                              'title':title,
+                              'html':html,
+                              'origtitle':title,
+                              'toctitle':title,
+                              'new':newchap,
+                              'number':len(self.chapters)+1,
+                              'index':len(self.chapters)+1,
+                              '0index':"%04d"%(len(self.chapters)+1)})
 
     def getChapters(self,fortoc=False):
-        "Chapters will be Chapter namedtuples"
+        "Chapters will be dicts"
         retval = []
 
         ## only add numbers if more than one chapter.  Ditto (new) marks.
@@ -1052,20 +1058,27 @@ class Story(Configurable):
             toctempl = string.Template(tocpattern)
 
             for index, chap in enumerate(self.chapters):
-                if chap.new:
+                if chap['new']:
                     usetempl = newtempl
                 else:
                     usetempl = templ
-                # logger.debug("chap.url, chap.new: (%s)(%s)"%(chap.url,chap.new))
-                retval.append( Chapter(chap.url,
-                                       # 'new'
-                                       usetempl.substitute({'index':index+1,'title':chap.title}),
-                                       chap.html,
-                                       # 'orig'
-                                       templ.substitute({'index':index+1,'title':chap.title}),
-                                       # 'toc'
-                                       toctempl.substitute({'index':index+1,'title':chap.title}),
-                                       chap.new) )
+                # logger.debug("chap(%s)"%chap)
+            # Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
+                chapter = copy.copy(chap)
+                chapter['chapter'] = chapter['title'] = usetempl.substitute(chap)
+                chapter['origtitle'] = templ.substitute(chap)
+                chapter['toctitle'] = toctempl.substitute(chap)
+                chapter['index'] = chap['number']  ## Due to poor planning on my part, chapter_title_*_pattern
+                retval.append(chapter)             ## expect index==1 not index=0001 like output settings.
+                    # Chapter(chap.url,
+                    #                    # 'new'
+                    #                    usetempl.substitute({'index':index+1,'title':chap.title}),
+                    #                    chap.html,
+                    #                    # 'orig'
+                    #                    templ.substitute({'index':index+1,'title':chap.title}),
+                    #                    # 'toc'
+                    #                    toctempl.substitute({'index':index+1,'title':chap.title}),
+                    #                    chap.new) )
         else:
             retval = self.chapters
 

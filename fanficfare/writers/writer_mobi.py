@@ -162,10 +162,10 @@ ${value}<br />
             CHAPTER_END = self.MOBI_CHAPTER_END
         
         for index, chap in enumerate(self.story.getChapters()):
-            if chap.html:
-                logger.debug('Writing chapter text for: %s' % chap.title)
-                vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
-                fullhtml = CHAPTER_START.substitute(vals) + chap.html + CHAPTER_END.substitute(vals)
+            if chap['html']:
+                logger.debug('Writing chapter text for: %s' % chap['title'])
+                # vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
+                fullhtml = CHAPTER_START.substitute(chap) + chap['html'] + CHAPTER_END.substitute(chap)
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at
                 # least) when the chapter size starts getting big

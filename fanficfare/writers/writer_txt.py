@@ -155,12 +155,12 @@ End file.
             CHAPTER_END = self.TEXT_CHAPTER_END
         
         for index, chap in enumerate(self.story.getChapters()):
-            if chap.html:
-                logging.debug('Writing chapter text for: %s' % chap.title)
-                vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
-                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_START.substitute(vals)))))
-                self._write(out,self.lineends(html2text(chap.html,bodywidth=self.wrap_width)))
-                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_END.substitute(vals)))))
+            if chap['html']:
+                logging.debug('Writing chapter text for: %s' % chap['title'])
+                # vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
+                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_START.substitute(chap)))))
+                self._write(out,self.lineends(html2text(chap['html'],bodywidth=self.wrap_width)))
+                self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_END.substitute(chap)))))
 
         self._write(out,self.lineends(self.wraplines(FILE_END.substitute(self.story.getAllMetadata()))))
 

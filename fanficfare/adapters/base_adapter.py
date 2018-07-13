@@ -150,7 +150,8 @@ class BaseSiteAdapter(Configurable):
         if self.ignore_chapter_url_list == None:
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
-            self.chapterUrls.append((stripHTML(title),url))
+            self.chapterUrls.append({'title':stripHTML(title),
+                                     'url':url})
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
         # return true/false for those adapters that count words by
@@ -161,9 +162,7 @@ class BaseSiteAdapter(Configurable):
         return len(self.chapterUrls)
 
     def get_chapter(self,i,attr):
-        if attr == 'url':
-            return self.chapterUrls[i][1]
-        return None
+        return self.chapterUrls[i].get(attr,None)
 
     def get_chapters(self):
         return copy.copy(self.chapterUrls)
@@ -181,7 +180,9 @@ class BaseSiteAdapter(Configurable):
             if self.oldchaptersmap:
                 self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
 
-            for index, (title,url) in enumerate(self.chapterUrls):
+            for index, chap in enumerate(self.chapterUrls):
+                title = chap['title']
+                url = chap['url']
                 #logger.debug("index:%s"%index)
                 newchap = False
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
@@ -280,8 +281,8 @@ class BaseSiteAdapter(Configurable):
 
             self.metadataDone = True
             # normalize chapter urls.
-            for index, (title,url) in enumerate(self.chapterUrls):
-                self.chapterUrls[index] = (title,self.normalize_chapterurl(url))
+            for index, chap in enumerate(self.chapterUrls):
+                self.chapterUrls[index]['url'] = self.normalize_chapterurl(chap['url'])
 
         # logger.debug(u"getStoryMetadataOnly times:\n%s"%self.times)
         return self.story

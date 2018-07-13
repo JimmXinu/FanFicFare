@@ -132,18 +132,18 @@ ${output_css}
         ## collect chapter urls and file names for internalize_text_links option.
         chapurlmap = {}
         for index, chap in enumerate(self.story.getChapters()):
-            if chap.html:
+            if chap['html']:
                 ## HTML_CHAPTER_START needs to have matching <a>
                 ## anchor to work.  Which it does by default.  This
                 ## could also be made configurable if some user
                 ## changed it.
-                chapurlmap[chap.url]="#section%04d"%(index+1) # url -> index
+                chapurlmap[chap['url']]="#section%04d"%(index+1) # url -> index
 
         for index, chap in enumerate(self.story.getChapters()):
-            if chap.html:
-                chap_data = chap.html
+            if chap['html']:
+                chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
-                    soup = bs4.BeautifulSoup(chap.html,'html5lib')
+                    soup = bs4.BeautifulSoup(chap['html'],'html5lib')
                     changed=False
                     for alink in soup.find_all('a'):
                         if alink.has_attr('href') and alink['href'] in chapurlmap:
@@ -156,11 +156,11 @@ ${output_css}
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
 
 
-                logging.debug('Writing chapter text for: %s' % chap.title)
-                vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
-                self._write(out,CHAPTER_START.substitute(vals))
+                logging.debug('Writing chapter text for: %s' % chap['title'])
+                # vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
+                self._write(out,CHAPTER_START.substitute(chap))
                 self._write(out,chap_data)
-                self._write(out,CHAPTER_END.substitute(vals))
+                self._write(out,CHAPTER_END.substitute(chap))
 
         self._write(out,FILE_END.substitute(self.story.getAllMetadata()))
 

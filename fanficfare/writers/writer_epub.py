@@ -538,14 +538,14 @@ div { margin: 0pt; padding: 0pt; }
         ## collect chapter urls and file names for internalize_text_links option.
         chapurlmap = {}
         for index, chap in enumerate(self.story.getChapters(fortoc=True)):
-            if chap.html:
+            if chap['html']:
                 i=index+1
                 items.append(("file%04d"%i,
                               "OEBPS/file%04d.xhtml"%i,
                               "application/xhtml+xml",
-                              chap.title))
+                              chap['title']))
                 itemrefs.append("file%04d"%i)
-                chapurlmap[chap.url]="file%04d.xhtml"%i # url -> relative epub file name.
+                chapurlmap[chap['url']]="file%04d.xhtml"%i # url -> relative epub file name.
 
         if dologpage:
             if self.getConfig("logpage_at_end") == "true":
@@ -694,10 +694,10 @@ div { margin: 0pt; padding: 0pt; }
             CHAPTER_END = self.EPUB_CHAPTER_END
 
         for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
-            if chap.html:
-                chap_data = chap.html
+            if chap['html']:
+                chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
-                    soup = bs4.BeautifulSoup(chap.html,'html5lib')
+                    soup = bs4.BeautifulSoup(chap['html'],'html5lib')
                     changed=False
                     for alink in soup.find_all('a'):
                         if alink.has_attr('href') and alink['href'] in chapurlmap:
@@ -710,18 +710,23 @@ div { margin: 0pt; padding: 0pt; }
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
 
                 #logger.debug('Writing chapter text for: %s' % chap.title)
-                vals={'url':removeEntities(chap.url),
-                      'chapter':removeEntities(chap.title),
-                      'origchapter':removeEntities(chap.origtitle),
-                      'tocchapter':removeEntities(chap.toctitle),
-                      'index':"%04d"%(index+1),
-                      'number':index+1}
+                chap['url']=removeEntities(chap['url'])
+                chap['chapter']=removeEntities(chap['chapter'])
+                chap['title']=removeEntities(chap['title'])
+                chap['origchapter']=removeEntities(chap['origtitle'])
+                chap['tocchapter']=removeEntities(chap['toctitle'])
+                # vals={'url':removeEntities(chap.url),
+                #       'chapter':removeEntities(chap.title),
+                #       'origchapter':removeEntities(chap.origtitle),
+                #       'tocchapter':removeEntities(chap.toctitle),
+                #       'index':"%04d"%(index+1),
+                #       'number':index+1}
                 # escape double quotes in all vals.
-                for k,v in vals.items():
-                    if isinstance(v,basestring): vals[k]=v.replace('"','&quot;')
-                fullhtml = CHAPTER_START.substitute(vals) + \
+                for k,v in chap.items():
+                    if isinstance(v,basestring): chap[k]=v.replace('"','&quot;')
+                fullhtml = CHAPTER_START.substitute(chap) + \
                     chap_data.strip() + \
-                    CHAPTER_END.substitute(vals)
+                    CHAPTER_END.substitute(chap)
                 # strip to avoid ever growning numbers of newlines.
                 # ffnet(& maybe others) gives the whole chapter text
                 # as one line.  This causes problems for nook(at

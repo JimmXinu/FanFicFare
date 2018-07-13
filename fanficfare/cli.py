@@ -435,8 +435,8 @@ def do_download(arg,
             if options.metaonly:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
                 metadata['zchapters'] = []
-                for i, x in enumerate(adapter.get_chapters()):
-                    metadata['zchapters'].append((i+1,x[0],x[1]))
+                for i, chap in enumerate(adapter.get_chapters()):
+                    metadata['zchapters'].append((i+1,chap))
 
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
                 if adapter.getConfig('pre_process_safepattern'):
