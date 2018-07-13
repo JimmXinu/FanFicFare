@@ -85,6 +85,7 @@ class BaseSiteAdapter(Configurable):
         self.oldcover = None # (data of existing cover html, data of existing cover image)
         self.calibrebookmark = None
         self.logfile = None
+        self.ignore_chapter_url_list = None
 
         self.section_url_names(self.getSiteDomain(),self._section_url)
 
@@ -143,8 +144,18 @@ class BaseSiteAdapter(Configurable):
         self.story.set_chapters_range(first,last)
 
     def add_chapter(self,title,url):
-        self.chapterUrls.append((stripHTML(title),url))
-        self.story.setMetadata('numChapters', self.num_chapters())
+        ## Check for chapter URL in ignore_chapter_url_list.
+        ## Normalize chapter urls, both from list and passed in, but
+        ## don't save them that way to match previous behavior.
+        if self.ignore_chapter_url_list == None:
+            self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
+        if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
+            self.chapterUrls.append((stripHTML(title),url))
+            self.story.setMetadata('numChapters', self.num_chapters())
+            return True
+        # return true/false for those adapters that count words by
+        # summing chapter word counts.
+        return False
 
     def num_chapters(self):
         return len(self.chapterUrls)

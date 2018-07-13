@@ -458,6 +458,7 @@ def get_valid_keywords():
                  'use_threadmark_wordcounts',
                  'fix_pseudo_html',
                  'fix_excess_space',
+                 'ignore_chapter_url_list',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.

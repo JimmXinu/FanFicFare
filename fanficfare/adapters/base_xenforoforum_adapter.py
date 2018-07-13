@@ -350,10 +350,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if 'tmcat_num' in tm and 'tmcat_index' in tm:
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
-                    if tm.get('words',None):
+                    added = self.add_chapter(prepend+tm['title'],tm['url'])
+                    if added and tm.get('words',None):
                         words = words + tm['words']
 
-                    self.add_chapter(prepend+tm['title'],tm['url'])
                 if words and self.getConfig('use_threadmark_wordcounts',True):
                     self.story.setMetadata('numWords',words)
             souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)

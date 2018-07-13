@@ -106,12 +106,12 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         chapter_words=0
         for tr in soup.find('table',{'class':'table-chapters'}).find('tbody').findAll('tr'):
             tdstr = tr.findAll('td')[2].string
-            if tdstr and tdstr.isdigit():
-                chapter_words+=int(tdstr)
             chapter = tr.find('a')
             chpt=re.sub(r'^.*?(\?chapterid=\d+).*?',r'\1',chapter['href'])
-            self.add_chapter(chapter,'https://'+self.host+'/viewstory.php'+chpt)
-        #self.story.setMetadata('numWords',unicode(words))
+            added = self.add_chapter(chapter,'https://'+self.host+'/viewstory.php'+chpt)
+            if added and tdstr and tdstr.isdigit():
+                chapter_words+=int(tdstr)
+                ## used below if total words from site not found
 
         ## Finding the metadata is a bit of a pain.  Desc is the only thing this color.
         desctable= soup.find('table',{'bgcolor':'#f0e8e8'})
