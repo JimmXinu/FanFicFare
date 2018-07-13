@@ -172,8 +172,9 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         ## Getting the number of words
         ## I'm going to but using the entry-content that will be the same
         ## as what is used to get the chapter later
-        words = len(soup.find('div', {'class' : 'entry-content'}).get_text())
-        self.story.setMetadata('numWords', words)
+        ### XXX - This is a *character* count, not word count--JM
+        # words = len(soup.find('div', {'class' : 'entry-content'}).get_text())
+        # self.story.setMetadata('numWords', words)
 
         ## That is all of the metadata for this site, and since we are using the
         ## same page for the whole story, I'm going to save th soup to be used
