@@ -153,7 +153,8 @@ boollist=['true','false']
 base_xenforo_list=['base_xenforoforum',
                    'forums.spacebattles.com',
                    'forums.sufficientvelocity.com',
-                   'questionablequesting.com',
+                   'forum.questionablequesting.com',
+                   'www.alternatehistory.com',
                    ]
 def get_valid_set_options():
     '''
