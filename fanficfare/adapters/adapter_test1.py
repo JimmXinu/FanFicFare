@@ -307,7 +307,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                     #('Chapter n',self.url+"&chapter=o"),
                     ]
         for c in chapters:
-            self.add_chapter(c[0],c[1])
+            self.add_chapter(c[0],c[1],{'test':'asdf'})
 
 
     def getChapterText(self, url):

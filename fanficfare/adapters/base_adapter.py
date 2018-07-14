@@ -143,15 +143,16 @@ class BaseSiteAdapter(Configurable):
             self.chapterLast=int(last)-1
         self.story.set_chapters_range(first,last)
 
-    def add_chapter(self,title,url):
+    def add_chapter(self,title,url,othermeta={}):
         ## Check for chapter URL in ignore_chapter_url_list.
         ## Normalize chapter urls, both from list and passed in, but
         ## don't save them that way to match previous behavior.
         if self.ignore_chapter_url_list == None:
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
-            self.chapterUrls.append({'title':stripHTML(title),
-                                     'url':url})
+            meta = dict(othermeta) # copy
+            meta.update({'title':stripHTML(title),'url':url}) # after other to make sure they are set
+            self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
         # return true/false for those adapters that count words by
@@ -185,11 +186,10 @@ class BaseSiteAdapter(Configurable):
                 url = chap['url']
                 #logger.debug("index:%s"%index)
                 newchap = False
+                passchap = dict(chap)
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
-                    self.story.addChapter(url,
-                                          removeEntities(title),
-                                          None)
+                    passchap['html'] = None
                 else:
                     data = None
                     if self.oldchaptersmap:
@@ -237,10 +237,11 @@ class BaseSiteAdapter(Configurable):
                         else:
                             raise
 
-                    self.story.addChapter(url,
-                                          removeEntities(title),
-                                          removeEntities(data),
-                                          newchap)
+                    passchap['url'] = url
+                    passchap['title'] = title
+                    passchap['html'] = data
+
+                self.story.addChapter(passchap, newchap)
             self.storyDone = True
 
             # include image, but no cover from story, add default_cover_image cover.

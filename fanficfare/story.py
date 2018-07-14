@@ -17,6 +17,7 @@
 
 import os, re
 import copy
+from collections import defaultdict
 import urlparse
 import string
 import json
@@ -30,7 +31,7 @@ import urlparse as up
 import bs4
 
 import exceptions
-from htmlcleanup import conditionalRemoveEntities, removeAllEntities
+from htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
 from configurable import Configurable, re_compile
 from htmlheuristics import was_run_marker
 
@@ -1007,20 +1008,21 @@ class Story(Configurable):
 
         return list(subjectset | set(self.getConfigList("extratags")))
 
-    def addChapter(self, url, title, html, newchap=False):
-        # logger.debug("addChapter(%s,%s)"%(url,newchap))
+    def addChapter(self, chap, newchap=False):
+        # logger.debug("addChapter(%s,%s)"%(chap,newchap))
+        chapter = defaultdict(unicode,chap) # default unknown to empty string
+        chapter['title'] = removeEntities(chapter['title'])
+        chapter['html'] = removeEntities(chapter['html'])
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
-            title = re.sub(self.getConfig('chapter_title_strip_pattern'),"",title)
-        self.chapters.append({'url':url,
-                              'title':title,
-                              'html':html,
-                              'origtitle':title,
-                              'toctitle':title,
-                              'new':newchap,
-                              'number':len(self.chapters)+1,
-                              'index':len(self.chapters)+1,
-                              '0index':"%04d"%(len(self.chapters)+1)})
+            chapter['title'] = re.sub(self.getConfig('chapter_title_strip_pattern'),"",chapter['title'])
+        chapter.update({'origtitle':chapter['title'],
+                        'toctitle':chapter['title'],
+                        'new':newchap,
+                        'number':len(self.chapters)+1,
+                        'index':len(self.chapters)+1,
+                        '0index':"%04d"%(len(self.chapters)+1)})
+        self.chapters.append(chapter)
 
     def getChapters(self,fortoc=False):
         "Chapters will be dicts"
@@ -1064,7 +1066,7 @@ class Story(Configurable):
                     usetempl = templ
                 # logger.debug("chap(%s)"%chap)
             # Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
-                chapter = copy.copy(chap)
+                chapter = defaultdict(unicode,chap)
                 chapter['chapter'] = chapter['title'] = usetempl.substitute(chap)
                 chapter['origtitle'] = templ.substitute(chap)
                 chapter['toctitle'] = toctempl.substitute(chap)
