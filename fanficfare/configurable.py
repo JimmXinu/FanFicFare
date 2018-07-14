@@ -457,6 +457,7 @@ def get_valid_keywords():
                  'internalize_text_links',
                  'replace_failed_smilies_with_alt_text',
                  'use_threadmark_wordcounts',
+                 'datethreadmark_format',
                  'fix_pseudo_html',
                  'fix_excess_space',
                  'ignore_chapter_url_list',

@@ -266,14 +266,20 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                 if atag.parent.has_attr('data-words'):
                     words = int(atag.parent['data-words'])
+                    if "(" in atag.next_sibling:
+                        kwords = atag.next_sibling.strip()
+                    # logger.debug("%s"%kwords)
                 else:
-                    words = None
+                    words = ""
+                    kwords = ""
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
                                     "tmcat_index":tmcat_index,
                                     "title":name,
-                                    "url":self.getURLPrefix()+"/"+url,"date":date,
-                                    "words":words})
+                                    "url":self.getURLPrefix()+"/"+url,
+                                    "date":date,
+                                    "words":words,
+                                    "kwords":kwords})
 
         return threadmarks
 
@@ -350,7 +356,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if 'tmcat_num' in tm and 'tmcat_index' in tm:
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
-                    added = self.add_chapter(prepend+tm['title'],tm['url'])
+                    ## threadmark date, words available for chapter custom output
+                    ## date formate from datethreadmark_format or dateCreated_format
+                    ## then a basic default.
+                    added = self.add_chapter(prepend+tm['title'],tm['url'],{'date':tm['date'].strftime(self.getConfig("datethreadmark_format",self.getConfig("dateCreated_format","%Y-%m-%d %H:%M:%S"))),
+                                                                            'words':tm['words'],
+                                                                            'kwords':tm['kwords']})
                     if added and tm.get('words',None):
                         words = words + tm['words']
 
