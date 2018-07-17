@@ -137,7 +137,7 @@ ${output_css}
                 ## anchor to work.  Which it does by default.  This
                 ## could also be made configurable if some user
                 ## changed it.
-                chapurlmap[chap['url']]="#section%04d"%(index+1) # url -> index
+                chapurlmap[chap['url']]="#section"%chap['index04'] # url -> index
 
         for index, chap in enumerate(self.story.getChapters()):
             if chap['html']:
@@ -157,7 +157,6 @@ ${output_css}
 
 
                 logging.debug('Writing chapter text for: %s' % chap['title'])
-                # vals={'url':chap.url, 'chapter':chap.title, 'index':"%04d"%(index+1), 'number':index+1}
                 self._write(out,CHAPTER_START.substitute(chap))
                 self._write(out,chap_data)
                 self._write(out,CHAPTER_END.substitute(chap))

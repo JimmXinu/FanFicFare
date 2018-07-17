@@ -75,7 +75,7 @@ class BaseSiteAdapter(Configurable):
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.now())
-        self.chapterUrls = [] # tuples of (chapter title,chapter url)
+        self.chapterUrls = [] # dicts of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
         self.oldchapters = None
@@ -150,7 +150,7 @@ class BaseSiteAdapter(Configurable):
         if self.ignore_chapter_url_list == None:
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
-            meta = dict(othermeta) # copy
+            meta = defaultdict(unicode,othermeta) # copy othermeta
             meta.update({'title':stripHTML(title),'url':url}) # after other to make sure they are set
             self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
@@ -166,7 +166,7 @@ class BaseSiteAdapter(Configurable):
         return self.chapterUrls[i].get(attr,None)
 
     def get_chapters(self):
-        return copy.copy(self.chapterUrls)
+        return copy.deepcopy(self.chapterUrls)
 
     def del_chapter(self,i):
         del self.chapterUrls[i]

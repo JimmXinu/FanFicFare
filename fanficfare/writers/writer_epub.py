@@ -118,7 +118,7 @@ ${value}<br />
 ''')
 
         self.EPUB_TOC_ENTRY = string.Template('''
-<a href="file${index}.xhtml">${chapter}</a><br />
+<a href="file${index04}.xhtml">${chapter}</a><br />
 ''')
 
         self.EPUB_TOC_PAGE_END = string.Template('''
@@ -540,12 +540,12 @@ div { margin: 0pt; padding: 0pt; }
         for index, chap in enumerate(self.story.getChapters(fortoc=True)):
             if chap['html']:
                 i=index+1
-                items.append(("file%04d"%i,
-                              "OEBPS/file%04d.xhtml"%i,
+                items.append(("file%s"%chap['index04'],
+                              "OEBPS/file%s.xhtml"%chap['index04'],
                               "application/xhtml+xml",
                               chap['title']))
-                itemrefs.append("file%04d"%i)
-                chapurlmap[chap['url']]="file%04d.xhtml"%i # url -> relative epub file name.
+                itemrefs.append("file%s"%chap['index04'])
+                chapurlmap[chap['url']]="file%s.xhtml"%chap['index04'] # url -> relative epub file name.
 
         if dologpage:
             if self.getConfig("logpage_at_end") == "true":
@@ -715,12 +715,6 @@ div { margin: 0pt; padding: 0pt; }
                 chap['title']=removeEntities(chap['title'])
                 chap['origchapter']=removeEntities(chap['origtitle'])
                 chap['tocchapter']=removeEntities(chap['toctitle'])
-                # vals={'url':removeEntities(chap.url),
-                #       'chapter':removeEntities(chap.title),
-                #       'origchapter':removeEntities(chap.origtitle),
-                #       'tocchapter':removeEntities(chap.toctitle),
-                #       'index':"%04d"%(index+1),
-                #       'number':index+1}
                 # escape double quotes in all vals.
                 for k,v in chap.items():
                     if isinstance(v,basestring): chap[k]=v.replace('"','&quot;')
@@ -734,7 +728,7 @@ div { margin: 0pt; padding: 0pt; }
                 # (200k+)
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
-                outputepub.writestr("OEBPS/file%04d.xhtml"%(index+1),fullhtml.encode('utf-8'))
+                outputepub.writestr("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
                 del fullhtml
 
         if self.story.calibrebookmark:

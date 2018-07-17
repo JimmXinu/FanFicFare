@@ -1020,8 +1020,12 @@ class Story(Configurable):
                         'toctitle':chapter['title'],
                         'new':newchap,
                         'number':len(self.chapters)+1,
-                        'index':len(self.chapters)+1,
-                        '0index':"%04d"%(len(self.chapters)+1)})
+                        'index04':"%04d"%(len(self.chapters)+1)})
+        ## Due to poor planning on my part, chapter_title_*_pattern
+        ## expect index==1 while output settings expected index=0001.
+        ## index04 is to disambiguate, but index is kept for users'
+        ## pre-existing settings.
+        chapter['index']=chapter['index04']
         self.chapters.append(chapter)
 
     def getChapters(self,fortoc=False):
@@ -1065,22 +1069,17 @@ class Story(Configurable):
                 else:
                     usetempl = templ
                 # logger.debug("chap(%s)"%chap)
-            # Chapter = namedtuple('Chapter', 'url title html origtitle toctitle new')
                 chapter = defaultdict(unicode,chap)
-                chapter['chapter'] = chapter['title'] = usetempl.substitute(chap)
-                chapter['origtitle'] = templ.substitute(chap)
-                chapter['toctitle'] = toctempl.substitute(chap)
-                chapter['index'] = chap['number']  ## Due to poor planning on my part, chapter_title_*_pattern
-                retval.append(chapter)             ## expect index==1 not index=0001 like output settings.
-                    # Chapter(chap.url,
-                    #                    # 'new'
-                    #                    usetempl.substitute({'index':index+1,'title':chap.title}),
-                    #                    chap.html,
-                    #                    # 'orig'
-                    #                    templ.substitute({'index':index+1,'title':chap.title}),
-                    #                    # 'toc'
-                    #                    toctempl.substitute({'index':index+1,'title':chap.title}),
-                    #                    chap.new) )
+                ## Due to poor planning on my part,
+                ## chapter_title_*_pattern expect index==1 not
+                ## index=0001 like output settings.  index04 is now
+                ## used, but index is still included for backward
+                ## compatibility.
+                chapter['index'] = chapter['number']
+                chapter['chapter'] = chapter['title'] = usetempl.substitute(chapter)
+                chapter['origtitle'] = templ.substitute(chapter)
+                chapter['toctitle'] = toctempl.substitute(chapter)
+                retval.append(chapter)
         else:
             retval = self.chapters
 
