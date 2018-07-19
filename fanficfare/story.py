@@ -1076,9 +1076,11 @@ class Story(Configurable):
                 ## used, but index is still included for backward
                 ## compatibility.
                 chapter['index'] = chapter['number']
-                chapter['chapter'] = chapter['title'] = usetempl.substitute(chapter)
+                chapter['chapter'] = usetempl.substitute(chapter)
                 chapter['origtitle'] = templ.substitute(chapter)
                 chapter['toctitle'] = toctempl.substitute(chapter)
+                # set after, otherwise changes origtitle and toctitle
+                chapter['title'] = chapter['chapter']
                 retval.append(chapter)
         else:
             retval = self.chapters
