@@ -227,6 +227,18 @@ def get_story_url_from_epub_html(inputio,_is_good_url=None):
                     ahref="http://www.fanfiction.net/s/%s/1/"%m.group('id')
                 if _is_good_url == None or _is_good_url(ahref):
                     return ahref
+        ## Looking in toc.ncx for fanficauthors.net story URL
+        if( item.getAttribute("media-type") == "application/x-dtbncx+xml" ):
+            filehref=relpath+item.getAttribute("href")
+            tocncxdom = parseString(epub.read(filehref))
+            for metatag in tocncxdom.getElementsByTagName("meta"):
+                if metatag.getAttribute('name') == 'dtb:uid':
+                    content = metatag.getAttribute('content')
+                    if _is_good_url == None:
+                        if _is_good_url(content):
+                            return content
+                    elif "fanficauthors.net" in content:
+                        return content
     return None
 
 def get_story_url_from_zip_html(inputio,_is_good_url=None):
