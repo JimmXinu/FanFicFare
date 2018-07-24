@@ -127,7 +127,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s', url)
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
-        content = soup.select_one('.section-content .fr-view')
+        content = soup.select_one('.panel-default .fr-view')
 
         # Remove next- and previous-chapter links
         for a in content.select('.chapter-nav'):
