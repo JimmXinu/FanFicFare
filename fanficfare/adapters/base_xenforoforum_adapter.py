@@ -412,7 +412,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
 
-        if self.num_chapters < 1:
+        if self.num_chapters() < 1:
             self.add_chapter(first_post_title,useurl)
             for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
