@@ -33,7 +33,8 @@ def getClass():
 
 
 class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
-    DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+    NEW_DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+    OLD_DATE_FORMAT = '%Y/%m/%d %I:%M:%S'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -81,8 +82,15 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         author = stripHTML(info_paragraphs[0]).replace(u'Author：', '', 1)
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
-        self.story.setMetadata(
-            'dateUpdated', makeDate(stripHTML(info_paragraphs[2]).replace(u'UpdateTime：', '', 1), self.DATE_FORMAT))
+        datestr = stripHTML(info_paragraphs[2]).replace(u'UpdateTime：', '', 1)
+        date = None
+        try:
+            ## Some older stories use a different date format.
+            date = makeDate(datestr, self.NEW_DATE_FORMAT)
+        except ValueError:
+            date = makeDate(datestr, self.OLD_DATE_FORMAT)
+        if date:
+            self.story.setMetadata('dateUpdated', date)
 
         intro = soup.select_one('#intro')
         # Strip <strong>Description</strong>
