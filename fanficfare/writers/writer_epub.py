@@ -578,7 +578,7 @@ div { margin: 0pt; padding: 0pt; }
             package.appendChild(guide)
 
         # write content.opf to zip.
-        contentxml = contentdom.toxml(encoding='utf-8')
+        contentxml = contentdom.toxml()
 
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
         contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
