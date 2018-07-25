@@ -16,17 +16,19 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ErosnSapphoSycophantHexComAdapter
@@ -88,7 +90,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -108,7 +110,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except six.moves.urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -166,7 +168,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
             val = value
             value = value.previousSibling
         while 'label' not in defaultGetattr(val,'class'):
-            svalue += unicode(val)
+            svalue += six.text_type(val)
             val = val.nextSibling
         self.setDescription(url,svalue)
 

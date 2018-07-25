@@ -36,6 +36,7 @@ class a user of ``chardet`` should use.
 """
 
 
+from __future__ import absolute_import
 import codecs
 import logging
 import re

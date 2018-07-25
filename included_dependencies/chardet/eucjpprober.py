@@ -31,6 +31,7 @@ from .codingstatemachine import CodingStateMachine
 from .chardistribution import EUCJPDistributionAnalysis
 from .jpcntx import EUCJPContextAnalysis
 from .mbcssm import EUCJP_SM_MODEL
+from six.moves import range
 
 
 class EUCJPProber(MultiByteCharSetProber):

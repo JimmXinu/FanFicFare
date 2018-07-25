@@ -15,11 +15,12 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
 import StringIO
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput

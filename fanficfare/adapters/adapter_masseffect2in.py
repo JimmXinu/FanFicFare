@@ -15,15 +15,20 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import bs4
 import datetime
 import logging
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
+import six
+from six.moves import filter
+from six.moves import zip
+from six.moves import map
 
 
 _logger = logging.getLogger(__name__)
@@ -114,7 +119,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
         try:
             startingChapter = self._makeChapter(self.url)
-        except urllib2.HTTPError, error:
+        except six.moves.urllib.error.HTTPError as error:
             if error.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             raise
@@ -198,14 +203,14 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
                 self.add_chapter(chapterTitle, url)
-            except ParsingError, error:
+            except ParsingError as error:
                 raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
         self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
-        self.story.setMetadata('numWords', unicode(wordCount))
+        self.story.setMetadata('numWords', six.text_type(wordCount))
         self.story.setMetadata('numChapters', len(chapters))
 
         # Site-specific metadata.
@@ -539,7 +544,7 @@ class Chapter(object):
             key = key.strip(separators).lower()
             value = value.strip().strip(separators)
             parsed = self._parseAttribute(key, value)
-            for parsedKey, parsedValue in parsed.iteritems():
+            for parsedKey, parsedValue in six.iteritems(parsed):
                 attributes[parsedKey] = parsedValue
 
         freestandingText = freestandingText.strip()
@@ -613,13 +618,13 @@ class Chapter(object):
             return canonicalName
 
         if re.match(u'жанры?', key, re.UNICODE):
-            genres = filter(bool, map(unicode.strip, re.split(u'[,;/]', value)))
+            genres = list(filter(bool, list(map(six.text_type.strip, re.split(u'[,;/]', value)))))
             return {'genres': genres}
         elif key == u'статус':
             isInProgress = value == u'в процессе'
             return {'isInProgress': isInProgress}
         elif key == u'персонажи':
-            participants = map(refineCharacter, re.split(u'[,;]', value))
+            participants = list(map(refineCharacter, re.split(u'[,;]', value)))
             characters = []
             pairings = []
             for participant in participants:
@@ -700,7 +705,7 @@ def _getLargestCommonPrefix(*args):
     """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
-    from itertools import takewhile, izip
-    toLower = lambda xs: map(lambda x: x.lower(), xs)
+    from itertools import takewhile
+    toLower = lambda xs: [x.lower() for x in xs]
     allSame = lambda xs: len(set(toLower(xs))) == 1
-    return u''.join([i[0] for i in takewhile(allSame, izip(*args))])
+    return u''.join([i[0] for i in takewhile(allSame, zip(*args))])

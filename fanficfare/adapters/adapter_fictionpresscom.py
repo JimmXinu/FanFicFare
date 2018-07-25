@@ -15,15 +15,16 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import time
 
 ## They're from the same people and pretty much identical.
-from adapter_fanfictionnet import FanFictionNetSiteAdapter
+from .adapter_fanfictionnet import FanFictionNetSiteAdapter
 
 class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
 

@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 from datetime import timedelta
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.parse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 from bs4 import BeautifulSoup
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 
@@ -18,8 +19,8 @@ def getClass():
 
 
 def _get_query_data(url):
-    components = urlparse.urlparse(url)
-    query_data = urlparse.parse_qs(components.query)
+    components = six.moves.urllib.parse.urlparse(url)
+    query_data = six.moves.urllib.parse.parse_qs(components.query)
     return dict((key, data[0]) for key, data in query_data.items())
 
 
@@ -36,7 +37,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        query_data = urlparse.parse_qs(self.parsedUrl.query)
+        query_data = six.moves.urllib.parse.parse_qs(self.parsedUrl.query)
         story_no = query_data['no'][0]
 
         self.story.setMetadata('storyId', story_no)
@@ -47,7 +48,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except six.moves.urllib.error.HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.
@@ -89,7 +90,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
         # Reset the storyId to be the first chapter no.  Needed
         # because emails contain link to later chapters instead.
-        query_data = urlparse.parse_qs(self.get_chapter(0,'url'))
+        query_data = six.moves.urllib.parse.parse_qs(self.get_chapter(0,'url'))
         story_no = query_data['no'][0]
 
         self.story.setMetadata('storyId', story_no)
@@ -100,7 +101,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         story_no = self.story.getMetadata('storyId')
         # Get the URL to the author's page and find the correct story entry to
         # scrape the metadata
-        author_url = urlparse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
+        author_url = six.moves.urllib.parse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
         soup = self._customized_fetch_url(author_url)
 
         # Ignore first list_box div, it only contains the author information
@@ -121,7 +122,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         author_anchor = title_anchor.findNextSibling('a')
         self.story.setMetadata('author', stripHTML(author_anchor))
         self.story.setMetadata('authorId', _get_query_data(author_anchor['href'])['who'])
-        self.story.setMetadata('authorUrl', urlparse.urljoin(self.url, author_anchor['href']))
+        self.story.setMetadata('authorUrl', six.moves.urllib.parse.urljoin(self.url, author_anchor['href']))
 
         list_review = list_box.find('div', {'class': 'list_review'})
         reviews = stripHTML(list_review.a).split(' ', 1)[0]

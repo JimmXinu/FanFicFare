@@ -18,18 +18,19 @@
 ###   Written by GComyn
 ################################################################################
 from __future__ import unicode_literals
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
 import sys
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from bs4 import UnicodeDammit
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 ################################################################################
 
@@ -199,7 +200,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
             elif e.code == 410:
@@ -265,7 +266,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             logger.debug('Getting the author page: {0}'.format(author_Url))
             try:
                 adata = self._fetchUrl(author_Url)
-            except urllib2.HTTPError, e:
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code in 404:
                     raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
                 elif e.code == 410:
@@ -303,7 +304,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                         logger.debug('Getting the author page: {0}'.format(author_Url))
                         try:
                             adata = self._fetchUrl(author_Url)
-                        except urllib2.HTTPError, e:
+                        except six.moves.urllib.error.HTTPError as e:
                             if e.code in 404:
                                 raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
                             elif e.code == 410:

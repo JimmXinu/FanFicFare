@@ -15,12 +15,13 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.parse
 import time
 import os
 
@@ -29,7 +30,7 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return ASexStoriesComAdapter
@@ -84,7 +85,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -128,7 +129,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             
             for page in chapterTable:
                 chapterTitle = page.string
-                chapterUrl = urlparse.urljoin(self.url, page['href'])
+                chapterUrl = six.moves.urllib.parse.urljoin(self.url, page['href'])
                 if chapterUrl.startswith(self.url): # there are other URLs in the pages block now.
                     self.add_chapter(chapterTitle, chapterUrl)
 

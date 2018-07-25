@@ -16,18 +16,20 @@
 #
 
 # Adapted by GComyn on April 16, 2017
+from __future__ import absolute_import
 import cgi
 import difflib
 import json
 import logging
 import re
 import time
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 from ..dateutils import parse_relative_date_string
+import six
 
 HTML_TAGS = (
     'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi',
@@ -100,7 +102,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
@@ -183,7 +185,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                                              # working. --JM
                     continue
 
-                chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
+                chap_title = 'Chapter ' + six.text_type(chap['index']) + ' - ' + chap['name']
                 chap_Url = url.rstrip('/') + '/' + chap['id']
                 self.add_chapter(chap_title, chap_Url)
 

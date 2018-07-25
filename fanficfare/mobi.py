@@ -2,15 +2,17 @@
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
     
+from __future__ import absolute_import
 import StringIO
 import struct
 import time
 import random
 import logging
+from six.moves import range
 
 logger = logging.getLogger(__name__)
 
-from html import HtmlProcessor
+from .html import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html
@@ -125,7 +127,7 @@ class Converter:
     try:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
-    except Exception, e:
+    except Exception as e:
       logger.error('Error %s', e)
       #logger.debug('Details: %s' % html_strs)
 

@@ -15,10 +15,11 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import os, re, sys, glob, types
 from os.path import dirname, basename, normpath
 import logging
-import urlparse as up
+import six.moves.urllib.parse as up
 
 logger = logging.getLogger(__name__)
 
@@ -27,156 +28,156 @@ from ..configurable import Configuration
 
 ## must import each adapter here.
 
-import adapter_test1
-import adapter_fanfictionnet
-import adapter_fanficcastletvnet
-import adapter_fictionalleyorg
-import adapter_fictionpresscom
-import adapter_ficwadcom
-import adapter_fimfictionnet
-import adapter_mediaminerorg
-import adapter_potionsandsnitches
-import adapter_tenhawkpresentscom
-import adapter_adastrafanficcom
-import adapter_tthfanficorg
-import adapter_twilightednet
-import adapter_whoficcom
-import adapter_siyecouk
-import adapter_archiveofourownorg
-import adapter_ficbooknet
-import adapter_nfacommunitycom
-import adapter_midnightwhispers
-import adapter_ksarchivecom
-import adapter_archiveskyehawkecom
-import adapter_squidgeorgpeja
-import adapter_libraryofmoriacom
-import adapter_wraithbaitcom
-import adapter_dramioneorg
-import adapter_ashwindersycophanthexcom
-import adapter_chaossycophanthexcom
-import adapter_erosnsapphosycophanthexcom
-import adapter_lumossycophanthexcom
-import adapter_occlumencysycophanthexcom
-import adapter_phoenixsongnet
-import adapter_walkingtheplankorg
-import adapter_dokugacom
-import adapter_iketernalnet
-import adapter_storiesofardacom
-import adapter_destinysgatewaycom
-import adapter_ncisfictioncom
-import adapter_fanfiktionde
-import adapter_ponyfictionarchivenet
-import adapter_ncisficcom
-import adapter_nationallibrarynet
-import adapter_themasquenet
-import adapter_pretendercentrecom
-import adapter_darksolaceorg
-import adapter_finestoriescom
-import adapter_hpfanficarchivecom
-import adapter_twilightarchivescom
-import adapter_nhamagicalworldsus
-import adapter_hlfictionnet
-import adapter_dracoandginnycom
-import adapter_scarvesandcoffeenet
-import adapter_thepetulantpoetesscom
-import adapter_wolverineandroguecom
-import adapter_merlinficdtwinscouk
-import adapter_thehookupzonenet
-import adapter_bloodtiesfancom
-import adapter_qafficcom
-import adapter_efpfanficnet
-import adapter_potterficscom
-import adapter_efictionestelielde
-import adapter_imagineeficcom
-import adapter_asr3slashzoneorg
-import adapter_potterheadsanonymouscom
-import adapter_fictionpadcom
-import adapter_storiesonlinenet
-import adapter_trekiverseorg
-import adapter_literotica
-import adapter_voracity2eficcom
-import adapter_spikeluvercom
-import adapter_bloodshedversecom
-import adapter_nocturnallightnet
-import adapter_fanfichu
-import adapter_fictionmaniatv
-import adapter_tolkienfanfiction
-import adapter_themaplebookshelf
-import adapter_fannation
-import adapter_sheppardweircom
-import adapter_samandjacknet
-import adapter_csiforensicscom
-import adapter_lotrfanfictioncom
-import adapter_fhsarchivecom
-import adapter_fanfictionjunkiesde
-import adapter_tgstorytimecom
-import adapter_itcouldhappennet
-import adapter_forumsspacebattlescom
-import adapter_forumssufficientvelocitycom
-import adapter_forumquestionablequestingcom
-import adapter_ninelivesarchivecom
-import adapter_masseffect2in
-import adapter_quotevcom
-import adapter_mcstoriescom
-import adapter_buffygilescom
-import adapter_andromedawebcom
-import adapter_artemisfowlcom
-import adapter_naiceanilmenet
-import adapter_deepinmysoulnet
-import adapter_kiarepositorymujajinet
-import adapter_adultfanfictionorg
-import adapter_fictionhuntcom
-import adapter_royalroadl
-import adapter_chosentwofanficcom
-import adapter_bdsmlibrarycom
-import adapter_asexstoriescom
-import adapter_gluttonyfictioncom
-import adapter_valentchambercom
-import adapter_looselugscom
-import adapter_wwwgiantessworldnet
-import adapter_lotrgficcom
-import adapter_tomparisdormcom
-import adapter_writingwhimsicalwanderingsnet
-import adapter_sugarquillnet
-import adapter_wwwarea52hkhnet
-import adapter_starslibrarynet
-import adapter_fanficauthorsnet
-import adapter_fireflyfansnet
-import adapter_fireflypopulliorg
-import adapter_sebklainenet
-import adapter_shriftweborgbfa
-import adapter_trekfanfictionnet
-import adapter_wuxiaworldcom
-import adapter_wwwlushstoriescom
-import adapter_wwwutopiastoriescom
-import adapter_sinfuldreamscomunicornfic
-import adapter_sinfuldreamscomwhisperedmuse
-import adapter_sinfuldreamscomwickedtemptation
-import adapter_asianfanficscom
-import adapter_webnovelcom
-import adapter_deandamagecom
-import adapter_imrightbehindyoucom
-import adapter_mttjustoncenet
-import adapter_narutoficorg
-import adapter_starskyhutcharchivenet
-import adapter_swordborderlineangelcom
-import adapter_tasteofpoisoninkubationnet
-import adapter_thebrokenworldorg
-import adapter_thedelphicexpansecom
-import adapter_thundercatsfansorg
-import adapter_unknowableroomorg
-import adapter_www13hoursorg
-import adapter_wwwaneroticstorycom
-import adapter_gravitytalescom
-import adapter_lcfanficcom
-import adapter_noveltrovecom
-import adapter_inkbunnynet
-import adapter_alternatehistorycom
-import adapter_wattpadcom
-import adapter_lightnovelgatecom
-import adapter_wwwnovelallcom
-import adapter_wuxiaworldco
-import adapter_harrypotterfanfictioncom
+from . import adapter_test1
+from . import adapter_fanfictionnet
+from . import adapter_fanficcastletvnet
+from . import adapter_fictionalleyorg
+from . import adapter_fictionpresscom
+from . import adapter_ficwadcom
+from . import adapter_fimfictionnet
+from . import adapter_mediaminerorg
+from . import adapter_potionsandsnitches
+from . import adapter_tenhawkpresentscom
+from . import adapter_adastrafanficcom
+from . import adapter_tthfanficorg
+from . import adapter_twilightednet
+from . import adapter_whoficcom
+from . import adapter_siyecouk
+from . import adapter_archiveofourownorg
+from . import adapter_ficbooknet
+from . import adapter_nfacommunitycom
+from . import adapter_midnightwhispers
+from . import adapter_ksarchivecom
+from . import adapter_archiveskyehawkecom
+from . import adapter_squidgeorgpeja
+from . import adapter_libraryofmoriacom
+from . import adapter_wraithbaitcom
+from . import adapter_dramioneorg
+from . import adapter_ashwindersycophanthexcom
+from . import adapter_chaossycophanthexcom
+from . import adapter_erosnsapphosycophanthexcom
+from . import adapter_lumossycophanthexcom
+from . import adapter_occlumencysycophanthexcom
+from . import adapter_phoenixsongnet
+from . import adapter_walkingtheplankorg
+from . import adapter_dokugacom
+from . import adapter_iketernalnet
+from . import adapter_storiesofardacom
+from . import adapter_destinysgatewaycom
+from . import adapter_ncisfictioncom
+from . import adapter_fanfiktionde
+from . import adapter_ponyfictionarchivenet
+from . import adapter_ncisficcom
+from . import adapter_nationallibrarynet
+from . import adapter_themasquenet
+from . import adapter_pretendercentrecom
+from . import adapter_darksolaceorg
+from . import adapter_finestoriescom
+from . import adapter_hpfanficarchivecom
+from . import adapter_twilightarchivescom
+from . import adapter_nhamagicalworldsus
+from . import adapter_hlfictionnet
+from . import adapter_dracoandginnycom
+from . import adapter_scarvesandcoffeenet
+from . import adapter_thepetulantpoetesscom
+from . import adapter_wolverineandroguecom
+from . import adapter_merlinficdtwinscouk
+from . import adapter_thehookupzonenet
+from . import adapter_bloodtiesfancom
+from . import adapter_qafficcom
+from . import adapter_efpfanficnet
+from . import adapter_potterficscom
+from . import adapter_efictionestelielde
+from . import adapter_imagineeficcom
+from . import adapter_asr3slashzoneorg
+from . import adapter_potterheadsanonymouscom
+from . import adapter_fictionpadcom
+from . import adapter_storiesonlinenet
+from . import adapter_trekiverseorg
+from . import adapter_literotica
+from . import adapter_voracity2eficcom
+from . import adapter_spikeluvercom
+from . import adapter_bloodshedversecom
+from . import adapter_nocturnallightnet
+from . import adapter_fanfichu
+from . import adapter_fictionmaniatv
+from . import adapter_tolkienfanfiction
+from . import adapter_themaplebookshelf
+from . import adapter_fannation
+from . import adapter_sheppardweircom
+from . import adapter_samandjacknet
+from . import adapter_csiforensicscom
+from . import adapter_lotrfanfictioncom
+from . import adapter_fhsarchivecom
+from . import adapter_fanfictionjunkiesde
+from . import adapter_tgstorytimecom
+from . import adapter_itcouldhappennet
+from . import adapter_forumsspacebattlescom
+from . import adapter_forumssufficientvelocitycom
+from . import adapter_forumquestionablequestingcom
+from . import adapter_ninelivesarchivecom
+from . import adapter_masseffect2in
+from . import adapter_quotevcom
+from . import adapter_mcstoriescom
+from . import adapter_buffygilescom
+from . import adapter_andromedawebcom
+from . import adapter_artemisfowlcom
+from . import adapter_naiceanilmenet
+from . import adapter_deepinmysoulnet
+from . import adapter_kiarepositorymujajinet
+from . import adapter_adultfanfictionorg
+from . import adapter_fictionhuntcom
+from . import adapter_royalroadl
+from . import adapter_chosentwofanficcom
+from . import adapter_bdsmlibrarycom
+from . import adapter_asexstoriescom
+from . import adapter_gluttonyfictioncom
+from . import adapter_valentchambercom
+from . import adapter_looselugscom
+from . import adapter_wwwgiantessworldnet
+from . import adapter_lotrgficcom
+from . import adapter_tomparisdormcom
+from . import adapter_writingwhimsicalwanderingsnet
+from . import adapter_sugarquillnet
+from . import adapter_wwwarea52hkhnet
+from . import adapter_starslibrarynet
+from . import adapter_fanficauthorsnet
+from . import adapter_fireflyfansnet
+from . import adapter_fireflypopulliorg
+from . import adapter_sebklainenet
+from . import adapter_shriftweborgbfa
+from . import adapter_trekfanfictionnet
+from . import adapter_wuxiaworldcom
+from . import adapter_wwwlushstoriescom
+from . import adapter_wwwutopiastoriescom
+from . import adapter_sinfuldreamscomunicornfic
+from . import adapter_sinfuldreamscomwhisperedmuse
+from . import adapter_sinfuldreamscomwickedtemptation
+from . import adapter_asianfanficscom
+from . import adapter_webnovelcom
+from . import adapter_deandamagecom
+from . import adapter_imrightbehindyoucom
+from . import adapter_mttjustoncenet
+from . import adapter_narutoficorg
+from . import adapter_starskyhutcharchivenet
+from . import adapter_swordborderlineangelcom
+from . import adapter_tasteofpoisoninkubationnet
+from . import adapter_thebrokenworldorg
+from . import adapter_thedelphicexpansecom
+from . import adapter_thundercatsfansorg
+from . import adapter_unknowableroomorg
+from . import adapter_www13hoursorg
+from . import adapter_wwwaneroticstorycom
+from . import adapter_gravitytalescom
+from . import adapter_lcfanficcom
+from . import adapter_noveltrovecom
+from . import adapter_inkbunnynet
+from . import adapter_alternatehistorycom
+from . import adapter_wattpadcom
+from . import adapter_lightnovelgatecom
+from . import adapter_wwwnovelallcom
+from . import adapter_wuxiaworldco
+from . import adapter_harrypotterfanfictioncom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
@@ -265,8 +266,7 @@ def getConfigSections():
 def get_bulk_load_sites():
     # for now, all eFiction Base adapters are assumed to allow bulk_load.
     sections = set()
-    for cls in filter( lambda x : issubclass(x,base_efiction_adapter.BaseEfictionAdapter),
-                       __class_list):
+    for cls in [x for x in __class_list if issubclass(x,base_efiction_adapter.BaseEfictionAdapter)]:
         sections.update( [ x.replace('www.','') for x in cls.getConfigSections() ] )
     return sections
 

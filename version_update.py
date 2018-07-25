@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+from __future__ import print_function
 import codecs, sys, re
 
 from tempfile import mkstemp
@@ -50,13 +52,13 @@ version="2.3.6"
     release = 'Release'
     if int(args[-1]) > 0:
         release = 'Test'
-    print('\ngit add %s'%(" ".join(version_files+index_files)))
-    print('git commit -m "Bump %s Version %s"'%(release,'.'.join(args)))
+    print(('\ngit add %s'%(" ".join(version_files+index_files))))
+    print(('git commit -m "Bump %s Version %s"'%(release,'.'.join(args))))
 
 def do_loop(files, pattern, substring):
     global saved_version
     for source_file_path in files:
-        print "src:"+source_file_path
+        print("src:"+source_file_path)
         fh, target_file_path = mkstemp()
         with codecs.open(target_file_path, 'w', 'utf-8') as target_file:
             with codecs.open(source_file_path, 'r', 'utf-8') as source_file:
@@ -65,7 +67,7 @@ def do_loop(files, pattern, substring):
                     if line != repline and source_file_path == save_file:
                         m = re.match(pattern,line)
                         saved_version = (m.group('major'),m.group('minor'),m.group('micro'))
-                        print("<-%s->%s"%(line,repline))
+                        print(("<-%s->%s"%(line,repline)))
                     target_file.write(repline)
         close(fh)
         unlink(source_file_path)
@@ -78,7 +80,7 @@ if __name__ == '__main__':
             raise Exception()
         [int(x) for x in args]
     except:
-        print "Requires exactly 3 numeric args: major minor micro"
+        print("Requires exactly 3 numeric args: major minor micro")
         exit()
     main(args)
 #    print saved_version

@@ -27,6 +27,8 @@ import itertools
 import operator
 import sys
 import types
+import six
+from six import unichr
 
 __author__ = "Benjamin Peterson <benjamin@python.org>"
 __version__ = "1.10.0"
@@ -46,10 +48,10 @@ if PY3:
 
     MAXSIZE = sys.maxsize
 else:
-    string_types = basestring,
-    integer_types = (int, long)
-    class_types = (type, types.ClassType)
-    text_type = unicode
+    string_types = six.string_types,
+    integer_types = six.integer_types
+    class_types = (type, type)
+    text_type = six.text_type
     binary_type = str
 
     if sys.platform.startswith("java"):
@@ -521,7 +523,7 @@ try:
     advance_iterator = next
 except NameError:
     def advance_iterator(it):
-        return it.next()
+        return next(it)
 next = advance_iterator
 
 
@@ -544,7 +546,7 @@ if PY3:
     Iterator = object
 else:
     def get_unbound_function(unbound):
-        return unbound.im_func
+        return unbound.__func__
 
     def create_bound_method(func, obj):
         return types.MethodType(func, obj, obj.__class__)
@@ -644,7 +646,7 @@ else:
     # Workaround for standalone backslash
 
     def u(s):
-        return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+        return six.text_type(s.replace(r'\\', r'\\\\'), "unicode_escape")
     unichr = unichr
     int2byte = chr
 
@@ -727,11 +729,11 @@ if print_ is None:
             return
 
         def write(data):
-            if not isinstance(data, basestring):
+            if not isinstance(data, six.string_types):
                 data = str(data)
             # If the file has an encoding, encode unicode with it.
             if (isinstance(fp, file) and
-                    isinstance(data, unicode) and
+                    isinstance(data, six.text_type) and
                     fp.encoding is not None):
                 errors = getattr(fp, "errors", None)
                 if errors is None:
@@ -741,13 +743,13 @@ if print_ is None:
         want_unicode = False
         sep = kwargs.pop("sep", None)
         if sep is not None:
-            if isinstance(sep, unicode):
+            if isinstance(sep, six.text_type):
                 want_unicode = True
             elif not isinstance(sep, str):
                 raise TypeError("sep must be None or a string")
         end = kwargs.pop("end", None)
         if end is not None:
-            if isinstance(end, unicode):
+            if isinstance(end, six.text_type):
                 want_unicode = True
             elif not isinstance(end, str):
                 raise TypeError("end must be None or a string")
@@ -755,12 +757,12 @@ if print_ is None:
             raise TypeError("invalid keyword arguments to print()")
         if not want_unicode:
             for arg in args:
-                if isinstance(arg, unicode):
+                if isinstance(arg, six.text_type):
                     want_unicode = True
                     break
         if want_unicode:
-            newline = unicode("\n")
-            space = unicode(" ")
+            newline = six.text_type("\n")
+            space = six.text_type(" ")
         else:
             newline = "\n"
             space = " "

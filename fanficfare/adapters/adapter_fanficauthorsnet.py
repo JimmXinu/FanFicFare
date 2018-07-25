@@ -19,18 +19,20 @@
 ###
 ####################################################################################################
 from __future__ import unicode_literals
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
 import sys
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from bs4 import UnicodeDammit, Comment
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 ####################################################################################################
 def getClass():
@@ -157,7 +159,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url+'index/', params, usecache=False)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
             elif e.code == 410:
@@ -203,7 +205,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                 'storyId')+'/([a-zA-Z0-9_]+)/'))
 
             # Here we are getting the published date. It is the date the first chapter was "updated"
-            updatedate = stripHTML(unicode(chapters[0].parent)).split('Uploaded on:')[1].strip()
+            updatedate = stripHTML(six.text_type(chapters[0].parent)).split('Uploaded on:')[1].strip()
             updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
                 'rd ',' ').replace('th ',' ')
             self.story.setMetadata('datePublished', makeDate(updatedate, self.dateformat))
@@ -212,16 +214,16 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                 if '/reviews/' not in chapter['href']:
                     # here we get the update date. We will update this for every chapter, 
                     # so we get the last one.
-                    updatedate = stripHTML(unicode(chapters[i].parent)).split(
+                    updatedate = stripHTML(six.text_type(chapters[i].parent)).split(
                         'Uploaded on:')[1].strip()
                     updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
                         'rd ',' ').replace('th ',' ')
                     self.story.setMetadata('dateUpdated', makeDate(updatedate, self.dateformat))
                     
-                    if '::' in stripHTML(unicode(chapter)):
-                        chapter_title = stripHTML(unicode(chapter).split('::')[1])
+                    if '::' in stripHTML(six.text_type(chapter)):
+                        chapter_title = stripHTML(six.text_type(chapter).split('::')[1])
                     else:
-                        chapter_title = stripHTML(unicode(chapter))
+                        chapter_title = stripHTML(six.text_type(chapter))
                     chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
                     self.add_chapter(chapter_title, chapter_Url)
             

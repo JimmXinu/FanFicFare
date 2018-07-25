@@ -16,17 +16,19 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # Search for XXX comments--that's where things are most likely to need changing.
 
@@ -101,7 +103,7 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -134,7 +136,7 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except six.moves.urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -188,7 +190,7 @@ class NfaCommunityComAdapter(BaseSiteAdapter): # XXX
                 ## Everything until the next span class='label'
                 svalue = ""
                 while 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += six.text_type(value)
                     # poor HTML(unclosed <p> for one) can cause run on
                     # over the next label.
                     if '<span class="label">' in svalue:

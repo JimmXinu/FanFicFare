@@ -15,17 +15,19 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # By virtue of being recent and requiring both is_adult and user/pass,
 # adapter_fanficcastletvnet.py is the best choice for learning to
@@ -146,7 +148,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -209,7 +211,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
                 return ""
 
         # Summary
-        summarydata = unicode(soup.find('div',{'class':'content'}))
+        summarydata = six.text_type(soup.find('div',{'class':'content'}))
         start='<span class="label">Summary: </span>'
         end='</div>'
         summarydata = summarydata[summarydata.index(start)+len(start):summarydata.rindex(end)]

@@ -16,9 +16,10 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 from ..htmlcleanup import stripHTML
 
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class SwordBorderlineAngelComSiteAdapter(BaseEfictionAdapter):
 

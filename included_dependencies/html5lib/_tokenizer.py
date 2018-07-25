@@ -14,6 +14,8 @@ from .constants import replacementCharacters
 from ._inputstream import HTMLInputStream
 
 from ._trie import Trie
+from six import unichr
+from six.moves import range
 
 entitiesTrie = Trie(entities)
 

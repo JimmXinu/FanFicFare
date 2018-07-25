@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 import sys
 
@@ -41,7 +42,7 @@ followsects = [
     ]
 
 with open(argv[1],"w") as outfile:
-    kl = sections.keys()
+    kl = list(sections.keys())
     kl.sort()
     for k in leadsects:
         outfile.write("".join(sections[k]))

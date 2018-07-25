@@ -15,25 +15,28 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import os, re
 import copy
 from collections import defaultdict
-import urlparse
+import six.moves.urllib.parse
 import string
 import json
 import datetime
 from math import floor
 from functools import partial
 import logging
+import six
+from six.moves import map
 logger = logging.getLogger(__name__)
-import urlparse as up
+import six.moves.urllib.parse as up
 
 import bs4
 
-import exceptions
-from htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
-from configurable import Configurable, re_compile
-from htmlheuristics import was_run_marker
+from . import exceptions
+from .htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
+from .configurable import Configurable, re_compile
+from .htmlheuristics import was_run_marker
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -80,7 +83,7 @@ try:
 
         if removetrans and img.has_transparent_pixels():
             canvas = Image()
-            canvas.create_canvas(int(img.size[0]), int(img.size[1]), unicode(background))
+            canvas.create_canvas(int(img.size[0]), int(img.size[1]), six.text_type(background))
             canvas.compose(img)
             img = canvas
             export = True
@@ -332,7 +335,7 @@ class InExMatch:
             (self.keys,self.match) = line.split("!=")
             self.match = self.match.replace(SPACE_REPLACE,' ')
             self.negate = True
-        self.keys = map( lambda x: x.strip(), self.keys.split(",") )
+        self.keys = [x.strip() for x in self.keys.split(",")]
 
     # For conditional, only one key
     def is_key(self,key):
@@ -406,7 +409,7 @@ def make_replacements(replace):
             if "=>" in line:
                 parts = line.split("=>")
                 if len(parts) > 2:
-                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    metakeys = [x.strip() for x in parts[0].split(",")]
                     (regexp,replacement)=parts[1:]
                 else:
                     (regexp,replacement)=parts
@@ -488,7 +491,7 @@ class Story(Configurable):
         self.chapter_last=last
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(six.text_type, [ x for x in vallist if x is not None ]))
 
     def setMetadata(self, key, value, condremoveentities=True):
 
@@ -546,7 +549,7 @@ class Story(Configurable):
                         # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
                         #         match,value,condmatch,condval,keyfound,found))
                     if keyfndnow:
-                        found = isinstance(value,basestring) and match.is_match(value)
+                        found = isinstance(value,six.string_types) and match.is_match(value)
                     if found:
                         # print("match:%s %s\n\tkeyfndnow:%s\n\tfound:%s"%(
                         #         match,value,keyfndnow,found))
@@ -572,7 +575,7 @@ class Story(Configurable):
             #print("replacement tuple:%s"%replaceline)
             (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
-                    and isinstance(value,basestring) \
+                    and isinstance(value,six.string_types) \
                     and regexp.search(value):
                 doreplace=True
                 if condkey and condkey != key: # prevent infinite recursion.
@@ -608,8 +611,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
-            retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
+            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist))
 
         if return_list:
             return retlist
@@ -619,7 +622,7 @@ class Story(Configurable):
     # for saving an html-ified copy of metadata.
     def dump_html_metadata(self):
         lines=[]
-        for k,v in sorted(self.metadata.iteritems()):
+        for k,v in sorted(six.iteritems(self.metadata)):
             classes=['metadata']
             if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
                 classes.append("datetime")
@@ -671,7 +674,7 @@ class Story(Configurable):
             elif 'int' in tag['class']:
                 val = int(tag.string)
             else:
-                val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
+                val = six.text_type("\n".join([ six.text_type(c) for c in tag.contents ]))
 
             #logger.debug("key(%s)=val(%s)"%(tag['id'],val))
             if val:
@@ -689,7 +692,7 @@ class Story(Configurable):
         return value
 
     def getMetadataRaw(self,key):
-        if self.isValidMetaEntry(key) and self.metadata.has_key(key):
+        if self.isValidMetaEntry(key) and key in self.metadata:
             return self.metadata[key]
 
     def getMetadata(self, key,
@@ -711,12 +714,12 @@ class Story(Configurable):
             value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
-        elif self.metadata.has_key(key):
+        elif key in self.metadata:
             value = self.metadata[key]
             if value:
                 if key in ["numWords","numChapters"]+self.getConfigList("comma_entries",[]):
                     try:
-                        value = commaGroups(unicode(value))
+                        value = commaGroups(six.text_type(value))
                     except Exception as e:
                         logger.warn("Failed to add commas to %s value:(%s) exception(%s)"%(key,value,e))
                 if key in ("dateCreated"):
@@ -868,7 +871,7 @@ class Story(Configurable):
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
         return self.isListType(listname) or \
-            ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
+            ( self.isValidMetaEntry(listname) and listname in self.metadata \
                   and isinstance(self.metadata[listname],list) )
 
     def getList(self,listname,
@@ -948,9 +951,9 @@ class Story(Configurable):
                     retlist = newretlist
 
                 if removeallentities:
-                    retlist = map(removeAllEntities,retlist)
+                    retlist = list(map(removeAllEntities,retlist))
 
-                retlist = filter( lambda x : x!=None and x!='' ,retlist)
+                retlist = [x for x in retlist if x!=None and x!='']
 
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
@@ -984,7 +987,7 @@ class Story(Configurable):
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
 
         # metadata all go into dc:subject tags, but only if they are configured.
-        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
+        for (name,value) in six.iteritems(self.getAllMetadata(removeallentities=removeallentities,keeplists=True)):
             if name+'.SPLIT' in tags_list:
                 flist=[]
                 if isinstance(value,list):
@@ -1010,7 +1013,7 @@ class Story(Configurable):
 
     def addChapter(self, chap, newchap=False):
         # logger.debug("addChapter(%s,%s)"%(chap,newchap))
-        chapter = defaultdict(unicode,chap) # default unknown to empty string
+        chapter = defaultdict(six.text_type,chap) # default unknown to empty string
         chapter['title'] = removeEntities(chapter['title'])
         chapter['html'] = removeEntities(chapter['html'])
         if self.getConfig('strip_chapter_numbers') and \
@@ -1069,7 +1072,7 @@ class Story(Configurable):
                 else:
                     usetempl = templ
                 # logger.debug("chap(%s)"%chap)
-                chapter = defaultdict(unicode,chap)
+                chapter = defaultdict(six.text_type,chap)
                 ## Due to poor planning on my part,
                 ## chapter_title_*_pattern expect index==1 not
                 ## index=0001 like output settings.  index04 is now
@@ -1137,15 +1140,15 @@ class Story(Configurable):
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
-            parsedUrl = urlparse.urlparse(parenturl)
+            parsedUrl = six.moves.urllib.parse.urlparse(parenturl)
             if url.startswith("//") :
-                imgurl = urlparse.urlunparse(
+                imgurl = six.moves.urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      '',
                      url,
                      '','',''))
             elif url.startswith("/") :
-                imgurl = urlparse.urlunparse(
+                imgurl = six.moves.urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      url,
@@ -1156,7 +1159,7 @@ class Story(Configurable):
                     toppath = parsedUrl.path
                 else:
                     toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                imgurl = urlparse.urlunparse(
+                imgurl = six.moves.urllib.parse.urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      toppath + url,
@@ -1175,14 +1178,14 @@ class Story(Configurable):
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
 
-                parsedUrl = urlparse.urlparse(imgurl)
+                parsedUrl = six.moves.urllib.parse.urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl,referer=parenturl))
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
-                    except Exception, e:
+                    except Exception as e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
                     grayscale = self.getConfig('grayscale_images')
                     imgtype = self.getConfig('convert_images_to')
@@ -1199,7 +1202,7 @@ class Story(Configurable):
                                                     removetrans,
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
-            except Exception, e:
+            except Exception as e:
                 logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
@@ -1253,7 +1256,7 @@ class Story(Configurable):
         return retlist
 
     def __str__(self):
-        return "Metadata: " +unicode(self.metadata)
+        return "Metadata: " +six.text_type(self.metadata)
 
 def commaGroups(s):
     groups = []

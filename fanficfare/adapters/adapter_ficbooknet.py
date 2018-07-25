@@ -15,19 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import datetime
 import logging
+from six.moves import range
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from .. import translit
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 
 def getClass():
@@ -77,7 +79,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

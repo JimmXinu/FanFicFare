@@ -1,11 +1,12 @@
+from __future__ import absolute_import
 import sys
 
 
 if sys.version_info[0] == 2:
-    import htmlentitydefs
-    import urlparse
-    import HTMLParser
-    import urllib
+    import six.moves.html_entities
+    import six.moves.urllib.parse
+    import six.moves.html_parser
+    import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
     from cgi import escape as html_escape
 else:
     import urllib.parse as urlparse

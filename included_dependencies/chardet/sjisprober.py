@@ -31,6 +31,7 @@ from .chardistribution import SJISDistributionAnalysis
 from .jpcntx import SJISContextAnalysis
 from .mbcssm import SJIS_SM_MODEL
 from .enums import ProbingState, MachineState
+from six.moves import range
 
 
 class SJISProber(MultiByteCharSetProber):

@@ -22,6 +22,7 @@ import re
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions as exceptions
+import six
 logger = logging.getLogger(__name__)
 
 class WattpadComAdapter(BaseSiteAdapter):
@@ -35,7 +36,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.storyId = unicode(self.getStoryId(url))
+        self.storyId = six.text_type(self.getStoryId(url))
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
         self.story.setMetadata('storyId', self.storyId)
         self._setURL('https://www.wattpad.com/story/%s' % self.storyId)
@@ -123,7 +124,7 @@ class WattpadComAdapter(BaseSiteAdapter):
         # CATEGORIES
         try:
             storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(str(c)) for c in storyInfo['categories'] if
-                               WattpadComAdapter.CATEGORY_DEFs.has_key(str(c))]
+                               str(c) in WattpadComAdapter.CATEGORY_DEFs]
 
             self.story.setMetadata('category', storyCategories[0])
             self.story.setMetadata('tags', storyInfo['tags'])

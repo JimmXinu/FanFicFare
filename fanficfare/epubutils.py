@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2017, Jim Miller'
 __docformat__ = 'restructuredtext en'
@@ -78,7 +80,7 @@ def get_update_data(inputio,
             except Exception as e:
                 ## Calibre's Polish Book corrupts sub-book covers.
                 logger.warn("Cover (x)html file %s not found"%href)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warn("Exception: %s"%(six.text_type(e)))
 
             try:
                 # remove all .. and the path part above it, if present.
@@ -94,7 +96,7 @@ def get_update_data(inputio,
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
                 logger.warn("Cover Image %s not found"%src)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warn("Exception: %s"%(six.text_type(e)))
 
     filecount = 0
     soups = [] # list of xhmtl blocks
@@ -138,7 +140,7 @@ def get_update_data(inputio,
                                 # originally.
                                 if newsrc != u'OEBPS/failedtoload':
                                     logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
+                                    logger.warn("Exception: %s"%(six.text_type(e)),exc_info=True)
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
@@ -346,7 +348,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                     if h3_tag and h3_tag.string == chaptertitle:
                         h3_tag.string.replace_with(chapterorigtitle)
 
-                    data = unicode(soup)
+                    data = six.text_type(soup)
 
                     entrychanged = ( origdata != data )
                     changed = changed or entrychanged
@@ -380,7 +382,7 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     # only *actually* write if changed.
     if changed:
-        if isinstance(outfile,basestring):
+        if isinstance(outfile,six.string_types):
             with open(outfile,"wb") as outputio:
                 outputio.write(zipio.getvalue())
         else:
@@ -419,7 +421,7 @@ def make_soup(data):
     ## soup and re-soup because BS4/html5lib is more forgiving of
     ## incorrectly nested tags that way.
     soup = bs4.BeautifulSoup(data,'html5lib')
-    soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+    soup = bs4.BeautifulSoup(six.text_type(soup),'html5lib')
 
     for ns in soup.find_all('fff_hide_noscript'):
         ns.name = 'noscript'

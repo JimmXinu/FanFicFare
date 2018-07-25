@@ -18,18 +18,20 @@
 ## Adapted by GComyn on April 22, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import json
 import re
 import sys  # ## used for debug purposes
 import time
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +98,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
@@ -150,7 +152,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('rating', rated.replace('Rated', '').replace(':', '').strip())
             summaryblock.p.decompose()
 
-        synopsis = unicode(summaryblock.body).strip()
+        synopsis = six.text_type(summaryblock.body).strip()
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
 

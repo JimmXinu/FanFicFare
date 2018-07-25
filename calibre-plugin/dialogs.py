@@ -3,6 +3,9 @@
 from __future__ import (unicode_literals, division,
                         print_function)
 
+from __future__ import absolute_import
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2016, Jim Miller'
 __docformat__ = 'restructuredtext en'
@@ -13,7 +16,7 @@ from functools import partial
 import logging
 logger = logging.getLogger(__name__)
 
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import email
 
 from datetime import datetime
@@ -46,7 +49,7 @@ else:
     def convert_qvariant(x):
         vt = x.type()
         if vt == x.String:
-            return unicode(x.toString())
+            return six.text_type(x.toString())
         if vt == x.List:
             return [convert_qvariant(i) for i in x.toList()]
         return x.toPyObject()
@@ -73,7 +76,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
     import (get_valid_sections, get_valid_entries,
             get_valid_keywords, get_valid_entry_keywords)
 
-from inihighlighter import IniHighlighter
+from .inihighlighter import IniHighlighter
 
 ## moved to prefs.py so they can be included in jobs.py.
 from calibre_plugins.fanficfare_plugin.prefs import \
@@ -185,7 +188,7 @@ class DroppableQTextEdit(QTextEdit):
         for f in filelist.splitlines():
             #print("filename:%s"%f)
             if f.endswith(".eml"):
-                fhandle = urllib.urlopen(f)
+                fhandle = six.moves.urllib.request.urlopen(f)
                 #print("file:\n%s\n\n"%fhandle.read())
                 msg = email.message_from_file(fhandle)
                 if msg.is_multipart():
@@ -456,8 +459,8 @@ class AddNewDialog(SizePersistedDialog):
 
     def get_fff_options(self):
         retval =  {
-            'fileform': unicode(self.fileform.currentText()),
-            'collision': unicode(self.collision.currentText()),
+            'fileform': six.text_type(self.fileform.currentText()),
+            'collision': six.text_type(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
             'bgmeta': False, # self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
@@ -472,10 +475,10 @@ class AddNewDialog(SizePersistedDialog):
                 retval['updatemeta']=True
                 retval['collision']=ADDNEW
 
-        return dict(retval.items() + self.extraoptions.items() )
+        return dict(list(retval.items()) + list(self.extraoptions.items()) )
 
     def get_urlstext(self):
-        return unicode(self.url.toPlainText())
+        return six.text_type(self.url.toPlainText())
 
 
 class FakeLineEdit():
@@ -680,13 +683,13 @@ class _LoopProgressDialog(QProgressDialog):
             book['status']=_('Skipped')
             book['good']=False
             book['showerror']=d.showerror
-            book['comment']=unicode(d)
+            book['comment']=six.text_type(d)
             book['icon'] = d.icon
 
         except Exception as e:
             book['good']=False
-            book['comment']=unicode(e)
-            logger.error("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
+            book['comment']=six.text_type(e)
+            logger.error("Exception: %s:%s"%(book,six.text_type(e)),exc_info=True)
 
         self.updateStatus()
         self.i += 1
@@ -911,8 +914,8 @@ class UpdateExistingDialog(SizePersistedDialog):
 
     def get_fff_options(self):
         return {
-            'fileform': unicode(self.fileform.currentText()),
-            'collision': unicode(self.collision.currentText()),
+            'fileform': six.text_type(self.fileform.currentText()),
+            'collision': six.text_type(self.collision.currentText()),
             'updatemeta': self.updatemeta.isChecked(),
             'bgmeta': self.bgmeta.isChecked(),
             'updateepubcover': self.updateepubcover.isChecked(),
@@ -1175,11 +1178,11 @@ class RejectListDialog(SizePersistedDialog):
     def get_reject_list(self):
         rejectrows = []
         for row in range(self.rejects_table.rowCount()):
-            url = unicode(self.rejects_table.item(row, 0).text()).strip()
+            url = six.text_type(self.rejects_table.item(row, 0).text()).strip()
             book_id =convert_qvariant(self.rejects_table.item(row, 0).data(Qt.UserRole))
-            title = unicode(self.rejects_table.item(row, 1).text()).strip()
-            auth = unicode(self.rejects_table.item(row, 2).text()).strip()
-            note = unicode(self.rejects_table.cellWidget(row, 3).currentText()).strip()
+            title = six.text_type(self.rejects_table.item(row, 1).text()).strip()
+            auth = six.text_type(self.rejects_table.item(row, 2).text()).strip()
+            note = six.text_type(self.rejects_table.cellWidget(row, 3).currentText()).strip()
             rejectrows.append(RejectUrlEntry(url,note,title,auth,self.get_reason_text(),book_id=book_id))
         return rejectrows
 
@@ -1193,7 +1196,7 @@ class RejectListDialog(SizePersistedDialog):
 
     def get_reason_text(self):
         try:
-            return unicode(self.reason_edit.currentText()).strip()
+            return six.text_type(self.reason_edit.currentText()).strip()
         except:
             # doesn't have self.reason_edit when editing existing list.
             return None
@@ -1259,10 +1262,10 @@ class EditTextDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def get_plain_text(self):
-        return unicode(self.textedit.toPlainText())
+        return six.text_type(self.textedit.toPlainText())
 
     def get_reason_text(self):
-        return unicode(self.reason_edit.currentText()).strip()
+        return six.text_type(self.reason_edit.currentText()).strip()
 
 class IniTextDialog(SizePersistedDialog):
 
@@ -1350,7 +1353,7 @@ class IniTextDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def accept(self):
-        from fff_util import test_config
+        from .fff_util import test_config
 
         # print("in accept")
         errors = test_config(self.get_plain_text())
@@ -1387,7 +1390,7 @@ class IniTextDialog(SizePersistedDialog):
             return SizePersistedDialog.keyPressEvent(self, event)
 
     def get_plain_text(self):
-        return unicode(self.textedit.toPlainText())
+        return six.text_type(self.textedit.toPlainText())
 
     def findFocus(self):
         # print("findFocus called")

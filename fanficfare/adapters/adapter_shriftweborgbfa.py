@@ -22,12 +22,13 @@
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
 ''' This adapter scrapes the metadata and chapter text from stories on archive.shriftweb.org '''
+from __future__ import absolute_import
 import logging
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -97,7 +98,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:

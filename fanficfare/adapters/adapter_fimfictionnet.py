@@ -15,19 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 from datetime import date, datetime
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import cookielib as cl
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.http_cookiejar as cl
 import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FimFictionNetSiteAdapter
@@ -97,7 +99,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             data = self.do_fix_blockquotes(self._fetchUrl(self.url,
                                                           usecache=(not self.is_adult)))
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -374,7 +376,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             soup = self.make_soup(data).find_all('div', {'class':re.compile(r'(.*\bauthors-note\b.*|.*\bchapter-body\b.*)')})
             if soup == None:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            chapter_divs = [unicode(div) for div in soup]
+            chapter_divs = [six.text_type(div) for div in soup]
             soup = self.make_soup(" ".join(chapter_divs))
         else:
             soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})

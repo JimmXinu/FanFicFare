@@ -15,16 +15,18 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 #
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return StoriesOnlineNetAdapter
@@ -133,7 +135,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.needToLogin = False
         try:
             data = self._fetchUrl(url+":i")
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code in (404, 410):
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             elif e.code == 401:
@@ -147,7 +149,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.performLogin(url)
             try:
                 data = self._fetchUrl(url+":i",usecache=False)
-            except urllib2.HTTPError, e:
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code in (404, 410):
                     raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
                 elif e.code == 401:
@@ -262,8 +264,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         while not story_found:
             page = page + 1
             try:
-                data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
-            except urllib2.HTTPError, e:
+                data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + six.text_type(page))
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)

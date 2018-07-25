@@ -16,17 +16,19 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 
 def getClass():
@@ -93,7 +95,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -160,7 +162,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ""
                 while 'classification' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += six.text_type(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
@@ -209,8 +211,8 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
                 # site has started including a tracking script between Updated label and date--sometimes...
                 svalue = ""
                 while value is not None and 'classification' not in defaultGetattr(value,'class'):
-                    if '<script' not in unicode(value):
-                        svalue += unicode(value)
+                    if '<script' not in six.text_type(value):
+                        svalue += six.text_type(value)
                     value = value.nextSibling
                     #print("svalue:%s"%svalue)
 

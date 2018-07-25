@@ -28,18 +28,20 @@ This site is much link fictionmania, in that there is only one chapter per
 story, so we only have the one url to get information from. 
 We get the category from the author's page
 '''
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return WWWUtopiastoriesComAdapter
@@ -95,7 +97,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -131,7 +133,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title
-        a = unicode(soup.find('title')).replace(":: GaggedUtopia's Story Archive",'').strip()
+        a = six.text_type(soup.find('title')).replace(":: GaggedUtopia's Story Archive",'').strip()
         self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters:
@@ -155,7 +157,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+urllib2.quote(
+                    self.story.setMetadata('authorUrl','http://'+self.host+six.moves.urllib.parse.quote(
                         a['href'].encode('UTF-8')))
             elif 'Story Codes' in heading:
                 self.story.setMetadata('eroticatags',text.replace('Story Codes - ',''))

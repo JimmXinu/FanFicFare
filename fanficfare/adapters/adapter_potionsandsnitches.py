@@ -16,18 +16,20 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
@@ -65,7 +67,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -109,7 +111,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
                 ## Everything until the next div class='listbox'
                 svalue = ""
                 while 'listbox' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += six.text_type(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))

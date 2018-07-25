@@ -8,7 +8,7 @@ __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from StringIO import StringIO
-from ConfigParser import ParsingError
+from six.moves.configparser import ParsingError
 
 import logging
 logger = logging.getLogger(__name__)

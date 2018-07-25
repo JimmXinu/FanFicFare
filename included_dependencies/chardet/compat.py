@@ -19,14 +19,16 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+from __future__ import absolute_import
 import sys
+import six
 
 
 if sys.version_info < (3, 0):
     PY2 = True
     PY3 = False
-    base_str = (str, unicode)
-    text_type = unicode
+    base_str = (str, six.text_type)
+    text_type = six.text_type
 else:
     PY2 = False
     PY3 = True
