@@ -24,8 +24,9 @@ from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, Parsi
 import time
 import logging
 import sys
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-import urllib2 as u2
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
 import six.moves.urllib.parse as up
 import six.moves.http_cookiejar as cl
 import pickle
@@ -532,7 +533,7 @@ class Configuration(six.moves.configparser.SafeConfigParser):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = six.moves.urllib.request.build_opener(six.moves.urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
 
         self.pagecache = self.get_empty_pagecache()
 
@@ -891,7 +892,8 @@ class Configuration(six.moves.configparser.SafeConfigParser):
     def set_cookiejar(self,cj):
         self.cookiejar = cj
         saveheaders = self.opener.addheaders
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = six.moves.urllib.request.build_opener(
+            six.moves.urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
 
     def load_cookiejar(self,filename):
@@ -1001,13 +1003,13 @@ class Configuration(six.moves.configparser.SafeConfigParser):
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
-        ## u2.Request assumes POST when data!=None.  Also assumes data
-        ## is application/x-www-form-urlencoded.
+        ## six.moves.urllib.request.Request assumes POST when data!=None.
+        ## Also assumes data is application/x-www-form-urlencoded.
         if 'Content-type' not in headers:
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
-        req = u2.Request(url,
+        req = six.moves.urllib.request.Request(url,
                          data=six.moves.urllib.parse.urlencode(parameters),
                          headers=headers)
 
@@ -1074,9 +1076,12 @@ class Configuration(six.moves.configparser.SafeConfigParser):
         self.opener.addheaders = headers
 
         if parameters != None:
-            opened = self.opener.open(url.replace(' ','%20'),six.moves.urllib.parse.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),
+                                      six.moves.urllib.parse.urlencode(parameters),
+                                      float(self.getConfig('connect_timeout',30.0)))
         else:
-            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),None,
+                                      float(self.getConfig('connect_timeout',30.0)))
         self._progressbar()
         data = opened.read()
         self._set_to_pagecache(cachekey,data,opened.url)
@@ -1117,7 +1122,7 @@ class Configuration(six.moves.configparser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except u2.HTTPError as he:
+            except six.moves.urllib.error.HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(six.text_type(safe_url(url)),six.text_type(he)))

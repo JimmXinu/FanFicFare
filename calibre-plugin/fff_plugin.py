@@ -35,7 +35,9 @@ from StringIO import StringIO
 from functools import partial
 from datetime import datetime, time, date
 from string import Template
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
 import email
 import traceback
 

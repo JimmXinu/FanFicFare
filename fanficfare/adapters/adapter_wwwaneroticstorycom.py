@@ -21,7 +21,8 @@ import os
 import re
 import sys
 import time
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import six.moves.urllib.parse
 
 from bs4.element import Comment
@@ -43,7 +44,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
 
         # 1252 is a superset of iso-8859-1. Most sites that claim to be iso-8859-1 (and some that
         # claim to be utf8) are really windows-1252.
-        self.decode = ["utf8", "Windows-1252", "iso-8859-1"] 
+        self.decode = ["utf8", "Windows-1252", "iso-8859-1"]
 
         self.story.setMetadata('siteabbrev','aescom')
 
@@ -80,9 +81,9 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         """
         Chapters are located at /story/StoryName/  (for single-chapter stories)
 
-        This site doesn't have much in the way of metadata, except on the 
+        This site doesn't have much in the way of metadata, except on the
         Genre . so we will get what we can.
-        
+
         Also, as this is an Adult site, the is_adult check is mandatory.
         """
 
@@ -122,7 +123,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         description = soup1.find('div',{'class':'storyContent'}).get_text(strip=True)
         description = description.encode('utf-8','ignore').strip()[0:350].decode('utf-8','ignore')+'...'
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
-        
+
         ### This is a 1 page/ 1 story site, so the only chapterurl is the current story
         self.add_chapter('1', self.url)
 
@@ -133,7 +134,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         datePosted = soup1.find('span', {'class':'data divided'}).text.replace('on', '').strip()
         self.story.setMetadata('datePublished', makeDate(datePosted, self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(datePosted, self.dateformat))
-        
+
         ## Getting the Genre
         genre = soup1.find('span', {'class':'genere divided'}).text.replace('genre', '').strip().title()
         self.story.setMetadata('genre', genre)

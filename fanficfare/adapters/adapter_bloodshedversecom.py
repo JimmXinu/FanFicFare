@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 from datetime import timedelta
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.error
 import six.moves.urllib.parse
+import six.moves.urllib.request
 
 import logging
 logger = logging.getLogger(__name__)

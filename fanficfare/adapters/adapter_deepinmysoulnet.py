@@ -22,7 +22,9 @@ import logging
 import six
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
@@ -279,7 +281,7 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
         except:
             # I find it hard to care if the series parsing fails
             pass
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 

@@ -20,7 +20,7 @@ import collections
 import email
 import imaplib
 import re
-import urllib2 as u2
+import six.moves.urllib.request
 import six.moves.urllib.parse
 
 import logging
@@ -77,7 +77,8 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         data = adapter._fetchUrl(url,usecache=False)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
-        opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        opener = six.moves.urllib.request.build_opener(
+            six.moves.urllib.request.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
     # kludge because I don't see it on enough sites to be worth generalizing yet.

@@ -21,9 +21,11 @@ import logging
 import six
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.http_client
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 import time
-import six.moves.http_client, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -138,7 +140,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         if 'Deleted story' in self.story.getMetadata('title'):
             raise exceptions.StoryDoesNotExist("This story was deleted. %s"%self.url)
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/a/"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])

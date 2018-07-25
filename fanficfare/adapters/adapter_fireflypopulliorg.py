@@ -25,7 +25,9 @@
 from __future__ import absolute_import
 import logging
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -150,7 +152,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if ',' in mdata:
             self.story.setMetadata('coauthor', ', '.join(mdata.split(',')[1:]).strip())
             mdata = mdata.split(',')[0]
-        
+
 #        print mdata
 #        self.story.getMetadata('coauthor')
 #        sys.exit()
@@ -181,7 +183,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                 if stories:
                     for story in stories:
                         # There alot of nbsp's (non broken spaces) in here, so I'm going to remove them
-                        # I'm also getting rid of the bold tags and the nextline characters to make it 
+                        # I'm also getting rid of the bold tags and the nextline characters to make it
                         # easier to get the information below
                         story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(
                             '<b>','').replace('</b>','').replace(r'\n','')

@@ -20,7 +20,8 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import six.moves.urllib.parse
 import time
 import os
@@ -71,9 +72,9 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         non-padded incrementing number, like StoryName1, StoryName2.html, ...,
         StoryName10.html)
 
-        This site doesn't have much in the way of metadata, except on the 
+        This site doesn't have much in the way of metadata, except on the
         Category and Tags index pages. so we will get what we can.
-        
+
         Also, as this is an Adult site, the is_adult check is mandatory.
         """
 
@@ -110,14 +111,14 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', authorid)
 
         # Description
-        ### The only way to get the Description (summary) is to 
+        ### The only way to get the Description (summary) is to
         ### parse through the Category and/or Tags index pages.
         ### To get a summary, I've taken the first 150 characters
         ### from the story.
         description = soup1.find('div',{'class':'story-block'}).get_text(strip=True)
         description = description.encode('utf-8','ignore').strip()[0:150].decode('utf-8','ignore')
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
-        
+
         ### The first 'chapter' is not listed in the links, so we have to
         ### add it before the rest of the pages, if any
         self.add_chapter('1', self.url)
@@ -126,7 +127,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
         if chapterTable is not None:
             # Multi-chapter story
-            
+
             for page in chapterTable:
                 chapterTitle = page.string
                 chapterUrl = six.moves.urllib.parse.urljoin(self.url, page['href'])
@@ -136,9 +137,9 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
         rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)
-        
+
         self.story.setMetadata('dateUpdated', makeDate('01/01/2001', '%m/%d/%Y'))
-        
+
         logger.debug("Story: <%s>", self.story)
 
         return
@@ -152,10 +153,10 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
         # get story text
         story1 = soup1.find('div', {'class':'story-block'})
-        
-        ### This site has links embeded in the text that lead 
+
+        ### This site has links embeded in the text that lead
         ### to either a video site, or to a tags index page
-        ### the default is to remove them, but you can set the 
+        ### the default is to remove them, but you can set the
         ### strip_text_links to false to keep them in the text
         if self.getConfig('strip_text_links'):
             for anchor in story1('a', {'target': '_blank'}):

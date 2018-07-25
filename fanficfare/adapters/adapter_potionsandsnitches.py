@@ -22,8 +22,9 @@ import logging
 import six
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 from ..htmlcleanup import stripHTML
@@ -207,7 +208,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         a = divsort.find_all('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
         self.story.setMetadata('reviews',stripHTML(a))
-        
+
 
     def getChapterText(self, url):
 

@@ -19,7 +19,9 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
@@ -169,7 +171,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         # except:
         #     # some older stories don't have the code at the end that breaks things.
         #     pass
-        
+
         soup = self.make_soup(data)
 
         div = soup.find('div', {'style' : 'line-height: 1.5'})

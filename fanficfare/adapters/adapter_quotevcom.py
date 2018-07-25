@@ -4,7 +4,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 import re
 import six.moves.urllib.parse
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import datetime
 
 from .. import exceptions
@@ -67,7 +68,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         title = element.find('h1')
         self.story.setMetadata('title', title.get_text())
-        
+
         authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
             print(("div:%s"%authdiv))
@@ -101,7 +102,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         if u'· completed ·' in stripHTML(metadiv):
             self.story.setMetadata('status', 'Completed')
         else:
-            self.story.setMetadata('status', 'In-Progress')        
+            self.story.setMetadata('status', 'In-Progress')
 
         data = [_f for _f in (x.strip() for x in stripHTML(metadiv).split(u'\xb7')) if _f]
 
@@ -116,7 +117,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         favspans = soup.find('a',{'id':'fav_btn'}).find_all('span')
         if len(favspans) > 1:
             self.story.setMetadata('favorites', stripHTML(favspans[-1]).replace(',', ''))
-            
+
         commentspans = soup.find('a',{'id':'comment_btn'}).find_all('span')
         #print("commentspans:%s"%commentspans)
         if len(commentspans) > 0:
@@ -126,19 +127,19 @@ class QuotevComAdapter(BaseSiteAdapter):
             if 'javascript' not in a['href']:
                 self.add_chapter(a.get_text(), six.moves.urllib.parse.urljoin(self.url, a['href']))
 
-        
+
     def getChapterText(self, url):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
         rescontent = soup.find('div', id='rescontent')
-        
+
         # attempt to find and include chapter specific images.
         img = soup.find('div',{'id':'quizHeader'}).find('img')
         #print("img['src'](%s) != self.coverurl(%s)"%(img['src'],self.coverurl))
         if img['src'] != self.coverurl:
             rescontent.insert(0,img)
-        
+
         for a in rescontent('a'):
             a.unwrap()
 

@@ -21,8 +21,9 @@ import logging
 import six
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
-from six.moves.urllib.parse import unquote_plus
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML

@@ -22,7 +22,9 @@ import logging
 import six
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from bs4.element import Comment
@@ -79,7 +81,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             addURL = "&ageconsent=ok&warning=3"
         else:
             addURL = ""
-    
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = '{0}&index=1{1}'.format(self.url,addURL)

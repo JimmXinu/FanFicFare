@@ -22,7 +22,8 @@ import six
 from six.moves import range
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import six.moves.urllib.parse
 
 from bs4.element import Comment
@@ -232,7 +233,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 pub_date = makeDate(chapterTr.findAll('td')[-1].text, self.dateformat)
                 dates.append(pub_date)
                 chapterTr = chapterTr.nextSibling
-                
+
                 chapter_title = chapterLink.text
                 if self.getConfig("clean_chapter_titles"):
                     logger.debug('\tChapter Name: "%s"' % chapterLink.string)
@@ -261,7 +262,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                     chapter_title = 'Part %s' % chapter
                             elif separater_char in [":", "-"]:
                                 chapter_title = chapter
-    
+
                 # pages include full URLs.
                 chapurl = chapterLink['href']
                 if chapurl.startswith('//'):
@@ -338,7 +339,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         pages = page_soup.find('select', {'name' : 'page'})
         page_nums = [page.text for page in pages.findAll('option')] if pages else 0
 
-        fullhtml = "" 
+        fullhtml = ""
         self.getCategories(page_soup)
         chapter_description = ''
         if self.getConfig("description_in_chapter"):
@@ -352,7 +353,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 logger.debug("page_url= %s" % page_url)
                 raw_page = self._fetchUrl(page_url)
                 fullhtml += self.getPageText(raw_page, url)
-        
+
 #         logger.debug(fullhtml)
         page_soup = self.make_soup(fullhtml)
         fullhtml = self.utf8FromSoup(url, self.make_soup(fullhtml))

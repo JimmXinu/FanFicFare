@@ -20,7 +20,10 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, six.moves.http_cookiejar
+import six.moves.http_cookiejar
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 from ..htmlcleanup import stripHTML

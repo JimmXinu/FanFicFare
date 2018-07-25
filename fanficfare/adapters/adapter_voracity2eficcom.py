@@ -1,7 +1,8 @@
 # Software: eFiction
 from __future__ import absolute_import
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import six.moves.urllib.parse
 
 from bs4.element import Tag

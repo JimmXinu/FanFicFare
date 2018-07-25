@@ -22,7 +22,9 @@ from __future__ import absolute_import
 import logging
 import re
 import time
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -46,7 +48,7 @@ class UnknowableRoomOrgSiteAdapter(BaseSiteAdapter):
 
         # 1252 is a superset of iso-8859-1.  Most sites that claim to be  iso-8859-1 (and some that
         # claim to be  utf8) are really windows-1252.
-        self.decode = ["Windows-1252", "utf8", "iso-8859-1"] 
+        self.decode = ["Windows-1252", "utf8", "iso-8859-1"]
 
         # Setting the adult status to false initially
         self.is_adult=False
@@ -120,7 +122,7 @@ class UnknowableRoomOrgSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorId', author)
             self.story.setMetadata('authorUrl', 'http://'+self.getSiteDomain())
             self.story.setMetadata('author', author)
-            
+
         ## Title
         self.story.setMetadata('title',stripHTML(soup.find('h1')).replace(
             'by '+self.story.getMetadata('author'), '').strip())
@@ -151,7 +153,7 @@ class UnknowableRoomOrgSiteAdapter(BaseSiteAdapter):
                     break
                 else:
                     story_found = False
-            
+
             if not story_found:
                 raise exceptions.StoryDoesNotExist("Cannot find story '{}' on author's page '{}'".format(
                     url, self.story.getMetadata('authorUrl')))
@@ -198,7 +200,7 @@ class UnknowableRoomOrgSiteAdapter(BaseSiteAdapter):
                         'rd,', ',').replace('th,', ',').replace('.', '').strip()
                     self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
 
-        # I'm going to add the disclaimer 
+        # I'm going to add the disclaimer
         disclaimer = soup.find('strong', {'id':'disclaimer'})
         if disclaimer:
             self.story.setMetadata('disclaimer', stripHTML(disclaimer).replace(

@@ -1,7 +1,9 @@
 ## Borrowed from http://techknack.net/python-urllib2-handlers/
 
 from __future__ import absolute_import
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 from gzip import GzipFile
 from StringIO import StringIO
 
@@ -25,7 +27,8 @@ class GZipProcessor(six.moves.urllib.request.BaseHandler):
 #            resp.readline = gz.readline
 #            resp.next = gz.next
             old_resp = resp
-            resp = urllib2.addinfourl(gz, old_resp.headers, old_resp.url, old_resp.code)
+            resp = six.moves.urllib.response.addinfourl(gz, old_resp.headers,
+                                                        old_resp.url, old_resp.code)
             resp.msg = old_resp.msg
         return resp
     https_response = http_response

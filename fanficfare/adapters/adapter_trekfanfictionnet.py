@@ -28,7 +28,9 @@ This will scrape the chapter text and metadata from stories on the site trekfanf
 from __future__ import absolute_import
 import logging
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from .base_adapter import BaseSiteAdapter, makeDate
 

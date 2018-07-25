@@ -26,7 +26,9 @@ import six
 logger = logging.getLogger(__name__)
 import re
 import sys
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 from bs4 import UnicodeDammit, Comment
 
 from ..htmlcleanup import stripHTML
@@ -65,10 +67,10 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %b %y"
-        
+
     ################################################################################################
     def getBaseDomain(self):
-        ''' Added because fanficauthors.net does send you to www.fanficauthors.net when 
+        ''' Added because fanficauthors.net does send you to www.fanficauthors.net when
             you go to it '''
         return 'fanficauthors.net'
 
@@ -153,7 +155,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         else:
             params['username'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
-        
+
         if not params['username']:
             raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
 
@@ -174,12 +176,12 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(
                 "{0}.{1} says: The requested file has not been found".format(
                     self.zone, self.getBaseDomain()))
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Find authorid and URL. 
-        # There is no place where the author's name is listed, 
+        # Find authorid and URL.
+        # There is no place where the author's name is listed,
         # except for in the image at the top of the page. We have to
         # work with the url entered to get the Author's Name
         a = self.zone.split('.')[0]
@@ -187,7 +189,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         a = a.replace('-',' ').title()
         self.story.setMetadata('author',a)
         self.story.setMetadata('authorUrl','https://{0}/'.format(self.parsedUrl.netloc))
-        
+
         loginUrl = self.story.getMetadata('authorUrl')+'account/'
         loginsoup = self.make_soup(self._fetchUrl(loginUrl))
         if True:
@@ -212,21 +214,21 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
 
             for i, chapter in enumerate(chapters):
                 if '/reviews/' not in chapter['href']:
-                    # here we get the update date. We will update this for every chapter, 
+                    # here we get the update date. We will update this for every chapter,
                     # so we get the last one.
                     updatedate = stripHTML(six.text_type(chapters[i].parent)).split(
                         'Uploaded on:')[1].strip()
                     updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
                         'rd ',' ').replace('th ',' ')
                     self.story.setMetadata('dateUpdated', makeDate(updatedate, self.dateformat))
-                    
+
                     if '::' in stripHTML(six.text_type(chapter)):
                         chapter_title = stripHTML(six.text_type(chapter).split('::')[1])
                     else:
                         chapter_title = stripHTML(six.text_type(chapter))
                     chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
                     self.add_chapter(chapter_title, chapter_Url)
-            
+
             genres = ("Drama","Romance")
             gotgenre = False
             ## Getting the Metadata that is there
@@ -258,11 +260,11 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                             for gen in genres:
                                 if metad == gen:
                                     self.story.addToList('genre',metad.strip())
-                    
+
 
             summary = div.find('blockquote').get_text()
             self.setDescription(url,summary)
-                        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
@@ -270,7 +272,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(url))
 
         story = soup.find('div',{'class':'story'})
-        
+
         if story == None:
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: '{0}'!  Missing required element!".format(url))
@@ -279,5 +281,5 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         for tag in story.findAll('ul',{'class':'pager'}) + story.findAll(
             'div',{'class':'alert'}) + story.findAll('div', {'class':'btn-group'}):
             tag.extract()
-        
+
         return self.utf8FromSoup(url,story)

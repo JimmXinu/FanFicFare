@@ -8,7 +8,9 @@ from __future__ import print_function
 import re
 import sys
 import StringIO
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
 
 from bs4 import BeautifulSoup
 import six

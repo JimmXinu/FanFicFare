@@ -21,7 +21,9 @@ from datetime import datetime
 import six.moves.http_client
 import logging
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML

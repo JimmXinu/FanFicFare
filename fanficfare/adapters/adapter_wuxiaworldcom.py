@@ -20,7 +20,8 @@ from __future__ import absolute_import
 import json
 import logging
 import re
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.urllib.error
 import six.moves.urllib.parse
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -91,7 +92,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author_name.lower())
         self.story.setMetadata('title', ld['headline'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
-        
+
         tags = [stripHTML(a) for a in soup.select('.media-body .tags a')]
         for tag in tags:
             if 'Completed' == tag:
