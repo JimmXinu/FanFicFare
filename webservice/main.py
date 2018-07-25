@@ -32,7 +32,7 @@ import six.moves.urllib.error
 import datetime
 
 import traceback
-from StringIO import StringIO
+from io import StringIO
 
 from google.appengine.ext import db
 from google.appengine.api import taskqueue

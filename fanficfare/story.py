@@ -54,7 +54,7 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from StringIO import StringIO
+    from io import StringIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
@@ -103,7 +103,7 @@ except:
     # No calibre routines, try for PIL for CLI.
     try:
         import Image
-        from StringIO import StringIO
+        from io import StringIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):

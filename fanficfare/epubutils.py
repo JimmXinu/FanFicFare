@@ -13,7 +13,7 @@ import re, os, traceback
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
-from StringIO import StringIO
+from io import StringIO
 
 import bs4
 

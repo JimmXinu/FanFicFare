@@ -5,7 +5,7 @@ import six.moves.urllib.request
 import six.moves.urllib.error
 import six.moves.urllib.parse
 from gzip import GzipFile
-from StringIO import StringIO
+from io import StringIO
 
 class GZipProcessor(six.moves.urllib.request.BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests

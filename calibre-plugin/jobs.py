@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 import traceback
 from datetime import time
-from StringIO import StringIO
+from io import StringIO
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob

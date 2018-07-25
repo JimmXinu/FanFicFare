@@ -8,7 +8,7 @@ __all__ = [
     ]
 
 from io import BytesIO
-from StringIO import StringIO
+from io import StringIO
 import collections
 from lxml import etree
 from bs4.element import (

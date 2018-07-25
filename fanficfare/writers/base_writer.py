@@ -20,7 +20,7 @@ import re
 import os.path
 import datetime
 import string
-import StringIO
+import io
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
@@ -42,10 +42,10 @@ class BaseStoryWriter(Configurable):
 
     def __init__(self, configuration, adapter):
         Configurable.__init__(self, configuration)
-        
+
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.
-        
+
         self.story.setMetadata('formatname',self.getFormatName())
         self.story.setMetadata('formatext',self.getFormatExt())
 
@@ -60,7 +60,7 @@ class BaseStoryWriter(Configurable):
 
     def getBaseFileName(self):
         return self.story.formatFileName(self.getConfig('output_filename'),self.getConfig('allow_unsafe_filename'))
-    
+
     def getZipFileName(self):
         return self.story.formatFileName(self.getConfig('zip_filename'),self.getConfig('allow_unsafe_filename'))
 
@@ -90,7 +90,7 @@ class BaseStoryWriter(Configurable):
 
             if self.hasConfig("titlepage_no_title_entry"):
                 NO_TITLE_ENTRY = string.Template(self.getConfig("titlepage_no_title_entry"))
-            
+
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
             if WIDE_ENTRY==None:
@@ -121,7 +121,7 @@ class BaseStoryWriter(Configurable):
                         # 'no title' option if there is one.
                         if label == "" and NO_TITLE_ENTRY:
                            TEMPLATE= NO_TITLE_ENTRY
-                           
+
                         self._write(out,TEMPLATE.substitute({'label':label,
                                                              'id':entry,
                                                              'value':self.story.getMetadata(entry)}))
@@ -146,7 +146,7 @@ class BaseStoryWriter(Configurable):
 
             if self.hasConfig("tocpage_end"):
                 END = string.Template(self.getConfig("tocpage_end"))
-            
+
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
             for index, chap in enumerate(self.story.getChapters(fortoc=True)):
@@ -171,7 +171,7 @@ class BaseStoryWriter(Configurable):
                                    condremoveentities=False)
         else:
             self.story.setMetadata("output_css",'')
-            
+
         if not outstream:
             close=True
             logger.info("Save directly to file: %s" % outfilename)
@@ -192,7 +192,7 @@ class BaseStoryWriter(Configurable):
                     if fileupdated > lastupdated:
                         logger.warn("File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated))
                         return
-            if not metaonly:        
+            if not metaonly:
                 self.story = self.adapter.getStory() # get full story
                                                      # now, just
                                                      # before writing.
@@ -211,7 +211,7 @@ class BaseStoryWriter(Configurable):
                                                  # above, it will only
                                                  # fetch once.
         if self.getConfig('zip_output'):
-            out = StringIO.StringIO()
+            out = io.StringIO()
             self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
             self.zipout.writestr(self.getBaseFileName(),out.getvalue())
@@ -229,7 +229,7 @@ class BaseStoryWriter(Configurable):
 
     def writeFile(self, filename, data):
         logger.debug("writeFile:%s"%filename)
-        
+
         if self.getConfig('zip_output'):
             outputdirs = os.path.dirname(self.getBaseFileName())
             if outputdirs:
@@ -243,7 +243,7 @@ class BaseStoryWriter(Configurable):
             dir = os.path.dirname(filename)
             if not os.path.exists(dir):
                 os.mkdir(dir) ## os.makedirs() doesn't work in 2.5.2?
-                    
+
             outstream = open(filename,"wb")
             outstream.write(data)
             outstream.close()

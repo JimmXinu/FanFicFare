@@ -21,7 +21,7 @@ from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
-from StringIO import StringIO
+from io import StringIO
 import six.moves.configparser
 import getpass
 import logging

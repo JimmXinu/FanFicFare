@@ -31,7 +31,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os, copy, threading, re, platform, sys
-from StringIO import StringIO
+from io import StringIO
 from functools import partial
 from datetime import datetime, time, date
 from string import Template
