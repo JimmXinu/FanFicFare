@@ -601,7 +601,7 @@ def makeDate(string,dateform):
             add_hours = True
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
-    date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    date = datetime.strptime(string, dateform)
 
     if add_hours:
         date += timedelta(hours=12)

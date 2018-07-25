@@ -83,7 +83,7 @@ def removeEntities(text, space_only=False):
         return six.text_type(text)
     
     try:
-        t = text.decode('utf-8')
+        t = text
     except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 

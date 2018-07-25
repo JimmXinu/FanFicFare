@@ -5,7 +5,7 @@ import six.moves.urllib.request
 import six.moves.urllib.error
 import six.moves.urllib.parse
 from gzip import GzipFile
-from io import StringIO
+from io import BytesIO
 
 class GZipProcessor(six.moves.urllib.request.BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests
@@ -19,8 +19,8 @@ class GZipProcessor(six.moves.urllib.request.BaseHandler):
         #print("Content-Encoding:%s"%resp.headers.get("Content-Encoding"))
         if resp.headers.get("Content-Encoding") == "gzip":
             gz = GzipFile(
-                        fileobj=StringIO(resp.read()),
-                        mode="r"
+                        fileobj=BytesIO(resp.read()),
+                        mode="rb"
                       )
 #            resp.read = gz.read
 #            resp.readlines = gz.readlines
