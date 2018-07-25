@@ -32,6 +32,7 @@ import http.cookiejar as cl
 
 version="2.27.8"
 
+print("Python Version:%s"%sys.version)
 if sys.version_info < (3,0):
     print('this program requires python 3 or newer.')
     sys.exit(1)

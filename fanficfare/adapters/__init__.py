@@ -19,12 +19,11 @@ from __future__ import absolute_import
 import os, re, sys, glob, types
 from os.path import dirname, basename, normpath
 import logging
-from six.moves.urllib.parse import urlparse as up
+from six.moves.urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
 print(sys.path)
-from fanficfare.configurable import Configuration
 from .. import exceptions as exceptions
 
 
@@ -226,7 +225,7 @@ def getNormalStoryURL(url):
 def getNormalStoryURLSite(url):
     # print("getNormalStoryURLSite:%s"%url)
     if not getNormalStoryURL.__dummyconfig:
-        getNormalStoryURL.__dummyconfig = Configuration(["test1.com"],"EPUB",lightweight=True)
+        getNormalStoryURL.__dummyconfig = configurable.Configuration(["test1.com"],"EPUB",lightweight=True)
     # pulling up an adapter is pretty low over-head.  If
     # it fails, it's a bad url.
     try:
@@ -300,7 +299,7 @@ def _get_class_for(url):
     if not "#post-" in fixedurl:
         fixedurl = re.sub(r"#.*$","",fixedurl)
 
-    parsedUrl = up.urlparse(fixedurl)
+    parsedUrl = urlparse(fixedurl)
     domain = parsedUrl.netloc.lower()
     if( domain != parsedUrl.netloc ):
         fixedurl = fixedurl.replace(parsedUrl.netloc,domain)
