@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 import logging
-import urlparse as up
+from six.moves.urllib.parse import urlparse
 from functools import partial
 import traceback
 import copy
@@ -125,7 +125,7 @@ class BaseSiteAdapter(Configurable):
 
     def _setURL(self,url):
         self.url = url
-        self.parsedUrl = up.urlparse(url)
+        self.parsedUrl = urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
@@ -503,7 +503,7 @@ class BaseSiteAdapter(Configurable):
                     if t.name=='script':
                         t.extract()
 
-        except AttributeError, ae:
+        except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
 
