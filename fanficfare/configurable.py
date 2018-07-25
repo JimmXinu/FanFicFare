@@ -15,18 +15,20 @@
 # limitations under the License.
 #
 
-import ConfigParser, re
+import re
 import exceptions
 import codecs
-from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+
+import six.moves.configparser as ConfigParser
+from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+from six.moves import urllib
+from six.moves import urllib as u2
+from six.moves.urllib.parse import urlparse as up
+from six.moves import http_cookiejar as cl
 
 import time
 import logging
 import sys
-import urllib
-import urllib2 as u2
-import urlparse as up
-import cookielib as cl
 import pickle
 
 try:
@@ -74,7 +76,7 @@ import adapters
 def re_compile(regex,line):
     try:
         return re.compile(regex,re.DOTALL)
-    except Exception, e:
+    except Exception as e:
         raise exceptions.RegularExpresssionFailed(e,regex,line)
 
 # fall back labels.
@@ -477,7 +479,7 @@ def make_generate_cover_settings(param):
                 (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                 re_compile(regexp,line)
                 vlist.append((template,regexp,setting))
-            except Exception, e:
+            except Exception as e:
                 raise exceptions.PersonalIniFailed(e,line,param)
 
     return vlist
@@ -636,17 +638,17 @@ class Configuration(ConfigParser.SafeConfigParser):
                     val = self.get(section,key)
                     if val and val.lower() == "false":
                         val = False
-                    #print "getConfig(%s)=[%s]%s" % (key,section,val)
+                    #print("getConfig(%s)=[%s]%s" % (key,section,val))
                     break
-                except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
+                except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
                     pass
 
         for section in sections[::-1]:
             # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
             try:
                 val = val + self.get(section,"add_to_"+key)
-                #print "getConfig(add_to_%s)=[%s]%s" % (key,section,val)
-            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
+                #print("getConfig(add_to_%s)=[%s]%s" % (key,section,val))
+            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
                 pass
 
         return val
@@ -655,7 +657,7 @@ class Configuration(ConfigParser.SafeConfigParser):
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
         vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
-        #print "vlist("+key+"):"+str(vlist)
+        #print("vlist("+key+"):"+str(vlist))
         if not vlist:
             return default
         else:
@@ -944,7 +946,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                                              "iso-8859-1"])
         for code in decode:
             try:
-                #print code
+                #print(code)
                 errors=None
                 if ':' in code:
                     (code,errors)=code.split(':')
@@ -953,7 +955,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                         logger.info("chardet not available, skipping 'auto' encoding")
                         continue
                     detected = chardet.detect(data)
-                    #print detected
+                    #print(detected)
                     if detected['confidence'] > float(self.getConfig("chardet_confidence_limit",0.9)):
                         logger.debug("using chardet detected encoding:%s(%s)"%(detected['encoding'],detected['confidence']))
                         code=detected['encoding']
@@ -1115,12 +1117,12 @@ class Configuration(ConfigParser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except u2.HTTPError, he:
+            except u2.HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
-            except Exception, e:
+            except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
 

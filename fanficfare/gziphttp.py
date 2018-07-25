@@ -1,10 +1,10 @@
 ## Borrowed from http://techknack.net/python-urllib2-handlers/
 
-import urllib2
+from six.moves.urllib_request import BaseHandler
 from gzip import GzipFile
-from StringIO import StringIO
+from six import StringIO
 
-class GZipProcessor(urllib2.BaseHandler):
+class GZipProcessor(BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests
     """
     def http_request(self, req):
