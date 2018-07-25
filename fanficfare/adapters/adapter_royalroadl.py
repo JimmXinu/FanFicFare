@@ -38,7 +38,7 @@ def getClass():
 
 # Work around "http.client.HTTPException: got more than 100 headers" issue. Using a context manager for this guarantees
 # that the original max headers value is restored, even when an uncaught exception is raised.
-if hasattr(httplib, '_MAXHEADERS'):
+if hasattr(six.moves.http_client, '_MAXHEADERS'):
     @contextlib.contextmanager
     def httplib_max_headers(number):
         original_max_headers = six.moves.http_client._MAXHEADERS
