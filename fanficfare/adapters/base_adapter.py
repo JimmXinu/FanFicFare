@@ -25,7 +25,7 @@ from functools import partial
 import traceback
 import copy
 
-import bs4
+from bs4 import BeautifulSoup
 
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
@@ -397,7 +397,7 @@ class BaseSiteAdapter(Configurable):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which
                 # we don't want.  utf8FromSoup will strip the body tags for us.
-                svalue = bs4.BeautifulSoup(svalue,"html5lib").body
+                svalue = BeautifulSoup(svalue,"html5lib").body
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
             self.story.setMetadata('description',stripHTML(svalue))
@@ -546,8 +546,8 @@ class BaseSiteAdapter(Configurable):
 
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
-        soup = bs4.BeautifulSoup(data,'html5lib')
-        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        soup = BeautifulSoup(data,'html5lib')
+        soup = BeautifulSoup(unicode(soup),'html5lib')
 
         for ns in soup.find_all('fff_hide_noscript'):
             ns.name = 'noscript'

@@ -18,7 +18,7 @@
 import os, re
 import copy
 from collections import defaultdict
-import urlparse
+from six.moves.urllib.parse import urlparse
 import string
 import json
 import datetime
@@ -26,7 +26,6 @@ from math import floor
 from functools import partial
 import logging
 logger = logging.getLogger(__name__)
-import urlparse as up
 
 import bs4
 
@@ -147,7 +146,7 @@ except:
 
 ## also used for explicit no image processing.
 def no_convert_image(url,data):
-    parsedUrl = up.urlparse(url)
+    parsedUrl = urlparse.urlparse(url)
 
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
 
@@ -1184,7 +1183,7 @@ class Story(Configurable):
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
-                    except Exception, e:
+                    except Exception as e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
                     grayscale = self.getConfig('grayscale_images')
                     imgtype = self.getConfig('convert_images_to')
@@ -1201,7 +1200,7 @@ class Story(Configurable):
                                                     removetrans,
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
-            except Exception, e:
+            except Exception as e:
                 logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
