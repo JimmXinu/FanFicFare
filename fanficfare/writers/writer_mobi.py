@@ -17,9 +17,9 @@
 
 import logging
 import string
-import StringIO
+from six import StringIO
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput

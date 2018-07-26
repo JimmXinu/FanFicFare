@@ -71,7 +71,12 @@ from gziphttp import GZipProcessor
 
 logger = logging.getLogger(__name__)
 
-import adapters
+# It's all fault of David Beazley!
+try:
+    from . import adapters
+except ImportError:
+    import sys
+    adapters = sys.modules["fanficfare.adapters"]
 
 def re_compile(regex,line):
     try:

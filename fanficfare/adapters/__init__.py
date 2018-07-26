@@ -189,9 +189,11 @@ __class_list = []
 __domain_map = {}
 
 def imports():
+    out = []
     for name, val in globals().items():
         if isinstance(val, types.ModuleType):
-            yield val.__name__
+            out.append(val.__name__)
+    return out
 
 for x in imports():
     if "fanficfare.adapters.adapter_" in x:

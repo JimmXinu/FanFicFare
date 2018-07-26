@@ -14,16 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-## This could (should?) use a dynamic loader like adapters, but for
-## now, it's static, since there's so few of them.
+from __future__ import absolute_import
 
 from ..exceptions import FailedToDownload
 
-from writer_html import HTMLWriter
-from writer_txt  import TextWriter
-from writer_epub import EpubWriter
-from writer_mobi import MobiWriter
+## This could (should?) use a dynamic loader like adapters, but for
+## now, it's static, since there's so few of them.
+from .writer_html import HTMLWriter
+from .writer_txt  import TextWriter
+from .writer_epub import EpubWriter
+from .writer_mobi import MobiWriter
 
 def getWriter(type,config,story):
     if type == "html":

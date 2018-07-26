@@ -20,7 +20,7 @@ import string
 
 import bs4
 
-from base_writer import *
+from .base_writer import *
 
 class HTMLWriter(BaseStoryWriter):
 
