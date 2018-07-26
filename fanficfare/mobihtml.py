@@ -5,8 +5,11 @@
 
 import re
 import sys
-from six import StringIO
-from six.moves import urllib
+from six.moves.urllib.parse import unquote
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six import binary_type as bytes
 
 # import bs4
 # BeautifulSoup = bs4.BeautifulSoup
@@ -55,14 +58,14 @@ class HtmlProcessor:
 
     # str() instead of unicode() rather than figure out how to fix
     # ancient mobi.py code.
-    assembled_text = str(self._soup)
+    assembled_text = unicode(self._soup)
 
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
-      ref = urllib.unquote(original_ref[1:]) # remove leading '#'
+      ref = unquote(original_ref[1:]) # remove leading '#'
       # Find the position of ref in the utf-8 document.
       # TODO(chatham): Using regexes and looking for name= would be better.
-      newpos = assembled_text.rfind(ref.encode('utf-8'))
+      newpos = assembled_text.rfind(ref) # .encode('utf-8')
       if newpos == -1:
         print >>sys.stderr, 'Could not find anchor "%s"' % original_ref
         continue

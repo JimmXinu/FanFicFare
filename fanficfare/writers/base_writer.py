@@ -21,10 +21,13 @@ import os.path
 import datetime
 import string
 import six
-from six import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six import BytesIO # StringIO under py2
 
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
@@ -179,7 +182,7 @@ class BaseStoryWriter(Configurable):
             logger.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
-                outputdirs = os.path.dirname(outfilename).split('/')
+                outputdirs = os.path.dirname(unicode(outfilename)).split('/')
                 for dir in outputdirs:
                     path+=dir+"/"
                     if not os.path.exists(path):
@@ -213,7 +216,7 @@ class BaseStoryWriter(Configurable):
                                                  # above, it will only
                                                  # fetch once.
         if self.getConfig('zip_output'):
-            out = StringIO()
+            out = BytesIO()
             self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
             self.zipout.writestr(self.getBaseFileName(),out.getvalue())
