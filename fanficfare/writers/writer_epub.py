@@ -232,7 +232,7 @@ div { margin: 0pt; padding: 0pt; }
                 span = '<span id="%s">'%entry
                 idx = logfile.rindex(span)+len(span)
                 values[entry] = logfile[idx:logfile.index('</span>\n',idx)]
-            except Exception, e:
+            except Exception as e:
                 #print("e:%s"%e)
                 pass
 

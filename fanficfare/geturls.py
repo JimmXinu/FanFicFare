@@ -19,8 +19,10 @@ import collections
 import email
 import imaplib
 import re
-import urllib2 as u2
-import urlparse
+from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from six.moves.urllib.parse import (urlparse, urlunparse)
+# unicode in py2, str in py3
+from six import text_type as unicode
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,7 +30,7 @@ logger = logging.getLogger(__name__)
 from bs4 import BeautifulSoup
 from gziphttp import GZipProcessor
 
-import adapters
+from . import adapters
 from configurable import Configuration
 from exceptions import UnknownSite
 
@@ -75,7 +77,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         data = adapter._fetchUrl(url,usecache=False)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
-        opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        opener = build_opener(HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
     # kludge because I don't see it on enough sites to be worth generalizing yet.
@@ -112,7 +114,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
-            except Exception, e:
+            except Exception as e:
                 #logger.debug e
                 pass
 
@@ -153,9 +155,9 @@ def form_url(parenturl,url):
      if "//" in url or parenturl == None:
          returl = url
      else:
-         parsedUrl = urlparse.urlparse(parenturl)
+         parsedUrl = urlparse(parenturl)
          if url.startswith("/") :
-             returl = urlparse.urlunparse(
+             returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
                   url,
@@ -166,7 +168,7 @@ def form_url(parenturl,url):
                  toppath = parsedUrl.path
              else:
                  toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
-             returl = urlparse.urlunparse(
+             returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
                   toppath + '/' + url,

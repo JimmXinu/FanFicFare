@@ -20,7 +20,7 @@ from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
 from six import StringIO
-import six.moves.configparser
+from six.moves import configparser
 import getpass
 import logging
 import pprint
@@ -49,123 +49,123 @@ logger = logging.getLogger('fanficfare')
 try:
     # running under calibre
     from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
-    from calibre_plugins.fanficfare_plugin.fanficfare.configurable import configuration
+    from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 except ImportError:
     from fanficfare import adapters, writers, exceptions
-    from fanficfare.configurable import configuration
+    from fanficfare.configurable import Configuration
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
 
 
-def write_story(config, adapter, writeformat, metaonly=false, outstream=none):
-    writer = writers.getwriter(writeformat, config, adapter)
-    writer.writestory(outstream=outstream, metaonly=metaonly)
-    output_filename = writer.getoutputfilename()
+def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
+    writer = writers.getWriter(writeformat, config, adapter)
+    writer.writeStory(outstream=outstream, metaonly=metaonly)
+    output_filename = writer.getOutputFileName()
     del writer
     return output_filename
 
-def main(argv=none,
-         parser=none,
-         passed_defaultsini=none,
-         passed_personalini=none):
-    if argv is none:
+def main(argv=None,
+         parser=None,
+         passed_defaultsini=None,
+         passed_personalini=None):
+    if argv is None:
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
-        parser = optionparser('usage: %prog [options] [storyurl]...')
+        parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
-                      help='write story as format, epub(default), mobi, txt or html', metavar='format')
+                      help='write story as FORMAT, epub(default), mobi, txt or html', metavar='FORMAT')
     if passed_defaultsini:
         config_help = 'read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
     else:
         config_help = 'read config from specified file(s) in addition to ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
     parser.add_option('-c', '--config',
-                      action='append', dest='configfile', default=none,
-                      help=config_help, metavar='config')
-    range_help = '  --begin and --end will be overridden by a chapter range on the storyurl like storyurl[1-2], storyurl[-3], storyurl[3-] or storyurl[3]'
-    parser.add_option('-b', '--begin', dest='begin', default=none,
-                      help='begin with chapter start.'+range_help, metavar='start')
-    parser.add_option('-e', '--end', dest='end', default=none,
-                      help='end with chapter end.'+range_help, metavar='end')
+                      action='append', dest='configfile', default=None,
+                      help=config_help, metavar='CONFIG')
+    range_help = '  --begin and --end will be overridden by a chapter range on the STORYURL like STORYURL[1-2], STORYURL[-3], STORYURL[3-] or STORYURL[3]'
+    parser.add_option('-b', '--begin', dest='begin', default=None,
+                      help='Begin with Chapter START.'+range_help, metavar='START')
+    parser.add_option('-e', '--end', dest='end', default=None,
+                      help='End with Chapter END.'+range_help, metavar='END')
     parser.add_option('-o', '--option',
                       action='append', dest='options',
-                      help='set an option name=value', metavar='name=value')
+                      help='set an option NAME=VALUE', metavar='NAME=VALUE')
     parser.add_option('-m', '--meta-only',
                       action='store_true', dest='metaonly',
-                      help='retrieve metadata and stop.  or, if --update-epub, update metadata title page only.', )
+                      help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
     parser.add_option('--json-meta',
                       action='store_true', dest='jsonmeta',
-                      help='when used with --meta-only, output metadata as json.  no effect without --meta-only flag', )
+                      help='When used with --meta-only, output metadata as JSON.  No effect without --meta-only flag', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
-                      help='update an existing epub(if present) with new chapters.  give either epub filename or story url.', )
+                      help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
     parser.add_option('--update-cover',
                       action='store_true', dest='updatecover',
-                      help='update cover in an existing epub, otherwise existing cover (if any) is used on update.  only valid with --update-epub.', )
+                      help='Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.', )
     parser.add_option('--unnew',
                       action='store_true', dest='unnew',
-                      help='remove (new) chapter marks left by mark_new_chapters setting.', )
+                      help='Remove (new) chapter marks left by mark_new_chapters setting.', )
     parser.add_option('--force',
                       action='store_true', dest='force',
-                      help='force overwrite of an existing epub, download and overwrite all chapters.', )
+                      help='Force overwrite of an existing epub, download and overwrite all chapters.', )
     parser.add_option('-i', '--infile',
-                      help='give a filename to read for urls (and/or existing epub files with --update-epub).',
-                      dest='infile', default=none,
-                      metavar='infile')
+                      help='Give a filename to read for URLs (and/or existing EPUB files with --update-epub).',
+                      dest='infile', default=None,
+                      metavar='INFILE')
 
     parser.add_option('-l', '--list',
-                      dest='list', default=none, metavar='url',
-                      help='get list of valid story urls from page given.', )
+                      dest='list', default=None, metavar='URL',
+                      help='Get list of valid story URLs from page given.', )
     parser.add_option('-n', '--normalize-list',
-                      dest='normalize', default=none, metavar='url',
-                      help='get list of valid story urls from page given, but normalized to standard forms.', )
+                      dest='normalize', default=None, metavar='URL',
+                      help='Get list of valid story URLs from page given, but normalized to standard forms.', )
     parser.add_option('--download-list',
-                      dest='downloadlist', default=none, metavar='url',
-                      help='download story urls retrieved from page given.  update existing epubs if used with --update-epub.', )
+                      dest='downloadlist', default=None, metavar='URL',
+                      help='Download story URLs retrieved from page given.  Update existing EPUBs if used with --update-epub.', )
 
     parser.add_option('--imap',
                       action='store_true', dest='imaplist',
-                      help='get list of valid story urls from unread email from imap account configured in ini.', )
+                      help='Get list of valid story URLs from unread email from IMAP account configured in ini.', )
 
     parser.add_option('--download-imap',
                       action='store_true', dest='downloadimap',
-                      help='download valid story urls from unread email from imap account configured in ini.  update existing epubs if used with --update-epub.', )
+                      help='Download valid story URLs from unread email from IMAP account configured in ini.  Update existing EPUBs if used with --update-epub.', )
 
     parser.add_option('-s', '--sites-list',
-                      action='store_true', dest='siteslist', default=false,
-                      help='get list of valid story urls examples.', )
+                      action='store_true', dest='siteslist', default=False,
+                      help='Get list of valid story URLs examples.', )
     parser.add_option('--non-interactive',
                       action='store_false', dest='interactive', default=sys.stdin.isatty() and sys.stdout.isatty(),
-                      help='prevent interactive prompts (for scripting).', )
+                      help='Prevent interactive prompts (for scripting).', )
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug',
-                      help='show debug and notice output.', )
+                      help='Show debug and notice output.', )
     parser.add_option('-p', '--progressbar',
                       action='store_true', dest='progressbar',
-                      help='display a simple progress bar while downloading--one dot(.) per network fetch.', )
+                      help='Display a simple progress bar while downloading--one dot(.) per network fetch.', )
     parser.add_option('-v', '--version',
                       action='store_true', dest='version',
-                      help='display version and quit.', )
+                      help='Display version and quit.', )
 
-    ## undocumented feature for development use.  save page cache and
-    ## cookies between runs.  saves in pwd as files global_cache and
+    ## undocumented feature for development use.  Save page cache and
+    ## cookies between runs.  Saves in PWD as files global_cache and
     ## global_cookies
     parser.add_option('--save-cache', '--save_cache',
                       action='store_true', dest='save_cache',
-                      help=suppress_help, )
+                      help=SUPPRESS_HELP, )
 
     options, args = parser.parse_args(argv)
 
     if options.version:
-        print("version: %s" % version)
+        print("Version: %s" % version)
         return
 
     if not options.debug:
-        logger.setlevel(logging.warning)
+        logger.setLevel(logging.WARNING)
 
     list_only = any((options.imaplist,
                      options.siteslist,
@@ -175,11 +175,11 @@ def main(argv=none,
 
     if list_only and (args or any((options.downloadimap,
                                    options.downloadlist))):
-        parser.error('incorrect arguments: cannot download and list urls at the same time.')
+        parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
 
     if options.siteslist:
-        for site, examples in adapters.getsiteexamples():
-            print('\n#### %s\nexample urls:' % site)
+        for site, examples in adapters.getSiteExamples():
+            print('\n#### %s\nExample URLs:' % site)
             for u in examples:
                 print('  * %s' % u)
         return
@@ -209,7 +209,7 @@ def main(argv=none,
         configuration = get_configuration(options.normalize,
                                           passed_defaultsini,
                                           passed_personalini,options)
-        retlist = get_urls_from_page(options.normalize, configuration,normalize=true)
+        retlist = get_urls_from_page(options.normalize, configuration,normalize=True)
         print('\n'.join(retlist))
 
     if options.downloadlist:
@@ -222,12 +222,12 @@ def main(argv=none,
     if options.imaplist or options.downloadimap:
         # list doesn't have a supported site.
         configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
-        markread = configuration.getconfig('imap_mark_read') == 'true' or \
-            (configuration.getconfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
-        retlist = get_urls_from_imap(configuration.getconfig('imap_server'),
-                                     configuration.getconfig('imap_username'),
-                                     configuration.getconfig('imap_password'),
-                                     configuration.getconfig('imap_folder'),
+        markread = configuration.getConfig('imap_mark_read') == 'true' or \
+            (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
+        retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
+                                     configuration.getConfig('imap_username'),
+                                     configuration.getConfig('imap_password'),
+                                     configuration.getConfig('imap_folder'),
                                      markread)
 
         if options.downloadimap:
@@ -251,14 +251,14 @@ def main(argv=none,
         try:
             with open('global_cache','rb') as jin:
                 options.pagecache = pickle.load(jin) # ,encoding="utf-8"
-            options.cookiejar = cl.lwpcookiejar()
+            options.cookiejar = cl.LWPCookieJar()
             options.cookiejar.load('global_cookies')
         except:
             print("didn't load global_cache")
 
     if not list_only:
         if len(urls) < 1:
-            print("no valid story urls found")
+            print("No valid story URLs found")
         else:
             for url in urls:
                 try:
@@ -267,10 +267,10 @@ def main(argv=none,
                                 passed_defaultsini,
                                 passed_personalini)
                 #print("pagecache:%s"%options.pagecache.keys())
-                except exception as e:
+                except Exception as e:
                     if len(urls) == 1:
                         raise
-                    print("url(%s) failed: exception (%s). run url individually for more detail."%(url,e))
+                    print("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
 
     if options.save_cache:
         with open('global_cache','wb') as jout:
@@ -283,9 +283,9 @@ def do_download(arg,
                 passed_defaultsini,
                 passed_personalini):
 
-    # attempt to update an existing epub.
-    chaptercount = none
-    output_filename = none
+    # Attempt to update an existing epub.
+    chaptercount = None
+    output_filename = None
 
     if options.unnew:
         # remove mark_new_chapters marks
@@ -296,12 +296,12 @@ def do_download(arg,
         try:
             url, chaptercount = get_dcsource_chaptercount(arg)
             if not url:
-                print('no story url found in epub to update.')
+                print('No story URL found in epub to update.')
                 return
-            print('updating %s, url: %s' % (arg, url))
+            print('Updating %s, URL: %s' % (arg, url))
             output_filename = arg
-        except exception:
-            # if there's an error reading the update file, maybe it's a url?
+        except Exception:
+            # if there's an error reading the update file, maybe it's a URL?
             # we'll look for an existing outputfile down below.
             url = arg
     else:
@@ -315,14 +315,14 @@ def do_download(arg,
                                       output_filename)
 
     try:
-        # allow chapter range with url.
+        # Allow chapter range with URL.
         # like test1.com?sid=5[4-6] or [4,6]
-        # overrides cli options if present.
+        # Overrides CLI options if present.
         url,ch_begin,ch_end = adapters.get_url_chapter_range(url)
 
-        adapter = adapters.getadapter(configuration, url)
+        adapter = adapters.getAdapter(configuration, url)
 
-        ## share pagecache and cookiejar between multiple downloads.
+        ## Share pagecache and cookiejar between multiple downloads.
         if not hasattr(options,'pagecache'):
             options.pagecache = configuration.get_empty_pagecache()
         if not hasattr(options,'cookiejar'):
@@ -330,36 +330,36 @@ def do_download(arg,
         configuration.set_pagecache(options.pagecache)
         configuration.set_cookiejar(options.cookiejar)
 
-        # url[begin-end] overrides cli option if present.
+        # url[begin-end] overrides CLI option if present.
         if ch_begin or ch_end:
-            adapter.setchaptersrange(ch_begin, ch_end)
+            adapter.setChaptersRange(ch_begin, ch_end)
         else:
-            adapter.setchaptersrange(options.begin, options.end)
+            adapter.setChaptersRange(options.begin, options.end)
 
-        # check for updating from url (vs from file)
+        # check for updating from URL (vs from file)
         if options.update and not chaptercount:
             try:
-                writer = writers.getwriter('epub', configuration, adapter)
-                output_filename = writer.getoutputfilename()
+                writer = writers.getWriter('epub', configuration, adapter)
+                output_filename = writer.getOutputFileName()
                 noturl, chaptercount = get_dcsource_chaptercount(output_filename)
-                print('updating %s, url: %s' % (output_filename, url))
-            except exception:
-                options.update = false
+                print('Updating %s, URL: %s' % (output_filename, url))
+            except Exception:
+                options.update = False
                 pass
 
-        # check for include_images without no_image_processing. in absence of pil, give warning.
-        if adapter.getconfig('include_images') and not adapter.getconfig('no_image_processing'):
+        # Check for include_images without no_image_processing. In absence of PIL, give warning.
+        if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
             try:
-                from calibre.utils.magick import image
-            except importerror:
+                from calibre.utils.magick import Image
+            except ImportError:
                 try:
-                    ## pillow is a more current fork of pil library
-                    from pil import image
-                except importerror:
+                    ## Pillow is a more current fork of PIL library
+                    from PIL import Image
+                except ImportError:
                     try:
-                        import image
-                    except importerror:
-                        print("you have include_images enabled, but python image library(pil) isn't found.\nimages will be included full size in original format.\ncontinue? (y/n)?")
+                        import Image
+                    except ImportError:
+                        print("You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?")
                         if options.interactive:
                             if not sys.stdin.readline().strip().lower().startswith('y'):
                                 return
@@ -371,39 +371,39 @@ def do_download(arg,
         # or a couple tries of one or the other
         for x in range(0, 2):
             try:
-                adapter.getstorymetadataonly()
-            except exceptions.failedtologin as f:
+                adapter.getStoryMetadataOnly()
+            except exceptions.FailedToLogin as f:
                 if not options.interactive:
-                    print('login failed on non-interactive process. set username and password in personal.ini.')
+                    print('Login Failed on non-interactive process. Set username and password in personal.ini.')
                     return
                 if f.passwdonly:
-                    print('story requires a password.')
+                    print('Story requires a password.')
                 else:
-                    print('login failed, need username/password.')
-                    sys.stdout.write('username: ')
+                    print('Login Failed, Need Username/Password.')
+                    sys.stdout.write('Username: ')
                     adapter.username = sys.stdin.readline().strip()
-                adapter.password = getpass.getpass(prompt='password: ')
-                # print('login: `%s`, password: `%s`' % (adapter.username, adapter.password))
-            except exceptions.adultcheckrequired:
+                adapter.password = getpass.getpass(prompt='Password: ')
+                # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
+            except exceptions.AdultCheckRequired:
                 if options.interactive:
-                    print('please confirm you are an adult in your locale: (y/n)?')
+                    print('Please confirm you are an adult in your locale: (y/n)?')
                     if sys.stdin.readline().strip().lower().startswith('y'):
-                        adapter.is_adult = true
+                        adapter.is_adult = True
                 else:
-                    print('adult check required on non-interactive process. set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.')
+                    print('Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.')
                     return
 
         if options.update and not options.force:
-            urlchaptercount = int(adapter.getstorymetadataonly().getmetadata('numchapters').replace(',',''))
+            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters').replace(',',''))
             # returns int adjusted for start-end range.
-            urlchaptercount = adapter.getstorymetadataonly().getchaptercount()
+            urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
             if chaptercount == urlchaptercount and not options.metaonly:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
             elif chaptercount > urlchaptercount:
                 print('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
-                print("%s doesn't contain any recognizable chapters, probably from a different source.  not updating." % output_filename)
+                print("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
@@ -418,33 +418,33 @@ def do_download(arg,
                  adapter.oldchaptersmap,
                  adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
-                print('do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
+                print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 
-                if not options.update and chaptercount == urlchaptercount and adapter.getconfig('do_update_hook'):
-                    adapter.hookforupdates(chaptercount)
+                if not options.update and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
+                    adapter.hookForUpdates(chaptercount)
 
-                if adapter.getconfig('pre_process_safepattern'):
-                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getconfig('pre_process_safepattern'))
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
                 else:
-                    metadata = adapter.story.getallmetadata()
-                call(string.template(adapter.getconfig('pre_process_cmd')).substitute(metadata), shell=true)
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
                 write_story(configuration, adapter, 'epub')
 
         else:
             # regular download
             if options.metaonly:
-                metadata = adapter.getstorymetadataonly().getallmetadata()
+                metadata = adapter.getStoryMetadataOnly().getAllMetadata()
                 metadata['zchapters'] = []
                 for i, chap in enumerate(adapter.get_chapters()):
                     metadata['zchapters'].append((i+1,chap))
 
-            if not options.metaonly and adapter.getconfig('pre_process_cmd'):
-                if adapter.getconfig('pre_process_safepattern'):
-                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getconfig('pre_process_safepattern'))
+            if not options.metaonly and adapter.getConfig('pre_process_cmd'):
+                if adapter.getConfig('pre_process_safepattern'):
+                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
                 else:
-                    metadata = adapter.story.getallmetadata()
-                call(string.template(adapter.getconfig('pre_process_cmd')).substitute(metadata), shell=true)
+                    metadata = adapter.story.getAllMetadata()
+                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
@@ -452,42 +452,42 @@ def do_download(arg,
                 metadata['output_filename'] = output_filename
                 if options.jsonmeta:
                     import json
-                    print(json.dumps(metadata, sort_keys=true,
+                    print(json.dumps(metadata, sort_keys=True,
                                      indent=2, separators=(',', ':')))
                 else:
                     pprint.pprint(metadata)
 
-        if not options.metaonly and adapter.getconfig('post_process_cmd'):
-            if adapter.getconfig('post_process_safepattern'):
-                metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getconfig('post_process_safepattern'))
+        if not options.metaonly and adapter.getConfig('post_process_cmd'):
+            if adapter.getConfig('post_process_safepattern'):
+                metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('post_process_safepattern'))
             else:
-                metadata = adapter.story.getallmetadata()
+                metadata = adapter.story.getAllMetadata()
             metadata['output_filename'] = output_filename
-            call(string.template(adapter.getconfig('post_process_cmd')).substitute(metadata), shell=true)
+            call(string.Template(adapter.getConfig('post_process_cmd')).substitute(metadata), shell=True)
 
         del adapter
 
-    except exceptions.invalidstoryurl as isu:
+    except exceptions.InvalidStoryURL as isu:
         print(isu)
-    except exceptions.storydoesnotexist as dne:
+    except exceptions.StoryDoesNotExist as dne:
         print(dne)
-    except exceptions.unknownsite as us:
+    except exceptions.UnknownSite as us:
         print(us)
-    except exceptions.accessdenied as ad:
+    except exceptions.AccessDenied as ad:
         print(ad)
 
 def get_configuration(url,
                       passed_defaultsini,
                       passed_personalini,
                       options,
-                      chaptercount=none,
-                      output_filename=none):
+                      chaptercount=None,
+                      output_filename=None):
     try:
-        configuration = configuration(adapters.getconfigsectionsfor(url), options.format)
-    except exceptions.unknownsite as e:
+        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+    except exceptions.UnknownSite as e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
-            configuration = configuration(['unknown'], options.format)
+            configuration = Configuration(['unknown'], options.format)
         else:
             raise e
 
@@ -497,9 +497,9 @@ def get_configuration(url,
     homepath2 = join(expanduser('~'), '.fanficfare')
 
     if passed_defaultsini:
-        # new stringio each time rather than pass stringio and rewind
-        # for case of list download.  just makes more sense to me.
-        configuration.readfp(stringio(passed_defaultsini))
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_defaultsini))
     else:
         # don't need to check existance for our selves.
         conflist.append(join(dirname(__file__), 'defaults.ini'))
@@ -508,9 +508,9 @@ def get_configuration(url,
         conflist.append('defaults.ini')
 
     if passed_personalini:
-        # new stringio each time rather than pass stringio and rewind
-        # for case of list download.  just makes more sense to me.
-        configuration.readfp(stringio(passed_personalini))
+        # new StringIO each time rather than pass StringIO and rewind
+        # for case of list download.  Just makes more sense to me.
+        configuration.readfp(StringIO(passed_personalini))
 
     conflist.append(join(homepath, 'personal.ini'))
     conflist.append(join(homepath2, 'personal.ini'))
