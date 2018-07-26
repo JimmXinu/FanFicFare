@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import os, re
 import copy
 from collections import defaultdict
@@ -26,13 +27,18 @@ from math import floor
 from functools import partial
 import logging
 logger = logging.getLogger(__name__)
+# py2 vs py3 transition
+import six
+from six import text_type as unicode
+from six import string_types as basestring
+from six.moves import map
 
 import bs4
 
-import exceptions
-from htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
-from configurable import Configurable, re_compile
-from htmlheuristics import was_run_marker
+from . import exceptions
+from .htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
+from .configurable import Configurable, re_compile
+from .htmlheuristics import was_run_marker
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -50,7 +56,7 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from StringIO import StringIO
+    from six import StringIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
@@ -99,7 +105,7 @@ except:
     # No calibre routines, try for PIL for CLI.
     try:
         import Image
-        from StringIO import StringIO
+        from six import StringIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
@@ -331,7 +337,7 @@ class InExMatch:
             (self.keys,self.match) = line.split("!=")
             self.match = self.match.replace(SPACE_REPLACE,' ')
             self.negate = True
-        self.keys = map( lambda x: x.strip(), self.keys.split(",") )
+        self.keys = [x.strip() for x in self.keys.split(",")]
 
     # For conditional, only one key
     def is_key(self,key):
@@ -405,7 +411,7 @@ def make_replacements(replace):
             if "=>" in line:
                 parts = line.split("=>")
                 if len(parts) > 2:
-                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    metakeys = [x.strip() for x in parts[0].split(",")]
                     (regexp,replacement)=parts[1:]
                 else:
                     (regexp,replacement)=parts
@@ -607,8 +613,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
-            retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
+            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist))
 
         if return_list:
             return retlist
@@ -618,7 +624,7 @@ class Story(Configurable):
     # for saving an html-ified copy of metadata.
     def dump_html_metadata(self):
         lines=[]
-        for k,v in sorted(self.metadata.iteritems()):
+        for k,v in sorted(six.iteritems(self.metadata)):
             classes=['metadata']
             if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
                 classes.append("datetime")
@@ -688,7 +694,7 @@ class Story(Configurable):
         return value
 
     def getMetadataRaw(self,key):
-        if self.isValidMetaEntry(key) and self.metadata.has_key(key):
+        if self.isValidMetaEntry(key) and key in self.metadata:
             return self.metadata[key]
 
     def getMetadata(self, key,
@@ -710,7 +716,7 @@ class Story(Configurable):
             value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
-        elif self.metadata.has_key(key):
+        elif key in self.metadata:
             value = self.metadata[key]
             if value:
                 if key in ["numWords","numChapters"]+self.getConfigList("comma_entries",[]):
@@ -867,7 +873,7 @@ class Story(Configurable):
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
         return self.isListType(listname) or \
-            ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
+            ( self.isValidMetaEntry(listname) and listname in self.metadata \
                   and isinstance(self.metadata[listname],list) )
 
     def getList(self,listname,
@@ -947,9 +953,9 @@ class Story(Configurable):
                     retlist = newretlist
 
                 if removeallentities:
-                    retlist = map(removeAllEntities,retlist)
+                    retlist = list(map(removeAllEntities,retlist))
 
-                retlist = filter( lambda x : x!=None and x!='' ,retlist)
+                retlist = [x for x in retlist if x!=None and x!='']
 
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
@@ -983,7 +989,7 @@ class Story(Configurable):
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
 
         # metadata all go into dc:subject tags, but only if they are configured.
-        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
+        for (name,value) in six.iteritems(self.getAllMetadata(removeallentities=removeallentities,keeplists=True)):
             if name+'.SPLIT' in tags_list:
                 flist=[]
                 if isinstance(value,list):
