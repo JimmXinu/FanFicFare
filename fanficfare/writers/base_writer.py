@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -213,7 +213,7 @@ class BaseStoryWriter(Configurable):
                                                  # above, it will only
                                                  # fetch once.
         if self.getConfig('zip_output'):
-            out = StringIO.StringIO()
+            out = StringIO()
             self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)
             self.writeStoryImpl(out)
             self.zipout.writestr(self.getBaseFileName(),out.getvalue())

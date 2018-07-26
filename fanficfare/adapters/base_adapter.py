@@ -15,9 +15,14 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import re
 from datetime import datetime, timedelta
 from collections import defaultdict
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six import string_types as basestring
 
 import logging
 from six.moves.urllib.parse import urlparse
@@ -46,7 +51,7 @@ class TimeKeeper(defaultdict):
         self[name] = self[name] + td
 
     def __unicode__(self):
-        keys = self.keys()
+        keys = list(self.keys())
         keys.sort()
         return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 import inspect
@@ -416,11 +421,11 @@ class BaseSiteAdapter(Configurable):
         if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
             # bs3
             #print "bs3 attrs:%s"%soup._getAttrMap().keys()
-            return soup._getAttrMap().keys()
+            return list(soup._getAttrMap().keys())
         elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
             #print "bs4 attrs:%s"%soup.attrs.keys()
             # bs4
-            return soup.attrs.keys()
+            return list(soup.attrs.keys())
         return []
 
     # This gives us a unicode object, not just a string containing bytes.
@@ -599,7 +604,8 @@ def makeDate(string,dateform):
             add_hours = True
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
-    date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    # date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    date = datetime.strptime(string, dateform)
 
     if add_hours:
         date += timedelta(hours=12)

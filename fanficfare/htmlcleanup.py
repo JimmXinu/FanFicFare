@@ -15,10 +15,15 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
 import re
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six import string_types as basestring
 
 def _unirepl(match):
     "Return the unicode string for a decimal number"
@@ -80,7 +85,7 @@ def removeEntities(text, space_only=False):
         return unicode(text)
     
     try:
-        t = text.decode('utf-8')
+        t = text #.decode('utf-8')
     except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 

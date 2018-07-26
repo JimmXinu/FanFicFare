@@ -25,7 +25,7 @@ from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, Parsi
 from six.moves import urllib
 from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
 from six.moves import http_cookiejar as cl
-# unicode in py2, str in py3
+# py2 vs py3 transition
 from six import text_type as unicode
 from six import string_types as basestring
 
