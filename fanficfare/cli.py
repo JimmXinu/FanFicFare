@@ -19,8 +19,8 @@ from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
-from StringIO import StringIO
-import ConfigParser
+from six import StringIO
+from six.moves import configparser
 import getpass
 import logging
 import pprint
@@ -28,14 +28,13 @@ import string
 import os, sys
 
 import pickle
-import cookielib as cl
+from six.moves import http_cookiejar as cl
 
 version="2.28.0"
 os.environ['CURRENT_VERSION_ID']=version
 
-print("Python Version:%s"%sys.version)
-if sys.version_info < (2, 5) or sys.version_info > (3,0):
-    print('This program requires Python 2.5 or newer.  Python 3 is not supported.')
+if sys.version_info < (2, 5):
+    print('This program requires Python 2.5 or newer.')
     sys.exit(1)
 
 if sys.version_info >= (2, 7):
@@ -73,6 +72,7 @@ def main(argv=None,
          parser=None,
          passed_defaultsini=None,
          passed_personalini=None):
+    logger.debug("Python Version:%s"%sys.version)
     if argv is None:
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
@@ -180,9 +180,9 @@ def main(argv=None,
 
     if options.siteslist:
         for site, examples in adapters.getSiteExamples():
-            print '\n#### %s\nExample URLs:' % site
+            print('\n#### %s\nExample URLs:' % site)
             for u in examples:
-                print '  * %s' % u
+                print('  * %s' % u)
         return
 
     if options.update and options.format != 'epub':
@@ -204,14 +204,14 @@ def main(argv=None,
                                           passed_defaultsini,
                                           passed_personalini,options)
         retlist = get_urls_from_page(options.list, configuration)
-        print '\n'.join(retlist)
+        print('\n'.join(retlist))
 
     if options.normalize:
         configuration = get_configuration(options.normalize,
                                           passed_defaultsini,
                                           passed_personalini,options)
         retlist = get_urls_from_page(options.normalize, configuration,normalize=True)
-        print '\n'.join(retlist)
+        print('\n'.join(retlist))
 
     if options.downloadlist:
         configuration = get_configuration(options.downloadlist,
@@ -234,18 +234,18 @@ def main(argv=None,
         if options.downloadimap:
             urls.extend(retlist)
         else:
-            print '\n'.join(retlist)
+            print('\n'.join(retlist))
 
     # for passing in a file list
     if options.infile:
         with open(options.infile,"r") as infile:
-            #print "File exists and is readable"
+            #print("file exists and is readable")
             for url in infile:
                 if '#' in url:
                     url = url[:url.find('#')].strip()
                 url = url.strip()
                 if len(url) > 0:
-                    #print "URL: (%s)"%url
+                    #print("url: (%s)"%url)
                     urls.append(url)
 
     if options.save_cache:
@@ -255,11 +255,11 @@ def main(argv=None,
             options.cookiejar = cl.LWPCookieJar()
             options.cookiejar.load('global_cookies')
         except:
-            print("Didn't load global_cache")
+            print("didn't load global_cache")
 
     if not list_only:
         if len(urls) < 1:
-            print "No valid story URLs found"
+            print("No valid story URLs found")
         else:
             for url in urls:
                 try:
@@ -268,10 +268,10 @@ def main(argv=None,
                                 passed_defaultsini,
                                 passed_personalini)
                 #print("pagecache:%s"%options.pagecache.keys())
-                except Exception, e:
+                except Exception as e:
                     if len(urls) == 1:
                         raise
-                    print "URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e)
+                    print("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
 
     if options.save_cache:
         with open('global_cache','wb') as jout:
@@ -297,9 +297,9 @@ def do_download(arg,
         try:
             url, chaptercount = get_dcsource_chaptercount(arg)
             if not url:
-                print 'No story URL found in epub to update.'
+                print('No story URL found in epub to update.')
                 return
-            print 'Updating %s, URL: %s' % (arg, url)
+            print('Updating %s, URL: %s' % (arg, url))
             output_filename = arg
         except Exception:
             # if there's an error reading the update file, maybe it's a URL?
@@ -343,7 +343,7 @@ def do_download(arg,
                 writer = writers.getWriter('epub', configuration, adapter)
                 output_filename = writer.getOutputFileName()
                 noturl, chaptercount = get_dcsource_chaptercount(output_filename)
-                print 'Updating %s, URL: %s' % (output_filename, url)
+                print('Updating %s, URL: %s' % (output_filename, url))
             except Exception:
                 options.update = False
                 pass
@@ -360,38 +360,38 @@ def do_download(arg,
                     try:
                         import Image
                     except ImportError:
-                        print "You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?"
+                        print("You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?")
                         if options.interactive:
                             if not sys.stdin.readline().strip().lower().startswith('y'):
                                 return
                         else:
                             # for non-interactive, default the response to yes and continue processing
-                            print 'y'
+                            print('y')
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
         for x in range(0, 2):
             try:
                 adapter.getStoryMetadataOnly()
-            except exceptions.FailedToLogin, f:
+            except exceptions.FailedToLogin as f:
                 if not options.interactive:
-                    print 'Login Failed on non-interactive process. Set username and password in personal.ini.'
+                    print('Login Failed on non-interactive process. Set username and password in personal.ini.')
                     return
                 if f.passwdonly:
-                    print 'Story requires a password.'
+                    print('Story requires a password.')
                 else:
-                    print 'Login Failed, Need Username/Password.'
+                    print('Login Failed, Need Username/Password.')
                     sys.stdout.write('Username: ')
                     adapter.username = sys.stdin.readline().strip()
                 adapter.password = getpass.getpass(prompt='Password: ')
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
             except exceptions.AdultCheckRequired:
                 if options.interactive:
-                    print 'Please confirm you are an adult in your locale: (y/n)?'
+                    print('Please confirm you are an adult in your locale: (y/n)?')
                     if sys.stdin.readline().strip().lower().startswith('y'):
                         adapter.is_adult = True
                 else:
-                    print 'Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.'
+                    print('Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.')
                     return
 
         if options.update and not options.force:
@@ -400,11 +400,11 @@ def do_download(arg,
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
             if chaptercount == urlchaptercount and not options.metaonly:
-                print '%s already contains %d chapters.' % (output_filename, chaptercount)
+                print('%s already contains %d chapters.' % (output_filename, chaptercount))
             elif chaptercount > urlchaptercount:
-                print '%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount)
+                print('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
-                print "%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename
+                print("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
@@ -419,7 +419,7 @@ def do_download(arg,
                  adapter.oldchaptersmap,
                  adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
-                print 'Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount)
+                print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 
                 if not options.update and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
                     adapter.hookForUpdates(chaptercount)
@@ -453,8 +453,8 @@ def do_download(arg,
                 metadata['output_filename'] = output_filename
                 if options.jsonmeta:
                     import json
-                    print json.dumps(metadata, sort_keys=True,
-                                     indent=2, separators=(',', ':'))
+                    print(json.dumps(metadata, sort_keys=True,
+                                     indent=2, separators=(',', ':')))
                 else:
                     pprint.pprint(metadata)
 
@@ -469,13 +469,13 @@ def do_download(arg,
         del adapter
 
     except exceptions.InvalidStoryURL as isu:
-        print isu
+        print(isu)
     except exceptions.StoryDoesNotExist as dne:
-        print dne
+        print(dne)
     except exceptions.UnknownSite as us:
-        print us
+        print(us)
     except exceptions.AccessDenied as ad:
-        print ad
+        print(ad)
 
 def get_configuration(url,
                       passed_defaultsini,
@@ -485,7 +485,7 @@ def get_configuration(url,
                       output_filename=None):
     try:
         configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
-    except exceptions.UnknownSite, e:
+    except exceptions.UnknownSite as e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
             configuration = Configuration(['unknown'], options.format)
@@ -524,7 +524,7 @@ def get_configuration(url,
 
     try:
         configuration.add_section('overrides')
-    except ConfigParser.DuplicateSectionError:
+    except configparser.DuplicateSectionError:
         pass
 
     if options.force:
