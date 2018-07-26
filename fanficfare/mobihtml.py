@@ -5,9 +5,11 @@
 
 import re
 import sys
-import StringIO
-import urllib
+from six import StringIO
+from six.moves import urllib
 
+# import bs4
+# BeautifulSoup = bs4.BeautifulSoup
 from bs4 import BeautifulSoup
 
 class HtmlProcessor:

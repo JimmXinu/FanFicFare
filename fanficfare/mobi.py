@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from html import HtmlProcessor
+from mobihtml import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html

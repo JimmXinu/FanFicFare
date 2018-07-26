@@ -81,10 +81,10 @@ def removeEntities(text, space_only=False):
     
     try:
         t = text.decode('utf-8')
-    except (UnicodeEncodeError,UnicodeDecodeError), e:
+    except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 
-        except (UnicodeEncodeError,UnicodeDecodeError), e:
+        except (UnicodeEncodeError,UnicodeDecodeError) as e:
             t = text
     text = t 
     # replace numeric versions of [&<>] with named versions,
@@ -106,7 +106,7 @@ def removeEntities(text, space_only=False):
             continue
         try:
             text = text.replace(e, v)
-        except UnicodeDecodeError, ex:
+        except UnicodeDecodeError as ex:
             # for the pound symbol in constants.py
             text = text.replace(e, v.decode('utf-8'))
 

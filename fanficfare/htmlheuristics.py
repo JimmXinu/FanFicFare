@@ -22,7 +22,7 @@ import codecs
 import bs4 as bs
 import HtmlTagStack as stack
 
-from . import exceptions as exceptions
+import exceptions
 
 def logdebug(s):
     # uncomment for debug output
