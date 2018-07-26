@@ -17,7 +17,7 @@
 
 import logging
 import string
-import StringIO
+from six import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import urllib
@@ -29,7 +29,7 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 import bs4
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML,removeEntities
 from ..story import commaGroups
 
