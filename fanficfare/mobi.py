@@ -1,12 +1,17 @@
 #!/usr/bin/python
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
+# Changes Copyright 2018 FanFicFare team
 
     
-from six import StringIO
 import struct
 import time
 import random
 import logging
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six import string_types as basestring
+from six import BytesIO # StringIO under py2
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +62,12 @@ class Converter:
     self._refresh_url = refresh_url
 
   def ConvertString(self, s):
-    out = StringIO.StringIO()
+    out = BytesIO()
     self._ConvertStringToFile(s, out)
     return out.getvalue()
 
   def ConvertStrings(self, html_strs):
-    out = StringIO.StringIO()
+    out = BytesIO()
     self._ConvertStringsToFile(html_strs, out)
     return out.getvalue()
 
@@ -126,6 +131,7 @@ class Converter:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
     except Exception as e:
+      raise
       logger.error('Error %s', e)
       #logger.debug('Details: %s' % html_strs)
 
