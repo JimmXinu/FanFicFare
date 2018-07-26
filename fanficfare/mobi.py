@@ -2,7 +2,7 @@
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
     
-import StringIO
+from six import StringIO
 import struct
 import time
 import random
@@ -125,7 +125,7 @@ class Converter:
     try:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
-    except Exception, e:
+    except Exception as e:
       logger.error('Error %s', e)
       #logger.debug('Details: %s' % html_strs)
 

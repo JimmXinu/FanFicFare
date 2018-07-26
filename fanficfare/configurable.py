@@ -19,14 +19,15 @@ import re
 import exceptions
 import codecs
 
+import six
 import six.moves.configparser as ConfigParser
 from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from six.moves import urllib
 from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
-from six.moves.urllib import parse as up
 from six.moves import http_cookiejar as cl
 # unicode in py2, str in py3
 from six import text_type as unicode
+from six import string_types as basestring
 
 import time
 import logging
@@ -664,7 +665,8 @@ class Configuration(ConfigParser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
+        # was filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
+        vlist = vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+str(vlist))
         if not vlist:
             return default
@@ -813,7 +815,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)$')
 
         replace_metadata_re = re.compile(r'(add_to_)?replace_metadata$')
-        from story import set_in_ex_clude, make_replacements
+        from .story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings$')
 
@@ -1082,9 +1084,13 @@ class Configuration(ConfigParser.SafeConfigParser):
         self.opener.addheaders = headers
 
         if parameters != None:
-            opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),
+                                      urllib.urlencode(parameters),
+                                      float(self.getConfig('connect_timeout',30.0)))
         else:
-            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),
+                                      None,
+                                      float(self.getConfig('connect_timeout',30.0)))
         self._progressbar()
         data = opened.read()
         self._set_to_pagecache(cachekey,data,opened.url)
