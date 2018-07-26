@@ -250,6 +250,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         a = metasoup.find('blockquote',{'class':'userstuff'})
         if a != None:
+            a.name='div' # Change blockquote to div.
             self.setDescription(url,a)
             #self.story.setMetadata('description',a.text)
 
