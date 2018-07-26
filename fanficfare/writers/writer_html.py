@@ -70,7 +70,7 @@ ${output_css}
 ''')
 
         self.HTML_TOC_ENTRY = string.Template('''
-<a href="#section${index}">${chapter}</a><br />
+<a href="#section${index04}">${chapter}</a><br />
 ''')
 
         self.HTML_TOC_PAGE_END = string.Template('''
@@ -78,7 +78,7 @@ ${output_css}
 ''')
 
         self.HTML_CHAPTER_START = string.Template('''
-<a name="section${index}"><h2>${chapter}</h2></a>
+<a name="section${index04}"><h2>${chapter}</h2></a>
 ''')
 
         self.HTML_CHAPTER_END = string.Template('')
@@ -137,7 +137,7 @@ ${output_css}
                 ## anchor to work.  Which it does by default.  This
                 ## could also be made configurable if some user
                 ## changed it.
-                chapurlmap[chap['url']]="#section"%chap['index04'] # url -> index
+                chapurlmap[chap['url']]="#section%s"%chap['index04'] # url -> index
 
         for index, chap in enumerate(self.story.getChapters()):
             if chap['html']:
