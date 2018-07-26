@@ -22,9 +22,11 @@ import codecs
 import six.moves.configparser as ConfigParser
 from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from six.moves import urllib
-from six.moves import urllib as u2
-from six.moves.urllib.parse import urlparse as up
+from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from six.moves.urllib import parse as up
 from six.moves import http_cookiejar as cl
+# unicode in py2, str in py3
+from six import text_type as unicode
 
 import time
 import logging
@@ -71,7 +73,8 @@ from gziphttp import GZipProcessor
 
 logger = logging.getLogger(__name__)
 
-# It's all fault of David Beazley!
+# Work around for fact that py3 apparently doesn't allow/ignore
+# recursive imports like py2 does.
 try:
     from . import adapters
 except ImportError:
@@ -481,7 +484,7 @@ def make_generate_cover_settings(param):
     for line in param.splitlines():
         if "=>" in line:
             try:
-                (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                (template,regexp,setting) = [ x.strip() for x in line.split("=>") ]
                 re_compile(regexp,line)
                 vlist.append((template,regexp,setting))
             except Exception as e:
@@ -537,7 +540,7 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
 
         self.pagecache = self.get_empty_pagecache()
 
@@ -550,9 +553,9 @@ class Configuration(ConfigParser.SafeConfigParser):
             ## reconstructed completely because removing and re-adding
             ## a section would mess up the order.
             ## assumes _dict and _sections from ConfigParser parent.
-            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in self._sections.viewitems())
+            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in six.viewitems(self._sections))
             # logger.debug(self._sections.keys())
-        except e:
+        except Exception as e:
             logger.warn("Failed to perform section_url_names: %s"%e)
 
     def addUrlConfigSection(self,url):
@@ -896,7 +899,7 @@ class Configuration(ConfigParser.SafeConfigParser):
     def set_cookiejar(self,cj):
         self.cookiejar = cj
         saveheaders = self.opener.addheaders
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
 
     def load_cookiejar(self,filename):
@@ -1006,13 +1009,13 @@ class Configuration(ConfigParser.SafeConfigParser):
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
-        ## u2.Request assumes POST when data!=None.  Also assumes data
+        ## urllib.Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
         if 'Content-type' not in headers:
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
-        req = u2.Request(url,
+        req = urllib.Request(url,
                          data=urllib.urlencode(parameters),
                          headers=headers)
 
@@ -1122,7 +1125,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except u2.HTTPError as he:
+            except urllib.HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))

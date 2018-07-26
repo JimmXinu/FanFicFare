@@ -303,7 +303,7 @@ div { margin: 0pt; padding: 0pt; }
         ## not on an open stream.  OTOH, I suspect we would have had
         ## problems with closing and opening again to change the
         ## compression type anyway.
-        zipio = StringIO.StringIO()
+        zipio = StringIO()
 
         ## mimetype must be first file and uncompressed.  Python 2.5
         ## ZipFile can't change compression type file-by-file, so we
@@ -518,7 +518,7 @@ div { margin: 0pt; padding: 0pt; }
                 COVER = string.Template(self.getConfig("cover_content"))
             else:
                 COVER = self.EPUB_COVER
-            coverIO = StringIO.StringIO()
+            coverIO = StringIO()
             coverIO.write(COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
 
         if self.getConfig("include_titlepage"):
@@ -655,7 +655,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
 
-        titlepageIO = StringIO.StringIO()
+        titlepageIO = StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -667,7 +667,7 @@ div { margin: 0pt; padding: 0pt; }
         titlepageIO.close()
 
         # write toc page.
-        tocpageIO = StringIO.StringIO()
+        tocpageIO = StringIO()
         self.writeTOCPage(tocpageIO,
                           self.EPUB_TOC_PAGE_START,
                           self.EPUB_TOC_ENTRY,
@@ -678,7 +678,7 @@ div { margin: 0pt; padding: 0pt; }
 
         if dologpage:
             # write log page.
-            logpageIO = StringIO.StringIO()
+            logpageIO = StringIO()
             self.writeLogPage(logpageIO)
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
             logpageIO.close()

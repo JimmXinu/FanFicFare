@@ -20,6 +20,7 @@ import re
 import os.path
 import datetime
 import string
+import six
 from six import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -65,8 +66,8 @@ class BaseStoryWriter(Configurable):
         return self.story.formatFileName(self.getConfig('zip_filename'),self.getConfig('allow_unsafe_filename'))
 
     def _write(self, out, text):
-        # instead of text.encode('utf8')
-        out.write(six.ensure_text(text))
+        # instead of six.ensure_text(text)
+        out.write(text.encode('utf8'))
 
     def writeTitlePage(self, out, START, ENTRY, END, WIDE_ENTRY=None, NO_TITLE_ENTRY=None):
         """
