@@ -275,7 +275,7 @@ def main(argv=None,
 
     if options.save_cache:
         with open('global_cache','wb') as jout:
-            pickle.dump(options.pagecache,jout)
+            pickle.dump(options.pagecache,jout,protocol=2)
         options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
