@@ -579,14 +579,11 @@ div { margin: 0pt; padding: 0pt; }
             package.appendChild(guide)
 
         # write content.opf to zip.
-        contentxml = contentdom.toxml() # encoding='utf-8'
-
+        contentxml = contentdom.toxml(encoding='utf-8')
         # Causes py2 vs py3 issues with encoding nonsense.  Skip for now.
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
         # contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
         #                                 '<meta name="cover" content="%s"/>'%coverimgid)
-
-
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()
