@@ -148,7 +148,6 @@ except:
                 return (data,imgtype,imagetypes[imgtype])
 
     except:
-        raise
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):

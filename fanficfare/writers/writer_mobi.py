@@ -25,9 +25,6 @@ from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import string_types as basestring
-from six import binary_type as bytes
 from six import BytesIO # StringIO under py2
 
 logger = logging.getLogger(__name__)
