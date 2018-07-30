@@ -24,6 +24,7 @@ import re
 # py2 vs py3 transition
 from six import text_type as unicode
 from six import string_types as basestring
+from six import unichr
 
 def _unirepl(match):
     "Return the unicode string for a decimal number"
