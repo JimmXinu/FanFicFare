@@ -121,7 +121,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         bookdetails = soup.find('div', {'class': 'g_col_8'})
 
         # Title
-        title = bookdetails.find('h2', {'class': 'pt8'})
+        title = bookdetails.find('h2')
         # done as a loop incase there isn't one, or more than one.
         for tag in title.find_all('small'):
             tag.extract()
