@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2015 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import re
 
-from base_xenforoforum_adapter import BaseXenForoForumAdapter
+from .base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 def getClass():
     return ForumsSpacebattlesComAdapter
