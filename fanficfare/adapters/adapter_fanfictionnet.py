@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-from urllib import unquote_plus
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six.moves.urllib.error import HTTPError
+
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
              "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
@@ -100,7 +104,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #logger.debug("\n===================\n%s\n===================\n"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -135,7 +139,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
-            except urllib2.HTTPError as e:
+            except HTTPError as e:
                 if e.code == 503:
                     raise e
             except Exception as e:
