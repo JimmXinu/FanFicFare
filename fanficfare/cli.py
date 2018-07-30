@@ -355,9 +355,9 @@ def do_download(arg,
                 output_filename = writer.getOutputFileName()
                 noturl, chaptercount = get_dcsource_chaptercount(output_filename)
                 print('Updating %s, URL: %s' % (output_filename, url))
-            except Exception:
+            except Exception as e:
+                print("Failed to read epub for update: (%s) Continuing with update=false"%e)
                 options.update = False
-                pass
 
         # Check for include_images without no_image_processing. In absence of PIL, give warning.
         if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
