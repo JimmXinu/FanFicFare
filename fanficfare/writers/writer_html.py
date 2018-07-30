@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
+
+# py2 vs py3 transition
+from six import text_type as unicode
 
 import bs4
 
 from .base_writer import *
-
 class HTMLWriter(BaseStoryWriter):
 
     @staticmethod
@@ -107,7 +110,7 @@ ${output_css}
         self._write(out,FILE_START.substitute(self.story.getAllMetadata()))
 
         if self.getConfig('include_images') and self.story.cover:
-            self._write(out,COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
+            self._write(out,COVER.substitute(dict(list(self.story.getAllMetadata().items())+list({'coverimg':self.story.cover}.items()))))
 
         self.writeTitlePage(out,
                             self.HTML_TITLE_PAGE_START,
