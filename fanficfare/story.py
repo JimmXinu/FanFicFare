@@ -19,7 +19,6 @@ from __future__ import absolute_import
 import os, re, sys
 import copy
 from collections import defaultdict
-from six.moves.urllib.parse import urlparse
 import string
 import json
 import datetime
@@ -27,8 +26,10 @@ from math import floor
 from functools import partial
 import logging
 logger = logging.getLogger(__name__)
+
 # py2 vs py3 transition
 import six
+from six.moves.urllib.parse import (urlparse, urlunparse)
 from six import text_type as unicode
 from six import string_types as basestring
 from six.moves import map
@@ -56,12 +57,13 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from six import StringIO
+    from six import BytesIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
+        logger.debug("calibre convert_image called")
 
         if url.lower().endswith('.svg'):
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
@@ -73,7 +75,7 @@ try:
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
 
-        if normalize_format_name(img.format)=="gif" and GifInfo(StringIO(data),CHECK_IS_ANIMATED).frameCount > 1:
+        if normalize_format_name(img.format)=="gif" and GifInfo(BytesIO(data),CHECK_IS_ANIMATED).frameCount > 1:
             raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
 
         if scaled:
@@ -102,15 +104,16 @@ try:
 
 except:
 
-    # No calibre routines, try for PIL for CLI.
+    # No calibre routines, try for Pillow for CLI.
     try:
-        import Image
-        from six import StringIO
+        from PIL import Image
+        from six import BytesIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
+            logger.debug("Pillow convert_image called")
             export = False
-            img = Image.open(StringIO(data))
+            img = Image.open(BytesIO(data))
 
             owidth, oheight = img.size
             nwidth, nheight = sizes
@@ -137,7 +140,7 @@ except:
                 export = True
 
             if export:
-                outsio = StringIO()
+                outsio = BytesIO()
                 img.save(outsio,convtype[imgtype])
                 return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
@@ -145,14 +148,16 @@ except:
                 return (data,imgtype,imagetypes[imgtype])
 
     except:
+        raise
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
+            logger.debug("NO convert_image called")
             return no_convert_image(url,data)
 
 ## also used for explicit no image processing.
 def no_convert_image(url,data):
-    parsedUrl = urlparse.urlparse(url)
+    parsedUrl = urlparse(url)
 
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
 
@@ -1119,7 +1124,7 @@ class Story(Configurable):
         else:
             values = self.get_filename_safe_metadata()
 
-        return string.Template(template).substitute(values).encode('utf8')
+        return string.Template(template).substitute(values) #.encode('utf8')
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
@@ -1145,15 +1150,15 @@ class Story(Configurable):
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
-            parsedUrl = urlparse.urlparse(parenturl)
+            parsedUrl = urlparse(parenturl)
             if url.startswith("//") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      '',
                      url,
                      '','',''))
             elif url.startswith("/") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      url,
@@ -1164,7 +1169,7 @@ class Story(Configurable):
                     toppath = parsedUrl.path
                 else:
                     toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      toppath + url,
@@ -1183,7 +1188,7 @@ class Story(Configurable):
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
 
-                parsedUrl = urlparse.urlparse(imgurl)
+                parsedUrl = urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl,referer=parenturl))
@@ -1256,7 +1261,7 @@ class Story(Configurable):
     def getImgUrls(self):
         retlist = []
         for i, url in enumerate(self.imgurls):
-            #parsedUrl = urlparse.urlparse(url)
+            #parsedUrl = urlparse(url)
             retlist.append(self.imgtuples[i])
         return retlist
 
