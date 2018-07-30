@@ -435,7 +435,7 @@ class Story(Configurable):
             ## calibre plugin will set externally to match PI version.
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
-            self.metadata = {'version':'4.4'}
+            self.metadata = {'version':'unknown'}
         self.replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
