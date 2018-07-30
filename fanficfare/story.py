@@ -16,7 +16,7 @@
 #
 
 from __future__ import absolute_import
-import os, re
+import os, re, sys
 import copy
 from collections import defaultdict
 from six.moves.urllib.parse import urlparse
@@ -441,6 +441,7 @@ class Story(Configurable):
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'unknown'}
+        self.metadata['python_version']=sys.version
         self.replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
