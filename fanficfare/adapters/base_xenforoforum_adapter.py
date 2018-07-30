@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2017 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 from xml.dom.minidom import parseString
+
+# py2 vs py3 transition
+from six import text_type as unicode
+from six.moves.urllib.error import HTTPError
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 logger = logging.getLogger(__name__)
 
@@ -293,7 +297,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             (data,opened) = self._fetchUrlOpened(useurl)
             useurl = opened.geturl()
             logger.info("use useurl: "+useurl)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             elif e.code == 403:
@@ -504,7 +508,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                     # assumed normalized to /posts/1234/
                     anchorid = "post-"+url.split('/')[-2]
-                    logger.debug("anchorid: %s"%anchorid)
+                    # logger.debug("anchorid: %s"%anchorid)
                     souptag = topsoup.find('li',id=anchorid)
                 else:
                     logger.debug("post found in cache")
@@ -524,7 +528,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 topsoup = souptag = self.make_soup(data)
 
-                if '#' in url:
+                if '#' in unicode(url):
                     anchorid = url.split('#')[1]
                     souptag = topsoup.find('li',id=anchorid)
 
