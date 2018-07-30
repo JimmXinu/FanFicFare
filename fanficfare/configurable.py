@@ -938,9 +938,9 @@ class Configuration(configparser.SafeConfigParser):
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
             self.get_pagecache()[cachekey] = (data,redirectedurl)
-        # with open('global_cache','wb') as jout:
-        #     pickle.dump(self.pagecache,jout)
-        # self.cookiejar.save('global_cookies')
+            # with open('global_cache','wb') as jout:
+            #     pickle.dump(self.pagecache,jout,protocol=2)
+            # self.cookiejar.save('global_cookies')
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
