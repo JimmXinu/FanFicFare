@@ -26,16 +26,25 @@ import logging
 import pprint
 import string
 import os, sys
-
 import pickle
+
+if sys.version_info < (2, 5):
+    print('This program requires Python 2.5 or newer.')
+    sys.exit(1)
+elif sys.version_info < (3, 0):
+    reload(sys)  # Reload restores 'hidden' setdefaultencoding method
+    sys.setdefaultencoding("utf-8")
+    def pickle_load(f):
+        return pickle.load(f)
+else: # > 3.0
+    def pickle_load(f):
+        return pickle.load(f,encoding="bytes")
+
 from six.moves import http_cookiejar as cl
 
 version="2.27.12"
 os.environ['CURRENT_VERSION_ID']=version
 
-if sys.version_info < (2, 5):
-    print('This program requires Python 2.5 or newer.')
-    sys.exit(1)
 
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficfare/__init__.py so it works in calibre, too.
@@ -251,11 +260,11 @@ def main(argv=None,
     if options.save_cache:
         try:
             with open('global_cache','rb') as jin:
-                options.pagecache = pickle.load(jin) # ,encoding="utf-8"
+                options.pagecache = pickle_load(jin)
             options.cookiejar = cl.LWPCookieJar()
             options.cookiejar.load('global_cookies')
-        except:
-            print("didn't load global_cache")
+        except Exception as e:
+            print("didn't load global_cache %s"%e)
 
     if not list_only:
         if len(urls) < 1:

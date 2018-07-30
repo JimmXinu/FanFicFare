@@ -28,7 +28,7 @@ from .. import exceptions as exceptions
 ## must import each adapter here.
 
 from . import adapter_test1
-# import adapter_fanfictionnet
+from . import adapter_fanfictionnet
 # import adapter_fanficcastletvnet
 # import adapter_fictionalleyorg
 # import adapter_fictionpresscom

@@ -19,13 +19,14 @@ import re
 import exceptions
 import codecs
 
+# py2 vs py3 transition
 import six
 import six.moves.configparser as ConfigParser
 from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from six.moves import urllib
 from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from six.moves.urllib.error import HTTPError
 from six.moves import http_cookiejar as cl
-# py2 vs py3 transition
 from six import text_type as unicode
 from six import string_types as basestring
 
@@ -950,6 +951,10 @@ class Configuration(ConfigParser.SafeConfigParser):
 ## iso-8859-1.  Most sites that claim to be iso-8859-1 (and some that
 ## claim to be utf8) are really windows-1252.
     def _decode(self,data):
+        if not hasattr(data,'decode'):
+            ## py3 str() from pickle doesn't have .decode and is
+            ## already decoded.
+            return data
         decode = self.getConfigList('website_encodings',
                                     default=["utf8",
                                              "Windows-1252",
@@ -976,8 +981,9 @@ class Configuration(ConfigParser.SafeConfigParser):
                     return data.decode(code,errors='ignore')
                 else:
                     return data.decode(code)
-            except:
+            except Exception as e:
                 logger.debug("code failed:"+code)
+                logger.debug(e)
                 pass
         logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         return "".join([x for x in data if ord(x) < 128])
@@ -1027,6 +1033,8 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
         self._progressbar()
+        ## postURL saves data to the pagecache *after* _decode() while
+        ## fetchRaw saves it *before* _decode()--because raw.
         self._set_to_pagecache(cachekey,data,url)
         return data
 
@@ -1093,6 +1101,8 @@ class Configuration(ConfigParser.SafeConfigParser):
                                       float(self.getConfig('connect_timeout',30.0)))
         self._progressbar()
         data = opened.read()
+        ## postURL saves data to the pagecache *after* _decode() while
+        ## fetchRaw saves it *before* _decode()--because raw.
         self._set_to_pagecache(cachekey,data,opened.url)
 
         return (data,opened)
@@ -1131,7 +1141,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except urllib.HTTPError as he:
+            except HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))

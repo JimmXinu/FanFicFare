@@ -1,8 +1,9 @@
 ## Borrowed from http://techknack.net/python-urllib2-handlers/
 
-from six.moves.urllib_request import BaseHandler
+from six.moves.urllib.request import BaseHandler
+from six.moves.urllib.response import addinfourl
 from gzip import GzipFile
-from six import StringIO
+from six import BytesIO
 
 class GZipProcessor(BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests
@@ -16,7 +17,7 @@ class GZipProcessor(BaseHandler):
         #print("Content-Encoding:%s"%resp.headers.get("Content-Encoding"))
         if resp.headers.get("Content-Encoding") == "gzip":
             gz = GzipFile(
-                        fileobj=StringIO(resp.read()),
+                        fileobj=BytesIO(resp.read()),
                         mode="r"
                       )
 #            resp.read = gz.read
@@ -24,7 +25,7 @@ class GZipProcessor(BaseHandler):
 #            resp.readline = gz.readline
 #            resp.next = gz.next
             old_resp = resp
-            resp = urllib2.addinfourl(gz, old_resp.headers, old_resp.url, old_resp.code)
+            resp = addinfourl(gz, old_resp.headers, old_resp.url, old_resp.code)
             resp.msg = old_resp.msg
         return resp
     https_response = http_response
