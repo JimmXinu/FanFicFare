@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
+from __future__ import print_function
 from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
@@ -264,7 +266,7 @@ def main(argv=None,
             options.cookiejar = cl.LWPCookieJar()
             options.cookiejar.load('global_cookies')
         except Exception as e:
-            print("didn't load global_cache %s"%e)
+            print("Didn't load global_cache %s"%e)
 
     if not list_only:
         if len(urls) < 1:

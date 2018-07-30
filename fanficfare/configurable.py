@@ -21,7 +21,7 @@ import codecs
 
 # py2 vs py3 transition
 import six
-import six.moves.configparser as ConfigParser
+from six.moves import configparser
 from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from six.moves import urllib
 from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
@@ -495,11 +495,11 @@ def make_generate_cover_settings(param):
     return vlist
 
 
-class Configuration(ConfigParser.SafeConfigParser):
+class Configuration(configparser.SafeConfigParser):
 
     def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
-        ConfigParser.SafeConfigParser.__init__(self)
+        configparser.SafeConfigParser.__init__(self)
 
         self.lightweight = lightweight
         self.use_pagecache = False # default to false for old adapters.
@@ -650,7 +650,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                         val = False
                     #print("getConfig(%s)=[%s]%s" % (key,section,val))
                     break
-                except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
+                except (configparser.NoOptionError, configparser.NoSectionError) as e:
                     pass
 
         for section in sections[::-1]:
@@ -658,7 +658,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             try:
                 val = val + self.get(section,"add_to_"+key)
                 #print("getConfig(add_to_%s)=[%s]%s" % (key,section,val))
-            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
+            except (configparser.NoOptionError, configparser.NoSectionError) as e:
                 pass
 
         return val
