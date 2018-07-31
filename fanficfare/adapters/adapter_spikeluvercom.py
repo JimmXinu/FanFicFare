@@ -1,4 +1,5 @@
 # Software: eFiction
+from __future__ import absolute_import
 import re
 import urllib2
 import urlparse

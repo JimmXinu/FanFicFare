@@ -17,6 +17,7 @@
 ####################################################################################################
 ### Adapted by GComyn on December 19, 2016
 ####################################################################################################
+from __future__ import absolute_import
 ''' This adapter will download stories from the site unknowableroom.org '''
 import logging
 import re

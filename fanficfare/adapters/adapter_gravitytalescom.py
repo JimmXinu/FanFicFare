@@ -18,6 +18,7 @@
 ## Adapted by GComyn on April 21, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import time

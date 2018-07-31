@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 from adapter_storiesonlinenet import StoriesOnlineNetAdapter

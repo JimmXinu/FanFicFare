@@ -18,6 +18,7 @@
 ## Adapted by GComyn on April 22, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import json
 import re
