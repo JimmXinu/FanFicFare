@@ -2,11 +2,14 @@
 
 from __future__ import absolute_import
 import re
-import urlparse
-import urllib2
 import datetime
 
 from .. import exceptions
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.error import HTTPError
+
 from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 
@@ -52,7 +55,7 @@ class QuotevComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         try:
             data = self._fetchUrl(self.url)
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             else:

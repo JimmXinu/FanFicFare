@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 import logging
 logger = logging.getLogger(__name__)
 
-UNIX_EPOCHE = datetime.fromtimestamp(0)
+UNIX_EPOCHE = datetime.fromtimestamp(86400)
 
 ## Currently used by adapter_webnovelcom & adapter_wwwnovelallcom
 

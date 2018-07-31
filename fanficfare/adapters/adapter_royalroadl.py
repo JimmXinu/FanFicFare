@@ -18,14 +18,17 @@
 from __future__ import absolute_import
 import contextlib
 from datetime import datetime
-import httplib
 import logging
 import re
-import urllib2
-
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves import http_client as httplib
+from ..six.moves.urllib.error import HTTPError
+
 from .base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
@@ -143,7 +146,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

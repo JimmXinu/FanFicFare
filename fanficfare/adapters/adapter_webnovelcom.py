@@ -23,7 +23,9 @@ import json
 import logging
 import re
 import time
-import urllib2
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
@@ -101,7 +103,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

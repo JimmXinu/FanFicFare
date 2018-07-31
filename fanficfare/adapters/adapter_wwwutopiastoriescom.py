@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,12 +32,17 @@ We get the category from the author's page
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 import sys
 
 from bs4.element import Comment
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves.urllib.parse import quote
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -95,7 +100,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -155,7 +160,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+urllib2.quote(
+                    self.story.setMetadata('authorUrl','http://'+self.host+quote(
                         a['href'].encode('UTF-8')))
             elif 'Story Codes' in heading:
                 self.story.setMetadata('eroticatags',text.replace('Story Codes - ',''))

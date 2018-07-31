@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,8 +25,11 @@ from __future__ import absolute_import
 ''' This adapter scrapes the metadata and chapter text from stories on archive.shriftweb.org '''
 import logging
 import re
-import urllib2
 import sys
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -98,7 +101,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
