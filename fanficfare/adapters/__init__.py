@@ -24,6 +24,7 @@ from six.moves.urllib.parse import urlparse
 logger = logging.getLogger(__name__)
 
 from .. import exceptions as exceptions
+from .. import configurable as configurable
 
 ## must import each adapter here.
 
