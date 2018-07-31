@@ -21,11 +21,11 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import string_types as basestring
+from ..six import text_type as unicode
+from ..six import string_types as basestring
+from ..six.moves.urllib.parse import urlparse
 
 import logging
-from six.moves.urllib.parse import urlparse
 from functools import partial
 import traceback
 import copy

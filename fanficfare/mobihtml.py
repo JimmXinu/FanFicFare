@@ -5,11 +5,11 @@
 
 import re
 import sys
-from six.moves.urllib.parse import unquote
+from .six.moves.urllib.parse import unquote
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import binary_type as bytes
+from .six import text_type as unicode
+from .six import binary_type as bytes
 
 # import bs4
 # BeautifulSoup = bs4.BeautifulSoup

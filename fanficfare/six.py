@@ -29,8 +29,8 @@ import sys
 import types
 
 __author__ = "Benjamin Peterson <benjamin@python.org>"
-__version__ = "1.11.0fffinclib" # for version included in fanficfare
-print("included_dependencies six")
+__version__ = "1.11.0fff" # for version included in fanficfare
+print("fff six")
 
 # Useful for very coarse version differentiation.
 PY2 = sys.version_info[0] == 2

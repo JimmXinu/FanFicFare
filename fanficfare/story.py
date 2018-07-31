@@ -28,11 +28,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
-import six
-from six.moves.urllib.parse import (urlparse, urlunparse)
-from six import text_type as unicode
-from six import string_types as basestring
-from six.moves import map
+from . import six
+from .six.moves.urllib.parse import (urlparse, urlunparse)
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six.moves import map
 
 import bs4
 
@@ -57,13 +57,13 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from six import BytesIO
+    from .six import BytesIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
-        logger.debug("calibre convert_image called")
+        # logger.debug("calibre convert_image called")
 
         if url.lower().endswith('.svg'):
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
@@ -107,11 +107,11 @@ except:
     # No calibre routines, try for Pillow for CLI.
     try:
         from PIL import Image
-        from six import BytesIO
+        from .six import BytesIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
-            logger.debug("Pillow convert_image called")
+            # logger.debug("Pillow convert_image called")
             export = False
             img = Image.open(BytesIO(data))
 
@@ -151,7 +151,7 @@ except:
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
-            logger.debug("NO convert_image called")
+            # logger.debug("NO convert_image called")
             return no_convert_image(url,data)
 
 ## also used for explicit no image processing.

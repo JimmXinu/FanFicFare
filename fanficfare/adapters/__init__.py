@@ -19,7 +19,7 @@ from __future__ import absolute_import
 import os, re, sys, glob, types
 from os.path import dirname, basename, normpath
 import logging
-from six.moves.urllib.parse import urlparse
+from ..six.moves.urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ from .. import configurable as configurable
 
 ## must import each adapter here.
 
+from . import base_efiction_adapter
 from . import adapter_test1
 from . import adapter_fanfictionnet
 # from . import adapter_fanficcastletvnet

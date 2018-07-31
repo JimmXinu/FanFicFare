@@ -1,9 +1,12 @@
-## Borrowed from http://techknack.net/python-urllib2-handlers/
+# -*- coding: utf-8 -*-
 
-from six.moves.urllib.request import BaseHandler
-from six.moves.urllib.response import addinfourl
+## Borrowed from http://techknack.net/python-urllib2-handlers/
+from __future__ import absolute_import
+
 from gzip import GzipFile
-from six import BytesIO
+from .six.moves.urllib.request import BaseHandler
+from .six.moves.urllib.response import addinfourl
+from .six import BytesIO
 
 class GZipProcessor(BaseHandler):
     """A handler to add gzip capabilities to urllib2 requests

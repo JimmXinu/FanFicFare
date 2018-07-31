@@ -24,9 +24,9 @@ import urllib
 import re
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import string_types as basestring
-from six import BytesIO # StringIO under py2
+from ..six import text_type as unicode
+from ..six import string_types as basestring
+from ..six import BytesIO # StringIO under py2
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.

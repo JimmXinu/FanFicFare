@@ -21,15 +21,15 @@ import exceptions
 import codecs
 
 # py2 vs py3 transition
-import six
-from six.moves import configparser
-from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
-from six.moves import urllib
-from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
-from six.moves.urllib.error import HTTPError
-from six.moves import http_cookiejar as cl
-from six import text_type as unicode
-from six import string_types as basestring
+from . import six
+from .six.moves import configparser
+from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+from .six.moves import urllib
+from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from .six.moves.urllib.error import HTTPError
+from .six.moves import http_cookiejar as cl
+from .six import text_type as unicode
+from .six import string_types as basestring
 
 import time
 import logging
@@ -57,7 +57,7 @@ try:
 except ImportError:
     chardet = None
 
-from gziphttp import GZipProcessor
+from .gziphttp import GZipProcessor
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
