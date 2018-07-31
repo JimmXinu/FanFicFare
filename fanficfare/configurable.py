@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import re
 import exceptions
 import codecs
@@ -81,7 +82,10 @@ try:
     from . import adapters
 except ImportError:
     import sys
-    adapters = sys.modules["fanficfare.adapters"]
+    if "fanficfare.adapters" in sys.modules:
+        adapters = sys.modules["fanficfare.adapters"]
+    elif "calibre_plugins.fanficfare_plugin.fanficfare.adapters" in sys.modules:
+        adapters = sys.modules["calibre_plugins.fanficfare_plugin.fanficfare.adapters"]
 
 def re_compile(regex,line):
     try:
