@@ -1,7 +1,9 @@
 # coding: utf-8
 
+from __future__ import absolute_import
 import re
 import codecs
+import six
 
 stack = []
 
@@ -25,7 +27,7 @@ def pop():
     return u''
 
 def pop_end_tag():
-    return unicode(get_end_tag(pop()))
+    return six.text_type(get_end_tag(pop()))
 
 def spool_end():
     html = u''

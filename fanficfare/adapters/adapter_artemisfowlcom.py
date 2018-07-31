@@ -14,21 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# ####### Not all lables are captured. they are not formtted correctly on the 
+# ####### Not all lables are captured. they are not formtted correctly on the
 # #######  webpage.
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ArtemisFowlComAdapter # XXX
@@ -125,7 +129,7 @@ class ArtemisFowlComAdapter(BaseSiteAdapter):  # XXX
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -159,7 +163,7 @@ class ArtemisFowlComAdapter(BaseSiteAdapter):  # XXX
 
                 try:
                     data = self._fetchUrl(url)
-                except urllib2.HTTPError, e:
+                except six.moves.urllib.error.HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
                     else:
@@ -215,7 +219,7 @@ class ArtemisFowlComAdapter(BaseSiteAdapter):  # XXX
                 ## Everything until the next span class='label'
                 svalue = ""
                 while 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += six.text_type(value)
                     value = value.nextSibling
                 self.setDescription(url,svalue)
                 #self.story.setMetadata('description',stripHTML(svalue))
@@ -280,7 +284,7 @@ class ArtemisFowlComAdapter(BaseSiteAdapter):  # XXX
         except:
             # I find it hard to care if the series parsing fails
             pass
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 

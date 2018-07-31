@@ -15,19 +15,22 @@
 # limitations under the License.
 #
 
-import ConfigParser, re
-import exceptions
+from __future__ import absolute_import
+import six.moves.configparser, re
+from . import exceptions
 import codecs
-from ConfigParser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+from six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 
 import time
 import logging
 import sys
-import urllib
-import urllib2 as u2
-import urlparse as up
-import cookielib as cl
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
+import six.moves.urllib.parse as up
+import six.moves.http_cookiejar as cl
 import pickle
+import six
 
 try:
     from google.appengine.api import apiproxy_stub_map
@@ -50,7 +53,7 @@ try:
 except ImportError:
     chardet = None
 
-from gziphttp import GZipProcessor
+from .gziphttp import GZipProcessor
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -69,12 +72,17 @@ from gziphttp import GZipProcessor
 
 logger = logging.getLogger(__name__)
 
-import adapters
+# It's all fault of David Beazley!
+try:
+    from . import adapters
+except ImportError:
+    import sys
+    adapters = sys.modules[__package__ + ".adapters"]
 
 def re_compile(regex,line):
     try:
         return re.compile(regex,re.DOTALL)
-    except Exception, e:
+    except Exception as e:
         raise exceptions.RegularExpresssionFailed(e,regex,line)
 
 # fall back labels.
@@ -474,20 +482,20 @@ def make_generate_cover_settings(param):
     for line in param.splitlines():
         if "=>" in line:
             try:
-                (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
+                (template,regexp,setting) = [x.strip() for x in line.split("=>")]
                 re_compile(regexp,line)
                 vlist.append((template,regexp,setting))
-            except Exception, e:
+            except Exception as e:
                 raise exceptions.PersonalIniFailed(e,line,param)
 
     return vlist
 
 
-class Configuration(ConfigParser.SafeConfigParser):
+class Configuration(six.moves.configparser.SafeConfigParser):
 
     def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
-        ConfigParser.SafeConfigParser.__init__(self)
+        six.moves.configparser.SafeConfigParser.__init__(self)
 
         self.lightweight = lightweight
         self.use_pagecache = False # default to false for old adapters.
@@ -530,7 +538,7 @@ class Configuration(ConfigParser.SafeConfigParser):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = six.moves.urllib.request.build_opener(six.moves.urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
 
         self.pagecache = self.get_empty_pagecache()
 
@@ -543,7 +551,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             ## reconstructed completely because removing and re-adding
             ## a section would mess up the order.
             ## assumes _dict and _sections from ConfigParser parent.
-            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in self._sections.viewitems())
+            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in six.viewitems(self._sections))
             # logger.debug(self._sections.keys())
         except e:
             logger.warn("Failed to perform section_url_names: %s"%e)
@@ -638,7 +646,7 @@ class Configuration(ConfigParser.SafeConfigParser):
                         val = False
                     #print "getConfig(%s)=[%s]%s" % (key,section,val)
                     break
-                except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
+                except (six.moves.configparser.NoOptionError, six.moves.configparser.NoSectionError) as e:
                     pass
 
         for section in sections[::-1]:
@@ -646,7 +654,7 @@ class Configuration(ConfigParser.SafeConfigParser):
             try:
                 val = val + self.get(section,"add_to_"+key)
                 #print "getConfig(add_to_%s)=[%s]%s" % (key,section,val)
-            except (ConfigParser.NoOptionError, ConfigParser.NoSectionError), e:
+            except (six.moves.configparser.NoOptionError, six.moves.configparser.NoSectionError) as e:
                 pass
 
         return val
@@ -654,7 +662,7 @@ class Configuration(ConfigParser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
+        vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
         #print "vlist("+key+"):"+str(vlist)
         if not vlist:
             return default
@@ -686,7 +694,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         filename may also be given.
         Return list of successfully read files.
         """
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, six.string_types):
             filenames = [filenames]
         read_ok = []
         for filename in filenames:
@@ -803,7 +811,7 @@ class Configuration(ConfigParser.SafeConfigParser):
         clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)$')
 
         replace_metadata_re = re.compile(r'(add_to_)?replace_metadata$')
-        from story import set_in_ex_clude, make_replacements
+        from .story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings$')
 
@@ -889,7 +897,8 @@ class Configuration(ConfigParser.SafeConfigParser):
     def set_cookiejar(self,cj):
         self.cookiejar = cj
         saveheaders = self.opener.addheaders
-        self.opener = u2.build_opener(u2.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
+        self.opener = six.moves.urllib.request.build_opener(
+            six.moves.urllib.request.HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
 
     def load_cookiejar(self,filename):
@@ -999,14 +1008,14 @@ class Configuration(ConfigParser.SafeConfigParser):
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
-        ## u2.Request assumes POST when data!=None.  Also assumes data
-        ## is application/x-www-form-urlencoded.
+        ## six.moves.urllib.request.Request assumes POST when data!=None.
+        ## Also assumes data is application/x-www-form-urlencoded.
         if 'Content-type' not in headers:
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
-        req = u2.Request(url,
-                         data=urllib.urlencode(parameters),
+        req = six.moves.urllib.request.Request(url,
+                         data=six.moves.urllib.parse.urlencode(parameters),
                          headers=headers)
 
         ## Specific UA because too many sites are blocking the default python UA.
@@ -1072,9 +1081,12 @@ class Configuration(ConfigParser.SafeConfigParser):
         self.opener.addheaders = headers
 
         if parameters != None:
-            opened = self.opener.open(url.replace(' ','%20'),urllib.urlencode(parameters),float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),
+                                      six.moves.urllib.parse.urlencode(parameters),
+                                      float(self.getConfig('connect_timeout',30.0)))
         else:
-            opened = self.opener.open(url.replace(' ','%20'),None,float(self.getConfig('connect_timeout',30.0)))
+            opened = self.opener.open(url.replace(' ','%20'),None,
+                                      float(self.getConfig('connect_timeout',30.0)))
         self._progressbar()
         data = opened.read()
         self._set_to_pagecache(cachekey,data,opened.url)
@@ -1115,14 +1127,14 @@ class Configuration(ConfigParser.SafeConfigParser):
                                                       extrasleep=extrasleep,
                                                       referer=referer)
                 return (self._decode(data),opened)
-            except u2.HTTPError, he:
+            except six.moves.urllib.error.HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
-                    logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
+                    logger.debug("Caught an exception reading URL: %s  Exception %s."%(six.text_type(safe_url(url)),six.text_type(he)))
                     break # break out on 404
-            except Exception, e:
+            except Exception as e:
                 excpt=e
-                logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+                logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(six.text_type(safe_url(url)),sleeptime,six.text_type(e)))
 
         logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)

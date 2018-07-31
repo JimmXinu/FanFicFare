@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 import sys
 
 from html2text import config
 from html2text.compat import htmlentitydefs
+from six.moves import range
+from six.moves import zip
 
 
 def name2cp(k):

@@ -3,6 +3,8 @@
 from __future__ import (unicode_literals, division,
                         print_function)
 
+from __future__ import absolute_import
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
@@ -53,7 +55,7 @@ class BasicIniHighlighter(QSyntaxHighlighter):
 
 class HighlightingRule():
     def __init__( self, pattern, color, style ):
-        if isinstance(pattern,basestring):
+        if isinstance(pattern,six.string_types):
             self.pattern = re.compile(pattern)
         else:
             self.pattern=pattern

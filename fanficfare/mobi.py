@@ -1,16 +1,18 @@
 #!/usr/bin/python
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
-    
-import StringIO
+
+from __future__ import absolute_import
+from io import StringIO
 import struct
 import time
 import random
 import logging
+from six.moves import range
 
 logger = logging.getLogger(__name__)
 
-from html import HtmlProcessor
+from .html import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html
@@ -41,7 +43,7 @@ class _SubEntry:
 
   def TocLink(self):
     return '<a href="#%s_MOBI_START">%.80s</a>' % (self._name, self.title)
-  
+
   def Anchor(self):
     return '<a name="%s_MOBI_START">' % self._name
 
@@ -57,12 +59,12 @@ class Converter:
     self._refresh_url = refresh_url
 
   def ConvertString(self, s):
-    out = StringIO.StringIO()
+    out = StringIO()
     self._ConvertStringToFile(s, out)
     return out.getvalue()
 
   def ConvertStrings(self, html_strs):
-    out = StringIO.StringIO()
+    out = StringIO()
     self._ConvertStringsToFile(html_strs, out)
     return out.getvalue()
 
@@ -89,7 +91,7 @@ class Converter:
     htmltitle = html_strs[0]
     entrytitle = _SubEntry(1, htmltitle)
     title_html.append(entrytitle.Body())
-    
+
     title_html.append(PAGE_BREAK)
     toc_html.append('<a name="TOCTOP"><h3>Table of Contents</h3><br />')
 
@@ -99,11 +101,11 @@ class Converter:
 
       # give some space between bodies of work.
       body_html.append(PAGE_BREAK)
-        
+
       body_html.append(entry.Anchor())
-      
+
       body_html.append(entry.Body())
-      
+
     # TODO: this title can get way too long with RSS feeds. Not sure how to fix
     # cheat slightly and use the <a href> code to set filepos in references.
     header = '''<html>
@@ -125,7 +127,7 @@ class Converter:
     try:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
-    except Exception, e:
+    except Exception as e:
       logger.error('Error %s', e)
       #logger.debug('Details: %s' % html_strs)
 
@@ -136,7 +138,7 @@ class Converter:
     # collect offsets of '<mbp:pagebreak>' tags, use to make index list.
     # indexlist = [] # list of (offset,length) tuples.
     # not in current use.
-    
+
     # j=0
     # lastj=0
     # while True:

@@ -15,12 +15,14 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import time
 import os
 
@@ -29,7 +31,7 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return ASexStoriesComAdapter
@@ -70,9 +72,9 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         non-padded incrementing number, like StoryName1, StoryName2.html, ...,
         StoryName10.html)
 
-        This site doesn't have much in the way of metadata, except on the 
+        This site doesn't have much in the way of metadata, except on the
         Category and Tags index pages. so we will get what we can.
-        
+
         Also, as this is an Adult site, the is_adult check is mandatory.
         """
 
@@ -84,7 +86,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -109,14 +111,14 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', authorid)
 
         # Description
-        ### The only way to get the Description (summary) is to 
+        ### The only way to get the Description (summary) is to
         ### parse through the Category and/or Tags index pages.
         ### To get a summary, I've taken the first 150 characters
         ### from the story.
         description = soup1.find('div',{'class':'story-block'}).get_text(strip=True)
         description = description.encode('utf-8','ignore').strip()[0:150].decode('utf-8','ignore')
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
-        
+
         ### The first 'chapter' is not listed in the links, so we have to
         ### add it before the rest of the pages, if any
         self.add_chapter('1', self.url)
@@ -125,19 +127,19 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
         if chapterTable is not None:
             # Multi-chapter story
-            
+
             for page in chapterTable:
                 chapterTitle = page.string
-                chapterUrl = urlparse.urljoin(self.url, page['href'])
+                chapterUrl = six.moves.urllib.parse.urljoin(self.url, page['href'])
                 if chapterUrl.startswith(self.url): # there are other URLs in the pages block now.
                     self.add_chapter(chapterTitle, chapterUrl)
 
 
         rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)
-        
+
         self.story.setMetadata('dateUpdated', makeDate('01/01/2001', '%m/%d/%Y'))
-        
+
         logger.debug("Story: <%s>", self.story)
 
         return
@@ -151,10 +153,10 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
 
         # get story text
         story1 = soup1.find('div', {'class':'story-block'})
-        
-        ### This site has links embeded in the text that lead 
+
+        ### This site has links embeded in the text that lead
         ### to either a video site, or to a tags index page
-        ### the default is to remove them, but you can set the 
+        ### the default is to remove them, but you can set the
         ### strip_text_links to false to keep them in the text
         if self.getConfig('strip_text_links'):
             for anchor in story1('a', {'target': '_blank'}):

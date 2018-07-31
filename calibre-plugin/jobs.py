@@ -2,6 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2017, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 import traceback
 from datetime import time
-from StringIO import StringIO
+from io import StringIO
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -94,8 +95,8 @@ def do_download_worker(book_list,
 
         if count >= total:
             ## ordering first by good vs bad, then by listorder.
-            good_list = filter(lambda x : x['good'], book_list)
-            bad_list = filter(lambda x : not x['good'], book_list)
+            good_list = [x for x in book_list if x['good']]
+            bad_list = [x for x in book_list if not x['good']]
             good_list = sorted(good_list,key=lambda x : x['listorder'])
             bad_list = sorted(bad_list,key=lambda x : x['listorder'])
 
@@ -300,7 +301,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 data = {'smarten_punctuation':True}
                 opts = ALL_OPTS.copy()
                 opts.update(data)
-                O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                O = namedtuple('Options', ' '.join(six.iterkeys(ALL_OPTS)))
                 opts = O(**opts)
 
                 log = Log(level=Log.DEBUG)
@@ -309,15 +310,15 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         except NotGoingToDownload as d:
             book['good']=False
             book['showerror']=d.showerror
-            book['comment']=unicode(d)
+            book['comment']=six.text_type(d)
             book['icon'] = d.icon
 
         except Exception as e:
             book['good']=False
-            book['comment']=unicode(e)
+            book['comment']=six.text_type(e)
             book['icon']='dialog_error.png'
             book['status'] = _('Error')
-            logger.info("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
+            logger.info("Exception: %s:%s"%(book,six.text_type(e)),exc_info=True)
 
         #time.sleep(10)
     return book
@@ -331,7 +332,7 @@ def inject_cal_cols(book,story,configuration):
     if 'calibre_columns' in book:
         injectini = ['[injected]']
         extra_valid = []
-        for k, v in book['calibre_columns'].iteritems():
+        for k, v in six.iteritems(book['calibre_columns']):
             story.setMetadata(k,v['val'])
             injectini.append('%s_label:%s'%(k,v['label']))
             extra_valid.append(k)

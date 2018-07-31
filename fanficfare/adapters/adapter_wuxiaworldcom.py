@@ -16,13 +16,15 @@
 
 # Adapted by GComyn on December 14. 2016
 
+from __future__ import absolute_import
 import json
 import logging
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -78,7 +80,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         logger.debug('URL: %s', self.url)
         try:
             data = self._fetchUrl(self.url)
-        except urllib2.HTTPError, exception:
+        except six.moves.urllib.error.HTTPError as exception:
             if exception.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
             raise exception
@@ -90,7 +92,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author_name.lower())
         self.story.setMetadata('title', ld['headline'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
-        
+
         tags = [stripHTML(a) for a in soup.select('.media-body .tags a')]
         for tag in tags:
             if 'Completed' == tag:
@@ -111,7 +113,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
         for a in soup.select('#accordion .chapter-item > a'):
             title = stripHTML(a)
-            url = urlparse.urljoin(self.url, a['href'])
+            url = six.moves.urllib.parse.urljoin(self.url, a['href'])
             self.add_chapter(title, url)
 
 

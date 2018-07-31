@@ -1,11 +1,13 @@
 # Software: eFiction
+from __future__ import absolute_import
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from bs4.element import Tag
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 
@@ -39,7 +41,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        query_data = urlparse.parse_qs(self.parsedUrl.query)
+        query_data = six.moves.urllib.parse.parse_qs(self.parsedUrl.query)
         story_id = query_data['sid'][0]
 
         self.story.setMetadata('storyId', story_id)
@@ -80,7 +82,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except six.moves.urllib.error.HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.
@@ -133,9 +135,9 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', pagetitle_div.a.string)
 
         author_anchor = pagetitle_div.a.findNextSibling('a')
-        url = urlparse.urljoin(self.BASE_URL, author_anchor['href'])
-        components = urlparse.urlparse(url)
-        query_data = urlparse.parse_qs(components.query)
+        url = six.moves.urllib.parse.urljoin(self.BASE_URL, author_anchor['href'])
+        components = six.moves.urllib.parse.urlparse(url)
+        query_data = six.moves.urllib.parse.parse_qs(components.query)
 
         self.story.setMetadata('author', author_anchor.string)
         self.story.setMetadata('authorId', query_data['uid'][0])
@@ -201,7 +203,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 if not a:
                     continue
                 self.story.setMetadata('series', a.string)
-                self.story.setMetadata('seriesUrl', urlparse.urljoin(self.BASE_URL, a['href']))
+                self.story.setMetadata('seriesUrl', six.moves.urllib.parse.urljoin(self.BASE_URL, a['href']))
 
             elif key == 'Chapter':
                 self.story.setMetadata('numChapters', int(value))
@@ -224,7 +226,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         for b_tag in soup.find('div', id='output').findNextSiblings('b'):
             chapter_anchor = b_tag.a
             title = chapter_anchor.string
-            url = urlparse.urljoin(self.BASE_URL, chapter_anchor['href'])
+            url = six.moves.urllib.parse.urljoin(self.BASE_URL, chapter_anchor['href'])
             self.add_chapter(title, url)
 
     def getChapterText(self, url):

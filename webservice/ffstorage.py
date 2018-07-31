@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import pickle, copy
 from google.appengine.ext import db
 

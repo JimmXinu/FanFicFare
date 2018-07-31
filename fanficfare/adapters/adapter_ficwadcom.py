@@ -15,18 +15,22 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.http_client
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 import time
-import httplib, urllib
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FicwadComSiteAdapter(BaseSiteAdapter):
 
@@ -96,7 +100,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             if "<h4>Featured Story</h4>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -118,7 +122,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             self._setURL(url)
             try:
                 soup = self.make_soup(self._fetchUrl(url))
-            except urllib2.HTTPError, e:
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
@@ -136,7 +140,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         if 'Deleted story' in self.story.getMetadata('title'):
             raise exceptions.StoryDoesNotExist("This story was deleted. %s"%self.url)
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/a/"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
@@ -162,7 +166,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         ## perhaps not the most efficient way to parse this, using
         ## regexps for each rather than something more complex, but
         ## IMO, it's more readable and amenable to change.
-        metastr = stripHTML(unicode(metap)).replace('\n',' ').replace('\t',' ').replace(u'\u00a0',' ')
+        metastr = stripHTML(six.text_type(metap)).replace('\n',' ').replace('\t',' ').replace(u'\u00a0',' ')
 
         m = re.match(r".*?Rating: (.+?) -.*?",metastr)
         if m:

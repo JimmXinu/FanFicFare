@@ -26,18 +26,21 @@
 ###         take a long gime to process. I've removed as much of the extra
 ###         formatting as I thought I could.
 #############################################################################
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return SugarQuillNetAdapter
@@ -89,7 +92,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -127,7 +130,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         logger.debug('Getting the author page: {0}'.format(author_Url))
         try:
             adata = self._fetchUrl(author_Url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code in 404:
                 raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
             elif e.code == 410:

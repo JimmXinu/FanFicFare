@@ -54,20 +54,23 @@ Search: http://www.tolkienfanfiction.com/Story_Chapter_Search.php?text=From+Wild
 
 """
 
+from __future__ import absolute_import
 import time
 import logging
+import six
+from six.moves import zip
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
-import urlparse
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 import string
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def _is_story_url(url):
     return "Story_Read_Head.php" in url
@@ -79,7 +82,7 @@ def _latinize(text):
     src = u"áâäÉéêëíóôöúû"
     tgt = u"aaaEeeeiooouu"
     src_ord = [ord(char) for char in src]
-    translate_table = dict(zip(src_ord, tgt))
+    translate_table = dict(list(zip(src_ord, tgt)))
     return text.translate(translate_table)
 
 def _fix_broken_markup(html):
@@ -130,7 +133,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
                 chapterSoup = self.make_soup(chapterHtml)
                 indexLink = chapterSoup.find("a", text="[Index]")
                 self._normalizeURL('http://' + self.getSiteDomain() + '/' + indexLink.get('href'))
-            except urllib2.HTTPError, e:
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
@@ -140,7 +143,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
         try:
             indexHtml = _fix_broken_markup(self._fetchUrl(self.url))
             soup = self.make_soup(indexHtml)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -189,10 +192,10 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             self.story.addToList('characters', character)
         logger.debug("Characters: %s" % self.story.getMetadata('characters'))
 
-        logger.debug('Title as `str`: ' + unicode(title))
+        logger.debug('Title as `str`: ' + six.text_type(title))
         # For publication date we need to search
         try:
-            queryString = urllib.urlencode((
+            queryString = six.moves.urllib.parse.urlencode((
                 ('type', 3),
                 ('field', 1),
                 # need translate here for the weird accented letters
@@ -206,7 +209,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             date = searchSoup.find(text="Updated:").nextSibling.string
             logger.debug("Last Updated: '%s'" % date)
             self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

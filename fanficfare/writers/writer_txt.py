@@ -15,11 +15,12 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
 from textwrap import wrap
 
-from base_writer import *
+from .base_writer import *
 
 from html2text import html2text
 

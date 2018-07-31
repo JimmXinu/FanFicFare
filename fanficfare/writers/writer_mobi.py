@@ -15,11 +15,12 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
-import StringIO
+import io
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
@@ -113,7 +114,7 @@ ${value}<br />
     def writeStoryImpl(self, out):
 
         files = []
-        
+
         # write title page.
         if self.getConfig("titlepage_use_table"):
             TITLE_PAGE_START  = self.MOBI_TABLE_TITLE_PAGE_START
@@ -127,8 +128,8 @@ ${value}<br />
             WIDE_TITLE_ENTRY  = self.MOBI_TITLE_ENTRY # same, only wide in tables.
             NO_TITLE_ENTRY    = self.MOBI_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.MOBI_TITLE_PAGE_END
-        
-        titlepageIO = StringIO.StringIO()
+
+        titlepageIO = io.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -141,8 +142,8 @@ ${value}<br />
 
         ## MOBI always has a TOC injected by mobi.py because there's
         ## no meta-data TOC.
-        # # write toc page.  
-        # tocpageIO = StringIO.StringIO()
+        # # write toc page.
+        # tocpageIO = io.StringIO()
         # self.writeTOCPage(tocpageIO,
         #                   self.MOBI_TOC_PAGE_START,
         #                   self.MOBI_TOC_ENTRY,
@@ -155,12 +156,12 @@ ${value}<br />
             CHAPTER_START = string.Template(self.getConfig("chapter_start"))
         else:
             CHAPTER_START = self.MOBI_CHAPTER_START
-        
+
         if self.hasConfig('chapter_end'):
             CHAPTER_END = string.Template(self.getConfig("chapter_end"))
         else:
             CHAPTER_END = self.MOBI_CHAPTER_END
-        
+
         for index, chap in enumerate(self.story.getChapters()):
             if chap['html']:
                 logger.debug('Writing chapter text for: %s' % chap['title'])
@@ -180,7 +181,7 @@ ${value}<br />
         if len(mobidata) < 1:
             raise FailedToWriteOutput("Zero length mobi output")
         out.write(mobidata)
-        
+
         del files
         del mobidata
 
@@ -193,4 +194,4 @@ def newTag(dom,name,attrs=None,text=None):
     if( text is not None ):
         tag.appendChild(dom.createTextNode(text))
     return tag
-    
+

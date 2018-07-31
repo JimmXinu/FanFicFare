@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2016, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
@@ -79,7 +80,7 @@ def _read_epub_contents(iterator, strip_html=False):
         with open(path, 'rb') as f:
             html = f.read().decode('utf-8', 'replace')
             if strip_html:
-                html = unicode(_extract_body_text(html)).strip()
+                html = six.text_type(_extract_body_text(html)).strip()
                 #print('FOUND HTML:', html)
         book_files.append(html)
     return ''.join(book_files)

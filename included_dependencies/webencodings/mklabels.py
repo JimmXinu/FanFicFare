@@ -10,9 +10,11 @@
 
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import json
 try:
-    from urllib import urlopen
+    from six.moves.urllib.request import urlopen
 except ImportError:
     from urllib.request import urlopen
 
@@ -56,4 +58,4 @@ LABELS = {
 
 
 if __name__ == '__main__':
-    print(generate('http://encoding.spec.whatwg.org/encodings.json'))
+    print((generate('http://encoding.spec.whatwg.org/encodings.json')))

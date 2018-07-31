@@ -15,15 +15,20 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
+import six
+from six.moves import range
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
@@ -68,7 +73,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.meta)
             else:
@@ -130,7 +135,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # alternative is to get the num of chaps from the last
         # indiated chapter list instead.
         for i in range(1,1+int(self.story.getMetadata('numChapters'))):
-            self.add_chapter("Chapter "+unicode(i),"http://"+self.getSiteDomain()\
+            self.add_chapter("Chapter "+six.text_type(i),"http://"+self.getSiteDomain()\
                                  +"/read/"+self.story.getMetadata('storyId')+"/%s"%i)
 
     def getChapterText(self, url):

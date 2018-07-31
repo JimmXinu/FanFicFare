@@ -19,13 +19,15 @@
 ### Tested with Calibre
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import json
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
 from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
@@ -108,7 +110,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
 
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
             else:

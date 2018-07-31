@@ -18,17 +18,20 @@
 ###  Adapted by GComyn
 ###  Completed on November, 22, 2016
 ##############################################################################
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class LOTRgficComAdapter(BaseSiteAdapter):
 
@@ -79,7 +82,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -95,7 +98,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
         ### Main Content for the Table Of Contents page.
         div = soup.find('div',{'id':'maincontent'})
-        
+
         divfooter = div.find('div',{'id':'footer'})
         if divfooter != None:
             divfooter.extract()
@@ -117,7 +120,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
 
         ### Metadata is contained
-        
+
         def defaultGetattr(d,k):
             try:
                 return d[k]
@@ -125,10 +128,10 @@ class LOTRgficComAdapter(BaseSiteAdapter):
                 return ""
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        ### This site has the metadata formatted all over the place, 
+        ### This site has the metadata formatted all over the place,
         ### so we have to do some very cludgy programming to get it.
         ### If someone can do it better, please do so, and let us know.
-        ## I'm going to leave this section in, so we can get those 
+        ## I'm going to leave this section in, so we can get those
         ## elements that are "formatted correctly".
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
@@ -141,7 +144,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
                 ## Everything until the next span class='label'
                 svalue = ''
                 while value and 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
+                    svalue += six.text_type(value)
                     value = value.nextSibling
                 # sometimes poorly formated desc (<p> w/o </p>) leads
                 # to all labels being included.
@@ -228,7 +231,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         except:
             # I find it hard to care if the series parsing fails
             pass
-        
+
         ## Now we are going to cludge together the rest of the metadata
         metad = soup.findAll('p',{'class':'smaller'})
         ## Categories don't have a proper label, but do use links, so...
@@ -237,26 +240,26 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         for cat in catstext:
             if cat != None:
                 self.story.addToList('category',cat.string)
-        
+
         ## Characters don't have a proper label, but do use links, so...
         chars = soup.findAll('a',href=re.compile(r'browse.php\?type=characters'))
         charstext = [char.string for char in chars]
         for char in charstext:
             if char != None:
                 self.story.addToList('characters',char.string)
-            
+
         ### Rating is not enclosed in a label, only in a p tag classed 'smaller' so...
         ratng = metad[0].find('strong').get_text().replace('Rated','').strip()
         self.story.setMetadata('rating', ratng)
-        
-        ## No we try to get the summary... it's not within it's own 
+
+        ## No we try to get the summary... it's not within it's own
         ## dedicated tag, so we have to split some hairs..
         ## This may not work every time... but I tested it with 6 stories...
         mdata = metad[0]
         while '<hr/>' not in str(mdata.nextSibling):
             mdata = mdata.nextSibling
         self.setDescription(url,mdata.previousSibling.previousSibling.get_text())
-        
+
         ### the rest of the metadata are not in tags at all... so we have to be really cludgy.
         ## we don't need the rest of them, so we get rid of all but the last one
         metad = metad[-1]
@@ -315,7 +318,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
                     elif 'Published:' in txt2:
                         txt2= txt2.replace('Published:','').strip()
                         self.story.setMetadata('datePublished', makeDate(txt2.strip(), "%b/%d/%y"))
-        
+
 
     def getChapterText(self, url):
 
@@ -330,21 +333,21 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         span = soup.find('div', {'id' : 'maincontent'})
-        
+
         # Everything is encased in the maincontent section, so we have
         # to remove as much as we can systematically
         tables = span.findAll('table')
         for table in tables:
             table.extract()
-            
+
         headings = span.findAll('h3')
         for heading in headings:
             heading.extract()
-            
+
         links = span.findAll('a')
         for link in links:
             link.extract()
-        
+
         forms = span.findAll('form')
         for form in forms:
             form.extract()
@@ -352,7 +355,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         divs = span.findAll('div')
         for div in divs:
             div.extract()
-        
+
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 

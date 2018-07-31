@@ -15,17 +15,19 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
@@ -108,7 +110,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 logger.error("404 on %s"%url)
                 raise exceptions.StoryDoesNotExist(self.url)

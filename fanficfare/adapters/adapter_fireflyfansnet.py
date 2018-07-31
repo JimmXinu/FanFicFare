@@ -18,13 +18,16 @@
 # Adapted by GComyn - December 10, 2016
 ####################################################################################################
 ''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
+from __future__ import absolute_import
 import logging
 import re
 import sys
 import time
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -79,7 +82,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

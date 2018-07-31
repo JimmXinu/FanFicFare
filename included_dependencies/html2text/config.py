@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 
 # Use Unicode characters instead of their ascii psuedo-replacements

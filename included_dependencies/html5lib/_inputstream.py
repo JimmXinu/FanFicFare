@@ -13,6 +13,7 @@ from .constants import ReparseException
 from . import _utils
 
 from io import StringIO
+from six.moves import range
 
 try:
     from io import BytesIO

@@ -25,11 +25,14 @@
 '''
 This will scrape the chapter text and metadata from stories on the site trekfanfiction.net
 '''
+from __future__ import absolute_import
 import logging
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -91,7 +94,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:

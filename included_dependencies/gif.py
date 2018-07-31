@@ -26,6 +26,10 @@ Changelog:
  - 0.1.0: Initial release
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+import six
+from six.moves import range
 __appname__ = "gif.py"
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __version__ = "0.2.2"
@@ -103,7 +107,7 @@ class GifInfo(object):
         @raises IOError: The underlying C{open()} system call failed.
         """
         self.checkLevel = checkLevel
-        if isinstance(fh, basestring):
+        if isinstance(fh, six.string_types):
             self.path = fh
             fh = open(fh, 'rb')
 
@@ -246,7 +250,7 @@ def gif_is_animated(path):
     """A simple convenience function for testing whether a GIF is animated.
     @rtype: C{bool}
     """
-    return GifInfo(file(path,'rb'), CHECK_IS_ANIMATED).frameCount > 1
+    return GifInfo(open(path,'rb'), CHECK_IS_ANIMATED).frameCount > 1
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -268,16 +272,16 @@ if __name__ == '__main__':
                         (info.warnFlags & WARN_TRUNC       and 'T' or ' ') +
                         (info.warnFlags & WARN_LOOP_POS    and 'L' or ' ')
                     )
-                print "[%s](%3s Frames): %s" % (warnFlags, info.frameCount, info.path)
-            except BadHeaderException, err:
-                print "%s: %s" % (str(err), fpath)
-        print "\nWarning Flags:"
-        print " I = Image Chunk Corruption/Truncation"
-        print " X = Extension Chunk Corruption/Truncation"
-        print " C = Image Chunk Dimensions Exceed Global Canvas"
-        print " B = Bad Background Color (Index Exceeds Palette Size)"
-        print " E = Unexpected EOF Encountered (Missing Image Terminator)"
-        print " T = EOF Encountered Within A Block Header (Corrupt or Truncated File)"
-        print " L = Loop-control block misplaced within the file"
-        print
-        print "Note: A nearly-threefold speed-up can be had by using CHECK_IS_ANIMATED rather than CHECK_COUNT_FRAMES"
+                print("[%s](%3s Frames): %s" % (warnFlags, info.frameCount, info.path))
+            except BadHeaderException as err:
+                print("%s: %s" % (str(err), fpath))
+        print("\nWarning Flags:")
+        print(" I = Image Chunk Corruption/Truncation")
+        print(" X = Extension Chunk Corruption/Truncation")
+        print(" C = Image Chunk Dimensions Exceed Global Canvas")
+        print(" B = Bad Background Color (Index Exceeds Palette Size)")
+        print(" E = Unexpected EOF Encountered (Missing Image Terminator)")
+        print(" T = EOF Encountered Within A Block Header (Corrupt or Truncated File)")
+        print(" L = Loop-control block misplaced within the file")
+        print()
+        print("Note: A nearly-threefold speed-up can be had by using CHECK_IS_ANIMATED rather than CHECK_COUNT_FRAMES")

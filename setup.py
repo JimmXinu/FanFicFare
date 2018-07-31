@@ -8,6 +8,7 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
+from __future__ import absolute_import
 from setuptools import setup, find_packages
 # To use a consistent encoding
 import codecs

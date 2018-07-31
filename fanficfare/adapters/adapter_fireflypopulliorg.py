@@ -22,12 +22,15 @@
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
 ''' This adapter scrapes the metadata and chapter text from stories on firefly.populli.org '''
+from __future__ import absolute_import
 import logging
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -97,7 +100,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -149,7 +152,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if ',' in mdata:
             self.story.setMetadata('coauthor', ', '.join(mdata.split(',')[1:]).strip())
             mdata = mdata.split(',')[0]
-        
+
 #        print mdata
 #        self.story.getMetadata('coauthor')
 #        sys.exit()
@@ -180,7 +183,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                 if stories:
                     for story in stories:
                         # There alot of nbsp's (non broken spaces) in here, so I'm going to remove them
-                        # I'm also getting rid of the bold tags and the nextline characters to make it 
+                        # I'm also getting rid of the bold tags and the nextline characters to make it
                         # easier to get the information below
                         story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(
                             '<b>','').replace('</b>','').replace(r'\n','')

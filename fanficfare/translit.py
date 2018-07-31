@@ -1,6 +1,10 @@
 #-*-coding:utf-8-*-
 # Code taken from http://python.su/forum/viewtopic.php?pid=66946
+from __future__ import absolute_import
 import unicodedata
+from six.moves import filter
+from six.moves import map
+import six
 def is_syllable(letter):
     syllables = ("A", "E", "I", "O", "U", "a", "e", "i", "o", "u")
     if letter in syllables:
@@ -10,11 +14,11 @@ def is_consonant(letter):
     return not is_syllable(letter)
 def romanize(letter):
     try:
-        unicode(letter)
+        six.text_type(letter)
     except UnicodeEncodeError:
         pass
     else:
-        return unicode(letter)
+        return six.text_type(letter)
     unid = unicodedata.name(letter)
     exceptions = {"NUMERO SIGN": "No", "LEFT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK": "\"", "DASH": "-"}
     for name_contains in exceptions:
@@ -34,7 +38,7 @@ def romanize(letter):
     if all(map(is_syllable, unid)):
         return func(unid)
     else:
-        return func(filter(is_consonant, unid))
+        return func(list(filter(is_consonant, unid)))
 def translit(text):
     output = ""
     for letter in text:

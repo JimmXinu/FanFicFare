@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from StringIO import StringIO
-from ConfigParser import ParsingError
+from io import StringIO
+from six.moves.configparser import ParsingError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,6 +44,6 @@ def test_config(initext):
         errors = configini.test_config()
     except ParsingError as pe:
         errors = pe.errors
-    
+
     return errors
 

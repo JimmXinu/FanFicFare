@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import datetime
 import time
 import logging
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 from .. import exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 

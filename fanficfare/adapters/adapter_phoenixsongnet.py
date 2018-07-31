@@ -15,17 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2, urllib, cookielib
+import six.moves.http_cookiejar
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return PhoenixSongNetAdapter
@@ -111,7 +115,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
             if self.getConfig('force_login'):
                 self.performLogin(url)
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

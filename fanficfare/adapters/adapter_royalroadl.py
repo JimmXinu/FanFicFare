@@ -15,16 +15,19 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import contextlib
 from datetime import datetime
-import httplib
+import six.moves.http_client
 import logging
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +38,13 @@ def getClass():
 
 # Work around "http.client.HTTPException: got more than 100 headers" issue. Using a context manager for this guarantees
 # that the original max headers value is restored, even when an uncaught exception is raised.
-if hasattr(httplib, '_MAXHEADERS'):
+if hasattr(six.moves.http_client, '_MAXHEADERS'):
     @contextlib.contextmanager
     def httplib_max_headers(number):
-        original_max_headers = httplib._MAXHEADERS
-        httplib._MAXHEADERS = number
+        original_max_headers = six.moves.http_client._MAXHEADERS
+        six.moves.http_client._MAXHEADERS = number
         yield
-        httplib._MAXHEADERS = original_max_headers
+        six.moves.http_client._MAXHEADERS = original_max_headers
 # Google App Engine seems to vendor a modified version of httplib in which the _MAXHEADERS attribute is missing (and
 # also avoids this issue entirely) -- in this case we define a dummy version of the context manager
 else:
@@ -136,7 +139,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

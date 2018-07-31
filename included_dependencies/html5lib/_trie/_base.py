@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from collections import Mapping
+from six.moves import range
 
 
 class Trie(Mapping):
@@ -8,7 +9,7 @@ class Trie(Mapping):
 
     def keys(self, prefix=None):
         # pylint:disable=arguments-differ
-        keys = super(Trie, self).keys()
+        keys = list(super(Trie, self).keys())
 
         if prefix is None:
             return set(keys)

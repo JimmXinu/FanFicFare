@@ -15,17 +15,20 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import time
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
@@ -151,7 +154,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #print("data:%s"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code in (404,410):
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -201,7 +204,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 #logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -238,7 +241,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                                                      stripHTML(a),
                                                      stripHTML(autha)),'https://'+self.host+a['href'])
 
-            except urllib2.HTTPError, e:
+            except six.moves.urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(url)
                 else:

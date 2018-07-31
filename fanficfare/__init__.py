@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 try:
     # just a way to switch between web service and CLI/PI
     import google.appengine.api

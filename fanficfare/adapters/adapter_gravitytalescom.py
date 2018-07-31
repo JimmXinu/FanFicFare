@@ -18,11 +18,15 @@
 ## Adapted by GComyn on April 21, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import time
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 from datetime import datetime
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +41,7 @@ except ImportError:
         # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
         feedparser = None
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -93,7 +97,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
@@ -129,17 +133,17 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
             ## the author name from the <h4>... and a section that took the title from the list,
             ## and added it to the title from the <h3>...
             ## but decided to remove them and let it be added to the synopsis.
-            if parat[:7] == 'Genres:' and unicode(para)[:2] == '<p':
+            if parat[:7] == 'Genres:' and six.text_type(para)[:2] == '<p':
                 genres = parat[8:].split(', ')
                 for genre in genres:
                     self.story.addToList('genre', genre)
-            elif parat[:11] == 'Translator:' and unicode(para)[:2] == '<p':
+            elif parat[:11] == 'Translator:' and six.text_type(para)[:2] == '<p':
                 self.story.setMetadata('translator', parat.replace('Translator:', '').strip())
-            elif parat[:7] == 'Status:' and unicode(para)[:2] == '<p':
+            elif parat[:7] == 'Status:' and six.text_type(para)[:2] == '<p':
                 status = parat[8:].strip()
                 self.story.setMetadata('status', status)
-            elif unicode(para)[:2] == '<p' or unicode(para)[:2] == '<h' or unicode(para)[:2] == '<u':
-                synopsis += ' ' + unicode(para)
+            elif six.text_type(para)[:2] == '<p' or six.text_type(para)[:2] == '<h' or six.text_type(para)[:2] == '<u':
+                synopsis += ' ' + six.text_type(para)
 
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
@@ -147,7 +151,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         while '<br/> <br/>' in synopsis:
             synopsis = synopsis.replace('<br/> <br/>', '<br/>')
 
-        self.setDescription(url, unicode(synopsis))
+        self.setDescription(url, six.text_type(synopsis))
 
         ## this is constantly being forbidden, so I'm commenting it out for now.
 #        if get_cover:

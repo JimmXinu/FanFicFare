@@ -16,18 +16,22 @@
 #
 
 # Software: eFiction
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return ChosenTwoFanFicArchiveAdapter
@@ -77,7 +81,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             addURL = "&ageconsent=ok&warning=3"
         else:
             addURL = ""
-    
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = '{0}&index=1{1}'.format(self.url,addURL)
@@ -85,7 +89,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -137,11 +141,11 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         labels = soup.findAll('span',{'class':'label'})
         for labelspan in labels:
             val = labelspan.nextSibling
-            value = unicode('')
+            value = six.text_type('')
             while val and not 'label' in defaultGetattr(val,'class'):
                 # print("val:%s"%val)
                 if not isinstance(val,Comment):
-                    value += unicode(val)
+                    value += six.text_type(val)
                 val = val.nextSibling
             label = labelspan.string
             # print("label:%s\nvalue:%s"%(label,value))

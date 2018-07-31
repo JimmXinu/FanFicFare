@@ -15,12 +15,13 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import re
 from datetime import datetime, timedelta
 from collections import defaultdict
 
 import logging
-import urlparse as up
+import six.moves.urllib.parse as up
 from functools import partial
 import traceback
 import copy
@@ -29,6 +30,7 @@ import bs4
 
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ class TimeKeeper(defaultdict):
         self[name] = self[name] + td
 
     def __unicode__(self):
-        keys = self.keys()
+        keys = list(self.keys())
         keys.sort()
         return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 import inspect
@@ -150,7 +152,7 @@ class BaseSiteAdapter(Configurable):
         if self.ignore_chapter_url_list == None:
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
-            meta = defaultdict(unicode,othermeta) # copy othermeta
+            meta = defaultdict(six.text_type,othermeta) # copy othermeta
             meta.update({'title':stripHTML(title),'url':url}) # after other to make sure they are set
             self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
@@ -394,7 +396,7 @@ class BaseSiteAdapter(Configurable):
 
         #print(u"[[[[[\n\n%s\n\n]]]]]]]]"%svalue) # works for either soup or string
         if self.getConfig('keep_summary_html'):
-            if isinstance(svalue,basestring):
+            if isinstance(svalue,six.string_types):
                 # bs4/html5lib add html, header and body tags, which
                 # we don't want.  utf8FromSoup will strip the body tags for us.
                 svalue = bs4.BeautifulSoup(svalue,"html5lib").body
@@ -416,11 +418,11 @@ class BaseSiteAdapter(Configurable):
         if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
             # bs3
             #print "bs3 attrs:%s"%soup._getAttrMap().keys()
-            return soup._getAttrMap().keys()
+            return list(soup._getAttrMap().keys())
         elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
             #print "bs4 attrs:%s"%soup.attrs.keys()
             # bs4
-            return soup.attrs.keys()
+            return list(soup.attrs.keys())
         return []
 
     # This gives us a unicode object, not just a string containing bytes.
@@ -503,11 +505,11 @@ class BaseSiteAdapter(Configurable):
                     if t.name=='script':
                         t.extract()
 
-        except AttributeError, ae:
+        except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
 
-        retval = unicode(soup)
+        retval = six.text_type(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
             # if the <img> tag doesn't have a div or a p around it,
@@ -547,7 +549,7 @@ class BaseSiteAdapter(Configurable):
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
         soup = bs4.BeautifulSoup(data,'html5lib')
-        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        soup = bs4.BeautifulSoup(six.text_type(soup),'html5lib')
 
         for ns in soup.find_all('fff_hide_noscript'):
             ns.name = 'noscript'
@@ -599,7 +601,7 @@ def makeDate(string,dateform):
             add_hours = True
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
-    date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    date = datetime.strptime(string, dateform)
 
     if add_hours:
         date += timedelta(hours=12)

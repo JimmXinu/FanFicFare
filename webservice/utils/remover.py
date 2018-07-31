@@ -22,6 +22,7 @@ Created by Roman on 2010-06-20.
 Copyright 2011 Fanficdownloader team
 """
 
+from __future__ import absolute_import
 import datetime
 import logging
 

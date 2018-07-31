@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import optparse
 import warnings
 
 from html2text.compat import urllib
 from html2text import HTML2Text, config, __version__
 from html2text.utils import wrapwrite, wrap_read
+from six.moves import map
 
 
 def main():
@@ -229,7 +232,7 @@ def main():
             warnings.warn("Support for retrieving html over network is set for deprecation by version (2017, 1, x)",
                     DeprecationWarning)
             baseurl = file_
-            j = urllib.urlopen(baseurl)
+            j = six.moves.urllib.request.urlopen(baseurl)
             data = j.read()
             if encoding is None:
                 try:

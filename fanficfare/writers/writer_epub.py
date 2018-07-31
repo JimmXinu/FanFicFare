@@ -15,12 +15,15 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
-import StringIO
+import io
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
-import urllib
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
 import re
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
@@ -29,9 +32,10 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 import bs4
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML,removeEntities
 from ..story import commaGroups
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -232,7 +236,7 @@ div { margin: 0pt; padding: 0pt; }
                 span = '<span id="%s">'%entry
                 idx = logfile.rindex(span)+len(span)
                 values[entry] = logfile[idx:logfile.index('</span>\n',idx)]
-            except Exception, e:
+            except Exception as e:
                 #print("e:%s"%e)
                 pass
 
@@ -262,7 +266,7 @@ div { margin: 0pt; padding: 0pt; }
             new_words = self.story.getMetadata('numWords')
             old_words = oldvalues.get('numWords',None)
             if new_words and old_words:
-                self.story.setMetadata('words_added',commaGroups(unicode(int(new_words.replace(',',''))-int(old_words.replace(',','')))))
+                self.story.setMetadata('words_added',commaGroups(six.text_type(int(new_words.replace(',',''))-int(old_words.replace(',','')))))
 
         for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
             if self.isValidMetaEntry(entry):
@@ -303,7 +307,7 @@ div { margin: 0pt; padding: 0pt; }
         ## not on an open stream.  OTOH, I suspect we would have had
         ## problems with closing and opening again to change the
         ## compression type anyway.
-        zipio = StringIO.StringIO()
+        zipio = io.BytesIO()
 
         ## mimetype must be first file and uncompressed.  Python 2.5
         ## ZipFile can't change compression type file-by-file, so we
@@ -518,8 +522,8 @@ div { margin: 0pt; padding: 0pt; }
                 COVER = string.Template(self.getConfig("cover_content"))
             else:
                 COVER = self.EPUB_COVER
-            coverIO = StringIO.StringIO()
-            coverIO.write(COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
+            coverIO = io.StringIO()
+            coverIO.write(COVER.substitute(dict(list(self.story.getAllMetadata().items())+list({'coverimg':self.story.cover}.items()))))
 
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
@@ -574,7 +578,7 @@ div { margin: 0pt; padding: 0pt; }
             package.appendChild(guide)
 
         # write content.opf to zip.
-        contentxml = contentdom.toxml(encoding='utf-8')
+        contentxml = contentdom.toxml()
 
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
         contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
@@ -620,7 +624,7 @@ div { margin: 0pt; padding: 0pt; }
             if title :
                 navPoint = newTag(tocncxdom,"navPoint",
                                   attrs={'id':id,
-                                         'playOrder':unicode(index)})
+                                         'playOrder':six.text_type(index)})
                 tocnavMap.appendChild(navPoint)
                 navLabel = newTag(tocncxdom,"navLabel")
                 navPoint.appendChild(navLabel)
@@ -655,7 +659,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
 
-        titlepageIO = StringIO.StringIO()
+        titlepageIO = io.StringIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -667,7 +671,7 @@ div { margin: 0pt; padding: 0pt; }
         titlepageIO.close()
 
         # write toc page.
-        tocpageIO = StringIO.StringIO()
+        tocpageIO = io.StringIO()
         self.writeTOCPage(tocpageIO,
                           self.EPUB_TOC_PAGE_START,
                           self.EPUB_TOC_ENTRY,
@@ -678,7 +682,7 @@ div { margin: 0pt; padding: 0pt; }
 
         if dologpage:
             # write log page.
-            logpageIO = StringIO.StringIO()
+            logpageIO = io.StringIO()
             self.writeLogPage(logpageIO)
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
             logpageIO.close()
@@ -704,7 +708,7 @@ div { margin: 0pt; padding: 0pt; }
                             alink['href']=chapurlmap[alink['href']]
                             changed=True
                     if changed:
-                        chap_data = unicode(soup)
+                        chap_data = six.text_type(soup)
                         # Don't want html, head or body tags in
                         # chapter html--bs4 insists on adding them.
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
@@ -717,7 +721,7 @@ div { margin: 0pt; padding: 0pt; }
                 chap['tocchapter']=removeEntities(chap['toctitle'])
                 # escape double quotes in all vals.
                 for k,v in chap.items():
-                    if isinstance(v,basestring): chap[k]=v.replace('"','&quot;')
+                    if isinstance(v,six.string_types): chap[k]=v.replace('"','&quot;')
                 fullhtml = CHAPTER_START.substitute(chap) + \
                     chap_data.strip() + \
                     CHAPTER_END.substitute(chap)

@@ -4,6 +4,7 @@ import re
 import warnings
 
 from .constants import DataLossWarning
+from six.moves import range
 
 baseChar = """
 [#x0041-#x005A] | [#x0061-#x007A] | [#x00C0-#x00D6] | [#x00D8-#x00F6] |

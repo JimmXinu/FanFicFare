@@ -16,7 +16,9 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
+import six
 logging.getLogger().setLevel(logging.DEBUG)
 
 import os
@@ -24,11 +26,13 @@ from os.path import dirname, basename, normpath
 import re
 import sys
 import zlib
-import urllib
+import six.moves.urllib.request
+import six.moves.urllib.parse
+import six.moves.urllib.error
 import datetime
 
 import traceback
-from StringIO import StringIO
+from io import StringIO
 
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
@@ -137,9 +141,9 @@ class EditConfigServer(UserConfigServer):
                 # just getting config for testing purposes.
                 configuration = self.getUserConfig(user,"test1.com","epub")
                 self.redirect("/?error=configsaved")
-            except Exception, e:
+            except Exception as e:
                 logging.info("Saved Config Failed:%s"%e)
-                self.redirect("/?error=custom&errtext=%s"%urllib.quote(unicode(e),''))
+                self.redirect("/?error=custom&errtext=%s"%six.moves.urllib.parse.quote(six.text_type(e),''))
         else: # not update, assume display for edit
             if uconfig is not None and uconfig.config:
                 config = uconfig.config
@@ -209,9 +213,9 @@ class FileServer(webapp2.RequestHandler):
             for datum in data:
                 self.response.out.write(decompress(datum.blob))
 
-        except Exception, e:
+        except Exception as e:
             fic = DownloadMeta()
-            fic.failure = unicode(e)
+            fic.failure = six.text_type(e)
 
             template_values = dict(fic = fic,
                                    #nickname = user.nickname(),
@@ -240,14 +244,14 @@ class FileStatusServer(webapp2.RequestHandler):
             if download:
                 logging.info("Status url: %s" % download.url)
                 if download.completed and download.format=='epub':
-                    escaped_url = urllib.quote(self.request.host_url+"/file/"+download.name+"."+download.format+"?id="+fileId+"&fake=file."+download.format,'')
+                    escaped_url = six.moves.urllib.parse.quote(self.request.host_url+"/file/"+download.name+"."+download.format+"?id="+fileId+"&fake=file."+download.format,'')
             else:
                 download = DownloadMeta()
                 download.failure = "Download not found"
 
-        except Exception, e:
+        except Exception as e:
             download = DownloadMeta()
-            download.failure = unicode(e)
+            download.failure = six.text_type(e)
 
         template_values = dict(fic = download,
                                nickname = user.nickname(),
@@ -295,7 +299,7 @@ class RecentFilesServer(webapp2.RequestHandler):
 
         for fic in fics:
             if fic.completed and fic.format == 'epub':
-                fic.escaped_url = urllib.quote(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+unicode(fic.key())+"&fake=file."+fic.format,'')
+                fic.escaped_url = six.moves.urllib.parse.quote(self.request.host_url+"/file/"+fic.name+"."+fic.format+"?id="+six.text_type(fic.key())+"&fake=file."+fic.format,'')
 
         template_values = dict(fics = fics, nickname = user.nickname())
         path = os.path.join(os.path.dirname(__file__), 'recent.html')
@@ -331,7 +335,7 @@ class FicSlug():
     def __init__(self,savedmeta):
         self.url = savedmeta.url
         self.count = savedmeta.count
-        for k, v in savedmeta.meta.iteritems():
+        for k, v in six.iteritems(savedmeta.meta):
             setattr(self,k,v)
 
 class FanfictionDownloader(UserConfigServer):
@@ -371,10 +375,10 @@ class FanfictionDownloader(UserConfigServer):
             try:
                 configuration = self.getUserConfig(user,url,format)
             except exceptions.UnknownSite:
-                self.redirect("/?error=custom&errtext=%s"%urllib.quote("Unsupported site in URL (%s).  See 'Support sites' list below."%url,''))
+                self.redirect("/?error=custom&errtext=%s"%six.moves.urllib.parse.quote("Unsupported site in URL (%s).  See 'Support sites' list below."%url,''))
                 return
-            except Exception, e:
-                self.redirect("/?error=custom&errtext=%s"%urllib.quote("There's an error in your User Configuration: "+unicode(e),'')[:2048]) # limited due to Locatton header length limit.
+            except Exception as e:
+                self.redirect("/?error=custom&errtext=%s"%six.moves.urllib.parse.quote("There's an error in your User Configuration: "+six.text_type(e),'')[:2048]) # limited due to Locatton header length limit.
                 return
 
             adapter = adapters.getAdapter(configuration,url)
@@ -408,7 +412,7 @@ class FanfictionDownloader(UserConfigServer):
 
             taskqueue.add(url='/fdowntask',
                       queue_name="download",
-                          params={'id':unicode(download.key()),
+                          params={'id':six.text_type(download.key()),
                                   'format':format,
                                   'url':download.url,
                                   'login':login,
@@ -416,12 +420,12 @@ class FanfictionDownloader(UserConfigServer):
                                   'user':user.email(),
                                   'is_adult':is_adult})
 
-            logging.info("enqueued download key: " + unicode(download.key()))
+            logging.info("enqueued download key: " + six.text_type(download.key()))
 
-        except (exceptions.FailedToLogin,exceptions.AdultCheckRequired), e:
-            download.failure = unicode(e)
+        except (exceptions.FailedToLogin,exceptions.AdultCheckRequired) as e:
+            download.failure = six.text_type(e)
             download.put()
-            logging.info(unicode(e))
+            logging.info(six.text_type(e))
             is_login= ( isinstance(e, exceptions.FailedToLogin) )
             is_passwdonly = is_login and e.passwdonly
             template_values = dict(nickname = user.nickname(),
@@ -440,17 +444,17 @@ class FanfictionDownloader(UserConfigServer):
             path = os.path.join(os.path.dirname(__file__), 'login.html')
             self.response.out.write(template.render(path, template_values))
             return
-        except (exceptions.InvalidStoryURL,exceptions.UnknownSite,exceptions.StoryDoesNotExist), e:
-            logging.warn(unicode(e))
-            download.failure = unicode(e)
+        except (exceptions.InvalidStoryURL,exceptions.UnknownSite,exceptions.StoryDoesNotExist) as e:
+            logging.warn(six.text_type(e))
+            download.failure = six.text_type(e)
             download.put()
-        except Exception, e:
+        except Exception as e:
             logging.error("Failure Queuing Download: url:%s" % url)
             logging.exception(e)
-            download.failure = unicode(e)
+            download.failure = six.text_type(e)
             download.put()
 
-        self.redirect('/status?id='+unicode(download.key()))
+        self.redirect('/status?id='+six.text_type(download.key()))
 
         return
 
@@ -564,9 +568,9 @@ class FanfictionDownloaderTask(UserConfigServer):
             logging.info("Download finished OK")
             del data
 
-        except Exception, e:
+        except Exception as e:
             logging.exception(e)
-            download.failure = unicode(e)
+            download.failure = six.text_type(e)
             download.put()
             return
 

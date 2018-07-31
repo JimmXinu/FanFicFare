@@ -15,12 +15,15 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
+import six
+from six.moves import range
 logger = logging.getLogger(__name__)
 import re
 import codecs
 import bs4 as bs
-import HtmlTagStack as stack
+from . import HtmlTagStack as stack
 
 from . import exceptions as exceptions
 
@@ -167,32 +170,32 @@ def replace_br_with_p(body):
     averageLineLength = contentLinesSum/contentLines
 
     logdebug(u'---')
-    logdebug(u'Lines.............: ' + unicode(len(lines)))
-    logdebug(u'contentLines......: ' + unicode(contentLines))
-    logdebug(u'contentLinesSum...: ' + unicode(contentLinesSum))
-    logdebug(u'longestLineLength.: ' + unicode(longestLineLength))
-    logdebug(u'averageLineLength.: ' + unicode(averageLineLength))
+    logdebug(u'Lines.............: ' + six.text_type(len(lines)))
+    logdebug(u'contentLines......: ' + six.text_type(contentLines))
+    logdebug(u'contentLinesSum...: ' + six.text_type(contentLinesSum))
+    logdebug(u'longestLineLength.: ' + six.text_type(longestLineLength))
+    logdebug(u'averageLineLength.: ' + six.text_type(averageLineLength))
     logdebug(u'---')
-    logdebug(u'breaksMaxIndex....: ' + unicode(breaksMaxIndex))
-    logdebug(u'len(breaksCount)-1: ' + unicode(len(breaksCount)-1))
-    logdebug(u'breaksMax.........: ' + unicode(breaksMax))
+    logdebug(u'breaksMaxIndex....: ' + six.text_type(breaksMaxIndex))
+    logdebug(u'len(breaksCount)-1: ' + six.text_type(len(breaksCount)-1))
+    logdebug(u'breaksMax.........: ' + six.text_type(breaksMax))
 
     if breaksMaxIndex == len(breaksCount)-1 and breaksMax < 2:
         breaksMaxIndex = 0
         breaksMax = breaksCount[0]
 
     logdebug(u'---')
-    logdebug(u'breaks 1: ' + unicode(breaksCount[0]))
-    logdebug(u'breaks 2: ' + unicode(breaksCount[1]))
-    logdebug(u'breaks 3: ' + unicode(breaksCount[2]))
-    logdebug(u'breaks 4: ' + unicode(breaksCount[3]))
-    logdebug(u'breaks 5: ' + unicode(breaksCount[4]))
-    logdebug(u'breaks 6: ' + unicode(breaksCount[5]))
-    logdebug(u'breaks 7: ' + unicode(breaksCount[6]))
-    logdebug(u'breaks 8: ' + unicode(breaksCount[7]))
+    logdebug(u'breaks 1: ' + six.text_type(breaksCount[0]))
+    logdebug(u'breaks 2: ' + six.text_type(breaksCount[1]))
+    logdebug(u'breaks 3: ' + six.text_type(breaksCount[2]))
+    logdebug(u'breaks 4: ' + six.text_type(breaksCount[3]))
+    logdebug(u'breaks 5: ' + six.text_type(breaksCount[4]))
+    logdebug(u'breaks 6: ' + six.text_type(breaksCount[5]))
+    logdebug(u'breaks 7: ' + six.text_type(breaksCount[6]))
+    logdebug(u'breaks 8: ' + six.text_type(breaksCount[7]))
     logdebug(u'----')
-    logdebug(u'max found: ' + unicode(breaksMax))
-    logdebug(u'max Index: ' + unicode(breaksMaxIndex))
+    logdebug(u'max found: ' + six.text_type(breaksMax))
+    logdebug(u'max Index: ' + six.text_type(breaksMaxIndex))
     logdebug(u'----')
 
     if breaksMaxIndex > 0 and breaksCount[0] > breaksMax and averageLineLength < 90:
@@ -203,13 +206,13 @@ def replace_br_with_p(body):
     for i in range(len(breaksCount)):
         # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
-            logdebug(unicode(i) + u' <= breaksMaxIndex (' + unicode(breaksMaxIndex) + u')')
+            logdebug(six.text_type(i) + u' <= breaksMaxIndex (' + six.text_type(breaksMaxIndex) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p>\3', body)
         elif i == breaksMaxIndex+1:
-            logdebug(unicode(i) + u' == breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(six.text_type(i) + u' == breaksMaxIndex+1 (' + six.text_type(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<p><br/></p>\n<p>\3', body)
         else:
-            logdebug(unicode(i) + u' > breaksMaxIndex+1 (' + unicode(breaksMaxIndex+1) + u')')
+            logdebug(six.text_type(i) + u' > breaksMaxIndex+1 (' + six.text_type(breaksMaxIndex+1) + u')')
             body = breaksRegexp[i].sub(r'\1</p>\n<hr />\n<p>\3', body)
 
     body = breaksRegexp[8].sub(r'</p>\n<hr />\n<p>', body)
@@ -263,7 +266,7 @@ def replace_br_with_p(body):
     return u'<!-- ' +was_run_marker+ u' -->\n' + tag_sanitizer(body)
 
 def is_valid_block(block):
-    return unicode(block).find('<') == 0 and unicode(block).find('<!') != 0
+    return six.text_type(block).find('<') == 0 and six.text_type(block).find('<!') != 0
 
 def soup_up_div(body):
     blockTags = ['address', 'aside', 'blockquote', 'del', 'div', 'dl', 'fieldset', 'form', 'ins', 'noscript', 'ol', 'p', 'pre', 'table', 'ul']
@@ -282,8 +285,8 @@ def soup_up_div(body):
     lastElement = 1 # 1 = block, 2 = nested, 3 = invalid
 
     for i in soup.contents[0]:
-        if unicode(i).strip().__len__() > 0:
-            s = unicode(i)
+        if six.text_type(i).strip().__len__() > 0:
+            s = six.text_type(i)
             if  type(i) == bs.Tag:
                 if  i.name in blockTags:
                     if lastElement > 1:

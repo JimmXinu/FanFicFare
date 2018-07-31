@@ -18,15 +18,18 @@
 ## Adapted by GComyn on April 22, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import json
 import re
 import sys  # ## used for debug purposes
 import time
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -88,7 +91,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

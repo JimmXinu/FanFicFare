@@ -9,6 +9,7 @@ from . import base
 from .. import constants
 from ..constants import namespaces
 from .._utils import moduleFactoryFactory
+from six.moves import range
 
 
 def getDomBuilder(DomImplementation):

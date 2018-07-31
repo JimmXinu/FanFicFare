@@ -15,7 +15,10 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
+import six
+from six import unichr
 logger = logging.getLogger(__name__)
 
 import re
@@ -56,14 +59,14 @@ def _replaceNotEntities(data):
     return p.sub(r'&\1', data)
 
 def stripHTML(soup):
-    if isinstance(soup,basestring) or hasattr(soup, 'bs3'):
+    if isinstance(soup,six.string_types) or hasattr(soup, 'bs3'):
         return removeAllEntities(re.sub(r'<[^>]+>','',"%s" % soup)).strip()
     else:
         # bs4 already converts all the entities to UTF8 chars.
         return soup.get_text(strip=True)
 
 def conditionalRemoveEntities(value):
-    if isinstance(value,basestring):
+    if isinstance(value,six.string_types):
         return removeEntities(value).strip()
     else:
         return value
@@ -76,15 +79,15 @@ def removeEntities(text, space_only=False):
     if text is None:
         return u""
     
-    if not isinstance(text,basestring):
-        return unicode(text)
+    if not isinstance(text,six.string_types):
+        return six.text_type(text)
     
     try:
-        t = text.decode('utf-8')
-    except (UnicodeEncodeError,UnicodeDecodeError), e:
+        t = text
+    except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
             t = text.encode ('ascii', 'xmlcharrefreplace') 
-        except (UnicodeEncodeError,UnicodeDecodeError), e:
+        except (UnicodeEncodeError,UnicodeDecodeError) as e:
             t = text
     text = t 
     # replace numeric versions of [&<>] with named versions,
@@ -106,7 +109,7 @@ def removeEntities(text, space_only=False):
             continue
         try:
             text = text.replace(e, v)
-        except UnicodeDecodeError, ex:
+        except UnicodeDecodeError as ex:
             # for the pound symbol in constants.py
             text = text.replace(e, v.decode('utf-8'))
 

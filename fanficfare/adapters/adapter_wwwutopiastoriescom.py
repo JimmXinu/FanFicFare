@@ -16,7 +16,7 @@
 #
 ####################################################################################################
 ### Adapted by GComyn on November 28, 2016
-### Updated on November 29, 2016 
+### Updated on November 29, 2016
 ###     Corrected for no author name.
 ###     Added check to see if the story has been removed by author
 ###
@@ -25,21 +25,25 @@
 ####################################################################################################
 '''
 This site is much link fictionmania, in that there is only one chapter per
-story, so we only have the one url to get information from. 
+story, so we only have the one url to get information from.
 We get the category from the author's page
 '''
+from __future__ import absolute_import
 import time
 import logging
+import six
 logger = logging.getLogger(__name__)
 import re
-import urllib2
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return WWWUtopiastoriesComAdapter
@@ -95,7 +99,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -114,7 +118,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
         url = self.url
         logger.debug("URL: "+url)
-        
+
         data = self.get_page(url)
 
         if "Latest Stories" in data:
@@ -131,7 +135,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title
-        a = unicode(soup.find('title')).replace(":: GaggedUtopia's Story Archive",'').strip()
+        a = six.text_type(soup.find('title')).replace(":: GaggedUtopia's Story Archive",'').strip()
         self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters:
@@ -155,24 +159,24 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+urllib2.quote(
+                    self.story.setMetadata('authorUrl','http://'+self.host+six.moves.urllib.parse.quote(
                         a['href'].encode('UTF-8')))
             elif 'Story Codes' in heading:
                 self.story.setMetadata('eroticatags',text.replace('Story Codes - ',''))
             elif 'Post Date' in heading:
                 self.story.setMetadata('datePublished', makeDate(text, self.dateformat))
             elif 'Rating' in heading:
-                ## this is a numerical rating for the story. 
+                ## this is a numerical rating for the story.
                 pass
             elif 'Site Rank' in heading:
                 ## This is a numerical value that shows where in the list of stories
                 ## the current story is ranked
                 pass
             elif 'Unique Views' in heading:
-                ## This is the number of times the story has bee viewed. 
+                ## This is the number of times the story has bee viewed.
                 pass
             elif 'PDF Download' in heading:
-                ## This is a link to download the PDF. 
+                ## This is a link to download the PDF.
                 pass
 
         ## The only way to get the category is from the author's page, but if there is no author to
@@ -185,12 +189,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
             if storyblock != None:
                 td = storyblock.findNext('td')
                 self.story.setMetadata('category',td.string)
-            
+
         # since the 'story' is one page, I am going to save the soup here, so we can use iter
         # to get the story text in the getChapterText function, instead of having to retrieve
         # it again.
         self.html = soup
-        
+
     ################################################################################################
     def getChapterText(self, url):
         ''' grab the text for an individual chapter. '''
@@ -202,12 +206,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         if None == story:
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         ## Removing the scripts, tables, links and divs from the story
-        for tag in (story.findAll('script') + story.findAll('table') + story.findAll('a') + 
+        for tag in (story.findAll('script') + story.findAll('table') + story.findAll('a') +
             story.findAll('div')):
             tag.extract()
-            
+
        #strip comments from story
         [comment.extract() for comment in story.findAll(text=lambda text:isinstance(text, Comment))]
 

@@ -1,8 +1,11 @@
+from __future__ import absolute_import
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
+import six
 
 
 def getClass():
@@ -10,8 +13,8 @@ def getClass():
 
 
 def _get_query_data(url):
-    components = urlparse.urlparse(url)
-    query_data = urlparse.parse_qs(components.query)
+    components = six.moves.urllib.parse.urlparse(url)
+    query_data = six.moves.urllib.parse.parse_qs(components.query)
     return dict((key, data[0]) for key, data in query_data.items())
 
 
@@ -29,7 +32,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        query_data = urlparse.parse_qs(self.parsedUrl.query)
+        query_data = six.moves.urllib.parse.parse_qs(self.parsedUrl.query)
         story_id = query_data['storyID'][0]
 
         self.story.setMetadata('storyId', story_id)
@@ -44,7 +47,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except six.moves.urllib.error.HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.
@@ -92,7 +95,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 self.story.setMetadata('author', element.string)
                 query_data = _get_query_data(element['href'])
                 self.story.setMetadata('authorId', query_data['word'])
-                self.story.setMetadata('authorUrl', urlparse.urljoin(url, element['href']))
+                self.story.setMetadata('authorUrl', six.moves.urllib.parse.urljoin(url, element['href']))
 
             elif key == 'Date Added':
                 try:
@@ -141,7 +144,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 element.name = 'div'
 
                 if keep_summary_html:
-                    self.story.setMetadata('description', unicode(element))
+                    self.story.setMetadata('description', six.text_type(element))
                 else:
                     self.story.setMetadata('description', element.get_text(strip=True))
 
@@ -159,7 +162,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
         # While wrapping in paragraphs would be possible, it's too much work,
         # I'd rather display the story 1:1 like it was found in the pre tag.
-        content = unicode(element)
+        content = six.text_type(element)
         content = content.replace('\n', '<br/>')
 
         if self.getConfig('non_breaking_spaces'):

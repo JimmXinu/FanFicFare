@@ -2,8 +2,12 @@
 # coding: utf-8
 """html2text: Turn HTML into equivalent Markdown-structured text."""
 from __future__ import division
+from __future__ import absolute_import
 import re
 import sys
+from six import unichr
+import six
+from six.moves import range
 
 try:
     from textwrap import wrap
@@ -148,7 +152,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         HTMLParser.HTMLParser.close(self)
 
         try:
-            nochr = unicode('')
+            nochr = six.text_type('')
             unicode_character = unichr
         except NameError:
             nochr = str('')
@@ -164,7 +168,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         else:
             nbsp = unicode_character(32)
         try:
-            outtext = outtext.replace(unicode('&nbsp_place_holder;'), nbsp)
+            outtext = outtext.replace(six.text_type('&nbsp_place_holder;'), nbsp)
         except NameError:
             outtext = outtext.replace('&nbsp_place_holder;', nbsp)
 
@@ -760,7 +764,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         else:
             c = int(name)
 
-        if not self.unicode_snob and c in unifiable_n.keys():
+        if not self.unicode_snob and c in list(unifiable_n.keys()):
             return unifiable_n[c]
         else:
             try:
@@ -772,7 +776,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 return ''
 
     def entityref(self, c):
-        if not self.unicode_snob and c in config.UNIFIABLE.keys():
+        if not self.unicode_snob and c in list(config.UNIFIABLE.keys()):
             return config.UNIFIABLE[c]
         else:
             try:

@@ -15,22 +15,24 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import collections
 import email
 import imaplib
 import re
-import urllib2 as u2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.parse
 
 import logging
+import six
 logger = logging.getLogger(__name__)
 
 from bs4 import BeautifulSoup
-from gziphttp import GZipProcessor
+from .gziphttp import GZipProcessor
 
-import adapters
-from configurable import Configuration
-from exceptions import UnknownSite
+from . import adapters
+from .configurable import Configuration
+from .exceptions import UnknownSite
 
 def get_urls_from_page(url,configuration=None,normalize=False):
 
@@ -75,7 +77,8 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         data = adapter._fetchUrl(url,usecache=False)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
-        opener = u2.build_opener(u2.HTTPCookieProcessor(),GZipProcessor())
+        opener = six.moves.urllib.request.build_opener(
+            six.moves.urllib.request.HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
 
     # kludge because I don't see it on enough sites to be worth generalizing yet.
@@ -93,7 +96,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 
     ## soup and re-soup because BS4/html5lib is more forgiving of
     ## incorrectly nested tags that way.
-    soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
+    soup = BeautifulSoup(six.text_type(BeautifulSoup(data,"html5lib")),"html5lib")
     if restrictsearch:
         soup = soup.find(*restrictsearch)
         #logger.debug("restrict search:%s"%soup)
@@ -112,18 +115,18 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
-            except Exception, e:
+            except Exception as e:
                 #logger.debug e
                 pass
 
     # Simply return the longest URL with the assumption that it contains the
     # most user readable metadata, if not normalized
-    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+    return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
 def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     urls = collections.OrderedDict()
     try:
-        data = unicode(data)
+        data = six.text_type(data)
     except UnicodeDecodeError:
         data=data.decode('utf8') ## for when called outside calibre.
 
@@ -143,7 +146,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
 
     # Simply return the longest URL with the assumption that it contains the
     # most user readable metadata, if not normalized
-    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+    return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
 
 def form_url(parenturl,url):
@@ -153,9 +156,9 @@ def form_url(parenturl,url):
      if "//" in url or parenturl == None:
          returl = url
      else:
-         parsedUrl = urlparse.urlparse(parenturl)
+         parsedUrl = six.moves.urllib.parse.urlparse(parenturl)
          if url.startswith("/") :
-             returl = urlparse.urlunparse(
+             returl = six.moves.urllib.parse.urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
                   url,
@@ -166,7 +169,7 @@ def form_url(parenturl,url):
                  toppath = parsedUrl.path
              else:
                  toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
-             returl = urlparse.urlunparse(
+             returl = six.moves.urllib.parse.urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
                   toppath + '/' + url,

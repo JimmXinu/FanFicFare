@@ -29,6 +29,7 @@
 
 from .charsetprober import CharSetProber
 from .enums import ProbingState, MachineState
+from six.moves import range
 
 
 class MultiByteCharSetProber(CharSetProber):

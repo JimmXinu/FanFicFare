@@ -19,12 +19,14 @@
 ### Tested with Calibre
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
-import urllib2
-import urlparse
+import six.moves.urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.parse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
 from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
@@ -95,7 +97,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except six.moves.urllib.error.HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
             else:
@@ -161,7 +163,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
             self.add_chapter(clink.string, clink['href'])
 
         cdates.sort()
-        # dateUpdated in upper part show only date of last chapter, but if 
+        # dateUpdated in upper part show only date of last chapter, but if
         # chapter in middle will be updated - it will be ignored. So we select
         # dates manually
         self.story.setMetadata('dateUpdated', cdates[-1])
