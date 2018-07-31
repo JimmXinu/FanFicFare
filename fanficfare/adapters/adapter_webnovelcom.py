@@ -16,6 +16,7 @@
 #
 
 # Adapted by GComyn on April 16, 2017
+from __future__ import absolute_import
 import cgi
 import difflib
 import json

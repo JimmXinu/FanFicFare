@@ -17,6 +17,7 @@
 ####################################################################################################
 # Adapted by GComyn - December 10, 2016
 ####################################################################################################
+from __future__ import absolute_import
 ''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
 import logging
 import re

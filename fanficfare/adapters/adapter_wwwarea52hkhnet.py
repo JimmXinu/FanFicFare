@@ -24,6 +24,7 @@
 ###     Fixed the Metadata processing to take into account that some of the
 ###         stories have the authorinfo div, and to make it more systematic
 #############################################################################
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)

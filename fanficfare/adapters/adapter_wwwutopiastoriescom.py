@@ -23,6 +23,7 @@
 ### Updated on December 18, 2016
 ###     Updated format as per linter, and added documentation
 ####################################################################################################
+from __future__ import absolute_import
 '''
 This site is much link fictionmania, in that there is only one chapter per
 story, so we only have the one url to get information from. 

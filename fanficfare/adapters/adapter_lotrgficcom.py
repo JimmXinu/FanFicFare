@@ -18,6 +18,7 @@
 ###  Adapted by GComyn
 ###  Completed on November, 22, 2016
 ##############################################################################
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)

@@ -21,6 +21,7 @@
 ###=================================================================================================
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
+from __future__ import absolute_import
 ''' This adapter scrapes the metadata and chapter text from stories on firefly.populli.org '''
 import logging
 import re

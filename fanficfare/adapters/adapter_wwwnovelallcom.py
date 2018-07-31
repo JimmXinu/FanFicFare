@@ -19,6 +19,7 @@
 ### Tested with Calibre
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import json

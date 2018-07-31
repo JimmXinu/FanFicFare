@@ -16,6 +16,7 @@
 
 # Adapted by GComyn on December 14. 2016
 
+from __future__ import absolute_import
 import json
 import logging
 import re

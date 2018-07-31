@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 from adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
 
 def getClass():

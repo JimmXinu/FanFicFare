@@ -2,6 +2,8 @@
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
 ## This module is used by mobi.py exclusively.
+## Renamed Jul 2018 to avoid conflict with other 'html' packages
+from __future__ import absolute_import
 
 import re
 import sys

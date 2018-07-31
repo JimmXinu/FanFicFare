@@ -26,6 +26,7 @@
 ###         take a long gime to process. I've removed as much of the extra
 ###         formatting as I thought I could.
 #############################################################################
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)

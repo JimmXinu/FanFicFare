@@ -1,5 +1,7 @@
 #-*-coding:utf-8-*-
 # Code taken from http://python.su/forum/viewtopic.php?pid=66946
+from __future__ import absolute_import
+
 import unicodedata
 def is_syllable(letter):
     syllables = ("A", "E", "I", "O", "U", "a", "e", "i", "o", "u")
