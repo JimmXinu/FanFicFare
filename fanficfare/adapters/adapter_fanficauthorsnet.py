@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -- coding: utf-8 --
-# Copyright 2013 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,11 +24,14 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 import sys
-import urllib2
 from bs4 import UnicodeDammit, Comment
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -157,7 +160,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url+'index/', params, usecache=False)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
             elif e.code == 410:

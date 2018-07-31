@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -149,7 +152,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
             #print("data:%s"%data)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code in (404,410):
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -199,7 +202,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 #logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -236,7 +239,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                                                      stripHTML(a),
                                                      stripHTML(autha)),'https://'+self.host+a['href'])
 
-            except urllib2.HTTPError, e:
+            except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(url)
                 else:

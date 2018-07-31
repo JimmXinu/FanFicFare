@@ -24,11 +24,15 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 from bs4 import Comment, BeautifulSoup
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves.urllib.parse import quote
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -57,12 +61,12 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         if '%' not in storyId:
             ## assume already escaped if contains %.  Assume needs escaping if it doesn't.
             try:
-                storyId = urllib2.quote(storyId)
+                storyId = quote(storyId)
             except KeyError:
                 ## string from calibre is utf8, but lushstories.com
                 ## expects extended chars to be in latin1 / iso-8859-1
                 ## rather than utf8.
-                storyId = urllib2.quote(storyId.encode("iso-8859-1"))
+                storyId = quote(storyId.encode("iso-8859-1"))
 
         self.story.setMetadata('storyId',storyId)
 
@@ -119,7 +123,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -173,7 +177,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         authorurl = self.story.getMetadata('authorUrl')
         try:
             adata = self._fetchUrl(authorurl)
-        except (urllib2.HTTPError) as e:
+        except (HTTPError) as e:
             ## Can't get the author's page, so we use what is on the story page
             tags = soup.find('div',{'id':'storytags'}).find('a')
             if tags:
@@ -207,7 +211,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         for story in asoup.findAll('div',{'class':'entrycontent'}):
             for link in story.find_all('a'):
                 if '/stories/' in link['href']:
-                    linkh = urllib2.quote(link['href'].encode('utf-8', 'ignore'))
+                    linkh = quote(link['href'].encode('utf-8', 'ignore'))
                     linkh = linkh.replace('%3A', ':')
 #                    print self.url
 #                    print linkh

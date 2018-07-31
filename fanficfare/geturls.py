@@ -20,11 +20,11 @@ import collections
 import email
 import imaplib
 import re
+
+# unicode in py2, str in py3
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
 from .six.moves.urllib.parse import (urlparse, urlunparse)
-# unicode in py2, str in py3
 from .six import text_type as unicode
-
 from .six import ensure_str
 
 import logging

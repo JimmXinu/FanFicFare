@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,11 @@ import logging
 import json
 import re
 import sys  # ## used for debug purposes
-import urllib2
 import datetime
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -96,7 +99,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:
