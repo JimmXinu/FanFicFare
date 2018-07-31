@@ -7,7 +7,7 @@ import urllib2
 import datetime
 
 from .. import exceptions
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 
 SITE_DOMAIN = 'quotev.com'

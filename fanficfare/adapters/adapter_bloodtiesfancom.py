@@ -26,7 +26,7 @@ from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # By virtue of being recent and requiring both is_adult and user/pass,
 # adapter_fanficcastletvnet.py is the best choice for learning to

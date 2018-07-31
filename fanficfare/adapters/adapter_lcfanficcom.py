@@ -26,7 +26,7 @@ import sys  # ## used for debug purposes
 import urllib2
 import datetime
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML

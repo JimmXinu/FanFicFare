@@ -22,7 +22,7 @@ import re
 import urllib2
 import urlparse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 

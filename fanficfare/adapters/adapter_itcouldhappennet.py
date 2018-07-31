@@ -18,7 +18,7 @@
 # Software: eFiction
 from __future__ import absolute_import
 import re
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class ItCouldHappenNetSiteAdapter(BaseEfictionAdapter):
 

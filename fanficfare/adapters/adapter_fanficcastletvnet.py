@@ -26,7 +26,7 @@ import urllib2
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # In general an 'adapter' needs to do these five things:
 

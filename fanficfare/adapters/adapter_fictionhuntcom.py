@@ -24,7 +24,7 @@ import urllib2
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FictionHuntComSiteAdapter(BaseSiteAdapter):
 

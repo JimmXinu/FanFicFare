@@ -25,7 +25,7 @@ import sys
 import urllib2
 from datetime import datetime, timedelta
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 

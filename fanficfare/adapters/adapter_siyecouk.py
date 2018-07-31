@@ -26,7 +26,7 @@ import urllib2
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 # This function is called by the downloader in all adapter_*.py files
 # in this dir to register the adapter class.  So it needs to be

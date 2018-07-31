@@ -25,7 +25,7 @@ import re
 import urllib2
 import urlparse
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
 from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
