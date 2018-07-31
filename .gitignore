@@ -15,6 +15,7 @@
 
 # usually perl -pi.back -e edits.
 *.back
+*.bak
 
 cleanup.sh
 FanFictionDownLoader.zip
