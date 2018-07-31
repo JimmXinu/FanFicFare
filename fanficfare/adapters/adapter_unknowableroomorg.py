@@ -21,7 +21,6 @@ from __future__ import absolute_import
 ''' This adapter will download stories from the site unknowableroom.org '''
 import logging
 import re
-import time
 import urllib2
 import sys
 

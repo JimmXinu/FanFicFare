@@ -23,7 +23,6 @@ import logging
 import json
 import re
 import sys  # ## used for debug purposes
-import time
 import urllib2
 import datetime
 

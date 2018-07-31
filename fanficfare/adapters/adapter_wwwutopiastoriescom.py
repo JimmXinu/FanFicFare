@@ -29,7 +29,6 @@ This site is much link fictionmania, in that there is only one chapter per
 story, so we only have the one url to get information from. 
 We get the category from the author's page
 '''
-import time
 import logging
 logger = logging.getLogger(__name__)
 import re
