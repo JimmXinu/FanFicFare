@@ -23,8 +23,8 @@ import re
 from xml.dom.minidom import parseString
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six.moves.urllib.error import HTTPError
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions

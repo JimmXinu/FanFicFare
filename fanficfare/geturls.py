@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,24 +15,27 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import collections
 import email
 import imaplib
 import re
-from six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
-from six.moves.urllib.parse import (urlparse, urlunparse)
+from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from .six.moves.urllib.parse import (urlparse, urlunparse)
 # unicode in py2, str in py3
-from six import text_type as unicode
+from .six import text_type as unicode
+
+from .six import ensure_str
 
 import logging
 logger = logging.getLogger(__name__)
 
 from bs4 import BeautifulSoup
-from gziphttp import GZipProcessor
+from .gziphttp import GZipProcessor
 
 from . import adapters
-from configurable import Configuration
-from exceptions import UnknownSite
+from .configurable import Configuration
+from .exceptions import UnknownSite
 
 def get_urls_from_page(url,configuration=None,normalize=False):
 
@@ -120,12 +123,12 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 
     # Simply return the longest URL with the assumption that it contains the
     # most user readable metadata, if not normalized
-    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+    return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
 def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     urls = collections.OrderedDict()
     try:
-        data = unicode(data)
+        data = ensure_str(data)
     except UnicodeDecodeError:
         data=data.decode('utf8') ## for when called outside calibre.
 
@@ -145,7 +148,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
 
     # Simply return the longest URL with the assumption that it contains the
     # most user readable metadata, if not normalized
-    return urls.keys() if normalize else [max(value, key=len) for key, value in urls.items()]
+    return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
 
 def form_url(parenturl,url):
@@ -194,7 +197,7 @@ def cleanup_url(href,email=False):
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
-    logger.debug("get_urls_from_imap srv:(%s)"%srv)
+    # logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
     mail.login(user, passwd)
     mail.list()
@@ -217,33 +220,31 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
         result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
 
-        #logger.debug("result:%s"%result)
-        #logger.debug("data:%s"%data)
+        # logger.debug("result:%s"%result)
+        # logger.debug("data:%s"%data)
 
         raw_email = data[0][1]
 
     #raw_email = data[0][1] # here's the body, which is raw text of the whole email
     # including headers and alternate payloads
 
-        email_message = email.message_from_string(raw_email)
+        email_message = email.message_from_string(ensure_str(raw_email))
 
-        #logger.debug "To:%s"%email_message['To']
-        #logger.debug "From:%s"%email_message['From']
-        #logger.debug "Subject:%s"%email_message['Subject']
-
-    #    logger.debug("payload:%s"%email_message.get_payload())
+        # logger.debug("To:%s"%email_message['To'])
+        # logger.debug("From:%s"%email_message['From'])
+        # logger.debug("Subject:%s"%email_message['Subject'])
+        # logger.debug("payload:%r"%email_message.get_payload(decode=True))
 
         urllist=[]
         for part in email_message.walk():
             try:
-            #logger.debug("part mime:%s"%part.get_content_type())
+                # logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
                     urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
                 if part.get_content_type() == 'text/html':
                     urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
             except Exception as e:
                 logger.error("Failed to read email content: %s"%e,exc_info=True)
-        #logger.debug "urls:%s"%get_urls_from_text(get_first_text_block(email_message))
 
         if urllist and markread:
             #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')

@@ -20,14 +20,14 @@ import re
 import os.path
 import datetime
 import string
-import six
 import zipfile
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import BytesIO # StringIO under py2
+from .. import six
+from ..six import text_type as unicode
+from ..six import BytesIO # StringIO under py2
 
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML

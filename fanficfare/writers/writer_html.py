@@ -20,7 +20,7 @@ import logging
 import string
 
 # py2 vs py3 transition
-from six import text_type as unicode
+from ..six import text_type as unicode
 
 import bs4
 

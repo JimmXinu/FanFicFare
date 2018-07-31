@@ -14,9 +14,9 @@ from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import string_types as basestring
-from six import BytesIO # StringIO under py2
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six import BytesIO # StringIO under py2
 
 import bs4
 

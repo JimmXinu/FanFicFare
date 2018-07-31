@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 # Changes Copyright 2018 FanFicFare team
-
+from __future__ import absolute_import
     
 import struct
 import time
@@ -9,13 +9,13 @@ import random
 import logging
 
 # py2 vs py3 transition
-from six import text_type as unicode
-from six import string_types as basestring
-from six import BytesIO # StringIO under py2
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six import BytesIO # StringIO under py2
 
 logger = logging.getLogger(__name__)
 
-from mobihtml import HtmlProcessor
+from .mobihtml import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html
