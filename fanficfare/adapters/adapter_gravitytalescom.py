@@ -37,7 +37,7 @@ except ImportError:
         # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
         feedparser = None
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML

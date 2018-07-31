@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from bs4 import BeautifulSoup
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 

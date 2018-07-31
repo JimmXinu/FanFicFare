@@ -7,7 +7,7 @@ import urlparse
 
 from bs4.element import Tag
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 

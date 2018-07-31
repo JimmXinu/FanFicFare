@@ -17,7 +17,7 @@
 
 # Software: eFiction
 from __future__ import absolute_import
-from base_efiction_adapter import BaseEfictionAdapter
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class TheMapleBookshelfComSiteAdapter(BaseEfictionAdapter):
 

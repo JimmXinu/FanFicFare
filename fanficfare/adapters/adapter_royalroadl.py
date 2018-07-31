@@ -26,7 +26,7 @@ import urllib2
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
 

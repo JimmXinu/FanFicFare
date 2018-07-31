@@ -25,7 +25,7 @@ import re
 import time
 import urllib2
 
-from base_adapter import BaseSiteAdapter
+from .base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 from ..dateutils import parse_relative_date_string
