@@ -16,13 +16,10 @@
 #
 
 from __future__ import absolute_import
-import time
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib2
-import time
-
 ## They're from the same people and pretty much identical.
 from adapter_fanfictionnet import FanFictionNetSiteAdapter
 

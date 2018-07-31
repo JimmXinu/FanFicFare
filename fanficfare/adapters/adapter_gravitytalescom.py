@@ -21,7 +21,6 @@
 from __future__ import absolute_import
 import logging
 import re
-import time
 import urllib2
 from datetime import datetime
 

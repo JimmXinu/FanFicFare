@@ -22,7 +22,6 @@ from __future__ import absolute_import
 import logging
 import re
 import sys
-import time
 import urllib2
 
 from base_adapter import BaseSiteAdapter, makeDate
