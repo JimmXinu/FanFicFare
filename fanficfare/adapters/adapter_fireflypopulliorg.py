@@ -186,7 +186,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                         # There alot of nbsp's (non broken spaces) in here, so I'm going to remove them
                         # I'm also getting rid of the bold tags and the nextline characters to make it 
                         # easier to get the information below
-                        story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(
+                        story = repr(story).replace(u'\\xa0', '').replace('  ',' ').replace(
                             '<b>','').replace('</b>','').replace(r'\n','')
                         story = self.make_soup(story).find('p')
                         story_a = story.find('a')
@@ -319,7 +319,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         # the end  of the section, which has alot of extraneous things, then adding my own div
         # wrapper, recreating the soup, then getting that div from the soup again, before sending to
         # the writers.
-        story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(r'\n','').strip()
+        story = repr(story).replace(u'\\xa0', '').replace('  ',' ').replace(r'\n','').strip()
         story = story[12:]
         story = story[:story.find('<p align="center" class="comments">Please <')]
         story = '<div class="chaptertext">' + story + '</div>'

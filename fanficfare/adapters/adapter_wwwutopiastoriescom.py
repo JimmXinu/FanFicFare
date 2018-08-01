@@ -147,7 +147,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
 
         for detail in soup.findAll('li'):
-            det = unicode(detail).replace(u"\xc2\xa0",'')
+            det = unicode(detail).replace(u"\xa0",'')
             heading = stripHTML(det).split(' - ')[0]
             text = stripHTML(det).replace(heading+' - ','')
             if 'Author' in heading:

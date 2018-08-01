@@ -133,7 +133,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # which is usualy FireFly on this site, but I'm going to get them
         # anyway.a
         category = soup.find('span', {'id': 'MainContent_txtItemDetails'})
-        category = stripHTML(unicode(category).replace(u"\xc2\xa0", ' '))
+        category = stripHTML(unicode(category).replace(u"\xa0", u' '))
         metad = category.split('    ')
         for meta in metad:
             if ":" in meta:
