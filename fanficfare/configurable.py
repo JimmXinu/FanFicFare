@@ -26,7 +26,7 @@ from .six.moves import configparser
 from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from .six.moves import urllib
 from .six.moves.urllib.parse import urlencode
-from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
 from .six.moves.urllib.error import HTTPError
 from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
@@ -1023,15 +1023,15 @@ class Configuration(configparser.SafeConfigParser):
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
         self.do_sleep(extrasleep)
 
-        ## urllib.Request assumes POST when data!=None.  Also assumes data
+        ## Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
         if 'Content-type' not in headers:
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
-        req = urllib.Request(url,
-                         data=urlencode(parameters),
-                         headers=headers)
+        req = Request(url,
+                      data=urlencode(parameters),
+                      headers=headers)
 
         ## Specific UA because too many sites are blocking the default python UA.
         self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
