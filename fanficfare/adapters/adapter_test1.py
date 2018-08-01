@@ -113,7 +113,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(self.url,self.username)
 
         if idstr == '664':
-            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring)
+            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring+"&nbsp;&nbsp;")
             self.story.setMetadata('author','Test Author aa bare amp(&) quote(&#39;) amp(&amp;)')
         else:
             self.story.setMetadata(u'title',"Test Story Title "+idstr)
