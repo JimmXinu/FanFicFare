@@ -191,7 +191,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
             ## I've seen a non-breaking space in some of the storyblocks
             ## so we are going to remove them.
-            series =  stripHTML(unicode(series.renderContents()).replace(u"\xc2\xa0",'')).strip()
+            series =  stripHTML(unicode(series.renderContents()).replace(u"\xa0",'')).strip()
             if len(series) > 0:
                 self.story.setMetadata('series',series)
 

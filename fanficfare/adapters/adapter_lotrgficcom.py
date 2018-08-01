@@ -286,7 +286,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
             #<br/>
             #</p>
         ## we'll have to remove the non-breaking spaces to get this to work.
-        metad = unicode(metad).replace(u"\xc2\xa0",'').replace('\n','')
+        metad = unicode(metad).replace(u"\xa0",'').replace('\n','')
         for txt in metad.split('<br/>'):
             if 'Challenges:' in txt:
                 txt = txt.replace('Challenges:','').strip()
