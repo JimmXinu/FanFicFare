@@ -24,7 +24,6 @@ import re
 import sys
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -134,7 +133,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # which is usualy FireFly on this site, but I'm going to get them
         # anyway.a
         category = soup.find('span', {'id': 'MainContent_txtItemDetails'})
-        category = stripHTML(ensure_text(category).replace(b"\xc2\xa0", ' '))
+        category = stripHTML(unicode(category).replace(u"\xc2\xa0", ' '))
         metad = category.split('    ')
         for meta in metad:
             if ":" in meta:

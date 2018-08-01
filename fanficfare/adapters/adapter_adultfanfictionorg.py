@@ -30,7 +30,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -338,7 +337,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
             ##They are always in the same order.
             ## EDIT 09/26/2016: Had some trouble with unicode errors... so I had to put in the decode/encode parts to fix it
-            liMetadata = ensure_text(lc2).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
+            liMetadata = unicode(lc2).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
             liMetadata = stripHTML(liMetadata.replace(r'<br/>','-:-').replace('<!-- <br /-->','-:-'))
             liMetadata = liMetadata.strip('-:-').strip('-:-').encode('utf-8')
             for i, value in enumerate(liMetadata.decode('utf-8').split('-:-')):
