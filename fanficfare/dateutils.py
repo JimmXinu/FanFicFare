@@ -22,6 +22,8 @@ from datetime import datetime, timedelta
 import logging
 logger = logging.getLogger(__name__)
 
+## There's a windows / py3 bug that prevents using 0.
+## So Jan 2, 1970 instead.
 UNIX_EPOCHE = datetime.fromtimestamp(86400)
 
 ## Currently used by adapter_webnovelcom & adapter_wwwnovelallcom
