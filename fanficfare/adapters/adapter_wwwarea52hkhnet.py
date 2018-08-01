@@ -33,6 +33,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -191,7 +192,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
             ## I've seen a non-breaking space in some of the storyblocks
             ## so we are going to remove them.
-            series =  stripHTML(str(series.renderContents()).replace(b"\xc2\xa0",'')).strip()
+            series =  stripHTML(ensure_text(series.renderContents()).replace(b"\xc2\xa0",'')).strip()
             if len(series) > 0:
                 self.story.setMetadata('series',series)
 
@@ -230,7 +231,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
                     if not self.getConfig("keep_summary_html"):
                         value = stripHTML(value).replace('Summary:','').strip()
                     else:
-                        value = str(value).replace('<i>Summary:</i>','').strip()
+                        value = unicode(value).replace('<i>Summary:</i>','').strip()
                     self.setDescription(url, value)
 
     # grab the text for an individual chapter.

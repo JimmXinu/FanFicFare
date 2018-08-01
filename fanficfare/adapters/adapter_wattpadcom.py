@@ -122,8 +122,8 @@ class WattpadComAdapter(BaseSiteAdapter):
 
         # CATEGORIES
         try:
-            storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(str(c)) for c in storyInfo['categories'] if
-                               WattpadComAdapter.CATEGORY_DEFs.has_key(str(c))]
+            storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(unicode(c)) for c in storyInfo['categories'] if
+                               WattpadComAdapter.CATEGORY_DEFs.has_key(unicode(c))]
 
             self.story.setMetadata('category', storyCategories[0])
             self.story.setMetadata('tags', storyInfo['tags'])

@@ -27,6 +27,8 @@ import logging
 # py2 vs py3 transition
 from .. import six
 from ..six import text_type as unicode
+from ..six import ensure_text
+from ..six import ensure_binary
 from ..six import BytesIO # StringIO under py2
 
 from ..configurable import Configurable
@@ -69,8 +71,7 @@ class BaseStoryWriter(Configurable):
         return self.story.formatFileName(self.getConfig('zip_filename'),self.getConfig('allow_unsafe_filename'))
 
     def _write(self, out, text):
-        # instead of six.ensure_text(text)
-        out.write(text.encode('utf8'))
+        out.write(ensure_binary(text))
 
     def writeTitlePage(self, out, START, ENTRY, END, WIDE_ENTRY=None, NO_TITLE_ENTRY=None):
         """
@@ -182,7 +183,7 @@ class BaseStoryWriter(Configurable):
             logger.info("Save directly to file: %s" % outfilename)
             if self.getConfig('make_directories'):
                 path=""
-                outputdirs = os.path.dirname(unicode(outfilename)).split('/')
+                outputdirs = os.path.dirname(ensure_text(outfilename)).split('/')
                 for dir in outputdirs:
                     path+=dir+"/"
                     if not os.path.exists(path):

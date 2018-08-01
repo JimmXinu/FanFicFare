@@ -269,7 +269,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                         else:
                             ## This should catch anything else, and shouldn't ever really be gotten
                             # to, but I'm going to have it print out in the debugger, just in case
-                            logger.debug('Metadata not caught: %s' % str(meta))
+                            logger.debug('Metadata not caught: %s' % unicode(meta))
                             zzzzzzzz = 0
                 elif label == 'characters':
                     self.story.setMetadata('characters', value)

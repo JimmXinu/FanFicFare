@@ -123,7 +123,7 @@ class TomParisDormComAdapter(BaseSiteAdapter):
         # Get the rest of the Metadata
         mdsoup = soup.find('div',{'id' : 'output'})
         
-        mdstr = str(mdsoup).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
+        mdstr = unicode(mdsoup).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
         mdstr = stripHTML(mdstr.replace(r'<br/>',r'-:-').replace('|','-:-'))
         mdstr = mdstr.replace(r'[Rev',r'-:-[Rev').replace(' -:- ','-:-').strip('-:-').strip('-:-')
         

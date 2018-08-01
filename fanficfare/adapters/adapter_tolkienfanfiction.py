@@ -67,7 +67,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.parse import urlencode
 from ..six.moves.urllib.error import HTTPError
 from ..six.moves import urllib
 
@@ -196,7 +196,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
         logger.debug('Title as `str`: ' + unicode(title))
         # For publication date we need to search
         try:
-            queryString = urllib.urlencode((
+            queryString = urlencode((
                 ('type', 3),
                 ('field', 1),
                 # need translate here for the weird accented letters

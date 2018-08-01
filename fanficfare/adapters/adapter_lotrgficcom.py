@@ -28,6 +28,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -255,7 +256,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         ## dedicated tag, so we have to split some hairs..
         ## This may not work every time... but I tested it with 6 stories...
         mdata = metad[0]
-        while '<hr/>' not in str(mdata.nextSibling):
+        while '<hr/>' not in unicode(mdata.nextSibling):
             mdata = mdata.nextSibling
         self.setDescription(url,mdata.previousSibling.previousSibling.get_text())
         
@@ -286,7 +287,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
             #<br/>
             #</p>
         ## we'll have to remove the non-breaking spaces to get this to work.
-        metad = str(metad).replace(b"\xc2\xa0",'').replace('\n','')
+        metad = ensure_text(metad).replace(b"\xc2\xa0",'').replace('\n','')
         for txt in metad.split('<br/>'):
             if 'Challenges:' in txt:
                 txt = txt.replace('Challenges:','').strip()
