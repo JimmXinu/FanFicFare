@@ -28,7 +28,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -287,7 +286,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
             #<br/>
             #</p>
         ## we'll have to remove the non-breaking spaces to get this to work.
-        metad = ensure_text(metad).replace(b"\xc2\xa0",'').replace('\n','')
+        metad = unicode(metad).replace(u"\xc2\xa0",'').replace('\n','')
         for txt in metad.split('<br/>'):
             if 'Challenges:' in txt:
                 txt = txt.replace('Challenges:','').strip()
