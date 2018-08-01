@@ -122,7 +122,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         ## title:
         ## <h1 id="post-title">A, A' Fan Fiction &#10095; Mmmmm</h1>
-        titletext = stripHTML(soup.find("h1",{"id":"post-title"}))
+        titletext = unicode(stripHTML(soup.find("h1",{"id":"post-title"})))
         titletext = titletext[titletext.index(u'❯')+2:]
         # print("title:(%s)"%titletext)
         self.story.setMetadata('title',titletext)
