@@ -31,10 +31,9 @@ from ..six.moves.urllib.error import HTTPError
 from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
+from ..dateutils import UNIX_EPOCHE
 
-UNIX_EPOCHE = datetime.fromtimestamp(86400)
 logger = logging.getLogger(__name__)
-
 
 def getClass():
     return InkBunnyNetSiteAdapter
