@@ -152,7 +152,7 @@ class WritingWhimsicalwanderingsNetAdapter(BaseSiteAdapter):
         ## I know I'm replacing alot of <br>'s here, but I want to make sure that they are all
         ## the same, so we can split the string correctly.
         metad = soup.find('div',{'class':'listbox'})
-        metad = str(metad.renderContents()).replace('\n',' ').replace('<br>','|||||||').replace('<br/>','|||||||').replace('<br />','|||||||').strip()
+        metad = unicode(metad.renderContents()).replace('\n',' ').replace('<br>','|||||||').replace('<br/>','|||||||').replace('<br />','|||||||').strip()
         while '||||||||' in metad:
             metad = metad.replace('||||||||','|||||||')
         metad = stripHTML(metad)

@@ -25,11 +25,13 @@ from . import six
 from .six.moves import configparser
 from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from .six.moves import urllib
+from .six.moves.urllib.parse import urlencode
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
 from .six.moves.urllib.error import HTTPError
 from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
 from .six import string_types as basestring
+from .six import ensure_binary
 
 import time
 import logging
@@ -672,7 +674,7 @@ class Configuration(configparser.SafeConfigParser):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
         # was filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
         vlist = vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
-        #print("vlist("+key+"):"+str(vlist))
+        #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:
             return default
         else:
@@ -1028,7 +1030,7 @@ class Configuration(configparser.SafeConfigParser):
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
         req = urllib.Request(url,
-                         data=urllib.urlencode(parameters),
+                         data=urlencode(parameters),
                          headers=headers)
 
         ## Specific UA because too many sites are blocking the default python UA.
@@ -1097,7 +1099,7 @@ class Configuration(configparser.SafeConfigParser):
 
         if parameters != None:
             opened = self.opener.open(url.replace(' ','%20'),
-                                      urllib.urlencode(parameters),
+                                      ensure_binary(urlencode(parameters)),
                                       float(self.getConfig('connect_timeout',30.0)))
         else:
             opened = self.opener.open(url.replace(' ','%20'),
@@ -1152,6 +1154,7 @@ class Configuration(configparser.SafeConfigParser):
                     break # break out on 404
             except Exception as e:
                 excpt=e
+                raise
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
 
         logger.debug("Giving up on %s" %safe_url(url))

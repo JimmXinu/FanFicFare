@@ -30,6 +30,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -235,7 +236,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         # Find the chapters:
         chapters = soup.find('div',{'class':'dropdown-content'})
         for i, chapter in enumerate(chapters.findAll('a')):
-            self.add_chapter(chapter,self.url+'&chapter='+str(i+1))
+            self.add_chapter(chapter,self.url+'&chapter='+unicode(i+1))
         
 
         # Find authorid and URL from... author url.
@@ -302,7 +303,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                 while i == 0:
                     ##We already have the first page, so if this is the first time through, skip getting the page
                     if page != 1:
-                        author_Url = '{0}&view=story&zone={1}&page={2}'.format(self.story.getMetadata('authorUrl'), self.zone, str(page))
+                        author_Url = '{0}&view=story&zone={1}&page={2}'.format(self.story.getMetadata('authorUrl'), self.zone, unicode(page))
                         logger.debug('Getting the author page: {0}'.format(author_Url))
                         try:
                             adata = self._fetchUrl(author_Url)
@@ -337,7 +338,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
             ##They are always in the same order.
             ## EDIT 09/26/2016: Had some trouble with unicode errors... so I had to put in the decode/encode parts to fix it
-            liMetadata = str(lc2).decode('utf-8').replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
+            liMetadata = ensure_text(lc2).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
             liMetadata = stripHTML(liMetadata.replace(r'<br/>','-:-').replace('<!-- <br /-->','-:-'))
             liMetadata = liMetadata.strip('-:-').strip('-:-').encode('utf-8')
             for i, value in enumerate(liMetadata.decode('utf-8').split('-:-')):

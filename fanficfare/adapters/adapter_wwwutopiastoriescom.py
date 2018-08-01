@@ -41,6 +41,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six import ensure_text
 from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import quote
 
@@ -147,12 +148,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
 
         for detail in soup.findAll('li'):
-            det = str(detail).replace(b"\xc2\xa0",'')
+            det = ensure_text(detail).replace(b"\xc2\xa0",'')
             heading = stripHTML(det).split(' - ')[0]
             text = stripHTML(det).replace(heading+' - ','')
             if 'Author' in heading:
                 a = detail.find('a')
-                if 'mailto' in str(a):
+                if 'mailto' in unicode(a):
                     self.story.setMetadata('authorId','0000000000')
                     self.story.setMetadata('authorUrl',self.url)
                     self.story.setMetadata('author','Unknown')
