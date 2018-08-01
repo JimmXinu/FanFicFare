@@ -1083,7 +1083,9 @@ class Story(Configurable):
                 chapter['title'] = chapter['chapter']
                 retval.append(chapter)
         else:
-            retval = self.chapters
+            # return a copy so chapters inside story can't be changed
+            # by code outside it.
+            retval = copy.deepcopy(self.chapters)
 
         return retval
 
