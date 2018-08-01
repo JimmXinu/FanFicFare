@@ -159,5 +159,11 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         if self.getConfig('strip_text_links'):
             for anchor in story1('a', {'target': '_blank'}):
                 anchor.replaceWith(anchor.string)
+            ## remove ad links in the story text and their following <br>
+            for anchor in story1('a', {'rel': 'nofollow'}):
+                br = anchor.find_next_sibling('br')
+                if br:
+                    br.extract()
+                anchor.extract()
 
         return self.utf8FromSoup(url, story1)
