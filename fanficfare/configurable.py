@@ -34,7 +34,7 @@ from .six import string_types as basestring
 import time
 import logging
 import sys
-import pickle
+# import pickle
 
 try:
     from google.appengine.api import apiproxy_stub_map
