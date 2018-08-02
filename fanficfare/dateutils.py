@@ -19,6 +19,9 @@ from __future__ import absolute_import
 
 from datetime import datetime, timedelta
 
+# py2 vs py3 transition
+from .six import text_type as unicode
+
 import logging
 logger = logging.getLogger(__name__)
 
