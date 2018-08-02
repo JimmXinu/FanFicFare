@@ -20,6 +20,9 @@ import json
 import logging
 import re
 
+# py2 vs py3 transition
+from ..six import text_type as unicode
+
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions as exceptions
 logger = logging.getLogger(__name__)
@@ -46,7 +49,7 @@ class WattpadComAdapter(BaseSiteAdapter):
             try:
                 WattpadComAdapter.CATEGORY_DEFs = json.loads(self._fetchUrl(WattpadComAdapter.API_GETCATEGORIES))
             except:
-                logger.debug('API_GETCATEGORIES failed.')
+                logger.warn('API_GETCATEGORIES failed.')
                 WattpadComAdapter.CATEGORY_DEFs = []
 
     @staticmethod
@@ -88,7 +91,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         try:
             storyInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_STORYINFO % self.storyId))
-            logger.debug('storyInfo: %s' % json.dumps(storyInfo))
+            # logger.debug('storyInfo: %s' % json.dumps(storyInfo))
         except Exception:
             raise exceptions.InvalidStoryURL(self.url, self.getSiteDomain(), self.getSiteExampleURLs())
 
