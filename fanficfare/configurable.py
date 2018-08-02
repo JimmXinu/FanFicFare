@@ -1030,7 +1030,7 @@ class Configuration(configparser.SafeConfigParser):
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
         req = Request(url,
-                      data=urlencode(parameters),
+                      data=ensure_binary(urlencode(parameters)),
                       headers=headers)
 
         ## Specific UA because too many sites are blocking the default python UA.

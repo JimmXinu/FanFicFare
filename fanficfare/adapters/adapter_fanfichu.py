@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import re
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six import ensure_binary
 from ..six.moves.urllib import parse as urlparse
 from ..six.moves.urllib.error import HTTPError
 
@@ -87,7 +88,7 @@ class FanficHuAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + '&i=1')
 
-        if soup.title.string.encode(_SOURCE_CODE_ENCODING).strip(' :') == 'írta':
+        if soup.title.string.encode(_SOURCE_CODE_ENCODING).strip(b' :') == 'írta':
             raise exceptions.StoryDoesNotExist(self.url)
 
         chapter_options = soup.find('form', action='viewstory.php').select('option')
@@ -143,7 +144,7 @@ class FanficHuAdapter(BaseSiteAdapter):
 
             while index < len(cells):
                 cell = cells[index]
-                key = cell.b.string.encode(_SOURCE_CODE_ENCODING).strip(':')
+                key = cell.b.string.encode(_SOURCE_CODE_ENCODING).strip(b':')
                 try:
                     value = cells[index+1].string.encode(_SOURCE_CODE_ENCODING)
                 except AttributeError:
