@@ -346,7 +346,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             chapter_description = '<p><b>Description:</b> %s</p><hr />' % chapter_description
         fullhtml += self.getPageText(raw_page, url)
         if pages:
-            for page_no in xrange(2, len(page_nums) + 1):
+            for page_no in range(2, len(page_nums) + 1):
                 page_url = url +  "?page=%s" % page_no
                 logger.debug("page_url= %s" % page_url)
                 raw_page = self._fetchUrl(page_url)

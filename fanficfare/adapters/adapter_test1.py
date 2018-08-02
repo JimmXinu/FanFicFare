@@ -23,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 from .. import exceptions
 
+# py2 vs py3 transition
+from ..six import ensure_text
+
 from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
@@ -68,13 +71,13 @@ class TestSiteAdapter(BaseSiteAdapter):
                     #print("addList:%s"%(nkey))
                     for val in self.get_config_list(sections,key):
                         #print("addList:%s->%s"%(nkey,val))
-                        self.story.addToList(nkey,val.decode('utf-8').replace('{{storyId}}',idstr))
+                        self.story.addToList(nkey,ensure_text(val).replace('{{storyId}}',idstr))
                 else:
                     # Special cases:
                     if key in ['datePublished','dateUpdated']:
                         self.story.setMetadata(key,makeDate(self.get_config(sections,key),"%Y-%m-%d"))
                     else:
-                        self.story.setMetadata(key,self.get_config(sections,key).decode('utf-8').replace('{{storyId}}',idstr))
+                        self.story.setMetadata(key,ensure_text(self.get_config(sections,key)).replace('{{storyId}}',idstr))
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
             if self.has_config(sections,'chapter_urls'):

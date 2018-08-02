@@ -20,11 +20,14 @@ import bs4
 import datetime
 import logging
 import re
+from itertools import takewhile
+
 from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
+from ..six.moves import zip as izip
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -703,7 +706,6 @@ def _getLargestCommonPrefix(*args):
     """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
-    from itertools import takewhile, izip
     toLower = lambda xs: map(lambda x: x.lower(), xs)
     allSame = lambda xs: len(set(toLower(xs))) == 1
     return u''.join([i[0] for i in takewhile(allSame, izip(*args))])
