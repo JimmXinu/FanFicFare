@@ -23,6 +23,7 @@ import re
 import urllib2
 
 from .. import exceptions as exceptions
+from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
 from base_adapter import BaseSiteAdapter
 
@@ -77,8 +78,13 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
     def make_date(self, parenttag):
         # locale dates differ but the timestamp is easily converted
-        ts = parenttag.find('time')['unixtime']
-        return datetime.fromtimestamp(float(ts))
+        timetag = parenttag.find('time')
+        if timetag.has_attr('unixtime'):
+            return datetime.fromtimestamp(float(ts))
+        else:
+            ## site has gone to crappy resolution "XX
+            ## (min/day/month/year/etc) ago" dating
+            return parse_relative_date_string(timetag.text)
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
