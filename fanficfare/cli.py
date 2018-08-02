@@ -30,7 +30,7 @@ import os, sys
 import pickle
 import cookielib as cl
 
-version="2.27.11"
+version="2.27.12"
 os.environ['CURRENT_VERSION_ID']=version
 
 if sys.version_info < (2, 5) or sys.version_info > (3,0):
