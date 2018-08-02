@@ -72,7 +72,6 @@ class QuotevComAdapter(BaseSiteAdapter):
         
         authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
-            print("div:%s"%authdiv)
             for a in authdiv.find_all('a'):
                 self.story.addToList('author', a.get_text())
                 self.story.addToList('authorId', a['href'].split('/')[-1])
