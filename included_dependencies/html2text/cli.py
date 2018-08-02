@@ -158,7 +158,8 @@ def main():
         action="store_true",
         dest="ignore_tables",
         default=config.IGNORE_TABLES,
-        help="Ignore table-related tags (table, th, td, tr) while keeping rows."
+        help="Ignore table-related tags (table, th, td, tr) "
+             "while keeping rows."
     )
     p.add_option(
         "--single-line-break",
@@ -211,7 +212,24 @@ def main():
         action="store",
         type="string",
         default=config.DECODE_ERRORS,
-        help="What to do in case of decode errors.'ignore', 'strict' and 'replace' are acceptable values"
+        help="What to do in case of decode errors.'ignore', 'strict' and "
+             "'replace' are acceptable values"
+    )
+    p.add_option(
+        "--open-quote",
+        dest="open_quote",
+        action="store",
+        type="str",
+        default=config.OPEN_QUOTE,
+        help="The character used to open quotes",
+    )
+    p.add_option(
+        "--close-quote",
+        dest="close_quote",
+        action="store",
+        type="str",
+        default=config.CLOSE_QUOTE,
+        help="The character used to close quotes",
     )
     (options, args) = p.parse_args()
 
@@ -226,8 +244,11 @@ def main():
         file_ = args[0]
 
         if file_.startswith('http://') or file_.startswith('https://'):
-            warnings.warn("Support for retrieving html over network is set for deprecation by version (2017, 1, x)",
-                    DeprecationWarning)
+            warnings.warn(
+                "Support for retrieving html over network is set for "
+                "deprecation by version (2017, 1, x)",
+                DeprecationWarning
+            )
             baseurl = file_
             j = urllib.urlopen(baseurl)
             data = j.read()
@@ -235,7 +256,8 @@ def main():
                 try:
                     from feedparser import _getCharacterEncoding as enc
                 except ImportError:
-                    enc = lambda x, y: ('utf-8', 1)
+                    def enc(x, y):
+                        return ('utf-8', 1)
                 encoding = enc(j.headers, data)[0]
                 if encoding == 'us-ascii':
                     encoding = 'utf-8'
@@ -245,7 +267,8 @@ def main():
                 try:
                     from chardet import detect
                 except ImportError:
-                    detect = lambda x: {'encoding': 'utf-8'}
+                    def detect(x):
+                        return {'encoding': 'utf-8'}
                 encoding = detect(data)['encoding']
     else:
         data = wrap_read()
@@ -295,5 +318,7 @@ def main():
     h.wrap_links = options.wrap_links
     h.pad_tables = options.pad_tables
     h.default_image_alt = options.default_image_alt
+    h.open_quote = options.open_quote
+    h.close_quote = options.close_quote
 
     wrapwrite(h.handle(data))

@@ -12,7 +12,6 @@ def name2cp(k):
 
 
 unifiable_n = {}
-
 for k in config.UNIFIABLE.keys():
     unifiable_n[name2cp(k)] = config.UNIFIABLE[k]
 
@@ -191,7 +190,7 @@ def skipwrap(para, wrap_links):
     # I'm not sure what this is for; I thought it was to detect lists,
     # but there's a <br>-inside-<span> case in one of the tests that
     # also depends upon it.
-    if stripped[0:1] == '-' or stripped[0:1] == '*':
+    if stripped[0:1] in ('-', '*') and not stripped[0:2] == '**':
         return True
 
     # If the text begins with a single -, *, or +, followed by a space,
@@ -245,6 +244,7 @@ def escape_md_section(text, snob=False):
 
     return text
 
+
 def reformat_table(lines, right_margin):
     """
     Given the lines of a table
@@ -252,11 +252,24 @@ def reformat_table(lines, right_margin):
     """
     # find the maximum width of the columns
     max_width = [len(x.rstrip()) + right_margin for x in lines[0].split('|')]
+    max_cols = len(max_width)
     for line in lines:
         cols = [x.rstrip() for x in line.split('|')]
+        num_cols = len(cols)
+
+        # don't drop any data if colspan attributes result in unequal lengths
+        if num_cols < max_cols:
+            cols += [''] * (max_cols - num_cols)
+        elif max_cols < num_cols:
+            max_width += [
+                len(x) + right_margin for x in
+                cols[-(num_cols - max_cols):]
+            ]
+            max_cols = num_cols
+
         max_width = [max(len(x) + right_margin, old_len)
                      for x, old_len in zip(cols, max_width)]
-    
+
     # reformat
     new_lines = []
     for line in lines:
@@ -272,15 +285,16 @@ def reformat_table(lines, right_margin):
         new_lines.append('|'.join(new_cols))
     return new_lines
 
+
 def pad_tables_in_text(text, right_margin=1):
     """
     Provide padding for tables in the text
     """
     lines = text.split('\n')
-    table_buffer, altered_lines, table_widths, table_started = [], [], [], False
+    table_buffer, table_started = [], False
     new_lines = []
     for line in lines:
-        # Toogle table started
+        # Toggle table started
         if (config.TABLE_MARKER_FOR_PAD in line):
             table_started = not table_started
             if not table_started:

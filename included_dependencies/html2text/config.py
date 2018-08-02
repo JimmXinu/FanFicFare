@@ -1,6 +1,8 @@
+from __future__ import unicode_literals
+
 import re
 
-# Use Unicode characters instead of their ascii psuedo-replacements
+# Use Unicode characters instead of their ascii pseudo-replacements
 UNICODE_SNOB = 0
 
 # Marker to use for marking tables for padding post processing
@@ -31,6 +33,9 @@ WRAP_LINKS = True
 # Number of pixels Google indents nested lists
 GOOGLE_LIST_INDENT = 36
 
+# Values Google and others may use to indicate bold text
+BOLD_TEXT_STYLE_VALUES = ('bold', '700', '800', '900')
+
 IGNORE_ANCHORS = False
 IGNORE_IMAGES = False
 IMAGES_TO_ALT = False
@@ -41,7 +46,8 @@ DECODE_ERRORS = 'strict'
 DEFAULT_IMAGE_ALT = ''
 PAD_TABLES = False
 
-# Convert links with same href and text to <href> format if they are absolute links
+# Convert links with same href and text to <href> format
+# if they are absolute links
 USE_AUTOMATIC_LINKS = True
 
 # For checking space-only lines on line 771
@@ -52,7 +58,10 @@ RE_ORDERED_LIST_MATCHER = re.compile(r'\d+\.\s')
 RE_UNORDERED_LIST_MATCHER = re.compile(r'[-\*\+]\s')
 RE_MD_CHARS_MATCHER = re.compile(r"([\\\[\]\(\)])")
 RE_MD_CHARS_MATCHER_ALL = re.compile(r"([`\*_{}\[\]\(\)#!])")
-RE_LINK = re.compile(r"(\[.*?\] ?\(.*?\))|(\[.*?\]:.*?)")  # to find links in the text
+
+# to find links in the text
+RE_LINK = re.compile(r"(\[.*?\] ?\(.*?\))|(\[.*?\]:.*?)")
+
 RE_MD_DOT_MATCHER = re.compile(r"""
     ^             # start of line
     (\s*\d+)      # optional whitespace and a number
@@ -126,6 +135,11 @@ BYPASS_TABLES = False
 IGNORE_TABLES = False
 
 
-# Use a single line break after a block element rather an two line breaks.
+# Use a single line break after a block element rather than two line breaks.
 # NOTE: Requires body width setting to be 0.
 SINGLE_LINE_BREAK = False
+
+
+# Use double quotation marks when converting the <q> tag.
+OPEN_QUOTE = '"'
+CLOSE_QUOTE = '"'
