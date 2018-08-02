@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 # Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
 #
@@ -19,7 +19,7 @@ from __future__ import absolute_import
 import re
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six import ensure_binary
+from ..six import ensure_text
 from ..six.moves.urllib import parse as urlparse
 from ..six.moves.urllib.error import HTTPError
 
@@ -88,7 +88,7 @@ class FanficHuAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + '&i=1')
 
-        if soup.title.string.encode(_SOURCE_CODE_ENCODING).strip(b' :') == 'írta':
+        if ensure_text(soup.title.string).strip(u' :') == u'írta':
             raise exceptions.StoryDoesNotExist(self.url)
 
         chapter_options = soup.find('form', action='viewstory.php').select('option')
@@ -144,46 +144,46 @@ class FanficHuAdapter(BaseSiteAdapter):
 
             while index < len(cells):
                 cell = cells[index]
-                key = cell.b.string.encode(_SOURCE_CODE_ENCODING).strip(b':')
+                key = ensure_text(cell.b.string).strip(u':')
                 try:
-                    value = cells[index+1].string.encode(_SOURCE_CODE_ENCODING)
-                except AttributeError:
+                    value = ensure_text(cells[index+1].string)
+                except:
                     value = None
 
-                if key == 'Kategória':
+                if key == u'Kategória':
                     for anchor in cells[index+1]('a'):
                         self.story.addToList('category', anchor.string)
 
-                elif key == 'Szereplõk':
+                elif key == u'Szereplõk':
                     if cells[index+1].string:
                         for name in cells[index+1].string.split(', '):
                             self.story.addToList('character', name)
 
-                elif key == 'Korhatár':
+                elif key == u'Korhatár':
                     if value != 'nem korhatáros':
                         self.story.setMetadata('rating', value)
 
-                elif key == 'Figyelmeztetések':
+                elif key == u'Figyelmeztetések':
                     for b_tag in cells[index+1]('b'):
                         self.story.addToList('warnings', b_tag.string)
 
-                elif key == 'Jellemzõk':
+                elif key == u'Jellemzõk':
                     for genre in cells[index+1].string.split(', '):
                         self.story.addToList('genre', genre)
 
-                elif key == 'Fejezetek':
+                elif key == u'Fejezetek':
                     self.story.setMetadata('numChapters', int(value))
 
-                elif key == 'Megjelenés':
+                elif key == u'Megjelenés':
                     self.story.setMetadata('datePublished', makeDate(value, self.DATE_FORMAT))
 
-                elif key == 'Frissítés':
+                elif key == u'Frissítés':
                     self.story.setMetadata('dateUpdated', makeDate(value, self.DATE_FORMAT))
 
-                elif key == 'Szavak':
+                elif key == u'Szavak':
                     self.story.setMetadata('numWords', value)
 
-                elif key == 'Befejezett':
+                elif key == u'Befejezett':
                     self.story.setMetadata('status', 'Completed' if value == 'Nem' else 'In-Progress')
 
                 index += 2
