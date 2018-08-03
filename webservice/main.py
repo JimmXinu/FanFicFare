@@ -42,6 +42,7 @@ from google.appengine.runtime import DeadlineExceededError
 from ffstorage import *
 
 from fanficfare import adapters, writers, exceptions
+from fanficfare.htmlcleanup import stripHTML
 from fanficfare.configurable import Configuration
 
 class UserConfigServer(webapp2.RequestHandler):
@@ -332,6 +333,8 @@ class FicSlug():
         self.url = savedmeta.url
         self.count = savedmeta.count
         for k, v in savedmeta.meta.iteritems():
+            if k == 'description':
+                v = stripHTML(v)
             setattr(self,k,v)
 
 class FanfictionDownloader(UserConfigServer):
