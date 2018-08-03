@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 import re
-import exceptions
 import codecs
 
 # py2 vs py3 transition
@@ -37,6 +36,8 @@ import time
 import logging
 import sys
 # import pickle
+
+from . import exceptions
 
 try:
     from google.appengine.api import apiproxy_stub_map
