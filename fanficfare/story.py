@@ -1193,7 +1193,7 @@ class Story(Configurable):
                                                        fetch(imgurl,referer=parenturl))
                 else:
                     try:
-                        sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
+                        sizes = [ int(x) for x in self.getConfigList('image_max_size',['580', '725']) ]
                     except Exception as e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
                     grayscale = self.getConfig('grayscale_images')
