@@ -193,7 +193,7 @@ def get_update_data(inputio,
 
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    print("datamaps:%s"%datamaps)
+    #print("datamaps:%s"%datamaps)
     return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups,datamaps)
 
 def get_path_part(n):
