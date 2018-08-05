@@ -129,7 +129,8 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if not title:
             raise exceptions.StoryDoesNotExist('Cannot find title on the page {}'.format(url))
 
-        self.story.setMetadata('title', stripHTML(soup.find('h2')))
+        rawtitle = stripHTML(soup.find('h2'))
+        self.story.setMetadata('title', rawtitle)
 
         # This site has the entire story on one page, so we will be using the normalized URL as
         # the chapterUrl and the Title as the chapter Title
@@ -153,7 +154,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if ',' in mdata:
             self.story.setMetadata('coauthor', ', '.join(mdata.split(',')[1:]).strip())
             mdata = mdata.split(',')[0]
-        
+
 #        print mdata
 #        self.story.getMetadata('coauthor')
 #        sys.exit()
@@ -184,13 +185,16 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                 if stories:
                     for story in stories:
                         # There alot of nbsp's (non broken spaces) in here, so I'm going to remove them
-                        # I'm also getting rid of the bold tags and the nextline characters to make it 
+                        # I'm also getting rid of the bold tags and the nextline characters to make it
                         # easier to get the information below
                         story = repr(story).replace(u'\\xa0', '').replace('  ',' ').replace(
                             '<b>','').replace('</b>','').replace(r'\n','')
                         story = self.make_soup(story).find('p')
                         story_a = story.find('a')
-                        title = self.story.getMetadata('title').split('-')[0].strip()
+                        # not sure why this split is here, but it caused
+                        # problems when title_chapter_range_pattern
+                        # introduces a '-', so save rawtitle --JM
+                        title = rawtitle.split('-')[0].strip()
                         if story_a.get_text() == title:
                             story_found = True
                             break

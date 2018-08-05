@@ -129,7 +129,8 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
         if not title:
             raise exceptions.StoryDoesNotExist('Cannot find title on the page {}'.format(url))
 
-        self.story.setMetadata('title', stripHTML(title))
+        rawtitle = stripHTML(title)
+        self.story.setMetadata('title', rawtitle)
 
         # This site has the entire story on one page, so we will be using the normalized URL as
         # the chapterUrl and the Title as the chapter Title
@@ -182,7 +183,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
                         story = self.make_soup(story).find('div')
                         story_a = story.find('a')
                         ## some stories have special characters... need to fix them.
-                        title = repr(self.story.getMetadata('title'))[2:-1].replace('&amp;', '&')
+                        title = repr(rawtitle)[2:-1].replace('&amp;', '&')
                         if title in story_a.get_text():
                             story_found = True
                             break
