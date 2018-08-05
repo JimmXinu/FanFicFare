@@ -24,6 +24,7 @@ import re
 # py2 vs py3 transition
 from .six import text_type as unicode
 from .six import string_types as basestring
+from .six import ensure_text
 from .six import unichr
 
 def _unirepl(match):
@@ -67,9 +68,9 @@ def stripHTML(soup):
     else:
         # bs4 already converts all the entities to UTF8 chars.
         retval = soup.get_text(strip=True)
-    # some change in the python3 branch started making &nbsp; '\xa0'
+    # some change in the python3 branch started making &nbsp; '\xc2\xa0'
     # instead of ' '
-    return retval.strip(u'\xa0')
+    return ensure_text(retval).replace(u'\xc2\xa0',' ').strip()
 
 def conditionalRemoveEntities(value):
     if isinstance(value,basestring):
