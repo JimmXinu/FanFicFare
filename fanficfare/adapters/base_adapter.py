@@ -415,14 +415,9 @@ class BaseSiteAdapter(Configurable):
         else:
             return (None,None)
 
-    # bs3 & bs4 are different here.
-    # will move to a bs3 vs bs4 block if there's lots of changes.
+    # bs3 & bs4 were different here.
     def get_attr_keys(self,soup):
-        if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
-            # bs3
-            #print "bs3 attrs:%s"%soup._getAttrMap().keys()
-            return list(soup._getAttrMap().keys())
-        elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
+        if hasattr(soup, 'attrs') and isinstance(soup.attrs,dict):
             #print "bs4 attrs:%s"%soup.attrs.keys()
             # bs4
             return list(soup.attrs.keys())

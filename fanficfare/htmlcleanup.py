@@ -63,7 +63,7 @@ def _replaceNotEntities(data):
     return p.sub(r'&\1', data)
 
 def stripHTML(soup):
-    if isinstance(soup,basestring) or hasattr(soup, 'bs3'):
+    if isinstance(soup,basestring):
         retval = removeAllEntities(re.sub(r'<[^>]+>','',"%s" % soup)).strip()
     else:
         # bs4 already converts all the entities to UTF8 chars.
