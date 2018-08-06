@@ -101,7 +101,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         # Now go hunting for all the meta data we can get
-        metablock = soup.find('div', {'class', 'title-infos'})
+        metablock = soup.find('div', {'class': 'title-infos'})
 
         ## Getting Title
         title = stripHTML(metablock.find('h1'))

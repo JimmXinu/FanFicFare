@@ -135,7 +135,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
                     self.add_chapter(chapterTitle, chapterUrl)
 
 
-        rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
+        rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'class':'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)
         
         self.story.setMetadata('dateUpdated', makeDate('01/01/2001', '%m/%d/%Y'))
