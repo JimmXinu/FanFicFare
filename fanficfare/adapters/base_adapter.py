@@ -453,19 +453,24 @@ class BaseSiteAdapter(Configurable):
 
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
+            ## actually effects all tags' attrs, not just <img>, but I'm okay with that.
             acceptable_attributes.extend(('src','alt','longdesc'))
-            try:
-                for img in soup.find_all('img'):
+            for img in soup.find_all('img'):
+                try:
                     # some pre-existing epubs have img tags that had src stripped off.
                     if img.has_attr('src'):
                         (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
                                                                           coverexclusion=self.getConfig('cover_exclusion_regexp'))
-            except AttributeError as ae:
-                logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping images.")
+                except AttributeError as ae:
+                    logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
+        else:
+            ## remove all img tags entirely
+            for img in soup.find_all('img'):
+                img.extract()
 
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
-                del soup[attr] ## strip all tag attributes except href and name
+                del soup[attr] ## strip all tag attributes except configured
 
         ## apply adapter's normalize_chapterurls to all links in
         ## chapter texts, if they match chapter URLs.  While this will
