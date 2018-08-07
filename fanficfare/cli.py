@@ -28,9 +28,8 @@ import string
 import os, sys
 import pickle
 
-if sys.version_info < (2, 5):
-    print('This program requires Python 2.5 or newer.')
-    sys.exit(1)
+if sys.version_info < (2, 7):
+    sys.exit('This program requires Python 2.7 or newer.')
 elif sys.version_info < (3, 0):
     reload(sys)  # Reload restores 'hidden' setdefaultencoding method
     sys.setdefaultencoding("utf-8")
@@ -84,7 +83,6 @@ def main(argv=None,
          parser=None,
          passed_defaultsini=None,
          passed_personalini=None):
-    logger.debug("Python Version:%s"%sys.version)
     if argv is None:
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
@@ -173,12 +171,17 @@ def main(argv=None,
 
     options, args = parser.parse_args(argv)
 
+    if not options.debug:
+        logger.setLevel(logging.WARNING)
+    else:
+        import platform
+        logger.debug("    OS Version:%s"%platform.platform())
+        logger.debug("Python Version:%s"%sys.version)
+        logger.debug("   FFF Version:%s"%version)
+
     if options.version:
         print("Version: %s" % version)
         return
-
-    if not options.debug:
-        logger.setLevel(logging.WARNING)
 
     list_only = any((options.imaplist,
                      options.siteslist,
