@@ -62,9 +62,10 @@ def _replaceNotEntities(data):
     p = re.compile(r'&([a-zA-Z][-.a-zA-Z0-9]*);')
     return p.sub(r'&\1', data)
 
-def stripHTML(soup):
+def stripHTML(soup, remove_all_entities=True):
     if isinstance(soup,basestring):
-        retval = removeAllEntities(re.sub(r'<[^>]+>','',"%s" % soup)).strip()
+        retval = removeEntities(re.sub(r'<[^>]+>','',"%s" % soup),
+                                remove_all_entities=remove_all_entities).strip()
     else:
         # bs4 already converts all the entities to UTF8 chars.
         retval = soup.get_text(strip=True)
@@ -77,48 +78,48 @@ def conditionalRemoveEntities(value):
         return removeEntities(value).strip()
     else:
         return value
-        
-def removeAllEntities(text):
-    # Remove &lt; &lt; and &amp;
-    return removeEntities(text).replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
 
-def removeEntities(text, space_only=False):
+def removeAllEntities(text):
+    # Remove &lt; &lt; and &amp; also
+    return removeEntities(text, remove_all_entities=True)
+
+def removeEntities(text, space_only=False, remove_all_entities=False):
+    # keeps &amp;, &lt; and &gt; when remove_all_entities=False
     if text is None:
         return u""
-    
+
     if not isinstance(text,basestring):
-        return unicode(text)
-    
+        text = unicode(text)
+
     try:
         t = text
     except (UnicodeEncodeError,UnicodeDecodeError) as e:
         try:
-            t = text.encode ('ascii', 'xmlcharrefreplace') 
+            t = text.encode ('ascii', 'xmlcharrefreplace')
         except (UnicodeEncodeError,UnicodeDecodeError) as e:
             t = text
-    text = t 
+    text = t
     # replace numeric versions of [&<>] with named versions,
     # then replace named versions with actual characters,
     text = re.sub(r'&#0*38;','&amp;',text)
     text = re.sub(r'&#0*60;','&lt;',text)
     text = re.sub(r'&#0*62;','&gt;',text)
-    
+
     # replace remaining &#000; entities with unicode value, such as &#039; -> '
     text = _replaceNumberEntities(text)
 
     # replace several named entities with character, such as &mdash; -> -
-    # see constants.py for the list.
     # reverse sort will put entities with ; before the same one without, when valid.
     for e in reversed(sorted(entities.keys())):
         v = entities[e]
         if space_only and re.match(r"^[^\s]$", v, re.UNICODE | re.S):
             # if not space
             continue
-        try:
-            text = text.replace(e, v)
-        except UnicodeDecodeError as ex:
-            # for the pound symbol in constants.py
-            text = text.replace(e, v.decode('utf-8'))
+        # try:
+        text = text.replace(e, v)
+        # except UnicodeDecodeError as ex:
+        #     # for the pound symbol
+        #     text = text.replace(e, v.decode('utf-8'))
 
     # SGMLParser, and in turn, BeautifulStoneSoup doesn't parse
     # entities terribly well and inserts (;) after something that
@@ -128,9 +129,14 @@ def removeEntities(text, space_only=False):
     # this point, there should be *no* real entities left, so find
     # these not-entities and removing them here should be safe.
     text = _replaceNotEntities(text)
-    
-    # &lt; &lt; and &amp; are the only html entities allowed in xhtml, put those back.
-    return text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
+
+    if remove_all_entities:
+        text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+    else:
+        # &lt; &gt; and &amp; are the only html entities allowed in xhtml, put those back.
+        # They come out as &lt because _replaceNotEntities removes the ';'.
+        text = text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
+    return text
 
 ## Currently used(optionally) by adapter_lightnovelgatecom and
 ## adapter_wwwnovelallcom only.  I hesitate to put the option in

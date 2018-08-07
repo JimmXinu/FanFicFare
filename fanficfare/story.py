@@ -1021,7 +1021,6 @@ class Story(Configurable):
     def addChapter(self, chap, newchap=False):
         # logger.debug("addChapter(%s,%s)"%(chap,newchap))
         chapter = defaultdict(unicode,chap) # default unknown to empty string
-        chapter['title'] = removeEntities(chapter['title'])
         chapter['html'] = removeEntities(chapter['html'])
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
@@ -1039,7 +1038,7 @@ class Story(Configurable):
         self.chapters.append(chapter)
 
     def getChapters(self,fortoc=False):
-        "Chapters will be dicts"
+        "Chapters will be defaultdicts(unicode)"
         retval = []
 
         ## only add numbers if more than one chapter.  Ditto (new) marks.

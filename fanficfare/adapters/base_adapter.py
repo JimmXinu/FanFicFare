@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 from ..story import Story
 from ..configurable import Configurable
-from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
+from ..htmlcleanup import stripHTML
 from ..exceptions import InvalidStoryURL
 
 # quick convenience class
@@ -156,7 +156,7 @@ class BaseSiteAdapter(Configurable):
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
             meta = defaultdict(unicode,othermeta) # copy othermeta
-            meta.update({'title':stripHTML(title),'url':url}) # after other to make sure they are set
+            meta.update({'title':stripHTML(title,remove_all_entities=False),'url':url}) # after other to make sure they are set
             self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
