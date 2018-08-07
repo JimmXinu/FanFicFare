@@ -93,18 +93,19 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'royalroadl.com'
+        # changed from royalroadl.com
+        return 'www.royalroad.com'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['royalroadl.com','www.royalroadl.com']
+        return ['royalroad.com','royalroadl.com','www.royalroadl.com']
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://royalroadl.com/fiction/3056"
+        return "https://www.royalroad.com/fiction/3056"
 
     def getSiteURLPattern(self):
-        return "https?"+re.escape("://")+r"(www\.|)royalroadl\.com/fiction/\d+(/.*)?$"
+        return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
     def use_pagecache(self):
         '''
