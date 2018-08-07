@@ -166,7 +166,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.extendList('genre',genres[:genres.index(' / ')].split(', '))
         self.story.setMetadata('rating', genres[genres.index(' / ')+3:])
 
-        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split(' / ')[2])
+        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split('/')[2].strip())
 
         try:
             self.story.setMetadata('native_status', head.find_all('span',{'class':'titled-icon'})[3]['title'])
