@@ -101,6 +101,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         return ['royalroad.com','royalroadl.com','www.royalroadl.com']
 
     @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['royalroadl.com',cls.getSiteDomain()]
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return "https://www.royalroad.com/fiction/3056"
 
