@@ -115,11 +115,11 @@ def removeEntities(text, space_only=False, remove_all_entities=False):
         if space_only and re.match(r"^[^\s]$", v, re.UNICODE | re.S):
             # if not space
             continue
-        # try:
-        text = text.replace(e, v)
-        # except UnicodeDecodeError as ex:
-        #     # for the pound symbol
-        #     text = text.replace(e, v.decode('utf-8'))
+        try:
+            text = text.replace(e, v)
+        except UnicodeDecodeError as ex:
+            # for the pound symbol
+            text = text.replace(e, v.decode('utf-8'))
 
     # SGMLParser, and in turn, BeautifulStoneSoup doesn't parse
     # entities terribly well and inserts (;) after something that
