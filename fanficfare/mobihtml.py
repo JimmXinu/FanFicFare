@@ -16,6 +16,7 @@ import logging
 from .six.moves.urllib.parse import unquote
 from .six import text_type as unicode
 from .six import binary_type as bytes
+from .six import ensure_binary
 
 # import bs4
 # BeautifulSoup = bs4.BeautifulSoup
@@ -57,8 +58,9 @@ class HtmlProcessor:
     anchorlist.extend(self._soup.findAll('reference', href=re.compile('^#')))
     for anchor in anchorlist:
       self._anchor_references.append((anchor_num, anchor['href']))
-      del anchor['href']
       anchor['filepos'] = '%.10d' % anchor_num
+      # logger.debug("Add anchor: %s %s"%((anchor_num, anchor)))
+      del anchor['href']
       anchor_num += 1
 
   def _ReplaceAnchorStubs(self):
@@ -66,20 +68,27 @@ class HtmlProcessor:
 
     # str() instead of unicode() rather than figure out how to fix
     # ancient mobi.py code.
-    assembled_text = unicode(self._soup)
+    assembled_text = ensure_binary(unicode(self._soup))
+    # bs4 creating close tags for <mbp:pagebreak>
+    assembled_text = assembled_text.replace(b'<mbp:pagebreak>',b'<mbp:pagebreak/>')
+    assembled_text = assembled_text.replace(b'</mbp:pagebreak>',b'')
 
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
       ref = unquote(original_ref[1:]) # remove leading '#'
       # Find the position of ref in the utf-8 document.
       # TODO(chatham): Using regexes and looking for name= would be better.
-      newpos = assembled_text.rfind(ref) # .encode('utf-8')
+      newpos = assembled_text.find(b'name="'+ensure_binary(ref)) # .encode('utf-8')
       if newpos == -1:
         logger.warn('Could not find anchor "%s"' % original_ref)
         continue
-      newpos += len(ref) + 2  # don't point into the middle of the <a name> tag
-      old_filepos = 'filepos="%.10d"' % anchor_num
-      new_filepos = 'filepos="%.10d"' % newpos
+      # instead of somewhere slightly *after* the <a> tag pointed to,
+      # let's go right in front of it instead by looking for the page
+      # break before it.
+      newpos = assembled_text.rfind(b'<',0,newpos)
+      # logger.debug("Anchor Pos: %s %s '%s|%s'"%((anchor_num, newpos,assembled_text[newpos-15:newpos],assembled_text[newpos:newpos+15])))
+      old_filepos = b'filepos="%.10d"' % anchor_num
+      new_filepos = b'filepos="%.10d"' % newpos
       assert assembled_text.find(old_filepos) != -1
       assembled_text = assembled_text.replace(old_filepos, new_filepos, 1)
     return assembled_text
