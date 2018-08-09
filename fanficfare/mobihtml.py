@@ -7,15 +7,18 @@ from __future__ import absolute_import
 
 import re
 import sys
-from .six.moves.urllib.parse import unquote
+import logging
 
 # py2 vs py3 transition
+from .six.moves.urllib.parse import unquote
 from .six import text_type as unicode
 from .six import binary_type as bytes
 
 # import bs4
 # BeautifulSoup = bs4.BeautifulSoup
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 class HtmlProcessor:
   WHITESPACE_RE = re.compile(r'\s')
@@ -69,7 +72,7 @@ class HtmlProcessor:
       # TODO(chatham): Using regexes and looking for name= would be better.
       newpos = assembled_text.rfind(ref) # .encode('utf-8')
       if newpos == -1:
-        print >>sys.stderr, 'Could not find anchor "%s"' % original_ref
+        logger.warn('Could not find anchor "%s"' % original_ref)
         continue
       newpos += len(ref) + 2  # don't point into the middle of the <a name> tag
       old_filepos = 'filepos="%.10d"' % anchor_num
