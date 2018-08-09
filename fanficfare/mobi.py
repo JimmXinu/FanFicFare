@@ -140,7 +140,7 @@ class Converter:
 
   def _ConvertStringToFile(self, html_data, out):
     html = HtmlProcessor(html_data)
-    data = html.CleanHtml()
+    data = ensure_binary(html.CleanHtml())
 
     # collect offsets of '<mbp:pagebreak>' tags, use to make index list.
     # indexlist = [] # list of (offset,length) tuples.

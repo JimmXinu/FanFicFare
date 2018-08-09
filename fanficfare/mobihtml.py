@@ -1,5 +1,8 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
+# Changes Copyright 2018 FanFicFare team
 
 ## This module is used by mobi.py exclusively.
 ## Renamed Jul 2018 to avoid conflict with other 'html' packages
@@ -43,7 +46,7 @@ class HtmlProcessor:
 
   def _StubInternalAnchors(self):
     '''Replace each internal anchor with a fixed-size filepos anchor.
-\
+
     Looks for every anchor with <a href="#myanchor"> and replaces that
     with <a filepos="00000000050">. Stores anchors in self._anchor_references'''
     self._anchor_references = []
