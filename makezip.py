@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright 2015, Jim Miller
+# Copyright 2018, Jim Miller
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import absolute_import
 import os, zipfile, sys
 from glob import glob
 
+from six import text_type as unicode
+
 def addFolderToZip(myZipFile,folder,exclude=[]):
-    folder = folder.encode('ascii') #convert path to ascii for ZipFile Method
+    # print("folder:"+folder)
     excludelist=[]
     for ex in exclude:
         excludelist.extend(glob(folder+"/"+ex))
@@ -27,7 +30,7 @@ def addFolderToZip(myZipFile,folder,exclude=[]):
         if file in excludelist:
             continue
         if os.path.isfile(file):
-            #print file
+            # print("folder file:"+file)
             myZipFile.write(file, file, zipfile.ZIP_DEFLATED)
         elif os.path.isdir(file):
             addFolderToZip(myZipFile,file,exclude=exclude)
@@ -40,11 +43,10 @@ def createZipFile(filename,mode,files,exclude=[]):
     for file in files:
         if file in excludelist:
             continue
-        file = file.encode('ascii') #convert path to ascii for ZipFile Method
+        # print("file:"+file)
         if os.path.isfile(file):
             (filepath, filename) = os.path.split(file)
-            #print file
-            myZipFile.write( file, filename, zipfile.ZIP_DEFLATED )
+            myZipFile.write( file, unicode(filename), zipfile.ZIP_DEFLATED )
         if os.path.isdir(file):
             addFolderToZip(myZipFile,file,exclude=exclude)
     myZipFile.close()

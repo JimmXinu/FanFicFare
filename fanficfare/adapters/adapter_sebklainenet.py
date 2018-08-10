@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@
 ###################################################################################################
 
 # Software: eFiction
-from base_efiction_adapter import BaseEfictionAdapter
+from __future__ import absolute_import
+from .base_efiction_adapter import BaseEfictionAdapter
 
 class SebklaineNeteOrgSiteAdapter(BaseEfictionAdapter):
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,23 +23,28 @@
 ### Updated on December 18, 2016
 ###     Updated format as per linter, and added documentation
 ####################################################################################################
+from __future__ import absolute_import
 '''
 This site is much link fictionmania, in that there is only one chapter per
 story, so we only have the one url to get information from. 
 We get the category from the author's page
 '''
-import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 import sys
 
 from bs4.element import Comment
+
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves.urllib.parse import quote
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return WWWUtopiastoriesComAdapter
@@ -95,7 +100,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -142,12 +147,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
 
         for detail in soup.findAll('li'):
-            det = str(detail).replace(b"\xc2\xa0",'')
+            det = unicode(detail).replace(u"\xa0",'')
             heading = stripHTML(det).split(' - ')[0]
             text = stripHTML(det).replace(heading+' - ','')
             if 'Author' in heading:
                 a = detail.find('a')
-                if 'mailto' in str(a):
+                if 'mailto' in unicode(a):
                     self.story.setMetadata('authorId','0000000000')
                     self.story.setMetadata('authorUrl',self.url)
                     self.story.setMetadata('author','Unknown')
@@ -155,7 +160,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+urllib2.quote(
+                    self.story.setMetadata('authorUrl','http://'+self.host+quote(
                         a['href'].encode('UTF-8')))
             elif 'Story Codes' in heading:
                 self.story.setMetadata('eroticatags',text.replace('Story Codes - ',''))

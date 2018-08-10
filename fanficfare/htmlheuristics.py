@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,18 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
 import codecs
 import bs4 as bs
-import HtmlTagStack as stack
 
+# py2 vs py3 transition
+from .six import text_type as unicode
+from .six.moves import range
+
+from . import HtmlTagStack as stack
 from . import exceptions as exceptions
 
 def logdebug(s):

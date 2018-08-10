@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2017 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,15 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import bs4
 import datetime
 import logging
 import re
-import urllib2
+from itertools import takewhile
 
 from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves import zip as izip
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 
 _logger = logging.getLogger(__name__)
@@ -114,7 +120,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
         try:
             startingChapter = self._makeChapter(self.url)
-        except urllib2.HTTPError, error:
+        except HTTPError as error:
             if error.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             raise
@@ -198,7 +204,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
                 chapterTitle = re.sub(garbagePattern, u'', chapter.getHeading()[chapterTitleStart:])
                 self.add_chapter(chapterTitle, url)
-            except ParsingError, error:
+            except ParsingError as error:
                 raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
@@ -700,7 +706,6 @@ def _getLargestCommonPrefix(*args):
     """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
-    from itertools import takewhile, izip
     toLower = lambda xs: map(lambda x: x.lower(), xs)
     allSame = lambda xs: len(set(toLower(xs))) == 1
     return u''.join([i[0] for i in takewhile(allSame, izip(*args))])

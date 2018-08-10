@@ -1,12 +1,16 @@
 #  -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import re
-import urlparse
-import urllib2
 import datetime
 
 from .. import exceptions
-from base_adapter import BaseSiteAdapter
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 
 SITE_DOMAIN = 'quotev.com'
@@ -51,7 +55,7 @@ class QuotevComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         try:
             data = self._fetchUrl(self.url)
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             else:
@@ -68,7 +72,6 @@ class QuotevComAdapter(BaseSiteAdapter):
         
         authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
-            print("div:%s"%authdiv)
             for a in authdiv.find_all('a'):
                 self.story.addToList('author', a.get_text())
                 self.story.addToList('authorId', a['href'].split('/')[-1])

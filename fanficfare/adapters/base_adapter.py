@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,22 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import re
 from datetime import datetime, timedelta
 from collections import defaultdict
 
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six import string_types as basestring
+from ..six.moves.urllib.parse import urlparse
+
 import logging
-import urlparse as up
 from functools import partial
 import traceback
 import copy
 
-import bs4
+from bs4 import BeautifulSoup
 
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
@@ -34,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 from ..story import Story
 from ..configurable import Configurable
-from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
+from ..htmlcleanup import stripHTML
 from ..exceptions import InvalidStoryURL
 
 # quick convenience class
@@ -46,7 +51,7 @@ class TimeKeeper(defaultdict):
         self[name] = self[name] + td
 
     def __unicode__(self):
-        keys = self.keys()
+        keys = list(self.keys())
         keys.sort()
         return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 import inspect
@@ -125,7 +130,7 @@ class BaseSiteAdapter(Configurable):
 
     def _setURL(self,url):
         self.url = url
-        self.parsedUrl = up.urlparse(url)
+        self.parsedUrl = urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
@@ -151,7 +156,7 @@ class BaseSiteAdapter(Configurable):
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
             meta = defaultdict(unicode,othermeta) # copy othermeta
-            meta.update({'title':stripHTML(title),'url':url}) # after other to make sure they are set
+            meta.update({'title':stripHTML(title,remove_all_entities=False),'url':url}) # after other to make sure they are set
             self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
@@ -397,7 +402,7 @@ class BaseSiteAdapter(Configurable):
             if isinstance(svalue,basestring):
                 # bs4/html5lib add html, header and body tags, which
                 # we don't want.  utf8FromSoup will strip the body tags for us.
-                svalue = bs4.BeautifulSoup(svalue,"html5lib").body
+                svalue = BeautifulSoup(svalue,"html5lib").body
             self.story.setMetadata('description',self.utf8FromSoup(url,svalue))
         else:
             self.story.setMetadata('description',stripHTML(svalue))
@@ -410,17 +415,12 @@ class BaseSiteAdapter(Configurable):
         else:
             return (None,None)
 
-    # bs3 & bs4 are different here.
-    # will move to a bs3 vs bs4 block if there's lots of changes.
+    # bs3 & bs4 were different here.
     def get_attr_keys(self,soup):
-        if hasattr(soup, '_getAttrMap') and getattr(soup, '_getAttrMap') is not None:
-            # bs3
-            #print "bs3 attrs:%s"%soup._getAttrMap().keys()
-            return soup._getAttrMap().keys()
-        elif hasattr(soup, 'attrs') and  isinstance(soup.attrs,dict):
+        if hasattr(soup, 'attrs') and isinstance(soup.attrs,dict):
             #print "bs4 attrs:%s"%soup.attrs.keys()
             # bs4
-            return soup.attrs.keys()
+            return list(soup.attrs.keys())
         return []
 
     # This gives us a unicode object, not just a string containing bytes.
@@ -453,19 +453,24 @@ class BaseSiteAdapter(Configurable):
 
         #print("include_images:"+self.getConfig('include_images'))
         if self.getConfig('include_images'):
+            ## actually effects all tags' attrs, not just <img>, but I'm okay with that.
             acceptable_attributes.extend(('src','alt','longdesc'))
-            try:
-                for img in soup.find_all('img'):
+            for img in soup.find_all('img'):
+                try:
                     # some pre-existing epubs have img tags that had src stripped off.
                     if img.has_attr('src'):
                         (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
                                                                           coverexclusion=self.getConfig('cover_exclusion_regexp'))
-            except AttributeError as ae:
-                logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping images.")
+                except AttributeError as ae:
+                    logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
+        else:
+            ## remove all img tags entirely
+            for img in soup.find_all('img'):
+                img.extract()
 
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
-                del soup[attr] ## strip all tag attributes except href and name
+                del soup[attr] ## strip all tag attributes except configured
 
         ## apply adapter's normalize_chapterurls to all links in
         ## chapter texts, if they match chapter URLs.  While this will
@@ -503,7 +508,7 @@ class BaseSiteAdapter(Configurable):
                     if t.name=='script':
                         t.extract()
 
-        except AttributeError, ae:
+        except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
 
@@ -546,8 +551,8 @@ class BaseSiteAdapter(Configurable):
 
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
-        soup = bs4.BeautifulSoup(data,'html5lib')
-        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        soup = BeautifulSoup(data,'html5lib')
+        soup = BeautifulSoup(unicode(soup),'html5lib')
 
         for ns in soup.find_all('fff_hide_noscript'):
             ns.name = 'noscript'
@@ -599,7 +604,8 @@ def makeDate(string,dateform):
             add_hours = True
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
-    date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    # date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
+    date = datetime.strptime(string, dateform)
 
     if add_hours:
         date += timedelta(hours=12)

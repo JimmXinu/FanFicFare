@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,19 @@
 # limitations under the License.
 #
 
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib
-import urllib2
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
@@ -108,7 +110,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 logger.error("404 on %s"%url)
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -120,7 +122,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         ## title:
         ## <h1 id="post-title">A, A' Fan Fiction &#10095; Mmmmm</h1>
-        titletext = stripHTML(soup.find("h1",{"id":"post-title"}))
+        titletext = unicode(stripHTML(soup.find("h1",{"id":"post-title"})))
         titletext = titletext[titletext.index(u'❯')+2:]
         # print("title:(%s)"%titletext)
         self.story.setMetadata('title',titletext)

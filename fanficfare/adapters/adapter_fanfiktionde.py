@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib
-import urllib2
-
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FanFiktionDeAdapter
@@ -118,7 +120,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -164,7 +166,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.extendList('genre',genres[:genres.index(' / ')].split(', '))
         self.story.setMetadata('rating', genres[genres.index(' / ')+3:])
 
-        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split(' / ')[2])
+        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split('/')[2].strip())
 
         try:
             self.story.setMetadata('native_status', head.find_all('span',{'class':'titled-icon'})[3]['title'])

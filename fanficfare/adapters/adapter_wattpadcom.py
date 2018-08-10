@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ from __future__ import absolute_import
 import json
 import logging
 import re
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions as exceptions
@@ -46,7 +49,7 @@ class WattpadComAdapter(BaseSiteAdapter):
             try:
                 WattpadComAdapter.CATEGORY_DEFs = json.loads(self._fetchUrl(WattpadComAdapter.API_GETCATEGORIES))
             except:
-                logger.debug('API_GETCATEGORIES failed.')
+                logger.warn('API_GETCATEGORIES failed.')
                 WattpadComAdapter.CATEGORY_DEFs = []
 
     @staticmethod
@@ -88,7 +91,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         try:
             storyInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_STORYINFO % self.storyId))
-            logger.debug('storyInfo: %s' % json.dumps(storyInfo))
+            # logger.debug('storyInfo: %s' % json.dumps(storyInfo))
         except Exception:
             raise exceptions.InvalidStoryURL(self.url, self.getSiteDomain(), self.getSiteExampleURLs())
 
@@ -122,8 +125,8 @@ class WattpadComAdapter(BaseSiteAdapter):
 
         # CATEGORIES
         try:
-            storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(str(c)) for c in storyInfo['categories'] if
-                               WattpadComAdapter.CATEGORY_DEFs.has_key(str(c))]
+            storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(unicode(c)) for c in storyInfo['categories'] if
+                               unicode(c) in WattpadComAdapter.CATEGORY_DEFs]
 
             self.story.setMetadata('category', storyCategories[0])
             self.story.setMetadata('tags', storyInfo['tags'])

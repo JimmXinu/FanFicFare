@@ -15,17 +15,21 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import contextlib
 from datetime import datetime
-import httplib
 import logging
 import re
-import urllib2
-
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
-from base_adapter import BaseSiteAdapter
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves import http_client as httplib
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -89,18 +93,24 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'royalroadl.com'
+        # changed from royalroadl.com
+        return 'www.royalroad.com'
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['royalroadl.com','www.royalroadl.com']
+        return ['royalroad.com','royalroadl.com','www.royalroadl.com']
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['royalroadl.com',cls.getSiteDomain()]
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://royalroadl.com/fiction/3056"
+        return "https://www.royalroad.com/fiction/3056"
 
     def getSiteURLPattern(self):
-        return "https?"+re.escape("://")+r"(www\.|)royalroadl\.com/fiction/\d+(/.*)?$"
+        return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
     def use_pagecache(self):
         '''
@@ -142,7 +152,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

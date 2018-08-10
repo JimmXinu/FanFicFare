@@ -1,16 +1,24 @@
 #!/usr/bin/python
-# Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 
-    
-import StringIO
+# -*- coding: utf-8 -*-
+# Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
+# Changes Copyright 2018 FanFicFare team
+from __future__ import absolute_import
+
 import struct
 import time
 import random
 import logging
 
+# py2 vs py3 transition
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six import ensure_binary
+from .six import BytesIO # StringIO under py2
+
 logger = logging.getLogger(__name__)
 
-from html import HtmlProcessor
+from .mobihtml import HtmlProcessor
 
 # http://wiki.mobileread.com/wiki/MOBI
 # http://membres.lycos.fr/microfirst/palm/pdb.html
@@ -41,7 +49,7 @@ class _SubEntry:
 
   def TocLink(self):
     return '<a href="#%s_MOBI_START">%.80s</a>' % (self._name, self.title)
-  
+
   def Anchor(self):
     return '<a name="%s_MOBI_START">' % self._name
 
@@ -57,12 +65,12 @@ class Converter:
     self._refresh_url = refresh_url
 
   def ConvertString(self, s):
-    out = StringIO.StringIO()
+    out = BytesIO()
     self._ConvertStringToFile(s, out)
     return out.getvalue()
 
   def ConvertStrings(self, html_strs):
-    out = StringIO.StringIO()
+    out = BytesIO()
     self._ConvertStringsToFile(html_strs, out)
     return out.getvalue()
 
@@ -83,13 +91,15 @@ class Converter:
     toc_html = []
     body_html = []
 
-    PAGE_BREAK = '<mbp:pagebreak>'
+    ## This gets broken by html5lib/bs4fixed being helpful, but we'll
+    ## fix it inside mobihtml.py
+    PAGE_BREAK = '<mbp:pagebreak/>'
 
     # pull out the title page, assumed first html_strs.
     htmltitle = html_strs[0]
     entrytitle = _SubEntry(1, htmltitle)
     title_html.append(entrytitle.Body())
-    
+
     title_html.append(PAGE_BREAK)
     toc_html.append('<a name="TOCTOP"><h3>Table of Contents</h3><br />')
 
@@ -99,11 +109,11 @@ class Converter:
 
       # give some space between bodies of work.
       body_html.append(PAGE_BREAK)
-        
+
       body_html.append(entry.Anchor())
-      
+
       body_html.append(entry.Body())
-      
+
     # TODO: this title can get way too long with RSS feeds. Not sure how to fix
     # cheat slightly and use the <a href> code to set filepos in references.
     header = '''<html>
@@ -117,6 +127,11 @@ class Converter:
 ''' % time.ctime(time.time())
 
     footer = '</body></html>'
+    # logger.debug("header:%s"%header)
+    # logger.debug("title_html:%s"%title_html)
+    # logger.debug("toc_html:%s"%toc_html)
+    # logger.debug("body_html:%s"%body_html)
+    # logger.debug("footer:%s"%footer)
     all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
     #print "%s" % all_html.encode('utf8')
     return all_html
@@ -125,18 +140,19 @@ class Converter:
     try:
       tmp = self.MakeOneHTML(html_strs)
       self._ConvertStringToFile(tmp, out_file)
-    except Exception, e:
+    except Exception as e:
+      raise
       logger.error('Error %s', e)
-      #logger.debug('Details: %s' % html_strs)
+      # logger.debug('Details: %s' % html_strs)
 
   def _ConvertStringToFile(self, html_data, out):
     html = HtmlProcessor(html_data)
-    data = html.CleanHtml()
+    data = ensure_binary(html.CleanHtml())
 
     # collect offsets of '<mbp:pagebreak>' tags, use to make index list.
     # indexlist = [] # list of (offset,length) tuples.
     # not in current use.
-    
+
     # j=0
     # lastj=0
     # while True:
@@ -152,27 +168,28 @@ class Converter:
 #    if title:
 #      self._header.SetTitle(title)
     record_id = 1
+    # logger.debug("len(data):%s"%len(data))
     for start_pos in range(0, len(data), Record.MAX_SIZE):
       end = min(len(data), start_pos + Record.MAX_SIZE)
       record_data = data[start_pos:end]
       records.append(self._header.AddRecord(record_data, record_id))
-      #print "HTML Record %03d: (size:%d) [[%s ... %s]]" % ( record_id, len(record_data), record_data[:20], record_data[-20:] )
+      # logger.debug("HTML Record %03d: (size:%d) [[%s ... %s]]" % ( record_id, len(record_data), record_data[:20], record_data[-20:] ))
       record_id += 1
     self._header.SetImageRecordIndex(record_id)
     records[0:0] = [self._header.MobiHeader()]
 
     header, rec_offset = self._header.PDBHeader(len(records))
-    out.write(header)
+    out.write(ensure_binary(header))
     for record in records:
       record.WriteHeader(out, rec_offset)
-      #print "rec_offset: %d len(record.data): %d" % (rec_offset,len(record.data))
+      # logger.debug("rec_offset: %d len(record.data): %d" % (rec_offset,len(record.data)))
       rec_offset += (len(record.data)+1) # plus one for trailing null
 
     # Write to nuls for some reason
-    out.write('\0\0')
+    out.write(b'\0\0')
     for record in records:
       record.WriteData(out)
-      out.write('\0')
+      out.write(b'\0')
       # needs a trailing null, I believe it indicates zero length 'overlap'.
       # otherwise, the readers eat the last char of each html record.
       # Calibre writes another 6-7 bytes of stuff after that, but we seem
@@ -203,7 +220,7 @@ class Record:
     self._id = Record._unique_id_seed
 
   def WriteData(self, out):
-    out.write(self.data)
+    out.write(ensure_binary(self.data))
 
   def WriteHeader(self, out, rec_offset):
     attributes =  64 # dirty?
@@ -212,7 +229,7 @@ class Record:
                          attributes,
                          0, self._id)
     assert len(header) == Record.INDEX_LEN
-    out.write(header)
+    out.write(ensure_binary(header))
 
 EXTH_HEADER_FIELDS = {
   'author' : 100,
@@ -245,6 +262,7 @@ class Header:
   def AddRecord(self, data, record_id):
     self.max_record_size = max(Record.MAX_SIZE, len(data))
     self._record_count += 1
+    # logger.debug("len(data):%s"%len(data))
     self._length += len(data)
     return Record(data, record_id)
 
@@ -268,12 +286,15 @@ class Header:
     return palmdoc_header
 
   def PDBHeader(self, num_records):
+    # logger.debug("num_records:%s"%num_records)
     HEADER_LEN = 32+2+2+9*4
     RECORD_INDEX_HEADER_LEN = 6
     RESOURCE_INDEX_LEN = 10
 
     index_len = RECORD_INDEX_HEADER_LEN + num_records * Record.INDEX_LEN
     rec_offset = HEADER_LEN + index_len + 2
+    # logger.debug("index_len:%s"%index_len)
+    # logger.debug("rec_offset:%s"%rec_offset)
 
     short_title = self._title[0:31]
     attributes = 0
@@ -284,11 +305,11 @@ class Header:
     modnum = 0
     appinfo_offset = 0
     sort_offset = 0
-    type = 'BOOK'
-    creator = 'MOBI'
+    type = b'BOOK'
+    creator = b'MOBI'
     id_seed = 36
     header = struct.pack('>32sHHII',
-                         short_title, attributes, version,
+                         ensure_binary(short_title), attributes, version,
                          ctime, mtime)
     header += struct.pack('>IIII', backup_time, modnum,
                          appinfo_offset, sort_offset)
@@ -309,13 +330,15 @@ class Header:
       typeid = EXTH_HEADER_FIELDS[key]
       length_encoding_len = 8
       r.append(struct.pack('>LL', typeid, len(value) + length_encoding_len,) + value)
-    content = ''.join(r)
+    content = b''.join(r)
+    # logger.debug("len(content):%s"%len(content))
 
     # Pad to word boundary
     while len(content) % 4:
-      content += '\0'
+      content += b'\0'
+    # logger.debug("len(content):%s"%len(content))
     TODO_mysterious = 12
-    exth = 'EXTH' + struct.pack('>LL', len(content) + TODO_mysterious, len(data)) + content
+    exth = b'EXTH' + struct.pack('>LL', len(content) + TODO_mysterious, len(data)) + content
     return exth
 
   def SetImageRecordIndex(self, idx):
@@ -333,13 +356,16 @@ class Header:
     text_encoding = encoding['UTF-8']
     unique_id = random.randint(1, 1<<32)
     creator_version = 4
-    reserved = '%c' % 0xff * 40
+    reserved = b'%c' % 0xff * 40
     nonbook_index = fs
+    # logger.debug("header_len:%s"%header_len)
+    # logger.debug("len(palmdoc_header):%s"%len(palmdoc_header))
+    # logger.debug("len(exth_header):%s"%len(exth_header))
     full_name_offset = header_len + len(palmdoc_header) + len(exth_header) # put full name after header
     language = languages['en-us']
     unused = 0
     mobi_header = struct.pack('>4sIIIII40sIIIIII',
-                              'MOBI',
+                              b'MOBI',
                               header_len,
                               mobi_type,
                               text_encoding,
@@ -368,13 +394,13 @@ class Header:
                                fs,
                                unused,
                                exth_flags)
-    mobi_header += '\0' * 112 # TODO: Why this much padding?
+    mobi_header += b'\0' * 112 # TODO: Why this much padding?
     # Set some magic offsets to be 0xFFFFFFF.
     for pos in (0x94, 0x98, 0xb0, 0xb8, 0xc0, 0xc8, 0xd0, 0xd8, 0xdc):
       mobi_header = self._ReplaceWord(mobi_header, pos, fs)
 
     # 16 bytes?
-    padding = '\0' * 48 * 4 # why?
+    padding = b'\0' * 48 * 4 # why?
     total_header = palmdoc_header + mobi_header + exth_header + self._title + padding
 
     return self.AddRecord(total_header, 0)

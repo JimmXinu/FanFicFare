@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,16 +24,18 @@
 ###     Fixed the Metadata processing to take into account that some of the
 ###         stories have the authorinfo div, and to make it more systematic
 #############################################################################
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return WWWArea52HKHNetAdapter
@@ -96,7 +98,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -189,7 +191,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
 
             ## I've seen a non-breaking space in some of the storyblocks
             ## so we are going to remove them.
-            series =  stripHTML(str(series.renderContents()).replace(b"\xc2\xa0",'')).strip()
+            series =  stripHTML(unicode(series.renderContents()).replace(u"\xa0",'')).strip()
             if len(series) > 0:
                 self.story.setMetadata('series',series)
 
@@ -228,7 +230,7 @@ class WWWArea52HKHNetAdapter(BaseSiteAdapter):
                     if not self.getConfig("keep_summary_html"):
                         value = stripHTML(value).replace('Summary:','').strip()
                     else:
-                        value = str(value).replace('<i>Summary:</i>','').strip()
+                        value = unicode(value).replace('<i>Summary:</i>','').strip()
                     self.setDescription(url, value)
 
     # grab the text for an individual chapter.

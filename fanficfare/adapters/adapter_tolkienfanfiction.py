@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 """
 FFDL Adapter for TolkienFanFiction.com.
 
@@ -58,16 +59,19 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
-import urllib2
-import urlparse
 import string
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.parse import urlencode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves import urllib
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def _is_story_url(url):
     return "Story_Read_Head.php" in url
@@ -130,7 +134,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
                 chapterSoup = self.make_soup(chapterHtml)
                 indexLink = chapterSoup.find("a", text="[Index]")
                 self._normalizeURL('http://' + self.getSiteDomain() + '/' + indexLink.get('href'))
-            except urllib2.HTTPError, e:
+            except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:
@@ -140,7 +144,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
         try:
             indexHtml = _fix_broken_markup(self._fetchUrl(self.url))
             soup = self.make_soup(indexHtml)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -192,7 +196,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
         logger.debug('Title as `str`: ' + unicode(title))
         # For publication date we need to search
         try:
-            queryString = urllib.urlencode((
+            queryString = urlencode((
                 ('type', 3),
                 ('field', 1),
                 # need translate here for the weird accented letters
@@ -206,7 +210,7 @@ class TolkienFanfictionAdapter(BaseSiteAdapter):
             date = searchSoup.find(text="Updated:").nextSibling.string
             logger.debug("Last Updated: '%s'" % date)
             self.story.setMetadata('dateUpdated', makeDate(date, self.dateformat))
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

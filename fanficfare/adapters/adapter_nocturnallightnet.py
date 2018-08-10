@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import re
-import urllib2
-import urlparse
-
 from bs4.element import Tag
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
 
 
@@ -47,7 +50,7 @@ class NocturnalLightNetAdapter(BaseSiteAdapter):
         if exception:
             try:
                 data = self._fetchUrl(url, parameters)
-            except urllib2.HTTPError:
+            except HTTPError:
                 raise exception(self.url)
         # Just let self._fetchUrl throw the exception, don't catch and
         # customize it.

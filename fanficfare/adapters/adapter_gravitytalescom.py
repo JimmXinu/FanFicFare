@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
 ## Adapted by GComyn on April 21, 2017
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import time
-import urllib2
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,11 @@ except ImportError:
         # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
         feedparser = None
 
-from base_adapter import BaseSiteAdapter
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -93,7 +97,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

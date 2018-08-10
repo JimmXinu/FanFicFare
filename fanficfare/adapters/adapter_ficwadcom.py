@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
 # limitations under the License.
 #
 
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import time
-import httplib, urllib
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class FicwadComSiteAdapter(BaseSiteAdapter):
 
@@ -96,7 +97,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             if "<h4>Featured Story</h4>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -118,7 +119,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             self._setURL(url)
             try:
                 soup = self.make_soup(self._fetchUrl(url))
-            except urllib2.HTTPError, e:
+            except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
                 else:

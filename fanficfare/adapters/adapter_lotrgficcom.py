@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,17 +18,19 @@
 ###  Adapted by GComyn
 ###  Completed on November, 22, 2016
 ##############################################################################
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
 import urllib
-import urllib2
-
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class LOTRgficComAdapter(BaseSiteAdapter):
 
@@ -79,7 +81,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -253,7 +255,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
         ## dedicated tag, so we have to split some hairs..
         ## This may not work every time... but I tested it with 6 stories...
         mdata = metad[0]
-        while '<hr/>' not in str(mdata.nextSibling):
+        while '<hr/>' not in unicode(mdata.nextSibling):
             mdata = mdata.nextSibling
         self.setDescription(url,mdata.previousSibling.previousSibling.get_text())
         
@@ -284,7 +286,7 @@ class LOTRgficComAdapter(BaseSiteAdapter):
             #<br/>
             #</p>
         ## we'll have to remove the non-breaking spaces to get this to work.
-        metad = str(metad).replace(b"\xc2\xa0",'').replace('\n','')
+        metad = unicode(metad).replace(u"\xa0",'').replace('\n','')
         for txt in metad.split('<br/>'):
             if 'Challenges:' in txt:
                 txt = txt.replace('Challenges:','').strip()

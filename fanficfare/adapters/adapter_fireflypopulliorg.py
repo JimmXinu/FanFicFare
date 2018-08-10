@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,17 @@
 ###=================================================================================================
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
+from __future__ import absolute_import
 ''' This adapter scrapes the metadata and chapter text from stories on firefly.populli.org '''
 import logging
 import re
-import urllib2
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -97,7 +101,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         '''
         try:
             page_data = self._fetchUrl(page)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
             else:
@@ -125,7 +129,8 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if not title:
             raise exceptions.StoryDoesNotExist('Cannot find title on the page {}'.format(url))
 
-        self.story.setMetadata('title', stripHTML(soup.find('h2')))
+        rawtitle = stripHTML(soup.find('h2'))
+        self.story.setMetadata('title', rawtitle)
 
         # This site has the entire story on one page, so we will be using the normalized URL as
         # the chapterUrl and the Title as the chapter Title
@@ -149,7 +154,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         if ',' in mdata:
             self.story.setMetadata('coauthor', ', '.join(mdata.split(',')[1:]).strip())
             mdata = mdata.split(',')[0]
-        
+
 #        print mdata
 #        self.story.getMetadata('coauthor')
 #        sys.exit()
@@ -180,13 +185,16 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                 if stories:
                     for story in stories:
                         # There alot of nbsp's (non broken spaces) in here, so I'm going to remove them
-                        # I'm also getting rid of the bold tags and the nextline characters to make it 
+                        # I'm also getting rid of the bold tags and the nextline characters to make it
                         # easier to get the information below
-                        story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(
+                        story = repr(story).replace(u'\\xa0', '').replace('  ',' ').replace(
                             '<b>','').replace('</b>','').replace(r'\n','')
                         story = self.make_soup(story).find('p')
                         story_a = story.find('a')
-                        title = self.story.getMetadata('title').split('-')[0].strip()
+                        # not sure why this split is here, but it caused
+                        # problems when title_chapter_range_pattern
+                        # introduces a '-', so save rawtitle --JM
+                        title = rawtitle.split('-')[0].strip()
                         if story_a.get_text() == title:
                             story_found = True
                             break
@@ -265,7 +273,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
                         else:
                             ## This should catch anything else, and shouldn't ever really be gotten
                             # to, but I'm going to have it print out in the debugger, just in case
-                            logger.debug('Metadata not caught: %s' % str(meta))
+                            logger.debug('Metadata not caught: %s' % unicode(meta))
                             zzzzzzzz = 0
                 elif label == 'characters':
                     self.story.setMetadata('characters', value)
@@ -315,7 +323,7 @@ class FireflyPopulliOrgSiteAdapter(BaseSiteAdapter):
         # the end  of the section, which has alot of extraneous things, then adding my own div
         # wrapper, recreating the soup, then getting that div from the soup again, before sending to
         # the writers.
-        story = repr(story).replace(b'\\xa0', '').replace('  ',' ').replace(r'\n','').strip()
+        story = repr(story).replace(u'\\xa0', '').replace('  ',' ').replace(r'\n','').strip()
         story = story[12:]
         story = story[:story.find('<p align="center" class="comments">Please <')]
         story = '<div class="chaptertext">' + story + '</div>'

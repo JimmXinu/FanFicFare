@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import datetime
 import time
 import logging
@@ -22,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 from .. import exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import ensure_text
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 class TestSiteAdapter(BaseSiteAdapter):
 
@@ -67,13 +71,13 @@ class TestSiteAdapter(BaseSiteAdapter):
                     #print("addList:%s"%(nkey))
                     for val in self.get_config_list(sections,key):
                         #print("addList:%s->%s"%(nkey,val))
-                        self.story.addToList(nkey,val.decode('utf-8').replace('{{storyId}}',idstr))
+                        self.story.addToList(nkey,ensure_text(val).replace('{{storyId}}',idstr))
                 else:
                     # Special cases:
                     if key in ['datePublished','dateUpdated']:
                         self.story.setMetadata(key,makeDate(self.get_config(sections,key),"%Y-%m-%d"))
                     else:
-                        self.story.setMetadata(key,self.get_config(sections,key).decode('utf-8').replace('{{storyId}}',idstr))
+                        self.story.setMetadata(key,ensure_text(self.get_config(sections,key)).replace('{{storyId}}',idstr))
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
             if self.has_config(sections,'chapter_urls'):
@@ -112,7 +116,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(self.url,self.username)
 
         if idstr == '664':
-            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring)
+            self.story.setMetadata(u'title',"Test Story Title "+idstr+self.crazystring+"&nbsp;&nbsp;")
             self.story.setMetadata('author','Test Author aa bare amp(&) quote(&#39;) amp(&amp;)')
         else:
             self.story.setMetadata(u'title',"Test Story Title "+idstr)

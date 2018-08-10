@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2016 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-import os, re
+from __future__ import absolute_import
+import os, re, sys
 import copy
 from collections import defaultdict
-import urlparse
 import string
 import json
 import datetime
@@ -26,14 +26,20 @@ from math import floor
 from functools import partial
 import logging
 logger = logging.getLogger(__name__)
-import urlparse as up
+
+# py2 vs py3 transition
+from . import six
+from .six.moves.urllib.parse import (urlparse, urlunparse)
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six.moves import map
 
 import bs4
 
-import exceptions
-from htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
-from configurable import Configurable, re_compile
-from htmlheuristics import was_run_marker
+from . import exceptions
+from .htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
+from .configurable import Configurable, re_compile
+from .htmlheuristics import was_run_marker
 
 SPACE_REPLACE=u'\s'
 SPLIT_META=u'\,'
@@ -51,12 +57,13 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from StringIO import StringIO
+    from .six import BytesIO
     from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
+        # logger.debug("calibre convert_image called")
 
         if url.lower().endswith('.svg'):
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
@@ -68,7 +75,7 @@ try:
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
 
-        if normalize_format_name(img.format)=="gif" and GifInfo(StringIO(data),CHECK_IS_ANIMATED).frameCount > 1:
+        if normalize_format_name(img.format)=="gif" and GifInfo(BytesIO(data),CHECK_IS_ANIMATED).frameCount > 1:
             raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
 
         if scaled:
@@ -97,15 +104,16 @@ try:
 
 except:
 
-    # No calibre routines, try for PIL for CLI.
+    # No calibre routines, try for Pillow for CLI.
     try:
-        import Image
-        from StringIO import StringIO
+        from PIL import Image
+        from .six import BytesIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
+            # logger.debug("Pillow convert_image called")
             export = False
-            img = Image.open(StringIO(data))
+            img = Image.open(BytesIO(data))
 
             owidth, oheight = img.size
             nwidth, nheight = sizes
@@ -132,7 +140,7 @@ except:
                 export = True
 
             if export:
-                outsio = StringIO()
+                outsio = BytesIO()
                 img.save(outsio,convtype[imgtype])
                 return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
@@ -143,11 +151,12 @@ except:
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
+            # logger.debug("NO convert_image called")
             return no_convert_image(url,data)
 
 ## also used for explicit no image processing.
 def no_convert_image(url,data):
-    parsedUrl = up.urlparse(url)
+    parsedUrl = urlparse(url)
 
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
 
@@ -332,7 +341,7 @@ class InExMatch:
             (self.keys,self.match) = line.split("!=")
             self.match = self.match.replace(SPACE_REPLACE,' ')
             self.negate = True
-        self.keys = map( lambda x: x.strip(), self.keys.split(",") )
+        self.keys = [x.strip() for x in self.keys.split(",")]
 
     # For conditional, only one key
     def is_key(self,key):
@@ -406,7 +415,7 @@ def make_replacements(replace):
             if "=>" in line:
                 parts = line.split("=>")
                 if len(parts) > 2:
-                    metakeys = map( lambda x: x.strip(), parts[0].split(",") )
+                    metakeys = [x.strip() for x in parts[0].split(",")]
                     (regexp,replacement)=parts[1:]
                 else:
                     (regexp,replacement)=parts
@@ -436,6 +445,7 @@ class Story(Configurable):
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}
         except:
             self.metadata = {'version':'unknown'}
+        self.metadata['python_version']=sys.version
         self.replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
@@ -608,8 +618,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist)
-            retlist = map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist)
+            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist))
 
         if return_list:
             return retlist
@@ -619,7 +629,7 @@ class Story(Configurable):
     # for saving an html-ified copy of metadata.
     def dump_html_metadata(self):
         lines=[]
-        for k,v in sorted(self.metadata.iteritems()):
+        for k,v in sorted(six.iteritems(self.metadata)):
             classes=['metadata']
             if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
                 classes.append("datetime")
@@ -689,7 +699,7 @@ class Story(Configurable):
         return value
 
     def getMetadataRaw(self,key):
-        if self.isValidMetaEntry(key) and self.metadata.has_key(key):
+        if self.isValidMetaEntry(key) and key in self.metadata:
             return self.metadata[key]
 
     def getMetadata(self, key,
@@ -711,7 +721,7 @@ class Story(Configurable):
             value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
             if doreplacements:
                 value = self.doReplacements(value,key+"_LIST")
-        elif self.metadata.has_key(key):
+        elif key in self.metadata:
             value = self.metadata[key]
             if value:
                 if key in ["numWords","numChapters"]+self.getConfigList("comma_entries",[]):
@@ -868,7 +878,7 @@ class Story(Configurable):
     def isList(self,listname):
         'Everything set with an include_in_* is considered a list.'
         return self.isListType(listname) or \
-            ( self.isValidMetaEntry(listname) and self.metadata.has_key(listname) \
+            ( self.isValidMetaEntry(listname) and listname in self.metadata \
                   and isinstance(self.metadata[listname],list) )
 
     def getList(self,listname,
@@ -948,9 +958,9 @@ class Story(Configurable):
                     retlist = newretlist
 
                 if removeallentities:
-                    retlist = map(removeAllEntities,retlist)
+                    retlist = list(map(removeAllEntities,retlist))
 
-                retlist = filter( lambda x : x!=None and x!='' ,retlist)
+                retlist = [x for x in retlist if x!=None and x!='']
 
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
@@ -984,7 +994,7 @@ class Story(Configurable):
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
 
         # metadata all go into dc:subject tags, but only if they are configured.
-        for (name,value) in self.getAllMetadata(removeallentities=removeallentities,keeplists=True).iteritems():
+        for (name,value) in six.iteritems(self.getAllMetadata(removeallentities=removeallentities,keeplists=True)):
             if name+'.SPLIT' in tags_list:
                 flist=[]
                 if isinstance(value,list):
@@ -1011,7 +1021,6 @@ class Story(Configurable):
     def addChapter(self, chap, newchap=False):
         # logger.debug("addChapter(%s,%s)"%(chap,newchap))
         chapter = defaultdict(unicode,chap) # default unknown to empty string
-        chapter['title'] = removeEntities(chapter['title'])
         chapter['html'] = removeEntities(chapter['html'])
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
@@ -1029,7 +1038,7 @@ class Story(Configurable):
         self.chapters.append(chapter)
 
     def getChapters(self,fortoc=False):
-        "Chapters will be dicts"
+        "Chapters will be defaultdicts(unicode)"
         retval = []
 
         ## only add numbers if more than one chapter.  Ditto (new) marks.
@@ -1113,7 +1122,7 @@ class Story(Configurable):
         else:
             values = self.get_filename_safe_metadata()
 
-        return string.Template(template).substitute(values).encode('utf8')
+        return string.Template(template).substitute(values) #.encode('utf8')
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
@@ -1139,15 +1148,15 @@ class Story(Configurable):
         if url.startswith("http") or url.startswith("file") or parenturl == None:
             imgurl = url
         else:
-            parsedUrl = urlparse.urlparse(parenturl)
+            parsedUrl = urlparse(parenturl)
             if url.startswith("//") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      '',
                      url,
                      '','',''))
             elif url.startswith("/") :
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      url,
@@ -1158,7 +1167,7 @@ class Story(Configurable):
                     toppath = parsedUrl.path
                 else:
                     toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                imgurl = urlparse.urlunparse(
+                imgurl = urlunparse(
                     (parsedUrl.scheme,
                      parsedUrl.netloc,
                      toppath + url,
@@ -1177,14 +1186,14 @@ class Story(Configurable):
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
 
-                parsedUrl = urlparse.urlparse(imgurl)
+                parsedUrl = urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        fetch(imgurl,referer=parenturl))
                 else:
                     try:
-                        sizes = [ int(x) for x in self.getConfigList('image_max_size') ]
-                    except Exception, e:
+                        sizes = [ int(x) for x in self.getConfigList('image_max_size',['580', '725']) ]
+                    except Exception as e:
                         raise exceptions.FailedToDownload("Failed to parse image_max_size from personal.ini:%s\nException: %s"%(self.getConfigList('image_max_size'),e))
                     grayscale = self.getConfig('grayscale_images')
                     imgtype = self.getConfig('convert_images_to')
@@ -1201,7 +1210,7 @@ class Story(Configurable):
                                                     removetrans,
                                                     imgtype,
                                                     background="#"+self.getConfig('background_color'))
-            except Exception, e:
+            except Exception as e:
                 logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
 
@@ -1250,7 +1259,7 @@ class Story(Configurable):
     def getImgUrls(self):
         retlist = []
         for i, url in enumerate(self.imgurls):
-            #parsedUrl = urlparse.urlparse(url)
+            #parsedUrl = urlparse(url)
             retlist.append(self.imgtuples[i])
         return retlist
 

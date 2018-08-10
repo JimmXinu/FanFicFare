@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
 # limitations under the License.
 #
 
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import time
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
 
 ## They're from the same people and pretty much identical.
-from adapter_fanfictionnet import FanFictionNetSiteAdapter
+from .adapter_fanfictionnet import FanFictionNetSiteAdapter
 
 class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
 

@@ -1,14 +1,28 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
+# Changes Copyright 2018 FanFicFare team
 
 ## This module is used by mobi.py exclusively.
+## Renamed Jul 2018 to avoid conflict with other 'html' packages
+from __future__ import absolute_import
 
 import re
 import sys
-import StringIO
-import urllib
+import logging
 
+# py2 vs py3 transition
+from .six.moves.urllib.parse import unquote
+from .six import text_type as unicode
+from .six import binary_type as bytes
+from .six import ensure_binary
+
+# import bs4
+# BeautifulSoup = bs4.BeautifulSoup
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 class HtmlProcessor:
   WHITESPACE_RE = re.compile(r'\s')
@@ -19,6 +33,14 @@ class HtmlProcessor:
     self.unfill = unfill
 #    html = self._ProcessRawHtml(html)
     self._soup = BeautifulSoup(html,'html5lib')
+    # logger.debug(html)
+    ## mobi format wants to find this <guide> tag inside <head>.
+    ## html5lib, on the other hand, moved it to <body>.  So we'll move
+    ## it back.
+    guide = self._soup.find('guide')
+    if guide:
+      self._soup.head.append(guide)
+    # logger.debug(self._soup)
     if self._soup.title.contents:
       self.title = self._soup.title.contents[0]
     else:
@@ -33,7 +55,7 @@ class HtmlProcessor:
 
   def _StubInternalAnchors(self):
     '''Replace each internal anchor with a fixed-size filepos anchor.
-\
+
     Looks for every anchor with <a href="#myanchor"> and replaces that
     with <a filepos="00000000050">. Stores anchors in self._anchor_references'''
     self._anchor_references = []
@@ -44,29 +66,35 @@ class HtmlProcessor:
     anchorlist.extend(self._soup.findAll('reference', href=re.compile('^#')))
     for anchor in anchorlist:
       self._anchor_references.append((anchor_num, anchor['href']))
-      del anchor['href']
       anchor['filepos'] = '%.10d' % anchor_num
+      # logger.debug("Add anchor: %s %s"%((anchor_num, anchor)))
+      del anchor['href']
       anchor_num += 1
 
   def _ReplaceAnchorStubs(self):
     # TODO: Browsers allow extra whitespace in the href names.
 
-    # str() instead of unicode() rather than figure out how to fix
-    # ancient mobi.py code.
-    assembled_text = str(self._soup)
+    assembled_text = ensure_binary(unicode(self._soup))
+    # html5lib/bs4 creates close tags for <mbp:pagebreak>
+    assembled_text = assembled_text.replace(b'<mbp:pagebreak>',b'<mbp:pagebreak/>')
+    assembled_text = assembled_text.replace(b'</mbp:pagebreak>',b'')
 
     del self._soup # shouldn't touch this anymore
     for anchor_num, original_ref in self._anchor_references:
-      ref = urllib.unquote(original_ref[1:]) # remove leading '#'
+      ref = unquote(original_ref[1:]) # remove leading '#'
       # Find the position of ref in the utf-8 document.
       # TODO(chatham): Using regexes and looking for name= would be better.
-      newpos = assembled_text.rfind(ref.encode('utf-8'))
+      newpos = assembled_text.find(b'name="'+ensure_binary(ref)) # .encode('utf-8')
       if newpos == -1:
-        print >>sys.stderr, 'Could not find anchor "%s"' % original_ref
+        logger.warn('Could not find anchor "%s"' % original_ref)
         continue
-      newpos += len(ref) + 2  # don't point into the middle of the <a name> tag
-      old_filepos = 'filepos="%.10d"' % anchor_num
-      new_filepos = 'filepos="%.10d"' % newpos
+      # instead of somewhere slightly *after* the <a> tag pointed to,
+      # let's go right in front of it instead by looking for the page
+      # break before it.
+      newpos = assembled_text.rfind(b'<',0,newpos)
+      # logger.debug("Anchor Pos: %s %s '%s|%s'"%((anchor_num, newpos,assembled_text[newpos-15:newpos],assembled_text[newpos:newpos+15])))
+      old_filepos = b'filepos="%.10d"' % anchor_num
+      new_filepos = b'filepos="%.10d"' % newpos
       assert assembled_text.find(old_filepos) != -1
       assembled_text = assembled_text.replace(old_filepos, new_filepos, 1)
     return assembled_text

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,18 +26,21 @@
 ###         take a long gime to process. I've removed as much of the extra
 ###         formatting as I thought I could.
 #############################################################################
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
 import sys
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return SugarQuillNetAdapter
@@ -89,7 +92,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
             else:
@@ -127,7 +130,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         logger.debug('Getting the author page: {0}'.format(author_Url))
         try:
             adata = self._fetchUrl(author_Url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code in 404:
                 raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
             elif e.code == 410:

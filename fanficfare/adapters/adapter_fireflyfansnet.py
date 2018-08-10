@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@
 ####################################################################################################
 # Adapted by GComyn - December 10, 2016
 ####################################################################################################
+from __future__ import absolute_import
 ''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
 import logging
 import re
 import sys
-import time
-import urllib2
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -79,7 +81,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -131,7 +133,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # which is usualy FireFly on this site, but I'm going to get them
         # anyway.a
         category = soup.find('span', {'id': 'MainContent_txtItemDetails'})
-        category = stripHTML(str(category).replace(b"\xc2\xa0", ' '))
+        category = stripHTML(unicode(category).replace(u"\xa0", u' '))
         metad = category.split('    ')
         for meta in metad:
             if ":" in meta:

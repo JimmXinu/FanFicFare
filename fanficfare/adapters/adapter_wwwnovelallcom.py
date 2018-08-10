@@ -19,13 +19,16 @@
 ### Tested with Calibre
 ####################################################################################################
 
+from __future__ import absolute_import
 import logging
 import re
 import json
-import urllib2
-import urlparse
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.error import HTTPError
 
-from base_adapter import BaseSiteAdapter, makeDate
+from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
 from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
@@ -108,7 +111,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         try:
             data = self._fetchUrl(url)
 
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
             else:

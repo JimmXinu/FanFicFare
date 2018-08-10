@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-
 #
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return StoriesOnlineNetAdapter
@@ -133,7 +136,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.needToLogin = False
         try:
             data = self._fetchUrl(url+":i")
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code in (404, 410):
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             elif e.code == 401:
@@ -147,7 +150,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.performLogin(url)
             try:
                 data = self._fetchUrl(url+":i",usecache=False)
-            except urllib2.HTTPError, e:
+            except HTTPError as e:
                 if e.code in (404, 410):
                     raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
                 elif e.code == 401:
@@ -263,7 +266,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             page = page + 1
             try:
                 data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
-            except urllib2.HTTPError, e:
+            except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)

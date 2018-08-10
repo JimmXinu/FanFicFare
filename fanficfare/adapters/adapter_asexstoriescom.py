@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,10 @@
 # limitations under the License.
 #
 
-import time
+from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import urlparse
-import time
 import os
 
 from bs4.element import Comment
@@ -29,7 +26,12 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 import sys
 
-from base_adapter import BaseSiteAdapter, makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter, makeDate
 
 def getClass():
     return ASexStoriesComAdapter
@@ -84,7 +86,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
@@ -133,7 +135,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
                     self.add_chapter(chapterTitle, chapterUrl)
 
 
-        rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
+        rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'class':'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)
         
         self.story.setMetadata('dateUpdated', makeDate('01/01/2001', '%m/%d/%Y'))

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller'
+__copyright__ = '2018, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -11,7 +12,11 @@ import re, os, traceback
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
-from StringIO import StringIO
+
+# py2 vs py3 transition
+from .six import text_type as unicode
+from .six import string_types as basestring
+from .six import BytesIO # StringIO under py2
 
 import bs4
 
@@ -158,7 +163,7 @@ def get_update_data(inputio,
                         chapurl = soup.find('meta',{'name':'chapterurl'})
                         if chapurl:
                             if chapurl['content'] not in urlsoups: # keep first found if more than one.
-                            #print("Found chapurl['content']:%s"%chapurl['content'])
+                            # print("Found chapurl['content']:%s"%chapurl['content'])
                                 currenturl = chapurl['content']
                                 urlsoups[chapurl['content']] = bodysoup
                         else:
@@ -188,7 +193,7 @@ def get_update_data(inputio,
 
     #for k in images.keys():
         #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    # print("datamaps:%s"%datamaps)
+    #print("datamaps:%s"%datamaps)
     return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups,datamaps)
 
 def get_path_part(n):
@@ -274,7 +279,7 @@ def reset_orig_chapters_epub(inputio,outfile):
     inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
 
     ## build zip in memory in case updating in place(CLI).
-    zipio = StringIO()
+    zipio = BytesIO()
 
     ## Write mimetype file, must be first and uncompressed.
     ## Older versions of python(2.4/5) don't allow you to specify

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2015 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
-import StringIO
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
+
+# py2 vs py3 transition
+from ..six import BytesIO # StringIO under py2
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +131,7 @@ ${value}<br />
             NO_TITLE_ENTRY    = self.MOBI_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.MOBI_TITLE_PAGE_END
         
-        titlepageIO = StringIO.StringIO()
+        titlepageIO = BytesIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -142,7 +145,7 @@ ${value}<br />
         ## MOBI always has a TOC injected by mobi.py because there's
         ## no meta-data TOC.
         # # write toc page.  
-        # tocpageIO = StringIO.StringIO()
+        # tocpageIO = BytesIO()
         # self.writeTOCPage(tocpageIO,
         #                   self.MOBI_TOC_PAGE_START,
         #                   self.MOBI_TOC_ENTRY,

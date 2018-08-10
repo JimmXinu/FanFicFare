@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +15,23 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import time
 from datetime import date, datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib2
-import cookielib as cl
 import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+from ..six.moves import http_cookiejar as cl
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return FimFictionNetSiteAdapter
@@ -97,7 +101,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             data = self.do_fix_blockquotes(self._fetchUrl(self.url,
                                                           usecache=(not self.is_adult)))
             soup = self.make_soup(data)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:

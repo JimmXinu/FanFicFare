@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2017 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
 # limitations under the License.
 #
 
+from __future__ import absolute_import
 import logging
 import string
-import StringIO
 import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import urllib
 import re
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six import string_types as basestring
+from ..six import ensure_binary
+from ..six import BytesIO # StringIO under py2
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -29,7 +35,7 @@ from xml.dom.minidom import parse, parseString, getDOMImplementation
 
 import bs4
 
-from base_writer import *
+from .base_writer import *
 from ..htmlcleanup import stripHTML,removeEntities
 from ..story import commaGroups
 
@@ -232,7 +238,7 @@ div { margin: 0pt; padding: 0pt; }
                 span = '<span id="%s">'%entry
                 idx = logfile.rindex(span)+len(span)
                 values[entry] = logfile[idx:logfile.index('</span>\n',idx)]
-            except Exception, e:
+            except Exception as e:
                 #print("e:%s"%e)
                 pass
 
@@ -299,11 +305,11 @@ div { margin: 0pt; padding: 0pt; }
     def writeStoryImpl(self, out):
 
         ## Python 2.5 ZipFile is rather more primative than later
-        ## versions.  It can operate on a file, or on a StringIO, but
+        ## versions.  It can operate on a file, or on a BytesIO, but
         ## not on an open stream.  OTOH, I suspect we would have had
         ## problems with closing and opening again to change the
         ## compression type anyway.
-        zipio = StringIO.StringIO()
+        zipio = BytesIO()
 
         ## mimetype must be first file and uncompressed.  Python 2.5
         ## ZipFile can't change compression type file-by-file, so we
@@ -518,8 +524,8 @@ div { margin: 0pt; padding: 0pt; }
                 COVER = string.Template(self.getConfig("cover_content"))
             else:
                 COVER = self.EPUB_COVER
-            coverIO = StringIO.StringIO()
-            coverIO.write(COVER.substitute(dict(self.story.getAllMetadata().items()+{'coverimg':self.story.cover}.items())))
+            coverIO = BytesIO()
+            self._write(coverIO,COVER.substitute(dict(list(self.story.getAllMetadata().items())+list({'coverimg':self.story.cover}.items()))))
 
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
@@ -575,10 +581,10 @@ div { margin: 0pt; padding: 0pt; }
 
         # write content.opf to zip.
         contentxml = contentdom.toxml(encoding='utf-8')
-
         # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace('<meta content="%s" name="cover"/>'%coverimgid,
-                                        '<meta name="cover" content="%s"/>'%coverimgid)
+        contentxml = contentxml.replace(ensure_binary('<meta content="%s" name="cover"/>'%coverimgid),
+                                        ensure_binary('<meta name="cover" content="%s"/>'%coverimgid))
+
         outputepub.writestr("content.opf",contentxml)
 
         contentdom.unlink()
@@ -655,7 +661,7 @@ div { margin: 0pt; padding: 0pt; }
             outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
 
-        titlepageIO = StringIO.StringIO()
+        titlepageIO = BytesIO()
         self.writeTitlePage(out=titlepageIO,
                             START=TITLE_PAGE_START,
                             ENTRY=TITLE_ENTRY,
@@ -667,7 +673,7 @@ div { margin: 0pt; padding: 0pt; }
         titlepageIO.close()
 
         # write toc page.
-        tocpageIO = StringIO.StringIO()
+        tocpageIO = BytesIO()
         self.writeTOCPage(tocpageIO,
                           self.EPUB_TOC_PAGE_START,
                           self.EPUB_TOC_ENTRY,
@@ -678,7 +684,7 @@ div { margin: 0pt; padding: 0pt; }
 
         if dologpage:
             # write log page.
-            logpageIO = StringIO.StringIO()
+            logpageIO = BytesIO()
             self.writeLogPage(logpageIO)
             outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
             logpageIO.close()

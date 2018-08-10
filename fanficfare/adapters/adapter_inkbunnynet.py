@@ -18,19 +18,22 @@
 # Adapted by GComyn on April 24, 2017
 # Updated by GComyn on June 11, 2018
 
+from __future__ import absolute_import
 import logging
 import re
 import sys
-import urllib2
 from datetime import datetime, timedelta
 
-from base_adapter import BaseSiteAdapter,  makeDate
+# py2 vs py3 transition
+from ..six import text_type as unicode
+from ..six.moves.urllib.error import HTTPError
+
+from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
+from ..dateutils import UNIX_EPOCHE
 
-UNIX_EPOCHE = datetime.fromtimestamp(0)
 logger = logging.getLogger(__name__)
-
 
 def getClass():
     return InkBunnyNetSiteAdapter
@@ -122,7 +125,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
             else:

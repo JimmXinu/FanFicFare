@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2017 FanFicFare team
+# Copyright 2018 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-from adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
+from __future__ import absolute_import
+from .adapter_forumquestionablequestingcom import QuestionablequestingComAdapter
 
 def getClass():
     return WWWAlternatehistoryComAdapter
