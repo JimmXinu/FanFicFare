@@ -33,6 +33,12 @@ class HtmlProcessor:
     self.unfill = unfill
 #    html = self._ProcessRawHtml(html)
     self._soup = BeautifulSoup(html,'html5lib')
+    ## mobi format wants to find this <guide> tag inside <head>.
+    ## html5lib, on the other hand, moved it to <body>.  So we'll move
+    ## it back.
+    guide = self._soup.find('guide')
+    if guide:
+      self._soup.head.append(guide)
     if self._soup.title.contents:
       self.title = self._soup.title.contents[0]
     else:
@@ -66,10 +72,8 @@ class HtmlProcessor:
   def _ReplaceAnchorStubs(self):
     # TODO: Browsers allow extra whitespace in the href names.
 
-    # str() instead of unicode() rather than figure out how to fix
-    # ancient mobi.py code.
     assembled_text = ensure_binary(unicode(self._soup))
-    # bs4 creating close tags for <mbp:pagebreak>
+    # html5lib/bs4 creates close tags for <mbp:pagebreak>
     assembled_text = assembled_text.replace(b'<mbp:pagebreak>',b'<mbp:pagebreak/>')
     assembled_text = assembled_text.replace(b'</mbp:pagebreak>',b'')
 

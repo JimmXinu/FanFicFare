@@ -91,7 +91,9 @@ class Converter:
     toc_html = []
     body_html = []
 
-    PAGE_BREAK = '<mbp:pagebreak>'
+    ## This gets broken by html5lib/bs4fixed being helpful, but we'll
+    ## fix it inside mobihtml.py
+    PAGE_BREAK = '<mbp:pagebreak/>'
 
     # pull out the title page, assumed first html_strs.
     htmltitle = html_strs[0]
