@@ -33,12 +33,14 @@ class HtmlProcessor:
     self.unfill = unfill
 #    html = self._ProcessRawHtml(html)
     self._soup = BeautifulSoup(html,'html5lib')
+    # logger.debug(html)
     ## mobi format wants to find this <guide> tag inside <head>.
     ## html5lib, on the other hand, moved it to <body>.  So we'll move
     ## it back.
     guide = self._soup.find('guide')
     if guide:
       self._soup.head.append(guide)
+    # logger.debug(self._soup)
     if self._soup.title.contents:
       self.title = self._soup.title.contents[0]
     else:

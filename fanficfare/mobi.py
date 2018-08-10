@@ -127,6 +127,11 @@ class Converter:
 ''' % time.ctime(time.time())
 
     footer = '</body></html>'
+    # logger.debug("header:%s"%header)
+    # logger.debug("title_html:%s"%title_html)
+    # logger.debug("toc_html:%s"%toc_html)
+    # logger.debug("body_html:%s"%body_html)
+    # logger.debug("footer:%s"%footer)
     all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
     #print "%s" % all_html.encode('utf8')
     return all_html
@@ -138,7 +143,7 @@ class Converter:
     except Exception as e:
       raise
       logger.error('Error %s', e)
-      #logger.debug('Details: %s' % html_strs)
+      # logger.debug('Details: %s' % html_strs)
 
   def _ConvertStringToFile(self, html_data, out):
     html = HtmlProcessor(html_data)
@@ -163,11 +168,12 @@ class Converter:
 #    if title:
 #      self._header.SetTitle(title)
     record_id = 1
+    # logger.debug("len(data):%s"%len(data))
     for start_pos in range(0, len(data), Record.MAX_SIZE):
       end = min(len(data), start_pos + Record.MAX_SIZE)
       record_data = data[start_pos:end]
       records.append(self._header.AddRecord(record_data, record_id))
-      #print "HTML Record %03d: (size:%d) [[%s ... %s]]" % ( record_id, len(record_data), record_data[:20], record_data[-20:] )
+      # logger.debug("HTML Record %03d: (size:%d) [[%s ... %s]]" % ( record_id, len(record_data), record_data[:20], record_data[-20:] ))
       record_id += 1
     self._header.SetImageRecordIndex(record_id)
     records[0:0] = [self._header.MobiHeader()]
@@ -176,7 +182,7 @@ class Converter:
     out.write(ensure_binary(header))
     for record in records:
       record.WriteHeader(out, rec_offset)
-      #print "rec_offset: %d len(record.data): %d" % (rec_offset,len(record.data))
+      # logger.debug("rec_offset: %d len(record.data): %d" % (rec_offset,len(record.data)))
       rec_offset += (len(record.data)+1) # plus one for trailing null
 
     # Write to nuls for some reason
@@ -256,6 +262,7 @@ class Header:
   def AddRecord(self, data, record_id):
     self.max_record_size = max(Record.MAX_SIZE, len(data))
     self._record_count += 1
+    # logger.debug("len(data):%s"%len(data))
     self._length += len(data)
     return Record(data, record_id)
 
@@ -279,12 +286,15 @@ class Header:
     return palmdoc_header
 
   def PDBHeader(self, num_records):
+    # logger.debug("num_records:%s"%num_records)
     HEADER_LEN = 32+2+2+9*4
     RECORD_INDEX_HEADER_LEN = 6
     RESOURCE_INDEX_LEN = 10
 
     index_len = RECORD_INDEX_HEADER_LEN + num_records * Record.INDEX_LEN
     rec_offset = HEADER_LEN + index_len + 2
+    # logger.debug("index_len:%s"%index_len)
+    # logger.debug("rec_offset:%s"%rec_offset)
 
     short_title = self._title[0:31]
     attributes = 0
@@ -321,10 +331,12 @@ class Header:
       length_encoding_len = 8
       r.append(struct.pack('>LL', typeid, len(value) + length_encoding_len,) + value)
     content = b''.join(r)
+    # logger.debug("len(content):%s"%len(content))
 
     # Pad to word boundary
     while len(content) % 4:
       content += b'\0'
+    # logger.debug("len(content):%s"%len(content))
     TODO_mysterious = 12
     exth = b'EXTH' + struct.pack('>LL', len(content) + TODO_mysterious, len(data)) + content
     return exth
@@ -346,6 +358,9 @@ class Header:
     creator_version = 4
     reserved = b'%c' % 0xff * 40
     nonbook_index = fs
+    # logger.debug("header_len:%s"%header_len)
+    # logger.debug("len(palmdoc_header):%s"%len(palmdoc_header))
+    # logger.debug("len(exth_header):%s"%len(exth_header))
     full_name_offset = header_len + len(palmdoc_header) + len(exth_header) # put full name after header
     language = languages['en-us']
     unused = 0
