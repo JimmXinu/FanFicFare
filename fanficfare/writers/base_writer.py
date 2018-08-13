@@ -143,7 +143,7 @@ class BaseStoryWriter(Configurable):
         names as Story.metadata, but ENTRY should use index and chapter.
         """
         # Only do TOC if there's more than one chapter and it's configured.
-        if len(self.story.getChapters()) > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if self.story.getChapterCount() > 1 and self.getConfig("include_tocpage") and not self.metaonly :
             if self.hasConfig("tocpage_start"):
                 START = string.Template(self.getConfig("tocpage_start"))
 
