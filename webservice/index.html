@@ -26,7 +26,7 @@
                   state.push(this.value);
                   savedtexts.push(state)
               }
-      console.log(state)
+              //console.log(state)
           });
           $.cookie(cookie_name,
              JSON.stringify({'checkboxes':savedcheckboxes,
@@ -45,7 +45,7 @@
                   }
               });
               $.each(temps_settings['texts'], function() {
-      console.log(this)
+                  //console.log(this)
                   var input_id=this[0];
                   var input_value=this[1];
                   if(input_id) {
@@ -84,8 +84,8 @@
             If you have any problems with this application, please
             report them in
             the <a href="https://groups.google.com/group/fanfic-downloader">FanFicFare Google Group</a>.  The
-            <a href="https://2-28-0.fanficfare.appspot.com">previous version
-            </a> is also available for you to use if necessary.
+            <a href="https://2-28-0.fanficfare.appspot.com">previous version</a>
+            is also available for you to use if necessary.
           </p>
           <div id='error'>
             {{ error_message }}
@@ -103,7 +103,7 @@
             <label for="mobi"><input type='radio' name='format' value='mobi' id='mobi'>Mobi(Kindle)</label>
           </div>
           <div>
-            <input type="submit" value="Download">
+            <p><input type="submit" value="Download"></p>
             <p><i>For most readers, including Sony Reader, Nook and iPad, use EPub.</i></p>
           </div>
         </div>
