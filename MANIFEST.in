@@ -1,1 +1,3 @@
 include DESCRIPTION.rst
+include README.md
+include LICENSE
