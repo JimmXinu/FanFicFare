@@ -1,7 +1,7 @@
 FanFicFare
 ==========
 
-This is the repository for the FanFicFare project.
+[This is the repository for the FanFicFare project.](https://github.com/JimmXinu/FanFicFare)
 
 FanFicFare is the rename and move of the previous FanFictionDownLoader (AKA
 FFDL, AKA fanficdownloader) project.
