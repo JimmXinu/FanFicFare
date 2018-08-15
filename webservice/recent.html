@@ -8,42 +8,38 @@
   <body>
     <div id='main'>
       <h1>
-	<a href="/" style="text-decoration: none; color: black;">FanFicFare</a>
+        <a href="/" style="text-decoration: none; color: black;">FanFicFare</a>
       </h1>
-      
-      <!--			<div id='yourfile'> -->
-      {{yourfile}}
-      <!--			</div> -->
-      
+
       <div id='urlbox'>
-	<div id='greeting'>
-	  <p>Hi, {{ nickname }}! These are the fanfics you've recently requested.</p>
-	  <p><a href="/clearrecent">Clear your Recent Downloads List</a></p>
-	</div>
+        <div id='greeting'>
+          <p>Hi, {{ nickname }}! These are the fanfics you've recently requested.</p>
+          <p><a href="/clearrecent">Clear your Recent Downloads List</a></p>
+        </div>
       </div>
 
-      <div id='helpbox'>
-	{% for fic in fics %}
-	<p>
-	  {% if fic.completed %}
-  	      <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
-	      by {{ fic.author }} ({{ fic.format }})
-	  {% endif %}
-	  {% if  not fic.completed and not fic.failure %}
-  	      <span class="recent">Processing <i>{{ fic.title }}</i></span>
-	      by {{ fic.author }} ({{ fic.format }})
-	  {% endif %}
-	  {% if fic.failure %}
-	      <span id='error'>{{ fic.failure }}</span>
-	  {% endif %}
-	  <a href="{{ fic.url }}" title="Link to original story">Source</a>
-   	  {% if fic.completed and fic.escaped_url %}
-   	      <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
-	  {% endif %}
-	</p>
-	{% endfor %}
+      <div class="borderbox">
+        {% for fic in fics %}
+        <p>
+          {% if fic.completed %}
+                <span class="recent"><a href="/file?id={{ fic.key }}">Download <i>{{ fic.title }}</i></a></span>
+              by {{ fic.author }} ({{ fic.format }})
+          {% endif %}
+          {% if  not fic.completed and not fic.failure %}
+                <span class="recent">Processing <i>{{ fic.title }}</i></span>
+              by {{ fic.author }} ({{ fic.format }})
+          {% endif %}
+          {% if fic.failure %}
+              <span id='error'>{{ fic.failure }}</span>
+          {% endif %}
+          <a href="{{ fic.url }}" title="Link to original story">Source</a>
+             {% if fic.completed and fic.escaped_url %}
+                 <a href="http://www.convertfiles.com/index.php?url={{ fic.escaped_url }}" title="Convert to other formats using Convertfiles.com">Convert</a>
+          {% endif %}
+        </p>
+        {% endfor %}
       </div>
-      
+
     </div>
   </body>
 </html>

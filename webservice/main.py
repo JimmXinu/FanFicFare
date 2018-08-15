@@ -33,7 +33,7 @@ from StringIO import StringIO
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
 from google.appengine.api import users
-#from google.appengine.ext import webapp
+from google.appengine.api import mail
 import webapp2
 from google.appengine.ext.webapp import template
 #from google.appengine.ext.webapp2 import util
@@ -83,10 +83,6 @@ class MainHandler(webapp2.RequestHandler):
                     template_values['error_message'] = 'Configuration Saved'
                 elif error == 'recentcleared':
                     template_values['error_message'] = 'Your Recent Downloads List has been Cleared'
-
-            filename = self.request.get('file')
-            if len(filename) > 1:
-                template_values['yourfile'] = '''<div id='yourfile'><a href='/file?id=%s'>"%s" by %s</a></div>''' % (filename, self.request.get('name'), self.request.get('author'))
 
             self.response.headers['Content-Type'] = 'text/html'
             path = os.path.join(os.path.dirname(__file__), 'index.html')
@@ -138,7 +134,7 @@ class EditConfigServer(UserConfigServer):
                 # just getting config for testing purposes.
                 configuration = self.getUserConfig(user,"test1.com","epub")
                 self.redirect("/?error=configsaved")
-            except Exception, e:
+            except Exception as e:
                 logging.info("Saved Config Failed:%s"%e)
                 self.redirect("/?error=custom&errtext=%s"%urllib.quote(unicode(e),''))
         else: # not update, assume display for edit
@@ -210,7 +206,7 @@ class FileServer(webapp2.RequestHandler):
             for datum in data:
                 self.response.out.write(decompress(datum.blob))
 
-        except Exception, e:
+        except Exception as e:
             fic = DownloadMeta()
             fic.failure = unicode(e)
 
@@ -246,7 +242,7 @@ class FileStatusServer(webapp2.RequestHandler):
                 download = DownloadMeta()
                 download.failure = "Download not found"
 
-        except Exception, e:
+        except Exception as e:
             download = DownloadMeta()
             download.failure = unicode(e)
 
@@ -363,6 +359,7 @@ class FanfictionDownloader(UserConfigServer):
         login = self.request.get('login')
         password = self.request.get('password')
         is_adult = self.request.get('is_adult') == "on"
+        email = self.request.get('email')
 
         # use existing record if available.  Fetched/Created before
         # the adapter can normalize the URL in case we need to record
@@ -376,7 +373,7 @@ class FanfictionDownloader(UserConfigServer):
             except exceptions.UnknownSite:
                 self.redirect("/?error=custom&errtext=%s"%urllib.quote("Unsupported site in URL (%s).  See 'Support sites' list below."%url,''))
                 return
-            except Exception, e:
+            except Exception as e:
                 self.redirect("/?error=custom&errtext=%s"%urllib.quote("There's an error in your User Configuration: "+unicode(e),'')[:2048]) # limited due to Locatton header length limit.
                 return
 
@@ -417,6 +414,7 @@ class FanfictionDownloader(UserConfigServer):
                                   'login':login,
                                   'password':password,
                                   'user':user.email(),
+                                  'email':email,
                                   'is_adult':is_adult})
 
             logging.info("enqueued download key: " + unicode(download.key()))
@@ -447,7 +445,7 @@ class FanfictionDownloader(UserConfigServer):
             logging.warn(unicode(e))
             download.failure = unicode(e)
             download.put()
-        except Exception, e:
+        except Exception as e:
             logging.error("Failure Queuing Download: url:%s" % url)
             logging.exception(e)
             download.failure = unicode(e)
@@ -470,6 +468,7 @@ class FanfictionDownloaderTask(UserConfigServer):
         login = self.request.get('login')
         password = self.request.get('password')
         is_adult = self.request.get('is_adult')
+        email = self.request.get('email')
 
         logging.info("Downloading: " + url + " for user: "+user.nickname())
         logging.info("ID: " + fileId)
@@ -524,6 +523,21 @@ class FanfictionDownloaderTask(UserConfigServer):
             #del adapter.story
             del adapter
 
+            # logging.debug("Email: %s"%email)
+            # if email and re.match(r"^[^@]+@[^@]+", email):
+            #     try:
+            #         logging.info("Email Attempt")
+            #         send_mail_attachment(user.email(),
+            #                              email.strip(),
+            #                              download.title + " by " + download.author,
+            #                              download.title + " by " + download.author + " URL: "+download.url,
+            #                              download.name,
+            #                              data)
+            #         logging.info("Email Sent")
+            #     except Exception as e:
+            #         # download.failure = "Failed to send Email %s"%unicode(e)
+            #         logging.warn(e, exc_info=True)
+
             # epubs are all already compressed.  Each chunk is
             # compressed individually to avoid having to hold the
             # whole in memory just for the compress/uncompress.
@@ -567,7 +581,7 @@ class FanfictionDownloaderTask(UserConfigServer):
             logging.info("Download finished OK")
             del data
 
-        except Exception, e:
+        except Exception as e:
             logging.exception(e)
             download.failure = unicode(e)
             download.put()
@@ -615,6 +629,16 @@ def getDownloadMeta(id=None,url=None,user=None,format=None,new=False):
             download.format = format
 
     return download
+
+def send_mail_attachment(sender,to,subject,body,attach_fn,attach_data):
+    msg = mail.EmailMessage()
+    msg.sender = sender
+    msg.to = [to]
+    msg.subject = subject
+    msg.body = body
+    msg.attachments = [mail.Attachment(attach_fn,attach_data)]
+    msg.check_initialized()
+    msg.send()
 
 logging.getLogger().setLevel(logging.DEBUG)
 app = webapp2.WSGIApplication([('/', MainHandler),

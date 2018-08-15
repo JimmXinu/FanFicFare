@@ -8,31 +8,31 @@
   <body>
     <div id='main'>
       <h1>
-	<a href="/" style="text-decoration: none; color: black;">FanFicFare</a>
+        <a href="/" style="text-decoration: none; color: black;">FanFicFare</a>
       </h1>
 
       {% if fic.failure %}
       <div id='error'>
-	{{ fic.failure }}
+        {{ fic.failure }}
       </div>
       {% endif %}
       <form action="/fdown" method="post">
-	<input type="hidden" name="url" value='{{ url }}'>	
-	<input type="hidden" name="format" value='{{ format }}'>	
-	<div id='logpasswordtable'>
-	  
-	  {% if is_login %}
+        <input type="hidden" name="url" value='{{ url }}'>
+        <input type="hidden" name="format" value='{{ format }}'>
+        <div class="borderbox">
+
+          {% if is_login %}
 
               {% if is_passwdonly %}
                    <h3>Password</h3>
-                   <div id='logpassword'>
+                   <div class="borderbox">
                      {{ site }} requires a Password for this story.<br>
                      You need to provide the Password for this story
                      to download it.
                    </div>
               {% else %}
                    <h3>Login / Password</h3>
-                   <div id='logpassword'>
+                   <div class="borderbox">
                      {{ site }} requires a Login/Password for this story.<br>
                      You need to provide your Login/Password for {{ site }}
                      to download it.
@@ -46,30 +46,30 @@
              <div class='label'>Password</div>
              <div class='field'><input type='password' name='password' size='50'></div>
           </div>
-         	  
-     	  {% else %}
 
-	  <input type="hidden" name="login" value='{{ login }}'>
-	  <input type="hidden" name="password" value='{{ password }}'>
-	  <div class='fieldandlabel'>
-	    <div class='label'>Are you an Adult?  <input type='checkbox' name='is_adult'></div>
-	  </div>
+               {% else %}
 
-	  {% endif %}
+          <input type="hidden" name="login" value='{{ login }}'>
+          <input type="hidden" name="password" value='{{ password }}'>
+          <div class='fieldandlabel'>
+            <div class='label'>Are you an Adult?  <input type='checkbox' name='is_adult'></div>
+          </div>
 
-	</div>
-	
-	<div id='submitbtn'>
-	  <input type="submit" value="Download">
-	</div>
+          {% endif %}
+
+        </div>
+
+        <div id='submitbtn'>
+          <input type="submit" value="Download">
+        </div>
       </form>
-      
+
       <div style='text-align: center'>
-	<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
-	     alt="Powered by Google App Engine" />
-	<br/><br/>
-	This is a web front-end to <a href="https://github.com/JimmXinu/FanFicFare/">FanFicFare</a><br/>
-	Copyright &copy; FanFicFare team
+        <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+             alt="Powered by Google App Engine" />
+        <br/><br/>
+        This is a web front-end to <a href="https://github.com/JimmXinu/FanFicFare/">FanFicFare</a><br/>
+        Copyright &copy; FanFicFare team
       </div>
 
     </div>
