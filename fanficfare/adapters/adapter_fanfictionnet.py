@@ -212,7 +212,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        metalist = metatext.split(" - ")
+        ## Newer BS libraries are discarding whitespace after tags now. :-/
+        metalist = re.split(" ?- ",metatext)
         #logger.debug("metalist:(%s)"%metalist)
 
         # Rated: Fiction K - English - Words: 158,078 - Published: 02-04-11
