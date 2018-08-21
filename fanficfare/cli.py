@@ -39,7 +39,7 @@ else: # > 3.0
     def pickle_load(f):
         return pickle.load(f,encoding="bytes")
 
-version="2.37.10"
+version="2.37.11"
 os.environ['CURRENT_VERSION_ID']=version
 
 if sys.version_info >= (2, 7):
