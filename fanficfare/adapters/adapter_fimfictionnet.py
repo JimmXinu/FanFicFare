@@ -87,10 +87,34 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                            rfc2109=False)
         self.get_configuration().get_cookiejar().set_cookie(cookie)
 
+    def performLogin(self, url):
+        params = {}
+        if self.password:
+            params['username'] = self.username
+            params['password'] = self.password
+        else:
+            params['username'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['keep_logged_in'] = '1'
+
+        if params['username'] and params['password']:
+            loginUrl = 'https://' + self.getSiteDomain() + '/ajax/login'
+            logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                                params['username']))
+            self._postUrl(loginUrl, params)
+            if "signing_key" not in d :
+                logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                                 params['username']))
+                raise exceptions.FailedToLogin(url,params['username'])
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
         if self.is_adult or self.getConfig("is_adult"):
             self.set_adult_cookie()
+
+        ## Only needed with password protected stories, which you have
+        ## to have logged into in the website using this account.
+        self.performLogin(self.url)
 
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
@@ -112,18 +136,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         if "This story has been marked as having adult content. Please click below to confirm you are of legal age to view adult material in your country." in data:
             raise exceptions.AdultCheckRequired(self.url)
-
-        if self.password:
-            params = {}
-            params['password'] = self.password
-            data = self._postUrl(self.url, params)
-            soup = self.make_soup(data)
-
-        if not (soup.find('form', {'id' : 'password_form'}) == None):
-            if self.getConfig('fail_on_password'):
-                raise exceptions.FailedToDownload("%s requires story password and fail_on_password is true."%self.url)
-            else:
-                raise exceptions.FailedToLogin(self.url,"Story requires individual password",passwdonly=True)
 
         ##----------------------------------------------------------------------------------------------------
         ## Extract metadata
@@ -150,7 +162,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("rating", rating)
 
         # Chapters
-        for chapter in soup.find('ul',{'class':'chapters'}).find_all('a',{'href':re.compile(r'.*/story/'+self.story.getMetadata('storyId')+r'/.*')}):
+        for chapter in soup.find('ul',{'class':'chapters'}).find_all('a',{'class':'chapter-title'}):
             self.add_chapter(chapter, 'https://'+self.host+chapter['href'])
 
 
@@ -364,13 +376,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
 
         soup = self.make_soup(data)
-        if not (soup.find('form', {'id' : 'password_form'}) == None):
-            if self.password:
-                params = {}
-                params['password'] = self.password
-                data = self._postUrl(url, params)
-            else:
-                logger.error("Chapter %s needed password but no password was present" % url)
 
         data = self.do_fix_blockquotes(data)
 
@@ -384,5 +389,5 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             soup = self.make_soup(data).find('div', {'id' : 'chapter-body'})
             if soup == None:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         return self.utf8FromSoup(url,soup)
