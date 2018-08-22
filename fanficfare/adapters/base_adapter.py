@@ -209,12 +209,13 @@ class BaseSiteAdapter(Configurable):
                                                  self.oldchapters[index],
                                                  partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
 
-                    # if already marked new -- ie, origtitle and title don't match
-                    # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
-                    newchap = (self.oldchaptersdata is not None and
-                               url in self.oldchaptersdata and (
-                            self.oldchaptersdata[url]['chapterorigtitle'] !=
-                            self.oldchaptersdata[url]['chaptertitle']) )
+                    if self.getConfig('mark_new_chapters') == 'true':
+                        # if already marked new -- ie, origtitle and title don't match
+                        # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
+                        newchap = (self.oldchaptersdata is not None and
+                                   url in self.oldchaptersdata and (
+                                self.oldchaptersdata[url]['chapterorigtitle'] !=
+                                self.oldchaptersdata[url]['chaptertitle']) )
 
                     try:
                         if not data:

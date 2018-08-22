@@ -204,7 +204,7 @@ def get_valid_set_options():
                'replace_hr':(None,None,boollist),
                'sort_ships':(None,None,boollist),
                'strip_chapter_numbers':(None,None,boollist),
-               'mark_new_chapters':(None,None,boollist),
+               'mark_new_chapters':(None,None,boollist+['latestonly']),
                'titlepage_use_table':(None,None,boollist),
 
                'use_ssl_unverified_context':(None,None,boollist),
