@@ -16,6 +16,7 @@
 #
 
 from __future__ import absolute_import
+import re
 import datetime
 import time
 import logging
@@ -38,8 +39,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
         self.username=''
         self.is_adult=False
-        # happens inside BaseSiteAdapter.__init__
-        # self._setURL(url)
+        self._setURL("http://"+self.getSiteDomain()+"?sid="+self.story.getMetadata('storyId'))
 
     @staticmethod
     def getSiteDomain():
@@ -360,14 +360,13 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
         elif 'test1.com' not in url:
             ## for chapter_urls setting.
-            logger.debug('Getting chapter text from: %s' % url)
-
             origurl = url
             (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
             url = opened.geturl()
             if '#' in origurl and '#' not in url:
                 url = url + origurl[origurl.index('#'):]
-            logger.debug("chapter URL redirected to: %s"%url)
+            if url != origurl:
+                logger.debug("chapter URL redirected to: %s"%url)
 
             soup = self.make_soup(data)
 
@@ -375,9 +374,15 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 anchorid = url.split('#')[1]
                 soup = soup.find('li',id=anchorid)
 
-            bq = soup.find('blockquote')
-
-            bq.name='div'
+            if 'wordpress.com' in url:
+                bq = soup.find('div',{'class':'entry-content'})
+                addiv = soup.find('div',{'id':re.compile(r'^atatags')})
+                for tag in addiv.find_all_next('div'):
+                    tag.extract()
+                addiv.extract()
+            else:
+                bq = soup.find('blockquote')
+                bq.name='div'
 
             for iframe in bq.find_all('iframe'):
                 iframe.extract() # calibre book reader & editor don't like iframes to youtube.
