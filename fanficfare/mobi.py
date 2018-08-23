@@ -101,6 +101,7 @@ class Converter:
     title_html.append(entrytitle.Body())
 
     title_html.append(PAGE_BREAK)
+    toc_html.append(PAGE_BREAK)
     toc_html.append('<a name="TOCTOP"><h3>Table of Contents</h3><br />')
 
     for pos, html in enumerate(html_strs[1:]):
@@ -132,7 +133,7 @@ class Converter:
     # logger.debug("toc_html:%s"%toc_html)
     # logger.debug("body_html:%s"%body_html)
     # logger.debug("footer:%s"%footer)
-    all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
+    all_html = header + '\n'.join(title_html + body_html + toc_html) + footer
     #print "%s" % all_html.encode('utf8')
     return all_html
 
