@@ -535,8 +535,7 @@ def get_configuration(url,
     if options.configfile:
         conflist.extend(options.configfile)
 
-    logger.debug("confs list:%s"%conflist)
-    logger.debug("read confs:%s"%configuration.read(conflist))
+    configuration.read(conflist)
 
     try:
         configuration.add_section('overrides')
