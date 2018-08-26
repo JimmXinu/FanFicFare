@@ -42,6 +42,9 @@ else: # > 3.0
 version="2.37.12"
 os.environ['CURRENT_VERSION_ID']=version
 
+global_cache = 'global_cache'
+global_cookies = 'global_cookies'
+
 if sys.version_info >= (2, 7):
     # suppresses default logger.  Logging is setup in fanficfare/__init__.py so it works in calibre, too.
     rootlogger = logging.getLogger()
@@ -265,12 +268,12 @@ def main(argv=None,
 
     if options.save_cache:
         try:
-            with open('global_cache','rb') as jin:
+            with open(global_cache,'rb') as jin:
                 options.pagecache = pickle_load(jin)
             options.cookiejar = cl.LWPCookieJar()
-            options.cookiejar.load('global_cookies')
+            options.cookiejar.load(global_cookies)
         except Exception as e:
-            print("Didn't load global_cache %s"%e)
+            print("Didn't load --save-cache %s"%e)
 
     if not list_only:
         if len(urls) < 1:
@@ -282,16 +285,17 @@ def main(argv=None,
                                 options,
                                 passed_defaultsini,
                                 passed_personalini)
-                #print("pagecache:%s"%options.pagecache.keys())
+                    # print("pagecache:%s"%options.pagecache.keys())
                 except Exception as e:
                     if len(urls) == 1:
                         raise
                     print("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
 
-    if options.save_cache:
-        with open('global_cache','wb') as jout:
-            pickle.dump(options.pagecache,jout,protocol=2)
-        options.cookiejar.save('global_cookies')
+    # Saved in configurable.py now.
+    # if options.save_cache:
+    #     with open('global_cache','wb') as jout:
+    #         pickle.dump(options.pagecache,jout,protocol=2)
+    #     options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -343,8 +347,13 @@ def do_download(arg,
             options.pagecache = configuration.get_empty_pagecache()
         if not hasattr(options,'cookiejar'):
             options.cookiejar = configuration.get_empty_cookiejar()
-        configuration.set_pagecache(options.pagecache)
-        configuration.set_cookiejar(options.cookiejar)
+        if options.save_cache:
+            save_cache = global_cache
+            save_cookies = global_cookies
+        else:
+            save_cache = save_cookies = None
+        configuration.set_pagecache(options.pagecache,save_cache)
+        configuration.set_cookiejar(options.cookiejar,save_cookies)
 
         # url[begin-end] overrides CLI option if present.
         if ch_begin or ch_end:

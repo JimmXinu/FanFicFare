@@ -35,7 +35,7 @@ from .six import ensure_binary
 import time
 import logging
 import sys
-# import pickle
+import pickle
 
 from . import exceptions
 
@@ -552,6 +552,8 @@ class Configuration(configparser.SafeConfigParser):
         self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
 
         self.pagecache = self.get_empty_pagecache()
+        self.save_cache_file = None
+        self.save_cookiejar_file = None
 
     def section_url_names(self,domain,section_url_f):
         ## domain is passed as a method to limit the damage if/when an
@@ -906,8 +908,9 @@ class Configuration(configparser.SafeConfigParser):
     def get_cookiejar(self):
         return self.cookiejar
 
-    def set_cookiejar(self,cj):
+    def set_cookiejar(self,cj,save_cookiejar_file=None):
         self.cookiejar = cj
+        self.save_cookiejar_file = save_cookiejar_file
         saveheaders = self.opener.addheaders
         self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.opener.addheaders = saveheaders
@@ -922,7 +925,8 @@ class Configuration(configparser.SafeConfigParser):
     def get_pagecache(self):
         return self.pagecache
 
-    def set_pagecache(self,d):
+    def set_pagecache(self,d,save_cache_file=None):
+        self.save_cache_file = save_cache_file
         self.pagecache=d
 
     def _get_cachekey(self, url, parameters=None, headers=None):
@@ -931,7 +935,7 @@ class Configuration(configparser.SafeConfigParser):
             keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
         if headers != None:
             keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(headers.items())))
-        return '?'.join(keylist)
+        return unicode('?'.join(keylist))
 
     def _has_cachekey(self,cachekey):
         return self.use_pagecache and cachekey in self.get_pagecache()
@@ -945,9 +949,11 @@ class Configuration(configparser.SafeConfigParser):
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
             self.get_pagecache()[cachekey] = (data,redirectedurl)
-            # with open('global_cache','wb') as jout:
-            #     pickle.dump(self.pagecache,jout,protocol=2)
-            # self.cookiejar.save('global_cookies')
+            if self.save_cache_file:
+                with open(self.save_cache_file,'wb') as jout:
+                    pickle.dump(self.get_pagecache(),jout,protocol=2)
+            if self.save_cookiejar_file:
+                self.get_cookiejar().save(self.save_cookiejar_file)
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
@@ -1081,6 +1087,7 @@ class Configuration(configparser.SafeConfigParser):
             return (data,FakeOpened(data,redirecturl))
 
         logger.debug("#####################################\npagecache(GET) MISS: %s"%safe_url(cachekey))
+        # print(self.get_pagecache().keys())
         self.do_sleep(extrasleep)
 
         ## Specific UA because too many sites are blocking the default python UA.
