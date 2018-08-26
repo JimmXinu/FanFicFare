@@ -131,7 +131,7 @@ def removeEntities(text, space_only=False, remove_all_entities=False):
     text = _replaceNotEntities(text)
 
     if remove_all_entities:
-        text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+        text = text.replace('&lt', '<').replace('&gt', '>').replace('&amp;', '&')
     else:
         # &lt; &gt; and &amp; are the only html entities allowed in xhtml, put those back.
         # They come out as &lt because _replaceNotEntities removes the ';'.
