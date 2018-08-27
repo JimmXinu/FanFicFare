@@ -165,7 +165,6 @@ from . import adapter_narutoficorg
 from . import adapter_starskyhutcharchivenet
 from . import adapter_swordborderlineangelcom
 from . import adapter_tasteofpoisoninkubationnet
-from . import adapter_thebrokenworldorg
 from . import adapter_thedelphicexpansecom
 from . import adapter_thundercatsfansorg
 from . import adapter_unknowableroomorg
