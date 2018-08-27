@@ -140,7 +140,6 @@ from . import adapter_looselugscom
 from . import adapter_wwwgiantessworldnet
 from . import adapter_lotrgficcom
 from . import adapter_tomparisdormcom
-from . import adapter_writingwhimsicalwanderingsnet
 from . import adapter_sugarquillnet
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
