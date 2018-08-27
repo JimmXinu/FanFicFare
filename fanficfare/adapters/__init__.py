@@ -100,7 +100,6 @@ from . import adapter_literotica
 from . import adapter_voracity2eficcom
 from . import adapter_spikeluvercom
 from . import adapter_bloodshedversecom
-from . import adapter_nocturnallightnet
 from . import adapter_fanfichu
 from . import adapter_fictionmaniatv
 from . import adapter_tolkienfanfiction
