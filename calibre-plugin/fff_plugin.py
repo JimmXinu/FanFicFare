@@ -469,32 +469,34 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['imapsessionpass']:
                 self.imap_pass = imap_pass
 
-        self.busy_cursor()
-        self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
-        url_list = get_urls_from_imap(prefs['imapserver'],
-                                      prefs['imapuser'],
-                                      imap_pass,
-                                      prefs['imapfolder'],
-                                      prefs['imapmarkread'],)
+        try:
+            self.busy_cursor()
+            self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
+            url_list = get_urls_from_imap(prefs['imapserver'],
+                                          prefs['imapuser'],
+                                          imap_pass,
+                                          prefs['imapfolder'],
+                                          prefs['imapmarkread'],)
 
-        ## reject will now be redundant with reject check inside
-        ## prep_downloads because of change-able story URLs.
-        ## Keeping here to because it's the far more common case.
-        reject_list=set()
-        if prefs['auto_reject_from_email']:
-            # need to normalize for reject list.
-            reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURL(x))])
-        url_list = url_list - reject_list
+            ## reject will now be redundant with reject check inside
+            ## prep_downloads because of change-able story URLs.
+            ## Keeping here to because it's the far more common case.
+            reject_list=set()
+            if prefs['auto_reject_from_email']:
+                # need to normalize for reject list.
+                reject_list = set([x for x in url_list if rejecturllist.check(adapters.getNormalStoryURL(x))])
+            url_list = url_list - reject_list
 
-        ## feature for update-only - check url_list with
-        ## self.do_id_search(url)
-        notupdate_list = set()
-        if prefs['update_existing_only_from_email']:
-            notupdate_list = set([x for x in url_list if not self.do_id_search(adapters.getNormalStoryURL(x))])
-        url_list = url_list - notupdate_list
+            ## feature for update-only - check url_list with
+            ## self.do_id_search(url)
+            notupdate_list = set()
+            if prefs['update_existing_only_from_email']:
+                notupdate_list = set([x for x in url_list if not self.do_id_search(adapters.getNormalStoryURL(x))])
+            url_list = url_list - notupdate_list
 
-        self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
-        self.restore_cursor()
+            self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
+        finally:
+            self.restore_cursor()
 
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
@@ -542,13 +544,15 @@ class FanFicFarePlugin(InterfaceAction):
             return
         url = u"%s"%d.url.text()
 
-        self.busy_cursor()
-        self.gui.status_bar.show_message(_('Fetching Story URLs from Page...'))
+        try:
+            self.busy_cursor()
+            self.gui.status_bar.show_message(_('Fetching Story URLs from Page...'))
 
-        url_list = self.get_urls_from_page(url)
+            url_list = self.get_urls_from_page(url)
 
-        self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
-        self.restore_cursor()
+            self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
+        finally:
+            self.restore_cursor()
 
         if url_list:
             self.add_dialog("\n".join(url_list),merge=d.anthology,anthology_url=url)
@@ -806,19 +810,21 @@ class FanFicFarePlugin(InterfaceAction):
             remove_dir(tdir)
             return
 
-        self.busy_cursor()
-        self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
+        try:
+            self.busy_cursor()
+            self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
 
-        # get list from identifiers:url/uri if present, but only if
-        # it's *not* a valid story URL.
-        mergeurl = self.get_story_url(db,book_id)
-        if mergeurl and not self.is_good_downloader_url(mergeurl):
-            url_list = [ adapters.getNormalStoryURL(url) for url in self.get_urls_from_page(mergeurl) ]
+            # get list from identifiers:url/uri if present, but only if
+            # it's *not* a valid story URL.
+            mergeurl = self.get_story_url(db,book_id)
+            if mergeurl and not self.is_good_downloader_url(mergeurl):
+                url_list = [ adapters.getNormalStoryURL(url) for url in self.get_urls_from_page(mergeurl) ]
 
-        url_list_text = "\n".join(url_list)
+            url_list_text = "\n".join(url_list)
 
-        self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
-        self.restore_cursor()
+            self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
+        finally:
+            self.restore_cursor()
 
         #print("urlmapfile:%s"%urlmapfile)
 
