@@ -111,6 +111,9 @@ def main(argv=None,
     parser.add_option('-m', '--meta-only',
                       action='store_true', dest='metaonly',
                       help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
+    parser.add_option('-z', '--no-meta-chapters',
+                      action='store_true', dest='nometachapters',
+                      help='Exclude list of chapters("zchapters") from metadata dump.  No effect without --meta-only flag', )
     parser.add_option('--json-meta',
                       action='store_true', dest='jsonmeta',
                       help='When used with --meta-only, output metadata as JSON.  No effect without --meta-only flag', )
@@ -460,9 +463,10 @@ def do_download(arg,
             # regular download
             if options.metaonly:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
-                # metadata['zchapters'] = []
-                # for i, chap in enumerate(adapter.get_chapters()):
-                #     metadata['zchapters'].append((i+1,chap))
+                if not options.nometachapters:
+                    metadata['zchapters'] = []
+                    for i, chap in enumerate(adapter.get_chapters()):
+                        metadata['zchapters'].append((i+1,chap))
 
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
                 if adapter.getConfig('pre_process_safepattern'):
