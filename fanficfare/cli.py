@@ -39,7 +39,7 @@ else: # > 3.0
     def pickle_load(f):
         return pickle.load(f,encoding="bytes")
 
-version="2.37.15"
+version="2.37.16"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
@@ -460,9 +460,9 @@ def do_download(arg,
             # regular download
             if options.metaonly:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
-                metadata['zchapters'] = []
-                for i, chap in enumerate(adapter.get_chapters()):
-                    metadata['zchapters'].append((i+1,chap))
+                # metadata['zchapters'] = []
+                # for i, chap in enumerate(adapter.get_chapters()):
+                #     metadata['zchapters'].append((i+1,chap))
 
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
                 if adapter.getConfig('pre_process_safepattern'):
