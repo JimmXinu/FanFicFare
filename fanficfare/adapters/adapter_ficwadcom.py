@@ -169,7 +169,9 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if m:
             self.story.setMetadata('rating', m.group(1))
 
-        m = re.match(r".*?Genres: (.+?) -.*?",metastr)
+        ## Genre appears even if list is empty.  But there are a
+        ## limited number of genres allowed by the site.
+        m = re.match(r".*?Genres: ((?:(?:Angst|Crossover|Drama|Erotica|Fantasy|Horror|Humor|Parody|Romance|Sci-fi)(?:,)?)+) -.*?",metastr)
         if m:
             for g in m.group(1).split(','):
                 self.story.addToList('genre',g)
