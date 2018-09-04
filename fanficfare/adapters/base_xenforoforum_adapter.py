@@ -261,10 +261,39 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             if tmcat_name != "Threadmarks":
                 prepend = tmcat_name+" - "
 
-            soupmarks = self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+threadmarksa['href']))
-            markas = []
-            markas = soupmarks.find('div',{'class':'threadmarkList'}).find_all('a',{'class':'PreviewTooltip'})
-            for tmcat_index, atag in enumerate(markas):
+            threadmarks.extend(self.fetch_threadmarks(self.getURLPrefix()+'/'+threadmarksa['href'],
+                                                      tmcat_name,
+                                                      tmcat_num))
+        return threadmarks
+
+    def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0):
+        logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s)"%(tmcat_name,tmcat_num, passed_tmcat_index))
+        threadmarks=[]
+        soupmarks = self.make_soup(self._fetchUrl(url))
+        tm_list = soupmarks.find('div',{'class':'threadmarkList'})
+        if not tm_list: # load-range don't have threadmarkList.
+            tm_list = soupmarks
+        # logger.debug(tm_list)
+        markas = []
+        tmcat_index=passed_tmcat_index
+        after = False
+        for tm_item in tm_list.find_all('li',{'class':'threadmarkListItem'}):
+            atag = tm_item.find('a',{'class':'PreviewTooltip'})
+            if not atag:
+                # logger.debug(tm_item)
+                load_range = "threadmarks/load-range?min=%s&max=%s&category_id=%s"%(tm_item['data-range-min'],
+                                                                                    tm_item['data-range-max'],
+                                                                                    tmcat_num)
+                threadmarks.extend(self.fetch_threadmarks(self.url+load_range,
+                                                          tmcat_name,
+                                                          tmcat_num,
+                                                          tmcat_index))
+                tmcat_index = len(threadmarks)
+                after=True
+            else:
+                if after:
+                    logger.debug("AFTER "*10)
+                    after=False
                 url,name = atag['href'],stripHTML(atag)
                 date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
                 if atag.parent.has_attr('data-words'):
@@ -275,6 +304,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 else:
                     words = ""
                     kwords = ""
+                logger.debug("%s. %s"%(tmcat_index,name))
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
                                     "tmcat_index":tmcat_index,
@@ -283,7 +313,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                                     "date":date,
                                     "words":words,
                                     "kwords":kwords})
-
+                tmcat_index += 1
         return threadmarks
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
