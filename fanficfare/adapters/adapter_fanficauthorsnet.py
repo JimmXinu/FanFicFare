@@ -141,6 +141,13 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://(aaran-st-vines.nsns|abraxan|bobmin|canoncansodoff|chemprof|copperbadge|crys|deluded-musings|draco664|fp|frenchsession|ishtar|jbern|jeconais|kinsfire|kokopelli.nsns|ladya.nsns|lorddwar|mrintel.nsns|musings-of-apathy|ruskbyte|seelvor|tenhawk|viridian|whydoyouneedtoknow)\.fanficauthors\.net/([a-zA-Z0-9_]+)/'
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     ################################################################################################
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
 
@@ -228,38 +235,29 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                     chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
                     self.add_chapter(chapter_title, chapter_Url)
 
-            genres = ("Drama","Romance")
-            gotgenre = False
-            ## Getting the Metadata that is there
+            # Status: Completed - Rating: Adult Only - Chapters: 19 - Word count: 323,805 - Genre: Post-OotP
+            # Status: In progress - Rating: Adult Only - Chapters: 42 - Word count: 395,991 - Genre: Action/Adventure, Angst, Drama, Romance, Tragedy
+            # Status: Completed - Rating: Everyone - Chapters: 1 - Word count: 876 - Genre: Sorrow
+            # Status: In progress - Rating: Mature - Chapters: 39 - Word count: 314,544 - Genre: Drama - Romance
             div = soup.find('div',{'class':'well'})
-            metads = div.findAll('p')[1].get_text().replace('\n','').split(' - ')
-            for metad in metads:
-                metad = metad.strip()
-                if ':' in metad:
-                    heading = metad.split(':')[0].strip()
-                    text = metad.split(':')[1].strip()
-                    if heading == 'Status':
-                        self.story.setMetadata('status',text.replace("In progress","In-Progress")) # to match standard.
-                    elif heading == 'Rating':
-                        self.story.setMetadata('rating',text)
-                    elif heading == 'Word count':
-                        self.story.setMetadata('numWords',text)
-                    elif heading == 'Genre':
-                        self.story.extendList('genre',text.split(';'))
-                        gotgenre = True
+            logger.debug(div.find_all('p')[1])
+            metaline = re.sub(r' +',' ',stripHTML(div.find_all('p')[1]).replace('\n',' '))
+            logger.debug(metaline)
+            match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: (?P<genre>.+?)$",metaline)
+            if match:
+                logger.debug(match.group('status'))
+                logger.debug(match.group('rating'))
+                logger.debug(match.group('numWords'))
+                logger.debug(match.group('genre'))
+                if "Completed" in match.group('status'):
+                    self.story.setMetadata('status',"Completed")
                 else:
-                    if gotgenre == True:
-                        if ',' in metad:
-                            for gen in metad.split(','):
-                                self.story.addToList('genre',gen.strip())
-                                for gen in genres:
-                                    if metad == gen:
-                                        self.story.addToList('genre',metad.strip())
-                        else:
-                            for gen in genres:
-                                if metad == gen:
-                                    self.story.addToList('genre',metad.strip())
-
+                    self.story.setMetadata('status',"In-Progress")
+                self.story.setMetadata('rating',match.group('rating'))
+                self.story.setMetadata('numWords',match.group('numWords'))
+                self.story.extendList('genre',re.split(r'[;,-]',match.group('genre')))
+            else:
+                raise exceptions.FailedToDownload("Error parsing metadata: '{0}'".format(url))
 
             summary = div.find('blockquote').get_text()
             self.setDescription(url,summary)
