@@ -40,7 +40,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%Y-%m-%d %H:%M:%S"
+        self.dateformat = "%Y-%m-%d %H:%M%p"
 
         # normalized story URL.
         self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?psid='+self.story.getMetadata('storyId'))
@@ -144,7 +144,10 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             if meta:
                 if meta.startswith('date'):
                     value = makeDate(value,self.dateformat)
-                self.story.setMetadata(meta,value)
+                if meta in ('characters','genre'):
+                    self.story.extendList(meta,value.split(','))
+                else:
+                    self.story.setMetadata(meta,value)
             if key == 'Status':
                 if value == 'WIP':
                     value = 'In-Progress'
