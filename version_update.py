@@ -58,8 +58,8 @@ version="2.3.6"
     index_files = ['webservice/index.html']
     if saved_version:
         ## only do major/minor, always leave micro 0 in index.html.
-        index_re = 'http://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
-        index_subs = 'http://%s-%s-0.fanficfare.appspot.com'%saved_version[0:2]
+        index_re = 'https://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
+        index_subs = 'https://%s-%s-0.fanficfare.appspot.com'%saved_version[0:2]
         do_loop(index_files, index_re, index_subs)
 
     release = 'Release'
