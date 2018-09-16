@@ -133,7 +133,7 @@ class Converter:
     # logger.debug("toc_html:%s"%toc_html)
     # logger.debug("body_html:%s"%body_html)
     # logger.debug("footer:%s"%footer)
-    all_html = header + '\n'.join(title_html + body_html + toc_html) + footer
+    all_html = header + '\n'.join(title_html + toc_html + body_html) + footer
     #print "%s" % all_html.encode('utf8')
     return all_html
 
