@@ -2040,7 +2040,8 @@ class FanFicFarePlugin(InterfaceAction):
         db.set_metadata(book_id,mi)
         if not prefs['std_cols_newonly'].get('authors',False):
             # mi.authors gets run through the string_to_authors and split on '&' ',' 'and' and 'with'
-            db.set_authors(book_id,book['author']) # author is a list.
+            db.set_authors(book_id,book['author'],
+                           allow_case_change=True) # author is a list.
 
         # do configured column updates here.
         #print("all_metadata: %s"%book['all_metadata'])
@@ -2347,6 +2348,12 @@ class FanFicFarePlugin(InterfaceAction):
                         confirm(message,'fff_no_reading_list_%s'%l, self.gui)
 
     def make_mi_from_book(self,book):
+        if prefs['titlecase']:
+            from calibre.ebooks.metadata.sources.base import fixcase
+            book['title'] = fixcase(book['title'])
+        if prefs['authorcase']:
+            from calibre.ebooks.metadata.sources.base import fixauthors
+            book['author'] = fixauthors(book['author'])
         mi = MetaInformation(book['title'],book['author']) # author is a list.
         if prefs['suppressauthorsort']:
             # otherwise author names will have calibre's sort algs

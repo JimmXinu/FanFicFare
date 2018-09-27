@@ -260,8 +260,6 @@ class ConfigWidget(QWidget):
         prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
         prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
         prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
-        prefs['suppressauthorsort'] = self.basic_tab.suppressauthorsort.isChecked()
-        prefs['suppresstitlesort'] = self.basic_tab.suppresstitlesort.isChecked()
         prefs['mark'] = self.basic_tab.mark.isChecked()
         prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
         prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
@@ -342,6 +340,11 @@ class ConfigWidget(QWidget):
         for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
             colsnewonly[col] = checkbox.isChecked()
         prefs['std_cols_newonly'] = colsnewonly
+
+        prefs['suppressauthorsort'] = self.std_columns_tab.suppressauthorsort.isChecked()
+        prefs['suppresstitlesort'] = self.std_columns_tab.suppresstitlesort.isChecked()
+        prefs['authorcase'] = self.std_columns_tab.authorcase.isChecked()
+        prefs['titlecase'] = self.std_columns_tab.titlecase.isChecked()
 
         prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
         prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
@@ -476,16 +479,6 @@ class BasicTab(QWidget):
         self.keeptags.setToolTip(_("Existing tags will be kept and any new tags added.\n%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n%(lul)s tags will be updated if %(lus)s in %(is)s.\n(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)")%no_trans)
         self.keeptags.setChecked(prefs['keeptags'])
         self.l.addWidget(self.keeptags)
-
-        self.suppressauthorsort = QCheckBox(_('Force Author into Author Sort?'),self)
-        self.suppressauthorsort.setToolTip(_("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."))
-        self.suppressauthorsort.setChecked(prefs['suppressauthorsort'])
-        self.l.addWidget(self.suppressauthorsort)
-
-        self.suppresstitlesort = QCheckBox(_('Force Title into Title Sort?'),self)
-        self.suppresstitlesort.setToolTip(_("If checked, the title as given will be used for the Title Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."))
-        self.suppresstitlesort.setChecked(prefs['suppresstitlesort'])
-        self.l.addWidget(self.suppresstitlesort)
 
         self.checkforseriesurlid = QCheckBox(_("Check for existing Series Anthology books?"),self)
         self.checkforseriesurlid.setToolTip(_("Check for existing Series Anthology books using each new story's series URL before downloading.\nOffer to skip downloading if a Series Anthology is found.\nDoesn't work when Collect Metadata in Background is selected."))
@@ -1465,20 +1458,48 @@ class StandardColumnsTab(QWidget):
 
         self.stdcol_newonlycheck = {}
 
+        rows=[]
         for key, column in columns.iteritems():
-            horz = QHBoxLayout()
+            row = []
+            rows.append(row)
             label = QLabel(column)
             #label.setToolTip("Update this %s column(%s) with..."%(key,column['datatype']))
-            horz.addWidget(label)
+            row.append(label)
 
             newonlycheck = QCheckBox(_("New Only"),self)
             newonlycheck.setToolTip(_("Write to %s only for new\nbooks, not updates to existing books.")%column)
             self.stdcol_newonlycheck[key] = newonlycheck
             if key in prefs['std_cols_newonly']:
                 newonlycheck.setChecked(prefs['std_cols_newonly'][key])
-            horz.addWidget(newonlycheck)
+            row.append(newonlycheck)
 
-            self.l.addLayout(horz)
+            if key == 'title':
+                self.suppresstitlesort = QCheckBox(_('Force Title into Title Sort?'),self)
+                self.suppresstitlesort.setToolTip(_("If checked, the title as given will be used for the Title Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."))
+                self.suppresstitlesort.setChecked(prefs['suppresstitlesort'])
+                row.append(self.suppresstitlesort)
+                self.titlecase = QCheckBox(_('Fix Title Case?'),self)
+                self.titlecase.setToolTip(_("If checked, Calibre's routine for correcting the capitalization of title will be applied.")
+                                          +"\n"+_("This effects Calibre metadata only, not FanFicFare metadata in title page."))
+                self.titlecase.setChecked(prefs['titlecase'])
+                row.append(self.titlecase)
+            elif key == 'authors':
+                self.suppressauthorsort = QCheckBox(_('Force Author into Author Sort?'),self)
+                self.suppressauthorsort.setToolTip(_("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."))
+                self.suppressauthorsort.setChecked(prefs['suppressauthorsort'])
+                row.append(self.suppressauthorsort)
+                self.authorcase = QCheckBox(_('Fix Author Case?'),self)
+                self.authorcase.setToolTip(_("If checked, Calibre's routine for correcting the capitalization of author names will be applied.")
+                                          +"\n"+_("Calibre remembers all authors in the library; changing the author case on one book will effect all books by that author.")
+                                          +"\n"+_("This effects Calibre metadata only, not FanFicFare metadata in title page."))
+                self.authorcase.setChecked(prefs['authorcase'])
+                row.append(self.authorcase)
+
+        grid = QGridLayout()
+        for rownum, row in enumerate(rows):
+            for colnum, col in enumerate(row):
+                grid.addWidget(col,rownum,colnum)
+        self.l.addLayout(grid)
 
         self.l.addSpacing(5)
         label = QLabel(_("Other Standard Column Options"))
