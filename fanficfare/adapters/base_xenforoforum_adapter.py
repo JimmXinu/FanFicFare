@@ -292,7 +292,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 after=True
             else:
                 if after:
-                    logger.debug("AFTER "*10)
+                    # logger.debug("AFTER "*10)
                     after=False
                 url,name = atag['href'],stripHTML(atag)
                 date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
@@ -304,7 +304,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 else:
                     words = ""
                     kwords = ""
-                logger.debug("%s. %s"%(tmcat_index,name))
+                # logger.debug("%s. %s"%(tmcat_index,name))
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
                                     "tmcat_index":tmcat_index,
@@ -343,8 +343,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         topsoup = souptag = self.make_soup(data)
 
         h1 = souptag.find('div',{'class':'titleBar'}).h1
-        ## SV has started putting 'Crossover' spans in the title h1.
+        ## SV has started putting 'Crossover', 'Sci-Fi' etc spans in the title h1.
         for tag in h1.find_all('span',{'class':'prefix'}):
+            ## stick them into genre.
+            self.story.addToList('genre',stripHTML(tag))
             tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
 
