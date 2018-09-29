@@ -217,9 +217,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         warning = soup.find('strong',text='Warning')
         if warning != None:
-            warnings=[c.text for c in warning.parent.children if getattr(c,'text',None)][1:]
-            for warntag in warnings:
-                self.story.addToList('warnings',warntag)
+            for li in warning.find_next('ul').find_all('li'):
+                self.story.addToList('warnings',stripHTML(li))
 
         # get cover
         img = soup.find('',{'class':'row fic-header'}).find('img')
