@@ -127,7 +127,7 @@ from . import adapter_deepinmysoulnet
 from . import adapter_kiarepositorymujajinet
 from . import adapter_adultfanfictionorg
 from . import adapter_fictionhuntcom
-from . import adapter_royalroadl
+from . import adapter_royalroadcom
 from . import adapter_chosentwofanficcom
 from . import adapter_bdsmlibrarycom
 from . import adapter_asexstoriescom
