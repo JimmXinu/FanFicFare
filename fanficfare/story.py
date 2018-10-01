@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 import os, re, sys
-import copy
 from collections import defaultdict
 import string
 import json
@@ -1042,60 +1041,54 @@ class Story(Configurable):
         retval = []
 
         ## only add numbers if more than one chapter.  Ditto (new) marks.
-        if len(self.chapters) > 1:
-            addnums = ( self.getConfig('add_chapter_numbers') == "true"
-                        or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc) )
+        addnums = len(self.chapters) > 1 and (
+            self.getConfig('add_chapter_numbers') == "true"
+            or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc) )
+        marknew = len(self.chapters) > 1 and self.getConfig('mark_new_chapters') # true or latestonly
 
-            marknew = self.getConfig('mark_new_chapters') # true or latestonly
-
-            defpattern = self.getConfig('chapter_title_def_pattern','${title}') # default val in case of missing defaults.ini
-            if addnums and marknew:
-                pattern = self.getConfig('chapter_title_add_pattern')
-                newpattern = self.getConfig('chapter_title_addnew_pattern')
-            elif addnums:
-                pattern = self.getConfig('chapter_title_add_pattern')
-                newpattern = pattern
-            elif marknew:
-                pattern = defpattern
-                newpattern = self.getConfig('chapter_title_new_pattern')
-            else:
-                pattern = defpattern
-                newpattern = pattern
-
-            if self.getConfig('add_chapter_numbers') in ["true","toconly"]:
-                tocpattern = self.getConfig('chapter_title_add_pattern')
-            else:
-                tocpattern = defpattern
-
-            # logger.debug("Patterns: (%s)(%s)"%(pattern,newpattern))
-            templ = string.Template(pattern)
-            newtempl = string.Template(newpattern)
-            toctempl = string.Template(tocpattern)
-
-            for index, chap in enumerate(self.chapters):
-                if chap['new']:
-                    usetempl = newtempl
-                else:
-                    usetempl = templ
-                # logger.debug("chap(%s)"%chap)
-                chapter = defaultdict(unicode,chap)
-                ## Due to poor planning on my part,
-                ## chapter_title_*_pattern expect index==1 not
-                ## index=0001 like output settings.  index04 is now
-                ## used, but index is still included for backward
-                ## compatibility.
-                chapter['index'] = chapter['number']
-                chapter['chapter'] = usetempl.substitute(chapter)
-                chapter['origtitle'] = templ.substitute(chapter)
-                chapter['toctitle'] = toctempl.substitute(chapter)
-                # set after, otherwise changes origtitle and toctitle
-                chapter['title'] = chapter['chapter']
-                retval.append(chapter)
+        defpattern = self.getConfig('chapter_title_def_pattern','${title}') # default val in case of missing defaults.ini
+        if addnums and marknew:
+            pattern = self.getConfig('chapter_title_add_pattern')
+            newpattern = self.getConfig('chapter_title_addnew_pattern')
+        elif addnums:
+            pattern = self.getConfig('chapter_title_add_pattern')
+            newpattern = pattern
+        elif marknew:
+            pattern = defpattern
+            newpattern = self.getConfig('chapter_title_new_pattern')
         else:
-            # return a copy so chapters inside story can't be changed
-            # by code outside it.
-            retval = copy.deepcopy(self.chapters)
+            pattern = defpattern
+            newpattern = pattern
 
+        if self.getConfig('add_chapter_numbers') in ["true","toconly"]:
+            tocpattern = self.getConfig('chapter_title_add_pattern')
+        else:
+            tocpattern = defpattern
+
+        # logger.debug("Patterns: (%s)(%s)"%(pattern,newpattern))
+        templ = string.Template(pattern)
+        newtempl = string.Template(newpattern)
+        toctempl = string.Template(tocpattern)
+
+        for index, chap in enumerate(self.chapters):
+            if chap['new']:
+                usetempl = newtempl
+            else:
+                usetempl = templ
+            # logger.debug("chap(%s)"%chap)
+            chapter = defaultdict(unicode,chap)
+            ## Due to poor planning on my part,
+            ## chapter_title_*_pattern expect index==1 not
+            ## index=0001 like output settings.  index04 is now
+            ## used, but index is still included for backward
+            ## compatibility.
+            chapter['index'] = chapter['number']
+            chapter['chapter'] = usetempl.substitute(chapter)
+            chapter['origtitle'] = templ.substitute(chapter)
+            chapter['toctitle'] = toctempl.substitute(chapter)
+            # set after, otherwise changes origtitle and toctitle
+            chapter['title'] = chapter['chapter']
+            retval.append(chapter)
         return retval
 
     def get_filename_safe_metadata(self,pattern=None):
