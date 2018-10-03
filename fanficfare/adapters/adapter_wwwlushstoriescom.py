@@ -158,6 +158,11 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a).title())
 
+        cover_url = soup.find('img',{'class':'storycover'})['src']
+        if cover_url:
+            self.setCoverImage(url,cover_url)
+
+
         # Find authorid and URL from... author url.
         # (fetch multiple authors)
         a = soup.find('a',{'class':'avatar'})
