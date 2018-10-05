@@ -63,7 +63,8 @@ except NameError:
     pass # load_translations() added in calibre 1.9
 
 from calibre_plugins.fanficfare_plugin.common_utils \
-    import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem, SizePersistedDialog,
+    import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem,
+            SizePersistedDialog, EditableTableWidgetItem,
             ImageTitleLayout, get_icon)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_html, get_urls_from_text
@@ -148,6 +149,24 @@ class RejectUrlEntry:
     def to_line(self):
         # always 'url,'
         return self.url+","+self.fullnote()
+
+    @classmethod
+    def from_data(cls,data):
+        rue = cls('')
+        rue.url=data['url']
+        rue.title=data['title']
+        rue.auth=data['auth']
+        rue.note=data['note']
+        rue.valid=True
+        # rue.book_id=book_id
+        return rue
+
+    def to_data(self):
+        return { 'url': self.url,
+                 'title': self.title,
+                 'auth': self.auth,
+                 'note': self.note,
+                 }
 
     def fullnote(self):
         retval = ""
@@ -1031,7 +1050,7 @@ class RejectListTableWidget(QTableWidget):
         self.setHorizontalHeaderLabels(header_labels)
         self.horizontalHeader().setStretchLastSection(True)
         #self.verticalHeader().setDefaultSectionSize(24)
-        self.verticalHeader().hide()
+        #self.verticalHeader().hide()
 
         # it's generally recommended to enable sort after pop, not
         # before.  But then it needs to be sorted on a column and I'd
@@ -1056,8 +1075,8 @@ class RejectListTableWidget(QTableWidget):
         url_cell = ReadOnlyTableWidgetItem(rej.url)
         url_cell.setData(Qt.UserRole, rej.book_id)
         self.setItem(row, 0, url_cell)
-        self.setItem(row, 1, ReadOnlyTableWidgetItem(rej.title))
-        self.setItem(row, 2, ReadOnlyTableWidgetItem(rej.auth))
+        self.setItem(row, 1, EditableTableWidgetItem(rej.title))
+        self.setItem(row, 2, EditableTableWidgetItem(rej.auth))
 
         note_cell = EditWithComplete(self,sort_func=lambda x:1)
 

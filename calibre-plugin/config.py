@@ -129,12 +129,20 @@ class RejectURLList:
                                                        normalize=normalize)
             if normalize:
                 self._save_list(self.listcache,clearcache=False)
+            logger.debug("_get_listcache:")
+            logger.debug(tuple(self.prefs['last_saved_version']))
+            if tuple(self.prefs['last_saved_version']) > (3, 0, 5) and \
+                    self.prefs['rejecturls_data']:
+                self.listdata = [ RejectUrlEntry.from_data(x) for x in self.prefs['rejecturls_data'] ]
+                logger.debug(self.listdata)
 
         return self.listcache
 
     def _save_list(self,listcache,clearcache=True):
         #print("_save_list")
         self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
+        self.prefs['rejecturls_data'] = [x.to_data() for x in listcache.values()]
+        logger.debug(self.prefs['rejecturls_data'])
         self.prefs.save_to_db()
         if clearcache:
             self.listcache = None

@@ -249,6 +249,13 @@ class SizePersistedDialog(QDialog):
         self.geom = bytearray(self.saveGeometry())
         gprefs[self.unique_pref_name] = self.geom
 
+class EditableTableWidgetItem(QTableWidgetItem):
+
+    def __init__(self, text):
+        if text is None:
+            text = ''
+        QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.UserType)
+        self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled|Qt.ItemIsEditable)
 
 class ReadOnlyTableWidgetItem(QTableWidgetItem):
 
