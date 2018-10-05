@@ -119,30 +119,34 @@ class RejectURLList:
 
     def _get_listcache(self):
         if self.listcache == None:
-            #print(self.prefs['last_saved_version'])
-            # Assume saved rejects list is already normalized after
-            # v2.10.9.  If normalization needs to change someday, can
-            # increase this to do it again.
-            normalize = tuple(self.prefs['last_saved_version']) < (2, 10, 9)
-            #print("normalize:%s"%normalize)
-            self.listcache = self._read_list_from_text(self.prefs['rejecturls'],
-                                                       normalize=normalize)
-            if normalize:
-                self._save_list(self.listcache,clearcache=False)
-            logger.debug("_get_listcache:")
-            logger.debug(tuple(self.prefs['last_saved_version']))
+            logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
             if tuple(self.prefs['last_saved_version']) > (3, 0, 5) and \
                     self.prefs['rejecturls_data']:
-                self.listdata = [ RejectUrlEntry.from_data(x) for x in self.prefs['rejecturls_data'] ]
-                logger.debug(self.listdata)
+                logger.debug("_get_listcache: prefs['rejecturls_data']")
+                self.listcache = OrderedDict()
+                for x in self.prefs['rejecturls_data']:
+                    rue = RejectUrlEntry.from_data(x)
+                    if rue.valid:
+                        self.listcache[rue.url] = rue
+            else:
+                # Assume saved rejects list is already normalized after
+                # v2.10.9.  If normalization needs to change someday, can
+                # increase this to do it again.
+                normalize = tuple(self.prefs['last_saved_version']) < (2, 10, 9)
+                #print("normalize:%s"%normalize)
+                self.listcache = self._read_list_from_text(self.prefs['rejecturls'],
+                                                           normalize=normalize)
+                if normalize:
+                    self._save_list(self.listcache,clearcache=False)
+                logger.debug("_get_listcache: prefs['rejecturls']")
 
+            logger.debug([ x.to_data() for x in self.listcache.values()])
         return self.listcache
 
     def _save_list(self,listcache,clearcache=True):
         #print("_save_list")
         self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
         self.prefs['rejecturls_data'] = [x.to_data() for x in listcache.values()]
-        logger.debug(self.prefs['rejecturls_data'])
         self.prefs.save_to_db()
         if clearcache:
             self.listcache = None
@@ -657,10 +661,8 @@ class BasicTab(QWidget):
                              show_delete=False,
                              show_all_reasons=False)
         d.exec_()
-
         if d.result() != d.Accepted:
             return
-
         rejecturllist.add(d.get_reject_list(),clear=True)
 
     def show_reject_reasons(self):
