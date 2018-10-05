@@ -20,8 +20,8 @@ except ImportError as e:
                           QTableWidgetItem, QFont, QLineEdit, QComboBox,
                           QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
                           QTextEdit, QListWidget, QAbstractItemView)
-    
-from calibre.constants import iswindows
+
+from calibre.constants import iswindows, DEBUG
 from calibre.gui2 import gprefs, error_dialog, UNDEFINED_QDATETIME, info_dialog
 from calibre.gui2.actions import menu_action_unique_name
 from calibre.gui2.keyboard import ShortcutConfig
@@ -457,7 +457,7 @@ class DateDelegate(QStyledItemDelegate):
             model.setData(index, UNDEFINED_QDATETIME, Qt.EditRole)
         else:
             model.setData(index, QDateTime(val), Qt.EditRole)
-            
+
 class PrefsViewerDialog(SizePersistedDialog):
 
     def __init__(self, gui, namespace):
@@ -498,6 +498,18 @@ class PrefsViewerDialog(SizePersistedDialog):
         self.clear_button.setIcon(get_icon('trash.png'))
         self.clear_button.setToolTip(_('Clear all settings for this plugin'))
         self.clear_button.clicked.connect(self._clear_settings)
+
+        if DEBUG:
+            self.edit_button = button_box.addButton(_('Edit'), QDialogButtonBox.ResetRole)
+            self.edit_button.setIcon(get_icon('edit_input.png'))
+            self.edit_button.setToolTip(_('Edit settings.'))
+            self.edit_button.clicked.connect(self._edit_settings)
+
+            self.save_button = button_box.addButton(_('Save'), QDialogButtonBox.ResetRole)
+            self.save_button.setIcon(get_icon('save.png'))
+            self.save_button.setToolTip(_('Save setting for this plugin'))
+            self.save_button.clicked.connect(self._save_settings)
+            self.save_button.setEnabled(False)
         layout.addWidget(button_box)
 
     def _populate_settings(self):
@@ -517,10 +529,47 @@ class PrefsViewerDialog(SizePersistedDialog):
         key = unicode(self.keys_list.currentItem().text())
         val = self.db.prefs.get_namespaced(self.namespace, key, '')
         self.value_text.setPlainText(self.db.prefs.to_raw(val))
-        
+
     def _get_ns_prefix(self):
         return 'namespaced:%s:'% self.namespace
-        
+
+    def _edit_settings(self):
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        message = '<p>' + _('Are you sure you want to edit settings in this library for this plugin?') + '</p>' \
+                  + '<p>' + _('The FanFicFare team does not support hand edited configurations.') + '</p>'
+        if confirm(message, self.namespace+'_edit_settings', self):
+            self.save_button.setEnabled(True)
+            self.edit_button.setEnabled(False)
+            self.value_text.setReadOnly(False)
+
+    def _save_settings(self):
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        message = '<p>' + _('Are you sure you want to save this setting in this library for this plugin?') + '</p>' \
+                  + '<p>' + _('Any settings in other libraries or stored in a JSON file in your calibre plugins folder will not be touched.') + '</p>' \
+                  + '<p>' + _('You must restart calibre afterwards.') + '</p>'
+        if not confirm(message, self.namespace+'_save_settings', self):
+            return
+        ns_prefix = self._get_ns_prefix()
+        key = unicode(self.keys_list.currentItem().text())
+        self.db.prefs.set_namespaced(self.namespace, key,
+                                     self.db.prefs.raw_to_object(self.value_text.toPlainText()))
+        d = info_dialog(self, 'Settings saved',
+                        '<p>' + _('All settings for this plugin in this library have been saved.') + '</p>' \
+                        + '<p>' + _('Please restart calibre now.') + '</p>',
+                        show_copy_button=False)
+        b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+        b.setIcon(QIcon(I('lt.png')))
+        d.do_restart = False
+        def rf():
+            d.do_restart = True
+        b.clicked.connect(rf)
+        d.set_details('')
+        d.exec_()
+        b.clicked.disconnect()
+        self.close()
+        if d.do_restart:
+            self.gui.quit(restart=True)
+
     def _clear_settings(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
         message = '<p>' + _('Are you sure you want to clear your settings in this library for this plugin?') + '</p>' \
@@ -533,7 +582,7 @@ class PrefsViewerDialog(SizePersistedDialog):
         for k in keys:
             del self.db.prefs[k]
         self._populate_settings()
-        d = info_dialog(self, 'Settings deleted', 
+        d = info_dialog(self, 'Settings deleted',
                         '<p>' + _('All settings for this plugin in this library have been cleared.') + '</p>' \
                         + '<p>' + _('Please restart calibre now.') + '</p>',
                         show_copy_button=False)
@@ -549,4 +598,4 @@ class PrefsViewerDialog(SizePersistedDialog):
         self.close()
         if d.do_restart:
             self.gui.quit(restart=True)
-        
+
