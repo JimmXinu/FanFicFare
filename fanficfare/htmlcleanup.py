@@ -155,6 +155,24 @@ def fix_excess_space(text):
 
     return text
 
+import unicodedata
+ZALGO_CHAR_CATEGORIES = ['Mn', 'Me']
+def reduce_zalgo(text,max_zalgo=1):
+    # borrows from https://stackoverflow.com/questions/22277052/how-can-zalgo-text-be-prevented
+    # Also applies unicodedata.normalize('NFD')
+    # See: https://docs.python.org/2/library/unicodedata.html#unicodedata.normalize
+    lineout=[]
+    count=0
+    for c in unicodedata.normalize('NFD', text):
+        if unicodedata.category(c) not in ZALGO_CHAR_CATEGORIES:
+            lineout.append(c)
+            count=0
+        else:
+            if count < max_zalgo:
+                lineout.append(c)
+            count+=1
+    return ''.join(lineout)
+
 # entity list from http://code.google.com/p/doctype/wiki/CharacterEntitiesConsistent
 entities = { '&aacute;' : 'á',
          '&Aacute;' : 'Á',

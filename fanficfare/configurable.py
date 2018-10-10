@@ -61,6 +61,7 @@ except ImportError:
     chardet = None
 
 from .gziphttp import GZipProcessor
+from .htmlcleanup import reduce_zalgo
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -480,6 +481,7 @@ def get_valid_keywords():
                  'fix_pseudo_html',
                  'fix_excess_space',
                  'ignore_chapter_url_list',
+                 'max_zalgo',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
@@ -1006,6 +1008,14 @@ class Configuration(configparser.SafeConfigParser):
             sys.stdout.write('.')
             sys.stdout.flush()
 
+    def _do_reduce_zalgo(self,data):
+        max_zalgo = int(self.getConfig('max_zalgo',-1))
+        if max_zalgo > -1:
+            logger.debug("Applying max_zalgo:%s"%max_zalgo)
+            return reduce_zalgo(data,max_zalgo)
+        else:
+            return data
+
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url,
                  parameters={},
@@ -1044,7 +1054,7 @@ class Configuration(configparser.SafeConfigParser):
         self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
                                   ('X-Clacks-Overhead','GNU Terry Pratchett')]
 
-        data = self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read())
+        data = self._do_reduce_zalgo(self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read()))
         self._progressbar()
         ## postURL saves data to the pagecache *after* _decode() while
         ## fetchRaw saves it *before* _decode()--because raw.
@@ -1154,7 +1164,7 @@ class Configuration(configparser.SafeConfigParser):
                                                       usecache=usecache,
                                                       extrasleep=extrasleep,
                                                       referer=referer)
-                return (self._decode(data),opened)
+                return (self._do_reduce_zalgo(self._decode(data)),opened)
             except HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
