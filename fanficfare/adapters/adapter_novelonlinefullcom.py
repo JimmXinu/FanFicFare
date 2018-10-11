@@ -79,15 +79,31 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'lightnovelgate.com'
+        return 'novelonlinefull.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['lightnovelgate.com',cls.getSiteDomain()]
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['lightnovelgate.com',cls.getSiteDomain()]
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://lightnovelgate.com/novel/astoryname"
+        return "https://novelonlinefull.com/novel/astoryname"
 
     def getSiteURLPattern(self):
-        # http://lightnovelgate.com/novel/stellar_transformation
-        return r"https?://lightnovelgate\.com/novel/(?P<id>[^/]+)"
+        # http://novelonlinefull.com/novel/stellar_transformation
+        return r"https?://(novelonlinefull|lightnovelgate)\.com/novel/(?P<id>[^/]+)"
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter. From that we will get almost all the

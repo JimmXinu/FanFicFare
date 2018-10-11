@@ -274,7 +274,7 @@ def get_valid_set_options():
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                'use_threadmark_wordcounts':(base_xenforo_list,None,boollist),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
-               'fix_excess_space': (['lightnovelgate.com', 'novelall.com'], ['epub', 'html'], boollist)
+               'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist)
                }
 
     return dict(valdict)

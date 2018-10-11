@@ -170,7 +170,7 @@ from . import adapter_noveltrovecom
 from . import adapter_inkbunnynet
 from . import adapter_alternatehistorycom
 from . import adapter_wattpadcom
-from . import adapter_lightnovelgatecom
+from . import adapter_novelonlinefullcom
 from . import adapter_wwwnovelallcom
 from . import adapter_wuxiaworldco
 from . import adapter_harrypotterfanfictioncom

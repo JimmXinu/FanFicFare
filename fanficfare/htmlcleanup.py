@@ -138,7 +138,7 @@ def removeEntities(text, space_only=False, remove_all_entities=False):
         text = text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
     return text
 
-## Currently used(optionally) by adapter_lightnovelgatecom and
+## Currently used(optionally) by adapter_novelonlinefullcom and
 ## adapter_wwwnovelallcom only.  I hesitate to put the option in
 ## base_adapter.make_soup for all adapters due to concerns about it
 ## maybe breaking metadata parsing as it changes tags.
