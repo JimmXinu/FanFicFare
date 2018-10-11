@@ -36,8 +36,8 @@ def getClass():
 
 
 class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
-    NEW_DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
-    OLD_DATE_FORMAT = '%Y/%m/%d %I:%M:%S'
+    NEW_DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
+    OLD_DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
