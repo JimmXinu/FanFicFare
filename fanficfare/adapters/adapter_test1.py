@@ -56,6 +56,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         return True
 
     def extractChapterUrlsAndMetadata(self):
+        logger.debug('extractChapterUrlsAndMetadata: %s' % self.url)
         idstr = self.story.getMetadata('storyId')
         idnum = int(idstr)
         self.do_sleep()
