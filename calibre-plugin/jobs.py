@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2018, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -127,6 +127,13 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config)
 
         try:
+            ## No need to download at all.  Can happen now due to
+            ## collision moving into bookfor CALIBREONLY changing to
+            ## ADDNEW when story URL not in library.
+            if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
+                logger.info("Skipping CALIBREONLY 'update' down inside worker")
+                return book
+
             book['comment'] = _('Download started...')
 
             configuration = get_fff_config(book['url'],
@@ -141,7 +148,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 if hasattr(ssl, '_create_unverified_context'):
                     ssl._create_default_https_context = ssl._create_unverified_context
 
-            if not options['updateepubcover'] and 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
+            if not options['updateepubcover'] and 'epub_for_update' in book and book['collision'] in (UPDATE, UPDATEALWAYS):
                 configuration.set("overrides","never_make_cover","true")
 
             # images only for epub, html, even if the user mistakenly
@@ -185,20 +192,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['timestamp'] = datetime.now() # need *something* there for calibre.
 
             writer = writers.getWriter(options['fileform'],configuration,adapter)
-
             outfile = book['outfile']
 
-            ## No need to download at all.  Shouldn't ever get down here.
-            if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
-                logger.info("Skipping CALIBREONLY 'update' down inside worker--this shouldn't be happening...")
-                book['comment'] = _('Metadata collected.')
-                book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                if options['savemetacol'] != '':
-                    book['savemetacol'] = story.dump_html_metadata()
-
             ## checks were done earlier, it's new or not dup or newer--just write it.
-            elif options['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
-                    ('epub_for_update' not in book and options['collision'] in (UPDATE, UPDATEALWAYS)):
+            if book['collision'] in (ADDNEW, SKIP, OVERWRITE, OVERWRITEALWAYS) or \
+                    ('epub_for_update' not in book and book['collision'] in (UPDATE, UPDATEALWAYS)):
 
                 # preserve logfile even on overwrite.
                 if 'epub_for_update' in book:
@@ -208,7 +206,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     if adapter.logfile:
                         adapter.logfile = adapter.logfile.replace("span id","span notid")
 
-                if options['collision'] == OVERWRITE and 'fileupdated' in book:
+                if book['collision'] == OVERWRITE and 'fileupdated' in book:
                     lastupdated=story.getMetadataRaw('dateUpdated')
                     fileupdated=book['fileupdated']
 
@@ -229,7 +227,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     book['savemetacol'] = story.dump_html_metadata()
 
             ## checks were done earlier, just update it.
-            elif 'epub_for_update' in book and options['collision'] in (UPDATE, UPDATEALWAYS):
+            elif 'epub_for_update' in book and book['collision'] in (UPDATE, UPDATEALWAYS):
 
                 # update now handled by pre-populating the old images and
                 # chapters in the adapter rather than merging epubs.
@@ -247,7 +245,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                  adapter.oldchaptersdata) = get_update_data(book['epub_for_update'])[0:9]
 
                 # dup handling from fff_plugin needed for anthology updates.
-                if options['collision'] == UPDATE:
+                if book['collision'] == UPDATE:
                     if chaptercount == urlchaptercount:
                         if merge:
                             book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
@@ -263,7 +261,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     elif chaptercount == 0:
                         raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
 
-                if not (options['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
+                if not (book['collision'] == UPDATEALWAYS and chaptercount == urlchaptercount) \
                         and adapter.getConfig("do_update_hook"):
                     chaptercount = adapter.hookForUpdates(chaptercount)
 

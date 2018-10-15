@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller'
+__copyright__ = '2018, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 
@@ -1094,7 +1094,7 @@ class FanFicFarePlugin(InterfaceAction):
         db = self.gui.current_db
 
         fileform  = options['fileform']
-        collision = options['collision']
+        collision = book['collision'] = options['collision']
         updatemeta= options['updatemeta']
         bgmeta= options['bgmeta']
         updateepubcover= options['updateepubcover']
@@ -1174,32 +1174,35 @@ class FanFicFarePlugin(InterfaceAction):
             if self.reject_url(merge,book):
                 return
 
-            if not bgmeta:
-                series = story.getMetadata('series')
-                if not merge and series and prefs['checkforseriesurlid']:
-                    # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-                    identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
-                    # print("identicalbooks:%s"%identicalbooks)
-                    if len(identicalbooks) > 0 and (prefs['auto_reject_seriesurlid'] or \
-                                                        question_dialog(self.gui, _('Skip Story?'),'''
-                                                                      <h3>%s</h3>
-                                                                      <p>%s</p>
-                                                                      <p>%s</p>
-                                                                      <p>%s</p>
-                                                                   '''%(
-                                                                   _('Skip Anthology Story?'),
-                                                                   _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
-                                                                   _("Click '<b>Yes</b>' to Skip."),
-                                                                   _("Click '<b>No</b>' to download anyway.")),
-                                                                   show_copy_button=False)):
-                        book['comment'] = _("Story in Series Anthology(%s).")%series
-                        book['title'] = story.getMetadata('title')
-                        book['author'] = [story.getMetadata('author')]
-                        book['url'] = story.getMetadata('storyUrl')
-                        book['good']=False
-                        book['icon']='rotate-right.png'
-                        book['status'] = _('Skipped')
-                        return
+        # logger.debug("series:%s"%story.getMetadata('series'))
+        # logger.debug("seriesUrl:%s"%story.getMetadata('seriesUrl'))
+        # logger.debug("search seriesUrl:%s"%self.do_id_search(story.getMetadata('seriesUrl')))
+        if not bgmeta:
+            series = story.getMetadata('series')
+            if not merge and series and prefs['checkforseriesurlid']:
+                # try to find *series anthology* by *seriesUrl* identifier url or uri first.
+                identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
+                # print("identicalbooks:%s"%identicalbooks)
+                if len(identicalbooks) > 0 and (prefs['auto_reject_seriesurlid'] or \
+                                                    question_dialog(self.gui, _('Skip Story?'),'''
+                                                                  <h3>%s</h3>
+                                                                  <p>%s</p>
+                                                                  <p>%s</p>
+                                                                  <p>%s</p>
+                                                               '''%(
+                                                               _('Skip Anthology Story?'),
+                                                               _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                               _("Click '<b>Yes</b>' to Skip."),
+                                                               _("Click '<b>No</b>' to download anyway.")),
+                                                               show_copy_button=False)):
+                    book['comment'] = _("Story in Series Anthology(%s).")%series
+                    book['title'] = story.getMetadata('title')
+                    book['author'] = [story.getMetadata('author')]
+                    book['url'] = story.getMetadata('storyUrl')
+                    book['good']=False
+                    book['icon']='rotate-right.png'
+                    book['status'] = _('Skipped')
+                    return
 
         ################################################################################################################################################33
 
@@ -1258,7 +1261,7 @@ class FanFicFarePlugin(InterfaceAction):
 
                 # try to find by identifier url or uri first.
                 identicalbooks = self.do_id_search(url)
-                # print("identicalbooks:%s"%identicalbooks)
+                # logger.debug("identicalbooks:%s"%identicalbooks)
                 if len(identicalbooks) < 1 and prefs['matchtitleauth']:
                     # find dups
                     mi = MetaInformation(book['title'],book['author'])
@@ -1277,8 +1280,8 @@ class FanFicFarePlugin(InterfaceAction):
 
                 ## changed: add new book when CALIBREONLY if none found.
                 if collision in (CALIBREONLY, CALIBREONLYSAVECOL) and not identicalbooks:
-                    collision = ADDNEW
-                    options['collision'] = ADDNEW
+                    logger.debug("No existing book for %s, changing collision to ADDNEW for this book only"%url)
+                    collision = book['collision'] = ADDNEW
 
                 if len(identicalbooks)>0:
                     book_id = identicalbooks.pop()
@@ -1471,13 +1474,19 @@ class FanFicFarePlugin(InterfaceAction):
                             merge=False):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
-        adapter_list is a list of tuples of (url,adapter)
         '''
         #print("start_download_job:book_list:%s"%book_list)
 
-        ## No need to BG process when CALIBREONLY!  Fake it.
-        #print("options:%s"%options)
-        if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
+        ## No need to BG process when CALIBREONLY!  Fake it.  if
+        ## CALIBREONLY, CALIBREONLYSAVECOL called on a url that isn't
+        ## in the library, it's switched to ADDNEW for that one.  Only
+        ## do NotJob version if not downloading any.
+        calonly = True
+        for book in book_list:
+            if book['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
+                calonly = False
+                break
+        if calonly:
             class NotJob(object):
                 def __init__(self,result):
                     self.failed=False
@@ -1576,10 +1585,10 @@ class FanFicFarePlugin(InterfaceAction):
         logger.debug("add/update %s %s"%(book['title'],book['url']))
         mi = self.make_mi_from_book(book)
 
-        if options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
+        if book['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
             self.add_book_or_update_format(book,options,prefs,mi)
 
-        if options['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
+        if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
             try:
                 self.update_metadata(db, book['calibre_id'], book, mi, options)
@@ -1602,13 +1611,15 @@ class FanFicFarePlugin(InterfaceAction):
         update_list = filter(lambda x : x['good'] and not x['added'], book_list)
         update_ids = [ x['calibre_id'] for x in update_list ]
         all_ids = add_ids + update_ids
+        all_not_calonly_list = filter(lambda x : x['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL), add_list + update_list)
+        all_not_calonly_ids = [ x['calibre_id'] for x in all_not_calonly_list ]
 
         failed_list = filter(lambda x : not x['good'] , book_list)
         failed_ids = [ x['calibre_id'] for x in failed_list ]
 
-        if options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL) and \
+        if all_not_calonly_ids and \
                 (prefs['addtolists'] or prefs['addtoreadlists']):
-            self.update_reading_lists(all_ids,add=True)
+            self.update_reading_lists(all_not_calonly_ids,add=True)
 
         if len(add_list):
             self.gui.library_view.model().books_added(len(add_list))
@@ -1670,9 +1681,9 @@ class FanFicFarePlugin(InterfaceAction):
             if countpagesstats:
                 cp_plugin.count_statistics(all_ids,countpagesstats)
 
-        if prefs['autoconvert'] and options['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
+        if prefs['autoconvert'] and all_not_calonly_ids:
             self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
-            self.gui.iactions['Convert Books'].auto_convert_auto_add(all_ids)
+            self.gui.iactions['Convert Books'].auto_convert_auto_add(all_not_calonly_ids)
 
     def download_list_completed(self, job, options={},merge=False):
         if job.failed:
@@ -1858,7 +1869,7 @@ class FanFicFarePlugin(InterfaceAction):
                                              source=mergebook['url'],
                                              coverjpgpath=coverpath)
 
-        options['collision']=OVERWRITEALWAYS
+        mergebook['collision'] = options['collision'] = OVERWRITEALWAYS
         errorcol_label = self.get_custom_col_label(prefs['errorcol'])
         lastcheckedcol_label = self.get_custom_col_label(prefs['lastcheckedcol'])
         self.update_books_loop(mergebook,
