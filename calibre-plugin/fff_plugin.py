@@ -1080,13 +1080,6 @@ class FanFicFarePlugin(InterfaceAction):
         logger.debug("url:%s"%url)
         mi = None
 
-        ## Check reject list.  Redundant with below for when story URL
-        ## changes, but also kept here to avoid network hit in most
-        ## common case where given url is story url.
-
-        if self.reject_url(merge,book):
-            return
-
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
         # This class has many, many methods that allow you to do a lot of
@@ -1098,6 +1091,12 @@ class FanFicFarePlugin(InterfaceAction):
         updatemeta= options['updatemeta']
         bgmeta= options['bgmeta']
         updateepubcover= options['updateepubcover']
+
+        ## Check reject list.  Redundant with below for when story URL
+        ## changes, but also kept here to avoid network hit in most
+        ## common case where given url is story url.
+        if self.reject_url(merge,book):
+            return
 
         # Dialogs should prevent this case now.
         if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
