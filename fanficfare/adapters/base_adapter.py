@@ -156,7 +156,13 @@ class BaseSiteAdapter(Configurable):
             self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
         if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
             meta = defaultdict(unicode,othermeta) # copy othermeta
-            meta.update({'title':stripHTML(title,remove_all_entities=False),'url':url}) # after other to make sure they are set
+            if title:
+                title = stripHTML(title,remove_all_entities=False)
+            else:
+                ## A default value for when there's no chapter
+                ## title. Cropped up once with adapter_novelonlinefullcom
+                title = "Chapter %s"%(self.num_chapters()+1)
+            meta.update({'title':title,'url':url}) # after other to make sure they are set
             self.chapterUrls.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
