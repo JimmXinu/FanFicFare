@@ -101,15 +101,19 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             params['theusername'] = self.getConfig("username")
             params['thepassword'] = self.getConfig("password")
         params['rememberMe'] = '1'
-        params['page'] = 'https://'+self.getSiteDomain()+'/'
         params['submit'] = 'Login'
 
         loginUrl = 'https://' + self.getSiteDomain() + '/sol-secure/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
+        try:
+            d = self._postUrl(loginUrl,params,usecache=False)
+        except HTTPError as e:
+            if e.code == 307:
+                logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
+                return True
 
-        d = self._fetchUrl(loginUrl, params,usecache=False)
-
+        # probably not used now, 307 seems standard now for storiesonline.net/finestories.com
         if "My Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
@@ -168,7 +172,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        #print data
+        # logger.debug(data)
 
         # Now go hunting for all the meta data and the chapter list.
 
