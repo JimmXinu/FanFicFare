@@ -100,7 +100,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         params['a'] = 'l'
         params['submit'] = 'Login...'
 
-        loginUrl = 'https://ssl.fanfiktion.de/'
+        loginUrl = 'https://www.fanfiktion.de/'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['nickname']))
         soup = self.make_soup(self._postUrl(loginUrl,params))
