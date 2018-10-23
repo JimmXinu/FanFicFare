@@ -88,10 +88,11 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
         ld = self._parse_linked_data(soup)
+        logger.debug(ld)
         author_name = ld['author']['name']
         self.story.setMetadata('author', author_name)
         self.story.setMetadata('authorId', author_name.lower())
-        self.story.setMetadata('title', ld['headline'])
+        self.story.setMetadata('title', ld['name'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
         
         tags = [stripHTML(a) for a in soup.select('.media-body .tags a')]
