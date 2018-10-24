@@ -1172,7 +1172,6 @@ class Configuration(configparser.SafeConfigParser):
                     break # break out on 404
             except Exception as e:
                 excpt=e
-                raise
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
 
         logger.debug("Giving up on %s" %safe_url(url))
