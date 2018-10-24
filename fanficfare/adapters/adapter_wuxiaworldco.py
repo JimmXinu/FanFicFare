@@ -97,7 +97,8 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
         intro = soup.select_one('#intro')
         # Strip <strong>Description</strong>
-        intro.strong.decompose()
+        if intro.strong:
+            intro.strong.decompose()
         self.setDescription(self.url, intro)
 
         for a in soup.select('#list a'):
