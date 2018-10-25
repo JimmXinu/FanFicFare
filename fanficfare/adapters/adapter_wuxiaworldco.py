@@ -101,11 +101,20 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
             intro.strong.decompose()
         self.setDescription(self.url, intro)
 
-        for a in soup.select('#list a'):
-            url = urlparse.urljoin(self.url, a['href'])
-            title = stripHTML(a)
-            self.add_chapter(title, url)
-
+        dl = soup.select_one('#list > dl')
+        for el in dl.contents:
+            if el.name == u'dt':
+                match = re.match(ur'^《.+》\s+(.+)$', stripHTML(el), re.UNICODE)
+                volume = ''
+                if match and match.group(1) != 'Text':
+                    volume = match.group(1) + ' '
+            elif el.name == u'dd':
+                a = el.a
+                url = urlparse.urljoin(self.url, a['href'])
+                title = volume + stripHTML(a)
+                self.add_chapter(title, url)
+            # else:
+            #     logger.debug('Unexpected tag in #list > dl: %s', el.name)
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
