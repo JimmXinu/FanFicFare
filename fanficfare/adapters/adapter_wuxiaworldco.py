@@ -20,7 +20,7 @@ from __future__ import absolute_import
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
+from ..six import text_type as unicode, ensure_text
 from ..six.moves.urllib import parse as urlparse
 from ..six.moves.urllib.error import HTTPError
 
@@ -104,7 +104,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         dl = soup.select_one('#list > dl')
         for el in dl.contents:
             if el.name == u'dt':
-                match = re.match(ur'^《.+》\s+(.+)$', stripHTML(el), re.UNICODE)
+                match = re.match(ensure_text(r'^《.+》\s+(.+)$'), stripHTML(el), re.UNICODE)
                 volume = ''
                 if match and match.group(1) != 'Text':
                     volume = match.group(1) + ' '
