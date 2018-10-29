@@ -162,6 +162,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
         # print data
 
+        # site has taken to presenting a *page* that says 404 while
+        # still returning an HTTP 200 code.
+        div404 = soup.find('div',{'class':'number'})
+        if div404 and stripHTML(div404) == '404':
+            raise exceptions.StoryDoesNotExist(self.url)
 
         ## Title
         title = soup.select_one('.fic-header h1[property=name]').text
