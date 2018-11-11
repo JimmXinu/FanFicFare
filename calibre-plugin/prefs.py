@@ -186,30 +186,30 @@ default_prefs['auto_reject_from_email'] = False
 default_prefs['update_existing_only_from_email'] = False
 default_prefs['download_from_email_immediately'] = False
 
-def set_library_config(library_config,db):
+def set_library_config(library_config,db,setting=PREFS_KEY_SETTINGS):
     db.prefs.set_namespaced(PREFS_NAMESPACE,
-                            PREFS_KEY_SETTINGS,
+                            setting,
                             library_config)
 
-def get_library_config(db):
+def get_library_config(db,setting=PREFS_KEY_SETTINGS,def_prefs=default_prefs):
     library_id = get_library_uuid(db)
     library_config = None
 
     if library_config is None:
         #print("get prefs from db")
         library_config = db.prefs.get_namespaced(PREFS_NAMESPACE,
-                                                 PREFS_KEY_SETTINGS)
+                                                 setting)
 
         # if don't have any settings for FanFicFarePlugin, copy from
         # predecessor FanFictionDownLoaderPlugin.
         if library_config is None:
             logger.info("Attempting to read settings from predecessor--FFDL")
             library_config = db.prefs.get_namespaced(FFDL_PREFS_NAMESPACE,
-                                                     PREFS_KEY_SETTINGS)
+                                                     setting)
         if library_config is None:
             # defaults.
             logger.info("Using default settings")
-            library_config = copy.deepcopy(default_prefs)
+            library_config = copy.deepcopy(def_prefs)
 
     return library_config
 
@@ -225,8 +225,9 @@ class PrefsFacade():
             # it's changed.  CLI plugin calls need to pass db in.
             return get_gui().current_db
 
-    def __init__(self,passed_db=None):
-        self.default_prefs = default_prefs
+    def __init__(self,passed_db=None,setting=PREFS_KEY_SETTINGS,def_prefs=default_prefs):
+        self.default_prefs = def_prefs
+        self.setting=setting
         self.libraryid = None
         self.current_prefs = None
         self.passed_db=passed_db
@@ -236,7 +237,9 @@ class PrefsFacade():
         if self.current_prefs == None or self.libraryid != libraryid:
             #print("self.current_prefs == None(%s) or self.libraryid != libraryid(%s)"%(self.current_prefs == None,self.libraryid != libraryid))
             self.libraryid = libraryid
-            self.current_prefs = get_library_config(self._get_db())
+            self.current_prefs = get_library_config(self._get_db(),
+                                                    setting=self.setting,
+                                                    def_prefs=self.default_prefs)
         return self.current_prefs
 
     def __getitem__(self,k):
@@ -259,7 +262,10 @@ class PrefsFacade():
 
     def save_to_db(self):
         self['last_saved_version'] = plugin_version
-        set_library_config(self._get_prefs(),self._get_db())
+        set_library_config(self._get_prefs(),self._get_db(),setting=self.setting)
 
-prefs = PrefsFacade()
+prefs = PrefsFacade(setting=PREFS_KEY_SETTINGS,
+                    def_prefs=default_prefs)
 
+rejects_data = PrefsFacade(setting="rejects_data",
+                           def_prefs={'rejecturls_data':[]})

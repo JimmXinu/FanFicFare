@@ -83,8 +83,9 @@ no_trans = { 'pini':'personal.ini',
 STD_COLS_SKIP = ['size','cover','news','ondevice','path','series_sort','sort']
 
 from calibre_plugins.fanficfare_plugin.prefs \
-    import (prefs, PREFS_NAMESPACE, prefs_save_options, updatecalcover_order,
-            gencalcover_order, do_wordcount_order, SAVE_YES, SAVE_NO)
+    import (prefs, rejects_data, PREFS_NAMESPACE, prefs_save_options,
+            updatecalcover_order, gencalcover_order, do_wordcount_order,
+            SAVE_YES, SAVE_NO)
 
 from calibre_plugins.fanficfare_plugin.dialogs \
     import (UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
@@ -100,8 +101,9 @@ from calibre_plugins.fanficfare_plugin.fff_util \
     import (test_config)
 
 class RejectURLList:
-    def __init__(self,prefs):
+    def __init__(self,prefs,rejects_data):
         self.prefs = prefs
+        self.rejects_data = rejects_data
         self.sync_lock = threading.RLock()
         self.listcache = None
 
@@ -119,12 +121,12 @@ class RejectURLList:
 
     def _get_listcache(self):
         if self.listcache == None:
-            logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
-            if tuple(self.prefs['last_saved_version']) > (3, 0, 5) and \
-                    self.prefs['rejecturls_data']:
-                logger.debug("_get_listcache: prefs['rejecturls_data']")
+            # logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
+            if tuple(self.prefs['last_saved_version']) > (3, 1, 7) and \
+                    self.rejects_data['rejecturls_data']:
+                logger.debug("_get_listcache: rejects_data['rejecturls_data']")
                 self.listcache = OrderedDict()
-                for x in self.prefs['rejecturls_data']:
+                for x in self.rejects_data['rejecturls_data']:
                     rue = RejectUrlEntry.from_data(x)
                     if rue.valid:
                         self.listcache[rue.url] = rue
@@ -140,14 +142,15 @@ class RejectURLList:
                     self._save_list(self.listcache,clearcache=False)
                 logger.debug("_get_listcache: prefs['rejecturls']")
 
-            logger.debug([ x.to_data() for x in self.listcache.values()])
+            # logger.debug([ x.to_data() for x in self.listcache.values()])
         return self.listcache
 
     def _save_list(self,listcache,clearcache=True):
         #print("_save_list")
         self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
-        self.prefs['rejecturls_data'] = [x.to_data() for x in listcache.values()]
         self.prefs.save_to_db()
+        rejects_data['rejecturls_data'] = [x.to_data() for x in listcache.values()]
+        rejects_data.save_to_db()
         if clearcache:
             self.listcache = None
 
@@ -202,7 +205,7 @@ class RejectURLList:
     def get_reject_reasons(self):
         return self.prefs['rejectreasons'].splitlines()
 
-rejecturllist = RejectURLList(prefs)
+rejecturllist = RejectURLList(prefs,rejects_data)
 
 class ConfigWidget(QWidget):
 
