@@ -4,22 +4,23 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>, 2015, Jim Miller'
+__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>, 2018, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import os
+from contextlib import contextmanager
 try:
     from PyQt5 import QtWidgets as QtGui
-    from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+    from PyQt5.Qt import (QApplication, Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
                           QTableWidgetItem, QFont, QLineEdit, QComboBox,
                           QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QTextEdit, QListWidget, QAbstractItemView)
+                          QTextEdit, QListWidget, QAbstractItemView, QCursor)
 except ImportError as e:
     from PyQt4 import QtGui
-    from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+    from PyQt4.Qt import (QApplication, Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
                           QTableWidgetItem, QFont, QLineEdit, QComboBox,
                           QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QTextEdit, QListWidget, QAbstractItemView)
+                          QTextEdit, QListWidget, QAbstractItemView, QCursor)
 
 from calibre.constants import iswindows, DEBUG
 from calibre.gui2 import gprefs, error_dialog, UNDEFINED_QDATETIME, info_dialog
@@ -187,6 +188,15 @@ def get_library_uuid(db):
     except:
         library_uuid = ''
     return library_uuid
+
+# Call as ' with busy_cursor:"
+@contextmanager
+def busy_cursor():
+    try:
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        yield
+    finally:
+        QApplication.restoreOverrideCursor()
 
 
 class ImageLabel(QLabel):

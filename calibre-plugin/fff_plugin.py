@@ -36,10 +36,10 @@ import email
 import traceback
 
 try:
-    from PyQt5.Qt import (QApplication, QMenu, QTimer, QCursor, Qt)
+    from PyQt5.Qt import (QApplication, QMenu, QTimer, Qt)
     from PyQt5.QtCore import QBuffer
 except ImportError as e:
-    from PyQt4.Qt import (QApplication, QMenu, QTimer, QCursor, Qt)
+    from PyQt4.Qt import (QApplication, QMenu, QTimer, Qt)
     from PyQt4.QtCore import QBuffer
 
 from calibre.constants import numeric_version as calibre_version
@@ -75,7 +75,7 @@ field_metadata = FieldMetadata()
 
 from calibre_plugins.fanficfare_plugin.common_utils import (
     set_plugin_icon_resources, get_icon, create_menu_action_unique,
-    get_library_uuid)
+    get_library_uuid, busy_cursor)
 
 from calibre_plugins.fanficfare_plugin.fanficfare import (
     adapters, exceptions)
@@ -469,8 +469,7 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['imapsessionpass']:
                 self.imap_pass = imap_pass
 
-        try:
-            self.busy_cursor()
+        with busy_cursor():
             self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
             url_list = get_urls_from_imap(prefs['imapserver'],
                                           prefs['imapuser'],
@@ -495,8 +494,6 @@ class FanFicFarePlugin(InterfaceAction):
             url_list = url_list - notupdate_list
 
             self.gui.status_bar.show_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
-        finally:
-            self.restore_cursor()
 
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
@@ -544,15 +541,12 @@ class FanFicFarePlugin(InterfaceAction):
             return
         url = u"%s"%d.url.text()
 
-        try:
-            self.busy_cursor()
+        with busy_cursor():
             self.gui.status_bar.show_message(_('Fetching Story URLs from Page...'))
 
             url_list = self.get_urls_from_page(url)
 
             self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
-        finally:
-            self.restore_cursor()
 
         if url_list:
             self.add_dialog("\n".join(url_list),merge=d.anthology,anthology_url=url)
@@ -810,8 +804,7 @@ class FanFicFarePlugin(InterfaceAction):
             remove_dir(tdir)
             return
 
-        try:
-            self.busy_cursor()
+        with busy_cursor():
             self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
 
             # get list from identifiers:url/uri if present, but only if
@@ -823,8 +816,6 @@ class FanFicFarePlugin(InterfaceAction):
             url_list_text = "\n".join(url_list)
 
             self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
-        finally:
-            self.restore_cursor()
 
         #print("urlmapfile:%s"%urlmapfile)
 
@@ -2694,12 +2685,6 @@ class FanFicFarePlugin(InterfaceAction):
         book['all_metadata']['anthology'] = "true"
 
         return book
-
-    def busy_cursor(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-
-    def restore_cursor(self):
-        QApplication.restoreOverrideCursor()
 
 def split_text_to_urls(urls):
     # remove dups while preserving order.

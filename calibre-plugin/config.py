@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller'
+__copyright__ = '2018, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -95,7 +95,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
     import getSiteSections
 
 from calibre_plugins.fanficfare_plugin.common_utils \
-    import ( KeyboardConfigDialog, PrefsViewerDialog )
+    import ( KeyboardConfigDialog, PrefsViewerDialog, busy_cursor )
 
 from calibre_plugins.fanficfare_plugin.fff_util \
     import (test_config)
@@ -120,39 +120,41 @@ class RejectURLList:
         return cache
 
     def _get_listcache(self):
-        if self.listcache == None:
-            # logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
-            if tuple(self.prefs['last_saved_version']) > (3, 1, 7) and \
-                    self.rejects_data['rejecturls_data']:
-                logger.debug("_get_listcache: rejects_data['rejecturls_data']")
-                self.listcache = OrderedDict()
-                for x in self.rejects_data['rejecturls_data']:
-                    rue = RejectUrlEntry.from_data(x)
-                    if rue.valid:
-                        self.listcache[rue.url] = rue
-            else:
-                # Assume saved rejects list is already normalized after
-                # v2.10.9.  If normalization needs to change someday, can
-                # increase this to do it again.
-                normalize = tuple(self.prefs['last_saved_version']) < (2, 10, 9)
-                #print("normalize:%s"%normalize)
-                self.listcache = self._read_list_from_text(self.prefs['rejecturls'],
-                                                           normalize=normalize)
-                if normalize:
-                    self._save_list(self.listcache,clearcache=False)
-                logger.debug("_get_listcache: prefs['rejecturls']")
+        with busy_cursor():
+            if self.listcache == None:
+                # logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
+                if tuple(self.prefs['last_saved_version']) > (3, 1, 7) and \
+                        self.rejects_data['rejecturls_data']:
+                    logger.debug("_get_listcache: rejects_data['rejecturls_data']")
+                    self.listcache = OrderedDict()
+                    for x in self.rejects_data['rejecturls_data']:
+                        rue = RejectUrlEntry.from_data(x)
+                        if rue.valid:
+                            self.listcache[rue.url] = rue
+                else:
+                    # Assume saved rejects list is already normalized after
+                    # v2.10.9.  If normalization needs to change someday, can
+                    # increase this to do it again.
+                    normalize = tuple(self.prefs['last_saved_version']) < (2, 10, 9)
+                    #print("normalize:%s"%normalize)
+                    self.listcache = self._read_list_from_text(self.prefs['rejecturls'],
+                                                               normalize=normalize)
+                    if normalize:
+                        self._save_list(self.listcache,clearcache=False)
+                    logger.debug("_get_listcache: prefs['rejecturls']")
 
-            # logger.debug([ x.to_data() for x in self.listcache.values()])
+                # logger.debug([ x.to_data() for x in self.listcache.values()])
         return self.listcache
 
     def _save_list(self,listcache,clearcache=True):
-        #print("_save_list")
-        self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
-        self.prefs.save_to_db()
-        rejects_data['rejecturls_data'] = [x.to_data() for x in listcache.values()]
-        rejects_data.save_to_db()
-        if clearcache:
-            self.listcache = None
+        with busy_cursor():
+            #print("_save_list")
+            self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
+            self.prefs.save_to_db()
+            rejects_data['rejecturls_data'] = [x.to_data() for x in listcache.values()]
+            rejects_data.save_to_db()
+            if clearcache:
+                self.listcache = None
 
     def clear_cache(self):
         self.listcache = None
@@ -267,142 +269,143 @@ class ConfigWidget(QWidget):
 
 
     def save_settings(self):
+        with busy_cursor():
 
-        # basic
-        prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
-        prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
-        prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
-        prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
-        prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
-        prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
-        prefs['mark'] = self.basic_tab.mark.isChecked()
-        prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
-        prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
-        prefs['show_est_time'] = self.basic_tab.show_est_time.isChecked()
-        prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
-        prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
-        prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
-        prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
-        prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
-        prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
-        prefs['auto_reject_seriesurlid'] = self.basic_tab.auto_reject_seriesurlid.isChecked()
-        prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
-        prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
-        prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
-        prefs['do_wordcount'] = prefs_save_options[unicode(self.basic_tab.do_wordcount.currentText())]
-        prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
-        prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
-        prefs['reject_delete_default'] = self.basic_tab.reject_delete_default.isChecked()
+            # basic
+            prefs['fileform'] = unicode(self.basic_tab.fileform.currentText())
+            prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
+            prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
+            prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
+            prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
+            prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
+            prefs['mark'] = self.basic_tab.mark.isChecked()
+            prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
+            prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
+            prefs['show_est_time'] = self.basic_tab.show_est_time.isChecked()
+            prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
+            prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
+            prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
+            prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
+            prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
+            prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
+            prefs['auto_reject_seriesurlid'] = self.basic_tab.auto_reject_seriesurlid.isChecked()
+            prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
+            prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
+            prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
+            prefs['do_wordcount'] = prefs_save_options[unicode(self.basic_tab.do_wordcount.currentText())]
+            prefs['smarten_punctuation'] = self.basic_tab.smarten_punctuation.isChecked()
+            prefs['reject_always'] = self.basic_tab.reject_always.isChecked()
+            prefs['reject_delete_default'] = self.basic_tab.reject_delete_default.isChecked()
 
-        if self.readinglist_tab:
-            # lists
-            prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.send_lists_box.text()).split(','))))
-            prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.read_lists_box.text()).split(','))))
-            # print("send_lists: %s"%prefs['send_lists'])
-            # print("read_lists: %s"%prefs['read_lists'])
-            prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
-            prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
-            prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
-            prefs['autounnew'] = self.readinglist_tab.autounnew.isChecked()
+            if self.readinglist_tab:
+                # lists
+                prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.send_lists_box.text()).split(','))))
+                prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.read_lists_box.text()).split(','))))
+                # print("send_lists: %s"%prefs['send_lists'])
+                # print("read_lists: %s"%prefs['read_lists'])
+                prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
+                prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
+                prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
+                prefs['autounnew'] = self.readinglist_tab.autounnew.isChecked()
 
-        # personal.ini
-        ini = self.personalini_tab.personalini
-        if ini:
-            prefs['personal.ini'] = ini
-        else:
-            # if they've removed everything, reset to default.
-            prefs['personal.ini'] = get_resources('plugin-example.ini')
+            # personal.ini
+            ini = self.personalini_tab.personalini
+            if ini:
+                prefs['personal.ini'] = ini
+            else:
+                # if they've removed everything, reset to default.
+                prefs['personal.ini'] = get_resources('plugin-example.ini')
 
-        prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
+            prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
 
-        # Covers tab
-        prefs['updatecalcover'] = prefs_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
-        # for backward compatibility:
-        prefs['updatecover'] = prefs['updatecalcover'] == SAVE_YES
-        prefs['gencalcover'] = prefs_save_options[unicode(self.calibrecover_tab.gencalcover.currentText())]
-        prefs['calibre_gen_cover'] = self.calibrecover_tab.calibre_gen_cover.isChecked()
-        prefs['plugin_gen_cover'] = self.calibrecover_tab.plugin_gen_cover.isChecked()
-        prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
-        gc_site_settings = {}
-        for (site,combo) in self.calibrecover_tab.gc_dropdowns.iteritems():
-            val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
-            if val != 'none':
-                gc_site_settings[site] = val
-                #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
-        prefs['gc_site_settings'] = gc_site_settings
-        prefs['allow_gc_from_ini'] = self.calibrecover_tab.allow_gc_from_ini.isChecked()
-        prefs['gc_polish_cover'] = self.calibrecover_tab.gc_polish_cover.isChecked()
+            # Covers tab
+            prefs['updatecalcover'] = prefs_save_options[unicode(self.calibrecover_tab.updatecalcover.currentText())]
+            # for backward compatibility:
+            prefs['updatecover'] = prefs['updatecalcover'] == SAVE_YES
+            prefs['gencalcover'] = prefs_save_options[unicode(self.calibrecover_tab.gencalcover.currentText())]
+            prefs['calibre_gen_cover'] = self.calibrecover_tab.calibre_gen_cover.isChecked()
+            prefs['plugin_gen_cover'] = self.calibrecover_tab.plugin_gen_cover.isChecked()
+            prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
+            gc_site_settings = {}
+            for (site,combo) in self.calibrecover_tab.gc_dropdowns.iteritems():
+                val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
+                if val != 'none':
+                    gc_site_settings[site] = val
+                    #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
+            prefs['gc_site_settings'] = gc_site_settings
+            prefs['allow_gc_from_ini'] = self.calibrecover_tab.allow_gc_from_ini.isChecked()
+            prefs['gc_polish_cover'] = self.calibrecover_tab.gc_polish_cover.isChecked()
 
-        # Count Pages tab
-        countpagesstats = []
+            # Count Pages tab
+            countpagesstats = []
 
-        if self.countpages_tab.pagecount.isChecked():
-            countpagesstats.append('PageCount')
-        if self.countpages_tab.wordcount.isChecked():
-            countpagesstats.append('WordCount')
-        if self.countpages_tab.fleschreading.isChecked():
-            countpagesstats.append('FleschReading')
-        if self.countpages_tab.fleschgrade.isChecked():
-            countpagesstats.append('FleschGrade')
-        if self.countpages_tab.gunningfog.isChecked():
-            countpagesstats.append('GunningFog')
+            if self.countpages_tab.pagecount.isChecked():
+                countpagesstats.append('PageCount')
+            if self.countpages_tab.wordcount.isChecked():
+                countpagesstats.append('WordCount')
+            if self.countpages_tab.fleschreading.isChecked():
+                countpagesstats.append('FleschReading')
+            if self.countpages_tab.fleschgrade.isChecked():
+                countpagesstats.append('FleschGrade')
+            if self.countpages_tab.gunningfog.isChecked():
+                countpagesstats.append('GunningFog')
 
-        prefs['countpagesstats'] = countpagesstats
-        prefs['wordcountmissing'] = self.countpages_tab.wordcount.isChecked() and self.countpages_tab.wordcountmissing.isChecked()
+            prefs['countpagesstats'] = countpagesstats
+            prefs['wordcountmissing'] = self.countpages_tab.wordcount.isChecked() and self.countpages_tab.wordcountmissing.isChecked()
 
-        # Standard Columns tab
-        colsnewonly = {}
-        for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
-            colsnewonly[col] = checkbox.isChecked()
-        prefs['std_cols_newonly'] = colsnewonly
+            # Standard Columns tab
+            colsnewonly = {}
+            for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
+                colsnewonly[col] = checkbox.isChecked()
+            prefs['std_cols_newonly'] = colsnewonly
 
-        prefs['suppressauthorsort'] = self.std_columns_tab.suppressauthorsort.isChecked()
-        prefs['suppresstitlesort'] = self.std_columns_tab.suppresstitlesort.isChecked()
-        prefs['authorcase'] = self.std_columns_tab.authorcase.isChecked()
-        prefs['titlecase'] = self.std_columns_tab.titlecase.isChecked()
+            prefs['suppressauthorsort'] = self.std_columns_tab.suppressauthorsort.isChecked()
+            prefs['suppresstitlesort'] = self.std_columns_tab.suppresstitlesort.isChecked()
+            prefs['authorcase'] = self.std_columns_tab.authorcase.isChecked()
+            prefs['titlecase'] = self.std_columns_tab.titlecase.isChecked()
 
-        prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
-        prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
-        prefs['anth_comments_newonly'] =self.std_columns_tab.anth_comments_newonly.isChecked()
+            prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
+            prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
+            prefs['anth_comments_newonly'] =self.std_columns_tab.anth_comments_newonly.isChecked()
 
-        # Custom Columns tab
-        # error column
-        prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
-        prefs['save_all_errors'] = self.cust_columns_tab.save_all_errors.isChecked()
+            # Custom Columns tab
+            # error column
+            prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
+            prefs['save_all_errors'] = self.cust_columns_tab.save_all_errors.isChecked()
 
-        # metadata column
-        prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
+            # metadata column
+            prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
 
-        # lastchecked column
-        prefs['lastcheckedcol'] = unicode(convert_qvariant(self.cust_columns_tab.lastcheckedcol.itemData(self.cust_columns_tab.lastcheckedcol.currentIndex())))
+            # lastchecked column
+            prefs['lastcheckedcol'] = unicode(convert_qvariant(self.cust_columns_tab.lastcheckedcol.itemData(self.cust_columns_tab.lastcheckedcol.currentIndex())))
 
-        # cust cols tab
-        colsmap = {}
-        for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
-            val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
-            if val != 'none':
-                colsmap[col] = val
-                #print("colsmap[%s]:%s"%(col,colsmap[col]))
-        prefs['custom_cols'] = colsmap
+            # cust cols tab
+            colsmap = {}
+            for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
+                val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
+                if val != 'none':
+                    colsmap[col] = val
+                    #print("colsmap[%s]:%s"%(col,colsmap[col]))
+            prefs['custom_cols'] = colsmap
 
-        colsnewonly = {}
-        for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
-            colsnewonly[col] = checkbox.isChecked()
-        prefs['custom_cols_newonly'] = colsnewonly
+            colsnewonly = {}
+            for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
+                colsnewonly[col] = checkbox.isChecked()
+            prefs['custom_cols_newonly'] = colsnewonly
 
-        prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
+            prefs['allow_custcol_from_ini'] = self.cust_columns_tab.allow_custcol_from_ini.isChecked()
 
-        prefs['imapserver'] = unicode(self.imap_tab.imapserver.text()).strip()
-        prefs['imapuser'] = unicode(self.imap_tab.imapuser.text()).strip()
-        prefs['imappass'] = unicode(self.imap_tab.imappass.text()).strip()
-        prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text()).strip()
-        prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
-        prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
-        prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
-        prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
-        prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
+            prefs['imapserver'] = unicode(self.imap_tab.imapserver.text()).strip()
+            prefs['imapuser'] = unicode(self.imap_tab.imapuser.text()).strip()
+            prefs['imappass'] = unicode(self.imap_tab.imappass.text()).strip()
+            prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text()).strip()
+            prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
+            prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
+            prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
+            prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
+            prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
 
-        prefs.save_to_db()
+            prefs.save_to_db()
 
     def edit_shortcuts(self):
         self.save_settings()
@@ -666,7 +669,8 @@ class BasicTab(QWidget):
         d.exec_()
         if d.result() != d.Accepted:
             return
-        rejecturllist.add(d.get_reject_list(),clear=True)
+        with busy_cursor():
+            rejecturllist.add(d.get_reject_list(),clear=True)
 
     def show_reject_reasons(self):
         d = EditTextDialog(self,
