@@ -1196,13 +1196,17 @@ class Story(Configurable):
                     removetrans = removetrans or grayscale or imgtype=="jpg"
                     if 'ffdl-' in imgurl:
                         raise exceptions.FailedToDownload("ffdl image is internal only...")
+                    bgcolor = self.getConfig('background_color','ffffff')
+                    if not bgcolor or len(bgcolor)<3 or len(bgcolor)>6 or not re.match(r"^[0-9a-fA-F]+$",bgcolor):
+                        logger.info("background_color(%s) needs to be a hexidecimal color--using ffffff instead."%bgcolor)
+                        bgcolor = 'ffffff'
                     (data,ext,mime) = convert_image(imgurl,
                                                     fetch(imgurl,referer=parenturl),
                                                     sizes,
                                                     grayscale,
                                                     removetrans,
                                                     imgtype,
-                                                    background="#"+self.getConfig('background_color'))
+                                                    background="#"+bgcolor)
             except Exception as e:
                 logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 return ("failedtoload","failedtoload")
