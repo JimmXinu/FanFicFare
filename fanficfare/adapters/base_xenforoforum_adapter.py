@@ -267,7 +267,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return threadmarks
 
     def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0):
-        logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s)"%(tmcat_name,tmcat_num, passed_tmcat_index))
+        logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s)"%(tmcat_name,tmcat_num, passed_tmcat_index, url))
         threadmarks=[]
         soupmarks = self.make_soup(self._fetchUrl(url))
         tm_list = soupmarks.find('div',{'class':'threadmarkList'})
@@ -280,16 +280,17 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         for tm_item in tm_list.find_all('li',{'class':'threadmarkListItem'}):
             atag = tm_item.find('a',{'class':'PreviewTooltip'})
             if not atag:
+                if tm_item['data-range-min'] and tm_item['data-range-max']:
                 # logger.debug(tm_item)
-                load_range = "threadmarks/load-range?min=%s&max=%s&category_id=%s"%(tm_item['data-range-min'],
-                                                                                    tm_item['data-range-max'],
-                                                                                    tmcat_num)
-                threadmarks.extend(self.fetch_threadmarks(self.url+load_range,
-                                                          tmcat_name,
-                                                          tmcat_num,
-                                                          tmcat_index))
-                tmcat_index = len(threadmarks)
-                after=True
+                    load_range = "threadmarks/load-range?min=%s&max=%s&category_id=%s"%(tm_item['data-range-min'],
+                                                                                        tm_item['data-range-max'],
+                                                                                        tmcat_num)
+                    threadmarks.extend(self.fetch_threadmarks(self.url+load_range,
+                                                              tmcat_name,
+                                                              tmcat_num,
+                                                              tmcat_index))
+                    tmcat_index = len(threadmarks)
+                    after=True
             else:
                 if after:
                     # logger.debug("AFTER "*10)
