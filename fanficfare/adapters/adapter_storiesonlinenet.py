@@ -143,7 +143,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         except HTTPError as e:
             if e.code in (404, 410):
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
-            elif e.code == 401:
+            elif e.code in (401, 403):
                 self.needToLogin = True
                 data = ''
             else:
