@@ -100,7 +100,6 @@ from . import adapter_spikeluvercom
 from . import adapter_bloodshedversecom
 from . import adapter_fanfichu
 from . import adapter_fictionmaniatv
-from . import adapter_tolkienfanfiction
 from . import adapter_themaplebookshelf
 from . import adapter_fannation
 from . import adapter_sheppardweircom
