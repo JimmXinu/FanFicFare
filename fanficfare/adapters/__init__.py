@@ -118,7 +118,6 @@ from . import adapter_quotevcom
 from . import adapter_mcstoriescom
 from . import adapter_buffygilescom
 from . import adapter_andromedawebcom
-from . import adapter_artemisfowlcom
 from . import adapter_naiceanilmenet
 from . import adapter_deepinmysoulnet
 from . import adapter_adultfanfictionorg
