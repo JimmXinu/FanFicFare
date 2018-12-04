@@ -165,19 +165,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         data = self._fetchUrl(url)
-
-        # try:
-        #     # remove everything after here--the site's chapters break
-        #     # the BS4 parser.
-        #     data = data[:data.index('<script type="text/javascript" src="reviewjs.js">')]
-        # except:
-        #     # some older stories don't have the code at the end that breaks things.
-        #     pass
-        
         soup = self.make_soup(data)
-
-        div = soup.find('div', {'style' : 'line-height: 1.5'})
-
+        div = soup.find('div', {'class' : 'storytext-container'})
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
