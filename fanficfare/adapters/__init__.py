@@ -89,7 +89,6 @@ from . import adapter_efpfanficnet
 from . import adapter_potterficscom
 from . import adapter_efictionestelielde
 from . import adapter_imagineeficcom
-from . import adapter_asr3slashzoneorg
 from . import adapter_potterheadsanonymouscom
 from . import adapter_fictionpadcom
 from . import adapter_storiesonlinenet
