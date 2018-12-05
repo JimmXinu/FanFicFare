@@ -566,7 +566,8 @@ class Story(Configurable):
                 value = None
         return value
 
-    def doReplacements(self,value,key,return_list=False,seen_list=[]):
+    def doReplacements(self,value,key,return_list=False,seen_list={}):
+        # logger.debug("doReplacements(%s,%s,%s)"%(value,key,seen_list))
         # sets self.replacements and self.in_ex_cludes if needed
         self.prepare_replacements()
 
@@ -575,11 +576,15 @@ class Story(Configurable):
 
         retlist = [value]
         for replaceline in self.replacements:
-            if replaceline in seen_list: # recursion on pattern, bail
-                # print("bailing on %s"%replaceline)
+            (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
+            # recursion on pattern, bail -- Compare by original text
+            # line because I saw an issue with duplicate lines in a
+            # huuuge replace list cause a problem.  Also allows dict()
+            # instead of list() for quicker lookups.
+            if repl_line in seen_list:
+                # print("bailing on %s"%repl_line)
                 continue
             #print("replacement tuple:%s"%replaceline)
-            (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
                     and regexp.search(value):
@@ -602,10 +607,12 @@ class Story(Configurable):
                             except:
                                 logger.error("Exception with replacement line,value:(%s),(%s)"%(repl_line,value))
                                 raise
+                            new_seen_list = dict(seen_list)
+                            new_seen_list[repl_line]=True
                             retlist.extend(self.doReplacements(tval,
                                                                key,
                                                                return_list=True,
-                                                               seen_list=seen_list+[replaceline]))
+                                                               seen_list=new_seen_list))
                         break
                     else:
                         # print("replacement,value:%s,%s->%s"%(replacement,value,regexp.sub(replacement,value)))
