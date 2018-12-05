@@ -1032,7 +1032,7 @@ class Configuration(configparser.SafeConfigParser):
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters, headers)
-        if usecache and self._has_cachekey(cachekey):
+        if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(POST) HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
             return data
@@ -1086,7 +1086,7 @@ class Configuration(configparser.SafeConfigParser):
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters)
-        if usecache and self._has_cachekey(cachekey):
+        if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(GET) HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
             class FakeOpened:
