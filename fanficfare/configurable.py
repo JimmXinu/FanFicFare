@@ -1038,7 +1038,8 @@ class Configuration(configparser.SafeConfigParser):
             return data
 
         logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
-        self.do_sleep(extrasleep)
+        if not cachekey.startswith('file:'): # don't sleep for file: URLs.
+            self.do_sleep(extrasleep)
 
         ## Request assumes POST when data!=None.  Also assumes data
         ## is application/x-www-form-urlencoded.
@@ -1098,7 +1099,8 @@ class Configuration(configparser.SafeConfigParser):
 
         logger.debug("#####################################\npagecache(GET) MISS: %s"%safe_url(cachekey))
         # print(self.get_pagecache().keys())
-        self.do_sleep(extrasleep)
+        if not cachekey.startswith('file:'): # don't sleep for file: URLs.
+            self.do_sleep(extrasleep)
 
         ## Specific UA because too many sites are blocking the default python UA.
         headers = [('User-Agent', self.getConfig('user_agent')),
