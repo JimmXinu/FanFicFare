@@ -147,6 +147,7 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
                           'Comments:':'comments',
                           'views:':'views',
                        }
+        updateDate = self.story.getMetadataRaw('dateUpdated')
         boxbody = h1.find_next('div',class_='boxbody')
         for a in boxbody.find_all('a'):
             # <small>
@@ -165,9 +166,15 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
                     val = label.next_sibling.replace('•','').strip() # remove bullets.
                     if l.endswith('date'):
                         d = makeDate(val,self.dateformat)
+                        if d > updateDate:
+                            updateDate = d
                         val = d.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d")))
                     chap_meta[l] = val
             self.add_chapter(stripHTML(a),'https://'+self.host+a['href'],chap_meta)
+        ## site can screw up updated date, take from newest chapter date if greater.
+        if updateDate != self.story.getMetadataRaw('dateUpdated'):
+            self.story.setMetadata('dateUpdated',updateDate)
+
 
     def getChapterText(self, url):
 
