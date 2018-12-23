@@ -195,6 +195,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             try:
                 self.story.extendList('bookmarktags',
                                       metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
+                self.story.setMetadata('bookmarkprivate',
+                                       metasoup.find('input',id='bookmark_private').has_attr('checked'))
+                self.story.setMetadata('bookmarkrec',
+                                       metasoup.find('input',id='bookmark_rec').has_attr('checked'))
             except KeyError:
                 pass
             self.story.setMetadata('bookmarksummary',
