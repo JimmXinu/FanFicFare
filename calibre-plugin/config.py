@@ -79,7 +79,6 @@ no_trans = { 'pini':'personal.ini',
              'u':'username',
              'p':'password',
              }
-TRANS_TEMP = _('Translation')
 
 STD_COLS_SKIP = ['size','cover','news','ondevice','path','series_sort','sort']
 
