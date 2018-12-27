@@ -100,12 +100,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         params = {}
         if self.password:
-            params['user_session[login]'] = self.username
-            params['user_session[password]'] = self.password
+            params['user[login]'] = self.username
+            params['user[password]'] = self.password
         else:
-            params['user_session[login]'] = self.getConfig("username")
-            params['user_session[password]'] = self.getConfig("password")
-        params['user_session[remember_me]'] = '1'
+            params['user[login]'] = self.getConfig("username")
+            params['user[password]'] = self.getConfig("password")
+        params['user[remember_me]'] = '1'
         params['commit'] = 'Log in'
         params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
 
@@ -116,9 +116,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         token_json = json.loads(self._fetchUrl('https://' + self.getSiteDomain() + "/token_dispenser.json"))
         params['authenticity_token'] = token_json['token']
 
-        loginUrl = 'https://' + self.getSiteDomain() + '/user_sessions'
+        loginUrl = 'https://' + self.getSiteDomain() + '/users/login'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                            params['user_session[login]']))
+                                                            params['user[login]']))
 
         d = self._postUrl(loginUrl, params)
         #logger.info(d)
