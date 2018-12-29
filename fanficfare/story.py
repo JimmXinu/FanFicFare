@@ -57,7 +57,6 @@ imagetypes = {
 try:
     from calibre.utils.magick import Image
     from .six import BytesIO
-    # from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
@@ -73,10 +72,6 @@ try:
         owidth, oheight = img.size
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
-
-        # Calibre's Image seems to have improved since this was added in Apr 2015
-        # if normalize_format_name(img.format)=="gif" and GifInfo(BytesIO(data),CHECK_IS_ANIMATED).frameCount > 1:
-        #     raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
 
         if scaled:
             img.size = (nwidth, nheight)
@@ -388,13 +383,14 @@ def set_in_ex_clude(setting):
     dest = []
     # print("set_in_ex_clude:"+setting)
     for line in setting.splitlines():
+        full_line=line
         if line:
             (match,condmatch)=(None,None)
             if "&&" in line:
                 (line,conditional) = line.split("&&")
                 condmatch = InExMatch(conditional)
             match = InExMatch(line)
-            dest.append([match,condmatch])
+            dest.append([full_line,match,condmatch])
     return dest
 
 ## Two or three part lines.  Two part effect everything.
@@ -489,9 +485,7 @@ class Story(Configurable):
                 if ies:
                     iel = []
                     self.in_ex_cludes[ie] = set_in_ex_clude(ies)
-                    # print("%s %s"%(ie,len(self.in_ex_cludes[ie])))
             self.replacements_prepped = True
-
 
     def set_chapters_range(self,first=None,last=None):
         self.chapter_first=first
@@ -534,23 +528,24 @@ class Story(Configurable):
                                             # is_lightweight()
             self.replacements_prepped = False
 
-    def do_in_ex_clude(self,which,value,key):
-        # sets self.replacements and self.in_ex_cludes if needed
-        # do_in_ex_clude is always called from doReplacements, so redundant.
-        # self.prepare_replacements()
-
+    def do_in_ex_clude(self,which,value,key,seen_list):
         if value and which in self.in_ex_cludes:
             include = 'include' in which
             keyfound = False
             found = False
-            for (match,condmatch) in self.in_ex_cludes[which]:
+            for (line,match,condmatch) in self.in_ex_cludes[which]:
                 keyfndnow = False
                 if match.in_keys(key):
+                    if line in seen_list:
+                        logger.info("Skipping %s key(%s) value(%s) line(%s) to prevent infinite recursion."%(which,key,value,line))
+                        continue
                     # key in keys and either no conditional, or conditional matched
                     if condmatch == None or condmatch.is_key(key):
                         keyfndnow = True
                     else:
-                        condval = self.getMetadata(condmatch.key())
+                        new_seen_list = dict(seen_list)
+                        new_seen_list[line]=True
+                        condval = self.getMetadata(condmatch.key(),seen_list=new_seen_list)  ## XXXXXX not working properly??
                         keyfndnow = condmatch.is_match(condval)
                     keyfound |= keyfndnow
                         # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
@@ -572,26 +567,28 @@ class Story(Configurable):
         # sets self.replacements and self.in_ex_cludes if needed
         self.prepare_replacements()
 
-        value = self.do_in_ex_clude('include_metadata_pre',value,key)
-        value = self.do_in_ex_clude('exclude_metadata_pre',value,key)
+        value = self.do_in_ex_clude('include_metadata_pre',value,key,seen_list)
+        value = self.do_in_ex_clude('exclude_metadata_pre',value,key,seen_list)
 
         retlist = [value]
         for replaceline in self.replacements:
             (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
-            # recursion on pattern, bail -- Compare by original text
-            # line because I saw an issue with duplicate lines in a
-            # huuuge replace list cause a problem.  Also allows dict()
-            # instead of list() for quicker lookups.
-            if repl_line in seen_list:
-                # print("bailing on %s"%repl_line)
-                continue
             #print("replacement tuple:%s"%replaceline)
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
                     and regexp.search(value):
+                # recursion on pattern, bail -- Compare by original text
+                # line because I saw an issue with duplicate lines in a
+                # huuuge replace list cause a problem.  Also allows dict()
+                # instead of list() for quicker lookups.
+                if repl_line in seen_list:
+                    logger.info("Skipping replace_metadata line %s to prevent infinite recursion."%repl_line)
+                    continue
                 doreplace=True
                 if condkey and condkey != key: # prevent infinite recursion.
-                    condval = self.getMetadata(condkey)
+                    new_seen_list = dict(seen_list)
+                    new_seen_list[repl_line]=True
+                    condval = self.getMetadata(condkey,seen_list=new_seen_list)
                     doreplace = condval != None and condregexp.search(condval)
 
                 if doreplace:
@@ -625,8 +622,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key),retlist))
-            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key,seen_list=seen_list),retlist))
+            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key,seen_list=seen_list),retlist))
 
         if return_list:
             return retlist
@@ -711,7 +708,8 @@ class Story(Configurable):
 
     def getMetadata(self, key,
                     removeallentities=False,
-                    doreplacements=True):
+                    doreplacements=True,
+                    seen_list={}):
         # check for a cached value to speed processing
         if key in self.processed_metadata_cache \
                 and (removeallentities,doreplacements) in self.processed_metadata_cache[key]:
@@ -725,9 +723,9 @@ class Story(Configurable):
         elif self.isList(key):
             # join_string = self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ')
             # value = join_string.join(self.getList(key, removeallentities, doreplacements=True))
-            value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True))
+            value = self.join_list(key,self.getList(key, removeallentities, doreplacements=True,seen_list=seen_list))
             if doreplacements:
-                value = self.doReplacements(value,key+"_LIST")
+                value = self.doReplacements(value,key+"_LIST",seen_list=seen_list)
         elif key in self.metadata:
             value = self.metadata[key]
             if value:
@@ -752,7 +750,7 @@ class Story(Configurable):
                                               'last':commaGroups(last)})
 
             if doreplacements:
-                value=self.doReplacements(value,key)
+                value=self.doReplacements(value,key,seen_list=seen_list)
             if removeallentities and value != None:
                 value = removeAllEntities(value)
         else: #if self.getConfig("default_value_"+key):
@@ -892,7 +890,8 @@ class Story(Configurable):
                 removeallentities=False,
                 doreplacements=True,
                 includelist=[],
-                skip_cache=False):
+                skip_cache=False,
+                seen_list={}):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
 
@@ -913,12 +912,14 @@ class Story(Configurable):
                         ldorepl = False
                     retlist.extend(self.getList(k,removeallentities=False,
                                                 doreplacements=ldorepl,includelist=includelist+[listname],
-                                                skip_cache=True))
+                                                skip_cache=True,
+                                                seen_list=seen_list))
             else:
 
                 if not self.isList(listname):
                     retlist = [self.getMetadata(listname,removeallentities=False,
-                                                doreplacements=doreplacements)]
+                                                doreplacements=doreplacements,
+                                                seen_list=seen_list)]
                 else:
                     retlist = self.getMetadataRaw(listname)
                     if retlist is None:
@@ -945,7 +946,8 @@ class Story(Configurable):
                                 ## logger.debug("x:(%s) y:(%s)"%(x,y))
                                 ## for SPLIT_META(\,)
                                 if x != y and doreplacements: # doreplacements always true here (currently)
-                                    y = self.doReplacements(y,'ships_CHARS',return_list=True)
+                                    y = self.doReplacements(y,'ships_CHARS',return_list=True,
+                                                            seen_list=seen_list)
                                 else:
                                     ## needs to be a list to extend curlist.
                                     y=[x]
@@ -961,7 +963,8 @@ class Story(Configurable):
                 if doreplacements:
                     newretlist = []
                     for val in retlist:
-                        newretlist.extend(self.doReplacements(val,listname,return_list=True))
+                        newretlist.extend(self.doReplacements(val,listname,return_list=True,
+                                                              seen_list=seen_list))
                     retlist = newretlist
 
                 if removeallentities:
@@ -972,7 +975,8 @@ class Story(Configurable):
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
                                                                                                             # to avoid inf loops if genre/cat substs
-                                                                                                            doreplacements=False
+                                                                                                            doreplacements=False,
+                                                                                                            seen_list=seen_list
                                                                                                             )) > 1:
                 retlist.append(self.getConfig('add_genre_when_multi_category'))
 
