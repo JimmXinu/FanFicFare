@@ -547,7 +547,7 @@ class Story(Configurable):
                     else:
                         new_seen_list = dict(seen_list)
                         new_seen_list[line]=True
-                        condval = self.getMetadata(condmatch.key(),seen_list=new_seen_list)  ## XXXXXX not working properly??
+                        condval = self.getMetadata(condmatch.key(),seen_list=new_seen_list)
                         keyfndnow = condmatch.is_match(condval)
                     keyfound |= keyfndnow
                         # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
