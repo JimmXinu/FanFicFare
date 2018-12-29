@@ -210,6 +210,7 @@ def get_valid_set_options():
 
                'use_ssl_unverified_context':(None,None,boollist),
                'continue_on_chapter_error':(None,None,boollist),
+               'conditionals_use_lists':(None,None,boollist),
 
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
@@ -435,6 +436,7 @@ def get_valid_keywords():
                  'use_meta_keywords',
                  'chapter_categories_use_all',
                  'clean_chapter_titles',
+                 'conditionals_use_lists',
                  'description_in_chapter',
                  'inject_chapter_title',
                  'titlepage_end',

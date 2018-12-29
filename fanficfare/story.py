@@ -353,15 +353,19 @@ class InExMatch:
     def in_keys(self,key):
         return key in self.keys
 
-    def is_match(self,value):
+    def is_match(self,param):
+        if not isinstance(param,list):
+            param = [param]
         retval = False
-        if self.regex:
-            if self.regex.search(value):
-                retval = True
-            #print(">>>>>>>>>>>>>%s=~%s r: %s,%s=%s"%(self.match,value,self.negate,retval,self.negate != retval))
-        else:
-            retval = self.match == value
-            #print(">>>>>>>>>>>>>%s==%s r: %s,%s=%s"%(self.match,value,self.negate,retval, self.negate != retval))
+        # print(param)
+        for value in param:
+            if self.regex:
+                if self.regex.search(value):
+                    retval |= True
+                #print(">>>>>>>>>>>>>%s=~%s r: %s,%s=%s"%(self.match,value,self.negate,retval,self.negate != retval))
+            else:
+                retval |= self.match == value
+                #print(">>>>>>>>>>>>>%s==%s r: %s,%s=%s"%(self.match,value,self.negate,retval, self.negate != retval))
 
         return self.negate != retval
 
@@ -530,28 +534,36 @@ class Story(Configurable):
                                             # is_lightweight()
             self.replacements_prepped = False
 
+    def getMetadataForConditional(self,key,seen_list={}):
+        if self.getConfig("conditionals_use_lists",True) and not key.endswith("_LIST"):
+            condval = self.getList(key,seen_list=seen_list)
+        else:
+            condval = self.getMetadata(key.replace("_LIST",""),seen_list=seen_list)
+        return condval
+
     def do_in_ex_clude(self,which,value,key,seen_list):
         if value and which in self.in_ex_cludes:
             include = 'include' in which
             keyfound = False
             found = False
-            for (line,match,condmatch) in self.in_ex_cludes[which]:
+            for (line,match,cond_match) in self.in_ex_cludes[which]:
                 keyfndnow = False
                 if match.in_keys(key):
                     if line in seen_list:
                         logger.info("Skipping %s key(%s) value(%s) line(%s) to prevent infinite recursion."%(which,key,value,line))
                         continue
                     # key in keys and either no conditional, or conditional matched
-                    if condmatch == None or condmatch.is_key(key):
+                    if cond_match == None or cond_match.is_key(key):
                         keyfndnow = True
                     else:
                         new_seen_list = dict(seen_list)
                         new_seen_list[line]=True
-                        condval = self.getMetadata(condmatch.key(),seen_list=new_seen_list)
-                        keyfndnow = condmatch.is_match(condval)
+                        # print(cond_match)
+                        condval = self.getMetadataForConditional(cond_match.key(),seen_list=new_seen_list)
+                        keyfndnow = cond_match.is_match(condval)
+                        # print("match:%s %s\ncond_match:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
+                        #         match,value,cond_match,condval,keyfound,found))
                     keyfound |= keyfndnow
-                        # print("match:%s %s\ncondmatch:%s %s\n\tkeyfound:%s\n\tfound:%s"%(
-                        #         match,value,condmatch,condval,keyfound,found))
                     if keyfndnow:
                         found = isinstance(value,basestring) and match.is_match(value)
                     if found:
@@ -590,7 +602,8 @@ class Story(Configurable):
                 if cond_match and cond_match.key() != key: # prevent infinite recursion.
                     new_seen_list = dict(seen_list)
                     new_seen_list[repl_line]=True
-                    condval = self.getMetadata(cond_match.key(),seen_list=new_seen_list)
+                    # print(cond_match)
+                    condval = self.getMetadataForConditional(cond_match.key(),seen_list=new_seen_list)
                     doreplace = condval != None and cond_match.is_match(condval)
 
                 if doreplace:
