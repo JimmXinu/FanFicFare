@@ -125,8 +125,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         if "Successfully logged in" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['user_session[login]']))
-            raise exceptions.FailedToLogin(url,params['user_session[login]'])
+                                                              params['user[login]']))
+            raise exceptions.FailedToLogin(url,params['user[login]'])
             return False
         else:
             return True
