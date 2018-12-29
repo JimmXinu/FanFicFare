@@ -57,7 +57,7 @@ imagetypes = {
 try:
     from calibre.utils.magick import Image
     from .six import BytesIO
-    from gif import GifInfo, CHECK_IS_ANIMATED
+    # from gif import GifInfo, CHECK_IS_ANIMATED
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def convert_image(url,data,sizes,grayscale,
@@ -74,8 +74,9 @@ try:
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
 
-        if normalize_format_name(img.format)=="gif" and GifInfo(BytesIO(data),CHECK_IS_ANIMATED).frameCount > 1:
-            raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
+        # Calibre's Image seems to have improved since this was added in Apr 2015
+        # if normalize_format_name(img.format)=="gif" and GifInfo(BytesIO(data),CHECK_IS_ANIMATED).frameCount > 1:
+        #     raise exceptions.RejectImage("Animated gifs come out poorly--not going to use it.")
 
         if scaled:
             img.size = (nwidth, nheight)
@@ -164,7 +165,7 @@ def no_convert_image(url,data):
         # parameter.
         ext = url[url.rfind('.')+1:].lower()
         if ext not in imagetypes:
-            logger.debug("no_convert_image url:%s - no known extension"%url)
+            logger.debug("no_convert_image url:%s - no known extension -- using .jpg"%url)
             # doesn't have extension? use jpg.
             ext='jpg'
 
