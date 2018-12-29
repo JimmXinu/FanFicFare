@@ -320,7 +320,11 @@ class InExMatch:
     negate = False
 
     def  __init__(self,line):
-        if "=~" in line:
+        if "=>" in line: # for back-compat when used with replace_metadata conditionals.
+            (self.keys,self.match) = line.split("=>")
+            self.match = self.match.replace(SPACE_REPLACE,' ')
+            self.regex = re_compile(self.match,line)
+        elif "=~" in line:
             (self.keys,self.match) = line.split("=~")
             self.match = self.match.replace(SPACE_REPLACE,' ')
             self.regex = re_compile(self.match,line)
@@ -404,10 +408,10 @@ def make_replacements(replace):
     for repl_line in replace.splitlines():
         line=repl_line
         try:
-            (metakeys,regexp,replacement,condkey,condregexp)=(None,None,None,None,None)
+            (metakeys,regexp,replacement,cond_match)=(None,None,None,None)
             if "&&" in line:
                 (line,conditional) = line.split("&&")
-                (condkey,condregexp) = conditional.split("=>")
+                cond_match = InExMatch(conditional)
             if "=>" in line:
                 parts = line.split("=>")
                 if len(parts) > 2:
@@ -418,13 +422,11 @@ def make_replacements(replace):
 
             if regexp:
                 regexp = re_compile(regexp,line)
-                if condregexp:
-                    condregexp = re_compile(condregexp,line)
                 # A way to explicitly include spaces in the
                 # replacement string.  The .ini parser eats any
                 # trailing spaces.
                 replacement=replacement.replace(SPACE_REPLACE,' ')
-                retval.append([repl_line,metakeys,regexp,replacement,condkey,condregexp])
+                retval.append([repl_line,metakeys,regexp,replacement,cond_match])
         except Exception as e:
             logger.error("Problem with Replacement Line:%s"%repl_line)
             raise exceptions.PersonalIniFailed(e,'replace_metadata unpacking failed',repl_line)
@@ -572,7 +574,7 @@ class Story(Configurable):
 
         retlist = [value]
         for replaceline in self.replacements:
-            (repl_line,metakeys,regexp,replacement,condkey,condregexp) = replaceline
+            (repl_line,metakeys,regexp,replacement,cond_match) = replaceline
             #print("replacement tuple:%s"%replaceline)
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
@@ -585,11 +587,11 @@ class Story(Configurable):
                     logger.info("Skipping replace_metadata line %s to prevent infinite recursion."%repl_line)
                     continue
                 doreplace=True
-                if condkey and condkey != key: # prevent infinite recursion.
+                if cond_match and cond_match.key() != key: # prevent infinite recursion.
                     new_seen_list = dict(seen_list)
                     new_seen_list[repl_line]=True
-                    condval = self.getMetadata(condkey,seen_list=new_seen_list)
-                    doreplace = condval != None and condregexp.search(condval)
+                    condval = self.getMetadata(cond_match.key(),seen_list=new_seen_list)
+                    doreplace = condval != None and cond_match.is_match(condval)
 
                 if doreplace:
                     # split into more than one list entry if
