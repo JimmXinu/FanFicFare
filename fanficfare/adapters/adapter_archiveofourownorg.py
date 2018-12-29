@@ -109,9 +109,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         params['commit'] = 'Log in'
         params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
 
-        # token now comes from meta.
-        # <meta name="csrf-token" content="/Li4mJ1w1AENhQq8EPVIklFwCDP5eaTHNRWPlWkehu2d1iuRzgsOHYGCX+uhjmlKnd1A9VisCdqmeTmBmXZkBg=="/>
-        #params['authenticity_token'] = data.split('meta name="csrf-token" content="')[1].split('"')[0]
         # authenticity_token now comes from a completely separate json call.
         token_json = json.loads(self._fetchUrl('https://' + self.getSiteDomain() + "/token_dispenser.json"))
         params['authenticity_token'] = token_json['token']
@@ -170,9 +167,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # need to log in for this one, or always_login.
         if self.needToLoginCheck(data) or \
                 ( self.getConfig("always_login") and 'href="/logout"' not in data ):
-            ## except don't log in if already logged in (cached
-            ## responses in calibre job).  already logged in if
-            ## there's no authenticity_token in data.
             self.performLogin(url,data)
             data = self._fetchUrl(url,usecache=False)
             meta = self._fetchUrl(metaurl,usecache=False)
@@ -192,6 +186,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         if self.getConfig("always_login"):
+            # deliberately using always_login instead of checking for
+            # actual login so we don't have a case where these show up
+            # for a user only when they get user-restricted stories.
             try:
                 self.story.extendList('bookmarktags',
                                       metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
