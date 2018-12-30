@@ -118,9 +118,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                                                             params['user[login]']))
 
         d = self._postUrl(loginUrl, params)
-        #logger.info(d)
 
-        if "Successfully logged in" not in d : #Member Account
+        if 'href="/users/logout"' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['user[login]']))
             raise exceptions.FailedToLogin(url,params['user[login]'])
@@ -166,7 +165,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         # need to log in for this one, or always_login.
         if self.needToLoginCheck(data) or \
-                ( self.getConfig("always_login") and 'href="/logout"' not in data ):
+                ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
             self.performLogin(url,data)
             data = self._fetchUrl(url,usecache=False)
             meta = self._fetchUrl(metaurl,usecache=False)
