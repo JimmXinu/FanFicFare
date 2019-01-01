@@ -34,6 +34,9 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','whof')
+        # The date format will vary from site to site.
+        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        self.dateformat = '%Y.%m.%d'
 
     @staticmethod
     def getSiteDomain():
@@ -45,6 +48,13 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+"\d+$"
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     def extractChapterUrlsAndMetadata(self):
 
@@ -99,15 +109,6 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         ## or even the story chapter index page.  Need to scrape the
         ## author page to find it.
 
-        # <table width="100%" bordercolor="#333399" border="0" cellspacing="0" cellpadding="2"><tr><td>
-        # <b><a href="viewstory.php?sid=38220">Accompaniment 2</a></b> by <a href="viewuser.php?uid=12412">clandestinemiscreant</a>  [<a href="reviews.php?sid=38220">Reviews</a> - <a href="reviews.php?sid=38220">0</a>] <br>
-        # This is a series of short stories written as an accompaniment to Season 2, Season 28 for us oldies, and each is unrelated except for that one factor. Each story is canon, in that it does not change established events at time of airing, based on things mentioned and/or implied and missing or deleted scenes that were not seen in the final aired episodes.<br>
-        # <font size="-1"><b><a href="categories.php?catid=15">Tenth Doctor</a></b> - All Ages - None - Humor, Hurt/Comfort, Romance<br>
-        # <i>Characters:</i> Rose Tyler<br>
-        # <i>Series:</i> None<br>
-        # <i>Published:</i> 2010.08.15 - <i>Updated:</i> 2010.08.16 - <i>Chapters:</i> 4 - <i>Completed:</i> Yes - <i>Word Count:</i> 4890 </font>
-        # </td></tr></table>
-
         logger.debug("Author URL: "+self.story.getMetadata('authorUrl'))
         soup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
         # find this story in the list, parse it's metadata based on
@@ -115,94 +116,76 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # tagging.
         # Found a story once that had the story URL in the desc for a
         # series on the same author's page.  Now using the reviews
-        # link instead to find the appropriate metadata.
+        # link instead to find the appropriate metadata.  Also avoids
+        # 'I am old enough' JS
         a = soup.find('a', href=re.compile(r'reviews.php\?sid='+self.story.getMetadata('storyId')))
-        metadata = a.findParent('td')
-        metadatachunks = self.utf8FromSoup(None,metadata,allow_replace_br_with_p=False).split('<br/>')
+        metadata = a.findParent('div')
 
-        # Some stories have a <br/> inside the description, which
-        # causes the number of metadatachunks to be 7 or 8 or 10 instead of 5.
-        # so we have to process through the metadatachunks to get the description,
-        # then the next metadata chunk [GComyn]
+        # <div class="storyBlock">
+        # <p><strong><a href="javascript:if (confirm('I am old enough to read adult stories')) location = 'viewstory.php?sid=62517&warning=Adult'">Les Fleurs Du Mal</a></strong> by <a href="viewuser.php?uid=35616">JustMcShane</a>  [<a href="reviews.php?sid=62517">Reviews</a> - <a href="reviews.php?sid=62517">0</a>]<br />
+        # An unexpected detour leads to the Doctor and Ace teaming up with the FBI to investigate a series of disturbingly specific floral-themed murders. But with Ace's increasingly strange dreams, a hyper-empathetic consultant who can't seem to empathize quite so well any more, and one Doctor Hannibal Lecter in the mix, the murders may be the least of their problems...</p>
+        # <ul class="list-inline pipe">
+        # 	<li class="list-inline-item small"><a href="#"><a href="categories.php?catid=7">Seventh Doctor</a></a></li>
+        # 	<li class="list-inline-item small">Adult</li>
+        # 	<li class="list-inline-item small">Explicit Violence, Swearing</li>
+        # 	<li class="list-inline-item small">Action/Adventure, Crossover</li>
+        # </ul>
+        # <p class="small"><b>Characters:</b> Ace McShane, Other Character(s), The Doctor (7th)<br />
+        # <b>Series:</b> None</p>
+        # <ul class="list-inline pipe">
+        # 	<li class="list-inline-item small"><b>Published:</b> 2018.12.24</li>
+        # 	<li class="list-inline-item small"><b>Updated:</b> 2018.12.29</li>
+        # 	<li class="list-inline-item small"><b>Chapters:</b> 2</li>
+        # 	<li class="list-inline-item small"><b>Completed:</b> No</li>
+        # 	<li class="list-inline-item small"><b>Word count:</b> 6363</li>
+        # </ul>
+        # </div>
+        # logger.warn(metadata)
 
-        # process metadata for this story.
-        description = metadatachunks[1]
-        for i, mdc in enumerate(metadatachunks):
-            if i==0 or i==1:
-                # 0 is the title section, and 1 is always the description,
-                # which is already set, so skip them [GComyn]
-                pass
-            else:
-                if not 'categories.php' in mdc:
-                    description += ' // ' + mdc
-                else:
-                    idx = i
-                    break
-        moremeta = metadatachunks[idx]
-        self.setDescription(url,description)
+        cat_as = metadata.find_all('a', href=re.compile(r'categories.php'))
+        for cat_a in cat_as:
+            category = stripHTML(cat_a)
+            self.story.addToList('category',category)
+            # first part is category--whofic.com has categories Doctor
+            # One-11, Torchwood, etc.  We're going to prepend any with
+            # 'Doctor' or 'Era' (Multi-Era, Other Era) as 'Doctor
+            # Who'.
+            if 'Doctor' in category or 'Era' in category :
+                self.story.addToList('category','Doctor Who')
 
-        moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
+        uls = metadata.find_all('ul')
+        # first ul, category found by URL above, skip to second.
+        lis = uls[0].find_all('li')
+        v = stripHTML(lis[1])
+        if v:
+            self.story.setMetadata('rating',v)
+        v = stripHTML(lis[2])
+        if v and v != 'None': # skip when explicitly 'None'.
+            self.story.extendList('warnings',v.split(', '))
+        v = stripHTML(lis[3])
+        if v:
+            self.story.extendList('genre',v.split(', '))
 
-        moremetaparts = moremeta.split(' - ')
+        # Remove first ul list.
+        uls[0].extract()
 
-        # first part is category--whofic.com has categories
-        # Doctor One-11, Torchwood, etc.  We're going to
-        # prepend any with 'Doctor' or 'Era' (Multi-Era, Other
-        # Era) as 'Doctor Who'.
-        #
-        # Also push each in as 'extra tags'.
-        category = moremetaparts[0]
-        if 'Doctor' in category or 'Era' in category :
-            self.story.addToList('category','Doctor Who')
-
-        for cat in category.split(', '):
-            self.story.addToList('category',cat)
-
-        # next in that line is age rating.
-        self.story.setMetadata('rating',moremetaparts[1])
-
-        # after that is a possible list fo specific warnings,
-        # Explicit Violence, Swearing, etc
-        if "None" not in moremetaparts[2]:
-            for warn in moremetaparts[2].split(', '):
-                self.story.addToList('warnings',warn)
-
-        # then genre.  It's another comma list.  All together
-        # in genre, plus each in extra tags.
-        genre=moremetaparts[3]
-        for g in genre.split(r', '):
-            self.story.addToList('genre',g)
-
-        # line 3 is characters.
-        chars = metadatachunks[idx+1]
-        charsearch="<i>Characters:</i>"
-        if charsearch in chars:
-            chars = chars[metadatachunks[idx+1].index(charsearch)+len(charsearch):]
-            for c in chars.split(','):
-                if c.strip() != u'None':
-                    self.story.addToList('characters',c)
-
-        # the next line is stuff with ' - ' separators *and* names--with tags.
-        moremeta = metadatachunks[idx+3]
-        moremeta = re.sub(r'<[^>]+>','',moremeta) # strip tags.
-
-        moremetaparts = moremeta.split(' - ')
-
-        for part in moremetaparts:
-            (name,value) = part.split(': ')
-            name=name.strip()
-            value=value.strip()
-            if name == 'Published':
-                self.story.setMetadata('datePublished', makeDate(value, '%Y.%m.%d'))
-            if name == 'Updated':
-                self.story.setMetadata('dateUpdated', makeDate(value, '%Y.%m.%d'))
-            if name == 'Completed':
-                if value == 'Yes':
+        # second ul list has titles.
+        for li in uls[1].find_all('li'):
+            (title,value) = stripHTML(li).split(':')
+            if title=='Published':
+                self.story.setMetadata('datePublished', makeDate(value, self.dateformat))
+            if title=='Updated':
+                self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
+            if title=='Word count':
+                self.story.setMetadata('numWords', value)
+            if title=='Completed':
+                if value=='Yes':
                     self.story.setMetadata('status', 'Completed')
                 else:
                     self.story.setMetadata('status', 'In-Progress')
-            if name == 'Word Count':
-                self.story.setMetadata('numWords', value)
+
+        # Remove second ul list.
+        uls[1].extract()
 
         # Find Series name from series URL.
         a = metadata.find('a', href=re.compile(r"series.php\?seriesid=\d+"))
@@ -210,7 +193,6 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
             try:
-                # use BeautifulSoup HTML parser to make everything easier to find.
                 seriessoup = self.make_soup(self._fetchUrl(series_url))
                 storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
                 i=1
@@ -221,11 +203,34 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                         break
                     i+=1
             except:
-                # I find it hard to care if the series parsing fails
                 # I've changed it a little to put the series name and url in even if the page is no longer available [GComyn]
                 self.setSeries(series_name, 0)
                 self.story.setMetadata('seriesUrl',series_url)
-                #pass
+
+        # logger.warn(metadata) #.find_all('p')
+
+        ps = metadata.find_all('p')
+
+        # first p is links and desc separated by <br>, can discard br
+        # and everything before.
+        br = ps[0].find('br')
+        while br.previous_sibling:
+            br.previous_sibling.extract()
+        br.extract()
+        ps[0].name='div' # switch to a div.
+        self.setDescription(self.story.getMetadata('authorUrl'),ps[0])
+
+        # second p is Characters & Series separated by <br>, series
+        # above, can discard br and everything after.
+        br = ps[1].find('br')
+        while br.next_sibling:
+            br.next_sibling.extract()
+        br.extract()
+        chars = stripHTML(ps[1]).split(':')[1]
+        if chars != 'None':
+            self.story.extendList('characters',chars.split(', '))
+
+        # logger.warn(metadata)
 
     def getChapterText(self, url):
 
@@ -240,6 +245,10 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         if None == span:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+        # chapter select at end of page included in span.
+        for form in span.find_all('form'):
+            form.extract()
 
         span.name='div'
         return self.utf8FromSoup(url,span)
