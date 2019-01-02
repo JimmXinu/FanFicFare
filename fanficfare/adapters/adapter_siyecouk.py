@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,6 +73,13 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("http://")+r"(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -133,56 +140,63 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         for cat_a in cat_as:
             self.story.addToList('category',stripHTML(cat_a))
 
-        moremetaparts = stripHTML(metatable).split('\n')
-        for part in moremetaparts:
-            part = part.strip()
+        for label in metatable.find_all('b'):
+            # html5lib doesn't give me \n for <br> anymore.
+            # I expect there's a better way, but this is what came to
+            # mind today. -JM
+            part = stripHTML(label)
+            nxtbr = label.find_next_sibling('br')
+            nxtsib = label.next_sibling
+            value = ""
+            while nxtsib != nxtbr:
+                value += stripHTML(nxtsib)
+                nxtsib = nxtsib.next_sibling
+            # logger.debug("label:%s value:%s"%(part,value))
+
             if part.startswith("Characters:"):
-                part = part[part.find(':')+1:]
-                for item in part.split(','):
-                    if item.strip() == "Harry/Ginny":
-                        self.story.addToList('characters',"Harry")
-                        self.story.addToList('characters',"Ginny")
-                    elif item.strip() not in ("None","All"):
+                for item in value.split(', '):
+                    if item == "Harry/Ginny":
+                        self.story.addToList('characters',"Harry Potter")
+                        self.story.addToList('characters',"Ginny Weasley")
+                    elif item not in ("None","All"):
                         self.story.addToList('characters',item)
 
             if part.startswith("Genres:"):
-                part = part[part.find(':')+1:]
-                for item in part.split(','):
-                    if item.strip() != "None":
-                        self.story.addToList('genre',item)
+                self.story.extendList('genre',value.split(', '))
 
             if part.startswith("Warnings:"):
-                part = part[part.find(':')+1:]
-                for item in part.split(','):
-                    if item.strip() != "None":
-                        self.story.addToList('warnings',item)
+                if value != "None":
+                    self.story.extendList('warnings',value.split(', '))
 
             if part.startswith("Rating:"):
-                part = part[part.find(':')+1:]
-                self.story.setMetadata('rating',part)
+                self.story.setMetadata('rating',value)
 
             if part.startswith("Summary:"):
-                part = part[part.find(':')+1:]
-                self.setDescription(url,part)
-                #self.story.setMetadata('description',part)
+                # summary can include extra br and b tags go until Hitcount
+                summary = ""
+                nxt = label.next_sibling
+                while nxt and "Hitcount:" not in stripHTML(nxt):
+                    summary += "%s"%nxt
+                    logger.debug(summary)
+                    nxt = nxt.next_sibling
+                if summary.strip().endswith("<br/>"):
+                    summary = summary.strip()[0:-len("<br/>")]
+                self.setDescription(url,summary)
 
-        # want to get the next tr of the table.
-        #print("%s"%titlea.parent.parent.findNextSibling('tr'))
+        # Stuff from author block:
 
-        # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
-
-        # SIYE formats stories in the author list differently when their part of a series.
-        # Look for non-series...
+        # SIYE formats stories in the author list differently when
+        # their part of a series.  Look for non-series...
         divdesc = titlea.parent.parent.find('div',{'class':'desc'})
         if not divdesc:
             # ... now look for series.
             divdesc = titlea.parent.parent.findNextSibling('tr').find('div',{'class':'desc'})
 
         moremeta = stripHTML(divdesc)
-        #print("moremeta:%s"%moremeta)
-        for part in moremeta.replace(' - ','\n').split('\n'):
-            #print("part:%s"%part)
+        # logger.debug("moremeta:%s"%moremeta)
+        # html5lib doesn't give me \n for <br> anymore.
+        for part in moremeta.replace(' - ','\n').replace("Completed","\nCompleted").split('\n'):
+            # logger.debug("part:%s"%part)
             try:
                 (name,value) = part.split(': ')
             except:
