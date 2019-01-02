@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ else: # > 3.0
     def pickle_load(f):
         return pickle.load(f,encoding="bytes")
 
-version="3.3.8"
+version="3.3.9"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'

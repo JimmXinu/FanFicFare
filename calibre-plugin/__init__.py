@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller'
+__copyright__ = '2019, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import sys, os
@@ -33,7 +33,7 @@ except NameError:
 from calibre.customize import InterfaceActionBase
 
 # pulled out from FanFicFareBase for saving in prefs.py
-__version__ = (3, 3, 8)
+__version__ = (3, 3, 9)
 
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
