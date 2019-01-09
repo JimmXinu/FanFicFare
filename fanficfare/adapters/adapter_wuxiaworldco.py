@@ -57,11 +57,15 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         return 'www.wuxiaworld.co'
 
     @classmethod
+    def getAcceptDomains(cls):
+        return ['www.wuxiaworld.co','m.wuxiaworld.co']
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return 'http://%s/story-name' % cls.getSiteDomain()
 
     def getSiteURLPattern(self):
-        return r'https?://%s/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
+        return r'https?://(www|m)\.wuxiaworld\.co/(?P<id>[^/]+)(/)?'
 
     def use_pagecache(self):
         return True
