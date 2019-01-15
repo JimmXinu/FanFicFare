@@ -224,7 +224,7 @@ def get_valid_set_options():
                'include_author_notes':(['fimfiction.net'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
-               'always_login':(['archiveofourown.org'],None,boollist),
+               'always_login':(['archiveofourown.org']+base_xenforo_list,None,boollist),
                'use_archived_author':(['archiveofourown.org'],None,boollist),
                'use_view_full_work':(['archiveofourown.org'],None,boollist),
 

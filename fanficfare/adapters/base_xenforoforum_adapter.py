@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2018 FanFicFare team
+# Copyright 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -194,6 +194,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         else:
             params['login'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
+
+        if not params['login']:
+            raise exceptions.FailedToLogin(self.url,"No username given.  Set in personal.ini or enter when prompted.")
+
         params['register'] = '0'
         params['cookie_check'] = '1'
         params['_xfToken'] = ''
@@ -328,13 +332,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             useurl = opened.geturl()
             logger.info("use useurl: "+useurl)
         except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            elif e.code == 403:
+            # QQ gives 403, SV at least gives 404.  Which unfortunately
+            if e.code == 403 or self.getConfig('always_login',False):
                 self.performLogin()
                 (data,opened) = self._fetchUrlOpened(useurl)
                 useurl = opened.geturl()
                 logger.info("use useurl: "+useurl)
+            elif e.code == 404:
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise
         if '#' not in useurl and '/posts/' not in useurl:
