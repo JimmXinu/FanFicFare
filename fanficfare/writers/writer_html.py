@@ -146,6 +146,8 @@ ${output_css}
             if chap['html']:
                 chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
+                    # html doesn't need data-orighref because it
+                    # doesn't do updates.
                     soup = bs4.BeautifulSoup(chap['html'],'html5lib')
                     changed=False
                     for alink in soup.find_all('a'):

@@ -700,14 +700,27 @@ div { margin: 0pt; padding: 0pt; }
             CHAPTER_END = self.EPUB_CHAPTER_END
 
         for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
+            logger.debug("chapter:%s %s %s"%(len(chap['html']), chap['title'],chap['url']))
             if chap['html']:
                 chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
                     soup = bs4.BeautifulSoup(chap['html'],'html5lib')
                     changed=False
                     for alink in soup.find_all('a'):
-                        if alink.has_attr('href') and alink['href'] in chapurlmap:
+                        ## Chapters can be inserted in the middle
+                        ## which can break existing internal links.
+                        ## So let's save the original href and update.
+                        logger.debug("found %s"%alink)
+                        if alink.has_attr('data-orighref') and alink['data-orighref'] in chapurlmap:
+                            alink['href']=chapurlmap[alink['data-orighref']]
+                            logger.debug("set1  %s"%alink)
+                            changed=True
+                        elif alink.has_attr('href') and alink['href'] in chapurlmap:
+                            if not alink['href'].startswith('file'):
+                                # only save orig href if not already internal.
+                                alink['data-orighref']=alink['href']
                             alink['href']=chapurlmap[alink['href']]
+                            logger.debug("set2  %s"%alink)
                             changed=True
                     if changed:
                         chap_data = unicode(soup)
@@ -734,6 +747,7 @@ div { margin: 0pt; padding: 0pt; }
                 # (200k+)
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
+                logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
                 outputepub.writestr("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
                 del fullhtml
 

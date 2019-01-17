@@ -451,7 +451,7 @@ class BaseSiteAdapter(Configurable):
         if not fetch:
             fetch=self._fetchUrlRaw
 
-        acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id'])
+        acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id','data-orighref'])
 
         if self.getConfig("keep_style_attr"):
             acceptable_attributes.append('style')
