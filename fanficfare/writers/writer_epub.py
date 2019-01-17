@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -409,7 +409,7 @@ div { margin: 0pt; padding: 0pt; }
         if series and self.getConfig('calibre_series_meta'):
             series_index = "0.0"
             if '[' in series:
-                logger.debug(series)
+                # logger.debug(series)
                 ## assumed "series [series_index]"
                 series_index = series[series.index(' [')+2:-1]
                 series = series[:series.index(' [')]
@@ -700,7 +700,7 @@ div { margin: 0pt; padding: 0pt; }
             CHAPTER_END = self.EPUB_CHAPTER_END
 
         for index, chap in enumerate(self.story.getChapters()): # (url,title,html)
-            logger.debug("chapter:%s %s %s"%(len(chap['html']), chap['title'],chap['url']))
+            # logger.debug("chapter:%s %s %s"%(len(chap['html']), chap['title'],chap['url']))
             if chap['html']:
                 chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
@@ -710,17 +710,17 @@ div { margin: 0pt; padding: 0pt; }
                         ## Chapters can be inserted in the middle
                         ## which can break existing internal links.
                         ## So let's save the original href and update.
-                        logger.debug("found %s"%alink)
+                        # logger.debug("found %s"%alink)
                         if alink.has_attr('data-orighref') and alink['data-orighref'] in chapurlmap:
                             alink['href']=chapurlmap[alink['data-orighref']]
-                            logger.debug("set1  %s"%alink)
+                            # logger.debug("set1  %s"%alink)
                             changed=True
                         elif alink.has_attr('href') and alink['href'] in chapurlmap:
                             if not alink['href'].startswith('file'):
                                 # only save orig href if not already internal.
                                 alink['data-orighref']=alink['href']
                             alink['href']=chapurlmap[alink['href']]
-                            logger.debug("set2  %s"%alink)
+                            # logger.debug("set2  %s"%alink)
                             changed=True
                     if changed:
                         chap_data = unicode(soup)
@@ -728,7 +728,7 @@ div { margin: 0pt; padding: 0pt; }
                         # chapter html--bs4 insists on adding them.
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
 
-                #logger.debug('Writing chapter text for: %s' % chap.title)
+                # logger.debug('Writing chapter text for: %s' % chap.title)
                 chap['url']=removeEntities(chap['url'])
                 chap['chapter']=removeEntities(chap['chapter'])
                 chap['title']=removeEntities(chap['title'])
@@ -747,7 +747,7 @@ div { margin: 0pt; padding: 0pt; }
                 # (200k+)
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
-                logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
+                # logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
                 outputepub.writestr("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
                 del fullhtml
 
