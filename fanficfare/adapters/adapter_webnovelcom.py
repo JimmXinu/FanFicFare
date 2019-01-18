@@ -141,7 +141,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         def parse_meta(mt,label,setmd):
             if label in mt:
-                data = mt.split(label,1)[1].split(u'|', 1)[0].strip()
+                data = mt.split(label,1)[1].split('Translator:', 1)[0].split('Editor:', 1)[0].strip()
                 if data:
                     # print("setting %s to %s"%(setmd, data))
                     self.story.setMetadata(setmd, data)
