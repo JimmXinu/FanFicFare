@@ -327,7 +327,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                             i=1
                             break
                     page = page + 1
-                    if page > pages:
+                    if page > int(pages):
                         break
     
             ##Split the Metadata up into a list
