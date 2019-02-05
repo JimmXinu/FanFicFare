@@ -169,6 +169,7 @@ from . import adapter_wwwnovelallcom
 from . import adapter_wuxiaworldco
 from . import adapter_harrypotterfanfictioncom
 from . import adapter_hentaifoundrycom
+from . import adapter_mugglenetfanfictioncom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
