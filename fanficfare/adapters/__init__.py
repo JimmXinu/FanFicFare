@@ -105,7 +105,6 @@ from . import adapter_sheppardweircom
 from . import adapter_samandjacknet
 from . import adapter_csiforensicscom
 from . import adapter_lotrfanfictioncom
-from . import adapter_fhsarchivecom
 from . import adapter_fanfictionjunkiesde
 from . import adapter_tgstorytimecom
 from . import adapter_itcouldhappennet
