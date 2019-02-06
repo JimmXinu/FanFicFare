@@ -5,7 +5,7 @@
 # Henrik Mattsson-Mårn <h@reglage.net>, 2016
 # J M <JimmXinuTwo@xinu.nu>, 2016
 # Jonatan Nyberg, 2016-2017
-# Jonatan Nyberg, 2018
+# Jonatan Nyberg, 2018-2019
 # Jonatan Nyberg, 2017
 # Kristoffer Grundström <hamnisdude@gmail.com>, 2017
 # Mars Northman <marsnorthman@gmail.com>, 2017
@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2018-12-25 23:36+Central Standard Time\n"
-"PO-Revision-Date: 2018-12-26 15:26+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-01-12 03:45+0000\n"
+"Last-Translator: Jonatan Nyberg\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -60,33 +60,33 @@ msgstr "Rensa alla inställningar för detta tillägg"
 
 #: common_utils.py:520
 msgid "Edit"
-msgstr ""
+msgstr "Redigera"
 
 #: common_utils.py:522
 msgid "Edit settings."
-msgstr ""
+msgstr "Redigera inställningar."
 
 #: common_utils.py:525
 msgid "Save"
-msgstr ""
+msgstr "Spara"
 
 #: common_utils.py:527
 msgid "Save setting for this plugin"
-msgstr ""
+msgstr "Spara inställning för denna insticksmodul"
 
 #: common_utils.py:555
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr ""
+msgstr "Är du säker på att du vill redigera inställningar i detta bibliotek för denna insticksmodul?"
 
 #: common_utils.py:556
 msgid "The FanFicFare team does not support hand edited configurations."
-msgstr ""
+msgstr "Fanficfare-teamet stöder inte handredigerade konfigurationer."
 
 #: common_utils.py:564
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr ""
+msgstr "Är du säker på att du vill spara den här inställningen i det här biblioteket för denna insticksmodul?"
 
 #: common_utils.py:565 common_utils.py:593
 msgid ""
@@ -100,7 +100,7 @@ msgstr "Du måste starta om calibre efteråt."
 
 #: common_utils.py:574
 msgid "All settings for this plugin in this library have been saved."
-msgstr ""
+msgstr "Alla inställningar för denna insticksmodul i detta bibliotek har sparats."
 
 #: common_utils.py:575 common_utils.py:604
 msgid "Please restart calibre now."
@@ -2207,7 +2207,7 @@ msgstr ""
 
 #: fff_plugin.py:2409
 msgid "Same story already included."
-msgstr ""
+msgstr "Samma berättelse ingår redan."
 
 #: fff_plugin.py:2466
 msgid "No story URL found."
@@ -2247,7 +2247,7 @@ msgstr "Hämtar FanFiction-berättelser"
 
 #: jobs.py:90
 msgid "%d of %d stories finished downloading"
-msgstr ""
+msgstr "%d av %d berättelser slutade hämtas"
 
 #: jobs.py:102
 msgid "Download Results:"

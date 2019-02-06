@@ -5,13 +5,14 @@
 # carolsantosss <carolinesantosss@gmail.com>, 2015
 # Paulo_Neto <layoutbr@lexxa.com.br>, 2014-2015,2017
 # Patricia Tufanetto <ptufanetto@gmail.com>, 2018
+# Paulo Márcio da Hora <paulomhora@gmail.com>, 2019
 # Wagner Marques <wagnermarques00@hotmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2018-12-25 23:36+Central Standard Time\n"
-"PO-Revision-Date: 2018-12-29 02:44+0000\n"
-"Last-Translator: Patricia Tufanetto <ptufanetto@gmail.com>\n"
+"PO-Revision-Date: 2019-01-10 08:31+0000\n"
+"Last-Translator: Paulo Márcio da Hora <paulomhora@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/calibre/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -328,7 +329,7 @@ msgstr ""
 
 #: config.py:548
 msgid "Calculate Word Count:"
-msgstr ""
+msgstr "Calcular Contagem de Palavras:"
 
 #: config.py:561
 msgid "Automatically Convert new/update books?"
@@ -766,7 +767,7 @@ msgstr "Qual coluna e algoritmo será usado são configurados em %(cp)s."
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
-msgstr ""
+msgstr "Substituirá a contagem de palavras de metadados do FFF se configurado para atualizar a mesma coluna personalizada."
 
 #: config.py:1168
 msgid ""
@@ -930,7 +931,7 @@ msgstr "Abreviação do Site"
 
 #: config.py:1307
 msgid "FanFicFare Version"
-msgstr ""
+msgstr "Versão do FanFicFare"
 
 #: config.py:1322
 msgid ""
@@ -1060,7 +1061,7 @@ msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
-msgstr ""
+msgstr "As colunas padrão de metadados do calibre estão listadas abaixo. Você pode escolher se o FanFicFare irá preencher cada coluna automaticamente nas atualizações ou apenas para novos livros. "
 
 #: config.py:1487
 msgid ""
@@ -1156,7 +1157,7 @@ msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr ""
+msgstr "Essas configurações permitirão ao FanFicFare buscar URL's de histórias da sua conta de e-mail. Ele só procurará URL's de histórias nos e-mails não lidos na pasta especificada abaixo. "
 
 #: config.py:1561
 msgid "IMAP Server Name"
@@ -1184,7 +1185,7 @@ msgstr "Senha do usuário IMAP"
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
-msgstr ""
+msgstr "Senha IMAP. Se deixado vazio, FanFicFare irá te perguntar a senha quando você utilizar o recurso. "
 
 #: config.py:1592
 msgid "Remember Password for Session (when not saved above)"
@@ -1194,7 +1195,7 @@ msgstr "Lembrar senha para a seção (quando não salvo acima)"
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
-msgstr ""
+msgstr "Se marcado, e nenhuma a senha foi inserida acima, o FanFicFare lembrará a senha até você fechar o calibre ou mudar as Bibliotecas. "
 
 #: config.py:1598
 msgid "IMAP Folder Name"
@@ -1255,7 +1256,7 @@ msgid ""
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
 "malicious code cannot get your email password once you've entered it. "
 "<br>Use this feature at your own risk. </b>"
-msgstr ""
+msgstr "<b> É mais seguro criar um e-mail separado para você utilizar somente para suas notificações de atualização de histórias. FanFicFare e calibre não garantem que códigos maliciosos não possam pegar a senha de seu e-mail uma vez que você o digitou. <br>Use este recurso por sua conta e risco. </b>"
 
 #: dialogs.py:269 dialogs.py:828
 msgid "Show Download Options"
@@ -1292,7 +1293,7 @@ msgstr "Atualizar imagem da capa do livro do site ou padrões (se encontrado) <i
 
 #: dialogs.py:398
 msgid "Story URLs for anthology, one per line:"
-msgstr ""
+msgstr "URL(s) de história de antologia, uma por linha:"
 
 #: dialogs.py:399
 msgid ""
@@ -1312,7 +1313,7 @@ msgstr "O que fazer se já existe uma história com a mesma URL na antologia."
 
 #: dialogs.py:410
 msgid "Story URLs, one per line:"
-msgstr ""
+msgstr "URL(s) de história, uma por linha:"
 
 #: dialogs.py:411
 msgid ""
@@ -1439,7 +1440,7 @@ msgstr "menos de 1 segundo"
 
 #: dialogs.py:765 fff_plugin.py:387 fff_plugin.py:390
 msgid "About FanFicFare"
-msgstr ""
+msgstr "Sobre o FanFicFare"
 
 #: dialogs.py:819
 msgid "Remove selected books from the list"
@@ -1652,11 +1653,11 @@ msgstr "Rejeitar livros selecionados"
 
 #: fff_plugin.py:381
 msgid "&Configure FanFicFare"
-msgstr ""
+msgstr "Configurar o FanFictionFare"
 
 #: fff_plugin.py:384
 msgid "Configure FanFicFare"
-msgstr ""
+msgstr "Configurar o FanFictionFare"
 
 #: fff_plugin.py:439
 msgid "Cannot Update Reading Lists from Device View"
@@ -1668,7 +1669,7 @@ msgstr "Nenhum livro selecionado para atualizar nas listas de leitura"
 
 #: fff_plugin.py:453
 msgid "FanFicFare Email Settings are not configured."
-msgstr ""
+msgstr "As Opções de E-mail do FFF não estão configuradas."
 
 #: fff_plugin.py:473
 msgid "Fetching Story URLs from Email..."
@@ -2063,7 +2064,7 @@ msgstr "Ruim"
 
 #: fff_plugin.py:1518 fff_plugin.py:1524
 msgid "FanFicFare download ended"
-msgstr ""
+msgstr "O FanFicFare finalizou a transferência"
 
 #: fff_plugin.py:1518 fff_plugin.py:1524 fff_plugin.py:1769 fff_plugin.py:1775
 msgid "FanFicFare log"
@@ -2247,7 +2248,7 @@ msgstr ""
 
 #: jobs.py:102
 msgid "Download Results:"
-msgstr ""
+msgstr "Resultados das Transferências:"
 
 #: jobs.py:104
 msgid "Successful:"
