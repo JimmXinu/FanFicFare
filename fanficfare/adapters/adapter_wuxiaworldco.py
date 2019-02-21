@@ -50,7 +50,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
         story_id = match.group('id')
         self.story.setMetadata('storyId', story_id)
-        self._setURL('http://%s/%s/' % (self.getSiteDomain(), story_id))
+        self._setURL('https://%s/%s/' % (self.getSiteDomain(), story_id))
 
     @staticmethod
     def getSiteDomain():
@@ -62,7 +62,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return 'http://%s/story-name' % cls.getSiteDomain()
+        return 'https://%s/story-name' % cls.getSiteDomain()
 
     def getSiteURLPattern(self):
         return r'https?://(www|m)\.wuxiaworld\.co/(?P<id>[^/]+)(/)?'
