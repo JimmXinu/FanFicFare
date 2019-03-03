@@ -19,7 +19,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-from ..htmlcleanup import stripHTML
+from ..htmlcleanup import stripHTML, removeAllEntities
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
@@ -115,10 +115,23 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 chapter_words+=int(tdstr)
                 ## used below if total words from site not found
 
-        ## Finding the metadata is a bit of a pain.  Desc is the only thing this color.
-        desctable= soup.find('table',{'bgcolor':'#f0e8e8'})
-        #self.setDescription(url,desctable)
-        #self.story.setMetadata('description',stripHTML(desctable))
+        # fetch author page to get story description.
+        authorsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+
+        # assumes don't need to worry about story URLs in descs.
+        storya = authorsoup.find('a', href=re.compile(r"^/viewstory.php\?psid="+self.story.getMetadata('storyId')))
+        storydiv = storya.find_parent('div')
+
+        # desc is escaped html in attr on iframe.
+        iframe = storydiv.find('iframe')
+        iframesrc = removeAllEntities(iframe['srcdoc'])
+        # logger.debug(iframesrc)
+        descsoup=self.make_soup(iframesrc)
+        desc = descsoup.body
+        desc.name='div'   # change body tag to div
+        del desc['class'] # clear class='iframe'
+        # logger.debug(desc.body)
+        self.setDescription(url,desc)
 
         # <div class='entry'>
         # <div class='entry__key'>Rating</div>
@@ -129,6 +142,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             'Rating':'rating',
             'Words':'numWords',
             'Characters':'characters',
+            'Primary Relationship':'ships',
+            'Secondary Relationship(s)':'ships',
             'Genre(s)':'genre',
             'Era':'era',
             'Advisory':'warnings',
@@ -144,7 +159,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             if meta:
                 if meta.startswith('date'):
                     value = makeDate(value,self.dateformat)
-                if meta in ('characters','genre'):
+                if meta in ('characters','genre','ships'):
                     self.story.extendList(meta,value.split(','))
                 else:
                     self.story.setMetadata(meta,value)
