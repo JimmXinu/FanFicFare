@@ -34,16 +34,32 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','fichunt')
 
-        # get storyId from url--url validation guarantees second part is storyId
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
-        # normalized story URL.
-        self._setURL("http://"+self.getSiteDomain()\
-                         +"/read/"+self.story.getMetadata('storyId')+"/1")
+        ## new types:
+        ## https://fictionhunt.com/stories/7edm248/the-last-of-his-kind/chapters/1
+        ## https://fictionhunt.com/stories/89kzg4z/the-last-of-his-kind-new
+        ## old type:
+        ## http://fictionhunt.com/read/12411643/1
+        # get storyId from url--url validation guarantees query correct
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            # logger.debug(m.groupdict())
+            self.story.setMetadata('storyId',m.group('id'))
+            if m.group('type') == "stories": # newer URL
+                # normalized story URL.
+                self._setURL("https://"+self.getSiteDomain()\
+                                 +"/stories/"+self.story.getMetadata('storyId')+"/"+ (m.group('title') or ""))
+            else:
+                self._setURL("https://"+self.getSiteDomain()\
+                                 +"/read/"+self.story.getMetadata('storyId')+"/1")
+            # logger.debug(self.url)
+        else:
+            raise exceptions.InvalidStoryURL(url,
+                                             self.getSiteDomain(),
+                                             self.getSiteExampleURLs())
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d-%m-%Y"
+        self.dateformat = "%d %b %Y"
 
     @staticmethod
     def getSiteDomain():
@@ -51,10 +67,13 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://fictionhunt.com/read/1234/1"
+        return "https://fictionhunt.com/stories/1a1a1a/story-title http://fictionhunt.com/read/1234/1"
 
     def getSiteURLPattern(self):
-        return r"http://(www.)?fictionhunt.com/read/\d+(/\d+)?(/|/[^/]+)?/?$"
+        ## https://fictionhunt.com/stories/7edm248/the-last-of-his-kind/chapters/1
+        ## https://fictionhunt.com/stories/89kzg4z/the-last-of-his-kind-new
+        ## http://fictionhunt.com/read/12411643/1
+        return r"https?://(www.)?fictionhunt.com/(?P<type>read|stories)/(?P<id>[0-9a-z]+)(/(?P<title>[^/]+))?(/|/[^/]+)*/?$"
 
     def use_pagecache(self):
         '''
@@ -71,70 +90,95 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
+            soup = self.make_soup(data)
+
+            ## detect old storyUrl, switch to new storyUrl:
+            canonlink = soup.find('link',rel='canonical')
+            if canonlink:
+                # logger.debug(canonlink)
+                canonlink = re.sub(r"/chapters/\d+","",canonlink['href'])
+                # logger.debug(canonlink)
+                self._setURL(canonlink)
+                url = self.url
+                data = self._fetchUrl(url)
+                soup = self.make_soup(data)
+            else:
+                # in case title changed
+                self._setURL(soup.select_one("div.Story__details a")['href'])
+                url = self.url
+
+
         except HTTPError as e:
             if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.meta)
+                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        soup = self.make_soup(data)
+        self.story.setMetadata('title',stripHTML(soup.find('h1',{'class':'Story__title'})))
 
-        self.story.setMetadata('title',stripHTML(soup.find('div',{'class':'title'})).strip())
+        summhead = soup.find('h5',text='Summary')
+        self.setDescription(url,summhead.find_next('div'))
 
-        self.setDescription(url,'<i>(Story descriptions not available on fictionhunt.com)</i>')
+        ## author:
+        autha = soup.find('div',{'class':'StoryContents__meta'}).find('a') # first a in StoryContents__meta
+        self.story.setMetadata('authorId',autha['href'].split('/')[4])
+        self.story.setMetadata('authorUrl',autha['href'])
+        self.story.setMetadata('author',autha.string)
 
-        # Find authorid and URL from... author url.
-        # fictionhunt doesn't have author pages, use ffnet original author link.
-        a = soup.find('a', href=re.compile(r"fanfiction.net/u/\d+"))
-        self.story.setMetadata('authorId',a['href'].split('/')[-1])
-        self.story.setMetadata('authorUrl','https://www.fanfiction.net/u/'+self.story.getMetadata('authorId'))
-        self.story.setMetadata('author',a.string)
+        ## need author page for some metadata.
+        authsoup = None
+        authpagea = autha
+        authstorya = None
+
+        ## find story url, might need to spin through author's pages.
+        while authpagea and not authstorya:
+            # logger.debug(authpagea)
+            authsoup = self.make_soup(self._fetchUrl(authpagea['href']))
+            authpagea = authsoup.find('a',{'class':'page-link','rel':'next'})
+            authstorya = authsoup.select('h4.Story__item-title a[href=%s]'%self.url)
+
+        if not authstorya:
+            raise exceptions.FailedToDownload("Error finding %s on author page(s)" % self.url)
+
+        meta = authstorya[0].parent.parent.select("div.Story__meta-info")[0]
+        ## remove delimiters
+        for span in authstorya[0].parent.parent.select("div.Story__meta-info span.delimiter"):
+            span.extract()
+        meta.find('span').extract() # discard author link
+
+        update = stripHTML(meta.find('span').extract()).split(':')[1].strip()
+        self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
+
+        pubdate = stripHTML(meta.find('span').extract()).split(':')[1].strip()
+        self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
+
+        meta=meta.text.split()
+        self.story.setMetadata('numWords',meta[meta.index('words')-1])
+        self.story.setMetadata('rating',meta[meta.index('Rating:')+1])
+        # logger.debug(meta)
 
         # Find original ffnet URL
-        a = soup.find('a', href=re.compile(r"fanfiction.net/s/\d+"))
+        a = soup.find('a', text="Source")
         self.story.setMetadata('origin',stripHTML(a))
         self.story.setMetadata('originUrl',a['href'])
 
-        # Fleur D. & Harry P. & Hermione G. & Susan B. - Words: 42,848 - Rated: M - English - None - Chapters: 9 - Reviews: 248 - Updated: 21-09-2016 - Published: 16-05-2015 - by Elven Sorcerer (FFN)
-        # None - Words: 13,087 - Rated: M - English - Romance & Supernatural - Chapters: 3 - Reviews: 5 - Updated: 21-09-2016 - Published: 20-09-2016
-        # Harry P. & OC - Words: 10,910 - Rated: M - English - None - Chapters: 5 - Reviews: 6 - Updated: 21-09-2016 - Published: 11-09-2016
-        # Dudley D. & Harry P. & Nagini & Vernon D. - Words: 4,328 - Rated: K+ - English - None - Chapters: 2 - Updated: 21-09-2016 - Published: 20-09-2016 -
-        details = soup.find('div',{'class':'details'})
-
-        detail_re = \
-            r'(?P<characters>.+) - Words: (?P<numWords>[0-9,]+) - Rated: (?P<rating>[a-zA-Z\\+]+) - (?P<language>.+) - (?P<genre>.+)'+ \
-            r' - Chapters: (?P<numChapters>[0-9,]+)( - Reviews: (?P<reviews>[0-9,]+))? - Updated: (?P<dateUpdated>[0-9-]+)'+ \
-            r' - Published: (?P<datePublished>[0-9-]+)(?P<completed> - Complete)?'
-
-        details_dict = re.match(detail_re,stripHTML(details)).groupdict()
-
-        # lists
-        for meta in ('characters','genre'):
-            if details_dict[meta] != 'None':
-                self.story.extendList(meta,details_dict[meta].split(' & '))
-
-        # scalars
-        for meta in ('numWords','numChapters','rating','language','reviews'):
-            self.story.setMetadata(meta,details_dict[meta])
-
-        # dates
-        for meta in ('datePublished','dateUpdated'):
-            self.story.setMetadata(meta, makeDate(details_dict[meta], self.dateformat))
-
-        # status
-        if details_dict['completed']:
+        datesdiv = soup.find('div',{'class':'dates'})
+        if stripHTML(datesdiv.find('label')) == 'Completed' : # first label is status.
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        # It's assumed that the number of chapters is correct.
-        # There's no complete list of chapters, so the only
-        # alternative is to get the num of chaps from the last
-        # indiated chapter list instead.
-        for i in range(1,1+int(self.story.getMetadata('numChapters'))):
-            self.add_chapter("Chapter "+unicode(i),"http://"+self.getSiteDomain()\
-                                 +"/read/"+self.story.getMetadata('storyId')+"/%s"%i)
+        for a in soup.select("div.genres a"):
+            self.story.addToList('genre',stripHTML(a))
+
+        for a in soup.select("section.characters li.Tags__item a"):
+            self.story.addToList('characters',stripHTML(a))
+
+        for a in soup.select('a[href*="pairings="]'):
+            self.story.addToList('ships',stripHTML(a).replace("+","/"))
+
+        for chapa in soup.select('ul.StoryContents__chapters a'):
+            self.add_chapter(stripHTML(chapa.find('span',{'class':'chapter-title'})),chapa['href'])
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
@@ -142,7 +186,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
-        div = soup.find('div', {'class' : 'text'})
+        div = soup.find('div', {'class' : 'StoryChapter__text'})
 
         return self.utf8FromSoup(url,div)
 
