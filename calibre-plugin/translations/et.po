@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2018-12-25 23:36+Central Standard Time\n"
-"PO-Revision-Date: 2019-01-17 03:58+0000\n"
+"PO-Revision-Date: 2019-03-03 19:13+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -1077,18 +1077,18 @@ msgstr "Kui märgistatud, siis kasutatakse pealkirja muutmata kujul ka pealkirja
 
 #: config.py:1498
 msgid "Fix Title Case?"
-msgstr ""
+msgstr "Paranda pealkirjade suurtähestus?"
 
 #: config.py:1499
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
-msgstr ""
+msgstr "Kui märgistatud, rakendatakse pealkirjade suurtähestuse parandamiseks Calibre rutiini."
 
 #: config.py:1500 config.py:1511
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
-msgstr ""
+msgstr "See mõjutab ainult Calibre metaandmeid, mitte FanFicFare'i metaandmeid tiitellehel."
 
 #: config.py:1504
 msgid "Force Author into Author Sort?"
@@ -1102,19 +1102,19 @@ msgstr "Kui märgistatud, siis kasutatakse autori(te) nimesid muutmata kujul ka 
 
 #: config.py:1508
 msgid "Fix Author Case?"
-msgstr ""
+msgstr "Paranda autorite suurtähestus?"
 
 #: config.py:1509
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
-msgstr ""
+msgstr "Kui märgistatud, rakendatakse autorinimede suurtähestuse parandamiseks Calibre rutiini."
 
 #: config.py:1510
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
-msgstr ""
+msgstr "Calibre jätab meelde kõik kogus olevad autorid; autorinime suurtähestuse muutmine ühes raamatus mõjutab kõiki selle autori raamatuid."
 
 #: config.py:1522
 msgid "Other Standard Column Options"

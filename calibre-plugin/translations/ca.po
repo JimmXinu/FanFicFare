@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Adolfo Jayme Barrientos, 2014
+# Adolfo Jayme-Barrientos, 2014
 # jmontane, 2014
 # Queralt Iglesias <queralt.ig92@gmail.com>, 2016
 # Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>, 2016-2017
