@@ -180,6 +180,9 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         for chapa in soup.select('ul.StoryContents__chapters a'):
             self.add_chapter(stripHTML(chapa.find('span',{'class':'chapter-title'})),chapa['href'])
 
+        if self.num_chapters() == 0:
+            raise exceptions.FailedToDownload("Story at %s has no chapters." % self.url)
+
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
         data = self._fetchUrl(url)
