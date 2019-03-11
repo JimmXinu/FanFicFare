@@ -353,15 +353,20 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if universe_soup:
                     logger.debug("Retrieving Universe - looking for name")
                     universe_name = stripHTML(universe_soup.find('h1', {'id' : 'ptitle'}))
-                    universe_name = re.sub(r' . A Universe from the Mind.*$','',universe_name)
+                    universe_name = re.sub(r' .\s+A Universe from the Mind.*$','',universe_name)
                     # logger.debug("Universes name: '{0}'".format(universe_name))
 
                 self.story.setMetadata('universeUrl',universeUrl)
                 # logger.debug("Setting universe name: '{0}'".format(universe_name))
                 self.story.setMetadata('universe',universe_name)
-                if self.getConfig("universe_as_series"):
-                    self.setSeries(universe_name, 0)
-                    self.story.setMetadata('seriesUrl',universeUrl)
+                if self.getConfig("universe_as_series") and not self.story.getMetadata('seriesUrl'):
+                    logger.debug("universe_as_series")
+                    # take position in universe page as number in series.
+                    for i, storya in enumerate(universe_soup.find_all('a',href=re.compile(r'^/s/\d+/'))):
+                        if storya['href'].split('/')[2] == self.story.getMetadata('storyId'):
+                            self.setSeries(universe_name, i+1)
+                            self.story.setMetadata('seriesUrl',universeUrl)
+                            break
             else:
                 logger.debug("Do not have a universe")
         except:
