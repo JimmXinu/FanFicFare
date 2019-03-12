@@ -92,31 +92,31 @@ def main(argv=None,
     if not parser:
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
-                      help='write story as FORMAT, epub(default), mobi, txt or html', metavar='FORMAT')
+                      help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
     if passed_defaultsini:
-        config_help = 'read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
+        config_help = 'Read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
     else:
-        config_help = 'read config from specified file(s) in addition to ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
+        config_help = 'Read config from specified file(s) in addition to ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
     parser.add_option('-c', '--config',
                       action='append', dest='configfile', default=None,
                       help=config_help, metavar='CONFIG')
     range_help = '  --begin and --end will be overridden by a chapter range on the STORYURL like STORYURL[1-2], STORYURL[-3], STORYURL[3-] or STORYURL[3]'
     parser.add_option('-b', '--begin', dest='begin', default=None,
-                      help='Begin with Chapter START.'+range_help, metavar='START')
+                      help='Begin story with Chapter START.'+range_help, metavar='START')
     parser.add_option('-e', '--end', dest='end', default=None,
-                      help='End with Chapter END.'+range_help, metavar='END')
+                      help='End story with Chapter END.'+range_help, metavar='END')
     parser.add_option('-o', '--option',
                       action='append', dest='options',
-                      help='set an option NAME=VALUE', metavar='NAME=VALUE')
+                      help='Set config option NAME=VALUE  Overrides config file setting.', metavar='NAME=VALUE')
     parser.add_option('-m', '--meta-only',
                       action='store_true', dest='metaonly',
-                      help='Retrieve metadata and stop.  Or, if --update-epub, update metadata title page only.', )
+                      help='Retrieve and write metadata to stdout without downloading or saving chapters; saves story file with titlepage only. (See also --json-meta)', )
     parser.add_option('-z', '--no-meta-chapters',
                       action='store_true', dest='nometachapters',
-                      help='Exclude list of chapters("zchapters") from metadata dump.  No effect without --meta-only flag', )
-    parser.add_option('--json-meta',
+                      help='Exclude list of chapters("zchapters") from metadata stdout output.  No effect without --meta-only or --json-meta flags', )
+    parser.add_option('-j', '--json-meta',
                       action='store_true', dest='jsonmeta',
-                      help='When used with --meta-only, output metadata as JSON.  No effect without --meta-only flag', )
+                      help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
@@ -460,14 +460,6 @@ def do_download(arg,
                 write_story(configuration, adapter, 'epub')
 
         else:
-            # regular download
-            if options.metaonly:
-                metadata = adapter.getStoryMetadataOnly().getAllMetadata()
-                if not options.nometachapters:
-                    metadata['zchapters'] = []
-                    for i, chap in enumerate(adapter.get_chapters()):
-                        metadata['zchapters'].append((i+1,chap))
-
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
                 if adapter.getConfig('pre_process_safepattern'):
                     metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
@@ -477,14 +469,14 @@ def do_download(arg,
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
 
-            if options.metaonly:
+            if options.metaonly and not options.jsonmeta:
+                metadata = adapter.getStoryMetadataOnly().getAllMetadata()
                 metadata['output_filename'] = output_filename
-                if options.jsonmeta:
-                    import json
-                    print(json.dumps(metadata, sort_keys=True,
-                                     indent=2, separators=(',', ':')))
-                else:
-                    pprint.pprint(metadata)
+                if not options.nometachapters:
+                    metadata['zchapters'] = []
+                    for i, chap in enumerate(adapter.get_chapters()):
+                        metadata['zchapters'].append((i+1,chap))
+                pprint.pprint(metadata)
 
         if not options.metaonly and adapter.getConfig('post_process_cmd'):
             if adapter.getConfig('post_process_safepattern'):
@@ -493,6 +485,17 @@ def do_download(arg,
                 metadata = adapter.story.getAllMetadata()
             metadata['output_filename'] = output_filename
             call(string.Template(adapter.getConfig('post_process_cmd')).substitute(metadata), shell=True)
+
+        if options.jsonmeta:
+            metadata = adapter.getStoryMetadataOnly().getAllMetadata()
+            metadata['output_filename'] = output_filename
+            if not options.nometachapters:
+                metadata['zchapters'] = []
+                for i, chap in enumerate(adapter.get_chapters()):
+                    metadata['zchapters'].append((i+1,chap))
+            import json
+            print(json.dumps(metadata, sort_keys=True,
+                             indent=2, separators=(',', ':')))
 
         del adapter
 
