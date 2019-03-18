@@ -67,7 +67,7 @@ class DestinysGatewayComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=").replace("www\.",r"(www\.)?")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
