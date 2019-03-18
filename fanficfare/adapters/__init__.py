@@ -65,6 +65,7 @@ from . import adapter_walkingtheplankorg
 from . import adapter_dokugacom
 from . import adapter_iketernalnet
 from . import adapter_storiesofardacom
+from . import adapter_destinysgatewaycom
 from . import adapter_ncisfictioncom
 from . import adapter_fanfiktionde
 from . import adapter_ponyfictionarchivenet
