@@ -69,7 +69,6 @@ from . import adapter_destinysgatewaycom
 from . import adapter_ncisfictioncom
 from . import adapter_fanfiktionde
 from . import adapter_ponyfictionarchivenet
-from . import adapter_ncisficcom
 from . import adapter_themasquenet
 from . import adapter_pretendercentrecom
 from . import adapter_darksolaceorg
