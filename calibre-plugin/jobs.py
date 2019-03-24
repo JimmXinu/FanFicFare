@@ -117,8 +117,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
     from calibre_plugins.fanficfare_plugin import FanFicFareBase
     fffbase = FanFicFareBase(options['plugin_path'])
-    with fffbase:
-
+    with fffbase: # so the sys.path was modified while loading the
+                  # plug impl.
         from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
                 OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
         from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
@@ -128,7 +128,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
         try:
             ## No need to download at all.  Can happen now due to
-            ## collision moving into bookfor CALIBREONLY changing to
+            ## collision moving into book for CALIBREONLY changing to
             ## ADDNEW when story URL not in library.
             if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL):
                 logger.info("Skipping CALIBREONLY 'update' down inside worker")
