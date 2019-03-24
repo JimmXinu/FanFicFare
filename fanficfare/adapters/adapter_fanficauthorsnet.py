@@ -240,15 +240,15 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
             # Status: Completed - Rating: Everyone - Chapters: 1 - Word count: 876 - Genre: Sorrow
             # Status: In progress - Rating: Mature - Chapters: 39 - Word count: 314,544 - Genre: Drama - Romance
             div = soup.find('div',{'class':'well'})
-            logger.debug(div.find_all('p')[1])
+            # logger.debug(div.find_all('p')[1])
             metaline = re.sub(r' +',' ',stripHTML(div.find_all('p')[1]).replace('\n',' '))
-            logger.debug(metaline)
+            # logger.debug(metaline)
             match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: (?P<genre>.+?)$",metaline)
             if match:
-                logger.debug(match.group('status'))
-                logger.debug(match.group('rating'))
-                logger.debug(match.group('numWords'))
-                logger.debug(match.group('genre'))
+                # logger.debug(match.group('status'))
+                # logger.debug(match.group('rating'))
+                # logger.debug(match.group('numWords'))
+                # logger.debug(match.group('genre'))
                 if "Completed" in match.group('status'):
                     self.story.setMetadata('status',"Completed")
                 else:
