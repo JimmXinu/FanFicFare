@@ -978,7 +978,7 @@ class Configuration(configparser.SafeConfigParser):
                                              "iso-8859-1"])
         for code in decode:
             try:
-                #print(code)
+                logger.debug("Encoding:%s"%code)
                 errors=None
                 if ':' in code:
                     (code,errors)=code.split(':')
