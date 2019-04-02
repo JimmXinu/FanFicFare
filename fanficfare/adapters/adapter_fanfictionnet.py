@@ -110,7 +110,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if "Unable to locate story" in data:
+        if "Unable to locate story" in data or "Story Not Found" in data:
             raise exceptions.StoryDoesNotExist(url)
 
         # some times "Chapter not found...", sometimes "Chapter text
