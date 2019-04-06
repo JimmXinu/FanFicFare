@@ -192,7 +192,7 @@ def cleanup_url(href,email=False):
         ## only sent for thread updates, I believe.  Email only so
         ## get_urls_from_page can still get post URLs.
         href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?",r"/",href)
-    elif 'clicktracker.royalroad' in href:
+    elif 'click' in href and 'royalroad' in href: # they've changed the domain at least once
         logger.debug(href)
         from .six.moves.urllib.request import build_opener
         opener = build_opener()
