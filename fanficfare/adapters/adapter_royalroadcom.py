@@ -207,8 +207,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         for label in [stripHTML(a) for a in soup.find_all('span', {'class':'label'})]:
             if 'COMPLETED' == label:
                 self.story.setMetadata('status', 'Completed')
-            elif ('ONGOING' == label) or ('HIATUS' == label):
+            elif 'ONGOING' == label:
                 self.story.setMetadata('status', 'In-Progress')
+            elif 'HIATUS' == label:
+                self.story.setMetadata('status', 'Hiatus')
             elif 'Fan Fiction' == label:
                 self.story.addToList('category', 'FanFiction')
             elif 'Original' == label:
