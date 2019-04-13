@@ -662,6 +662,9 @@ class Story(Configurable):
                 #logger.debug("k:%s v:%s"%(k,v))
                 # force ints/floats to strings.
                 val = "<ul>\n<li>%s</li>\n</ul>" % "</li>\n<li>".join([ "%s"%x for x in v ])
+            elif isinstance(v, (bool)):
+                classes.append("bool")
+                val = v
             elif isinstance(v, (int)):
                 classes.append("int")
                 val = v
@@ -698,7 +701,15 @@ class Story(Configurable):
                 for i in tag.find_all('li'):
                     val.append(i.string)
             elif 'int' in tag['class']:
-                val = int(tag.string)
+                # Python reports true when asked isinstance(<bool>, (int))
+                if tag.string in ('True','False'):
+                    # because bool('False') == True.  WTF python?
+                    val = tag.string == 'True'
+                else:
+                    val = int(tag.string)
+            elif 'bool' in tag['class']:
+                # because bool('False') == True.  WTF python?
+                val = tag.string == 'True'
             else:
                 val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
 
