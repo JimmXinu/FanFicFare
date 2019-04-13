@@ -189,6 +189,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             # actual login so we don't have a case where these show up
             # for a user only when they get user-restricted stories.
             try:
+                # is bookmarked if has update /bookmarks/ form --
+                # create bookmark form uses different url
+                self.story.setMetadata('bookmarked',
+                                       None != metasoup.find('form',action=re.compile(r'^/bookmarks/')))
                 self.story.extendList('bookmarktags',
                                       metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
                 self.story.setMetadata('bookmarkprivate',
