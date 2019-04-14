@@ -502,9 +502,13 @@ class Story(Configurable):
 
     def setMetadata(self, key, value, condremoveentities=True):
 
-        # delete
+        # delete cached replace'd value.
         if key in self.processed_metadata_cache:
             del self.processed_metadata_cache[key]
+        # Fixing everything downstream to handle bool primatives is a
+        # pain.
+        if isinstance(value,bool):
+            value = unicode(value)
         # keep as list type, but set as only value.
         if self.isList(key):
             self.addToList(key,value,condremoveentities=condremoveentities,clear=True)
@@ -587,7 +591,9 @@ class Story(Configurable):
         retlist = [value]
         for replaceline in self.replacements:
             (repl_line,metakeys,regexp,replacement,cond_match) = replaceline
-            #print("replacement tuple:%s"%replaceline)
+            # logger.debug("replacement tuple:%s"%replaceline)
+            # logger.debug("key:%s value:%s"%(key,value))
+            # logger.debug("value class:%s"%value.__class__.__name__)
             if (metakeys == None or key in metakeys) \
                     and isinstance(value,basestring) \
                     and regexp.search(value):
@@ -663,9 +669,6 @@ class Story(Configurable):
                 #logger.debug("k:%s v:%s"%(k,v))
                 # force ints/floats to strings.
                 val = "<ul>\n<li>%s</li>\n</ul>" % "</li>\n<li>".join([ "%s"%x for x in v ])
-            elif isinstance(v, (bool)):
-                classes.append("bool")
-                val = v
             elif isinstance(v, (int)):
                 classes.append("int")
                 val = v
@@ -703,14 +706,11 @@ class Story(Configurable):
                     val.append(i.string)
             elif 'int' in tag['class']:
                 # Python reports true when asked isinstance(<bool>, (int))
+                # bools now converted to unicode when set.
                 if tag.string in ('True','False'):
-                    # because bool('False') == True.  WTF python?
-                    val = tag.string == 'True'
+                    val = tag.string
                 else:
                     val = int(tag.string)
-            elif 'bool' in tag['class']:
-                # because bool('False') == True.  WTF python?
-                val = tag.string == 'True'
             else:
                 val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
 
