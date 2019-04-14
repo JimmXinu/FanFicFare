@@ -649,6 +649,7 @@ class Story(Configurable):
     def dump_html_metadata(self):
         lines=[]
         for k,v in sorted(six.iteritems(self.metadata)):
+            #logger.debug("k:%s v:%s"%(k,v))
             classes=['metadata']
             if isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
                 classes.append("datetime")
@@ -714,7 +715,7 @@ class Story(Configurable):
                 val = unicode("\n".join([ unicode(c) for c in tag.contents ]))
 
             #logger.debug("key(%s)=val(%s)"%(tag['id'],val))
-            if val:
+            if val != None:
                 self.metadata[tag['id']]=val
 
         # self.metadata = json.loads(s, object_hook=datetime_decoder)
