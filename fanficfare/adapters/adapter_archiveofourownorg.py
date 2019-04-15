@@ -422,6 +422,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             new_tag = save_chapter_soup.new_tag(tag)
             new_tag.string=string
             elem.append(new_tag)
+            return new_tag
 
         ## These are the over-all work's 'Notes at the beginning'.
         ## They only appear on the first chapter in individual chapter
@@ -476,6 +477,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 append_tag(save_chapter,'b',"Notes for the Chapter:")
                 save_chapter.append(chapfoot)
 
+        skip_on_update_tags = []
         ## These are the over-all work's 'Notes at the end'.
         ## They only appear on the last chapter in individual chapter
         ## pages and after chapter-# div.  Appending removes
@@ -486,9 +488,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
                 if footnotes:
-                    append_tag(save_chapter,'b',"Author's Note:")
+                    b = append_tag(save_chapter,'b',"Author's Note:")
+                    skip_on_update_tags.append(b)
+                    skip_on_update_tags.append(footnotes)
                     save_chapter.append(footnotes)
 
+        ## It looks like 'Inspired by' links now all appear in the ul
+        ## class=associations tag in authorheadnotes.  This code is
+        ## left in case I'm wrong and there are still stories with div
+        ## id=children inspired links at the end.
         if 'inspiredlinks' not in exclude_notes and index+1 == self.num_chapters():
             inspiredlinks = whole_dl_soup.find('div', {'id' : "children"})
             if inspiredlinks != None:
@@ -498,6 +506,22 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     for alink in inspiredlinks.find_all('a'):
                         if 'http' not in alink['href']:
                             alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    skip_on_update_tags.append(inspiredlinks)
                     save_chapter.append(inspiredlinks)
+
+        ## AO3 story end notes end up in the 'last' chapter, but if
+        ## updated, then there's a new 'last' chapter.  This option
+        ## applies the 'skip_on_ffdl_update' class to those tags which
+        ## means they will be removed during epub reading for update.
+        ## Results: only the last chapter will have end notes.
+        ## Side-effect: An 'Update Always' that doesn't add a new
+        ## lasts chapter will remove the end notes.
+        if self.getConfig("remove_authorfootnotes_on_update"):
+            for skip_tag in skip_on_update_tags:
+                if skip_tag.has_attr('class'):
+                    skip_tag['class'].append('skip_on_ffdl_update')
+                else:
+                    skip_tag['class']=['skip_on_ffdl_update']
+                # logger.debug(skip_tag)
 
         return self.utf8FromSoup(url,save_chapter)
