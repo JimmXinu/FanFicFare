@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2018-12-25 23:36+Central Standard Time\n"
-"PO-Revision-Date: 2019-03-03 19:13+0000\n"
+"PO-Revision-Date: 2019-04-13 19:57+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "Kasutajaliidese plugin mitmetelt saitidelt 'FanFiction'-juttude allalaadimiseks."
+msgstr "Kasutajaliidese plugin mitmetelt saitidelt fännikirjanduse juttude allalaadimiseks."
 
 #: __init__.py:124
 msgid ""
@@ -149,7 +149,7 @@ msgstr "Muud"
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Need sätted juhivad plugina põhilisi funktsioone -- FanFictioni allalaadimist."
+msgstr "Need sätted juhivad plugina põhilisi funktsioone -- fännikirjanduse allalaadimist."
 
 #: config.py:432
 msgid "Defaults Options on Download"
@@ -1511,7 +1511,7 @@ msgstr "See lisatakse mis tahes märkmele, mille oled igale ülal olevale URLile
 
 #: dialogs.py:1175
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "Kustutada raamatud (k.a ilma FanFiction URLita raamatud)?"
+msgstr "Kustutada raamatud (k.a ilma fännikirjanduse URLita raamatud)?"
 
 #: dialogs.py:1176
 msgid "Delete the selected books after adding them to the Rejected URLs list."
@@ -1569,7 +1569,7 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:138
 msgid "Download FanFiction stories from various web sites"
-msgstr "Laadi erinevatelt veebisaitidelt alla FanFiction-jutte"
+msgstr "Laadi erinevatelt veebisaitidelt alla fännikirjanduse jutte"
 
 #: fff_plugin.py:299
 msgid "&Download from URLs"
@@ -1577,11 +1577,11 @@ msgstr "Laadi alla URLidelt"
 
 #: fff_plugin.py:301
 msgid "Download FanFiction Books from URLs"
-msgstr "Laadi FanFiction-raamatuid alla URLidelt"
+msgstr "Laadi fännikirjanduse raamatuid alla URLidelt"
 
 #: fff_plugin.py:304
 msgid "&Update Existing FanFiction Books"
-msgstr "Uuenda olemasolevaid FanFiction-raamatuid"
+msgstr "Uuenda olemasolevaid fännikirjanduse raamatuid"
 
 #: fff_plugin.py:309
 msgid "Get Story URLs from &Email"
@@ -1597,7 +1597,7 @@ msgstr "Loo URLidest antoloogia EPUB"
 
 #: fff_plugin.py:321
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr "Loo URLidest FanFiction antoloogia EPUB"
+msgstr "Loo URLidest fännikirjanduse antoloogia EPUB"
 
 #: fff_plugin.py:324
 msgid "Make Anthology Epub from Web Page"
@@ -1605,7 +1605,7 @@ msgstr "Loo antoloogia EPUB veebilehelt"
 
 #: fff_plugin.py:326
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr "Loo FanFiction antoloogia EPUB veebilehelt"
+msgstr "Loo fännikirjanduse antoloogia EPUB veebilehelt"
 
 #: fff_plugin.py:329
 msgid "Update Anthology Epub"
@@ -1613,7 +1613,7 @@ msgstr "Uuenda antoloogia epubi"
 
 #: fff_plugin.py:331
 msgid "Update FanFiction Anthology Epub"
-msgstr "Uuenda FanFictioni antoloogia EPUBi"
+msgstr "Uuenda fännikirjanduse antoloogia EPUBi"
 
 #: fff_plugin.py:338
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -2068,7 +2068,7 @@ msgstr "FanFicFare logi"
 
 #: fff_plugin.py:1545
 msgid "Download %s FanFiction Book(s)"
-msgstr "Laadi alla %s FanFiction raamat(ut)"
+msgstr "Laadi alla %s fännikirjanduse raamat(ut)"
 
 #: fff_plugin.py:1552
 msgid "Starting %d FanFicFare Downloads"
@@ -2236,7 +2236,7 @@ msgstr "(oli määratud, turvalisuse huvides eemaldati)"
 
 #: jobs.py:74
 msgid "Downloading FanFiction Stories"
-msgstr "FanFiction-juttude allalaadimine"
+msgstr "Fännikirjanduse juttude allalaadimine"
 
 #: jobs.py:90
 msgid "%d of %d stories finished downloading"
