@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
+import json
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -247,16 +248,21 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             if self.checkSoup:
                 soup = self.checkSoup
 
-        # grab contents
-        content = soup.find('div', {'id': 'user-submitted-body'})
-        if content:
+        try:
+            # https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json
+            jsonlink = soup.find('link',href=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json'))
+            chap_json = json.loads(self._fetchUrl(jsonlink['href']))
+            content = self.make_soup(chap_json['post']).find('body') # BS4 adds <html><body> if not present.
+            content.name='div' # change body to a div.
             if self.getConfig('inject_chapter_title'):
+                # the dumbest workaround ever for the abbreviated chapter titles from before
                 logger.debug("Injecting full-length chapter title")
                 newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-                newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)) # the dumbest workaround ever for the abbreviated chapter titles from before
+                newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
+                newTitle.name='div' # change body to a div.
                 newTitle.append(content)
                 return self.utf8FromSoup(url,newTitle)
             else:
                 return self.utf8FromSoup(url,content)
-        else:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        except Exception as e:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s %s!" % (url,e))
