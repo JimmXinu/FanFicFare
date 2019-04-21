@@ -179,11 +179,9 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         for volume in jsondata["data"]["volumeItems"]:
             for chap in volume["chapterItems"]:
                 # Only allow free and VIP type 1 chapters
-                if chap['isVip'] not in [0]: # removed VIP type 1
-                                             # chapter (ad-wall'ed)
-                                             # because the ad-wall
-                                             # bypass code stopped
-                                             # working. --JM
+                if chap['isAuth'] not in [1]: # Ad wall indicator
+                                              # seems to have changed
+                                              # --JM
                     continue
 
                 chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
