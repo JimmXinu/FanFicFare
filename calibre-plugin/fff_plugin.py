@@ -1055,7 +1055,7 @@ class FanFicFarePlugin(InterfaceAction):
         for x in range(0,2):
             try:
                 adapter.getStoryMetadataOnly(get_cover=False)
-            except exceptions.FailedToLogin, f:
+            except exceptions.FailedToLogin as f:
                 logger.warn("Login Failed, Need Username/Password.")
                 userpass = UserPassDialog(self.gui,url,f)
                 userpass.exec_() # exec_ will make it act modal
