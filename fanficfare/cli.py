@@ -17,6 +17,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+from io import StringIO
 from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
 from os import access, R_OK
@@ -61,7 +62,6 @@ try:
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
-    from calibre_plugins.fanficfare_plugin.fanficfare.six import StringIO
     from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import configparser
     from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import http_cookiejar as cl
 except ImportError:
@@ -70,7 +70,6 @@ except ImportError:
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
-    from fanficfare.six import StringIO
     from fanficfare.six.moves import configparser
     from fanficfare.six.moves import http_cookiejar as cl
 

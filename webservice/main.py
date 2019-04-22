@@ -28,7 +28,7 @@ import urllib
 import datetime
 
 import traceback
-from StringIO import StringIO
+from io import StringIO
 
 from google.appengine.ext import db
 from google.appengine.api import taskqueue
@@ -59,7 +59,7 @@ class UserConfigServer(webapp2.RequestHandler):
         if l and l[0].config:
             uconfig=l[0]
             #logging.debug('reading config from UserConfig(%s)'%uconfig.config)
-            configuration.readfp(StringIO(uconfig.config))
+            configuration.readfp(StringIO(uconfig.config.decode('utf-8')))
 
         return configuration
 
@@ -512,7 +512,7 @@ class FanfictionDownloaderTask(UserConfigServer):
 
             allmeta = adapter.getStory().getAllMetadata(removeallentities=True,doreplacements=False)
 
-            outbuffer = StringIO()
+            outbuffer = BytesIO()
             writer.writeStory(outbuffer)
             data = outbuffer.getvalue()
             outbuffer.close()

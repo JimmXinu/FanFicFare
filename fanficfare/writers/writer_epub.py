@@ -27,7 +27,7 @@ import re
 from ..six import text_type as unicode
 from ..six import string_types as basestring
 from ..six import ensure_binary
-from ..six import BytesIO # StringIO under py2
+from io import BytesIO
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
@@ -771,4 +771,3 @@ def newTag(dom,name,attrs=None,text=None):
     if( text is not None ):
         tag.appendChild(dom.createTextNode(text))
     return tag
-
