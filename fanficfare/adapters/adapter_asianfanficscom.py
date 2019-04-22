@@ -172,6 +172,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         for index, chapter in enumerate(chapters):
             if chapter.text != 'Foreword': # skip the foreword
                 self.add_chapter(chapter.text,'https://' + self.getSiteDomain() + chapter['value']) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
+
         # find timestamp
         a = soup.find('span', text='Updated')
         if a == None:
@@ -190,7 +191,10 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         # story description
-        a = soup.find('div', {'id':'story-description'})
+        jsonlink = soup.find('link',href=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json'))
+        fore_json = json.loads(self._fetchUrl(jsonlink['href']))
+        content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
+        a = content.find('div', {'id':'story-description'})
         if a:
             self.setDescription(url,a)
 
@@ -216,6 +220,12 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         if a:
             a = a.parent.find('time')
             self.story.setMetadata('dateUpdated', makeDate(a['datetime'], self.dateformat))
+
+        # word count
+        a = soup.find('span', text='Total Word Count')
+        if a:
+            a = a.find_next('span')
+            self.story.setMetadata('numWords', int(a.text.split()[0]))
 
         # upvote, subs, and views
         a = soup.find('div',{'class':'title-meta'})
