@@ -29,7 +29,7 @@ from .. import six
 from ..six import text_type as unicode
 from ..six import ensure_text
 from ..six import ensure_binary
-from ..six import BytesIO # StringIO under py2
+from io import BytesIO
 
 from ..configurable import Configurable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
@@ -257,4 +257,3 @@ class BaseStoryWriter(Configurable):
     def writeStoryImpl(self, out):
         "Must be overriden by sub classes."
         pass
-

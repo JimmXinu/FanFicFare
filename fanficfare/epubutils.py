@@ -16,7 +16,7 @@ from xml.dom.minidom import parseString
 # py2 vs py3 transition
 from .six import ensure_text, text_type as unicode
 from .six import string_types as basestring
-from .six import BytesIO # StringIO under py2
+from io import BytesIO
 
 import bs4
 

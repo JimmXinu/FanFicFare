@@ -14,7 +14,7 @@ import logging
 from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_binary
-from .six import BytesIO # StringIO under py2
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 import traceback
 from datetime import time
-from StringIO import StringIO
+from io import StringIO
 from collections import defaultdict
 
 from calibre.utils.ipc.server import Server
@@ -363,4 +363,3 @@ def inject_cal_cols(book,story,configuration):
             injectini.append("add_to_extra_valid_entries:,"+','.join(extra_valid))
             configuration.readfp(StringIO('\n'.join(injectini)))
             #print("added:\n%s\n"%('\n'.join(injectini)))
-

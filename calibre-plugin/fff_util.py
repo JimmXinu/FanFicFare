@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from StringIO import StringIO
+from io import StringIO
 from ConfigParser import ParsingError
 
 import logging
@@ -29,8 +29,8 @@ def get_fff_config(url,fileform="epub",personalini=None):
     except Exception as e:
         logger.debug("Failed trying to get ini config for url(%s): %s, using section %s instead"%(url,e,sections))
     configuration = Configuration(sections,fileform)
-    configuration.readfp(StringIO(get_resources("plugin-defaults.ini")))
-    configuration.readfp(StringIO(personalini))
+    configuration.readfp(StringIO(get_resources("plugin-defaults.ini").decode('utf-8')))
+    configuration.readfp(StringIO(personalini.decode('utf-8')))
 
     return configuration
 
@@ -44,6 +44,5 @@ def test_config(initext):
         errors = configini.test_config()
     except ParsingError as pe:
         errors = pe.errors
-    
-    return errors
 
+    return errors

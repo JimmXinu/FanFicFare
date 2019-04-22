@@ -27,7 +27,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os, copy, threading, re, platform, sys
-from StringIO import StringIO
+from io import BytesIO
 from functools import partial
 from datetime import datetime, time, date
 from string import Template
@@ -802,7 +802,7 @@ class FanFicFarePlugin(InterfaceAction):
         tdir = PersistentTemporaryDirectory(prefix='fff_anthology_')
         logger.debug("tdir:\n%s"%tdir)
 
-        bookepubio = StringIO(db.format(book_id,'EPUB',index_is_id=True))
+        bookepubio = BytesIO(db.format(book_id,'EPUB',index_is_id=True))
 
         filenames = self.get_epubmerge_plugin().do_unmerge(bookepubio,tdir)
         urlmapfile = {}
@@ -1362,7 +1362,7 @@ class FanFicFarePlugin(InterfaceAction):
                     # let it go and it will download it.
                     if db.has_format(book_id,fileform,index_is_id=True):
                         (epuburl,chaptercount) = \
-                            get_dcsource_chaptercount(StringIO(db.format(book_id,'EPUB',
+                            get_dcsource_chaptercount(BytesIO(db.format(book_id,'EPUB',
                                                                          index_is_id=True)))
                         #urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
                         # returns int adjusted for start-end range.
@@ -2736,4 +2736,3 @@ def pretty_book(d, indent=0, spacer='     '):
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer))
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)
-
