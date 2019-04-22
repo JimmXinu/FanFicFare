@@ -8,7 +8,6 @@ __copyright__ = '2015, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from io import StringIO
-from ConfigParser import ParsingError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +15,7 @@ logger = logging.getLogger(__name__)
 from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
 from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
+from .fanficfare.six.moves import configparser
 
 def get_fff_personalini():
     return prefs['personal.ini']
@@ -42,7 +42,7 @@ def test_config(initext):
         configini = get_fff_config("test1.com?sid=555",
                                     personalini=initext)
         errors = configini.test_config()
-    except ParsingError as pe:
+    except configparser.ParsingError as pe:
         errors = pe.errors
 
     return errors
