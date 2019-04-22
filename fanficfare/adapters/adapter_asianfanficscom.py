@@ -263,6 +263,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             jsonlink = soup.find('link',href=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json'))
             chap_json = json.loads(self._fetchUrl(jsonlink['href']))
             content = self.make_soup(chap_json['post']).find('body') # BS4 adds <html><body> if not present.
+            content.name='div' # change body to a div.
             if self.getConfig('inject_chapter_title'):
                 # the dumbest workaround ever for the abbreviated chapter titles from before
                 logger.debug("Injecting full-length chapter title")
