@@ -255,15 +255,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             tmcat_num = threadmarksa['href'].split('category_id=')[1]
             # get from earlier <a> now.
             tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
-            prepend = ""
             if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
                 continue
 
             if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                 tmcat_name = 'Omake'
-
-            if tmcat_name != "Threadmarks":
-                prepend = tmcat_name+" - "
 
             threadmarks.extend(self.fetch_threadmarks(self.getURLPrefix()+'/'+threadmarksa['href'],
                                                       tmcat_name,
@@ -348,13 +344,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
 
-        h1 = souptag.find('div',{'class':'titleBar'}).h1
-        ## SV has started putting 'Crossover', 'Sci-Fi' etc spans in the title h1.
-        for tag in h1.find_all('span',{'class':'prefix'}):
-            ## stick them into genre.
-            self.story.addToList('genre',stripHTML(tag))
-            tag.extract()
-        self.story.setMetadata('title',stripHTML(h1))
+        self.parse_title(topsoup)
 
         first_post_title = self.getConfig('first_post_title','First Post')
 
@@ -408,7 +398,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 if words and self.getConfig('use_threadmark_wordcounts',True):
                     self.story.setMetadata('numWords',words)
-            souptag = souptag.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
+            souptag = self.get_first_post(topsoup)
 
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
@@ -419,11 +409,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 self.story.addToList('forumtags',tstr)
 
         # author moved down here to take from post URLs.
-        a = souptag.find('h3',{'class':'userText'}).find('a')
-        self.story.addToList('authorId',a['href'].split('/')[1])
-        authorUrl = self.getURLPrefix()+'/'+a['href']
-        self.story.addToList('authorUrl',authorUrl)
-        self.story.addToList('author',a.text)
+        self.parse_author(souptag)
 
         if self.getConfig('author_avatar_cover'):
             authorcard = self.make_soup(self._fetchUrl(authorUrl+"?card=1"))
@@ -437,25 +423,24 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ##
             ## </div>
 
-        # Now go hunting for the 'chapter list'.
-        bq = souptag.find('blockquote') # assume first posting contains TOC urls.
+        # Now get first post for description and chapter list if not
+        # using threadmarks.
+        first_post = self.get_first_post_body(topsoup)
 
-        bq.name='div'
-
-        for iframe in bq.find_all('iframe'):
+        for iframe in first_post.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
-        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+        for qdiv in first_post.find_all('div',{'class':'quoteExpand'}):
             qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
-        self.setDescription(useurl,bq)
+        self.setDescription(useurl,first_post)
 
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
 
         if self.num_chapters() < 1:
             self.add_chapter(first_post_title,useurl)
-            for (url,name) in [ (x['href'],stripHTML(x)) for x in bq.find_all('a') ]:
+            for (url,name) in [ (x['href'],stripHTML(x)) for x in first_post.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
                 if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
                     self.add_chapter(name,url)
@@ -474,6 +459,30 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             date = self.make_date(souptag.find('div',{'class':'editDate'}))
             if date:
                 self.story.setMetadata('dateUpdated', date)
+
+    def parse_title(self,souptag):
+        h1 = souptag.find('div',{'class':'titleBar'}).h1
+        ## SV has started putting 'Crossover', 'Sci-Fi' etc spans in the title h1.
+        for tag in h1.find_all('span',{'class':'prefix'}):
+            ## stick them into genre.
+            self.story.addToList('genre',stripHTML(tag))
+            tag.extract()
+        self.story.setMetadata('title',stripHTML(h1))
+
+    def parse_author(self,souptag):
+        a = souptag.find('h3',{'class':'userText'}).find('a')
+        self.story.addToList('authorId',a['href'].split('/')[1])
+        authorUrl = self.getURLPrefix()+'/'+a['href']
+        self.story.addToList('authorUrl',authorUrl)
+        self.story.addToList('author',a.text)
+
+    def get_first_post(self,topsoup):
+        return topsoup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
+
+    def get_first_post_body(self,topsoup):
+        bq = self.get_first_post(topsoup).find('blockquote')
+        bq.name='div'
+        return bq
 
     def make_date(self,parenttag): # forums use a BS thing where dates
                                    # can appear different if recent.

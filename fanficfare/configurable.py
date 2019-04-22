@@ -1122,6 +1122,11 @@ class Configuration(configparser.SafeConfigParser):
             ## not present at all
             headers.append(('Referer',referer))
 
+        if "xf2test" in url:
+            import base64
+            base64string = base64.encodestring('%s:%s' % ("xf2demo2019", "dBfbyHVvRCsYtLg846r3")).replace('\n', '')
+            headers.append(('Authorization', "Basic %s" % base64string))
+
         self.opener.addheaders = headers
 
         if parameters != None:
