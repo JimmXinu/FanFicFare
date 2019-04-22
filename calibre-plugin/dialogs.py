@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division,
+from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
@@ -74,7 +74,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
     import (get_valid_sections, get_valid_entries,
             get_valid_keywords, get_valid_entry_keywords)
 
-from inihighlighter import IniHighlighter
+from .inihighlighter import IniHighlighter
 
 ## moved to prefs.py so they can be included in jobs.py.
 from calibre_plugins.fanficfare_plugin.prefs import \
@@ -1370,7 +1370,7 @@ class IniTextDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def accept(self):
-        from fff_util import test_config
+        from .fff_util import test_config
 
         # print("in accept")
         errors = test_config(self.get_plain_text())

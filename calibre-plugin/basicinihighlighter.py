@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division,
+from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
@@ -23,11 +23,11 @@ class BasicIniHighlighter(QSyntaxHighlighter):
     format, so I'm leaving this in the project even though I'm not
     using.
     '''
-    
+
     def __init__( self, parent, theme ):
         QSyntaxHighlighter.__init__( self, parent )
         self.parent = parent
-        
+
         self.highlightingRules = []
 
         # keyword
@@ -61,4 +61,3 @@ class HighlightingRule():
         brush = QBrush(color, style)
         charfmt.setForeground(brush)
         self.highlight = charfmt
-    
