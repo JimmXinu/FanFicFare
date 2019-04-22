@@ -220,7 +220,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         if a:
             a = a.parent.find('time')
             self.story.setMetadata('dateUpdated', makeDate(a['datetime'], self.dateformat))
-            
+
         # word count
         a = soup.find('span', text='Total Word Count')
         if a:
