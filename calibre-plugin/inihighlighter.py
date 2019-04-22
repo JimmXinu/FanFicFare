@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division,
+from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
@@ -19,11 +19,11 @@ class IniHighlighter(QSyntaxHighlighter):
     QSyntaxHighlighter class for use with QTextEdit for highlighting
     ini config files.
     '''
-    
+
     def __init__( self, parent, sections=[], keywords=[], entries=[], entry_keywords=[] ):
         QSyntaxHighlighter.__init__( self, parent )
         self.parent = parent
-        
+
         self.highlightingRules = []
 
         if entries:
@@ -33,7 +33,7 @@ class IniHighlighter(QSyntaxHighlighter):
 
         # true/false -- just to be nice.
         self.highlightingRules.append( HighlightingRule( r"\b(true|false)\b", Qt.darkGreen ) )
-        
+
         # *all* keywords -- change known later.
         self.errorRule = HighlightingRule( r"^[^:=\s][^:=]*[:=]", Qt.red )
         self.highlightingRules.append( self.errorRule )
@@ -70,7 +70,7 @@ class IniHighlighter(QSyntaxHighlighter):
 
         # NOT comments -- but can be custom columns, so don't flag.
         #self.highlightingRules.append( HighlightingRule( r"(?<!^)#[^\n]*" , Qt.red ) )
-        
+
         # comments -- comments must start from column 0.
         self.commentRule = HighlightingRule( r"^#[^\n]*" , Qt.darkYellow )
         self.highlightingRules.append( self.commentRule )
@@ -91,15 +91,15 @@ class IniHighlighter(QSyntaxHighlighter):
             # unknown section, error all:
             if blocknum == 1 and blocknum == self.previousBlockState():
                 self.setFormat( 0, len(text), self.errorRule.highlight )
-                
+
             # teststory section rules:
             if blocknum == 3:
                 self.setFormat( 0, len(text), self.teststoryRule.highlight )
-            
+
             # storyUrl section rules:
             if blocknum == 4:
                 self.setFormat( 0, len(text), self.storyUrlRule.highlight )
-            
+
         self.setCurrentBlockState( blocknum )
 
 class HighlightingRule():
@@ -117,4 +117,3 @@ class HighlightingRule():
         charfmt.setFontWeight(weight)
         self.highlight = charfmt
         self.blocknum=blocknum
-    
