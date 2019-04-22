@@ -225,8 +225,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
         # </h3>
         # stripped:"Hope Roy [archived by ssa_archivist]"
-
-        m = re.match(r'(?P<author>.*) \[archived by (?P<archivist>.*)\]',stripHTML(byline))
+        m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
         if( m and
             len(alist) == 1 and
             self.getConfig('use_archived_author') ):
