@@ -69,7 +69,16 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         return topsoup.find('article',{'class':'message--post'})
 
     def get_first_post_body(self,topsoup):
-        return self.get_first_post(topsoup).find('article',{'class':'message-body'}).find('div',{'class':'bbWrapper'})
+        return self.get_post_body(self.get_first_post(topsoup))
+
+    def get_post_body(self,souptag):
+        return souptag.find('article',{'class':'message-body'}).find('div',{'class':'bbWrapper'})
+
+    def get_post_created_date(self,souptag):
+        return self.make_date(souptag.find('div', {'class':'message-date'}))
+
+    def get_post_updated_date(self,souptag):
+        return self.make_date(souptag.find('div',{'class':'message-lastEdit'}))
 
     def extract_threadmarks(self,souptag):
         threadmarks=[]

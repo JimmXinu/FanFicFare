@@ -456,14 +456,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             # Didn't use threadmarks, so take created/updated dates
             # from the 'first' posting created and updated.
-            date = self.make_date(souptag.find('a',{'class':'datePermalink'}))
+            date = self.get_post_created_date(souptag)
             if date:
                 self.story.setMetadata('datePublished', date)
                 self.story.setMetadata('dateUpdated', date) # updated overwritten below if found.
 
-            date = self.make_date(souptag.find('div',{'class':'editDate'}))
+            date = self.get_post_updated_date(souptag)
             if date:
                 self.story.setMetadata('dateUpdated', date)
+            # logger.debug(self.story.getMetadata('datePublished'))
+            # logger.debug(self.story.getMetadata('dateUpdated'))
 
     def parse_title(self,souptag):
         h1 = souptag.find('div',{'class':'titleBar'}).h1
@@ -488,6 +490,20 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         bq = self.get_first_post(topsoup).find('blockquote')
         bq.name='div'
         return bq
+
+    def get_post_body(self,souptag):
+        bq = souptag.find('blockquote')
+        if not bq:
+            bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
+
+        bq.name='div'
+        return bq
+
+    def get_post_created_date(self,souptag):
+        return self.make_date(souptag.find('a',{'class':'datePermalink'}))
+
+    def get_post_updated_date(self,souptag):
+        return self.make_date(souptag.find('div',{'class':'editDate'}))
 
     def make_date(self,parenttag): # forums use a BS thing where dates
                                    # can appear different if recent.
@@ -584,25 +600,26 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         for notice in souptag.find_all('div',{'class':'noticeContent'}):
             notice.extract()
 
-        bq = souptag.find('blockquote')
-        if not bq:
-            bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
+        # bq = souptag.find('blockquote')
+        # if not bq:
+        #     bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
 
-        bq.name='div'
+        # bq.name='div'
+        postbody = self.get_post_body(souptag)
 
-        for iframe in bq.find_all('iframe'):
+        for iframe in postbody.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
-        for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
+        for qdiv in postbody.find_all('div',{'class':'quoteExpand'}):
             qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
         ## img alt="[​IMG]" class="bbCodeImage LbImage lazyload
         ## include lazy load images.
-        for img in bq.find_all('img',{'class':'lazyload'}):
+        for img in postbody.find_all('img',{'class':'lazyload'}):
             img['src'] = img['data-src']
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
-        return self.utf8FromSoup(self.getURLPrefix()+'/',bq)
+        return self.utf8FromSoup(self.getURLPrefix()+'/',postbody)
 
     def make_reader_url(self,tmcat_num,reader_page_num):
         return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
