@@ -42,19 +42,19 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
-        logger.debug(h1)
+        # logger.debug(h1)
         ## SV has started putting 'Crossover', 'Sci-Fi' etc spans in the title h1.
         for tag in h1.find_all('span',{'class':'label'}):
             ## stick them into genre.
             self.story.addToList('genre',stripHTML(tag))
-            logger.debug(stripHTML(tag))
+            # logger.debug(stripHTML(tag))
             tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
-        logger.debug(stripHTML(h1))
+        # logger.debug(stripHTML(h1))
 
     def parse_author(self,souptag):
         a = souptag.find('section',{'class':'message-user'}).find('a',{'class':'username'})
-        logger.debug(a)
+        # logger.debug(a)
         self.story.addToList('authorId',a['href'].split('/')[-2])
         authorUrl = a['href'] # self.getURLPrefix()+'/'+a['href']
         self.story.addToList('authorUrl',authorUrl)
@@ -89,7 +89,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
         threadmarkgroups = dict() # for ordering threadmarks
         for threadmarksa in threadmarksas:
-            logger.debug("threadmarksa:%s"%threadmarksa)
+            # logger.debug("threadmarksa:%s"%threadmarksa)
             if 'threadmark_category=' in threadmarksa['href']:
                 tmcat_num = threadmarksa['href'].split('threadmark_category=')[1]
             else:
@@ -109,7 +109,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             threadmarkgroups[tmcat_name]=self.fetch_threadmarks(href,
                                                                   tmcat_name,
                                                                   tmcat_num)
-            logger.debug(threadmarkgroups[tmcat_name])
+            # logger.debug(threadmarkgroups[tmcat_name])
         ## Order of threadmark groups in new SV is changed and
         ## possibly unpredictable.  Normalize.  Keep as configurable?
         ## What about categories not in the list?
@@ -152,7 +152,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             atag = tm_item.find('a',{'data-tp-primary':'on'})
             if not atag:
                 fetcher = tm_item.find('div',{'data-xf-click':'threadmark-fetcher'})
-                logger.debug(fetcher)
+                # logger.debug(fetcher)
                 range_url = fetcher['data-fetchurl']
                 threadmarks.extend(self.fetch_threadmarks(range_url,
                                                           tmcat_name,
@@ -162,7 +162,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                 after=True
             else:
                 if after:
-                    logger.debug("AFTER "*10)
+                    # logger.debug("AFTER "*10)
                     after=False
                 url,name = atag['href'],stripHTML(atag)
                 date = self.make_date(tm_item)
@@ -182,7 +182,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                 #     kwords = ""
                 if 'http' not in url:
                     url = self.getURLPrefix()+"/"+url
-                logger.debug("%s. %s"%(tmcat_index,name))
+                # logger.debug("%s. %s"%(tmcat_index,name))
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
                                     "tmcat_index":tmcat_index,
@@ -194,23 +194,16 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                 tmcat_index += 1
         return threadmarks
 
-    def make_date(self,parenttag): # forums use a BS thing where dates
-                                   # can appear different if recent.
+    def make_date(self,parenttag):
         datestr=None
         try:
             datetag = parenttag.find('time')
+            # not paying any attention to TZ issues.
             return datetime.fromtimestamp(float(datetag['data-time']))
-            # if datetag:
-            #     datestr = datetag['title']
-            # else:
-            #     datetag = parenttag.find('abbr',{'class':'DateTime'})
-            #     if datetag:
-            #         datestr="%s at %s"%(datetag['data-datestring'],datetag['data-timestring'])
-            # # Apr 24, 2015 at 4:39 AM
-            # # May 1, 2015 at 5:47 AM
-            # datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
-            # return makeDate(datestr, self.dateformat)
         except:
-            logger.debug('No date found in %s'%parenttag,exc_info=True)
+            logger.warn('No date found in %s'%parenttag,exc_info=True)
             return None
 
+    def make_reader_url(self,tmcat_num,reader_page_num):
+        # https://xf2test.sufficientvelocity.com/threads/mauling-snarks-worm.41471/reader/page-4?threadmark_category=4
+        return self.story.getMetadata('storyUrl')+'reader/page-'+unicode(reader_page_num)+'?threadmark_category='+tmcat_num

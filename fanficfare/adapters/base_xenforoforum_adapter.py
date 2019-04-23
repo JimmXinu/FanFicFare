@@ -351,14 +351,19 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         use_threadmark_chaps = False
         if '#' in useurl:
             anchorid = useurl.split('#')[1]
-            souptag = souptag.find('li',id=anchorid)
+            # souptag = souptag.find('li',id=anchorid)
+            # cache is now loaded with posts from that reader
+            # page.  looking for it in cache reuses code in
+            # cache_posts that finds post tags.
+            souptag = self.get_cache_post(anchorid)
+
         else:
             ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
             threadmarks = self.extract_threadmarks(souptag)
 
             if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
                 # remember if reader link found--only applicable if using threadmarks.
-                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader$")) is not None
+                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader/?$")) is not None
 
                 if self.getConfig('always_include_first_post'):
                     self.add_chapter(first_post_title,useurl)
@@ -505,6 +510,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('li',id=re.compile('post-[0-9]+')):
+            logger.debug("Caching %s"%post['id'])
             self.post_cache[post['id']] = post
 
     def get_cache_post(self,postid):
@@ -513,6 +519,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## allows chapter urls to be passed in directly.
             # assumed normalized to /posts/1234/
             postid = "post-"+postid.split('/')[-2]
+        logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
         return self.post_cache.get(postid,None)
 
     # grab the text for an individual chapter.
@@ -526,6 +533,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # reader mode shows only threadmarked posts in threadmark
         # order.  don't use reader mode for /threads/ urls, or
         # first post when always_include_first_post.
+        logger.debug("self.reader:%s"%self.reader)
         if ( self.reader and
              self.getConfig("use_reader_mode",True) and
              '/threads/' not in url and
@@ -542,20 +550,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
                     reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
                     logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
-                    reader_url=self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
+                    reader_url=self.make_reader_url(tmcat_num,reader_page_num)
                     logger.debug("Fetch reader URL to: %s"%reader_url)
-                    data = self._fetchUrl(reader_url)
-                    topsoup = self.make_soup(data)
-
-                    # if no posts at all, break out of loop, we're off the end.
-                    # don't need to remember this, the page is cached.
-                    if not topsoup.find_all('li',id=re.compile(r'post-[0-9]+')):
-                        break
-
-                    # assumed normalized to /posts/1234/
-                    anchorid = "post-"+url.split('/')[-2]
-                    # logger.debug("anchorid: %s"%anchorid)
-                    souptag = topsoup.find('li',id=anchorid)
+                    topsoup = self.make_soup(self._fetchUrl(reader_url)) # also caches posts.
+                    # cache is now loaded with posts from that reader
+                    # page.  looking for it in cache reuses code in
+                    # cache_posts that finds post tags.
+                    souptag = self.get_cache_post(url)
                 else:
                     logger.debug("post found in cache")
                 if souptag:
@@ -603,6 +604,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',bq)
 
+    def make_reader_url(self,tmcat_num,reader_page_num):
+        return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
+    
     def handle_spoilers(self,topsoup):
         '''
         Modifies tag given as required to do spoiler changes.
