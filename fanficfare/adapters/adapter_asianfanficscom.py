@@ -71,15 +71,24 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             params['username'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
+
+        if not params['username']:
+            raise exceptions.FailedToLogin(url,params['username'])
+
         params['from_url'] = url
         params['csrf_aff_token'] = soup.find('input',{'name':'csrf_aff_token'})['value']
+        if not params['csrf_aff_token']:
+            raise exceptions.FailedToDownload('Error when logging in. This usually means a change in the website code.')
+
         loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
-        d = self._postUrl(loginUrl, params, usecache=False)
+        data = self._postUrl(loginUrl, params)
+        soup = self.make_soup(data)
 
-        if params['username'] not in d: # check if username is mentioned in output (logged in as, var visitorName, etc.)
-            logger.info("Failed to login to URL %s as %s" % (loginUrl, params['username']))
+        loginCheck = soup.find('div',{'id':'login'})
+        if loginCheck:
+            logger.info('Failed to login to URL %s as %s' % (loginUrl, params['username']))
             raise exceptions.FailedToLogin(url,params['username'])
             return False
         else:
@@ -112,7 +121,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         url = self.url
         logger.info("url: "+url)
-
         try:
             data = self._fetchUrl(url)
 
@@ -125,31 +133,23 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # it is best to log in whenever possible, unless already logged in from cache..
-        loginCheck = soup.find('div',{'id':'login'})
-        if self.password or self.getConfig("password") and loginCheck:
-            self.performLogin(url,soup)
-            data = self._fetchUrl(url,usecache=False)
-            soup = self.make_soup(data)
-        elif "Logout" not in data:
-            logger.info('Note: Logging in is highly recommended, as this website censors text otherwise.')
+        # require login to avoid lots of headaches
+        self.performLogin(url,soup)
 
-        # adult check
-        adultCheck = soup.find('form',{'action':'/account/toggle_age'})
-        if adultCheck:
-           logger.info('This story is marked as mature. It is recommended to log in, as this website censors text otherwise.')
+        # refresh website after logging in
+        data = self._fetchUrl(url,usecache=False)
+        soup = self.make_soup(data)
 
         # subscription check
-        loginCheck = soup.find('div',{'id':'login'})
         subCheck = soup.find('div',{'class':'click-to-read-full'})
-        if subCheck and self.getConfig("auto_sub") and not loginCheck:
+        if subCheck and self.getConfig("auto_sub"):
             subSoup = self.doStorySubscribe(url,soup)
             if subSoup:
                 soup = subSoup
             else:
                 raise exceptions.FailedToDownload("Error when subscribing to story. This usually means a change in the website code.")
         elif subCheck and not self.getConfig("auto_sub"):
-            raise exceptions.FailedToDownload("This story is marked as subscribers-only. It is recommended to log in and switch auto_sub to true in personal.ini, as this website removes certain HTML tags and portions of the text otherwise.")
+            raise exceptions.FailedToDownload("This story is marked as subscribers-only. In order to download such stories, auto_sub must be set to true in personal.ini, as this website removes certain HTML tags and portions of the text otherwise.")
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
@@ -252,11 +252,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
-
-        # have to do adult check here as well because individual chapters can be marked as mature
-        adultCheck = soup.find('form',{'action':'/account/toggle_age'})
-        if adultCheck:
-           logger.info('Some chapters in this story are marked as mature. It is recommended to log in, as this website censors text otherwise.') 
 
         try:
             # https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json
