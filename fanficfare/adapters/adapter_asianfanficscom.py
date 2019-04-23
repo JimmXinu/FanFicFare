@@ -113,6 +113,23 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             return False
 
+    def doSubCheck(self, url, soup):
+        check = soup.find('div',{'class':'click-to-read-full'})
+        if check:
+            logger.debug("Subscription required to get all HTML tags")
+            #does not work when using https - 403
+            subUrl = 'http://' + self.getSiteDomain() + soup.find('a',{'id':'subscribe'})['href']
+            self._fetchUrl(subUrl)
+            data = self._fetchUrl(url,usecache=False)
+            soup = self.make_soup(data)
+            check = soup.find('div',{'class':'click-to-read-full'})
+            if check:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+            else:
+                return soup
+        else:
+            return False
+
     def use_pagecache(self):
         '''
         adapters that will work with the page cache need to implement
@@ -138,17 +155,25 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         # it is best to log in whenever possible, unless already logged in from cache..
-        if self.password or self.getConfig("password") and "Logout" not in data:
+        loginCheck = soup.find('div',{'id':'login'})
+        if self.password or self.getConfig("password") and loginCheck:
             self.performLogin(url,soup)
             data = self._fetchUrl(url,usecache=False)
             soup = self.make_soup(data)
         elif "Logout" not in data:
-            logger.info('Note: Logging in is highly recommended, as this website censors text if not logged in.')
+            logger.info('Note: Logging in is highly recommended, as this website censors text and removes certain HTML tags if not logged in.')
 
         # adult check
         self.checkSoup = self.doAdultCheck(url,soup)
         if self.checkSoup:
             soup = self.checkSoup
+
+        # subscription check
+        loginCheck = soup.find('div',{'id':'login'})
+        if self.getConfig("auto_sub") and not loginCheck:
+            self.subSoup = self.doSubCheck(url,soup)
+            if self.subSoup:
+                soup = self.subSoup
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
