@@ -160,7 +160,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.performLogin(url,soup)
             data = self._fetchUrl(url,usecache=False)
             soup = self.make_soup(data)
-        elif "Logout" not in data:
+        elif loginCheck:
             logger.info('Note: Logging in is highly recommended, as this website censors text and removes certain HTML tags if not logged in.')
 
         # adult check
