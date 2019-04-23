@@ -279,9 +279,6 @@ class BaseSiteAdapter(Configurable):
             if self.logfile:
                 self.story.logfile = self.logfile
 
-            # only called when not self.storyDone
-            self.hookFinalCleanup()
-
         # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
@@ -383,10 +380,6 @@ class BaseSiteAdapter(Configurable):
 
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
-        pass
-
-    def hookFinalCleanup(self):
-        "Usually not needed."
         pass
 
     # Just for series, in case we choose to change how it's stored or represented later.
