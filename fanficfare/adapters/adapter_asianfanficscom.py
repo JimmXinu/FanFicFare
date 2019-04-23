@@ -85,46 +85,17 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             return True
 
-    def doAdultCheck(self, url, soup):
-        check = soup.find('form',{'action':'/account/toggle_age'})
-        if check:
-            logger.debug("Found adult check")
-            if self.is_adult or self.getConfig("is_adult"):
-                contentFilter = check.find('a',{'href':'/account/mark_over_18'}) #two different types of adult checks
-                if contentFilter:
-                    loginUrl = 'https://' + self.getSiteDomain() + '/account/mark_over_18'
-                    self._fetchUrl(loginUrl)
-                else:
-                    params = {}
-                    params['csrf_aff_token'] = check.find('input',{'name':'csrf_aff_token'})['value']
-                    params['is_of_age'] = '1'
-                    params['current_url'] = '/story/view/' + self.story.getMetadata('storyId')
-                    loginUrl = 'https://' + self.getSiteDomain() + '/account/toggle_age'
-                    self._postUrl(loginUrl,params)
-
-                data = self._fetchUrl(url,usecache=False)
-                soup = self.make_soup(data)
-                if "Are you over 18 years old" in data:
-                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-                else:
-                    return soup
-            else:
-                raise exceptions.AdultCheckRequired(self.url)
-        else:
-            return False
-
-    def doSubCheck(self, url, soup):
-        check = soup.find('div',{'class':'click-to-read-full'})
-        if check:
-            logger.debug("Subscription required to get all HTML tags")
+    def doStorySubscribe(self, url, soup):
+        subHref = soup.find('a',{'id':'subscribe'})
+        if subHref:
             #does not work when using https - 403
-            subUrl = 'http://' + self.getSiteDomain() + soup.find('a',{'id':'subscribe'})['href']
+            subUrl = 'http://' + self.getSiteDomain() + subHref['href']
             self._fetchUrl(subUrl)
             data = self._fetchUrl(url,usecache=False)
             soup = self.make_soup(data)
             check = soup.find('div',{'class':'click-to-read-full'})
             if check:
-                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+                return False
             else:
                 return soup
         else:
@@ -160,20 +131,25 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.performLogin(url,soup)
             data = self._fetchUrl(url,usecache=False)
             soup = self.make_soup(data)
-        elif loginCheck:
-            logger.info('Note: Logging in is highly recommended, as this website censors text and removes certain HTML tags if not logged in.')
+        elif "Logout" not in data:
+            logger.info('Note: Logging in is highly recommended, as this website censors text otherwise.')
 
         # adult check
-        self.checkSoup = self.doAdultCheck(url,soup)
-        if self.checkSoup:
-            soup = self.checkSoup
+        adultCheck = soup.find('form',{'action':'/account/toggle_age'})
+        if adultCheck:
+           logger.info('This story is marked as mature. It is recommended to log in, as this website censors text otherwise.') 
 
         # subscription check
         loginCheck = soup.find('div',{'id':'login'})
-        if self.getConfig("auto_sub") and not loginCheck:
-            self.subSoup = self.doSubCheck(url,soup)
-            if self.subSoup:
-                soup = self.subSoup
+        subCheck = soup.find('div',{'class':'click-to-read-full'})
+        if subCheck and self.getConfig("auto_sub") and not loginCheck:
+            subSoup = self.doStorySubscribe(url,soup)
+            if subSoup:
+                soup = subSoup
+            else:
+                raise exceptions.FailedToDownload("Error when subscribing to story. This usually means a change in the website code.")
+        elif subCheck and not self.getConfig("auto_sub"):
+            raise exceptions.FailedToDownload("This story is marked as subscribers-only. It is recommended to log in and switch auto_sub to true in personal.ini, as this website removes certain HTML tags and portions of the text otherwise.")
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
@@ -278,10 +254,9 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         # have to do adult check here as well because individual chapters can be marked as mature
-        if not self.checkSoup:
-            self.checkSoup = self.doAdultCheck(url,soup)
-            if self.checkSoup:
-                soup = self.checkSoup
+        adultCheck = soup.find('form',{'action':'/account/toggle_age'})
+        if adultCheck:
+           logger.info('Some chapters in this story are marked as mature. It is recommended to log in, as this website censors text otherwise.') 
 
         try:
             # https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json
