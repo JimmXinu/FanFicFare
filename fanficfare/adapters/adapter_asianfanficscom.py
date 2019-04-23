@@ -137,7 +137,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # adult check
         adultCheck = soup.find('form',{'action':'/account/toggle_age'})
         if adultCheck:
-           logger.info('This story is marked as mature. It is recommended to log in, as this website censors text otherwise.') 
+           logger.info('This story is marked as mature. It is recommended to log in, as this website censors text otherwise.')
 
         # subscription check
         loginCheck = soup.find('div',{'id':'login'})

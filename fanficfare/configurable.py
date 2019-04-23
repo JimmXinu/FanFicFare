@@ -243,7 +243,7 @@ def get_valid_set_options():
                'description_in_chapter':(['literotica.com'],None,boollist),
 
                'inject_chapter_title':(['asianfanfics.com'],None,boollist),
-               
+
                'auto_sub':(['asianfanfics.com'],None,boollist),
 
                # eFiction Base adapters allow bulk_load
