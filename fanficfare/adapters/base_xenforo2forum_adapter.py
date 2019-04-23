@@ -53,7 +53,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         logger.debug(stripHTML(h1))
 
     def parse_author(self,souptag):
-        a = souptag.find('section',{'class':'message-user'}).find('a')
+        a = souptag.find('section',{'class':'message-user'}).find('a',{'class':'username'})
         logger.debug(a)
         self.story.addToList('authorId',a['href'].split('/')[-2])
         authorUrl = a['href'] # self.getURLPrefix()+'/'+a['href']
@@ -110,14 +110,30 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                                                                   tmcat_name,
                                                                   tmcat_num)
             logger.debug(threadmarkgroups[tmcat_name])
-        for cat_name in self.getConfigList('threadmark_category_order',['Threadmarks',
-                                                                        'Sidestory',
-                                                                        'Apocrypha',
-                                                                        'Omake',
-                                                                        'Media',
-                                                                        'Informational',
-                                                                        'Staff Post']):
+        ## Order of threadmark groups in new SV is changed and
+        ## possibly unpredictable.  Normalize.  Keep as configurable?
+        ## What about categories not in the list?
+        default_order = ['Threadmarks',
+                         'Sidestory',
+                         'Apocrypha',
+                         'Omake',
+                         'Media',
+                         'Informational',
+                         'Staff Post']
+        # default order also *after* config'ed
+        # threadmark_category_order so if they are not also in
+        # skip_threadmarks_categories they appear in the expected
+        # order.
+        for cat_name in self.getConfigList('threadmark_category_order',default_order)+default_order:
             if cat_name in threadmarkgroups:
+                threadmarks.extend(threadmarkgroups[cat_name])
+                del threadmarkgroups[cat_name]
+        # more categories left?  new or at least unknown
+        if threadmarkgroups:
+            cats = threadmarkgroups.keys()
+            # alphabetize for lack of a better idea to insure consist ordering
+            cats.sort()
+            for cat_name in cats:
                 threadmarks.extend(threadmarkgroups[cat_name])
         return threadmarks
 
