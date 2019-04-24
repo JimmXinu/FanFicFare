@@ -85,14 +85,12 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         data = self._postUrl(loginUrl, params)
         soup = self.make_soup(data)
-
-        loginCheck = soup.find('div',{'id':'login'})
-        if loginCheck:
+        if self.loginNeededCheck(soup):
             logger.info('Failed to login to URL %s as %s' % (loginUrl, params['username']))
             raise exceptions.FailedToLogin(url,params['username'])
-            return False
-        else:
-            return True
+
+    def loginNeededCheck(self,soup):
+        return soup.find('div',{'id':'login'}) != None
 
     def doStorySubscribe(self, url, soup):
         subHref = soup.find('a',{'id':'subscribe'})
@@ -133,12 +131,12 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # require login to avoid lots of headaches
-        self.performLogin(url,soup)
-
-        # refresh website after logging in
-        data = self._fetchUrl(url,usecache=False)
-        soup = self.make_soup(data)
+        if self.loginNeededCheck(soup):
+            # always login if not already to avoid lots of headaches
+            self.performLogin(url,soup)
+            # refresh website after logging in
+            data = self._fetchUrl(url,usecache=False)
+            soup = self.make_soup(data)
 
         # subscription check
         subCheck = soup.find('div',{'class':'click-to-read-full'})
@@ -149,7 +147,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             else:
                 raise exceptions.FailedToDownload("Error when subscribing to story. This usually means a change in the website code.")
         elif subCheck and not self.getConfig("auto_sub"):
-            raise exceptions.FailedToDownload("This story is marked as subscribers-only. In order to download such stories, auto_sub must be set to true in personal.ini, as this website removes certain HTML tags and portions of the text otherwise.")
+            raise exceptions.FailedToDownload("This story is only available to subscribers. You can subscribe manually on the web site, or set auto_sub:true in personal.ini.")
 
         ## Title
         a = soup.find('h1', {'id': 'story-title'})
