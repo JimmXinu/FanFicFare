@@ -62,7 +62,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('article',{'class':'message--post'}):
-            logger.debug("Caching %s"%post['data-content'])
+            # logger.debug("Caching %s"%post['data-content'])
             self.post_cache[post['data-content']] = post
 
     def get_first_post(self,topsoup):

@@ -206,7 +206,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## https://forum.questionablequesting.com/login/login
         loginUrl = self.getURLPrefix() + '/login/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['login']))
+                                                             params['login']))
 
         d = self._fetchUrl(loginUrl, params)
 
@@ -572,7 +572,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('li',id=re.compile('post-[0-9]+')):
-            logger.debug("Caching %s"%post['id'])
+            # logger.debug("Caching %s"%post['id'])
             self.post_cache[post['id']] = post
 
     def get_cache_post(self,postid):
@@ -581,7 +581,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## allows chapter urls to be passed in directly.
             # assumed normalized to /posts/1234/
             postid = "post-"+postid.split('/')[-2]
-        logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
+        # logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
         return self.post_cache.get(postid,None)
 
     # grab the text for an individual chapter.
@@ -688,7 +688,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(failedtoload|clear.png)$')):
-                #logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
+                # logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
                 clses = unicode(img['class']) # stringify list.
                 if img.has_attr('alt') and 'mceSmilie' in clses :
                     ## Change the img to a span containing the alt
