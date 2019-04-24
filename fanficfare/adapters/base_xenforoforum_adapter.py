@@ -572,7 +572,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('li',id=re.compile('post-[0-9]+')):
-            # logger.debug("Caching %s"%post['id'])
+            logger.debug("Caching %s"%post['id'])
             self.post_cache[post['id']] = post
 
     def get_cache_post(self,postid):
@@ -581,7 +581,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## allows chapter urls to be passed in directly.
             # assumed normalized to /posts/1234/
             postid = "post-"+postid.split('/')[-2]
-        # logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
+        elif '#post-' in postid:
+            postid = postid.split('#')[1]
+        logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
         return self.post_cache.get(postid,None)
 
     # grab the text for an individual chapter.
@@ -595,7 +597,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # reader mode shows only threadmarked posts in threadmark
         # order.  don't use reader mode for /threads/ urls, or
         # first post when always_include_first_post.
-        logger.debug("self.reader:%s"%self.reader)
         if ( self.reader and
              self.getConfig("use_reader_mode",True) and
              '/threads/' not in url and
@@ -614,8 +615,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
                     reader_url=self.make_reader_url(tmcat_num,reader_page_num)
                     logger.debug("Fetch reader URL to: %s"%reader_url)
-                    topsoup = self.make_soup(self._fetchUrl(reader_url)) # also caches posts.
-                    # cache is now loaded with posts from that reader
+                    topsoup = self.make_soup(self._fetchUrl(reader_url))
+                    # make_soup() loads cache with posts from that reader
                     # page.  looking for it in cache reuses code in
                     # cache_posts that finds post tags.
                     souptag = self.get_cache_post(url)
@@ -635,11 +636,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     url = url + origurl[origurl.index('#'):]
                     logger.debug("chapter URL redirected to: %s"%url)
 
-                topsoup = souptag = self.make_soup(data)
-
-                if '#' in unicode(url):
-                    anchorid = url.split('#')[1]
-                    souptag = topsoup.find('li',id=anchorid)
+                souptag = self.make_soup(data)
+                # make_soup() loads cache with posts from that reader
+                # page.  looking for it in cache reuses code in
+                # cache_posts that finds post tags.
+                souptag = self.get_cache_post(url)
 
         # remove <div class="baseHtml noticeContent"> because it can
         # get confused for post content on first posts.
