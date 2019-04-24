@@ -244,6 +244,8 @@ def get_valid_set_options():
 
                'inject_chapter_title':(['asianfanfics.com'],None,boollist),
 
+               'auto_sub':(['asianfanfics.com'],None,boollist),
+
                # eFiction Base adapters allow bulk_load
                # kept forgetting to add them, so now it's automatic.
                'bulk_load':(adapters.get_bulk_load_sites(),
@@ -441,6 +443,7 @@ def get_valid_keywords():
                  'conditionals_use_lists',
                  'description_in_chapter',
                  'inject_chapter_title',
+                 'auto_sub',
                  'titlepage_end',
                  'titlepage_entries',
                  'titlepage_entry',
