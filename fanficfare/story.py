@@ -703,7 +703,10 @@ class Story(Configurable):
             elif 'list' in tag['class']:
                 val = []
                 for i in tag.find_all('li'):
-                    val.append(i.string)
+                    # keeps &amp; but removes <li></li> because BS4
+                    # halps by converting NavigableString to string
+                    # (losing entities)
+                    val.append(unicode(i)[4:-5])
             elif 'int' in tag['class']:
                 # Python reports true when asked isinstance(<bool>, (int))
                 # bools now converted to unicode when set.
