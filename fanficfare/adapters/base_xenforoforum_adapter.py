@@ -233,84 +233,131 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         self.cache_posts(soup)
         return soup
 
-    ## Moved over from adapter_forumquestionablequestingcom when SB/SV
-    ## threadmark.rss became 'most recent 10 in reverse order'.
+    def get_threadmarks_top(self,souptag):
+        return souptag.find('div',{'class':'threadmarkMenus'})
+
+    def get_threadmarks(self,navdiv):
+        return navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
+
+    def get_threadmark_catnumname(self,threadmarksa):
+        return (threadmarksa['href'].split('category_id=')[1],
+                stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'})))
+
     def extract_threadmarks(self,souptag):
         threadmarks=[]
         # try threadmarks if no '#' in url
-        navdiv = souptag.find('div',{'class':'threadmarkMenus'})
+        navdiv = self.get_threadmarks_top(souptag)
         if not navdiv:
             return threadmarks
-        # was class=threadmarksTrigger.  thread cats are currently
-        # only OverlayTrigger <a>s in threadmarkMenus, but I wouldn't
-        # be surprised if that changed.  Don't want to do use just
-        # href=re because there's more than one copy on the page; plus
-        # could be included in a post.  Would be easier if <noscript>s
-        # weren't being stripped, but that's a different issue.
-        threadmarksas = navdiv.find_all('a',{'class':'OverlayTrigger','href':re.compile('threadmarks.*category_id=')})
-        ## Loop on threadmark categories.
-        tmcat_num=None
+        threadmarksas = self.get_threadmarks(navdiv)
 
+        threadmarkgroups = dict() # for ordering threadmarks
+        ## Loop on threadmark categories.
         for threadmarksa in threadmarksas:
-            tmcat_num = threadmarksa['href'].split('category_id=')[1]
-            # get from earlier <a> now.
-            tmcat_name = stripHTML(threadmarksa.find_previous('a',{'class':'threadmarksTrigger'}))
+            (tmcat_num,tmcat_name) = self.get_threadmark_catnumname(threadmarksa)
             if tmcat_name in self.getConfigList('skip_threadmarks_categories'):
                 continue
 
             if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                 tmcat_name = 'Omake'
 
-            threadmarks.extend(self.fetch_threadmarks(self.getURLPrefix()+'/'+threadmarksa['href'],
-                                                      tmcat_name,
-                                                      tmcat_num))
+            if 'http' not in threadmarksa['href']:
+                href = self.getURLPrefix()+'/'+threadmarksa['href']
+            else:
+                href = threadmarksa['href']
+            threadmarkgroups[tmcat_name]=self.fetch_threadmarks(href,
+                                                                tmcat_name,
+                                                                tmcat_num)
+        ## Order of threadmark groups in new SV is changed and
+        ## possibly unpredictable.  Normalize.  Keep as configurable?
+        ## What about categories not in the list?
+        default_order = ['Threadmarks',
+                         'Sidestory',
+                         'Apocrypha',
+                         'Omake',
+                         'Media',
+                         'Informational',
+                         'Staff Post']
+        # default order also *after* config'ed
+        # threadmark_category_order so if they are not also in
+        # skip_threadmarks_categories they appear in the expected
+        # order.
+        for cat_name in self.getConfigList('threadmark_category_order',default_order)+default_order:
+            if cat_name in threadmarkgroups:
+                threadmarks.extend(threadmarkgroups[cat_name])
+                del threadmarkgroups[cat_name]
+        # more categories left?  new or at least unknown
+        if threadmarkgroups:
+            cats = threadmarkgroups.keys()
+            # alphabetize for lack of a better idea to insure consist ordering
+            cats.sort()
+            for cat_name in cats:
+                threadmarks.extend(threadmarkgroups[cat_name])
         return threadmarks
+
+    def get_threadmarks_list(self,soupmarks):
+        return soupmarks.find('div',{'class':'threadmarkList'})
+
+    def get_threadmarks_from_list(self,tm_list):
+        return tm_list.find_all('li',{'class':'threadmarkListItem'})
+
+    def get_atag_from_threadmark(self,tm_item):
+        return tm_item.find('a',{'class':'PreviewTooltip'})
+
+    def get_threadmark_range_url(self,tm_item,tmcat_num):
+        load_range = "threadmarks/load-range?min=%s&max=%s&category_id=%s"%(tm_item['data-range-min'],
+                                                                            tm_item['data-range-max'],
+                                                                            tmcat_num)
+        return self.url+load_range
+
+    def get_threadmark_date(self,tm_item):
+        atag = self.get_atag_from_threadmark(tm_item)
+        return self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
+
+    def get_threadmark_words(self,tm_item):
+        words = kwords = ""
+        atag = self.get_atag_from_threadmark(tm_item)
+        if atag.parent.has_attr('data-words'):
+            words = int(atag.parent['data-words'])
+            if "(" in atag.next_sibling:
+                kwords = atag.next_sibling.strip()
+        return words,kwords
 
     def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0):
         logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s)"%(tmcat_name,tmcat_num, passed_tmcat_index, url))
         threadmarks=[]
         soupmarks = self.make_soup(self._fetchUrl(url))
-        tm_list = soupmarks.find('div',{'class':'threadmarkList'})
-        if not tm_list: # load-range don't have threadmarkList.
+        tm_list = self.get_threadmarks_list(soupmarks)
+        if not tm_list: # load-range don't match
             tm_list = soupmarks
         # logger.debug(tm_list)
         markas = []
         tmcat_index=passed_tmcat_index
         after = False
-        for tm_item in tm_list.find_all('li',{'class':'threadmarkListItem'}):
-            atag = tm_item.find('a',{'class':'PreviewTooltip'})
+        for tm_item in self.get_threadmarks_from_list(tm_list):
+            atag = self.get_atag_from_threadmark(tm_item)
             if not atag:
-                if tm_item['data-range-min'] and tm_item['data-range-max']:
-                # logger.debug(tm_item)
-                    load_range = "threadmarks/load-range?min=%s&max=%s&category_id=%s"%(tm_item['data-range-min'],
-                                                                                        tm_item['data-range-max'],
-                                                                                        tmcat_num)
-                    threadmarks.extend(self.fetch_threadmarks(self.url+load_range,
-                                                              tmcat_name,
-                                                              tmcat_num,
-                                                              tmcat_index))
-                    tmcat_index = len(threadmarks)
-                    after=True
+                threadmarks.extend(self.fetch_threadmarks(self.get_threadmark_range_url(tm_item,tmcat_num),
+                                                          tmcat_name,
+                                                          tmcat_num,
+                                                          tmcat_index))
+                tmcat_index = len(threadmarks)
+                after=True
             else:
                 if after:
                     # logger.debug("AFTER "*10)
                     after=False
                 url,name = atag['href'],stripHTML(atag)
-                date = self.make_date(atag.find_next_sibling('div',{'class':'extra'}))
-                if atag.parent.has_attr('data-words'):
-                    words = int(atag.parent['data-words'])
-                    if "(" in atag.next_sibling:
-                        kwords = atag.next_sibling.strip()
-                    # logger.debug("%s"%kwords)
-                else:
-                    words = ""
-                    kwords = ""
+                date = self.get_threadmark_date(tm_item)
+                words,kwords = self.get_threadmark_words(tm_item)
+                if 'http' not in url:
+                    url = self.getURLPrefix()+"/"+url
                 # logger.debug("%s. %s"%(tmcat_index,name))
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
                                     "tmcat_index":tmcat_index,
                                     "title":name,
-                                    "url":self.getURLPrefix()+"/"+url,
+                                    "url":url,
                                     "date":date,
                                     "words":words,
                                     "kwords":kwords})
@@ -495,7 +542,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         bq = souptag.find('blockquote')
         if not bq:
             bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
-
         bq.name='div'
         return bq
 
@@ -623,7 +669,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def make_reader_url(self,tmcat_num,reader_page_num):
         return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
-    
+
     def handle_spoilers(self,topsoup):
         '''
         Modifies tag given as required to do spoiler changes.
