@@ -220,6 +220,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def make_soup(self,data):
         soup = super(BaseXenForoForumAdapter, self).make_soup(data)
+        ## img class="lazyload"
+        ## include lazy load images.
+        for img in soup.find_all('img',{'class':'lazyload'}):
+            img['src'] = img['data-src']
+
         ## after lazy load images, there are noscript blocks also
         ## containing <img> tags.  The problem comes in when they hit
         ## book readers such as Kindle and Nook and then you see the
@@ -661,11 +666,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         for qdiv in postbody.find_all('div',{'class':'quoteExpand'}):
             qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-
-        ## img alt="[​IMG]" class="bbCodeImage LbImage lazyload
-        ## include lazy load images.
-        for img in postbody.find_all('img',{'class':'lazyload'}):
-            img['src'] = img['data-src']
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',postbody)
