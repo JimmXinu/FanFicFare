@@ -636,11 +636,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     url = url + origurl[origurl.index('#'):]
                     logger.debug("chapter URL redirected to: %s"%url)
 
-                souptag = self.make_soup(data)
+                topsoup = self.make_soup(data)
                 # make_soup() loads cache with posts from that reader
                 # page.  looking for it in cache reuses code in
                 # cache_posts that finds post tags.
                 souptag = self.get_cache_post(url)
+                if not souptag and '/threads/' in url: # first post uses /thread/ URL.
+                    souptag = self.get_first_post(topsoup)
 
         # remove <div class="baseHtml noticeContent"> because it can
         # get confused for post content on first posts.
