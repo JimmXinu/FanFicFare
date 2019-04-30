@@ -86,7 +86,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         ## need to accept http and https still.
-        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#post-(?P<anchorpost>\d+))?$"
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
     def _fetchUrlOpened(self, url,
                         parameters=None,
@@ -231,6 +231,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## same images twice.
         for noscript in soup.find_all('noscript'):
             noscript.extract()
+
+        for qdiv in self.get_quote_expand_tag(soup):
+            qdiv.extract() # Remove <div class="...">click to expand</div>
+
+        self.convert_quotes(soup)
 
         self.handle_spoilers(soup)
 
@@ -497,9 +502,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         if self.num_chapters() < 1:
             self.add_chapter(first_post_title,useurl)
-            for (url,name) in [ (x['href'],stripHTML(x)) for x in first_post.find_all('a') ]:
+            # logger.debug(first_post)
+            for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in first_post.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
-                if is_chapter_url and name != u"\u2191": # skip quote links as indicated by up arrow character.
+                # skip quote links as indicated by up arrow character or data-xf-click=attribution
+                if is_chapter_url and name != u"\u2191" and tag.get("data-xf-click",None)!="attribution":
                     self.add_chapter(name,url)
                     if url == useurl and first_post_title == self.get_chapter(0,'url') \
                             and not self.getConfig('always_include_first_post',False):
@@ -654,18 +661,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         for notice in souptag.find_all('div',{'class':'noticeContent'}):
             notice.extract()
 
-        # bq = souptag.find('blockquote')
-        # if not bq:
-        #     bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
-
-        # bq.name='div'
         postbody = self.get_post_body(souptag)
 
         for iframe in postbody.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-
-        for qdiv in postbody.find_all('div',{'class':'quoteExpand'}):
-            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',postbody)
@@ -673,8 +672,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def make_reader_url(self,tmcat_num,reader_page_num):
         return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
 
+    def get_quote_expand_tag(self,soup):
+        return soup.find_all('div',{'class':'quoteExpand'})
+
     def get_spoiler_tags(self,topsoup):
         return topsoup.find_all('div',class_='bbCodeSpoilerContainer')
+
+    def convert_quotes(self,soup):
+        pass
 
     def handle_spoilers(self,topsoup):
         '''

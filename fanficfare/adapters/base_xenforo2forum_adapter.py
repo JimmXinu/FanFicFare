@@ -138,5 +138,14 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         # https://xf2test.sufficientvelocity.com/threads/mauling-snarks-worm.41471/reader/page-4?threadmark_category=4
         return self.story.getMetadata('storyUrl')+'reader/page-'+unicode(reader_page_num)+'?threadmark_category='+tmcat_num
 
+    def get_quote_expand_tag(self,soup):
+        return soup.find_all('div',{'class':re.compile(r'bbCodeBlock-(expand|shrink)Link')})
+
     def get_spoiler_tags(self,topsoup):
         return topsoup.find_all('div',class_='bbCodeSpoiler')
+
+    def convert_quotes(self,soup):
+        ## make XF2 quote divs blockquotes so the spacing is the same
+        ## as XF1.
+        for tag in soup.find_all('div', class_="bbCodeBlock-expandContent"):
+            tag.name='blockquote'
