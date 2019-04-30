@@ -671,16 +671,22 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def make_reader_url(self,tmcat_num,reader_page_num):
         return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
 
+    def get_spoiler_tags(self,topsoup):
+        return topsoup.find_all('div',class_='bbCodeSpoilerContainer')
+
     def handle_spoilers(self,topsoup):
         '''
         Modifies tag given as required to do spoiler changes.
         '''
         if self.getConfig('remove_spoilers'):
-            for div in topsoup.find_all('div',class_='bbCodeSpoilerContainer'):
+            for div in self.get_spoiler_tags(topsoup):
                 div.extract()
         elif self.getConfig('legend_spoilers'):
-            for div in topsoup.find_all('div',class_='bbCodeSpoilerContainer'):
+            for div in self.get_spoiler_tags(topsoup):
                 div.name='fieldset'
+                # add copy of XF1 class name for convenience of
+                # existing output_css when XF2.
+                div['class'].append('bbCodeSpoilerContainer')
                 legend = topsoup.new_tag('legend')
                 legend.string = stripHTML(div.button.span)
                 div.insert(0,legend)

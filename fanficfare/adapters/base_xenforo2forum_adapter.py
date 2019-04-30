@@ -40,6 +40,11 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         logger.info("init url: "+url)
         BaseXenForoForumAdapter.__init__(self, config, url)
 
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['base_xenforo2forum'] + BaseXenForoForumAdapter.getConfigSections()
+
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
         # logger.debug(h1)
@@ -132,3 +137,6 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     def make_reader_url(self,tmcat_num,reader_page_num):
         # https://xf2test.sufficientvelocity.com/threads/mauling-snarks-worm.41471/reader/page-4?threadmark_category=4
         return self.story.getMetadata('storyUrl')+'reader/page-'+unicode(reader_page_num)+'?threadmark_category='+tmcat_num
+
+    def get_spoiler_tags(self,topsoup):
+        return topsoup.find_all('div',class_='bbCodeSpoiler')
