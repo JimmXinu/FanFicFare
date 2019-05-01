@@ -57,6 +57,9 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         self.story.setMetadata('title',stripHTML(h1))
         # logger.debug(stripHTML(h1))
 
+    def get_forumtags(self,topsoup):
+        return topsoup.find('div',{'class':'p-description'}).findAll('a',{'class':'tagItem'})
+
     def parse_author(self,souptag):
         a = souptag.find('section',{'class':'message-user'}).find('a',{'class':'username'})
         # logger.debug(a)

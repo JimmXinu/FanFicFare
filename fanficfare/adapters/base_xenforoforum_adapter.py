@@ -464,7 +464,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
-            for tag in topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'}):
+            for tag in self.get_forumtags(topsoup):
                 tstr = stripHTML(tag)
                 if self.getConfig('capitalize_forumtags'):
                     tstr = tstr.title()
@@ -534,6 +534,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             self.story.addToList('genre',stripHTML(tag))
             tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
+
+    def get_forumtags(self,topsoup):
+        return topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'})
 
     def parse_author(self,souptag):
         a = souptag.find('h3',{'class':'userText'}).find('a')
