@@ -1124,8 +1124,8 @@ class Configuration(configparser.SafeConfigParser):
 
         if "xf2test" in url:
             import base64
-            base64string = base64.encodestring('%s:%s' % ("xf2demo2019", "dBfbyHVvRCsYtLg846r3")).replace('\n', '')
-            headers.append(('Authorization', "Basic %s" % base64string))
+            base64string = base64.encodestring(b"xf2demo2019:dBfbyHVvRCsYtLg846r3").replace(b'\n', b'')
+            headers.append(('Authorization', b"Basic %s" % base64string))
 
         self.opener.addheaders = headers
 
@@ -1187,6 +1187,7 @@ class Configuration(configparser.SafeConfigParser):
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+                raise
 
         logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)

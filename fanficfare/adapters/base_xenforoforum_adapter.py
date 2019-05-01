@@ -589,6 +589,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def get_cache_post(self,postid):
         ## saved using original 'post-99999' id for key.
+        postid=unicode(postid) # thank you, Py3.
         if '/posts/' in postid:
             ## allows chapter urls to be passed in directly.
             # assumed normalized to /posts/1234/
@@ -643,7 +644,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             souptag = self.get_cache_post(url)
             if not souptag:
                 (data,opened) = self._fetchUrlOpened(url)
-                url = opened.geturl()
+                url = unicode(opened.geturl())
                 if '#' in origurl and '#' not in url:
                     url = url + origurl[origurl.index('#'):]
                     logger.debug("chapter URL redirected to: %s"%url)
