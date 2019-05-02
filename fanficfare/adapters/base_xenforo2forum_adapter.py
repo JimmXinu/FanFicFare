@@ -43,7 +43,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return ['base_xenforo2forum'] + BaseXenForoForumAdapter.getConfigSections()
+        return ['base_xenforo2forum'] + super(BaseXenForo2ForumAdapter, cls).getConfigSections()
 
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
