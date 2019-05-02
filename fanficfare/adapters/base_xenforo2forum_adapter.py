@@ -45,6 +45,47 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         "Only needs to be overriden if has additional ini sections."
         return ['base_xenforo2forum'] + super(BaseXenForo2ForumAdapter, cls).getConfigSections()
 
+    def performLogin(self):
+        params = {}
+
+        if self.password:
+            params['login'] = self.username
+            params['password'] = self.password
+        else:
+            params['login'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+
+        if not params['login']:
+            raise exceptions.FailedToLogin(self.url,"No username given.  Set in personal.ini or enter when prompted.")
+
+        ## need a login token.
+        data = self._fetchUrl(self.getURLPrefix() + '/login',usecache=False)
+        # logger.debug(data)
+        # <input type="hidden" name="_xfToken" value="1556822458,710e5bf6fc87c67ea04ab56a910ac3ff" />
+        find_token='<input type="hidden" name="_xfToken" value="'
+        xftoken = data[data.index(find_token)+len(find_token):]
+        xftoken = xftoken[:xftoken.index('"')]
+        params['remember'] = '1'
+        params['_xfToken'] = xftoken
+        params['_xfRedirect'] = self.getURLPrefix() + '/'
+
+        ## https://forum.questionablequesting.com/login/login
+        loginUrl = self.getURLPrefix() + '/login/login'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                             params['login']))
+
+        d = self._postUrl(loginUrl, params)# , headers={ 'referer':self.getURLPrefix() + '/login',
+                                           #            'origin':self.getURLPrefix() })
+
+        if "Log In" in d:
+            # logger.debug(d)
+            logger.info("Failed to login to URL %s as %s" % (self.url,
+                                                             params['login']))
+            raise exceptions.FailedToLogin(self.url,params['login'])
+            return False
+        else:
+            return True
+
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
         # logger.debug(h1)

@@ -1054,6 +1054,12 @@ class Configuration(configparser.SafeConfigParser):
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
+
+        if "xf2test" in url:
+            import base64
+            base64string = base64.encodestring(b"xf2demo2019:dBfbyHVvRCsYtLg846r3").replace(b'\n', b'')
+            headers['Authorization']=b"Basic %s" % base64string
+
         req = Request(url,
                       data=ensure_binary(urlencode(parameters)),
                       headers=headers)
