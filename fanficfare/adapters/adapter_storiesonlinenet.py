@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -306,7 +306,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if series_soup:
                     # logger.debug("Retrieving Series - looking for name")
                     series_name = stripHTML(series_soup.find('h1', {'id' : 'ptitle'}))
-                    series_name = re.sub(r' . a series by.*$','',series_name)
+                    series_name = re.sub(r' . a (series by|collection from).*$','',series_name)
                     # logger.debug("Series name: '%s'" % series_name)
                 self.setSeries(series_name, i)
                 desc = description_element.contents[2]
