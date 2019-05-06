@@ -2240,7 +2240,7 @@ class FanFicFarePlugin(InterfaceAction):
                     #     if "=>" in line:
                     #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                     for (template,regexp,setting) in configuration.get_generate_cover_settings():
-                        value = Template(template).safe_substitute(book['all_metadata']).encode('utf8')
+                        value = Template(template).safe_substitute(book['all_metadata'])
                         # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
                         if re.search(regexp,value):
                             setting_name = setting
@@ -2669,7 +2669,7 @@ class FanFicFarePlugin(InterfaceAction):
             logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):
                 tmplt = Template(configuration.getConfig('anthology_title_pattern'))
-                book['title'] = tmplt.safe_substitute({'title':book['title']}).encode('utf8')
+                book['title'] = tmplt.safe_substitute({'title':book['title']})
             else:
                 # No setting, do fall back default.  Shouldn't happen,
                 # should always have a version in defaults.
