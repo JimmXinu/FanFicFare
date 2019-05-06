@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -150,6 +150,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 }
             self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
+            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=1')
+        elif idnum < 20:
+            self.setSeries('魔法少女まどか★マギカ',idnum)
             self.story.setMetadata('seriesUrl','http://test1.com?seriesid=1')
         if idnum == 0:
             self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
