@@ -1057,7 +1057,7 @@ class Story(Configurable):
         if '' in subjectset:
             subjectset.remove('')
 
-        return list(subjectset | set(self.getConfigList("extratags")))
+        return list(subjectset)
 
     def addChapter(self, chap, newchap=False):
         # logger.debug("addChapter(%s,%s)"%(chap,newchap))
