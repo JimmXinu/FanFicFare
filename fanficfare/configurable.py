@@ -1054,6 +1054,12 @@ class Configuration(configparser.SafeConfigParser):
             headers['Content-type']='application/x-www-form-urlencoded'
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
+
+        if "xf2test" in url:
+            import base64
+            base64string = base64.encodestring(b"xf2demo2019:dBfbyHVvRCsYtLg846r3").replace(b'\n', b'')
+            headers['Authorization']=b"Basic %s" % base64string
+
         req = Request(url,
                       data=ensure_binary(urlencode(parameters)),
                       headers=headers)
@@ -1122,6 +1128,11 @@ class Configuration(configparser.SafeConfigParser):
             ## not present at all
             headers.append(('Referer',referer))
 
+        if "xf2test" in url:
+            import base64
+            base64string = base64.encodestring(b"xf2demo2019:dBfbyHVvRCsYtLg846r3").replace(b'\n', b'')
+            headers.append(('Authorization', b"Basic %s" % base64string))
+
         self.opener.addheaders = headers
 
         if parameters != None:
@@ -1182,6 +1193,7 @@ class Configuration(configparser.SafeConfigParser):
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
+                raise
 
         logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)
