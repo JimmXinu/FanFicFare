@@ -587,7 +587,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('li',id=re.compile('post-[0-9]+')):
-            logger.debug("Caching %s"%post['id'])
+            # logger.debug("Caching %s"%post['id'])
             self.post_cache[post['id']] = post
 
     def get_cache_post(self,postid):
@@ -599,7 +599,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             postid = "post-"+postid.split('/')[-2]
         elif '#post-' in postid:
             postid = postid.split('#')[1]
-        logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
+        # logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
         return self.post_cache.get(postid,None)
 
     # grab the text for an individual chapter.
