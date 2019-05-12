@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
+from datetime import datetime
 #
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -108,13 +109,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                                                               params['theusername']))
         try:
             d = self._postUrl(loginUrl,params,usecache=False)
+            self.needToLogin = False
         except HTTPError as e:
             if e.code == 307:
                 logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
                 return True
 
-        # probably not used now, 307 seems standard now for storiesonline.net/finestories.com
-        if "My Account" not in d : #Member Account
+        if self.needToLoginCheck(d):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['theusername']))
             raise exceptions.FailedToLogin(url,params['theusername'])
@@ -375,13 +376,29 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         self.setDescription('https://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
 
+    def parseDate(self,label):
+        # date is passed as a timestamp and converted in JS.  used to
+        # use noscript value instead, but found one story that didn't
+        # include it.
+        # logger.debug('parseDate: "%s"' % label)
+        noscript = label.findNext('noscript').text
+        try:
+            timestamp = label.findNext('script').text
+            timestamp = timestamp[timestamp.index("Date(")+5:]
+            # remove milliseconds that JS likes.
+            timestamp = timestamp[:timestamp.index(")")-3]
+            value = datetime.fromtimestamp(float(timestamp))
+        except:
+            value = makeDate(stripHTML(noscript), self.dateformat)
+        # logger.debug('Have a date field label: "%s", noscript: "%s", timestamp: "%s", value: "%s"' % (label, noscript, timestamp, value))
+        return value
 
     def parseOtherAttributes(self, other_attribute_element):
         for b in other_attribute_element.findAll('b'):
             #logger.debug('Getting metadata: "%s"' % b)
             label = b.text
             if label in ['Posted:', 'Concluded:', 'Updated:']:
-                value = b.findNext('noscript').text
+                value = self.parseDate(b)
                 #logger.debug('Have a date field label: "%s", value: "%s"' % (label, value))
             else:
                 value = b.nextSibling
@@ -400,12 +417,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     self.story.addToList('genre', code)
 
             if 'Posted' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('datePublished', value)
+                self.story.setMetadata('dateUpdated', value)
             if 'Concluded' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('dateUpdated', value)
             if 'Updated' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('dateUpdated', value)
 
         status = other_attribute_element.find('span', {'class':'ab'})
         if status != None:
@@ -414,9 +431,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('status', 'In-Progress')
             if "Last Activity" in status.text:
-                # date is passed as a timestamp and converted in JS.
-                value = status.findNext('noscript').text
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+                self.story.setMetadata('dateUpdated', value)
         else:
             self.story.setMetadata('status', 'Completed')
 
