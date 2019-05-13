@@ -32,7 +32,7 @@ from ..six.moves import zip as izip
 from .base_adapter import BaseSiteAdapter, makeDate
 
 
-_logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def getClass():
@@ -109,7 +109,11 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 url = self._makeDocumentUrl(self._getDocumentId(url))
                 following = self._makeChapter(url)
                 # Do not follow links to related, but different stories (prequels or sequels).
-                if not following.isFromStory(starting.getHeading()):
+                try:
+                    if not following.isFromStory(starting.getHeading()):
+                        return
+                except Exception as e:
+                    logger.info("Failure to parse page, stop stepping through pages: %s"%e)
                     return
                 if forward:
                     yield following
@@ -155,7 +159,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         for chapter in chapters:
             url = chapter.getUrl()
             self._chapters[url] = chapter
-            _logger.debug(u"Processing chapter `%s'.", url)
+            logger.debug(u"Processing chapter `%s'.", url)
 
             try:
                 authorName = chapter.getAuthorName()
@@ -208,7 +212,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 raise exceptions.FailedToDownload(u"Failed to download chapter `%s': %s" % (url, error))
 
         # Some metadata are handled separately due to format conversions.
-        self.story.setMetadata('status', 'In Progress' if storyInProgress else 'Completed')
+        self.story.setMetadata('status', 'In-Progress' if storyInProgress else 'Completed')
         self.story.setMetadata('datePublished', datePublished)
         self.story.setMetadata('dateUpdated', dateUpdated)
         self.story.setMetadata('numWords', unicode(wordCount))
@@ -253,7 +257,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 for ratingDescription in ratingTitleDescriptions:
                     parts = ratingDescription.split(u'=')
                     if len(parts) < 2:
-                        _logger.warning(
+                        logger.warning(
                             u"Invalid `rating_titles' setting, missing `=' in `%s'."
                             % ratingDescription)
                         continue
@@ -509,7 +513,7 @@ class Chapter(object):
                     result += removeEntities(element)
                 return result
 
-            elements = starter.childGenerator()
+            elements = starter.nextGenerator()
             for element in elements:
                 if isinstance(element, bs4.Tag):
                     if element == bound:
@@ -545,7 +549,7 @@ class Chapter(object):
             key = key.strip(separators).lower()
             value = value.strip().strip(separators)
             parsed = self._parseAttribute(key, value)
-            for parsedKey, parsedValue in parsed.iteritems():
+            for parsedKey, parsedValue in parsed.items():
                 attributes[parsedKey] = parsedValue
 
         freestandingText = freestandingText.strip()
@@ -553,7 +557,7 @@ class Chapter(object):
             attributes['summary'] = freestandingText
 
         if 'rating' not in attributes:
-            _logger.warning(u"Failed to locate or recognize rating for `%s'!", self.getUrl())
+            logger.warning(u"Failed to locate or recognize rating for `%s'!", self.getUrl())
 
         return attributes
 
@@ -577,7 +581,7 @@ class Chapter(object):
                     'isAdult': label in self._configuration['adultRatings']
                 }
             else:
-                _logger.warning(u"No title found for rating label `%s'!" % label)
+                logger.warning(u"No title found for rating label `%s'!" % label)
         # TODO: conduct a research on such abnormal URLs.
         elif '/_fr/10/1360399.png' in source:
             label = 'Nn'
@@ -646,7 +650,7 @@ class Chapter(object):
             value = value[:1].upper() + value[1:]
             return {'summary': value}
         else:
-            _logger.info(u"Unrecognized attribute `%s' ignored.", key)
+            logger.info(u"Unrecognized attribute `%s' ignored.", key)
             return {}
 
     def _getTextElement(self):
@@ -665,7 +669,7 @@ class Chapter(object):
             # BS 4.4 implements cloning via `copy.copy()', but supporting it for BS 4.3
             # would be error-prone (due to relying on BS internals) and is not needed.
             if self._textElement:
-                _logger.debug(u"You may not call this function more than once!")
+                logger.debug(u"You may not call this function more than once!")
             raise ParsingError(u'Failed to locate text.')
         collection = [starter]
         for element in starter.childGenerator():
