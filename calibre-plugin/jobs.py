@@ -19,6 +19,7 @@ from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
+from .fanficfare.six import text_type as unicode
 
 from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
 from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
@@ -341,7 +342,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['comment']=unicode(e)
             book['icon']='dialog_error.png'
             book['status'] = _('Error')
-            logger.info("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
+            logger.info("Exception: %s:%s"%(book,book['comment']),exc_info=True)
 
         #time.sleep(10)
     return book
