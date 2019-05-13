@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 from calibre_plugins.fanficfare_plugin.fanficfare import adapters, exceptions
 from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
+from .fanficfare.six import ensure_text
 from .fanficfare.six.moves import configparser
 
 def get_fff_personalini():
@@ -29,8 +30,8 @@ def get_fff_config(url,fileform="epub",personalini=None):
     except Exception as e:
         logger.debug("Failed trying to get ini config for url(%s): %s, using section %s instead"%(url,e,sections))
     configuration = Configuration(sections,fileform)
-    configuration.readfp(StringIO(get_resources("plugin-defaults.ini").decode('utf-8')))
-    configuration.readfp(StringIO(personalini.decode('utf-8')))
+    configuration.readfp(StringIO(ensure_text(get_resources("plugin-defaults.ini"))))
+    configuration.readfp(StringIO(ensure_text(personalini)))
 
     return configuration
 
