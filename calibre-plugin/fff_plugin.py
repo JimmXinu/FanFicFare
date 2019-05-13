@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2019, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from .fanficfare.six import text_type as unicode
+from .fanficfare.six import string_types, text_type as unicode
 
 # import cProfile
 
@@ -857,7 +857,7 @@ class FanFicFarePlugin(InterfaceAction):
     def prep_anthology_downloads(self, options, update_books,
                                  merge=False, urlmapfile=None):
 
-        if isinstance(update_books,basestring):
+        if isinstance(update_books, string_types):
             url_list = split_text_to_urls(update_books)
             update_books = self.convert_urls_to_books(url_list)
 
@@ -966,7 +966,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         logger.debug("add_tag:%s"%options.get('add_tag',None))
 
-        if isinstance(books,basestring):
+        if isinstance(books, string_types):
             url_list = split_text_to_urls(books)
             books = self.convert_urls_to_books(url_list)
 
