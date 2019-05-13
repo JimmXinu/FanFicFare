@@ -14,6 +14,8 @@ try:
 except ImportError as e:
     from PyQt4.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
 
+from .fanficfare.six import string_types
+
 class IniHighlighter(QSyntaxHighlighter):
     '''
     QSyntaxHighlighter class for use with QTextEdit for highlighting
@@ -107,7 +109,7 @@ class HighlightingRule():
                   weight=QFont.Normal,
                   style=Qt.SolidPattern,
                   blocknum=0):
-        if isinstance(pattern,basestring):
+        if isinstance(pattern, string_types):
             self.pattern = re.compile(pattern)
         else:
             self.pattern=pattern
