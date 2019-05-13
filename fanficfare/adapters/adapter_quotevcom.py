@@ -3,6 +3,8 @@
 from __future__ import absolute_import
 import re
 import datetime
+import logging
+logger = logging.getLogger(__name__)
 
 from .. import exceptions
 # py2 vs py3 transition
@@ -69,7 +71,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
         title = element.find('h1')
         self.story.setMetadata('title', title.get_text())
-        
+
         authdiv = soup.find('div', {'class':"quizAuthorList"})
         if authdiv:
             for a in authdiv.find_all('a'):
@@ -86,10 +88,10 @@ class QuotevComAdapter(BaseSiteAdapter):
         if imgmeta:
             self.coverurl = self.setCoverImage(self.url, urlparse.urljoin(self.url, imgmeta['content']))[1]
 
-        for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/stories/c/')}):
+        for a in soup.find_all('a', {'href': re.compile('/fiction(/c)?/')}):
             self.story.addToList('category', a.get_text())
 
-        for a in soup.find_all('a', {'href': re.compile(SITE_DOMAIN+'/search/')}):
+        for a in soup.find_all('a', {'href': re.compile('/search/')}):
             self.story.addToList('searchtags', a.get_text())
 
         elements = soup.find_all('span', {'class': 'q_time'})
@@ -98,26 +100,28 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
 
         metadiv = elements[0].parent.parent
-        # print stripHTML(metadiv)
-        if u'· completed ·' in stripHTML(metadiv):
+        if u'· completed' in stripHTML(metadiv):
             self.story.setMetadata('status', 'Completed')
         else:
-            self.story.setMetadata('status', 'In-Progress')        
+            self.story.setMetadata('status', 'In-Progress')
 
-        data = filter(None, (x.strip() for x in stripHTML(metadiv).split(u'\xb7')))
-
-        for datum in data:
-            parts = datum.split()
-            if len(parts) < 2 or parts[1] not in self.getConfig('extra_valid_entries'):
-                continue
-
-            key, value = parts[1], parts[0]
-            self.story.setMetadata(key, value.replace(',', '').replace('.', ''))
+        # pages,readers,reads
+        metahtml = unicode(metadiv).replace(u'\n',' ')
+        # logger.debug(metahtml)
+        for entry in self.getConfigList('extra_valid_entries'):
+            # if entry in metahtml:
+            #     logger.debug("should find")
+            # logger.debug(r".*?([0-9,]+) +%s.*?"%entry)
+            m = re.match((r".*?([0-9,]+) +%s.*?"%entry),metahtml)
+            if m:
+                val = m.group(1)
+                # logger.debug(val)
+                self.story.setMetadata(entry, val.replace(',', '').replace('.', ''))
 
         favspans = soup.find('a',{'id':'fav_btn'}).find_all('span')
         if len(favspans) > 1:
             self.story.setMetadata('favorites', stripHTML(favspans[-1]).replace(',', ''))
-            
+
         commentspans = soup.find('a',{'id':'comment_btn'}).find_all('span')
         #print("commentspans:%s"%commentspans)
         if len(commentspans) > 0:
@@ -127,19 +131,19 @@ class QuotevComAdapter(BaseSiteAdapter):
             if 'javascript' not in a['href']:
                 self.add_chapter(a.get_text(), urlparse.urljoin(self.url, a['href']))
 
-        
+
     def getChapterText(self, url):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
         rescontent = soup.find('div', id='rescontent')
-        
+
         # attempt to find and include chapter specific images.
         img = soup.find('div',{'id':'quizHeader'}).find('img')
         #print("img['src'](%s) != self.coverurl(%s)"%(img['src'],self.coverurl))
         if img['src'] != self.coverurl:
             rescontent.insert(0,img)
-        
+
         for a in rescontent('a'):
             a.unwrap()
 
