@@ -1,5 +1,20 @@
 #  -*- coding: utf-8 -*-
 
+# Copyright 2019 FanFicFare team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 from __future__ import absolute_import
 import re
 import datetime
@@ -22,17 +37,12 @@ STORY_URL_TEMPLATE = 'https://www.quotev.com/story/%s'
 def getClass():
     return QuotevComAdapter
 
-
-def get_url_path_segments(url):
-    return tuple(filter(None, url.split('/')[3:]))
-
-
 class QuotevComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        story_id = get_url_path_segments(url)[1]
+        story_id = url.split('/')[4]
         self._setURL(STORY_URL_TEMPLATE % story_id)
         self.story.setMetadata('storyId', story_id)
         self.story.setMetadata('siteabbrev', SITE_DOMAIN)

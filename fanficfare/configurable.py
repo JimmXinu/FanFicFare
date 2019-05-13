@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -684,7 +684,6 @@ class Configuration(configparser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        # was filter( lambda x : x !='', [ v.strip().replace('\,',',') for v in vlist ])
         vlist = vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:

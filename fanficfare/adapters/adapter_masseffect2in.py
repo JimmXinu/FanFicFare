@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2018 FanFicFare team
+# Copyright 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -623,13 +623,13 @@ class Chapter(object):
             return canonicalName
 
         if re.match(u'жанры?', key, re.UNICODE):
-            genres = filter(bool, map(unicode.strip, re.split(u'[,;/]', value)))
+            genres = [ u.strip() for u in re.split(u'[,;/]', value) ]
             return {'genres': genres}
         elif key == u'статус':
             isInProgress = value == u'в процессе'
             return {'isInProgress': isInProgress}
         elif key == u'персонажи':
-            participants = map(refineCharacter, re.split(u'[,;]', value))
+            participants = [ refineCharacter(x) for x in re.split(u'[,;]', value) ]
             characters = []
             pairings = []
             for participant in participants:
@@ -710,6 +710,6 @@ def _getLargestCommonPrefix(*args):
     """Returns largest common prefix of all unicode arguments, ignoring case.
     :rtype : unicode
     """
-    toLower = lambda xs: map(lambda x: x.lower(), xs)
+    toLower = lambda xs: [ x.lower() for x in xs ]
     allSame = lambda xs: len(set(toLower(xs))) == 1
     return u''.join([i[0] for i in takewhile(allSame, izip(*args))])

@@ -498,7 +498,7 @@ class Story(Configurable):
         self.chapter_last=last
 
     def join_list(self, key, vallist):
-        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join(map(unicode, [ x for x in vallist if x is not None ]))
+        return self.getConfig("join_string_"+key,u", ").replace(SPACE_REPLACE,' ').join([ unicode(x) for x in vallist if x is not None ])
 
     def setMetadata(self, key, value, condremoveentities=True):
 
@@ -643,8 +643,8 @@ class Story(Configurable):
                             raise
 
         for val in retlist:
-            retlist = list(map(partial(self.do_in_ex_clude,'include_metadata_post',key=key,seen_list=seen_list),retlist))
-            retlist = list(map(partial(self.do_in_ex_clude,'exclude_metadata_post',key=key,seen_list=seen_list),retlist))
+            retlist = [ self.do_in_ex_clude('include_metadata_post',x,key=key,seen_list=seen_list) for x in retlist ]
+            retlist = [ self.do_in_ex_clude('exclude_metadata_post',x,key=key,seen_list=seen_list) for x in retlist ]
 
         if return_list:
             return retlist
@@ -998,7 +998,7 @@ class Story(Configurable):
                     retlist = newretlist
 
                 if removeallentities:
-                    retlist = list(map(removeAllEntities,retlist))
+                    retlist = [ removeAllEntities(x) for x in retlist ]
 
                 retlist = [x for x in retlist if x!=None and x!='']
 

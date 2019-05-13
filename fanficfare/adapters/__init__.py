@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -259,8 +259,7 @@ def getConfigSections():
 def get_bulk_load_sites():
     # for now, all eFiction Base adapters are assumed to allow bulk_load.
     sections = set()
-    for cls in filter( lambda x : issubclass(x,base_efiction_adapter.BaseEfictionAdapter),
-                       __class_list):
+    for cls in [x for x in __class_list if issubclass(x,base_efiction_adapter.BaseEfictionAdapter) ]:
         sections.update( [ x.replace('www.','') for x in cls.getConfigSections() ] )
     return sections
 

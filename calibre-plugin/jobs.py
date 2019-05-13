@@ -94,10 +94,10 @@ def do_download_worker(book_list,
 
         if count >= total:
             ## ordering first by good vs bad, then by listorder.
-            good_list = filter(lambda x : x['good'], book_list)
-            bad_list = filter(lambda x : not x['good'], book_list)
+            good_list = [ x for x in book_list if x['good'] ]
+            bad_list  = [ x for x in book_list if not x['good'] ]
             good_list = sorted(good_list,key=lambda x : x['listorder'])
-            bad_list = sorted(bad_list,key=lambda x : x['listorder'])
+            bad_list  = sorted(bad_list,key=lambda x : x['listorder'])
 
             logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(url)s %(comment)s" % book for book in good_list+bad_list])))
 

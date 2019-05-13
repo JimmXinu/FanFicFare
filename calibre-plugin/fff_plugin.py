@@ -228,7 +228,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            dropped_ids = [ int(x) for x in str(mime_data.data(mime)).split() ]
 
         mimetype='text/uri-list'
         filelist="%s"%event.mimeData().data(mimetype)
@@ -573,14 +573,12 @@ class FanFicFarePlugin(InterfaceAction):
             return
 
         if self.is_library_view():
-            book_list = map( partial(self.make_book_id_only),
-                             self.gui.library_view.get_selected_ids() )
+            book_list = [ self.make_book_id_only(x) for x in
+                          self.gui.library_view.get_selected_ids() ]
 
         else: # device view, get from epubs on device.
-            view = self.gui.current_view()
-            rows = view.selectionModel().selectedRows()
-            # paths = view.model().paths(rows)
-            book_list = map( partial(self.make_book_from_device_row), rows )
+            book_list = [ self.make_book_from_device_row(x) for x in
+                          self.gui.current_view().selectionModel().selectedRows() ]
 
         LoopProgressDialog(self.gui,
                            book_list,
@@ -625,8 +623,8 @@ class FanFicFarePlugin(InterfaceAction):
                                              3000)
             return
 
-        book_list = map( partial(self.make_book_id_only),
-                         self.gui.library_view.get_selected_ids() )
+        book_list = [ self.make_book_id_only(x) for x in
+                      self.gui.library_view.get_selected_ids() ]
 
         tdir = PersistentTemporaryDirectory(prefix='fanficfare_')
         LoopProgressDialog(self.gui,
@@ -686,14 +684,14 @@ class FanFicFarePlugin(InterfaceAction):
 
     def reject_list_urls(self):
         if self.is_library_view():
-            book_list = map( partial(self.make_book_id_only),
-                             self.gui.library_view.get_selected_ids() )
+            book_list = [ self.make_book_id_only(x) for x in
+                          self.gui.library_view.get_selected_ids() ]
 
         else: # device view, get from epubs on device.
             view = self.gui.current_view()
             rows = view.selectionModel().selectedRows()
             #paths = view.model().paths(rows)
-            book_list = map( partial(self.make_book_from_device_row), rows )
+            book_list = [ self.make_book_from_device_row(x) for x in rows ]
 
         if len(book_list) == 0 :
             self.gui.status_bar.show_message(_('No Selected Books have URLs to Reject'), 3000)
@@ -887,7 +885,7 @@ class FanFicFarePlugin(InterfaceAction):
         #print("update_dialog()")
 
         db = self.gui.current_db
-        books = map( self.make_book_id_only, id_list )
+        books = [ self.make_book_id_only(x) for x in id_list ]
 
         for j, book in enumerate(books):
             book['listorder'] = j
@@ -1596,15 +1594,15 @@ class FanFicFarePlugin(InterfaceAction):
         '''Notify calibre about updated rows, update external plugins
         (Reading Lists & Count Pages) as configured'''
 
-        add_list = filter(lambda x : x['good'] and x['added'], book_list)
+        add_list = [ x for x in book_list if x['good'] and x['added'] ]
         add_ids = [ x['calibre_id'] for x in add_list ]
-        update_list = filter(lambda x : x['good'] and not x['added'], book_list)
+        update_list = [ x for x in book_list if x['good'] and not x['added'] ]
         update_ids = [ x['calibre_id'] for x in update_list ]
         all_ids = add_ids + update_ids
-        all_not_calonly_list = filter(lambda x : x['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL), add_list + update_list)
+        all_not_calonly_list = [ x for x in add_list + update_list if x['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL) ]
         all_not_calonly_ids = [ x['calibre_id'] for x in all_not_calonly_list ]
 
-        failed_list = filter(lambda x : not x['good'] , book_list)
+        failed_list = [ x for x in book_list if not x['good'] ]
         failed_ids = [ x['calibre_id'] for x in failed_list ]
 
         if all_not_calonly_ids and \
@@ -1655,8 +1653,7 @@ class FanFicFarePlugin(InterfaceAction):
             ## have to be launched separately.
             if prefs['wordcountmissing'] and 'WordCount' in countpagesstats:
                 # print("numWords:%s"%[ y['all_metadata']['numWords'] for y in add_list + update_list ])
-                wc_ids = [ y['calibre_id'] for y in filter(
-                        lambda x : '' == x['all_metadata'].get('numWords',''), add_list + update_list ) ]
+                wc_ids = [ x['calibre_id'] for x in add_list + update_list if '' == x['all_metadata'].get('numWords','') ]
                 ## not all need word count
                 # print("wc_ids:%s"%wc_ids)
                 ## if lists don't match
@@ -1684,8 +1681,8 @@ class FanFicFarePlugin(InterfaceAction):
         db = self.gui.current_db
 
         book_list = job.result
-        good_list = filter(lambda x : x['good'], book_list)
-        bad_list = filter(lambda x : not x['good'], book_list)
+        good_list = [ x for x in book_list if x['good'] ]
+        bad_list = [ x for x in book_list if not x['good'] ]
         good_list = sorted(good_list,key=lambda x : x['listorder'])
         bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         #print("book_list:%s"%book_list)
@@ -1991,10 +1988,10 @@ class FanFicFarePlugin(InterfaceAction):
             #print("mi.tags:%s"%mi.tags)
             # remove old Completed/In-Progress only if there's a new one.
             if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
-                old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
+                old_tags = [ x for x in old_tags if x not in ('Completed', 'In-Progress') ]
                 # remove old Last Update tags if there are new ones.
             if sum(1 for x in mi.tags if not x.startswith("Last Update")):
-                old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
+                old_tags = [ x for x in old_tags if not x.startswith("Last Update") ]
 
             # mi.tags needs to be list, but set kills dups.
             # this way also removes case-mismatched dups, keeping old_tags version.
@@ -2098,11 +2095,11 @@ class FanFicFarePlugin(InterfaceAction):
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
                 if "=>" in line:
-                    (meta,custcol) = map( lambda x: x.strip(), line.split("=>") )
+                    (meta,custcol) = [ x.strip() for x in line.split("=>") ]
                     flag='r'
                     anthaver=False
                     if "," in custcol:
-                        (custcol,flag) = map( lambda x: x.strip(), custcol.split(",") )
+                        (custcol,flag) = [ x.strip() for x in custcol.split(",") ]
                         anthaver = 'anthaver' in flag
                         flag=flag[0] # first char only.
 
@@ -2233,12 +2230,6 @@ class FanFicFarePlugin(InterfaceAction):
                     if not configuration: # might already have it from allow_custcol_from_ini
                         configuration = get_fff_config(book['url'],options['fileform'])
 
-                    # template => regexp to match => GC Setting to use.
-                    # generate_cover_settings:
-                    # ${category} => Buffy:? the Vampire Slayer => Buffy
-                    # for line in configuration.getConfig('generate_cover_settings').splitlines():
-                    #     if "=>" in line:
-                    #         (template,regexp,setting) = map( lambda x: x.strip(), line.split("=>") )
                     for (template,regexp,setting) in configuration.get_generate_cover_settings():
                         value = Template(template).safe_substitute(book['all_metadata'])
                         # print("%s(%s) => %s => %s"%(template,value,regexp,setting))
@@ -2298,7 +2289,7 @@ class FanFicFarePlugin(InterfaceAction):
         if lists == None or lists.strip() == "" :
             return []
         else:
-            return filter( lambda x : x, map( lambda x : x.strip(), lists.split(',') ) )
+            return [ x.strip() for x in lists.split(',') ]
 
     def update_reading_lists(self,book_ids,add=True):
         try:
@@ -2696,7 +2687,7 @@ def split_text_to_urls(urls):
             return True
         else:
             return False
-    return filter(f,urls.strip().splitlines())
+    return [ x for x in urls.strip().splitlines() if f(x)]
 
 def escapehtml(txt):
     return txt.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")

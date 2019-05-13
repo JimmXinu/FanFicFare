@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2018, Jim Miller'
+__copyright__ = '2019, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -299,10 +299,10 @@ class ConfigWidget(QWidget):
 
             if self.readinglist_tab:
                 # lists
-                prefs['send_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.send_lists_box.text()).split(','))))
-                prefs['read_lists'] = ', '.join(map( lambda x : x.strip(), filter( lambda x : x.strip() != '', unicode(self.readinglist_tab.read_lists_box.text()).split(','))))
-                # print("send_lists: %s"%prefs['send_lists'])
-                # print("read_lists: %s"%prefs['read_lists'])
+                prefs['send_lists'] = ', '.join([ x.strip() for x in unicode(self.readinglist_tab.send_lists_box.text()).split(',') if x.strip() ])
+                prefs['read_lists'] = ', '.join([ x.strip() for x in unicode(self.readinglist_tab.read_lists_box.text()).split(',') if x.strip() ])
+                logger.debug("send_lists: %s"%prefs['send_lists'])
+                logger.debug("read_lists: %s"%prefs['read_lists'])
                 prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
                 prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
                 prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()
