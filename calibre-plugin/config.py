@@ -2,6 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2019, Jim Miller'
@@ -190,7 +191,7 @@ class RejectURLList:
                 self._save_list(listcache)
 
     def add_text(self,rejecttext,addreasontext):
-        self.add(self._read_list_from_text(rejecttext,addreasontext).values())
+        self.add(list(self._read_list_from_text(rejecttext,addreasontext).values()))
 
     def add(self,rejectlist,clear=False):
         with self.sync_lock:
@@ -203,7 +204,7 @@ class RejectURLList:
             self._save_list(listcache)
 
     def get_list(self):
-        return self._get_listcache().values()
+        return list(self._get_listcache().values())
 
     def get_reject_reasons(self):
         return self.prefs['rejectreasons'].splitlines()
@@ -329,7 +330,7 @@ class ConfigWidget(QWidget):
             prefs['plugin_gen_cover'] = self.calibrecover_tab.plugin_gen_cover.isChecked()
             prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
             gc_site_settings = {}
-            for (site,combo) in self.calibrecover_tab.gc_dropdowns.iteritems():
+            for (site,combo) in six.iteritems(self.calibrecover_tab.gc_dropdowns):
                 val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
                 if val != 'none':
                     gc_site_settings[site] = val
@@ -357,7 +358,7 @@ class ConfigWidget(QWidget):
 
             # Standard Columns tab
             colsnewonly = {}
-            for (col,checkbox) in self.std_columns_tab.stdcol_newonlycheck.iteritems():
+            for (col,checkbox) in six.iteritems(self.std_columns_tab.stdcol_newonlycheck):
                 colsnewonly[col] = checkbox.isChecked()
             prefs['std_cols_newonly'] = colsnewonly
 
@@ -383,7 +384,7 @@ class ConfigWidget(QWidget):
 
             # cust cols tab
             colsmap = {}
-            for (col,combo) in self.cust_columns_tab.custcol_dropdowns.iteritems():
+            for (col,combo) in six.iteritems(self.cust_columns_tab.custcol_dropdowns):
                 val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
                 if val != 'none':
                     colsmap[col] = val
@@ -391,7 +392,7 @@ class ConfigWidget(QWidget):
             prefs['custom_cols'] = colsmap
 
             colsnewonly = {}
-            for (col,checkbox) in self.cust_columns_tab.custcol_newonlycheck.iteritems():
+            for (col,checkbox) in six.iteritems(self.cust_columns_tab.custcol_newonlycheck):
                 colsnewonly[col] = checkbox.isChecked()
             prefs['custom_cols_newonly'] = colsnewonly
 
@@ -818,7 +819,7 @@ class PersonalIniTab(QWidget):
 
     def show_defaults(self):
         IniTextDialog(self,
-                       get_resources('plugin-defaults.ini'),
+                       get_resources('plugin-defaults.ini').decode('utf-8'),
                        icon=self.windowIcon(),
                        title=_('Plugin Defaults'),
                        label=_("Plugin Defaults (%s) (Read-Only)")%'plugin-defaults.ini',
@@ -852,11 +853,11 @@ class PersonalIniTab(QWidget):
 
     def show_showcalcols(self):
         lines=[]#[('calibre_std_user_categories',_('User Categories'))]
-        for k,f in field_metadata.iteritems():
+        for k,f in six.iteritems(field_metadata):
             if f['name'] and k not in STD_COLS_SKIP: # only if it has a human readable name.
                 lines.append(('calibre_std_'+k,f['name']))
 
-        for k, column in self.plugin_action.gui.library_view.model().custom_columns.iteritems():
+        for k, column in six.iteritems(self.plugin_action.gui.library_view.model().custom_columns):
             if k != prefs['savemetacol']:
                 # custom always have name.
                 lines.append(('calibre_cust_'+k[1:],column['name']))
@@ -1354,7 +1355,7 @@ class CustomColumnsTab(QWidget):
         self.sl = QVBoxLayout()
         scrollcontent.setLayout(self.sl)
 
-        for key, column in custom_columns.iteritems():
+        for key, column in six.iteritems(custom_columns):
 
             if column['datatype'] in permitted_values:
                 # print("\n============== %s ===========\n"%key)
@@ -1407,7 +1408,7 @@ class CustomColumnsTab(QWidget):
         self.errorcol = QComboBox(self)
         self.errorcol.setToolTip(tooltip)
         self.errorcol.addItem('','none')
-        for key, column in custom_columns.iteritems():
+        for key, column in six.iteritems(custom_columns):
             if column['datatype'] in ('text','comments'):
                 self.errorcol.addItem(column['name'],key)
         self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
@@ -1431,7 +1432,7 @@ class CustomColumnsTab(QWidget):
         self.savemetacol = QComboBox(self)
         self.savemetacol.setToolTip(tooltip)
         self.savemetacol.addItem('','')
-        for key, column in custom_columns.iteritems():
+        for key, column in six.iteritems(custom_columns):
             if column['datatype'] in ('comments'):
                 self.savemetacol.addItem(column['name'],key)
         self.savemetacol.setCurrentIndex(self.savemetacol.findData(prefs['savemetacol']))
@@ -1451,7 +1452,7 @@ class CustomColumnsTab(QWidget):
         self.lastcheckedcol = QComboBox(self)
         self.lastcheckedcol.setToolTip(tooltip)
         self.lastcheckedcol.addItem('','none')
-        for key, column in custom_columns.iteritems():
+        for key, column in six.iteritems(custom_columns):
             if column['datatype'] == 'datetime':
                 self.lastcheckedcol.addItem(column['name'],key)
         self.lastcheckedcol.setCurrentIndex(self.lastcheckedcol.findData(prefs['lastcheckedcol']))
@@ -1494,7 +1495,7 @@ class StandardColumnsTab(QWidget):
         self.stdcol_newonlycheck = {}
 
         rows=[]
-        for key, column in columns.iteritems():
+        for key, column in six.iteritems(columns):
             row = []
             rows.append(row)
             label = QLabel(column)

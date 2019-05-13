@@ -2,6 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2018, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
@@ -323,7 +324,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 data = {'smarten_punctuation':True}
                 opts = ALL_OPTS.copy()
                 opts.update(data)
-                O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                O = namedtuple('Options', ' '.join(six.iterkeys(ALL_OPTS)))
                 opts = O(**opts)
 
                 log = Log(level=Log.DEBUG)
@@ -356,7 +357,7 @@ def inject_cal_cols(book,story,configuration):
     if 'calibre_columns' in book:
         injectini = ['[injected]']
         extra_valid = []
-        for k, v in book['calibre_columns'].iteritems():
+        for k, v in six.iteritems(book['calibre_columns']):
             story.setMetadata(k,v['val'])
             injectini.append('%s_label:%s'%(k,v['label']))
             extra_valid.append(k)
