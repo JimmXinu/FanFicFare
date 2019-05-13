@@ -2,6 +2,8 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2019, Jim Miller'
@@ -32,7 +34,6 @@ from io import BytesIO
 from functools import partial
 from datetime import datetime, time, date
 from string import Template
-import urllib
 import email
 import traceback
 
@@ -237,7 +238,7 @@ class FanFicFarePlugin(InterfaceAction):
             for f in filelist.splitlines():
                 #print("filename:%s"%f)
                 if f.endswith(".eml"):
-                    fhandle = urllib.urlopen(f)
+                    fhandle = six.moves.urllib.request.urlopen(f)
                     msg = email.message_from_file(fhandle)
                     if msg.is_multipart():
                         for part in msg.walk():
@@ -1443,7 +1444,7 @@ class FanFicFarePlugin(InterfaceAction):
                         #logger.debug("%s(%s): %s"%(label,key,value))
 
                 # custom columns
-                for k, column in self.gui.library_view.model().custom_columns.iteritems():
+                for k, column in six.iteritems(self.gui.library_view.model().custom_columns):
                     if k != prefs['savemetacol']:
                         key='calibre_cust_'+k[1:]
                         label=column['name']
@@ -2027,7 +2028,7 @@ class FanFicFarePlugin(InterfaceAction):
         # implement 'newonly' flags here by setting to the current
         # value again.
         if not book['added']:
-            for (col,newonly) in prefs['std_cols_newonly'].iteritems():
+            for (col,newonly) in six.iteritems(prefs['std_cols_newonly']):
                 if newonly:
                     if col == "identifiers":
                         mi.set_identifiers(oldmi.get_identifiers())
@@ -2070,7 +2071,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.set_custom(db, book_id, 'lastcheckedcol', book['timestamp'], label=label, commit=True)
 
         #print("prefs['custom_cols'] %s"%prefs['custom_cols'])
-        for col, meta in prefs['custom_cols'].iteritems():
+        for col, meta in six.iteritems(prefs['custom_cols']):
             #print("setting %s to %s"%(col,meta))
             if col not in custom_columns:
                 logger.debug("%s not an existing column, skipping."%col)
@@ -2305,7 +2306,7 @@ class FanFicFarePlugin(InterfaceAction):
                 #print("cover_path:%s"%cover_path)
                 opts = ALL_OPTS.copy()
                 opts.update(data)
-                O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+                O = namedtuple('Options', ' '.join(six.iterkeys(ALL_OPTS)))
                 opts = O(**opts)
 
                 log = Log(level=Log.DEBUG)
@@ -2626,7 +2627,7 @@ class FanFicFarePlugin(InterfaceAction):
                     book['all_metadata']['dateUpdated'] = b['all_metadata']['dateUpdated']
 
             # copy list all_metadata
-            for (k,v) in b['all_metadata'].iteritems():
+            for (k,v) in six.iteritems(b['all_metadata']):
                 #print("merge_meta_books v:%s k:%s"%(v,k))
                 if k in ('numChapters','numWords'):
                     if k in b['all_metadata'] and b['all_metadata'][k]:
