@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2019, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
+from .fanficfare.six import text_type as unicode
 
 # import cProfile
 

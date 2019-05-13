@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 import re
 
 from calibre.ebooks.oeb.iterator import EbookIterator
+from .fanficfare.six import text_type as unicode
 
 RE_HTML_BODY = re.compile(u'<body[^>]*>(.*)</body>', re.UNICODE | re.DOTALL | re.IGNORECASE)
 RE_STRIP_MARKUP = re.compile(u'<[^>]+>', re.UNICODE)
@@ -28,7 +29,7 @@ def get_word_count(book_path):
     Estimate a word count
     '''
     from calibre.utils.localization import get_lang
-    
+
     iterator = _open_epub_file(book_path)
 
     lang = iterator.opf.language
@@ -52,7 +53,7 @@ def _get_epub_standard_word_count(iterator, lang='en'):
     '''
 
     book_text = _read_epub_contents(iterator, strip_html=True)
-    
+
     try:
         from calibre.spell.break_iterator import count_words
         wordcount = count_words(book_text, lang)
@@ -67,7 +68,7 @@ def _get_epub_standard_word_count(iterator, lang='en'):
             wordcount = get_wordcount_obj(book_text)
             wordcount = wordcount.words
             logger.debug('\tWord count - old method:%s'%wordcount)
-    
+
     return wordcount
 
 def _read_epub_contents(iterator, strip_html=False):
@@ -92,4 +93,3 @@ def _extract_body_text(data):
     if body:
         return RE_STRIP_MARKUP.sub('', body[0]).replace('.','. ')
     return ''
-

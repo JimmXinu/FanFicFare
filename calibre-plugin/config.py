@@ -44,6 +44,7 @@ else:
 from calibre.gui2 import dynamic, info_dialog, question_dialog
 from calibre.gui2.ui import get_gui
 from calibre.gui2.complete2 import EditWithComplete
+from .fanficfare.six import text_type as unicode
 
 try:
     from calibre.ebooks.covers import generate_cover as cal_generate_cover
@@ -1667,5 +1668,3 @@ class ImapTab(QWidget):
         self.l.addWidget(label,row,0,1,-1,Qt.AlignTop)
         self.l.setRowStretch(row,1)
         row+=1
-
-

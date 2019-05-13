@@ -55,6 +55,7 @@ from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
+from .fanficfare.six import text_type as unicode
 
 # pulls in translation files for _() strings
 try:
@@ -707,7 +708,7 @@ class _LoopProgressDialog(QProgressDialog):
             book['good']=False
             book['status']=_("Error")
             book['comment']=unicode(e)
-            logger.error("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
+            logger.error("Exception: %s:%s"%(book,book['comment']),exc_info=True)
 
         self.updateStatus()
         self.i += 1
