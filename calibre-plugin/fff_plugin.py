@@ -921,7 +921,7 @@ class FanFicFarePlugin(InterfaceAction):
         #print("update_books:%s"%update_books)
         #print("options:%s"%d.get_fff_options())
         # only if there's some good ones.
-        if 0 < len(filter(lambda x : x['good'], update_books)):
+        if any(x['good'] for x in update_books):
             options = d.get_fff_options()
             self.prep_downloads( options, update_books )
 
@@ -951,7 +951,7 @@ class FanFicFarePlugin(InterfaceAction):
             books = self.convert_urls_to_books(url_list)
 
         ## for tweak_fg_sleep
-        options['ffnetcount']=len(filter(lambda x : x['site']=='www.fanfiction.net', books))
+        options['ffnetcount']=sum(1 for x in books if x['site']=='www.fanfiction.net')
 
         options['version'] = self.version
         logger.debug(self.version)
@@ -965,7 +965,7 @@ class FanFicFarePlugin(InterfaceAction):
             tdir = PersistentTemporaryDirectory(prefix='fanficfare_')
             options['tdir']=tdir
 
-        if 0 < len(filter(lambda x : x['good'], books)):
+        if any(x['good'] for x in books):
             if options['bgmeta']:
                 status_bar=_('Start queuing downloading for %s stories.')%len(books)
                 init_label=_("Queuing download for stories...")
@@ -1542,7 +1542,7 @@ class FanFicFarePlugin(InterfaceAction):
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
                 (book_list, options, cpus, merge)]
-        desc = _('Download %s FanFiction Book(s)') % len(filter(lambda x : x['good'], book_list))
+        desc = _('Download %s FanFiction Book(s)') % sum(1 for x in book_list if x['good'])
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
                 func, args=args,
@@ -1993,7 +1993,7 @@ class FanFicFarePlugin(InterfaceAction):
             if 'Completed' in mi.tags or 'In-Progress' in mi.tags:
                 old_tags = filter( lambda x : x not in ('Completed', 'In-Progress'), old_tags)
                 # remove old Last Update tags if there are new ones.
-            if len(filter( lambda x : not x.startswith("Last Update"), mi.tags)) > 0:
+            if sum(1 for x in mi.tags if not x.startswith("Last Update")):
                 old_tags = filter( lambda x : not x.startswith("Last Update"), old_tags)
 
             # mi.tags needs to be list, but set kills dups.
