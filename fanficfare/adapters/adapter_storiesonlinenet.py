@@ -88,7 +88,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 or "Invalid Password!" in data \
                 or "Invalid User Name!" in data \
                 or "Log In" in data \
-                or "Access to unlinked chapters requires" in data:
+                or "Access to unlinked chapters requires" in data \
+                or "Log in to Storiesonline" in data :
             self.needToLogin = True
         return self.needToLogin
 
@@ -107,6 +108,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/sol-secure/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['theusername']))
+
+        if not params['theusername'] or not params['thepassword']:
+            logger.info("Login Required for URL %s" % loginUrl)
+            raise exceptions.FailedToLogin(url,params['theusername'])
+
         try:
             d = self._postUrl(loginUrl,params,usecache=False)
             self.needToLogin = False
