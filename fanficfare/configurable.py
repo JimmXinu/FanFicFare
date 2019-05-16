@@ -115,6 +115,7 @@ titleLabels = {
     'numWords':'Words',
     'words_added':'Words Added', # logpage only
     'site':'Site',
+    'publisher':'Publisher',
     'storyId':'Story ID',
     'authorId':'Author ID',
     'extratags':'Extra Tags',
@@ -296,6 +297,7 @@ def get_valid_scalar_entries():
                  'numWords',
                  'words_added', # logpage only.
                  'site',
+                 'publisher',
                  'storyId',
                  'title',
                  'titleHTML',

@@ -1214,7 +1214,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
-            book['publisher'] = story.getMetadata("site")
+            book['publisher'] = story.getMetadata("publisher")
             book['url'] = story.getMetadata("storyUrl")
             book['tags'] = story.getSubjectTags(removeallentities=True)
             book['comments'] = story.get_sanitized_description()
