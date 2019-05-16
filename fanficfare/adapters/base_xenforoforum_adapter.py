@@ -467,7 +467,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             for tag in self.get_forumtags(topsoup):
                 tstr = stripHTML(tag)
                 if self.getConfig('capitalize_forumtags'):
-                    tstr = tstr.title()
+                    tstr = title(tstr)
                 self.story.addToList('forumtags',tstr)
 
         # author moved down here to take from post URLs.
@@ -720,3 +720,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     if img.has_attr('longdesc'):
                         del img['longdesc']
         return super(BaseXenForoForumAdapter, self)._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
+
+# from https://daviseford.com/blog/2017/04/27/python-string-to-title-including-punctuation.html
+# fixes englisher contractions being title cased incorrectly.
+def title(title):
+    return re.sub(r"(?<=[a-z])[\']([A-Z])", lambda x: x.group().lower(), title.title())
