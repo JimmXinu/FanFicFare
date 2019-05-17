@@ -686,7 +686,7 @@ class Configuration(configparser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
+        vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:
             return default
