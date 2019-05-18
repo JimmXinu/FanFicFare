@@ -63,7 +63,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain())+r"/story/view/0*(?P<id>\d+)"
 
-    def performLogin(self, url, soup):
+    def performLogin(self, url, data):
         params = {}
         if self.password:
             params['username'] = self.username
@@ -76,9 +76,10 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin(url,params['username'])
 
         params['from_url'] = url
-        params['csrf_aff_token'] = soup.find('input',{'name':'csrf_aff_token'})['value']
-        if not params['csrf_aff_token']:
-            raise exceptions.FailedToDownload('Error when logging in. This usually means a change in the website code.')
+        # capture token from JS script, not appearing in form now.
+        csrf_token_search = 'csrfToken = "'
+        params['csrf_aff_token'] = data[data.index(csrf_token_search)+len(csrf_token_search):]
+        params['csrf_aff_token'] = params['csrf_aff_token'][:params['csrf_aff_token'].index('"')]
 
         loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
@@ -133,7 +134,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         if self.loginNeededCheck(soup):
             # always login if not already to avoid lots of headaches
-            self.performLogin(url,soup)
+            self.performLogin(url,data)
             # refresh website after logging in
             data = self._fetchUrl(url,usecache=False)
             soup = self.make_soup(data)
