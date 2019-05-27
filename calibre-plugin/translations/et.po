@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-05-16 14:52+Central Daylight Time\n"
-"PO-Revision-Date: 2019-04-13 19:57+0000\n"
+"PO-Revision-Date: 2019-05-22 14:11+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -384,13 +384,13 @@ msgstr "Muud valikud"
 
 #: config.py:594
 msgid "Inject calibre Series when none found?"
-msgstr ""
+msgstr "Sisesta calibre Sari, kui ühtki ei leitud?"
 
 #: config.py:595
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
-msgstr ""
+msgstr "Kui ühtki sarja ei leita, sisesta calibre sari (kui on olemas),\net see ilmuks FanFicFare'i tiitellehele(mitte esikaanele)."
 
 #: config.py:599
 msgid "Search by Title/Author(s) for If Story Already Exists?"
