@@ -200,9 +200,8 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        headerstr = stripHTML(soup.find('div',{'class':'post-meta clearfix '}))
         # print("data:%s"%data)
-        #header.extract()
+        headerstr = stripHTML(soup.find('div',{'class':'post-meta'}))
 
         m = re.match(r".*?Uploaded On: ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",headerstr)
         if m:
@@ -213,39 +212,6 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         chapter = soup.find('div',{'id':'fanfic-text'})
 
         return self.utf8FromSoup(url,chapter)
-
-        # chapter=self.make_soup('<div class="story"></div>').find('div')
-
-        # if None == header:
-        #     raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        # ## find divs with align=left, those are paragraphs in newer stories.
-        # divlist = header.findAllNext('div',{'align':'left'})
-        # if divlist:
-        #     for div in divlist:
-        #         div.name='p' # convert to <p> mediaminer uses div with
-        #                      # a margin for paragraphs.
-        #         chapter.append(div)
-        #         del div['style']
-        #         del div['align']
-        #     return self.utf8FromSoup(url,chapter)
-
-        # else:
-        #     logger.debug('Using kludgey text find for older mediaminer story.')
-        #     ## Some older mediaminer stories are unparsable with BeautifulSoup.
-        #     ## Really nasty formatting.  Sooo... Cheat!  Parse it ourselves a bit first.
-        #     ## Story stuff falls between:
-        #     data = "<div id='HERE'>" + data[data.find('<div class="adWrap">'):data.find('<div class="addthis_sharing_toolbox">')] +"</div>"
-        #     soup = self.make_soup(data)
-        #     for tag in soup.findAll('td',{'class':'ffh'}) + \
-        #             soup.findAll('div',{'class':'acl'}) + \
-        #             soup.findAll('div',{'class':'adWrap'}) + \
-        #             soup.findAll('div',{'class':'footer smtxt'}) + \
-        #             soup.findAll('table',{'class':'tbbrdr'}):
-        #         tag.extract() # remove tag from soup.
-
-        #     return self.utf8FromSoup(url,soup)
-
 
 def getClass():
     return MediaMinerOrgSiteAdapter
