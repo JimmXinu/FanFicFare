@@ -40,7 +40,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev', 'wux')
-        self._dateformat = '%Y-%m-%dT%H:%M:%S+00:00'
+        self._dateformat = '%Y-%m-%d'
 
         # get storyId from url--url validation guarantees query correct
         match = re.match(self.getSiteURLPattern(), url)
@@ -73,8 +73,8 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         return json.loads(tag.string)
 
     def _parse_date(self, text):
-        # Strip microseconds from date
-        text = re.sub(r'\.\d+\+', '+', text)
+        # Strip time from date--site doesn't seem to have it anymore.
+        text = re.sub(r'T.*$', '', text)
         return makeDate(text, self._dateformat)
 
     def extractChapterUrlsAndMetadata(self):
