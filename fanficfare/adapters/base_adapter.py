@@ -30,13 +30,15 @@ from functools import partial
 import traceback
 import copy
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, __version__
+
 
 from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
 
 logger = logging.getLogger(__name__)
 
+logger.debug("BS4:%s"%__version__)
 from ..story import Story
 from ..configurable import Configurable
 from ..htmlcleanup import stripHTML
