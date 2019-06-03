@@ -128,9 +128,10 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrict
 def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     urls = collections.OrderedDict()
     try:
-        data = ensure_str(data)
+        # py3 can have issues with extended chars in txt emails
+        data = ensure_str(data,errors='replace')
     except UnicodeDecodeError:
-        data=data.decode('utf8') ## for when called outside calibre.
+        data = data.decode('utf8') ## for when called outside calibre.
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
