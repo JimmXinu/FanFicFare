@@ -125,7 +125,7 @@ class RejectURLList:
                 # logger.debug("prefs['last_saved_version']:%s"%unicode(self.prefs['last_saved_version']))
                 if tuple(self.prefs['last_saved_version']) > (3, 1, 7) and \
                         self.rejects_data['rejecturls_data']:
-                    logger.debug("_get_listcache: rejects_data['rejecturls_data']")
+                    # logger.debug("_get_listcache: rejects_data['rejecturls_data']")
                     self.listcache = OrderedDict()
                     for x in self.rejects_data['rejecturls_data']:
                         rue = RejectUrlEntry.from_data(x)
@@ -141,7 +141,7 @@ class RejectURLList:
                                                                normalize=normalize)
                     if normalize:
                         self._save_list(self.listcache,clearcache=False)
-                    logger.debug("_get_listcache: prefs['rejecturls']")
+                    # logger.debug("_get_listcache: prefs['rejecturls']")
 
                 # logger.debug([ x.to_data() for x in self.listcache.values()])
         return self.listcache
@@ -301,8 +301,8 @@ class ConfigWidget(QWidget):
                 # lists
                 prefs['send_lists'] = ', '.join([ x.strip() for x in unicode(self.readinglist_tab.send_lists_box.text()).split(',') if x.strip() ])
                 prefs['read_lists'] = ', '.join([ x.strip() for x in unicode(self.readinglist_tab.read_lists_box.text()).split(',') if x.strip() ])
-                logger.debug("send_lists: %s"%prefs['send_lists'])
-                logger.debug("read_lists: %s"%prefs['read_lists'])
+                # logger.debug("send_lists: %s"%prefs['send_lists'])
+                # logger.debug("read_lists: %s"%prefs['read_lists'])
                 prefs['addtolists'] = self.readinglist_tab.addtolists.isChecked()
                 prefs['addtoreadlists'] = self.readinglist_tab.addtoreadlists.isChecked()
                 prefs['addtolistsonread'] = self.readinglist_tab.addtolistsonread.isChecked()

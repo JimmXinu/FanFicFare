@@ -194,12 +194,12 @@ def cleanup_url(href,email=False):
         ## get_urls_from_page can still get post URLs.
         href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?",r"/",href)
     elif 'click' in href and 'royalroad' in href: # they've changed the domain at least once
-        logger.debug(href)
+        # logger.debug(href)
         from .six.moves.urllib.request import build_opener
         opener = build_opener()
         opener.addheaders = [('User-Agent', '')] ## give 403 Forbidden without a UA.
         opened = opener.open(href.replace(' ','%20'))
-        logger.debug(opened.url)
+        # logger.debug(opened.url)
         href = opened.url
     href = href.replace('&index=1','')
     return href
