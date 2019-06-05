@@ -199,10 +199,14 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
         # story description
-        jsonlink = soup.find('link',href=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json'))
-        fore_json = json.loads(self._fetchUrl(jsonlink['href']))
-        content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
-        a = content.find('div', {'id':'story-description'})
+        try:
+            jsonlink = soup.find('link',href=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json'))
+            fore_json = json.loads(self._fetchUrl(jsonlink['href']))
+            content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
+            a = content.find('div', {'id':'story-description'})
+        except:
+            # not all stories have foreward link.
+            a = soup.find('div', {'id':'story-description'})
         if a:
             self.setDescription(url,a)
 
@@ -277,4 +281,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             else:
                 return self.utf8FromSoup(url,content)
         except Exception as e:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s %s!" % (url,e))
+            logger.debug("json lookup failed, going on with HTML chapter")
+            content = soup.find('div', {'id': 'user-submitted-body'})
+            return self.utf8FromSoup(url,content)
