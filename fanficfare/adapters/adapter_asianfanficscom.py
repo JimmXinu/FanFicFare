@@ -86,12 +86,12 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         data = self._postUrl(loginUrl, params)
         soup = self.make_soup(data)
-        if self.loginNeededCheck(soup):
+        if self.loginNeededCheck(data):
             logger.info('Failed to login to URL %s as %s' % (loginUrl, params['username']))
             raise exceptions.FailedToLogin(url,params['username'])
 
-    def loginNeededCheck(self,soup):
-        return soup.find('div',{'id':'login'}) != None
+    def loginNeededCheck(self,data):
+        return "isLoggedIn = false" in data
 
     def doStorySubscribe(self, url, soup):
         subHref = soup.find('a',{'id':'subscribe'})
@@ -132,7 +132,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        if self.loginNeededCheck(soup):
+        if self.loginNeededCheck(data):
             # always login if not already to avoid lots of headaches
             self.performLogin(url,data)
             # refresh website after logging in
@@ -140,6 +140,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             soup = self.make_soup(data)
 
         # subscription check
+        # logger.debug(soup)
         subCheck = soup.find('div',{'class':'click-to-read-full'})
         if subCheck and self.getConfig("auto_sub"):
             subSoup = self.doStorySubscribe(url,soup)
@@ -166,7 +167,6 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         newestChapter = None
         self.newestChapterNum = None
         # Find the chapters:
-        # logger.debug(soup)
         chapters=soup.find('select',{'name':'chapter-nav'})
         hrefattr=None
         if chapters:
