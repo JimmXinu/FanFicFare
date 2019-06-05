@@ -166,12 +166,20 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         newestChapter = None
         self.newestChapterNum = None
         # Find the chapters:
+        # logger.debug(soup)
         chapters=soup.find('select',{'name':'chapter-nav'})
-        chapters=chapters.findAll('option')
-        self.story.setMetadata('numChapters',len(chapters))
+        hrefattr=None
+        if chapters:
+            chapters=chapters.findAll('option')
+            hrefattr='value'
+        else: # didn't find <select name='chapter-nav', look for alternative
+            chapters=soup.find('div',{'class':'widget--chapters'}).findAll('a')
+            hrefattr='href'
         for index, chapter in enumerate(chapters):
-            if chapter.text != 'Foreword': # skip the foreword
-                self.add_chapter(chapter.text,'https://' + self.getSiteDomain() + chapter['value']) # note: AFF cuts off chapter names in list. this gets kind of fixed later on
+            if chapter.text != 'Foreword' and 'Collapse chapters' not in chapter.text:
+                self.add_chapter(chapter.text,'https://' + self.getSiteDomain() + chapter[hrefattr])
+            # note: AFF cuts off chapter names in list. this gets kind of fixed later on
+
 
         # find timestamp
         a = soup.find('span', text='Updated')
@@ -239,10 +247,10 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         if get_cover:
             cover_url = ""
             a = soup.find('div',{'id':'bodyText'})
-            a = a.find('div',{'class':'text-center'})
             if a:
-                cover_url = a.find('img')['src']
+                a = a.find('div',{'class':'text-center'})
                 if a:
+                    cover_url = a.find('img')['src']
                     self.setCoverImage(url,cover_url)
 
     # grab the text for an individual chapter
