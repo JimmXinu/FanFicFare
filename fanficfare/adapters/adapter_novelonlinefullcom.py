@@ -142,11 +142,11 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         title = soup.find_all('span', {'itemprop':'title'})[1].string
         self.story.setMetadata('title', title)
 
-        # datePub = soup.find('meta', {'itemprop':'datePublished'})['content']
-        dateUpd = soup.find('em', class_='updated').string
-        # self.story.setMetadata('datePublished', makeDate(datePub, self.dateformat))
-        # example: 08-NOV-2017 11:21
-        self.story.setMetadata('dateUpdated', makeDate(dateUpd, '%d-%b-%Y %H:%M'))
+        updatedSpan = soup.find('span', string='LAST UPDATED : ')
+        dateUpd = updatedSpan.parent
+        updatedSpan.extract() # discard label
+        # example: 08-NOV-2017 18:21
+        self.story.setMetadata('dateUpdated', makeDate(stripHTML(dateUpd), '%d-%b-%Y %H:%M'))
 
         ## getting status
         status = soup.find('span', string='STATUS : ').find_next_sibling("a").string
