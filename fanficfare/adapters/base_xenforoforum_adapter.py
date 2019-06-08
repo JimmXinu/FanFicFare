@@ -298,7 +298,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 del threadmarkgroups[cat_name]
         # more categories left?  new or at least unknown
         if threadmarkgroups:
-            cats = threadmarkgroups.keys()
+            cats = list(threadmarkgroups.keys())
             # alphabetize for lack of a better idea to insure consist ordering
             cats.sort()
             for cat_name in cats:

@@ -1999,7 +1999,7 @@ class FanFicFarePlugin(InterfaceAction):
             for t in list(mi.tags) + list(old_tags):
                 foldedcase_tags[t.lower()] = t
 
-            mi.tags = foldedcase_tags.values()
+            mi.tags = list(foldedcase_tags.values())
             #print("mi.tags:%s"%mi.tags)
 
         if book['all_metadata']['langcode']:
@@ -2171,7 +2171,7 @@ class FanFicFarePlugin(InterfaceAction):
             authurls = book['all_metadata']['authorUrl'].split(", ")
             authorlist = [ a.replace('&',';') for a in book['author'] ]
             authorids = db.new_api.get_item_ids('authors',authorlist)
-            authordata = db.new_api.author_data(authorids.values())
+            authordata = db.new_api.author_data(list(authorids.values()))
             # print("\n\nauthorids:%s"%authorids)
             # print("authordata:%s"%authordata)
 
