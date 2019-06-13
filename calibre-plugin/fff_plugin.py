@@ -2073,8 +2073,15 @@ class FanFicFarePlugin(InterfaceAction):
                 logger.debug("%s not a valid column type for %s, skipping."%(col,meta))
                 continue
             label = coldef['label']
-            if coldef['datatype'] in ('enumeration','text','comments','datetime','series'):
+            if coldef['datatype'] in ('enumeration','comments','datetime','series'):
                 self.set_custom(db, book_id, meta, book['all_metadata'][meta], label, commit=False)
+            elif coldef['datatype'] == 'text':
+                joined_val = book['all_metadata'][meta]
+                # 'Contains names' custom columns need & separators.
+                # If user has changed join_string_X, it's on them to fix.
+                if coldef['display'].get('is_names',False):
+                    joined_val = joined_val.replace(', ',' & ')
+                self.set_custom(db, book_id, meta, joined_val, label, commit=False)
             elif coldef['datatype'] in ('int','float'):
                 num = unicode(book['all_metadata'][meta]).replace(",","")
                 if num != '':
@@ -2120,6 +2127,11 @@ class FanFicFarePlugin(InterfaceAction):
                         coldef = custom_columns[custcol]
                         label = coldef['label']
 
+                    # 'Contains names' custom columns need & separators.
+                    # If user has changed join_string_X, it's on them to fix.
+                    if coldef['display'].get('is_names',False):
+                        val = val.replace(', ',' & ')
+
                     if flag == 'r' or (flag == 'n' and book['added']):
                         if coldef['datatype'] in ('int','float'): # for favs, etc--site specific metadata.
                             if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
@@ -2151,7 +2163,7 @@ class FanFicFarePlugin(InterfaceAction):
                         vallist = []
                         try:
                             existing=db.get_custom(book_id,label=label,index_is_id=True)
-                            #print("existing:%s"%existing)
+                            # logger.debug("existing:%s"%existing)
                             if isinstance(existing,list):
                                 vallist = existing
                             elif existing:
@@ -2163,7 +2175,11 @@ class FanFicFarePlugin(InterfaceAction):
                         if val:
                             vallist.append(val)
 
-                        self.set_custom(db, book_id, meta, ", ".join(vallist), label=label, commit=False)
+                        if coldef['display'].get('is_names',False):
+                            join_str=' & '
+                        else:
+                            join_str=', '
+                        self.set_custom(db, book_id, meta, join_str.join(vallist), label=label, commit=False)
 
         # set author link if found.  All current adapters have authorUrl, except anonymous on AO3.
         # Moved down so author's already in the DB.
