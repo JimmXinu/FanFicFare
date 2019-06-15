@@ -200,8 +200,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         # story description
         try:
-            jsonlink = soup.find('link',href=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json'))
-            fore_json = json.loads(self._fetchUrl(jsonlink['href']))
+            jsonlink = soup.find('script',string=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json')).get_text().split('"')[1] # grabs url from quotation marks
+            fore_json = json.loads(self._fetchUrl(jsonlink))
             content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
             a = content.find('div', {'id':'story-description'})
         except:
