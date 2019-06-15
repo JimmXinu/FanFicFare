@@ -265,9 +265,9 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         try:
-            # https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json
-            jsonlink = soup.find('link',href=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json'))
-            chap_json = json.loads(self._fetchUrl(jsonlink['href']))
+            # <script>var postApi = "https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json";</script>
+            jsonlink = soup.find('script',string=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json')).get_text().split('"')[1] # grabs url from quotation marks
+            chap_json = json.loads(self._fetchUrl(jsonlink))
             content = self.make_soup(chap_json['post']).find('body') # BS4 adds <html><body> if not present.
             content.name='div' # change body to a div.
             if self.getConfig('inject_chapter_title'):
