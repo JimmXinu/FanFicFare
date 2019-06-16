@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-05-16 14:52+Central Daylight Time\n"
-"PO-Revision-Date: 2019-05-22 14:11+0000\n"
+"PO-Revision-Date: 2019-05-29 08:49+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -437,11 +437,11 @@ msgstr "Alati keeldu keeldumiste loendis olevatest URLidest ilma peatumata ja ki
 
 #: config.py:628
 msgid "Delete on Reject by Default?"
-msgstr ""
+msgstr "Vaikimisi kustuta keeldumisel?"
 
 #: config.py:629
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr ""
+msgstr "Kas märkeruut keeldutavate raamatute kustutamiseks peaks vaikimisi olema märgitud?"
 
 #: config.py:666
 msgid "Edit Reject URLs List"
@@ -1753,15 +1753,15 @@ msgstr "%d raamatu automaatse teisendamise alustamine."
 
 #: fff_plugin.py:697
 msgid "No Selected Books have URLs to Reject"
-msgstr ""
+msgstr "Ühelgi valitud raamatul pole keeldutavaid URLe"
 
 #: fff_plugin.py:705
 msgid "Collecting URLs for Reject List..."
-msgstr ""
+msgstr "URLide kogumine keeldumiste loendi jaoks..."
 
 #: fff_plugin.py:706
 msgid "Get URLs for Reject List"
-msgstr ""
+msgstr "Hangi URLid keeldumiste loendi jaoks"
 
 #: fff_plugin.py:741
 msgid "Proceed to Remove?"
@@ -1770,7 +1770,7 @@ msgstr "Jätkata eemaldamisega?"
 #: fff_plugin.py:741
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr ""
+msgstr "FanFicFare URLidest keeldumine: Ühelgi valitud raamatul pole FanFiction URLe."
 
 #: fff_plugin.py:763
 msgid "Cannot Make Anthologys without %s"
