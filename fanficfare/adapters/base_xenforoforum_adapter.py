@@ -487,23 +487,23 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         # Now get first post for description and chapter list if not
         # using threadmarks.
-        first_post = self.get_first_post_body(topsoup)
+        index_post = self.get_post_body(souptag)
 
-        for iframe in first_post.find_all('iframe'):
+        for iframe in index_post.find_all('iframe'):
             iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
-        for qdiv in first_post.find_all('div',{'class':'quoteExpand'}):
+        for qdiv in index_post.find_all('div',{'class':'quoteExpand'}):
             qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
 
-        self.setDescription(useurl,first_post)
+        self.setDescription(useurl,index_post)
 
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
 
         if self.num_chapters() < 1:
             self.add_chapter(first_post_title,useurl)
-            # logger.debug(first_post)
-            for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in first_post.find_all('a') ]:
+            # logger.debug(index_post)
+            for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in index_post.find_all('a') ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
                 # skip quote links as indicated by up arrow character or data-xf-click=attribution
                 if is_chapter_url and name != u"\u2191" and tag.get("data-xf-click",None)!="attribution":
