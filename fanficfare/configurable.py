@@ -30,7 +30,7 @@ from .six.moves.urllib.error import HTTPError
 from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
 from .six import string_types as basestring
-from .six import ensure_binary
+from .six import ensure_binary, ensure_text
 
 import time
 import logging
@@ -958,7 +958,7 @@ class Configuration(configparser.SafeConfigParser):
 
     def _set_to_pagecache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
-            self.get_pagecache()[cachekey] = (data,redirectedurl)
+            self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
             if self.save_cache_file:
                 with open(self.save_cache_file,'wb') as jout:
                     pickle.dump(self.get_pagecache(),jout,protocol=2)
