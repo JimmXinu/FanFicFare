@@ -27,7 +27,7 @@ setup(
     name=package_name,
 
     # Versions should comply with PEP440.
-    version="3.9.0",
+    version="3.9.1",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
