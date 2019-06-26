@@ -38,7 +38,6 @@ from ..htmlheuristics import replace_br_with_p
 
 logger = logging.getLogger(__name__)
 
-logger.debug("BS4:%s"%__version__)
 from ..story import Story
 from ..configurable import Configurable
 from ..htmlcleanup import stripHTML
@@ -72,6 +71,7 @@ class BaseSiteAdapter(Configurable):
 
     def __init__(self, configuration, url):
         Configurable.__init__(self, configuration)
+        logger.debug("BS4:%s"%__version__)
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
