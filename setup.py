@@ -89,6 +89,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
+        'image_processing': ['Pillow'],
         # 'dev': ['check-manifest'],
         # 'test': ['coverage'],
     },
