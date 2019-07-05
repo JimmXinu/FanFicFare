@@ -114,9 +114,11 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
                     volume = match.group(1) + ' '
             elif el.name == u'dd':
                 a = el.a
-                url = urlparse.urljoin(self.url, a['href'])
-                title = volume + stripHTML(a)
-                self.add_chapter(title, url)
+                if a['style'] != 'color:Gray;':
+                    # skip grayed out "In preparation" chapters
+                    url = urlparse.urljoin(self.url, a['href'])
+                    title = volume + stripHTML(a)
+                    self.add_chapter(title, url)
             # else:
             #     logger.debug('Unexpected tag in #list > dl: %s', el.name)
 
