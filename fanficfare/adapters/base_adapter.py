@@ -71,7 +71,6 @@ class BaseSiteAdapter(Configurable):
 
     def __init__(self, configuration, url):
         Configurable.__init__(self, configuration)
-        logger.debug("BS4:%s"%__version__)
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
