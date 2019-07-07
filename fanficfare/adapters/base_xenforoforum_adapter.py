@@ -504,7 +504,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
 
-        if self.num_chapters() < 1:
+        if self.num_chapters() < 1 or self.getConfig('always_include_first_post_chapters',False):
             self.add_chapter(first_post_title,useurl)
             # logger.debug(index_post)
             for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in index_post.find_all('a',href=True) ]:
@@ -629,7 +629,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             for offset in range(0,3):
                 souptag = self.get_cache_post(url)
 
-                if not souptag:
+                if not souptag and url in self.threadmarks_for_reader:
                     (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
                     reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
                     logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
