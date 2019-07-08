@@ -549,12 +549,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return topsoup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)
 
     def get_first_post_body(self,topsoup):
-        bq = self.get_first_post(topsoup).find('blockquote')
+        bq = self.get_first_post(topsoup).find('blockquote',{'class':'messageText'})
         bq.name='div'
         return bq
 
     def get_post_body(self,souptag):
-        bq = souptag.find('blockquote')
+        bq = souptag.find('blockquote',{'class':'messageText'})
         if not bq:
             bq = souptag.find('div',{'class':'messageText'}) # cached gets if it was already used before
         bq.name='div'
@@ -582,7 +582,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
             return makeDate(datestr, self.dateformat)
         except:
-            logger.debug('No date found in %s'%parenttag,exc_info=True)
+            logger.debug('No date found in %s, going on without'%parenttag,exc_info=True)
             return None
 
     def cache_posts(self,topsoup):
