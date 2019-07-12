@@ -333,9 +333,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 kwords = atag.next_sibling.strip()
         return words,kwords
 
-    def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0):
-        logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s)"%(tmcat_name,tmcat_num, passed_tmcat_index, url))
+    def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0, dedup=[]):
         threadmarks=[]
+        if url in dedup:
+            logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
+            return threadmarks
+        dedup = dedup + [url]
         soupmarks = self.make_soup(self._fetchUrl(url))
         tm_list = self.get_threadmarks_list(soupmarks)
         if not tm_list: # load-range don't match
@@ -350,7 +353,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 threadmarks.extend(self.fetch_threadmarks(self.get_threadmark_range_url(tm_item,tmcat_num),
                                                           tmcat_name,
                                                           tmcat_num,
-                                                          tmcat_index))
+                                                          tmcat_index,
+                                                          dedup))
                 tmcat_index = len(threadmarks)
                 after=True
             else:
