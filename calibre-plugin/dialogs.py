@@ -704,6 +704,7 @@ class _LoopProgressDialog(QProgressDialog):
 
         except Exception as e:
             book['good']=False
+            book['status']=_("Error")
             book['comment']=unicode(e)
             logger.error("Exception: %s:%s"%(book,unicode(e)),exc_info=True)
 

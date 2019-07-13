@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 import traceback
 from datetime import time
 from StringIO import StringIO
+from collections import defaultdict
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -93,16 +94,39 @@ def do_download_worker(book_list,
         logger.info(job.details)
 
         if count >= total:
-            ## ordering first by good vs bad, then by listorder.
-            good_list = [ x for x in book_list if x['good'] ]
-            bad_list  = [ x for x in book_list if not x['good'] ]
-            good_list = sorted(good_list,key=lambda x : x['listorder'])
-            bad_list  = sorted(bad_list,key=lambda x : x['listorder'])
+            book_list = sorted(book_list,key=lambda x : x['listorder'])
+            logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
 
-            logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(url)s %(comment)s" % book for book in good_list+bad_list])))
+            good_lists = defaultdict(list)
+            bad_lists = defaultdict(list)
+            for book in book_list:
+                if book['good']:
+                    good_lists[book['status']].append(book)
+                else:
+                    bad_lists[book['status']].append(book)
 
-            logger.info("\n"+_("Successful:")+"\n%s\n"%("\n".join([book['url'] for book in good_list])))
-            logger.info("\n"+_("Unsuccessful:")+"\n%s\n"%("\n".join([book['url'] for book in bad_list])))
+            order = [_('Add'),
+                     _('Update'),
+                     _('Meta'),
+                     _('Different URL'),
+                     _('Rejected'),
+                     _('Skipped'),
+                     _('Bad'),
+                     _('Error'),
+                     ]
+            j = 0
+            for d in [ good_lists, bad_lists ]:
+                for status in order:
+                    if d[status]:
+                        l = d[status]
+                        logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in l])))
+                        for book in l:
+                            book['reportorder'] = j
+                            j += 1
+                    del d[status]
+                # just in case a status is added but doesn't appear in order.
+                for status in d.keys():
+                    logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in d[status]])))
             break
 
     server.close()
@@ -306,12 +330,14 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
         except NotGoingToDownload as d:
             book['good']=False
+            book['status']=_('Bad')
             book['showerror']=d.showerror
             book['comment']=unicode(d)
             book['icon'] = d.icon
 
         except Exception as e:
             book['good']=False
+            book['status']=_('Error')
             book['comment']=unicode(e)
             book['icon']='dialog_error.png'
             book['status'] = _('Error')

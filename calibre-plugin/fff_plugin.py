@@ -596,6 +596,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         if book['url'] == None:
             book['good']=False
+            book['status']=_('Bad')
         else:
             book['good']=True
 
@@ -1499,11 +1500,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in book_list:
-                if 'status' in book:
-                    status = book['status']
-                else:
-                    status = _('Bad')
-                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(book['status']),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             htmllog = htmllog + '</table></body></html>'
 
@@ -1683,8 +1680,8 @@ class FanFicFarePlugin(InterfaceAction):
         book_list = job.result
         good_list = [ x for x in book_list if x['good'] ]
         bad_list = [ x for x in book_list if not x['good'] ]
-        good_list = sorted(good_list,key=lambda x : x['listorder'])
-        bad_list = sorted(bad_list,key=lambda x : x['listorder'])
+        good_list = sorted(good_list,key=lambda x : x['reportorder'])
+        bad_list = sorted(bad_list,key=lambda x : x['reportorder'])
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
 
@@ -1712,14 +1709,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in sorted(good_list+bad_list,key=lambda x : x['listorder']):
-                if 'status' in book:
-                    status = book['status']
-                else:
-                    if book in good_list:
-                        status = _('Good')
-                    else:
-                        status = _('Bad')
-                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(book['status']),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             htmllog = htmllog + '</table></body></html>'
 
@@ -1742,18 +1732,10 @@ class FanFicFarePlugin(InterfaceAction):
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in good_list:
-                if 'status' in book:
-                    status = book['status']
-                else:
-                    status = _('Good')
-                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(book['status']),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             for book in bad_list:
-                if 'status' in book:
-                    status = book['status']
-                else:
-                    status = _('Bad')
-                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(status),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
+                htmllog = htmllog + '<tr><td>' + '</td><td>'.join([escapehtml(book['status']),escapehtml(book['title']),escapehtml(", ".join(book['author'])),escapehtml(book['comment']),book['url']]) + '</td></tr>'
 
             htmllog = htmllog + '</table></body></html>'
 
@@ -2390,6 +2372,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['comments'] = '' # note this is the book comments.
 
         book['good'] = True
+        book['status'] = 'Bad'
         book['showerror'] = True # False when NotGoingToDownload is
                                  # not-overwrite / not-update / skip
                                  # -- what some would consider 'not an
@@ -2414,6 +2397,7 @@ class FanFicFarePlugin(InterfaceAction):
             if book['uniqueurl'] in uniqueurls:
                 book['good'] = False
                 book['comment'] = _("Same story already included.")
+                book['status']=_('Skipped')
             uniqueurls.add(book['uniqueurl'])
             book['listorder']=i # BG d/l jobs don't come back in order.
                                 # Didn't matter until anthologies & 'marked' successes
