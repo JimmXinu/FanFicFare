@@ -43,7 +43,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return ['base_xenforo2forum'] + super(BaseXenForo2ForumAdapter, cls).getConfigSections()
+        return super(BaseXenForo2ForumAdapter, cls).getConfigSections() + ['base_xenforo2forum']
 
     def performLogin(self):
         params = {}
