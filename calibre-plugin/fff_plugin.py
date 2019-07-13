@@ -1680,8 +1680,12 @@ class FanFicFarePlugin(InterfaceAction):
         book_list = job.result
         good_list = [ x for x in book_list if x['good'] ]
         bad_list = [ x for x in book_list if not x['good'] ]
-        good_list = sorted(good_list,key=lambda x : x['reportorder'])
-        bad_list = sorted(bad_list,key=lambda x : x['reportorder'])
+        try:
+            good_list = sorted(good_list,key=lambda x : x['reportorder'])
+            bad_list = sorted(bad_list,key=lambda x : x['reportorder'])
+        except KeyError:
+            good_list = sorted(good_list,key=lambda x : x['listorder'])
+            bad_list = sorted(bad_list,key=lambda x : x['listorder'])
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
 
