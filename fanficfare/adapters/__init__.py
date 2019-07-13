@@ -110,7 +110,6 @@ from . import adapter_tgstorytimecom
 from . import adapter_itcouldhappennet
 from . import adapter_forumsspacebattlescom
 from . import adapter_forumssufficientvelocitycom
-from . import adapter_xf2testsufficientvelocitycom
 from . import adapter_forumquestionablequestingcom
 from . import adapter_ninelivesarchivecom
 from . import adapter_masseffect2in
