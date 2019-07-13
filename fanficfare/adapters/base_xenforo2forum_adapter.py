@@ -155,7 +155,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     def get_threadmark_range_url(self,tm_item,tmcat_num):
         fetcher = tm_item.find('div',{'data-xf-click':'threadmark-fetcher'})
         # logger.debug(fetcher)
-        return fetcher['data-fetchurl']
+        return self.getURLPrefix() + fetcher['data-fetchurl']
 
     def get_threadmark_date(self,tm_item):
         return self.make_date(tm_item)
