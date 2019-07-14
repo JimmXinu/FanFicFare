@@ -136,7 +136,10 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
-    for href in re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', data):
+    for href in re.findall('\(?http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\)?', data):
+        ## detect and remove ()s around URL ala markdown.
+        if href[0] == '(' and href[-1] == ')':
+            href = href[1:-1]
         href = cleanup_url(href,email)
         try:
             adapter = adapters.getAdapter(configuration,href)
@@ -192,7 +195,10 @@ def cleanup_url(href,email=False):
         ## xenforo emails, toss unread and page/post urls.  Emails are
         ## only sent for thread updates, I believe.  Email only so
         ## get_urls_from_page can still get post URLs.
-        href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?",r"/",href)
+        href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
+    elif email and 'sufficientvelocity' in href and '/posts/' in href:
+        ## SV emails now use /posts/ instead of #post-
+        href = ""
     elif 'click' in href and 'royalroad' in href: # they've changed the domain at least once
         # logger.debug(href)
         from .six.moves.urllib.request import build_opener
