@@ -507,7 +507,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if self.num_chapters() < 1:
             self.add_chapter(first_post_title,useurl)
             # logger.debug(index_post)
-            for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in index_post.find_all('a') ]:
+            for (url,name,tag) in [ (x['href'],stripHTML(x),x) for x in index_post.find_all('a',href=True) ]:
                 (is_chapter_url,url) = self._is_normalize_chapterurl(url)
                 # skip quote links as indicated by up arrow character or data-xf-click=attribution
                 if is_chapter_url and name != u"\u2191" and tag.get("data-xf-click",None)!="attribution":
