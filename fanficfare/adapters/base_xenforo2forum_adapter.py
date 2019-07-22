@@ -144,7 +144,18 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         return (tmcat_num,tmcat_name)
 
     def get_threadmarks_list(self,soupmarks):
-        return soupmarks.find('div',{'class':'structItemContainer'})
+        retval = soupmarks.find('div',{'class':'structItemContainer'})
+        if retval:
+            ## SV, the first XF2 site, has an issue where the '...'
+            ## fetcher link is placed outside the structItemContainer
+            ## after the first one.  This finds it and sticks back in
+            ## where we expect it.
+            missing_fetcher = retval.find_next_sibling('div',{'class':'structItem--threadmark'})
+            # logger.debug(missing_fetcher)
+            if missing_fetcher:
+                logger.debug("Fetcher URL outside structItemContainer, moving inside.")
+                retval.append(missing_fetcher)
+        return retval
 
     def get_threadmarks_from_list(self,tm_list):
         return tm_list.find_all('div',{'class':'structItem--threadmark'})
