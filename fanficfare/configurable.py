@@ -278,6 +278,7 @@ def get_valid_set_options():
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                'use_threadmark_wordcounts':(base_xenforo_list,None,boollist),
+               'always_include_first_post_chapters':(base_xenforo_list,None,boollist),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist)
                }
@@ -486,6 +487,7 @@ def get_valid_keywords():
                  'internalize_text_links',
                  'replace_failed_smilies_with_alt_text',
                  'use_threadmark_wordcounts',
+                 'always_include_first_post_chapters',
                  'datethreadmark_format',
                  'fix_pseudo_html',
                  'fix_excess_space',
