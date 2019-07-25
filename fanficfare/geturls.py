@@ -20,6 +20,7 @@ import collections
 import email
 import imaplib
 import re
+import csv
 
 # unicode in py2, str in py3
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
@@ -35,7 +36,7 @@ from .gziphttp import GZipProcessor
 
 from . import adapters
 from .configurable import Configuration
-from .exceptions import UnknownSite
+from .exceptions import UnknownSite, FetchEmailFailed
 
 def get_urls_from_page(url,configuration=None,normalize=False):
 
@@ -214,15 +215,29 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     # logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
-    mail.login(user, passwd)
-    mail.list()
+    status = mail.login(user, passwd)
+    if status[0] != 'OK':
+        raise FetchEmailFailed("Failed to login to mail server")
     # Out: list of "folders" aka labels in gmail.
-    mail.select('"%s"'%folder) # Needs to be quoted incase there are
-                               # spaces, etc.  imaplib doesn't
-                               # correctly quote folders with spaces.
-                               # However, it does check and won't
-                               # quote strings that already start and
-                               # end with ", so this is safe.
+    status = mail.list()
+
+
+    folders = []
+    for f in status[1]:
+        m = re.match(r'^\(.*\) "." "(.+)"$',f)
+        folders.append(m.group(1).replace("\\",""))
+
+    if status[0] != 'OK':
+        raise FetchEmailFailed("Failed to list folders on mail server")
+
+    # Needs to be quoted incase there are spaces, etc.  imaplib
+    # doesn't correctly quote folders with spaces.  However, it does
+    # check and won't quote strings that already start and end with ",
+    # so this is safe.  There may be other chars than " that need escaping.
+    status = mail.select('"%s"'%folder.replace('"','\\"'))
+    if status[0] != 'OK':
+        logger.debug(status)
+        raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
 
     result, data = mail.uid('search', None, "UNSEEN")
 

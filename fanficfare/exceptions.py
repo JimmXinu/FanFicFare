@@ -107,3 +107,10 @@ class RegularExpresssionFailed(PersonalIniFailed):
     def __str__(self):
         return "Regular Expression Error '%s' in part '%s' in line '%s'"%(self.error,self.part,self.line)
 
+class FetchEmailFailed(Exception):
+    def __init__(self,error):
+        self.error=error
+
+    def __str__(self):
+        return self.error
+
