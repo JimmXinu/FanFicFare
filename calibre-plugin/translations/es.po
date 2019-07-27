@@ -4,8 +4,8 @@
 # Translators:
 # Fito JB, 2014
 # Albert, 2016
-# Darío Hereñú <magallania@gmail.com>, 2015-2016,2018
-# Darío Hereñú <magallania@gmail.com>, 2018
+# Darío Hereñú, 2015-2016,2018
+# Darío Hereñú, 2018
 # Enrique Medina <medina9304@gmail.com>, 2016
 # Jellby <jellby@yahoo.com>, 2014-2018
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
