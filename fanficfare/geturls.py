@@ -224,7 +224,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     folders = []
     for f in status[1]:
-        m = re.match(r'^\(.*\) "." "(.+)"$',f)
+        m = re.match(r'^\(.*\) "." "(.+)"$',ensure_str(f))
         folders.append(m.group(1).replace("\\",""))
 
     if status[0] != 'OK':
