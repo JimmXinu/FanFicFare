@@ -224,9 +224,10 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     folders = []
     for f in status[1]:
-        m = re.match(r'^\(.*\) "." "(.+)"$',ensure_str(f))
+        m = re.match(r'^\(.*\) "?."? "?(?P<folder>.+?)"?$',ensure_str(f))
         if m:
-            folders.append(m.group(1).replace("\\",""))
+            folders.append(m.group("folder").replace("\\",""))
+            # logger.debug(folders[-1])
         else:
             logger.warn("Failed to parse folder line(%s)"%ensure_str(f))
 
