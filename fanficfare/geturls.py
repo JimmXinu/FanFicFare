@@ -220,12 +220,15 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
         raise FetchEmailFailed("Failed to login to mail server")
     # Out: list of "folders" aka labels in gmail.
     status = mail.list()
-
+    logger.debug(status)
 
     folders = []
     for f in status[1]:
         m = re.match(r'^\(.*\) "." "(.+)"$',ensure_str(f))
-        folders.append(m.group(1).replace("\\",""))
+        if m:
+            folders.append(m.group(1).replace("\\",""))
+        else:
+            logger.warn("Failed to parse folder line(%s)"%ensure_str(f))
 
     if status[0] != 'OK':
         raise FetchEmailFailed("Failed to list folders on mail server")
