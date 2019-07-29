@@ -186,7 +186,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             # not paying any attention to TZ issues.
             return datetime.fromtimestamp(float(datetag['data-time']))
         except:
-            logger.warn('No date found in %s'%parenttag,exc_info=True)
+            # logger.warn('No date found in %s'%parenttag,exc_info=True)
             return None
 
     def make_reader_url(self,tmcat_num,reader_page_num):

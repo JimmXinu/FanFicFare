@@ -232,6 +232,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         for noscript in soup.find_all('noscript'):
             noscript.extract()
 
+        for iframe in soup.find_all('iframe'):
+            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
+
         for qdiv in self.get_quote_expand_tag(soup):
             qdiv.extract() # Remove <div class="...">click to expand</div>
 
@@ -493,12 +496,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # using threadmarks.
         index_post = self.get_post_body(souptag)
 
-        for iframe in index_post.find_all('iframe'):
-            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
-
-        for qdiv in index_post.find_all('div',{'class':'quoteExpand'}):
-            qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
-
         self.setDescription(useurl,index_post)
 
         # otherwise, use first post links--include first post since
@@ -670,9 +667,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             notice.extract()
 
         postbody = self.get_post_body(souptag)
-
-        for iframe in postbody.find_all('iframe'):
-            iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix()+'/',postbody)
