@@ -469,6 +469,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     self.story.setMetadata('numWords',words)
             souptag = self.get_first_post(topsoup)
 
+        if use_threadmark_chaps:
+            self.set_threadmarks_metadata(useurl,topsoup)
+
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
             for tag in self.get_forumtags(topsoup):
@@ -496,7 +499,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # using threadmarks.
         index_post = self.get_post_body(souptag)
 
-        self.setDescription(useurl,index_post)
+        if not self.story.getMetadata('description'):
+            self.setDescription(useurl,index_post)
 
         # otherwise, use first post links--include first post since
         # that's often also the first chapter.
@@ -535,6 +539,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             self.story.addToList('genre',stripHTML(tag))
             tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
+
+    def set_threadmarks_metadata(self,topsoup):
+        # None in XF1.
+        return
 
     def get_forumtags(self,topsoup):
         return topsoup.findAll('a',{'class':'tag'}) + topsoup.findAll('span',{'class':'prefix'})

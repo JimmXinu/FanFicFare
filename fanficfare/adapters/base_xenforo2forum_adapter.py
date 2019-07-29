@@ -98,6 +98,44 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         self.story.setMetadata('title',stripHTML(h1))
         # logger.debug(stripHTML(h1))
 
+    def set_threadmarks_metadata(self,useurl,topsoup):
+        header = topsoup.find('div',{'class':'threadmarkListingHeader'})
+        if header:
+            # logger.debug(header)
+            desc = self.get_post_body(header)
+            if desc:
+                self.story.setMetadata("threadmarks_description",desc)
+                if self.getConfig('use_threadmarks_description'):
+                    self.setDescription(useurl,desc)
+            # logger.debug(desc)
+            title = header.find('h1',{'class':'threadmarkListingHeader-name'})
+            if title:
+                self.story.setMetadata("threadmarks_title",stripHTML(title))
+            statusdt = header.find('dt',text="Index progress")
+            if statusdt:
+                statusdd = statusdt.find_next_sibling('dd')
+                if statusdd:
+                    threadmarks_status = stripHTML(statusdd)
+                    self.story.setMetadata("threadmarks_status",threadmarks_status)
+                    if self.getConfig('use_threadmarks_status'):
+                        if 'Complete' in threadmarks_status:
+                            self.story.setMetadata('status','Completed')
+                        elif 'Incomplete' in threadmarks_status:
+                            self.story.setMetadata('status','In-Progress')
+                        else:
+                            self.story.setMetadata('status',threadmarks_status)
+            if self.getConfig('use_threadmarks_cover'):
+                cover = header.find('span',{'class':'threadmarkListingHeader-icon'})
+                # logger.debug(cover)
+                if cover:
+                    img = cover.find('img')
+                    if img:
+                        src = img['src']
+                        if img.has_attr('srcset'):
+                            src = img['srcset']
+                        self.setCoverImage(useurl,src)
+        return
+
     def get_forumtags(self,topsoup):
         return topsoup.find('div',{'class':'p-description'}).findAll('a',{'class':'tagItem'})
 

@@ -171,9 +171,11 @@ def get_valid_list_entries():
                  ])
 
 boollist=['true','false']
-base_xenforo_list=['base_xenforoforum',
-                   'forums.spacebattles.com',
+base_xenforo2_list=['base_xenforo2forum',
                    'forums.sufficientvelocity.com',
+                   ]
+base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
+                   'forums.spacebattles.com',
                    'forum.questionablequesting.com',
                    'www.alternatehistory.com',
                    ]
@@ -279,6 +281,9 @@ def get_valid_set_options():
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                'use_threadmark_wordcounts':(base_xenforo_list,None,boollist),
                'always_include_first_post_chapters':(base_xenforo_list,None,boollist),
+               'use_threadmarks_description':(base_xenforo2_list,None,boollist),
+               'use_threadmarks_status':(base_xenforo2_list,None,boollist),
+               'use_threadmarks_cover':(base_xenforo2_list,None,boollist),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist)
                }
@@ -488,6 +493,9 @@ def get_valid_keywords():
                  'replace_failed_smilies_with_alt_text',
                  'use_threadmark_wordcounts',
                  'always_include_first_post_chapters',
+                 'use_threadmarks_description',
+                 'use_threadmarks_status',
+                 'use_threadmarks_cover',
                  'datethreadmark_format',
                  'fix_pseudo_html',
                  'fix_excess_space',
