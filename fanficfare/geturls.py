@@ -220,16 +220,20 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
         raise FetchEmailFailed("Failed to login to mail server")
     # Out: list of "folders" aka labels in gmail.
     status = mail.list()
-    logger.debug(status)
+    # logger.debug(status)
 
     folders = []
-    for f in status[1]:
-        m = re.match(r'^\(.*\) "?."? "?(?P<folder>.+?)"?$',ensure_str(f))
-        if m:
-            folders.append(m.group("folder").replace("\\",""))
-            # logger.debug(folders[-1])
-        else:
-            logger.warn("Failed to parse folder line(%s)"%ensure_str(f))
+    try:
+        for f in status[1]:
+            m = re.match(r'^\(.*\) "?."? "?(?P<folder>.+?)"?$',ensure_str(f))
+            if m:
+                folders.append(m.group("folder").replace("\\",""))
+                # logger.debug(folders[-1])
+            else:
+                logger.warn("Failed to parse IMAP folder line(%s)"%ensure_str(f))
+    except:
+        folders = []
+        logger.warning("Failed to parse IMAP folder list, continuing without list.")
 
     if status[0] != 'OK':
         raise FetchEmailFailed("Failed to list folders on mail server")
@@ -241,7 +245,10 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     status = mail.select('"%s"'%folder.replace('"','\\"'))
     if status[0] != 'OK':
         logger.debug(status)
-        raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
+        if folders:
+            raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
+        else:
+            raise FetchEmailFailed("Failed to select folder(%s) on mail server"%folder)
 
     result, data = mail.uid('search', None, "UNSEEN")
 
