@@ -78,7 +78,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return 'https://' + cls.getSiteDomain() + '/s/=1234567'
+        return 'https://' + cls.getSiteDomain() + '/s/1234567'
 
     def getSiteURLPattern(self):
         # https://inkbunny.net/s/1234567
