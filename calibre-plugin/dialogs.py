@@ -148,7 +148,7 @@ class RejectUrlEntry:
 
     def to_line(self):
         # always 'url,'
-        return self.url+","+self.fullnote()
+        return "%s,%s"%(self.url,self.fullnote())
 
     @classmethod
     def from_data(cls,data):
