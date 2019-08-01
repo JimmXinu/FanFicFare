@@ -540,7 +540,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
 
-    def set_threadmarks_metadata(self,topsoup):
+    def set_threadmarks_metadata(self,useurl,topsoup):
         # None in XF1.
         return
 
