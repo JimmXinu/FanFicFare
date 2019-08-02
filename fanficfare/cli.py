@@ -457,7 +457,9 @@ def do_download(arg,
                     metadata = adapter.story.getAllMetadata()
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
-                write_story(configuration, adapter, 'epub')
+                output_filename = write_story(configuration, adapter, 'epub')
+                logger.debug("Successfully wrote '%s'"%output_filename)
+
 
         else:
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
@@ -468,6 +470,7 @@ def do_download(arg,
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
             output_filename = write_story(configuration, adapter, options.format, options.metaonly)
+            logger.debug("Successfully wrote '%s'"%output_filename)
 
             if options.metaonly and not options.jsonmeta:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
