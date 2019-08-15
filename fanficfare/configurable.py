@@ -214,6 +214,7 @@ def get_valid_set_options():
                'use_ssl_unverified_context':(None,None,boollist),
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
+               'dedup_chapter_list':(None,None,boollist),
 
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
@@ -500,6 +501,7 @@ def get_valid_keywords():
                  'fix_pseudo_html',
                  'fix_excess_space',
                  'ignore_chapter_url_list',
+                 'dedup_chapter_list',
                  'max_zalgo',
                  ])
 

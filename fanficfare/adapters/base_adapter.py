@@ -154,8 +154,16 @@ class BaseSiteAdapter(Configurable):
         ## Normalize chapter urls, both from list and passed in, but
         ## don't save them that way to match previous behavior.
         if self.ignore_chapter_url_list == None:
-            self.ignore_chapter_url_list = [ self.normalize_chapterurl(u) for u in self.getConfig('ignore_chapter_url_list').splitlines() ]
-        if self.normalize_chapterurl(url) not in self.ignore_chapter_url_list:
+            self.ignore_chapter_url_list = {}
+            for u in self.getConfig('ignore_chapter_url_list').splitlines():
+                self.ignore_chapter_url_list[self.normalize_chapterurl(u)] = True
+
+        normal_chap_url = self.normalize_chapterurl(url)
+        if normal_chap_url not in self.ignore_chapter_url_list:
+            if self.getConfig('dedup_chapter_list',False):
+                # leverage ignore list to implement dedup'ing
+                self.ignore_chapter_url_list[normal_chap_url] = True
+
             meta = defaultdict(unicode,othermeta) # copy othermeta
             if title:
                 title = stripHTML(title,remove_all_entities=False)
