@@ -185,8 +185,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         '''
         return True
 
-    def performLogin(self):
+    def performLogin(self,data):
         params = {}
+
+        if data and "Log Out" in data:
+            ## already logged in.
+            logger.debug("Already Logged In")
+            return
 
         if self.password:
             params['login'] = self.username
@@ -211,6 +216,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         d = self._fetchUrl(loginUrl, params)
 
         if "Log Out" not in d:
+            logger.debug(d)
             logger.info("Failed to login to URL %s as %s" % (self.url,
                                                              params['login']))
             raise exceptions.FailedToLogin(self.url,params['login'])
@@ -381,9 +387,35 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 tmcat_index += 1
         return threadmarks
 
+
+    def get_last_page_url(self,topsoup):
+        span = topsoup.find('span',{'class':'pageNavHeader'})
+        # logger.debug(span)
+        # span class="pageNavHeader" - not present if no pages
+        # first <nav>?
+        # last not class=text?
+        nav = span.find_next('nav')
+        # logger.debug(nav)
+        lastpage = nav.find_all('a',href=re.compile(r'page-'))[-2]
+        # logger.debug(lastpage)
+        return lastpage['href']
+
+    ## Aug 2019 - SB doesn't send update emails for threads it doesn't
+    ## think you've seen all of since the last email anymore.  Fetch
+    ## the last page of the thread to reset it.  This requires login
+    ## to already have been done.
+    def fetch_last_page(self,topsoup):
+        logger.debug("Perform fetch_last_page")
+        try:
+            # doing make_soup will also cache posts from that last page.
+            self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+self.get_last_page_url(topsoup)))
+        except:
+            logger.info("fetch_last_page failed, continuing")
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
+        data = topsoup = souptag = None
         useurl = self.url
         logger.info("url: "+useurl)
 
@@ -391,10 +423,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             (data,opened) = self._fetchUrlOpened(useurl)
             useurl = opened.geturl()
             logger.info("use useurl: "+useurl)
+            # can't login before initial fetch--need a cookie.
+            if self.getConfig('always_login',False) or self.getConfig('fetch_last_page',False):
+                self.performLogin(data)
+                (data,opened) = self._fetchUrlOpened(useurl)
+                useurl = opened.geturl()
+                logger.info("use useurl: "+useurl)
         except HTTPError as e:
             # QQ gives 403, SV at least gives 404.  Which unfortunately
             if e.code == 403 or self.getConfig('always_login',False):
-                self.performLogin()
+                self.performLogin(data)
                 (data,opened) = self._fetchUrlOpened(useurl)
                 useurl = opened.geturl()
                 logger.info("use useurl: "+useurl)
@@ -402,11 +440,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise
-        if '#' not in useurl and '/posts/' not in useurl:
-            self._setURL(useurl) ## for when threadmarked thread name changes.
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
+
+        if '#' not in useurl and '/posts/' not in useurl:
+            self._setURL(useurl) ## for when threadmarked thread name changes.
+
+            # only apply fetch_last_page when not a post url.
+            if self.getConfig('fetch_last_page',False):
+                self.fetch_last_page(topsoup)
 
         self.parse_title(topsoup)
 

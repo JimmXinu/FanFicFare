@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
     def __init__(self, config, url):
-        logger.info("init url: "+url)
         BaseXenForoForumAdapter.__init__(self, config, url)
 
     @classmethod
@@ -45,8 +44,13 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         "Only needs to be overriden if has additional ini sections."
         return super(BaseXenForo2ForumAdapter, cls).getConfigSections() + ['base_xenforo2forum']
 
-    def performLogin(self):
+    def performLogin(self,data):
         params = {}
+
+        if data and "Log in" not in data:
+            ## already logged in.
+            logger.debug("Already Logged In")
+            return
 
         if self.password:
             params['login'] = self.username
@@ -77,7 +81,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         d = self._postUrl(loginUrl, params)# , headers={ 'referer':self.getURLPrefix() + '/login',
                                            #            'origin':self.getURLPrefix() })
 
-        if "Log In" in d:
+        if "Log in" in d:
             # logger.debug(d)
             logger.info("Failed to login to URL %s as %s" % (self.url,
                                                              params['login']))
@@ -242,3 +246,12 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         ## as XF1.
         for tag in soup.find_all('div', class_="bbCodeBlock-expandContent"):
             tag.name='blockquote'
+
+    def get_last_page_url(self,topsoup):
+        ## <ul class="pageNav-main">
+        ul = topsoup.find('ul',{'class':'pageNav-main'})
+        # logger.debug(ul)
+        lastpage = ul.find_all('a',href=re.compile(r'page-'))[-1]
+        # logger.debug(lastpage)
+        # doing make_soup will also cache posts from that last page.
+        return lastpage['href']
