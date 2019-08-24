@@ -147,7 +147,9 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         a = souptag.find('section',{'class':'message-user'}).find('a',{'class':'username'})
         # logger.debug(a)
         self.story.addToList('authorId',a['href'].split('/')[-2])
-        authorUrl = a['href'] # self.getURLPrefix()+'/'+a['href']
+        authorUrl = a['href']
+        if not authorUrl.startswith('http'):
+            authorUrl = self.getURLPrefix()+authorUrl
         self.story.addToList('authorUrl',authorUrl)
         self.story.addToList('author',a.text)
 
