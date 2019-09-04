@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Fito JB, 2014
+# Adolfo Jayme-Barrientos, 2014
 # Albert, 2016
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018

@@ -10,6 +10,7 @@
 # M. de Boer <de.boer.melle@gmail.com>, 2018-2019
 # Nathan Follens, 2015
 # Nathan Follens, 2016
+# Meteor0id, 2019
 # Rodolfo_Jadon, 2014-2015
 # Volluta <volluta@tutanota.com>, 2015
 # W.P.M.E. Hofland <wpme.hofland@gmail.com>, 2015
@@ -17,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-07-12 21:47+Central Daylight Time\n"
-"PO-Revision-Date: 2019-07-14 02:10+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-08-20 15:17+0000\n"
+"Last-Translator: Meteor0id\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -187,7 +188,7 @@ msgstr "Standaard als het verhaal reeds bestaat?"
 
 #: config.py:470
 msgid "Default Update Calibre &Metadata?"
-msgstr "Standaard update Calibre &Metadata?"
+msgstr "Standaard update Calibre &Metagegevens?"
 
 #: config.py:471
 msgid ""
@@ -195,7 +196,7 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr "Bij elke download biedt FanFicFare een optie om Calibre metadata (titel, auteur, URL, tags, aangepaste kolommen, enz.) van de website bij te werken. <br />Hiermee wordt de standaard ingesteld op aan of uit.<br /> Kolommen die zijn ingesteld als 'Alleen Nieuw' in de kolomtabs, worden alleen ingesteld voor nieuwe boeken."
+msgstr "Bij elke download biedt FanFicFare een optie om Calibre metagegevens (titel, auteur, URL, tags, aangepaste kolommen, enz.) van de website bij te werken. <br />Hiermee wordt de standaard ingesteld op aan of uit.<br /> Kolommen die zijn ingesteld als 'Alleen Nieuw' in de kolomtabs, worden alleen ingesteld voor nieuwe boeken."
 
 #: config.py:475
 msgid "Default Update EPUB Cover when Updating EPUB?"
@@ -210,7 +211,7 @@ msgstr "Bij elke download biedt FanFicFare de optie om de boekomslag<i> in </i>d
 
 #: config.py:480
 msgid "Default Background Metadata?"
-msgstr "Standaard achtergrond Metadata?"
+msgstr "Standaard achtergrond Metagegevens?"
 
 #: config.py:481
 msgid ""
@@ -238,7 +239,7 @@ msgstr "Selecteer dit om alle andere e-boekformaten automatisch te verwijderen b
 
 #: config.py:496
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "Bestaande Tags behouden wanneer Metadata wordt geüpdatet? "
+msgstr "Bestaande Tags behouden wanneer Metagegevens wordt geüpdatet? "
 
 #: config.py:497
 msgid ""
@@ -257,7 +258,7 @@ msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "Controleer voor bestaande series bloemlezing-boeken de URL van elk nieuw verhaal voordat je het downloadt. \nAanbieden om het downloaden over te slaan als een bloemlezing serie is gevonden.\nWerkt niet wanneer Collect Metadata in achtergrond is geselecteerd."
+msgstr "Controleer voor bestaande series bloemlezing-boeken de URL van elk nieuw verhaal voordat je het downloadt. \nAanbieden om het downloaden over te slaan als een bloemlezing serie is gevonden.\nWerkt niet wanneer Collect Metagegevens in achtergrond is geselecteerd."
 
 #: config.py:506 config.py:623
 msgid "Reject Without Confirmation?"
@@ -268,7 +269,7 @@ msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "Verwerp automatisch verhalen met bestaande series bloemlezing-boeken.\n Werkt alleen als 'Zoeken naar bestaande bloemlezing boeken' is ingeschakeld. \nWerkt niet wanneer Collect Metadata in achtergrond is geselecteerd."
+msgstr "Verwerp automatisch verhalen met bestaande series bloemlezing-boeken.\n Werkt alleen als 'Zoeken naar bestaande bloemlezing boeken' is ingeschakeld. \nWerkt niet wanneer Collect Metagegevens in achtergrond is geselecteerd."
 
 #: config.py:514
 msgid "Check for changed Story URL?"
@@ -288,7 +289,7 @@ msgstr "Zoeken in e-boeken naar Story URL?"
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr "Zoek naar de eerste geldige Story-URL in EPUB-, ZIP (HTML) of TXT ebook-formaten indien niet gevonden in metadata.\nEnigszins riskant, zou een verkeerde URL kunnen vinden afhankelijk van de inhoud van het e-boek."
+msgstr "Zoek naar de eerste geldige Story-URL in EPUB-, ZIP (HTML) of TXT ebook-formaten indien niet gevonden in metagegevens.\nEnigszins riskant, zou een verkeerde URL kunnen vinden afhankelijk van de inhoud van het e-boek."
 
 #: config.py:524
 msgid "Post Processing Options"
@@ -658,7 +659,7 @@ msgid ""
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
 "Cover in EPUB could be from site or previously injected into the EPUB.\n"
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
-msgstr "Werkt de afbeelding van de Calibre-boekomslag bij vanuit EPUB wanneer Calibre metagegevens worden bijgewerkt.\nZoekt niet naar nieuwe afbeeldingen bij 'Update Calibre Metadata Only'. \nDe omslag in EPUB kan van de site zijn of eerder zijn ingevoegd in de EPUB.\nDit gebeurt voordat u de omslag genereert, dus %(gc)s(Plugin) gebruikt de afbeelding indien daartoe geconfigureerd."
+msgstr "Werkt de afbeelding van de Calibre-boekomslag bij vanuit EPUB wanneer Calibre metagegevens worden bijgewerkt.\nZoekt niet naar nieuwe afbeeldingen bij 'Update Calibre Metagegevens Only'. \nDe omslag in EPUB kan van de site zijn of eerder zijn ingevoegd in de EPUB.\nDit gebeurt voordat u de omslag genereert, dus %(gc)s(Plugin) gebruikt de afbeelding indien daartoe geconfigureerd."
 
 #: config.py:960
 msgid "Update Calibre Cover (from EPUB):"
@@ -692,7 +693,7 @@ msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
-msgstr "Voer Calibre's Metadata bewerken omslag genereren functie uit om een ​​willekeurige cover te maken elke keer dat een verhaal wordt gedownload of bijgewerkt. <br />Klik met de rechtermuisknop of lang-klik op de knop 'Genereer omslag' in Calibre's Metadata bewerken om aan te passen."
+msgstr "Voer Calibre's Metagegevens bewerken omslag genereren functie uit om een ​​willekeurige cover te maken elke keer dat een verhaal wordt gedownload of bijgewerkt. <br />Klik met de rechtermuisknop of lang-klik op de knop 'Genereer omslag' in Calibre's Metagegevens bewerken om aan te passen."
 
 #: config.py:1032
 msgid "Generate Covers Only for New Books"
@@ -702,7 +703,7 @@ msgstr "Maak enkel nieuwe covers voor nieuwe boeken"
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
-msgstr "Standaard is om een ​​omslag te genereren iedere keer dat de Calibre metadata wordt bijgewerkt. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
+msgstr "Standaard is om een ​​omslag te genereren iedere keer dat de Calibre metagegevens wordt bijgewerkt. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
 
 #: config.py:1039
 msgid "Inject/update the cover inside EPUB"
@@ -725,7 +726,7 @@ msgid ""
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
 "can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting"
 " by site and/or one to use by Default."
-msgstr "De %(gc)splug-in kan omslagafbeeldingen voor boeken maken met verschillende metagegevens (inclusief bestaande omslagafbeelding). Als je %(gc)sgeïnstalleerd hebt, kan FanFicFare %(gc)sdraaien op nieuwe  downloads en updates van metadata. Kies een %(gc)sinstelling per site en/of een om standaard te gebruiken."
+msgstr "De %(gc)splug-in kan omslagafbeeldingen voor boeken maken met verschillende metagegevens (inclusief bestaande omslagafbeelding). Als je %(gc)sgeïnstalleerd hebt, kan FanFicFare %(gc)sdraaien op nieuwe  downloads en updates van metagegevens. Kies een %(gc)sinstelling per site en/of een om standaard te gebruiken."
 
 #: config.py:1072 config.py:1076 config.py:1089
 msgid "Default"
@@ -780,7 +781,7 @@ msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
-msgstr "Voer alleen de woordtelling van Count Page uit wanneer gecontroleerd<i>en</i>FanFicFare-metadata nog geen woordentelling heeft. Als dit wordt gebruikt met één van de andere pagina tellingen, wordt de paginatelling-plug-in tweemaal aangeroepen."
+msgstr "Voer alleen de woordtelling van Count Page uit wanneer gecontroleerd<i>en</i>FanFicFare-metagegevens nog geen woordentelling heeft. Als dit wordt gebruikt met één van de andere pagina tellingen, wordt de paginatelling-plug-in tweemaal aangeroepen."
 
 #: config.py:1204
 msgid ""
@@ -811,7 +812,7 @@ msgstr "&Bibliotheekvoorkeuren weergeven..."
 
 #: config.py:1220
 msgid "View data stored in the library database for this plugin"
-msgstr "Bekijk gegevens opgeslagen in de bibliotheekdatabase voor deze plugin"
+msgstr "Bekijk gegevens opgeslagen in de bibliotheekgegevensbank voor deze plugin"
 
 #: config.py:1230
 msgid "Done"
@@ -947,7 +948,7 @@ msgstr "FanFicFare versie"
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
-msgstr "Als je eigen kolommen hebt gedefinieerd, zullen ze hieronder worden weergegeven. Kies een metadatawaardesoort om je kolommen automatisch in te vullen."
+msgstr "Als je eigen kolommen hebt gedefinieerd, zullen ze hieronder worden weergegeven. Kies een metagegevenswaardesoort om je kolommen automatisch in te vullen."
 
 #: config.py:1349
 msgid "Update this %s column(%s) with..."
@@ -959,7 +960,7 @@ msgstr "Waarden die voor deze opsommingskolom ongeldig zijn worden genegeerd."
 
 #: config.py:1359 config.py:1361
 msgid "Metadata values valid for this type of column."
-msgstr "Metadatawaarden geldig voor deze soort van kolom."
+msgstr "Metagegevenswaarden geldig voor deze soort van kolom."
 
 #: config.py:1364 config.py:1488
 msgid "New Only"
@@ -1022,7 +1023,7 @@ msgid ""
 "the book is downloaded or updated.<br/>The metadata from this column can "
 "later be used to update custom columns without having to request the "
 "metadata from the server again.<br/>(Long Text columns only.)"
-msgstr "Indien ingesteld, zal FanFicFare een kopie van alle metadata opslaan in deze kolom wanneer het boek wordt gedownload of bijgewerkt. <br/>De metagegevens uit deze kolom kunnen later worden gebruikt om aangepaste kolommen bij te werken zonder opnieuw de metagegevens van de server op te vragen.<br/> (alleen kolommen.)"
+msgstr "Indien ingesteld, zal FanFicFare een kopie van alle metagegevens opslaan in deze kolom wanneer het boek wordt gedownload of bijgewerkt. <br/>De metagegevens uit deze kolom kunnen later worden gebruikt om aangepaste kolommen bij te werken zonder opnieuw de metagegevens van de server op te vragen.<br/> (alleen kolommen.)"
 
 #: config.py:1430
 msgid "Last Checked Column:"
@@ -1279,13 +1280,13 @@ msgstr "Kies output formaat bij het maken. Kan de standaardwaarden aanpassen van
 
 #: dialogs.py:324 dialogs.py:877
 msgid "Update Calibre &Metadata?"
-msgstr "Calibre &Metadata bijwerken?"
+msgstr "Calibre &Metagegevens bijwerken?"
 
 #: dialogs.py:325 dialogs.py:878
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
-msgstr "Metadata voor bestaande verhalen in Calibre bijwerken van website? (Kolommen ingesteld als 'Alleen Nieuw' in de kolomtabbladen worden alleen ingesteld voor nieuwe boeken.)"
+msgstr "Metagegevens voor bestaande verhalen in Calibre bijwerken van website? (Kolommen ingesteld als 'Alleen Nieuw' in de kolomtabbladen worden alleen ingesteld voor nieuwe boeken.)"
 
 #: dialogs.py:331 dialogs.py:882
 msgid "Update EPUB Cover?"
@@ -1390,15 +1391,15 @@ msgstr "OK"
 
 #: dialogs.py:619 dialogs.py:643 fff_plugin.py:975
 msgid "Fetching metadata for stories..."
-msgstr "Bezig met ophalen van metadata voor verhalen..."
+msgstr "Bezig met ophalen van metagegevens voor verhalen..."
 
 #: dialogs.py:620 dialogs.py:644 fff_plugin.py:976
 msgid "Downloading metadata for stories"
-msgstr "Bezig met downloaden van metadata voor verhalen"
+msgstr "Bezig met downloaden van metagegevens voor verhalen"
 
 #: dialogs.py:621 dialogs.py:645 fff_plugin.py:977
 msgid "Fetched metadata for"
-msgstr "Metadata opgehaald voor"
+msgstr "Metagegevens opgehaald voor"
 
 #: dialogs.py:675
 msgid " - %s estimated until done"
@@ -1467,7 +1468,7 @@ msgstr "Wat voor soort update om uit te voeren. Kan standaard instellen vanuit d
 
 #: dialogs.py:887
 msgid "Background Metadata?"
-msgstr "Achtergrond metadata?"
+msgstr "Achtergrond metagegevens?"
 
 #: dialogs.py:888
 msgid ""
@@ -1475,7 +1476,7 @@ msgid ""
 "control to you quicker while updating, but you won't be asked for "
 "username/passwords or if you are an adult--stories that need those will just"
 " fail."
-msgstr "Verzamel metadata van sites in een achtergrondproces. <br />Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent zullen verhalen die dit nodig hebben, gewoon falen"
+msgstr "Verzamel metagegevens van sites in een achtergrondproces. <br />Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent zullen verhalen die dit nodig hebben, gewoon falen"
 
 #: dialogs.py:953 fff_plugin.py:1501 fff_plugin.py:1710 fff_plugin.py:1733
 msgid "Comment"
@@ -2044,7 +2045,7 @@ msgstr "Update geweigerd door gebruiker vanwege verschillend verhaal URL(%s)"
 
 #: fff_plugin.py:1334
 msgid "Metadata collected."
-msgstr "Metadata verzameld."
+msgstr "Metagegevens verzameld."
 
 #: fff_plugin.py:1354 jobs.py:284
 msgid ""
@@ -2094,13 +2095,13 @@ msgstr "Verhaaldetails:"
 
 #: fff_plugin.py:1584
 msgid "Error Updating Metadata"
-msgstr "Fout tijdens metadata bijwerken"
+msgstr "Fout tijdens metagegevens bijwerken"
 
 #: fff_plugin.py:1585
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
-msgstr "Er is een fout opgetreden terwijl FanFicFare de metadata van calibre aan het bijwerken was<a href='%s'>%s</a>."
+msgstr "Er is een fout opgetreden terwijl FanFicFare de metagegevens van calibre aan het bijwerken was<a href='%s'>%s</a>."
 
 #: fff_plugin.py:1586
 msgid "The ebook has been updated, but the metadata has not."
