@@ -57,6 +57,13 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://" + re.escape(self.getSiteDomain() + "/mlp-fim/story/")+r"\d+"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     def extractChapterUrlsAndMetadata(self):
         url=self.url
         logger.debug("URL: "+url)
@@ -144,7 +151,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
         soup = self.make_soup(self._fetchUrl(url))
         chapter = soup.find('div', {'id' : 'content'})
-        
+
         chapter_header = chapter.find('h1', id = re.compile("chapter"))
         if not chapter_header == None:
             chapter_header.decompose()
