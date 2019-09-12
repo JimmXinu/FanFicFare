@@ -506,13 +506,14 @@ class FanFicFarePlugin(InterfaceAction):
                         'updateepubcover': prefs['updateepubcover'],
                         'smarten_punctuation':prefs['smarten_punctuation'],
                         'do_wordcount':prefs['do_wordcount'],
+                        'add_tag':prefs['imaptags'],
                         },"\n".join(url_list))
             else:
                 self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Email.'),3000)
 
         else:
             if url_list:
-                self.add_dialog("\n".join(url_list),merge=False)
+                self.add_dialog("\n".join(url_list),merge=False,add_tag=prefs['imaptags'])
             else:
                 msg = _('No Valid Story URLs Found in Unread Emails.')
                 if reject_list:
@@ -743,7 +744,7 @@ class FanFicFarePlugin(InterfaceAction):
             if confirm(message,'fff_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
-    def add_dialog(self,url_list_text=None,merge=False,anthology_url=None):
+    def add_dialog(self,url_list_text=None,merge=False,anthology_url=None,add_tag=None):
         'Both new individual stories and new anthologies are created here.'
 
         if not url_list_text:
@@ -757,7 +758,7 @@ class FanFicFarePlugin(InterfaceAction):
                                         self.prep_downloads,
                                         merge=merge,
                                         newmerge=True,
-                                        extraoptions={'anthology_url':anthology_url})
+                                        extraoptions={'anthology_url':anthology_url,'add_tag':add_tag})
 
     def update_anthology(self):
         if not self.get_epubmerge_plugin():
@@ -944,6 +945,8 @@ class FanFicFarePlugin(InterfaceAction):
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
+
+        logger.debug("add_tag:%s"%options.get('add_tag',None))
 
         if isinstance(books,basestring):
             url_list = split_text_to_urls(books)
@@ -1561,6 +1564,10 @@ class FanFicFarePlugin(InterfaceAction):
                                    'updateepubcover':True},
                           errorcol_label=None,
                           lastcheckedcol_label=None):
+
+        logger.debug("add_tag:%s"%options.get('add_tag',None))
+        if options.get('add_tag',False):
+            book['tags'].extend(options.get('add_tag').split(','))
 
         self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 

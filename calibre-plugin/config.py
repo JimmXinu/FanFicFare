@@ -399,6 +399,8 @@ class ConfigWidget(QWidget):
             prefs['imapuser'] = unicode(self.imap_tab.imapuser.text()).strip()
             prefs['imappass'] = unicode(self.imap_tab.imappass.text()).strip()
             prefs['imapfolder'] = unicode(self.imap_tab.imapfolder.text()).strip()
+            # prefs['imaptags'] = unicode(self.imap_tab.imaptags.text()).strip()
+            prefs['imaptags'] = ', '.join([ x.strip() for x in unicode(self.imap_tab.imaptags.text()).split(',') if x.strip() ])
             prefs['imapmarkread'] = self.imap_tab.imapmarkread.isChecked()
             prefs['imapsessionpass'] = self.imap_tab.imapsessionpass.isChecked()
             prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
@@ -1629,6 +1631,18 @@ class ImapTab(QWidget):
         self.download_from_email_immediately.setToolTip(_('If checked, FanFicFare will start downloading story URLs from emails immediately.<br>Otherwise the usual Download from URLs dialog will appear.'))
         self.download_from_email_immediately.setChecked(prefs['download_from_email_immediately'])
         self.l.addWidget(self.download_from_email_immediately,row,0,1,-1)
+        row+=1
+
+        label = QLabel(_('Add these Tag(s) Automatically'))
+        tooltip = _("Tags entered here will be automatically added to stories downloaded from email story URLs.")
+        label.setToolTip(tooltip)
+        self.l.addWidget(label,row,0)
+        self.imaptags = EditWithComplete(self) # QLineEdit(self)
+        self.imaptags.update_items_cache(self.plugin_action.gui.current_db.all_tags())
+        self.imaptags.setToolTip(tooltip)
+        self.imaptags.setText(prefs['imaptags'])
+        self.imaptags.setCursorPosition(0)
+        self.l.addWidget(self.imaptags,row,1)
         row+=1
 
         label = QLabel(_("<b>It's safest if you create a separate email account that you use only "

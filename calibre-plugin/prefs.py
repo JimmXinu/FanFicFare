@@ -181,6 +181,7 @@ default_prefs['imapuser'] = ''
 default_prefs['imappass'] = ''
 default_prefs['imapsessionpass'] = False
 default_prefs['imapfolder'] = 'INBOX'
+default_prefs['imaptags'] = ''
 default_prefs['imapmarkread'] = True
 default_prefs['auto_reject_from_email'] = False
 default_prefs['update_existing_only_from_email'] = False
