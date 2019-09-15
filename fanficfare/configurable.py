@@ -24,7 +24,7 @@ from . import six
 from .six.moves import configparser
 from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
 from .six.moves import urllib
-from .six.moves.urllib.parse import urlencode
+from .six.moves.urllib.parse import (urlencode, quote_plus)
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
 from .six.moves.urllib.error import HTTPError
 from .six.moves import http_cookiejar as cl
@@ -1111,6 +1111,9 @@ class Configuration(configparser.SafeConfigParser):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
+
+        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&')
+
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters)
@@ -1146,11 +1149,11 @@ class Configuration(configparser.SafeConfigParser):
         self.opener.addheaders = headers
 
         if parameters != None:
-            opened = self.opener.open(url.replace(' ','%20'),
+            opened = self.opener.open(url,
                                       ensure_binary(urlencode(parameters)),
                                       float(self.getConfig('connect_timeout',30.0)))
         else:
-            opened = self.opener.open(url.replace(' ','%20'),
+            opened = self.opener.open(url,
                                       None,
                                       float(self.getConfig('connect_timeout',30.0)))
         self._progressbar()
