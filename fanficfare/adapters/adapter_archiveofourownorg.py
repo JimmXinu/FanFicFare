@@ -204,6 +204,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('bookmarksummary',
                                    stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
+        if metasoup.find('img',alt='(Restricted)'):
+            self.story.setMetadata('restricted','Restricted')
+
         # Find authorid and URL from... author url.
         alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
