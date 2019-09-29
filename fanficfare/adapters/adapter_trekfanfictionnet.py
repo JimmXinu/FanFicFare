@@ -56,7 +56,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('storyId',m.group('id'))
 
             # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/' +m.group('category') +
+            self._setURL('https://' + self.getSiteDomain() +
              '/' + m.group('author') + '/' + self.story.getMetadata('storyId') +'/')
         else:
             raise exceptions.InvalidStoryURL(url,
@@ -78,12 +78,19 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
     ##########################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/category/author/a-story-name/"
+        return "https://"+cls.getSiteDomain()+"/author/a-story-name/"
 
     ##########################################################################
     def getSiteURLPattern(self):
         return re.escape('https://{}'.format(
-            self.getSiteDomain()))+r'/(?P<category>\S+)/(?P<author>\S+)/(?P<id>\S+)/'
+            self.getSiteDomain()))+r'/((?P<category>[^/]+)/)?(?P<author>[^/]+)/(?P<id>[^/]+)/?$'
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     ##########################################################################
     def get_page(self, page):
@@ -197,7 +204,11 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
 
-        ## this site has mulitple divs within the content section, so I'm going to remove them
+        ## Sep2019 - I found at least one story that this removed all
+        ## the content, but I have not idea which is more common.  No
+        ## updates on the site in over a year, so I'm not going to
+        ## worry about it too hard. --JM
+        ## this site has mulitple divs within the content section, so I'm going to remove them.
         for tag in story.find_all('div'):
             tag.extract()
 
