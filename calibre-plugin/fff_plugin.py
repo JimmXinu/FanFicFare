@@ -513,6 +513,9 @@ class FanFicFarePlugin(InterfaceAction):
 
         else:
             if url_list:
+                if prefs['imaptags']:
+                    message="<p>"+_("Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next dialog, including any story URLs you add manually.")%prefs['imaptags']+"</p>"
+                    confirm(message,'fff_add_imaptags', self.gui, show_cancel_button=False)
                 self.add_dialog("\n".join(url_list),merge=False,add_tag=prefs['imaptags'])
             else:
                 msg = _('No Valid Story URLs Found in Unread Emails.')
@@ -2306,7 +2309,7 @@ class FanFicFarePlugin(InterfaceAction):
         except:
             if prefs['addtolists'] or prefs['addtoreadlists']:
                 message="<p>"+_("You configured FanFicFare to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
-                confirm(message,'fff_no_reading_list_plugin', self.gui)
+                confirm(message,'fff_no_reading_list_plugin', self.gui, show_cancel_button=False)
             return
 
         if prefs['addtoreadlists']:
@@ -2318,7 +2321,7 @@ class FanFicFarePlugin(InterfaceAction):
             lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fff_no_read_lists', self.gui)
+                confirm(message,'fff_no_read_lists', self.gui, show_cancel_button=False)
             for l in lists:
                 if l in rl_plugin.get_list_names():
                     #print("add good read l:(%s)"%l)
@@ -2328,13 +2331,13 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fff_no_reading_list_%s'%l, self.gui)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False)
 
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
             lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fff_no_send_lists', self.gui)
+                confirm(message,'fff_no_send_lists', self.gui, show_cancel_button=False)
 
             for l in lists:
                 if l in rl_plugin.get_list_names():
@@ -2346,7 +2349,7 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fff_no_reading_list_%s'%l, self.gui)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False)
 
     def make_mi_from_book(self,book):
         if prefs['titlecase']:

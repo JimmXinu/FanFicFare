@@ -1634,7 +1634,8 @@ class ImapTab(QWidget):
         row+=1
 
         label = QLabel(_('Add these Tag(s) Automatically'))
-        tooltip = _("Tags entered here will be automatically added to stories downloaded from email story URLs.")
+        tooltip = ( _("Tags entered here will be automatically added to stories downloaded from email story URLs.") +"\n"+
+                    _("Any additional stories if you then manually add to the Story URL dialog will also have these tags added.") )
         label.setToolTip(tooltip)
         self.l.addWidget(label,row,0)
         self.imaptags = EditWithComplete(self) # QLineEdit(self)
