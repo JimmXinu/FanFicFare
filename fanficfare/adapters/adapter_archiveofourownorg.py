@@ -208,7 +208,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('restricted','Restricted')
 
         # Find authorid and URL from... author url.
-        alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/\w+"))
+        alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/.+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
             self.story.setMetadata('authorUrl','https://archiveofourown.org/')
