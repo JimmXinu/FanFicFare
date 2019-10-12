@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2018 FanFicFare team
+# Copyright 2019 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 from __future__ import absolute_import
 import re
 
-from .base_xenforoforum_adapter import BaseXenForoForumAdapter
+from .base_xenforo2forum_adapter import BaseXenForo2ForumAdapter
 
 def getClass():
     return ForumsSpacebattlesComAdapter
 
-class ForumsSpacebattlesComAdapter(BaseXenForoForumAdapter):
+class ForumsSpacebattlesComAdapter(BaseXenForo2ForumAdapter):
 
     def __init__(self, config, url):
-        BaseXenForoForumAdapter.__init__(self, config, url)
+        BaseXenForo2ForumAdapter.__init__(self, config, url)
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','fsb')

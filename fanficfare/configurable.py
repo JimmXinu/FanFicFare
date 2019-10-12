@@ -1070,12 +1070,12 @@ class Configuration(configparser.SafeConfigParser):
         if 'Accept' not in headers:
             headers['Accept']="text/html,*/*"
 
-        logger.debug("POST http login for SB xf2test %s"%url)
-        if "xf2test" in url:
-            import base64
-            base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
-            headers['Authorization']=b"Basic %s" % base64string
-            logger.debug("http login for SB xf2test")
+        # logger.debug("POST http login for SB xf2test %s"%url)
+        # if "xf2test" in url:
+        #     import base64
+        #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
+        #     headers['Authorization']=b"Basic %s" % base64string
+        #     logger.debug("http login for SB xf2test")
 
         req = Request(url,
                       data=ensure_binary(urlencode(parameters)),
@@ -1148,12 +1148,12 @@ class Configuration(configparser.SafeConfigParser):
             ## not present at all
             headers.append(('Referer',referer))
 
-        logger.debug("GET http login for SB xf2test %s"%url)
-        if "xf2test" in url:
-            import base64
-            base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
-            headers.append(('Authorization',b"Basic %s" % base64string))
-            logger.debug("http login for SB xf2test")
+        # logger.debug("GET http login for SB xf2test %s"%url)
+        # if "xf2test" in url:
+        #     import base64
+        #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
+        #     headers.append(('Authorization',b"Basic %s" % base64string))
+        #     logger.debug("http login for SB xf2test")
 
         self.opener.addheaders = headers
 

@@ -470,7 +470,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
                 # remember if reader link found--only applicable if using threadmarks.
-                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"/reader/?$")) is not None
+                self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"(/\d+)?/reader/?$")) is not None
 
                 if self.getConfig('always_include_first_post'):
                     self.add_chapter(first_post_title,useurl)
