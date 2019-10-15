@@ -197,8 +197,8 @@ def cleanup_url(href,email=False):
         ## only sent for thread updates, I believe.  Email only so
         ## get_urls_from_page can still get post URLs.
         href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
-    elif email and 'sufficientvelocity' in href and '/posts/' in href:
-        ## SV emails now use /posts/ instead of #post-
+    elif email and 'forums.' in href and '/posts/' in href: ## SV & SB, XenForo2 sites
+        ## XF2 emails now use /posts/ instead of #post-
         href = ""
     elif 'click' in href and 'royalroad' in href: # they've changed the domain at least once
         # logger.debug(href)
