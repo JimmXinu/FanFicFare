@@ -188,19 +188,21 @@ def cleanup_url(href,email=False):
 
     # this (should) catch normal story links, some javascript 'are you
     # old enough' links, and 'Report This' links.
+    # logger.debug("pre cleanup_url(%s,%s)"%(href,email))
     if 'story.php' in href: ## various eFiction and similar.
         m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
         if m != None:
             href = form_url(href,m.group('sid'))
-    elif email and '/threads/' in href:
+    if email and '/threads/' in href:
         ## xenforo emails, toss unread and page/post urls.  Emails are
         ## only sent for thread updates, I believe.  Email only so
         ## get_urls_from_page can still get post URLs.
         href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
-    elif email and 'forums.' in href and '/posts/' in href: ## SV & SB, XenForo2 sites
-        ## XF2 emails now use /posts/ instead of #post-
+    if email and 'forums.' in href and '/post' in href:
+        ## SV & SB, XenForo2 sites
+        ## XF2 emails now use /posts/ or /post- instead of #post-
         href = ""
-    elif 'click' in href and 'royalroad' in href: # they've changed the domain at least once
+    if 'click' in href and 'royalroad' in href: # they've changed the domain at least once
         # logger.debug(href)
         from .six.moves.urllib.request import build_opener
         opener = build_opener()
@@ -209,6 +211,7 @@ def cleanup_url(href,email=False):
         # logger.debug(opened.url)
         href = opened.url
     href = href.replace('&index=1','')
+    # logger.debug("PST cleanup_url(%s,%s)"%(href,email))
     return href
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
