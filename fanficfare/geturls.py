@@ -193,13 +193,12 @@ def cleanup_url(href,email=False):
         m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
         if m != None:
             href = form_url(href,m.group('sid'))
-    if email and 'forums.' in href:
+    if email and 'forum' in href:
+        ## xenforo emails, toss unread and page/post urls.  Emails are
+        ## only sent for thread updates, I believe.  Should catch
+        ## althist and QQ now as well as SB & SV.  XF2 emails now use
+        ## /posts/ or /post- instead of #post-
         if '/threads/' in href:
-            ## xenforo emails, toss unread and page/post urls.  Emails are
-            ## only sent for thread updates, I believe.  Email only so
-            ## get_urls_from_page can still get post URLs.
-            ## SV & SB, XenForo2 sites
-            ## XF2 emails now use /posts/ or /post- instead of #post-
             href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
         if re.match(r'.*/post(-|s/)\d+/?$',href):
             href = ""
