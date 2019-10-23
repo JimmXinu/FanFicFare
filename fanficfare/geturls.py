@@ -193,15 +193,16 @@ def cleanup_url(href,email=False):
         m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
         if m != None:
             href = form_url(href,m.group('sid'))
-    if email and '/threads/' in href:
-        ## xenforo emails, toss unread and page/post urls.  Emails are
-        ## only sent for thread updates, I believe.  Email only so
-        ## get_urls_from_page can still get post URLs.
-        href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
-    if email and 'forums.' in href and '/post' in href:
-        ## SV & SB, XenForo2 sites
-        ## XF2 emails now use /posts/ or /post- instead of #post-
-        href = ""
+    if email and 'forums.' in href:
+        if '/threads/' in href:
+            ## xenforo emails, toss unread and page/post urls.  Emails are
+            ## only sent for thread updates, I believe.  Email only so
+            ## get_urls_from_page can still get post URLs.
+            ## SV & SB, XenForo2 sites
+            ## XF2 emails now use /posts/ or /post- instead of #post-
+            href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
+        if re.match(r'.*/post(-|s/)\d+/?$',href):
+            href = ""
     if 'click' in href and 'royalroad' in href: # they've changed the domain at least once
         # logger.debug(href)
         from .six.moves.urllib.request import build_opener
