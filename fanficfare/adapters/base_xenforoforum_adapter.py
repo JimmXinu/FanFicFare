@@ -414,14 +414,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # can't login before initial fetch--need a cookie.
             if self.getConfig('always_login',False):
                 self.performLogin(data)
-                (data,opened) = self._fetchUrlOpened(useurl)
+                (data,opened) = self._fetchUrlOpened(self.url,
+                                                     usecache=False)
                 useurl = opened.geturl()
                 logger.info("use useurl: "+useurl)
         except HTTPError as e:
             # QQ gives 403, SV at least gives 404.  Which unfortunately
             if e.code == 403 or self.getConfig('always_login',False):
                 self.performLogin(data)
-                (data,opened) = self._fetchUrlOpened(useurl)
+                (data,opened) = self._fetchUrlOpened(self.url,
+                                                     usecache=False)
                 useurl = opened.geturl()
                 logger.info("use useurl: "+useurl)
             elif e.code == 404:
