@@ -365,7 +365,8 @@ def do_download(arg,
             adapter.setChaptersRange(options.begin, options.end)
 
         # check for updating from URL (vs from file)
-        if options.update and not chaptercount:
+        update_story = options.update
+        if update_story and not chaptercount:
             try:
                 writer = writers.getWriter('epub', configuration, adapter)
                 output_filename = writer.getOutputFileName()
@@ -373,7 +374,7 @@ def do_download(arg,
                 print('Updating %s, URL: %s' % (output_filename, url))
             except Exception as e:
                 print("Failed to read epub for update: (%s) Continuing with update=false"%e)
-                options.update = False
+                update_story = False
 
         # Check for include_images without no_image_processing. In absence of PIL, give warning.
         if adapter.getConfig('include_images') and not adapter.getConfig('no_image_processing'):
@@ -421,7 +422,7 @@ def do_download(arg,
                     print('Adult check required on non-interactive process. Set is_adult:true in personal.ini or pass -o "is_adult=true" to the command.')
                     return
 
-        if options.update and not options.force:
+        if update_story and not options.force:
             urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters').replace(',',''))
             # returns int adjusted for start-end range.
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
@@ -448,7 +449,7 @@ def do_download(arg,
 
                 print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 
-                if not options.update and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
+                if not update_story and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
                     adapter.hookForUpdates(chaptercount)
 
                 if adapter.getConfig('pre_process_safepattern'):
