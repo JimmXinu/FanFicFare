@@ -75,10 +75,16 @@ except ImportError:
     from fanficfare.six.moves import http_cookiejar as cl
 
 
-def write_story(config, adapter, writeformat, metaonly=False, outstream=None):
+def write_story(config, adapter, writeformat,
+                metaonly=False, nooutput=False,
+                outstream=None):
     writer = writers.getWriter(writeformat, config, adapter)
-    writer.writeStory(outstream=outstream, metaonly=metaonly)
     output_filename = writer.getOutputFileName()
+    if nooutput:
+        logger.info("Output suppressed by --no-output")
+    else:
+        writer.writeStory(outstream=outstream, metaonly=metaonly)
+        logger.debug("Successfully wrote '%s'"%output_filename)
     del writer
     return output_filename
 
@@ -117,6 +123,9 @@ def main(argv=None,
     parser.add_option('-j', '--json-meta',
                       action='store_true', dest='jsonmeta',
                       help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)', )
+    parser.add_option('--no-output',
+                      action='store_true', dest='nooutput',
+                      help='Do not download chapters and do not write output file.  Intended for testing and with --meta-only.', )
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
@@ -458,9 +467,8 @@ def do_download(arg,
                     metadata = adapter.story.getAllMetadata()
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
-                output_filename = write_story(configuration, adapter, 'epub')
-                logger.debug("Successfully wrote '%s'"%output_filename)
-
+                output_filename = write_story(configuration, adapter, 'epub',
+                                              nooutput=options.nooutput)
 
         else:
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
@@ -470,8 +478,8 @@ def do_download(arg,
                     metadata = adapter.story.getAllMetadata()
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
-            output_filename = write_story(configuration, adapter, options.format, options.metaonly)
-            logger.debug("Successfully wrote '%s'"%output_filename)
+            output_filename = write_story(configuration, adapter, options.format,
+                                          metaonly=options.metaonly, nooutput=options.nooutput)
 
             if options.metaonly and not options.jsonmeta:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
@@ -560,6 +568,7 @@ def get_configuration(url,
     try:
         configuration.add_section('overrides')
     except configparser.DuplicateSectionError:
+        # generally already exists in defaults.ini
         pass
 
     if options.force:
