@@ -216,7 +216,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         d = self._fetchUrl(loginUrl, params)
 
         if "Log Out" not in d:
-            logger.debug(d)
+            # logger.debug(d)
             logger.info("Failed to login to URL %s as %s" % (self.url,
                                                              params['login']))
             raise exceptions.FailedToLogin(self.url,params['login'])
