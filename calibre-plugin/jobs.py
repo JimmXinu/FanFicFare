@@ -187,6 +187,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.setChaptersRange(book['begin'],book['end'])
 
             configuration.load_cookiejar(options['cookiejarfile'])
+            ## set_cookiejar(,jarfile) also sets up configuration to
+            ## save cookies.
+            configuration.set_cookiejar(configuration.get_cookiejar(),
+                                        options['cookiejarfile'])
             #logger.debug("cookiejar:%s"%configuration.cookiejar)
             configuration.set_pagecache(options['pagecache'])
 
