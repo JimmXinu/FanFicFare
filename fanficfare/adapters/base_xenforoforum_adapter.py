@@ -216,7 +216,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         d = self._fetchUrl(loginUrl, params)
 
         if "Log Out" not in d:
-            # logger.debug(d)
+            logger.debug(d)
             logger.info("Failed to login to URL %s as %s" % (self.url,
                                                              params['login']))
             raise exceptions.FailedToLogin(self.url,params['login'])
@@ -400,6 +400,18 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # logger.debug(lastpage)
         return lastpage['href']
 
+    ## Aug 2019 - SB doesn't send update emails for threads it doesn't
+    ## think you've seen all of since the last email anymore.  Fetch
+    ## the last page of the thread to reset it.  This requires login
+    ## to already have been done.
+    def fetch_last_page(self,topsoup):
+        logger.debug("Perform fetch_last_page")
+        try:
+            # doing make_soup will also cache posts from that last page.
+            self.make_soup(self._fetchUrl(self.getURLPrefix()+'/'+self.get_last_page_url(topsoup)))
+        except:
+            logger.info("fetch_last_page failed, continuing")
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -412,7 +424,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             useurl = opened.geturl()
             logger.info("use useurl: "+useurl)
             # can't login before initial fetch--need a cookie.
-            if self.getConfig('always_login',False):
+            if self.getConfig('always_login',False) or self.getConfig('fetch_last_page',False):
                 self.performLogin(data)
                 (data,opened) = self._fetchUrlOpened(self.url,
                                                      usecache=False)
@@ -436,6 +448,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         if '#' not in useurl and '/posts/' not in useurl:
             self._setURL(useurl) ## for when threadmarked thread name changes.
+
+            # only apply fetch_last_page when not a post url.
+            if self.getConfig('fetch_last_page',False):
+                self.fetch_last_page(topsoup)
 
         self.parse_title(topsoup)
 
