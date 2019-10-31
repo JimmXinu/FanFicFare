@@ -62,7 +62,7 @@ class EpubWriter(BaseStoryWriter):
 <title>${title} by ${author}</title>
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
-<body>
+<body class="fff_titlepage">
 <h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <div>
 ''')
@@ -88,7 +88,7 @@ ${value}<br />
 <title>${title} by ${author}</title>
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
-<body>
+<body class="fff_titlepage">
 <h3><a href="${storyUrl}">${title}</a> by ${authorHTML}</h3>
 <table class="full">
 ''')
@@ -118,7 +118,7 @@ ${value}<br />
 <title>${title} by ${author}</title>
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
-<body>
+<body class="fff_tocpage">
 <div>
 <h3>Table of Contents</h3>
 ''')
@@ -143,8 +143,8 @@ ${value}<br />
 <meta name="chaptertoctitle" content="${tocchapter}"></meta>
 <meta name="chaptertitle" content="${chapter}"></meta>
 </head>
-<body>
-<h3>${chapter}</h3>
+<body class="fff_chapter">
+<h3 class="fff_chapter_title">${chapter}</h3>
 ''')
 
         self.EPUB_CHAPTER_END = string.Template('''
@@ -158,7 +158,7 @@ ${value}<br />
 <title>Update Log</title>
 <link href="stylesheet.css" type="text/css" charset="UTF-8" rel="stylesheet"/>
 </head>
-<body>
+<body class="fff_logpage">
 <h3>Update Log</h3>
 ''')
 
@@ -189,7 +189,7 @@ ${value}<br />
 @page {padding: 0pt; margin:0pt}
 body { text-align: center; padding:0pt; margin: 0pt; }
 div { margin: 0pt; padding: 0pt; }
-</style></head><body><div>
+</style></head><body class="fff_coverpage"><div>
 <img src="${coverimg}" alt="cover"/>
 </div></body></html>
 ''')
