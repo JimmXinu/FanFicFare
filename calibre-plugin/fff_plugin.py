@@ -283,6 +283,8 @@ class FanFicFarePlugin(InterfaceAction):
         self.rebuild_menus()
         rejecturllist.clear_cache()
         self.imap_pass = None
+        del self.cookiejar
+        self.cookiejar = None
 
     def rebuild_menus(self):
         with self.menus_lock:
