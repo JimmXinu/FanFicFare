@@ -82,6 +82,48 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         '''
         return True
 
+    def needToLoginCheck(self, data):
+        ## FH is apparently reporting "Story has been removed" for all
+        ## chapters when not logged in now.
+        if 'https://fictionhunt.com/login' in data:
+          return True
+        else:
+          return False
+
+    def performLogin(self, url):
+        params = {}
+
+        if self.password:
+            params['identifier'] = self.username
+            params['password'] = self.password
+        else:
+            params['identifier'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+        params['remember'] = 'on'
+
+        loginUrl = 'https://' + self.getSiteDomain() + '/login'
+
+        if not params['identifier']:
+            logger.info("This site requires login.")
+            raise exceptions.FailedToLogin(url,params['identifier'])
+
+        ## need to pull empty login page first to get authenticity_token
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['identifier']))
+        soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
+        params['_token']=soup.find('input', {'name':'_token'})['value']
+
+        d = self._postUrl(loginUrl, params, usecache=False)
+        # logger.debug(d)
+
+        if self.needToLoginCheck(d):
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                              params['identifier']))
+            raise exceptions.FailedToLogin(url,params['identifier'])
+            return False
+        else:
+            return True
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
         # fetch the chapter.  From that we will get almost all the
@@ -90,8 +132,12 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         url = self.url
         try:
             data = self._fetchUrl(url)
-            soup = self.make_soup(data)
 
+            if self.needToLoginCheck(data):
+                self.performLogin(url)
+                data = self._fetchUrl(url,usecache=False)
+
+            soup = self.make_soup(data)
             ## detect old storyUrl, switch to new storyUrl:
             canonlink = soup.find('link',rel='canonical')
             if canonlink:
