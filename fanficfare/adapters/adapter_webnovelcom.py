@@ -183,7 +183,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                                               # seems to have changed
                                               # --JM
                     continue
-
                 chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
                 chap_Url = url.rstrip('/') + '/' + chap['id']
                 self.add_chapter(chap_title, chap_Url)
@@ -216,7 +215,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         chapter_id = url.split('/')[-1]
         content_url = 'https://%s/apiajax/chapter/GetContent?_csrfToken=%s&bookId=%s&chapterId=%s&_=%d' % (
             self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
-        chapter_info = json.loads(self._fetchUrl(content_url))['data']['chapterInfo']
+        topdata = json.loads(self._fetchUrl(content_url))
+        # logger.debug(json.dumps(topdata, sort_keys=True,
+        #                         indent=2, separators=(',', ':')))
+        chapter_info = topdata['data']['chapterInfo']
 
         # Check if chapter is marked as VIP type 1 (requires an ad to be watched)
         if chapter_info['isVip'] == 1:
@@ -229,27 +231,27 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
             # This is actually required or the data/content field will be empty
             time.sleep(self._GET_VIP_CONTENT_DELAY)
-            content = json.loads(self._fetchUrl(content_by_token_url))['data']['content']
+            contents = json.loads(self._fetchUrl(content_by_token_url))['data']['contents']
         else:
-            content = chapter_info['content']
+            contents = chapter_info['contents']
 
         # Content is HTML, so return it directly
         if chapter_info['isRichFormat']:
-            if not self.getConfig('fix_pseudo_html', False):
-                return content
-
-            # Attempt to fix pseudo HTML
-            fixed_content = fix_pseudo_html(content, TINY_MCE_TAGS)
-            if content != fixed_content:
-                diff = difflib.unified_diff(
-                    real_html_regex.split(content),
-                    real_html_regex.split(fixed_content),
-                    n=0, lineterm='')
-                logger.info('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
-            return fixed_content
-
-        # Content is raw text, so convert paired newlines into paragraphs like the website
-        content = content.replace('\r', '')
-        content = cgi.escape(content)
-        content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
+            content = "\n".join([ x['content'] for x in contents])
+            if self.getConfig('fix_pseudo_html', False):
+                # Attempt to fix pseudo HTML
+                fixed_content = fix_pseudo_html(content, TINY_MCE_TAGS)
+                if content != fixed_content:
+                    diff = difflib.unified_diff(
+                        real_html_regex.split(content),
+                        real_html_regex.split(fixed_content),
+                        n=0, lineterm='')
+                    logger.info('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
+                content = fixed_content
+        else: # text format.
+            content = "".join([ x['content'] for x in contents])
+            # Content is raw text, so convert paired newlines into paragraphs like the website
+            content = content.replace('\r', '')
+            content = cgi.escape(content)
+            content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
         return content
