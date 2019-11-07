@@ -412,6 +412,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         except:
             logger.info("fetch_last_page failed, continuing")
 
+    def fetch_forums_breadcrumbs(self,topsoup):
+        '''
+        Fetch 'breadcrumb' list of forum links, return as list of <a>
+        tags.
+        '''
+        return topsoup.find("span",{'class':'crumbs'}).find_all('a',{'class':'crumb'})
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -456,6 +463,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         self.parse_title(topsoup)
 
         first_post_title = self.getConfig('first_post_title','First Post')
+
+        for atag in self.fetch_forums_breadcrumbs(topsoup):
+            self.story.addToList('parentforums',stripHTML(atag))
 
         use_threadmark_chaps = False
         if '#' in useurl:

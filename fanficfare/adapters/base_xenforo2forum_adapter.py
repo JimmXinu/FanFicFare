@@ -257,3 +257,10 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         # logger.debug(lastpage)
         # doing make_soup will also cache posts from that last page.
         return lastpage['href']
+
+    def fetch_forums_breadcrumbs(self,topsoup):
+        '''
+        Fetch 'breadcrumb' list of forum links, return as list of <a>
+        tags.
+        '''
+        return topsoup.find("ul",{'class':'p-breadcrumbs'}).find_all('a',{'itemprop':'item'})
