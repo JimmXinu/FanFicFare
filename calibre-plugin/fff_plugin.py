@@ -1702,7 +1702,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.cookiejar.load(options['cookiejarfile'],
                                 ignore_discard=True,
                                 ignore_expires=True)
-
+            logger.debug("Loaded cookiejar from BG.")
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
