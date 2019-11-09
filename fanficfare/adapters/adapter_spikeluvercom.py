@@ -32,7 +32,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'slc'
     SITE_DOMAIN = 'spikeluver.com'
 
-    BASE_URL = 'https://' + SITE_DOMAIN + '/SpuffyRealm/'
+    BASE_URL = 'http://' + SITE_DOMAIN + '/SpuffyRealm/'
     LOGIN_URL = BASE_URL + 'user.php?action=login'
     VIEW_STORY_URL_TEMPLATE = BASE_URL + 'viewstory.php?sid=%d'
     METADATA_URL_SUFFIX = '&index=1'
@@ -73,7 +73,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         return cls.VIEW_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('https','https?') + r'\d+$'
+        return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('http','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX)
