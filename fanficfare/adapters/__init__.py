@@ -74,7 +74,6 @@ from . import adapter_pretendercentrecom
 from . import adapter_darksolaceorg
 from . import adapter_finestoriescom
 from . import adapter_hpfanficarchivecom
-from . import adapter_twilightarchivescom
 from . import adapter_nhamagicalworldsus
 from . import adapter_hlfictionnet
 from . import adapter_dracoandginnycom
