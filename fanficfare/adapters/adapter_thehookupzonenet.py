@@ -21,12 +21,12 @@ from .base_efiction_adapter import BaseEfictionAdapter
 
 class TheHookupZoneNetAdapter(BaseEfictionAdapter):
 
-    @classmethod
-    def getProtocol(self):
-        """
-        Some, but not all site now require https.
-        """
-        return "https"
+    # @classmethod
+    # def getProtocol(self):
+    #     """
+    #     Some, but not all site now require https.
+    #     """
+    #     return "https"
 
     @staticmethod
     def getSiteDomain():
