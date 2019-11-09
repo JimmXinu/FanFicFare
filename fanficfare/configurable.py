@@ -1051,6 +1051,8 @@ class Configuration(configparser.SafeConfigParser):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
+        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
+
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
         cachekey=self._get_cachekey(url, parameters, headers)
@@ -1114,7 +1116,7 @@ class Configuration(configparser.SafeConfigParser):
         cache hits.
         '''
 
-        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&')
+        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
