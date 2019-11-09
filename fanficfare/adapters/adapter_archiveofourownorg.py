@@ -338,6 +338,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 self.story.setMetadata('bookmarks', value)
 
             if 'Chapters:' in label:
+                self.story.setMetadata('chapterslashtotal', value)
                 if value.split('/')[0] == value.split('/')[1]:
                     self.story.setMetadata('status', 'Completed')
                 else:
