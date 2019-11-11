@@ -620,8 +620,19 @@ def makeDate(string,dateform):
             add_hours = True
         string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
 
-    # date = datetime.strptime(string.encode('utf-8'),dateform.encode('utf-8'))
-    date = datetime.strptime(string, dateform)
+    dateform = dateform.strip()
+    string = string.strip()
+    try:
+        date = datetime.strptime(string, dateform)
+    except ValueError:
+        ## If parse fails and looking for 01-12 hours, try 01-24 hours too.
+        ## A moderately cheesy way to support 12 and 24 hour clocks.
+        if u"%I" in dateform:
+            dateform = dateform.replace(u"%I",u"%H")
+            date = datetime.strptime(string, dateform)
+            add_hours = False
+        else:
+            raise
 
     if add_hours:
         date += timedelta(hours=12)
