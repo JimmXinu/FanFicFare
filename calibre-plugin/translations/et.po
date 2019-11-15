@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-10-01 20:12+Central Daylight Time\n"
-"PO-Revision-Date: 2019-10-05 01:50+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-10-30 16:47+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1248,13 +1248,13 @@ msgstr ""
 
 #: config.py:1636
 msgid "Add these Tag(s) Automatically"
-msgstr ""
+msgstr "Automaatselt lisa need sildid"
 
 #: config.py:1637
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
-msgstr ""
+msgstr "Siia sisestatud sildid lisatakse automaatselt juttudele, mis on alla laaditud e-kirja jutu-URLidelt."
 
 #: config.py:1638
 msgid ""

@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-10-01 20:12+Central Daylight Time\n"
-"PO-Revision-Date: 2019-10-05 01:50+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-10-29 13:57+0000\n"
+"Last-Translator: M. de Boer <de.boer.melle@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1259,19 +1259,19 @@ msgstr "Indien aangevinkt, begint FanFicFare gelijk met het downloaden van verha
 
 #: config.py:1636
 msgid "Add these Tag(s) Automatically"
-msgstr ""
+msgstr "Voeg deze Tag(s) automatisch toe"
 
 #: config.py:1637
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
-msgstr ""
+msgstr "Hier ingevoerde tags worden automatisch toegevoegd aan verhalen die zijn gedownload van URL's van e-mailverhalen."
 
 #: config.py:1638
 msgid ""
 "Any additional stories if you then manually add to the Story URL dialog will"
 " also have these tags added."
-msgstr ""
+msgstr "Eventuele extra verhalen als u deze vervolgens handmatig toevoegt aan het dialoogvenster Verhaal-URL, zullen ook deze tags toevoegen."
 
 #: config.py:1649
 msgid ""
@@ -1714,7 +1714,7 @@ msgstr "Ophalen van verhaal URL's van e-mail zijn beëindigd."
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
-msgstr ""
+msgstr "Tag(s) <b><i>%s</i></b> wordt toegevoegd aan alle gedownloade verhalen in het volgende dialoogvenster, inclusief alle verhaal-URL's die u handmatig toevoegt."
 
 #: fff_plugin.py:523
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
