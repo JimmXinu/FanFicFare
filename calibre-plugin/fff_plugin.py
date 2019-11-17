@@ -184,7 +184,6 @@ class FanFicFarePlugin(InterfaceAction):
         self.menu.aboutToShow.connect(self.about_to_show_menu)
 
         self.imap_pass = None
-        self.cookiejar = None
 
     def initialization_complete(self):
         # otherwise configured hot keys won't work until the menu's
@@ -283,8 +282,6 @@ class FanFicFarePlugin(InterfaceAction):
         self.rebuild_menus()
         rejecturllist.clear_cache()
         self.imap_pass = None
-        del self.cookiejar
-        self.cookiejar = None
 
     def rebuild_menus(self):
         with self.menus_lock:
@@ -1114,21 +1111,9 @@ class FanFicFarePlugin(InterfaceAction):
         if 'pagecache' not in options:
             options['pagecache'] = configuration.get_empty_pagecache()
         configuration.set_pagecache(options['pagecache'])
-
-        # keep cookiejar in memory to share between download sessions
-        # erased when calibre restared.
-        # if self.cookiejar_file is not None:
-        #     logger.debug("self.cookiejar_file:%s"%self.cookiejar_file.name)
-        if self.cookiejar is None:
-            self.cookiejar = options['cookiejar'] = configuration.get_empty_cookiejar()
-            # ## forces to save
-            # self.cookiejar_file = PersistentTemporaryFile(suffix='.fanficfare.cookiejar')
-            # logger.debug("self.cookiejar_file:"+self.cookiejar_file.name)
-
         if 'cookiejar' not in options:
-            options['cookiejar'] = self.cookiejar
+            options['cookiejar'] = configuration.get_empty_cookiejar()
         configuration.set_cookiejar(options['cookiejar'])
-        #,self.cookiejar_file.name)
 
         if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
             ## Getting metadata from configured column.
@@ -1695,14 +1680,6 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.iactions['Convert Books'].auto_convert_auto_add(all_not_calonly_ids)
 
     def download_list_completed(self, job, options={},merge=False):
-        ## merge in cookies from bg procs.
-        logger.debug("Loading cookiejar from BG?")
-        if self.cookiejar is not None and 'cookiejarfile' in options:
-            logger.debug("Loading cookiejar from BG:"+options['cookiejarfile'])
-            self.cookiejar.load(options['cookiejarfile'],
-                                ignore_discard=True,
-                                ignore_expires=True)
-            logger.debug("Loaded cookiejar from BG.")
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
