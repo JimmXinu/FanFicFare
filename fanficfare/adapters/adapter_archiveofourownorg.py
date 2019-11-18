@@ -420,10 +420,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         exclude_notes=self.getConfigList('exclude_notes')
 
-        def append_tag(elem,tag,string):
+        def append_tag(elem,tag,string=None,classes=None):
             '''bs4 requires tags be added separately.'''
             new_tag = save_chapter_soup.new_tag(tag)
-            new_tag.string=string
+            if string:
+                new_tag.string=string
+            if classes:
+                new_tag['class']=[classes]
             elem.append(new_tag)
             return new_tag
 
@@ -432,6 +435,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## pages and before chapter-1 div.  Appending removes
         ## headnotes from whole_dl_soup, so be sure to only do it on
         ## the first chapter.
+        head_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_head_notes")
         if 'authorheadnotes' not in exclude_notes and index == 0:
             headnotes = whole_dl_soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
             if headnotes != None:
@@ -439,23 +443,23 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 ulassoc = headnotes.find('ul', {'class' : "associations"})
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
                 if headnotes != None or ulassoc != None:
-                    append_tag(save_chapter,'b',"Author's Note:")
+                    append_tag(head_notes_div,'b',"Author's Note:")
                 if ulassoc != None:
                     # fix relative links--all examples so far have been.
                     for alink in ulassoc.find_all('a'):
                         if 'http' not in alink['href']:
                             alink['href']='https://' + self.getSiteDomain() + alink['href']
-                    save_chapter.append(ulassoc)
+                    head_notes_div.append(ulassoc)
                 if headnotes != None:
-                    save_chapter.append(headnotes)
+                    head_notes_div.append(headnotes)
 
         ## Can appear on every chapter
         if 'chaptersummary' not in exclude_notes:
             chapsumm = chapter_dl_soup.find('div', {'id' : "summary"})
             if chapsumm != None:
                 chapsumm = chapsumm.find('blockquote')
-                append_tag(save_chapter,'b',"Summary for the Chapter:")
-                save_chapter.append(chapsumm)
+                append_tag(head_notes_div,'b',"Summary for the Chapter:")
+                head_notes_div.append(chapsumm)
 
         ## Can appear on every chapter
         if 'chapterheadnotes' not in exclude_notes:
@@ -463,8 +467,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if chapnotes != None:
                 chapnotes = chapnotes.find('blockquote')
                 if chapnotes != None:
-                    append_tag(save_chapter,'b',"Notes for the Chapter:")
-                    save_chapter.append(chapnotes)
+                    append_tag(head_notes_div,'b',"Notes for the Chapter:")
+                    head_notes_div.append(chapnotes)
 
         text = chapter_dl_soup.find('div', {'class' : "userstuff module"})
         chtext = text.find('h3', {'class' : "landmark heading"})
@@ -472,13 +476,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             chtext.extract()
         save_chapter.append(text)
 
+        foot_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_foot_notes")
         ## Can appear on every chapter
         if 'chapterfootnotes' not in exclude_notes:
             chapfoot = chapter_dl_soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
-                append_tag(save_chapter,'b',"Notes for the Chapter:")
-                save_chapter.append(chapfoot)
+                append_tag(foot_notes_div,'b',"Notes for the Chapter:")
+                foot_notes_div.append(chapfoot)
 
         skip_on_update_tags = []
         ## These are the over-all work's 'Notes at the end'.
@@ -491,10 +496,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
                 if footnotes:
-                    b = append_tag(save_chapter,'b',"Author's Note:")
+                    b = append_tag(foot_notes_div,'b',"Author's Note:")
                     skip_on_update_tags.append(b)
                     skip_on_update_tags.append(footnotes)
-                    save_chapter.append(footnotes)
+                    foot_notes_div.append(footnotes)
 
         ## It looks like 'Inspired by' links now all appear in the ul
         ## class=associations tag in authorheadnotes.  This code is
@@ -510,8 +515,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                         if 'http' not in alink['href']:
                             alink['href']='https://' + self.getSiteDomain() + alink['href']
                     skip_on_update_tags.append(inspiredlinks)
-                    save_chapter.append(inspiredlinks)
+                    foot_notes_div.append(inspiredlinks)
 
+        ## remove empty head/food notes div(s)
+        if not head_notes_div.find(True):
+            head_notes_div.extract()
+        if not foot_notes_div.find(True):
+            foot_notes_div.extract()
         ## AO3 story end notes end up in the 'last' chapter, but if
         ## updated, then there's a new 'last' chapter.  This option
         ## applies the 'skip_on_ffdl_update' class to those tags which
