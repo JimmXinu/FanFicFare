@@ -1032,9 +1032,11 @@ class Configuration(configparser.SafeConfigParser):
         max_zalgo = int(self.getConfig('max_zalgo',-1))
         if max_zalgo > -1:
             logger.debug("Applying max_zalgo:%s"%max_zalgo)
-            return reduce_zalgo(data,max_zalgo)
-        else:
-            return data
+            try:
+                return reduce_zalgo(data,max_zalgo)
+            except Exception as e:
+                logger.warn("reduce_zalgo failed(%s), continuing."%e)
+        return data
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url,
