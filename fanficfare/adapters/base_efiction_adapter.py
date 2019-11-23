@@ -354,6 +354,16 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 self.story.addToList(autokey, val)
             logger.debug("Auto metadata: entry:%s %s_label:%s value:%s" % (autokey, autokey, key, value))
 
+        if not self.story.getMetadata('rating'):
+            # In many eFiction sites, the Rating is not included in
+            # print page, but is on the TOC page.
+            toc = self.url + "&index=1"
+            soup = self.make_soup(self._fetchUrl(toc))
+            for label in soup.find_all('span', {'class':'label'}):
+                if 'Rated:' in label or 'Rating:' in label:
+                    self.story.setMetadata('rating',stripHTML(label.next_sibling))
+                    break
+
     def extractChapterUrlsAndMetadata(self):
         printUrl = self.url + '&action=printable&textsize=0&chapter='
         if self.getConfig('bulk_load'):

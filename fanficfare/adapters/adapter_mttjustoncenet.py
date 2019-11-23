@@ -39,20 +39,5 @@ class MTTJustOnceNetSiteAdapter(BaseEfictionAdapter):
     def getDateFormat(self):
         return "%B %d, %Y"
 
-    def extractChapterUrlsAndMetadata(self):
-        ## Call super of extractChapterUrlsAndMetadata().
-        ## base_efiction leaves the soup in self.html.
-        super(MTTJustOnceNetSiteAdapter, self).extractChapterUrlsAndMetadata()
-
-        if len(self.story.getMetadata('rating')) == 0:
-            # as with most eFiction bulk sites, the Rating is not retrieved.
-            # So I'm going to retrieve it here
-            toc = self.url + "&index=1"
-            soup = self.make_soup(self._fetchUrl(toc))
-            for label in soup.find_all('span', {'class':'label'}):
-                if 'Rated:' in label:
-                    self.story.setMetadata('rating',stripHTML(label.next_sibling))
-                    break
-        
 def getClass():
     return MTTJustOnceNetSiteAdapter

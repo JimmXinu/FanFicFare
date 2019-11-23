@@ -54,21 +54,5 @@ class StarsLibraryNetAdapter(BaseEfictionAdapter):
     def getDateFormat(self):
         return "%d %b %Y"
 
-
-    def extractChapterUrlsAndMetadata(self):
-        ## Call super of extractChapterUrlsAndMetadata().
-        ## base_efiction leaves the soup in self.html.
-        super(getClass(), self).extractChapterUrlsAndMetadata()
-
-        if not self.story.getMetadata('rating'):
-            # as with most eFiction bulk sites, the Rating is not retrieved.
-            # fetch from index page.
-            toc = self.url + "&index=1"
-            soup = self.make_soup(self._fetchUrl(toc))
-            for label in soup.find_all('span', {'class':'label'}):
-                if 'Rated:' in label:
-                    self.story.setMetadata('rating',stripHTML(label.next_sibling))
-                    break
-
 def getClass():
     return StarsLibraryNetAdapter
