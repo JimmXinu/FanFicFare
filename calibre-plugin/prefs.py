@@ -128,6 +128,7 @@ default_prefs['mark'] = False
 default_prefs['showmarked'] = False
 default_prefs['autoconvert'] = False
 default_prefs['urlsfromclip'] = True
+default_prefs['button_instantpopup'] = False
 default_prefs['updatedefault'] = True
 default_prefs['fileform'] = 'epub'
 default_prefs['collision'] = SAVE_UPDATE

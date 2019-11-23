@@ -36,10 +36,10 @@ import email
 import traceback
 
 try:
-    from PyQt5.Qt import (QApplication, QMenu, QTimer, Qt)
+    from PyQt5.Qt import (QApplication, QMenu, QTimer, Qt, QToolButton)
     from PyQt5.QtCore import QBuffer
 except ImportError as e:
-    from PyQt4.Qt import (QApplication, QMenu, QTimer, Qt)
+    from PyQt4.Qt import (QApplication, QMenu, QTimer, Qt, QToolButton)
     from PyQt4.QtCore import QBuffer
 
 from calibre.constants import numeric_version as calibre_version
@@ -189,7 +189,7 @@ class FanFicFarePlugin(InterfaceAction):
         # otherwise configured hot keys won't work until the menu's
         # been displayed once.
         self.rebuild_menus()
-
+        self.set_popup_mode()
         self.add_new_dialog = AddNewDialog(self.gui,
                                            prefs,
                                            self.qaction.icon())
@@ -280,6 +280,7 @@ class FanFicFarePlugin(InterfaceAction):
     def library_changed(self, db):
         # We need to reset our menus after switching libraries
         self.rebuild_menus()
+        self.set_popup_mode()
         rejecturllist.clear_cache()
         self.imap_pass = None
 
@@ -428,6 +429,18 @@ class FanFicFarePlugin(InterfaceAction):
             self.update_dialog()
         else:
             self.add_dialog()
+
+    def set_popup_mode(self):
+        if prefs['button_instantpopup']:
+            self.popup_type = QToolButton.InstantPopup
+        else:
+            self.popup_type = QToolButton.MenuButtonPopup
+        for bar in self.gui.bars_manager.bars:
+            w = bar.widgetForAction(self.qaction)
+            if w is not None:
+                w.setPopupMode(self.popup_type)
+                w.update()
+        return
 
     def get_epubmerge_plugin(self):
         if 'EpubMerge' in self.gui.iactions and self.gui.iactions['EpubMerge'].interface_action_base_plugin.version >= (1,3,1):

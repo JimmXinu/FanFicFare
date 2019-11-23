@@ -283,6 +283,7 @@ class ConfigWidget(QWidget):
             prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
             prefs['show_est_time'] = self.basic_tab.show_est_time.isChecked()
             prefs['urlsfromclip'] = self.basic_tab.urlsfromclip.isChecked()
+            prefs['button_instantpopup'] = self.basic_tab.button_instantpopup.isChecked()
             prefs['updatedefault'] = self.basic_tab.updatedefault.isChecked()
             prefs['deleteotherforms'] = self.basic_tab.deleteotherforms.isChecked()
             prefs['adddialogstaysontop'] = self.basic_tab.adddialogstaysontop.isChecked()
@@ -406,8 +407,8 @@ class ConfigWidget(QWidget):
             prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
             prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
             prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
-
             prefs.save_to_db()
+            self.plugin_action.set_popup_mode()
 
     def edit_shortcuts(self):
         self.save_settings()
@@ -508,6 +509,8 @@ class BasicTab(QWidget):
         self.auto_reject_seriesurlid = QCheckBox(_("Reject Without Confirmation?"),self)
         self.auto_reject_seriesurlid.setToolTip(_("Automatically reject storys with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
         self.auto_reject_seriesurlid.setChecked(prefs['auto_reject_seriesurlid'])
+        self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked())
+        self.checkforseriesurlid.stateChanged.connect(lambda x : self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked()))
         horz = QHBoxLayout()
         horz.addItem(QtGui.QSpacerItem(20, 1))
         horz.addWidget(self.auto_reject_seriesurlid)
@@ -574,10 +577,20 @@ class BasicTab(QWidget):
         self.urlsfromclip.setChecked(prefs['urlsfromclip'])
         self.l.addWidget(self.urlsfromclip)
 
+        self.button_instantpopup = QCheckBox(_('FanFicFare button opens menu?'),self)
+        self.button_instantpopup.setToolTip(_('The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, it will <i>Download from URLs</i> or optionally Update, see below.'))
+        self.button_instantpopup.setChecked(prefs['button_instantpopup'])
+        self.l.addWidget(self.button_instantpopup)
+
         self.updatedefault = QCheckBox(_('Default to Update when books selected?'),self)
-        self.updatedefault.setToolTip(_('The top FanFicFare plugin button will start Update if\nbooks are selected.  If unchecked, it will always bring up \'Add New\'.'))
+        self.updatedefault.setToolTip(_('The FanFicFare toolbar button will Update if books are selected.  If unchecked, it will always <i>Download from URLs</i>.'))
         self.updatedefault.setChecked(prefs['updatedefault'])
-        self.l.addWidget(self.updatedefault)
+        self.updatedefault.setEnabled(not self.button_instantpopup.isChecked())
+        self.button_instantpopup.stateChanged.connect(lambda x : self.updatedefault.setEnabled(not self.button_instantpopup.isChecked()))
+        horz = QHBoxLayout()
+        horz.addItem(QtGui.QSpacerItem(20, 1))
+        horz.addWidget(self.updatedefault)
+        self.l.addLayout(horz)
 
         self.adddialogstaysontop = QCheckBox(_("Keep 'Add New from URL(s)' dialog on top?"),self)
         self.adddialogstaysontop.setToolTip(_("Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\ndialog on top of all other windows.  Useful for dragging URLs onto it."))
