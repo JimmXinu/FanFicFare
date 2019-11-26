@@ -1345,7 +1345,7 @@ class Configurable(object):
 
 
 # .? for AO3's ']' in param names.
-safe_url_re = re.compile(r'(?P<attr>(password|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
+safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
 def safe_url(url):
     # return url with password attr (if present) obscured.
     return re.sub(safe_url_re,r'\g<attr>XXXXXXXX\g<amp>',url)

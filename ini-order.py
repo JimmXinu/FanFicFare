@@ -41,6 +41,8 @@ leadsects = [
     "[base_efiction]",
     "[base_xenforoforum]",
     "[base_xenforoforum:epub]",
+    "[base_xenforo2forum]",
+    "[base_xenforo2forum:epub]",
     "[epub]",
     "[html]",
     "[txt]",
