@@ -4,188 +4,55 @@
     <link href="/css/index.css" rel="stylesheet" type="text/css">
     <title>FanFicFare - read Fanfiction from fanfiction.net, archiveofourown.org, fimfiction.net, fictionpress.com, fictionalley.org, ficwad.com, potionsandsnitches.net, harrypotterfanfiction.com, mediaminer.org and many others on Kindle, Nook, Sony Reader, iPad, iPhone, Android, Aldiko, Stanza, etc</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-    <script>
-      var cookie_name="saved_fff_settings";
-      function savesettings() {
-          var savedcheckboxes=[];
-          $.each($("#controls :radio"), function() {
-              var state=[];
-              if(this.id) {
-                  state.push(this.id);
-                  state.push($(this).is(":checked"));
-                  savedcheckboxes.push(state)
-              }
-          });
-          var savedtexts=[];
-          $.each($("#controls :text"), function() {
-              var state=[];
-              if(this.id) {
-                  state.push(this.id);
-                  state.push(this.value);
-                  savedtexts.push(state)
-              }
-              //console.log(state)
-          });
-          $.cookie(cookie_name,
-             JSON.stringify({'checkboxes':savedcheckboxes,
-                             'texts':savedtexts,
-                            }),
-             { expires: 365 });
-      }
-      function loadsettings() {
-          if( $.cookie(cookie_name) ) {
-              var temps_settings = JSON.parse($.cookie(cookie_name));
-              $.each(temps_settings['checkboxes'], function() {
-                  var input_id=this[0];
-                  var input_value=this[1];
-                  if(input_id) {
-                      $("#"+input_id).prop("checked", input_value);
-                  }
-              });
-              $.each(temps_settings['texts'], function() {
-                  //console.log(this)
-                  var input_id=this[0];
-                  var input_value=this[1];
-                  if(input_id) {
-                      $("#"+input_id).val(input_value);
-                  }
-              });
-          }
-      }
-      $(function () {
-          $("#controls").on("change", function(e) {
-              savesettings()
-          });
-          loadsettings();
-      });
-    </script>
   </head>
   <body>
     <div id='main'>
       <h1>
         <a href="/" style="text-decoration: none; color: black;">FanFicFare</a>
       </h1>
-
-      {% if authorized %}
-      <form action="/fdown" method="post">
-        <div class="borderbox">
-          <div id='greeting'>
-            <p>Hi, {{ nickname }}! This is FanFicFare, which makes reading stories from various websites
-              much easier by helping you download them to EBook files. </p>
-          </div>
-
-          <p>
-            Questions?  Check out our
-            <a href="https://github.com/JimmXinu/FanFicFare/wiki/FAQs">FAQs</a>.
-            </p>
-          <p>
-            If you have any problems with this application, please
-            report them in
-            the <a href="https://groups.google.com/group/fanfic-downloader">FanFicFare Google Group</a>.  The
-            <a href="https://3-13-0.fanficfare.appspot.com">previous version</a>
-            is also available for you to use if necessary.
-          </p>
-          <div id='error'>
-            {{ error_message }}
-          </div>
-        </div>
-
-        <div class="borderbox" id="controls">
-          <div>URL: <input type="text" name="url" size="50" value='{{ url }}'/></div>
-          <br />
-          <div id='typelabel'>Ebook format</div>
-          <div id='typeoptions'>
-            <label for="epub"><input type='radio' name='format' value='epub' id='epub' checked>EPub</label>
-            <label for="html"><input type='radio' name='format' value='html' id='html'>HTML</label>
-            <label for="txt"><input type='radio' name='format' value='txt' id='txt'>Plain Text</label>
-            <label for="mobi"><input type='radio' name='format' value='mobi' id='mobi'>Mobi(Kindle)</label>
-          </div>
-          <div>
-            <p><input type="submit" value="Download"></p>
-            <p><i>For most readers, including Sony Reader, Nook and iPad, use EPub.</i></p>
-          </div>
-        </div>
-        <div class="borderbox">
-          <p>
-            Customize your <a href="/editconfig">User Configuration (personal.ini)</a>.
-          </p>
-          <p>
-            Or see your personal list of <a href="/recent">previously downloaded fanfics</a>.
-          </p>
-          <p>
-            See a list of downloaded fanfics by all users by <a href="/allrecent">most popular</a> or <a href="/allrecent?bydate=1">most recent</a>.
-          </p>
-        </div>
-      </form>
-      {% else %}
-      <div  class="borderbox">
-        <div id='greeting'>
-          <p>
-            This is a FanFicFare, which makes reading stories from various websites much easier by helping you download them to EBook files. Before you
-            can start downloading fanfics, you need to login, so FanFicFare can remember your fanfics and store them.
-          </p>
-          <p><a href="{{ login_url }}">Login using Google account</a></p>
-        </div>
-      </div>
-      {% endif %}
-
       <div class="borderbox">
-          <p>
-            <b>FanFicFare Calibre Plugin</b>
-            <br /><br />
-
-            There's also a version of this downloader that runs inside
-            the popular <a href="https://calibre-ebook.com/">Calibre</a>
-            ebook management package as a plugin.
-
-            <br /><br />
-
-            Once you have Calibre installed and running, inside
-            Calibre, you can go to 'Get plugins to enhance calibre' or
-            'Get new plugins' and
-            install <a href="https://www.mobileread.com/forums/showthread.php?t=259221">FanFicFare</a>.
-
-          </p>
-      </div>
-      <div class="borderbox">
-        <h3>Supported sites:</h3>
-        <p>
-          There's a
-           <a href="https://github.com/JimmXinu/FanFicFare/wiki/Supportedsites">Supported
-           Sites</a> page in our wiki.  If you have a site you'd like
-           to see supported, please check there first.
+        <h3>Closing FanFicFare Web Service</h3>
+        <p>Starting Nov 30, Google will only allow me to update the web service if I give them a way to bill me for 'building' the app.
         </p>
-
-        {% autoescape off %}{{ supported_sites }}{% endautoescape %}
-
         <p>
-          A few additional things to know, which will make your life substantially easier:
+And once they have a way to bill me, they will charge when the service
+goes past the free limit unless manually turned off each time or more
+draconian scaling settings are used:
         </p>
-        <ol>
-          <li>
-            First thing to know: We do not use your Google login and password. In fact, all we know about it is your ID &ndash; password
-            is being verified by Google and is absolutely, totally unknown to anyone but you.
-          </li>
-          <li>
-            You can download fanfiction directly from your iPhone, Kindle or (possibly) other ebook reader.
-          </li>
-          <li>
-            Downloaded stories are deleted after some time (which should give you enough of time to download it and will keep
-            Google happy about the app not going over the storage limit).
-          </li>
-          <li>
-            If you see some funny characters in downloaded Plain Text file, make sure you choose text file encoding UTF-8 and
-            not something else.
-          </li>
-          <li>
-            If you think that something that should work in fact doesn't, post a message to
-            our <a href="https://groups.google.com/group/fanfic-downloader">Google Group</a>. we also encourage you to join it so
-            you will find out about latest updates and fixes as soon as possible
-          </li>
-        </ol>
-        Otherwise, just have fun, and if you want to say thank you &mdash; use the contacts above.
+        <p>
+<i>If you are currently relying on the free tier as a cost control
+mechanism, you will need to make a configuration change to maintain
+the current behavior. You must set a Cloud Budget Alert and manually
+shut off your app, or set the max_instances setting to 1 in app.yaml
+to never go above the free tier.</i>
+        </p>
+        <p>
+On Friday Nov 15, 2019, I uploaded the new version with the
+<i>max_instances:1</i> setting recommended.  The service has been 'Over
+Quota' every time I've looked since then.
+        </p>
+        <p>
+I maintain FanFicFare as a hobby and for my own use.  When I inherited
+the project from the original developer (Roman Kirillov), it already
+had the web service running on Google App Engine associated with it.
+        </p>
+        <p>
+I continued to support the web service in recent years as a legacy for
+the users who can't run the CLI or Calibre versions.  But I'm not
+interested in spending my money on it, or dealing with the accounting
+and possible tax implications of collecting donations to run it.
+        </p>
+        <p>
+I plan to continue maintaining the Calibre Plugin and Python CLI
+versions of FanFicFare.  But at this point, I'm shutting down the web
+service.
+        </p>
+        <p>
+If you are interested in possibly taking over or making a new web
+service, please join the conversation at
+the <a href="https://groups.google.com/forum/#!topic/fanfic-downloader/AjhctdzWsW0">FanFicFare
+Google Group</a>.
+        </p>
       </div>
       <div style='text-align: center'>
         <img src="https://code.google.com/appengine/images/appengine-silver-120x30.gif"
