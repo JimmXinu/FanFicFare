@@ -33,9 +33,12 @@ Getting FanFicFare
 ==================
 
 This program is available as a [calibre
-plugin](http://www.mobileread.com/forums/showthread.php?p=3084025), a
+plugin](http://www.mobileread.com/forums/showthread.php?p=3084025) or a
 [command-line interface](https://pypi.python.org/pypi/FanFicFare) (via
-pip), and a [web service](http://fanficfare.appspot.com/).
+pip).  
+
+As of late November 2019, the web service version is shutdown.  
+See the [Wiki Home](https://github.com/JimmXinu/FanFicFare/wiki#web-service-version) page for details.
 
 The cli version can also be obtained on Arch Linux from the official repositories:
 
