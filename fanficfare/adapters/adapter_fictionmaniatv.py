@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 import re
+import logging
+logger = logging.getLogger(__name__)
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
@@ -42,6 +44,13 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         # Always single chapters, probably should use the Anthology feature to
         # merge chapters of a story
         self.story.setMetadata('numChapters', 1)
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     def _customized_fetch_url(self, url, exception=None, parameters=None):
         if exception:
@@ -152,22 +161,46 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 self.story.setMetadata('readings', value)
 
     def getChapterText(self, url):
-        soup = self._customized_fetch_url(url)
-        element = soup.find('pre')
-        element.name = 'div'
+        if self.getConfig("download_text_version",False):
+            soup = self._customized_fetch_url(url)
+            element = soup.find('pre')
+            element.name = 'div'
 
-        # The story's content is contained in a <pre> tag, probably taken 1:1
-        # from the source text file. A simple replacement of all newline
-        # characters with a break line tag should take care of formatting.
+            # The story's content is contained in a <pre> tag, probably taken 1:1
+            # from the source text file. A simple replacement of all newline
+            # characters with a break line tag should take care of formatting.
 
-        # While wrapping in paragraphs would be possible, it's too much work,
-        # I'd rather display the story 1:1 like it was found in the pre tag.
-        content = unicode(element)
-        content = content.replace('\n', '<br/>')
+            # While wrapping in paragraphs would be possible, it's too much work,
+            # I'd rather display the story 1:1 like it was found in the pre tag.
+            content = unicode(element)
+            content = content.replace('\n', '<br/>')
 
-        if self.getConfig('non_breaking_spaces'):
-            return content.replace(' ', '&nbsp;')
+            if self.getConfig('non_breaking_spaces'):
+                return content.replace(' ', '&nbsp;')
 
-        ## Normally, getChapterText should use self.utf8FromSoup(),
-        ## but this is converting from plain(ish) text. -- JM
-        return content
+            ## Normally, getChapterText should use self.utf8FromSoup(),
+            ## but this is converting from plain(ish) text. -- JM
+            return content
+
+        else:
+            ## fetching html version now instead of text.
+            soup = self._customized_fetch_url(url.replace('readtextstory','readxstory'))
+
+            # remove first hr and everything before
+            remove = soup.find('hr')
+            # logger.debug(remove)
+            for tag in remove.find_previous_siblings():
+                tag.extract()
+            remove.extract()
+
+            # remove trailing hr, parent tags and everything after.
+            remove = soup.find('hr',size='1').parent # <center><hr size=1>
+            # logger.debug(remove)
+            for tag in remove.find_next_siblings():
+                tag.extract()
+            remove.extract()
+
+            content = soup.find('body')
+            content.name='div'
+
+            return self.utf8FromSoup(url,content)

@@ -235,6 +235,7 @@ def get_valid_set_options():
 
                'force_login':(['phoenixsong.net'],None,boollist),
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
+               'download_text_version':(['fictionmania.tv'],None,boollist),
                'universe_as_series':(['storiesonline.net','finestories.com'],None,boollist),
                'strip_text_links':(['bloodshedverse.com','asexstories.com'],None,boollist),
                'centeredcat_to_characters':(['tthfanfic.org'],None,boollist),
@@ -426,6 +427,7 @@ def get_valid_keywords():
                  'never_make_cover',
                  'no_image_processing',
                  'non_breaking_spaces',
+                 'download_text_version',
                  'nook_img_fix',
                  'output_css',
                  'output_filename',
