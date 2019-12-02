@@ -697,6 +697,7 @@ class FanFicFarePlugin(InterfaceAction):
         if prefs['autoconvert']:
             changed_ids = [ x['calibre_id'] for x in book_list if x['changed'] ]
             if changed_ids:
+                logger.debug(_('Starting auto conversion of %d books.')%(len(changed_ids)))
                 self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(changed_ids)), 3000)
                 self.gui.iactions['Convert Books'].auto_convert_auto_add(changed_ids)
 
@@ -1660,8 +1661,10 @@ class FanFicFarePlugin(InterfaceAction):
                 # Sort by our marked column to display the books in order
                 self.gui.library_view.sort_by_named_field('marked', True)
 
+        logger.debug(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)))
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)
         remove_dir(options['tdir'])
+        logger.debug("removed tdir")
 
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
@@ -1689,6 +1692,7 @@ class FanFicFarePlugin(InterfaceAction):
                 cp_plugin.count_statistics(all_ids,countpagesstats)
 
         if prefs['autoconvert'] and all_not_calonly_ids:
+            logger.debug(_('Starting auto conversion of %d books.')%(len(all_ids)))
             self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(all_ids)), 3000)
             self.gui.iactions['Convert Books'].auto_convert_auto_add(all_not_calonly_ids)
 
