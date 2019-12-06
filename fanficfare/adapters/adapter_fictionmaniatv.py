@@ -74,7 +74,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         return cls.READ_TEXT_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return r'https?' + re.escape(self.BASE_URL[len('https'):]) + '(readtextstory|readxstory|details)\.html\?storyID=\d+$'
+        return r'https?' + re.escape(self.BASE_URL[len('https'):]) + '(readtextstory|readhtmlstory|readxstory|details)\.html\?storyID=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         url = self.DETAILS_URL_TEMPLATE % self.story.getMetadata('storyId')
@@ -183,6 +183,18 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             return content
 
         else:
+
+            # try SWI (story with images) version first
+            # <div style="margin-left:10ex;margin-right:10ex">
+            ## fetching SWI version now instead of text.
+            htmlurl = url.replace('readtextstory','readhtmlstory')
+            soup = self._customized_fetch_url(htmlurl)
+            div = soup.find('div',style="margin-left:10ex;margin-right:10em")
+            if div:
+                return self.utf8FromSoup(htmlurl,div)
+            else:
+                logger.debug("Story With Images(SWI) not found, falling back to HTML.")
+
             ## fetching html version now instead of text.
             soup = self._customized_fetch_url(url.replace('readtextstory','readxstory'))
 
