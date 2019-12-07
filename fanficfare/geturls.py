@@ -202,7 +202,9 @@ def cleanup_url(href,email=False):
             href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
         if re.match(r'.*/post(-|s/)\d+/?$',href):
             href = ""
-    if 'click' in href and 'royalroad' in href: # they've changed the domain at least once
+    # they've changed the domain at least once and the url a couple
+    # times now...
+    if ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
         # logger.debug(href)
         from .six.moves.urllib.request import build_opener
         opener = build_opener()
