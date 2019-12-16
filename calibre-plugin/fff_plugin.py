@@ -405,7 +405,7 @@ class FanFicFarePlugin(InterfaceAction):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
 
-        text = get_resources('about.html')
+        text = get_resources('about.html').decode('utf-8')
         AboutDialog(self.gui,self.qaction.icon(),self.version + text).exec_()
 
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
