@@ -491,7 +491,8 @@ class AddNewDialog(SizePersistedDialog):
                 retval['updatemeta']=True
                 retval['collision']=ADDNEW
 
-        return dict(retval.items() + self.extraoptions.items() )
+        retval.update(self.extraoptions)
+        return retval
 
     def get_urlstext(self):
         return unicode(self.url.toPlainText())
