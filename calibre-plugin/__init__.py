@@ -52,7 +52,7 @@ class FanFicFareBase(InterfaceActionBase):
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Jim Miller'
     version             = __version__
-    minimum_calibre_version = (1, 48, 0)
+    minimum_calibre_version = (3, 48, 0)
 
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
