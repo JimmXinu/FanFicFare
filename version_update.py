@@ -28,7 +28,7 @@ version_files = [
     # 'version_test.txt',
     'setup.py',
     'calibre-plugin/__init__.py',
-    'webservice/app.yaml',
+    # 'webservice/app.yaml',
     'fanficfare/cli.py',
     ]
 
@@ -55,12 +55,13 @@ version="2.3.6"
     
     do_loop(version_files, version_re, version_subs)
 
-    index_files = ['webservice/index.html']
-    if saved_version:
-        ## only do major/minor, always leave micro 0 in index.html.
-        index_re = 'https://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
-        index_subs = 'https://%s-%s-0.fanficfare.appspot.com'%saved_version[0:2]
-        do_loop(index_files, index_re, index_subs)
+    index_files = []
+    # index_files = ['webservice/index.html']
+    # if saved_version:
+    #     ## only do major/minor, always leave micro 0 in index.html.
+    #     index_re = 'https://([0-9-]+[a-z]?)\\.fanficfare\\.appspot\\.com'
+    #     index_subs = 'https://%s-%s-0.fanficfare.appspot.com'%saved_version[0:2]
+    #     do_loop(index_files, index_re, index_subs)
 
     release = 'Release'
     if int(args[-1]) > 0:

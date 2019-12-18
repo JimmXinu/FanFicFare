@@ -39,21 +39,7 @@ import pickle
 
 from . import exceptions
 
-try:
-    from google.appengine.api import apiproxy_stub_map
-    def urlfetch_timeout_hook(service, call, request, response):
-        if call != 'Fetch':
-            return
-        # Make the default deadline 10 seconds instead of 5.
-        if not request.has_deadline():
-            request.set_deadline(10.0)
-
-    apiproxy_stub_map.apiproxy.GetPreCallHooks().Append(
-        'urlfetch_timeout_hook', urlfetch_timeout_hook, 'urlfetch')
-    logger.info("Hook to make default deadline 10.0 installed.")
-except:
-    pass
-    #logger.info("Hook to make default deadline 10.0 NOT installed--not using appengine")
+logger = logging.getLogger(__name__)
 
 try:
     import chardet
@@ -77,8 +63,6 @@ from .htmlcleanup import reduce_zalgo
 # titlepage_entries: category,genre, status,datePublished
 # [overrides]
 # titlepage_entries: category
-
-logger = logging.getLogger(__name__)
 
 # Work around for fact that py3 apparently doesn't allow/ignore
 # recursive imports like py2 does.

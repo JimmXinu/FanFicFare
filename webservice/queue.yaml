@@ -1,7 +1,0 @@
-queue:
-- name: default
-  rate: 1/s
-- name: download
-  rate: 10/s
-  retry_parameters:
-    task_retry_limit: 2

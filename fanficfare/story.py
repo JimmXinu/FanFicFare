@@ -196,15 +196,6 @@ def fit_image(width, height, pwidth, pheight):
     return scaled, int(width), int(height)
 
 try:
-    # doesn't really matter what, just checking for appengine.
-    from google.appengine.api import apiproxy_stub_map
-
-    is_appengine = True
-except:
-    is_appengine = False
-
-
-try:
     from calibre.library.comments import sanitize_comments_html
 except:
     def sanitize_comments_html(t):
@@ -1169,11 +1160,6 @@ class Story(Configurable):
 
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
-
-        # appengine (web version) isn't allowed to do images--just
-        # gets too big too fast and breaks things.
-        if is_appengine:
-            return (None,None)
 
         ## Mistakenly ended up with some // in image urls, like:
         ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
