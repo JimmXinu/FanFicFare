@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright 2018, Jim Miller
+# Copyright 2019, Jim Miller
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@
 from __future__ import absolute_import
 import os, zipfile, sys
 from glob import glob
-
 from six import text_type as unicode
 
 def addFolderToZip(myZipFile,folder,exclude=[]):
-    # print("folder:"+folder)
+    folder = unicode(folder) #convert path to ascii for ZipFile Method
     excludelist=[]
     for ex in exclude:
         excludelist.extend(glob(folder+"/"+ex))
