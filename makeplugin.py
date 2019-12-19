@@ -34,15 +34,12 @@ if __name__=="__main__":
                   files,
                   exclude=exclude)
 
-    # os.chdir('../included_dependencies')
-    # files=['bs4','chardet','html2text','soupsieve','backports']
-    # # calibre has it's own copies of these that precedence anyway:
-    # # 'html5lib','webencodings'
-    # # webencodings is only needed by versions of html5lib after 0.9x7
-    # # 'a' for append
-    # createZipFile("../"+filename,"a",
-    #               files,
-    #               exclude=exclude)
+    os.chdir('../included_dependencies')
+    files=['bs4','chardet','html2text','soupsieve','backports']
+    ## Kept only for v2.85.1 support now.
+    createZipFile("../"+filename,"a",
+                  files,
+                  exclude=exclude)
 
     os.chdir('..')
     # 'a' for append
