@@ -1102,7 +1102,8 @@ class Configuration(configparser.SafeConfigParser):
         cache hits.
         '''
 
-        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
+        if not url.startswith('file:'): # file fetches fail on + for space
+            url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
