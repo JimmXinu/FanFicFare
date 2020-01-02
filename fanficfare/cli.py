@@ -128,6 +128,9 @@ def main(argv=None,
     parser.add_option('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
+    parser.add_option('-U', '--update-epub-always',
+                      action='store_true', dest='updatealways',
+                      help="Update an existing epub(if present) even if there aren't new chapters.  Give either epub filename or story URL.", )
     parser.add_option('--update-cover',
                       action='store_true', dest='updatecover',
                       help='Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.', )
@@ -214,8 +217,12 @@ def main(argv=None,
                 print('  * %s' % u)
         return
 
+    # options.updatealways should also invoke most options.update logic.
+    if options.updatealways:
+        options.update = True
+
     if options.update and options.format != 'epub':
-        parser.error('-u/--update-epub only works with epub')
+        parser.error('-u/--update-epub/-U/--update-epub-always only work with epub')
 
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
@@ -435,7 +442,7 @@ def do_download(arg,
             # returns int adjusted for start-end range.
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
-            if chaptercount == urlchaptercount and not options.metaonly:
+            if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
             elif chaptercount > urlchaptercount:
                 print('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
