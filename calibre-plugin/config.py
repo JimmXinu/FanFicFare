@@ -1333,7 +1333,8 @@ class CustomColumnsTab(QWidget):
         self.plugin_action = plugin_action
         QWidget.__init__(self)
 
-        custom_columns = self.plugin_action.gui.library_view.model().custom_columns
+        ## sort by visible Column Name (vs #name)
+        custom_columns = sorted(self.plugin_action.gui.library_view.model().custom_columns.items(), key=lambda x: x[1]['name'])
 
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -1355,14 +1356,15 @@ class CustomColumnsTab(QWidget):
         self.sl = QVBoxLayout()
         scrollcontent.setLayout(self.sl)
 
-        for key, column in six.iteritems(custom_columns):
+        for key, column in custom_columns:
 
             if column['datatype'] in permitted_values:
                 # print("\n============== %s ===========\n"%key)
                 # for (k,v) in column.iteritems():
                 #     print("column['%s'] => %s"%(k,v))
                 horz = QHBoxLayout()
-                label = QLabel(column['name'])
+                # label = QLabel(column['name'])
+                label = QLabel('%s(%s)'%(column['name'],key))
                 label.setToolTip(_("Update this %s column(%s) with...")%(key,column['datatype']))
                 horz.addWidget(label)
                 dropdown = QComboBox(self)
@@ -1408,7 +1410,7 @@ class CustomColumnsTab(QWidget):
         self.errorcol = QComboBox(self)
         self.errorcol.setToolTip(tooltip)
         self.errorcol.addItem('','none')
-        for key, column in six.iteritems(custom_columns):
+        for key, column in custom_columns:
             if column['datatype'] in ('text','comments'):
                 self.errorcol.addItem(column['name'],key)
         self.errorcol.setCurrentIndex(self.errorcol.findData(prefs['errorcol']))
@@ -1432,7 +1434,7 @@ class CustomColumnsTab(QWidget):
         self.savemetacol = QComboBox(self)
         self.savemetacol.setToolTip(tooltip)
         self.savemetacol.addItem('','')
-        for key, column in six.iteritems(custom_columns):
+        for key, column in custom_columns:
             if column['datatype'] in ('comments'):
                 self.savemetacol.addItem(column['name'],key)
         self.savemetacol.setCurrentIndex(self.savemetacol.findData(prefs['savemetacol']))
@@ -1452,7 +1454,8 @@ class CustomColumnsTab(QWidget):
         self.lastcheckedcol = QComboBox(self)
         self.lastcheckedcol.setToolTip(tooltip)
         self.lastcheckedcol.addItem('','none')
-        for key, column in six.iteritems(custom_columns):
+        ## sort by visible Column Name (vs #name)
+        for key, column in custom_columns:
             if column['datatype'] == 'datetime':
                 self.lastcheckedcol.addItem(column['name'],key)
         self.lastcheckedcol.setCurrentIndex(self.lastcheckedcol.findData(prefs['lastcheckedcol']))
