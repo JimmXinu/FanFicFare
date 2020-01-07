@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2019 FanFicFare team
+# Copyright 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -280,10 +280,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             if tmcat_name == 'Apocrypha' and self.getConfig('apocrypha_to_omake'):
                 tmcat_name = 'Omake'
 
-            if 'http' not in threadmarksa['href']:
-                href = self.getURLPrefix()+'/'+threadmarksa['href']
-            else:
+            if 'http' in threadmarksa['href']:
                 href = threadmarksa['href']
+            elif threadmarksa['href'].startswith('/'):
+                href = 'https://'+self.getSiteDomain()+threadmarksa['href']
+            else:
+                href = self.getURLPrefix()+'/'+threadmarksa['href']
             threadmarkgroups[tmcat_name]=self.fetch_threadmarks(href,
                                                                 tmcat_name,
                                                                 tmcat_num)
