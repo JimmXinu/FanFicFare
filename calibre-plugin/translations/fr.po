@@ -9,7 +9,7 @@
 # Ptit Prince <leporello1791@gmail.com>, 2014-2016
 # Nicolas F. <fernetn@gmail.com>, 2017
 # Piconcely Yoann <yoanncoolazz@gmail.com>, 2015
-# Ptit Prince <leporello1791@gmail.com>, 2016-2017
+# Ptit Prince <leporello1791@gmail.com>, 2016-2017,2019
 # sengian <sengian1@gmail.com>, 2016
 # sengian <sengian1@gmail.com>, 2015
 # Thibault San <diablodu02@gmail.com>, 2015
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
-"PO-Revision-Date: 2019-11-30 04:08+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-12-25 20:01+0000\n"
+"Last-Translator: Ptit Prince <leporello1791@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -362,13 +362,13 @@ msgstr "Pré-rempli les URLs depuis les URLs valides dans le presse-papier lorsq
 
 #: config.py:580
 msgid "FanFicFare button opens menu?"
-msgstr ""
+msgstr "Le bouton FanFicFare ouvre le menu ?"
 
 #: config.py:581
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
-msgstr ""
+msgstr "Le bouton de la barre d'outils FanFicFare fera apparaître le menu du plugin. S'il n'est pas coché, il affichera <i>Télécharger à partir de URLs</i> ou optionnellement Mettre à jour, voir ci-dessous."
 
 #: config.py:585
 msgid "Default to Update when books selected?"
@@ -378,7 +378,7 @@ msgstr "Mise à jour par défaut quand les livres sont sélectionnés ?"
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
-msgstr ""
+msgstr "Le bouton de la barre d'outils FanFicFare mettra à jour si des livres sont sélectionnés. S'il n'est pas coché, il <i>téléchargera toujours à partir des URLs</i>."
 
 #: config.py:595
 msgid "Keep 'Add New from URL(s)' dialog on top?"
@@ -1268,19 +1268,19 @@ msgstr "Si cochée, FanFicFare commencera immédiatement à télécharger les r�
 
 #: config.py:1649
 msgid "Add these Tag(s) Automatically"
-msgstr ""
+msgstr "Ajouter ce(s) Tag(s) automatiquement"
 
 #: config.py:1650
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
-msgstr ""
+msgstr "Les étiquettes saisies ici seront automatiquement ajoutées aux histoires téléchargées à partir des URL courriel des histoires."
 
 #: config.py:1651
 msgid ""
 "Any additional stories if you then manually add to the Story URL dialog will"
 " also have these tags added."
-msgstr ""
+msgstr "Ces étiquettes seront également ajoutées à toute histoire supplémentaire que vous ajouterez manuellement dans la boîte de dialogue URL de l'histoire."
 
 #: config.py:1662
 msgid ""
@@ -1723,7 +1723,7 @@ msgstr "A Fini de Récupérer les URLs d'Histoires à partir d'e-mail."
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
-msgstr ""
+msgstr "Les étiquettes <b><i>%s</i></b> seront ajoutées à toutes les histoires téléchargées dans la boîte de dialogue suivante, y compris les URL des histoires que vous ajoutez manuellement."
 
 #: fff_plugin.py:536
 msgid "(%d Story URLs Skipped, on Rejected URL List)"

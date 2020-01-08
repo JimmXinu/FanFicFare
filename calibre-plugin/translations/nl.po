@@ -10,7 +10,7 @@
 # M. de Boer <de.boer.melle@gmail.com>, 2018-2019
 # Nathan Follens, 2015
 # Nathan Follens, 2016
-# Meteor 0id, 2019
+# Meteor0id, 2019
 # Rodolfo_Jadon, 2014-2015
 # Volluta <volluta@tutanota.com>, 2015
 # W.P.M.E. Hofland <wpme.hofland@gmail.com>, 2015

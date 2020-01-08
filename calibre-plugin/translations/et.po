@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
-"PO-Revision-Date: 2019-11-30 04:08+0000\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"PO-Revision-Date: 2019-12-28 22:12+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -352,7 +352,7 @@ msgstr "Uute lisamisel täida URLide väli kehtivate URLidega lõikelaualt."
 
 #: config.py:580
 msgid "FanFicFare button opens menu?"
-msgstr ""
+msgstr "FanFicFare nupp avab menüü?"
 
 #: config.py:581
 msgid ""
