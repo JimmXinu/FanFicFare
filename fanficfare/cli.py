@@ -99,9 +99,9 @@ def main(argv=None,
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
     if passed_defaultsini:
-        config_help = 'Read config from specified file(s) in addition to calibre plugin personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
+        config_help = 'Read config from specified file(s) in addition to calibre plugin personal.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
     else:
-        config_help = 'Read config from specified file(s) in addition to ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
+        config_help = 'Read config from specified file(s) in addition to $XDG_CONFIG_HOME/fanficfare/defaults.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
     parser.add_option('-c', '--config',
                       action='append', dest='configfile', default=None,
                       help=config_help, metavar='CONFIG')
@@ -545,6 +545,8 @@ def get_configuration(url,
     homepath = join(expanduser('~'), '.fanficdownloader')
     ## also look for .fanficfare now, give higher priority than old dir.
     homepath2 = join(expanduser('~'), '.fanficfare')
+    xdgpath = os.environ.get('XDG_CONFIG_HOME', default=join(expanduser('~'),'.config'))
+    xdgpath = join(xdgpath, 'fanficfare')
 
     if passed_defaultsini:
         # new StringIO each time rather than pass StringIO and rewind
@@ -555,6 +557,7 @@ def get_configuration(url,
         conflist.append(join(dirname(__file__), 'defaults.ini'))
         conflist.append(join(homepath, 'defaults.ini'))
         conflist.append(join(homepath2, 'defaults.ini'))
+        conflist.append(join(xdgpath, 'defaults.ini'))
         conflist.append('defaults.ini')
 
     if passed_personalini:
@@ -564,6 +567,7 @@ def get_configuration(url,
 
     conflist.append(join(homepath, 'personal.ini'))
     conflist.append(join(homepath2, 'personal.ini'))
+    conflist.append(join(xdgpath, 'personal.ini'))
     conflist.append('personal.ini')
 
     if options.configfile:
