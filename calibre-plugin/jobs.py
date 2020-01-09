@@ -203,7 +203,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("publisher")
-            book['url'] = story.getMetadata("storyUrl")
+            book['url'] = story.getMetadata("storyUrl", removeallentities=True)
             book['tags'] = story.getSubjectTags(removeallentities=True)
             book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)

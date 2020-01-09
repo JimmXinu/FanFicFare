@@ -1177,7 +1177,7 @@ class FanFicFarePlugin(InterfaceAction):
                 story = self.get_story_metadata_only(adapter)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
-                book['url'] = story.getMetadata('storyUrl')
+                book['url'] = story.getMetadata('storyUrl', removeallentities=True)
 
             ## Check reject list.  Redundant with below for when story
             ## URL changes, but also kept here to avoid network hit in
@@ -1209,7 +1209,7 @@ class FanFicFarePlugin(InterfaceAction):
                     book['comment'] = _("Story in Series Anthology(%s).")%series
                     book['title'] = story.getMetadata('title')
                     book['author'] = [story.getMetadata('author')]
-                    book['url'] = story.getMetadata('storyUrl')
+                    book['url'] = story.getMetadata('storyUrl', removeallentities=True)
                     book['good']=False
                     book['icon']='rotate-right.png'
                     book['status'] = _('Skipped')
@@ -1238,7 +1238,7 @@ class FanFicFarePlugin(InterfaceAction):
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("publisher")
-            book['url'] = story.getMetadata("storyUrl")
+            book['url'] = story.getMetadata("storyUrl", removeallentities=True)
             book['tags'] = story.getSubjectTags(removeallentities=True)
             book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)

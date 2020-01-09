@@ -134,8 +134,8 @@ class BaseSiteAdapter(Configurable):
         self.parsedUrl = urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
-        self.story.setMetadata('storyUrl',self.url,condremoveentities=False)
-        self.story.setMetadata('sectionUrl',self._section_url(self.url),condremoveentities=False)
+        self.story.setMetadata('storyUrl',self.url)
+        self.story.setMetadata('sectionUrl',self._section_url(self.url))
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
     def setChaptersRange(self,first=None,last=None):
