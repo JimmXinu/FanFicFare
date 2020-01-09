@@ -195,4 +195,5 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
                 if tag.string == '=':
                     tag.replace_with("'")
 
+        chap.name = 'div' # don't want a bare <td> without a table.
         return self.utf8FromSoup(url,chap)
