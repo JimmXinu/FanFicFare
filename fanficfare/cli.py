@@ -99,12 +99,15 @@ def main(argv=None,
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
     if passed_defaultsini:
-        config_help = 'Read config from specified file(s) in addition to calibre plugin personal.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, ~/.fanficfare/personal.ini, and ./personal.ini'
+        config_help = 'calibre plugin defaults.ini, calibre plugin personal.ini'
     else:
-        config_help = 'Read config from specified file(s) in addition to $XDG_CONFIG_HOME/fanficfare/defaults.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, ~/.fanficfare/defaults.ini, ~/.fanficfare/personal.ini, ./defaults.ini, and ./personal.ini'
+        config_help = '~/.fanficfare/defaults.ini, $XDG_CONFIG_HOME/fanficfare/defaults.ini, ./defaults.ini'
     parser.add_option('-c', '--config',
                       action='append', dest='configfile', default=None,
-                      help=config_help, metavar='CONFIG')
+                      help=('Read config from specified file(s) in addition to (ordered lowest to highest priority): '
+                            +config_help
+                            +', ~/.fanficfare/personal.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, and ./personal.ini.  -c/--config files take highest priority'),
+                      metavar='CONFIG')
     range_help = '  --begin and --end will be overridden by a chapter range on the STORYURL like STORYURL[1-2], STORYURL[-3], STORYURL[3-] or STORYURL[3]'
     parser.add_option('-b', '--begin', dest='begin', default=None,
                       help='Begin story with Chapter START.'+range_help, metavar='START')
