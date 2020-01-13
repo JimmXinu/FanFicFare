@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ from . import adapter_whoficcom
 from . import adapter_siyecouk
 from . import adapter_archiveofourownorg
 from . import adapter_ficbooknet
-from . import adapter_nfacommunitycom
 from . import adapter_midnightwhispers
 from . import adapter_ksarchivecom
 from . import adapter_archiveskyehawkecom
