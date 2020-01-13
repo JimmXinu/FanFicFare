@@ -1201,6 +1201,12 @@ class Configuration(configparser.SafeConfigParser):
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
+                ## trekfanfiction.net has started returning the page,
+                ## but with a 500 code.  We can use the HTTPError as
+                ## the 'opened' in such case.
+                if he.code == 500 and 'trekfanfiction.net' in url:
+                    data = he.read()
+                    return (self._do_reduce_zalgo(self._decode(data)),he)
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
