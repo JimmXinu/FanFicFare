@@ -181,6 +181,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('author','Author From List i')
             self.story.addToList('author','Author From List o')
 
+            self.story.addToList('authorId','98765')
             self.story.addToList('authorId','98765-1')
             self.story.addToList('authorId','98765-2')
             self.story.addToList('authorId','98765-3')
@@ -201,6 +202,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.addToList('authorId','98765-i')
             self.story.addToList('authorId','98765-o')
 
+            self.story.addToList('authorUrl','http://author/url')
             self.story.addToList('authorUrl','http://author/url-1')
             self.story.addToList('authorUrl','http://author/url-2')
             self.story.addToList('authorUrl','http://author/url-3')
