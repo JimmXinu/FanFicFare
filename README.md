@@ -9,12 +9,11 @@ FFDL, AKA fanficdownloader).
 
 Main features:
 
-- Download FanFiction stories from over 150 different sites into ebooks.
-  [Supported sites list](https://github.com/JimmXinu/FanFicFare/wiki/SupportedSites).
+- Download FanFiction stories from over [100 different sites](https://github.com/JimmXinu/FanFicFare/wiki/SupportedSites). into ebooks.
 
-- Update existing EPUB format ebooks, downloading only new chapters.
+- Update previously downloaded EPUB format ebooks, downloading only new chapters.
 
-- Get Story URLs from Web Page.
+- Get Story URLs from Web Pages.
 
 - Support for downloading images in the story text. (EPUB and HTML
   only -- download EPUB and convert to AZW3 for Kindle) More details on
@@ -27,26 +26,35 @@ Main features:
 
 There's additional info in the project [wiki] pages.
 
-There's also a [FanFicFare maillist] for discussion and announcements.
+There's also a [FanFicFare maillist] for discussion and announcements and a [discussion thread] for the Calibre plugin.
 
 Getting FanFicFare
 ==================
 
-This program is available as a [calibre
-plugin](http://www.mobileread.com/forums/showthread.php?p=3084025) or a
-[command-line interface](https://pypi.python.org/pypi/FanFicFare) (via
-pip).  
+### Official Releases
 
-As of late November 2019, the web service version is shutdown.  
-See the [Wiki Home](https://github.com/JimmXinu/FanFicFare/wiki#web-service-version) page for details.
+This program is available as:
 
-The cli version can also be obtained on Arch Linux from the official repositories:
+- A Calibre plugin from within Calibre or directly from the plugin [discussion thread], or;
+- A Command Line Interface (CLI) [Python
+  package](https://pypi.python.org/pypi/FanFicFare) that you can
+  install with:
+```
+pip install FanFicFare
+```
+- _As of late November 2019, the web service version is shutdown.  See the [Wiki Home](https://github.com/JimmXinu/FanFicFare/wiki#web-service-version) page for details._
+
+### Other Releases
+
+Other versions may be available depending on your OS.  I(JimmXinu) don't directly support these:
+
+- **Arch Linux**: The CLI can also be obtained on Arch Linux from the OS repositories:
 
 ```
 pacman -S fanficfare
 ```
 
-or from git via the [AUR package](https://aur.archlinux.org/packages/fanficfare-git)
+...or from git via the [AUR package](https://aur.archlinux.org/packages/fanficfare-git)
 (which will also update the calibre plugin, if calibre is installed).
 
 
@@ -55,3 +63,4 @@ or from git via the [AUR package](https://aur.archlinux.org/packages/fanficfare-
 [FAQs]: https://github.com/JimmXinu/FanFicFare/wiki/FAQs#can-fanficfare-download-a-story-containing-images
 [FanFicFare maillist]: https://groups.google.com/group/fanfic-downloader
 [wiki]: https://github.com/JimmXinu/FanFicFare/wiki
+[discussion thread]: https://www.mobileread.com/forums/showthread.php?t=259221
