@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 __license__   = 'GPL v3'
-__copyright__ = '2018, Jim Miller'
+__copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -304,10 +304,22 @@ def reset_orig_chapters_epub(inputio,outfile):
             ## logger.debug("toc.ncx zf:%s"%zf)
             unmerge_tocncxdoms[zf] = parseString(inputepub.read(zf))
 
+    unmerge_navxhtmldoms = {}
+    ## spin through file contents, saving any unmerge toc.ncx files.
+    for zf in inputepub.namelist():
+        ## logger.debug("zf:%s"%zf)
+        if zf.endswith('/nav.xhtml'):
+            ## logger.debug("toc.ncx zf:%s"%zf)
+            unmerge_navxhtmldoms[zf] = parseString(inputepub.read(zf))
+
     tocncxdom = parseString(inputepub.read('toc.ncx'))
+    if 'nav.xhtml' in inputepub.namelist():
+        navxhtmldom = parseString(inputepub.read('nav.xhtml'))
+    else:
+        navxhtmldom = None
     ## spin through file contents.
     for zf in inputepub.namelist():
-        if zf not in ['mimetype','toc.ncx'] and not zf.endswith('/toc.ncx'):
+        if zf not in ['mimetype','toc.ncx','nav.xhtml'] and not zf.endswith('/toc.ncx') and not zf.endswith('/nav.xhtml'):
             entrychanged = False
             data = inputepub.read(zf)
             # if isinstance(data,unicode):
@@ -359,6 +371,8 @@ def reset_orig_chapters_epub(inputio,outfile):
                     if entrychanged:
                         logger.debug("\nentrychanged:%s\n"%zf)
                         _replace_tocncx(tocncxdom,zf,chaptertoctitle)
+                        if navxhtmldom:
+                            _replace_navxhtml(navxhtmldom,zf,chaptertoctitle)
                         ## Also look for and update individual
                         ## book toc.ncx files for anthology in case
                         ## it's unmerged.
@@ -367,6 +381,8 @@ def reset_orig_chapters_epub(inputio,outfile):
 
                         if zf_toc in unmerge_tocncxdoms:
                             _replace_tocncx(unmerge_tocncxdoms[zf_toc],zf[mergedprefix_len:],chaptertoctitle)
+                        if zf_toc in unmerge_navxhtmldoms:
+                            _replace_navxhtml(unmerge_navxhtmldoms[zf_toc],zf[mergedprefix_len:],chaptertoctitle)
 
                 outputepub.writestr(zf,data.encode('utf-8'))
             else:
@@ -375,8 +391,12 @@ def reset_orig_chapters_epub(inputio,outfile):
 
     for tocnm, tocdom in unmerge_tocncxdoms.items():
         outputepub.writestr(tocnm,tocdom.toxml(encoding='utf-8'))
+    for navnm, navdom in unmerge_navxhtmldoms.items():
+        outputepub.writestr(navnm,navdom.toxml(encoding='utf-8'))
 
     outputepub.writestr('toc.ncx',tocncxdom.toxml(encoding='utf-8'))
+    if navxhtmldom:
+        outputepub.writestr('nav.xhtml',navxhtmldom.toxml(encoding='utf-8'))
     outputepub.close()
     # declares all the files created by Windows.  otherwise, when
     # it runs in appengine, windows unzips the files as 000 perms.
@@ -409,6 +429,15 @@ def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
             texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
             texttag.childNodes[0].replaceWholeText(chaptertoctitle)
             #logger.debug("text label:%s"%texttag.toxml())
+            continue
+
+def _replace_navxhtml(navxhtmldom,zf,chaptertoctitle):
+    ## go after the TOC entry, too.
+    # <li><a href="OEBPS/file0003.xhtml">3. (new) Chapter 2, Sinmay on Kintikin</a></li>
+    for atag in navxhtmldom.getElementsByTagName("a"):
+        if atag.getAttribute('href') == zf:
+            atag.childNodes[0].replaceWholeText(chaptertoctitle)
+            # logger.debug("a href=%s label:%s"%(zf,atag.toxml()))
             continue
 
 def make_soup(data):
