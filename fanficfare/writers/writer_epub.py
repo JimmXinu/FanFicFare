@@ -56,8 +56,8 @@ class EpubWriter(BaseStoryWriter):
 
         self.EPUB_CSS = string.Template('''${output_css}''')
 
-        self.EPUB_TITLE_PAGE_START = string.Template('''<?xml version='1.0' encoding='utf-8'?>
-<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+        self.EPUB_TITLE_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
 <link href="stylesheet.css" type="text/css" rel="stylesheet"/>
@@ -68,11 +68,11 @@ class EpubWriter(BaseStoryWriter):
 ''')
 
         self.EPUB_TITLE_ENTRY = string.Template('''
-<b>${label}:</b> ${value}<br/>
+<b>${label}:</b> ${value}<br />
 ''')
 
         self.EPUB_NO_TITLE_ENTRY = string.Template('''
-${value}<br/>
+${value}<br />
 ''')
 
         self.EPUB_TITLE_PAGE_END = string.Template('''
@@ -82,7 +82,7 @@ ${value}<br/>
 </html>
 ''')
 
-        self.EPUB_TABLE_TITLE_PAGE_START = string.Template('''<?xml version='1.0' encoding='utf-8'?>
+        self.EPUB_TABLE_TITLE_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
@@ -112,7 +112,7 @@ ${value}<br/>
 </html>
 ''')
 
-        self.EPUB_TOC_PAGE_START = string.Template('''<?xml version='1.0' encoding='utf-8'?>
+        self.EPUB_TOC_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${title} by ${author}</title>
@@ -124,7 +124,7 @@ ${value}<br/>
 ''')
 
         self.EPUB_TOC_ENTRY = string.Template('''
-<a href="file${index04}.xhtml">${chapter}</a><br/>
+<a href="file${index04}.xhtml">${chapter}</a><br />
 ''')
 
         self.EPUB_TOC_PAGE_END = string.Template('''
@@ -133,15 +133,15 @@ ${value}<br/>
 </html>
 ''')
 
-        self.EPUB_CHAPTER_START = string.Template('''<?xml version='1.0' encoding='utf-8'?>
+        self.EPUB_CHAPTER_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>${chapter}</title>
 <link href="stylesheet.css" type="text/css" rel="stylesheet"/>
-<meta name="chapterurl" content="${url}"/>
-<meta name="chapterorigtitle" content="${origchapter}"/>
-<meta name="chaptertoctitle" content="${tocchapter}"/>
-<meta name="chaptertitle" content="${chapter}"/>
+<meta name="chapterurl" content="${url}" />
+<meta name="chapterorigtitle" content="${origchapter}" />
+<meta name="chaptertoctitle" content="${tocchapter}" />
+<meta name="chaptertitle" content="${chapter}" />
 </head>
 <body class="fff_chapter">
 <h3 class="fff_chapter_title">${chapter}</h3>
@@ -152,7 +152,7 @@ ${value}<br/>
 </html>
 ''')
 
-        self.EPUB_LOG_PAGE_START = string.Template('''<?xml version='1.0' encoding='utf-8'?>
+        self.EPUB_LOG_PAGE_START = string.Template('''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Update Log</title>
@@ -353,7 +353,13 @@ div { margin: 0pt; padding: 0pt; }
 
         contentdom = getDOMImplementation().createDocument(None, "package", None)
         package = contentdom.documentElement
-        package.setAttribute("version","3.0")
+        ## might want 3.1 or something in future.
+        epub3 = self.getConfig("epub_version",default="2.0").startswith("3")
+        if epub3:
+            package.setAttribute("version","3.0")
+        else:
+            package.setAttribute("version","2.0")
+        logger.info("Saving EPUB Version "+package.getAttribute("version"))
         package.setAttribute("xmlns","http://www.idpf.org/2007/opf")
         package.setAttribute("unique-identifier","fanficfare-uid")
         metadata=newTag(contentdom,"metadata",
@@ -369,17 +375,22 @@ div { margin: 0pt; padding: 0pt; }
             metadata.appendChild(newTag(contentdom,"dc:title",text=self.getMetadata('title'),
                                         attrs={"id":"id"}))
 
+        def creator_attrs(idnum):
+            if epub3:
+                return {"id":"id-%d"%idnum}
+            else:
+                return {"opf:role":"aut"}
         idnum = 1
         if self.getMetadata('author'):
             if self.story.isList('author'):
                 for auth in self.story.getList('author'):
                     metadata.appendChild(newTag(contentdom,"dc:creator",
-                                                attrs={"id":"id-%d"%idnum},
+                                                attrs=creator_attrs(idnum),
                                                 text=auth))
                     idnum += 1
             else:
                 metadata.appendChild(newTag(contentdom,"dc:creator",
-                                            attrs={"id":"id-%d"%idnum},
+                                            attrs=creator_attrs(idnum),
                                             text=self.getMetadata('author')))
                 idnum += 1
 
@@ -395,30 +406,31 @@ div { margin: 0pt; padding: 0pt; }
 
         #  published, created, updated, calibre
         #  Leave calling self.story.getMetadataRaw directly in case date format changes.
-        # if self.story.getMetadataRaw('datePublished'):
-        #     metadata.appendChild(newTag(contentdom,"dc:date",
-        #                                 attrs={"opf:event":"publication"},
-        #                                 text=self.story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")))
+        if epub3:
+            ## epub3 requires an updated modified date on every change of
+            ## any kind, not just *content* change.
+            from datetime import datetime
+            metadata.appendChild(newTag(contentdom,"meta",
+                                        attrs={"property":"dcterms:modified"},
+                                        text=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
+        else:
+            if self.story.getMetadataRaw('datePublished'):
+                metadata.appendChild(newTag(contentdom,"dc:date",
+                                            attrs={"opf:event":"publication"},
+                                            text=self.story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")))
 
-        # if self.story.getMetadataRaw('dateCreated'):
-        #     metadata.appendChild(newTag(contentdom,"dc:date",
-        #                                 attrs={"opf:event":"creation"},
-        #                                 text=self.story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")))
+            if self.story.getMetadataRaw('dateCreated'):
+                metadata.appendChild(newTag(contentdom,"dc:date",
+                                            attrs={"opf:event":"creation"},
+                                            text=self.story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")))
 
-        # if self.story.getMetadataRaw('dateUpdated'):
-        #     metadata.appendChild(newTag(contentdom,"dc:date",
-        #                                 attrs={"opf:event":"modification"},
-        #                                 text=self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%d")))
-        #     metadata.appendChild(newTag(contentdom,"meta",
-        #                                 attrs={"name":"calibre:timestamp",
-        #                                        "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
-
-        ## epub3 requires an updated modified date on every change of
-        ## any kind, not just *content* change.
-        from datetime import datetime
-        metadata.appendChild(newTag(contentdom,"meta",
-                                    attrs={"property":"dcterms:modified"},
-                                    text=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
+            if self.story.getMetadataRaw('dateUpdated'):
+                metadata.appendChild(newTag(contentdom,"dc:date",
+                                            attrs={"opf:event":"modification"},
+                                            text=self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%d")))
+                metadata.appendChild(newTag(contentdom,"meta",
+                                            attrs={"name":"calibre:timestamp",
+                                                   "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
 
         series = self.story.getMetadataRaw('series')
         if series and self.getConfig('calibre_series_meta'):
@@ -455,36 +467,42 @@ div { margin: 0pt; padding: 0pt; }
                                         text=self.getMetadata('site')))
 
         if self.getMetadata('storyUrl'):
-            metadata.appendChild(newTag(contentdom,"dc:identifier",
-                                        text="URL:"+self.getMetadata('storyUrl')))
+            if epub3:
+                metadata.appendChild(newTag(contentdom,"dc:identifier",
+                                            text="URL:"+self.getMetadata('storyUrl')))
+            else:
+                metadata.appendChild(newTag(contentdom,"dc:identifier",
+                                            attrs={"opf:scheme":"URL"},
+                                            text=self.getMetadata('storyUrl')))
             metadata.appendChild(newTag(contentdom,"dc:source",
                                         text=self.getMetadata('storyUrl')))
 
-        # <meta refines="#id" property="title-type">main</meta>
-        metadata.appendChild(newTag(contentdom,"meta",
-                                    attrs={"property":"title-type",
-                                           "refines":"#id",
-                                           },
-                                    text="main"))
+        if epub3:
+            # <meta refines="#id" property="title-type">main</meta>
+            metadata.appendChild(newTag(contentdom,"meta",
+                                        attrs={"property":"title-type",
+                                               "refines":"#id",
+                                               },
+                                        text="main"))
 
-        # epub3 removes attrs that identify dc:creator and
-        # dc:contributor types and instead put them here.
-        # 'aut' for 1-(idnum-1)
-        for j in range(1,idnum-1):
-            #<meta property="role" refines="#id-1" scheme="marc:relators">aut</meta>
+            # epub3 removes attrs that identify dc:creator and
+            # dc:contributor types and instead put them here.
+            # 'aut' for 1-(idnum-1)
+            for j in range(1,idnum-1):
+                #<meta property="role" refines="#id-1" scheme="marc:relators">aut</meta>
+                metadata.appendChild(newTag(contentdom,"meta",
+                                            attrs={"property":"role",
+                                                   "refines":"#id-%d"%j,
+                                                   "scheme":"marc:relators",
+                                                   },
+                                            text="aut"))
+
             metadata.appendChild(newTag(contentdom,"meta",
                                         attrs={"property":"role",
-                                               "refines":"#id-%d"%j,
+                                               "refines":"#id-%d"%(idnum-1),
                                                "scheme":"marc:relators",
                                                },
-                                        text="aut"))
-
-        metadata.appendChild(newTag(contentdom,"meta",
-                                    attrs={"property":"role",
-                                           "refines":"#id-%d"%(idnum-1),
-                                           "scheme":"marc:relators",
-                                           },
-                                    text="bkp"))
+                                        text="bkp"))
 
         ## end of metadata, create manifest.
         items = [] # list of (id, href, type, title) tuples(all strings)
@@ -608,14 +626,15 @@ div { margin: 0pt; padding: 0pt; }
                                         attrs={'id':id,
                                                'href':href,
                                                'media-type':type}))
-        # epub3 nav
-        # <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
-        manifest.appendChild(newTag(contentdom,"item",
-                                    attrs={'href':'nav.xhtml',
-                                           'id':'nav',
-                                           'media-type':'application/xhtml+xml',
-                                           'properties':'nav'
-                                           }))
+        if epub3:
+            # epub3 nav
+            # <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
+            manifest.appendChild(newTag(contentdom,"item",
+                                        attrs={'href':'nav.xhtml',
+                                               'id':'nav',
+                                               'media-type':'application/xhtml+xml',
+                                               'properties':'nav'
+                                               }))
 
 
         spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
@@ -689,80 +708,55 @@ div { margin: 0pt; padding: 0pt; }
         tocncxdom.unlink()
         del tocncxdom
 
-        ##############################################################################################################
-        ## create nav.xhtml file
-        '''
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
-    <head>
-        <title>Navigation</title>
-    </head>
+        if epub3:
+            ##############################################################################################################
+            ## create nav.xhtml file
+            tocnavdom = getDOMImplementation().createDocument(None, "html", None)
+            navxhtml = tocnavdom.documentElement
+            navxhtml.setAttribute("xmlns","http://www.w3.org/1999/xhtml")
+            navxhtml.setAttribute("xmlns:epub","http://www.idpf.org/2007/ops")
+            navxhtml.setAttribute("lang",langcode)
+            navxhtml.setAttribute("xml:lang",langcode)
+            head = tocnavdom.createElement("head")
+            navxhtml.appendChild(head)
+            head.appendChild(newTag(tocnavdom,"title",text="Navigation"))
+            # <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            head.appendChild(newTag(tocnavdom,"meta",
+                                    attrs={"http-equiv":"Content-Type",
+                                           "content":"text/html; charset=utf-8"}))
 
-    <body>
-    <nav epub:type="toc">
-  <ol>
-    <li><a href="OEBPS/title_page.xhtml">Title Page</a></li>
-    <li><a href="OEBPS/file0001.xhtml">1. Prologue tests:[bare amp(&amp;) qt(') amp(&amp;) gt(&gt;) lt(&lt;) ATnT(AT&amp;T) L(£) Onna(女)]</a></li>
-    <li><a href="OEBPS/file0002.xhtml">2. Chapter 1, Xenos on Cinnabar</a></li>
-    <li><a href="OEBPS/file0003.xhtml">3. Chapter 2, Sinmay on Kintikin</a></li>
-    <li><a href="OEBPS/file0004.xhtml">4. Chapter 3, Over Cinnabar</a></li>
-    <li><a href="OEBPS/file0005.xhtml">5. Chapter 4</a></li>
-    <li><a href="OEBPS/file0006.xhtml">6. Chapter 5</a></li>
-    <li><a href="OEBPS/file0007.xhtml">7. Chapter 6</a></li>
-    <li><a href="OEBPS/file0008.xhtml">8. Chapter 7</a></li>
-    <li><a href="OEBPS/file0009.xhtml">9. Chapter 8</a></li>
-  </ol>
-</nav>
-<nav epub:type="landmarks" hidden="">
-  <ol></ol>
-</nav></body>
-</html>        '''
-        tocnavdom = getDOMImplementation().createDocument(None, "html", None)
-        navxhtml = tocnavdom.documentElement
-        navxhtml.setAttribute("xmlns","http://www.w3.org/1999/xhtml")
-        navxhtml.setAttribute("xmlns:epub","http://www.idpf.org/2007/ops")
-        navxhtml.setAttribute("lang",langcode)
-        navxhtml.setAttribute("xml:lang",langcode)
-        head = tocnavdom.createElement("head")
-        navxhtml.appendChild(head)
-        head.appendChild(newTag(tocnavdom,"title",text="Navigation"))
-        # <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        head.appendChild(newTag(tocnavdom,"meta",
-                                attrs={"http-equiv":"Content-Type",
-                                       "content":"text/html; charset=utf-8"}))
+            body = tocnavdom.createElement("body")
+            navxhtml.appendChild(body)
+            nav = newTag(tocnavdom,"nav",
+                         attrs={"epub:type":"toc"})
+            body.appendChild(nav)
+            ol = newTag(tocnavdom,"ol")
+            nav.appendChild(ol)
 
-        body = tocnavdom.createElement("body")
-        navxhtml.appendChild(body)
-        nav = newTag(tocnavdom,"nav",
-                     attrs={"epub:type":"toc"})
-        body.appendChild(nav)
-        ol = newTag(tocnavdom,"ol")
-        nav.appendChild(ol)
+            for item in items:
+                (id,href,type,title)=item
+                # only items to be skipped, cover.xhtml, images, toc.nav,
+                # stylesheet.css, should have no title.
+                if title:
+                    li = newTag(tocnavdom,"li")
+                    ol.appendChild(li)
+                    atag = newTag(tocnavdom,"a",
+                                  attrs={"href":href},
+                                  text=stripHTML(title))
+                    li.appendChild(atag)
 
-        for item in items:
-            (id,href,type,title)=item
-            # only items to be skipped, cover.xhtml, images, toc.nav,
-            # stylesheet.css, should have no title.
-            if title:
-                li = newTag(tocnavdom,"li")
-                ol.appendChild(li)
-                atag = newTag(tocnavdom,"a",
-                              attrs={"href":href},
-                              text=stripHTML(title))
-                li.appendChild(atag)
+            # nav = newTag(tocnavdom,"nav",
+            #              attrs={"epub:type":"landmarks",
+            #                     "hidden":""})
+            # body.appendChild(nav)
+            # ol = newTag(tocnavdom,"ol")
+            # nav.appendChild(ol)
 
-        # nav = newTag(tocnavdom,"nav",
-        #              attrs={"epub:type":"landmarks",
-        #                     "hidden":""})
-        # body.appendChild(nav)
-        # ol = newTag(tocnavdom,"ol")
-        # nav.appendChild(ol)
-
-        # write nav.xhtml to zip file
-        outputepub.writestr("nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
-        tocnavdom.unlink()
-        del tocnavdom
-        ##############################################################################################################
-
+            # write nav.xhtml to zip file
+            outputepub.writestr("nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
+            tocnavdom.unlink()
+            del tocnavdom
+            ##############################################################################################################
 
         # write stylesheet.css file.
         outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))

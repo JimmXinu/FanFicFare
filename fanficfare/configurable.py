@@ -489,6 +489,7 @@ def get_valid_keywords():
                  'ignore_chapter_url_list',
                  'dedup_chapter_list',
                  'max_zalgo',
+                 'epub_version',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
