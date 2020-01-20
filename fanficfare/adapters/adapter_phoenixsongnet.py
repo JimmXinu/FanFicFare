@@ -212,7 +212,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(url))
 
         chapter=self.make_soup('<div class="story"></div>')
-        for p in soup.findAll('p'):
+        for p in soup.findAll(['p','blockquote']):
             if "This is for problems with the formatting or the layout of the chapter." in stripHTML(p):
                 break
             chapter.append(p)
