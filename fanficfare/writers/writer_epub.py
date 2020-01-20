@@ -745,12 +745,25 @@ div { margin: 0pt; padding: 0pt; }
                                   text=stripHTML(title))
                     li.appendChild(atag)
 
-            # nav = newTag(tocnavdom,"nav",
-            #              attrs={"epub:type":"landmarks",
-            #                     "hidden":""})
-            # body.appendChild(nav)
-            # ol = newTag(tocnavdom,"ol")
-            # nav.appendChild(ol)
+            if self.story.cover:
+                # <nav epub:type="landmarks" hidden="">
+                #   <ol>
+                #     <li><a href="OEBPS/cover.xhtml" epub:type="cover">Cover</a></li>
+                #   </ol>
+                # </nav>
+                nav = newTag(tocnavdom,"nav",
+                             attrs={"epub:type":"landmarks",
+                                    "hidden":""})
+                body.appendChild(nav)
+                ol = newTag(tocnavdom,"ol")
+                nav.appendChild(ol)
+                li = newTag(tocnavdom,"li")
+                ol.appendChild(li)
+                atag = newTag(tocnavdom,"a",
+                              attrs={"href":"OEBPS/cover.xhtml",
+                                     "epub:type":"cover"},
+                              text="Cover")
+                li.appendChild(atag)
 
             # write nav.xhtml to zip file
             outputepub.writestr("nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
