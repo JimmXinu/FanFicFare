@@ -548,7 +548,7 @@ def get_configuration(url,
     homepath = join(expanduser('~'), '.fanficdownloader')
     ## also look for .fanficfare now, give higher priority than old dir.
     homepath2 = join(expanduser('~'), '.fanficfare')
-    xdgpath = os.environ.get('XDG_CONFIG_HOME', default=join(expanduser('~'),'.config'))
+    xdgpath = os.environ.get('XDG_CONFIG_HOME', join(expanduser('~'),'.config'))
     xdgpath = join(xdgpath, 'fanficfare')
 
     if passed_defaultsini:
