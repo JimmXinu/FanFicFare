@@ -77,7 +77,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['archiveofourown.org','archiveofourown.com','download.archiveofourown.org','download.archiveofourown.com']
+        return ['archiveofourown.org',
+                'archiveofourown.com',
+                'archiveofourown.net',
+                'download.archiveofourown.org',
+                'download.archiveofourown.com',
+                'download.archiveofourown.net',
+                'ao3.org',
+                ]
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -86,7 +93,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # https://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
-        return r"https?://(download\.)?archiveofourown\.(org|com)(/collections/[^/]+)?/works/0*(?P<id>\d+)"
+        logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
+        return r"https?://(" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
+
+    # The certificate is only valid for the following names:
+    # ao3.org,
+    # archiveofourown.com,
+    # archiveofourown.net,
+    # archiveofourown.org,
+    # www.ao3.org,
 
     ## Login
     def needToLoginCheck(self, data):
