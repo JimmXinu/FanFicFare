@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Maidur, 2016-2019
+# Maidur, 2016-2020
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
-"PO-Revision-Date: 2019-12-28 22:12+0000\n"
+"PO-Revision-Date: 2020-01-28 08:45+0000\n"
 "Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -210,7 +210,7 @@ msgid ""
 "adult--stories that need those will just fail.<br />Only available for "
 "Update/Overwrite of existing books in case URL given isn't canonical or "
 "matches to existing book by Title/Author."
-msgstr ""
+msgstr "Igal allalaadimisel pakub FanFicFare valikut korjata saitidelt metaandmeid taustal töötavas protsessis.<br />See annab uuendades sulle kontrolli tagasi varem, kuid sult ei küsita kasutajanime/parooli ega seda, kas oled täisealine -- neid vajavad jutud lihtsalt ebaõnnestuvad.<br />Ainult saadaval olemasolevate raamatute Uuendamisel/Ülekirjutamisel, kui antud URL pole kanooniline või vastab olemasoleva raamatu Pealkirja/Autoriga."
 
 #: config.py:490
 msgid "Updating Calibre Options"
@@ -358,7 +358,7 @@ msgstr "FanFicFare nupp avab menüü?"
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
-msgstr ""
+msgstr "FanFicFare tööriistariba nupp avab plugina menüü. Kui märgistamata, teostab see tegevuse <i>Laadi alla URLidelt</i> või valikuliselt Uuenda, vaata allpool."
 
 #: config.py:585
 msgid "Default to Update when books selected?"
@@ -368,7 +368,7 @@ msgstr "Vaikesättena uuenda, kui raamatud on valitud?"
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
-msgstr ""
+msgstr "FanFicFare tööriistariba nupp Uuendab, kui raamatuid on valitud. Kui märgistamata, teostab see alati tegevuse <i>Laadi alla URLidelt</i>."
 
 #: config.py:595
 msgid "Keep 'Add New from URL(s)' dialog on top?"
@@ -713,7 +713,7 @@ msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
-msgstr ""
+msgstr "Kasutatakse Calibre Viimistlemise funktsiooni, et loodud kaanepilt EPUB e-raamatu faili sisestada või uuendada.<br />Kasutatakse nii Calibre kui Plugina loodud kaanepiltide jaoks."
 
 #: config.py:1061
 msgid "%(gc)s(Plugin) Settings"
