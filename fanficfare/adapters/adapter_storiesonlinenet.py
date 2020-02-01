@@ -113,6 +113,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             logger.info("Login Required for URL %s" % loginUrl)
             raise exceptions.FailedToLogin(url,params['theusername'])
 
+        ## fetch 'v' code from login page.
+        soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
+        params['v']=soup.find('input', {'name':'v'})['value']
+
         try:
             d = self._postUrl(loginUrl,params,usecache=False)
             self.needToLogin = False
