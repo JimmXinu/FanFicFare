@@ -422,6 +422,7 @@ def get_valid_keywords():
                  'remove_transparency',
                  'replace_br_with_p',
                  'replace_hr',
+                 'replace_xbr_with_hr',
                  'replace_metadata',
                  'slow_down_sleep_time',
                  'sort_ships',

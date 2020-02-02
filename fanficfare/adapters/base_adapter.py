@@ -262,6 +262,7 @@ class BaseSiteAdapter(Configurable):
                     passchap['title'] = title
                     passchap['html'] = data
 
+                ## XXX -- add chapter text replacement here?
                 self.story.addChapter(passchap, newchap)
             self.storyDone = True
 
@@ -541,6 +542,16 @@ class BaseSiteAdapter(Configurable):
         # This is primarily for epub updates.
         retval = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",retval)
 
+        try:
+            xbr = int(self.getConfig("replace_xbr_with_hr",default=0))
+            if xbr > 0:
+                start = datetime.now()
+                retval = re.sub('(\s*<br[^>]*>\s*){%d,}'%xbr,
+                                '<br/>\n<br/>\n<hr/>\n<br/>',retval)
+                self.times.add("utf8FromSoup->replace_xbr_with_hr", datetime.now() - start)
+        except:
+            logger.debug("Ignoring non-int replace_xbr_with_hr(%s)"%self.getConfig("replace_xbr_with_hr"))
+
         if self.getConfig("replace_br_with_p") and allow_replace_br_with_p:
             # Apply heuristic processing to replace <br> paragraph
             # breaks with <p> tags.
@@ -552,6 +563,7 @@ class BaseSiteAdapter(Configurable):
             # replacing a self-closing tag with a container tag in the
             # soup is more difficult than it first appears.  So cheat.
             retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
+
 
         return retval
 
