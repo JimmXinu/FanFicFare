@@ -61,7 +61,8 @@ with open(argv[1],"w", encoding="utf8") as outfile:
     kl = list(sections.keys())
     kl.sort()
     for k in leadsects:
-        outfile.write("".join(sections[k]))
+        if k in sections:
+            outfile.write("".join(sections[k]))
 
     for k in kl:
         if k not in (leadsects + followsects):
