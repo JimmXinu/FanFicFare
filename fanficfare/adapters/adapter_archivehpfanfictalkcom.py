@@ -128,16 +128,6 @@ class ArchiveHPfanfictalkComAdapter(BaseSiteAdapter):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
-        # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
-
-        # utility method
-        def defaultGetattr(d,k):
-            try:
-                return d[k]
-            except:
-                return ""
-
         listbox = soup.find('div', {'class':'listbox'})
         # this site has two divs with class=gb-50 and no immediate container.
         gb50s = soup.find_all('div', {'class':'gb-50'})
@@ -195,10 +185,39 @@ class ArchiveHPfanfictalkComAdapter(BaseSiteAdapter):
             if 'Updated' in label:
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
-        # XXX Series not collected -- Site allows stories to be in
-        # several series at once.  FFF isn't thrilled with that.
+        # Site allows stories to be in several series at once.  FFF
+        # isn't thrilled with that, we have series00, series01, etc.
         # Example:
         # http://archive.hpfanfictalk.com/viewstory.php?sid=483
+
+        if self.getConfig("collect_series"):
+            seriesspan = soup.find('span',label='Series')
+            for i, seriesa in enumerate(seriesspan.find_all('a', href=re.compile(r"viewseries\.php\?seriesid=\d+"))):
+                # logger.debug(seriesa)
+                series_name = stripHTML(seriesa)
+                series_url = 'https://'+self.host+'/'+seriesa['href']
+
+                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
+                # logger.debug(storyas)
+                j=1
+                found = False
+                for storya in storyas:
+                    # logger.debug(storya)
+                    ## allow for JS links.
+                    if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in storya['href']:
+                        found = True
+                        break
+                    j+=1
+                if found:
+                    series_index = j
+                    self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
+                    self.story.setMetadata('series%02dUrl'%i,series_url)
+                    if i == 0:
+                        self.setSeries(series_name, series_index)
+                        self.story.setMetadata('seriesUrl',series_url)
+                else:
+                    logger.debug("Story URL not found in series (%s) page, not including."%series_url)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
