@@ -347,7 +347,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0, dedup=[]):
         threadmarks=[]
         if url in dedup:
-            logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
+            # logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
             return threadmarks
         dedup = dedup + [url]
         soupmarks = self.make_soup(self._fetchUrl(url))
@@ -632,7 +632,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             datestr = re.sub(r' (\d[^\d])',r' 0\1',datestr) # add leading 0 for single digit day & hours.
             return makeDate(datestr, self.dateformat)
         except:
-            logger.debug('No date found in %s, going on without'%parenttag,exc_info=True)
+            # logger.debug('No date found in %s, going on without'%parenttag,exc_info=True)
             return None
 
     def cache_posts(self,topsoup):
@@ -667,7 +667,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
              self.getConfig("use_reader_mode",True) and
              '/threads/' not in url and
              (index > 0 or not self.getConfig('always_include_first_post')) ):
-            logger.debug("USE READER MODE")
+            logger.debug("Using reader mode")
             # in case it changes:
             posts_per_page = int(self.getConfig("reader_posts_per_page",10))
 
@@ -678,9 +678,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if not souptag and url in self.threadmarks_for_reader:
                     (tmcat_num,tmcat_index)=self.threadmarks_for_reader[url]
                     reader_page_num = int((tmcat_index+posts_per_page)/posts_per_page) + offset
-                    logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
+                    # logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
                     reader_url=self.make_reader_url(tmcat_num,reader_page_num)
-                    logger.debug("Fetch reader URL to: %s"%reader_url)
+                    # logger.debug("Fetch reader URL to: %s"%reader_url)
                     topsoup = self.make_soup(self._fetchUrl(reader_url))
                     # make_soup() loads cache with posts from that reader
                     # page.  looking for it in cache reuses code in
@@ -692,7 +692,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     break
 
         if not souptag:
-            logger.debug("DON'T USE READER MODE")
+            logger.debug("Not using reader mode")
 
             souptag = self.get_cache_post(url)
             if not souptag:
