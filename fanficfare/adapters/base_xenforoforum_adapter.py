@@ -477,6 +477,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 # spin threadmarks for date, to adjust tmcat_name/prepend.
                 words = 0
+                if self.getConfig('order_threadmarks_by_date'):
+                    threadmarks = sorted(threadmarks, key=lambda x: x['date'])
                 for tm in threadmarks:
                     # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date}
                     prepend=""
