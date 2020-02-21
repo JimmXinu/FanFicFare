@@ -46,6 +46,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         self.full_work_soup = None
+        self.full_work_chapters = None
         self.use_full_work_soup = True
 
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -422,13 +423,22 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
                 self.full_work_soup = self.make_soup(self._fetchUrl(self.url+"?view_full_work=true"))
-
+                ## AO3 has had several cases now where chapter numbers
+                ## are missing, breaking the link between
+                ## <div id=chapter-##> and Chapter ##.
+                ## But they should all still be there and in the right
+                ## order, so array[index]
+                self.full_work_chapters = self.full_work_soup.find_all('div',{'id':re.compile('chapter-\d+')})
+                if len(self.full_work_chapters) != self.num_chapters():
+                    ## sanity check just in case.
+                    self.use_full_work_soup = False
+                    self.full_work_soup = None
+                    logger.warn("chapter count in view_full_work(%s) disagrees with num of chapters(%s)--ending use_view_full_work"%(len(self.full_work_chapters),self.num_chapters()))
             whole_dl_soup = self.full_work_soup
-            chapter_dl_soup = whole_dl_soup.find('div',{'id':'chapter-%s'%(index+1)})
-            if not chapter_dl_soup:
-                self.use_full_work_soup = False
-                logger.warn("chapter-%s not found in view_full_work--ending use_view_full_work"%(index+1))
-        if not chapter_dl_soup:
+
+        if whole_dl_soup:
+            chapter_dl_soup = self.full_work_chapters[index]
+        else:
             whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url))
             if None == chapter_dl_soup:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
