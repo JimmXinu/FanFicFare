@@ -376,9 +376,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
             soup = self.make_soup(data)
 
-            if '#' in url:
-                anchorid = url.split('#')[1]
-                soup = soup.find('li',id=anchorid)
 
             if 'wordpress.com' in url:
                 bq = soup.find('div',{'class':'entry-content'})
@@ -386,15 +383,26 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 for tag in addiv.find_all_next('div'):
                     tag.extract()
                 addiv.extract()
-            else:
-                bq = soup.find('blockquote')
-                bq.name='div'
+            elif '#' in url:
+                anchorid = url.split('#')[1]
+                if 'spacebattles.com' in url or 'sufficientvelocity.com' in url:
+                    # XF2
+                    soup = soup.find('article',{'data-content':anchorid})
+                    bq = soup.find('div',{'class':'bbWrapper'})
+                else:
+                    soup = soup.find('li',id=anchorid)
+                    bq = soup.find('blockquote')
+                    bq.name='div'
 
             for iframe in bq.find_all('iframe'):
                 iframe.extract() # calibre book reader & editor don't like iframes to youtube.
 
             for qdiv in bq.find_all('div',{'class':'quoteExpand'}):
                 qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+            for qdiv in bq.find_all('div',{'class':re.compile(r'bbCodeBlock-(expand|shrink)Link')}):
+                qdiv.extract() # Remove <div class="quoteExpand">click to expand</div>
+            for tag in bq.find_all('div', class_="bbCodeBlock-expandContent"):
+                tag.name='blockquote'
 
             return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
 
