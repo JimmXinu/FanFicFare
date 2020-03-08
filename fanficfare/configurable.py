@@ -271,6 +271,7 @@ def get_valid_set_options():
                'use_threadmarks_description':(base_xenforo2_list,None,boollist),
                'use_threadmarks_status':(base_xenforo2_list,None,boollist),
                'use_threadmarks_cover':(base_xenforo2_list,None,boollist),
+               'skip_sticky_first_posts':(base_xenforo2_list,None,boollist),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist)
                }
@@ -486,6 +487,7 @@ def get_valid_keywords():
                  'use_threadmarks_description',
                  'use_threadmarks_status',
                  'use_threadmarks_cover',
+                 'skip_sticky_first_posts',
                  'datethreadmark_format',
                  'fix_pseudo_html',
                  'fix_excess_space',

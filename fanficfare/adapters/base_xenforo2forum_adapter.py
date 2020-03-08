@@ -159,7 +159,15 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             self.post_cache[post['data-content']] = post
 
     def get_first_post(self,topsoup):
-        return topsoup.find('article',{'class':'message--post'})
+        # limit=3 is an arbitrary assumption.
+        posts = topsoup.find_all('article',{'class':'message--post'},limit=3)
+        if self.getConfig("skip_sticky_first_posts",True):
+            # don't use sticky first post (assumed to be Staff Post)
+            for p in posts:
+                if 'sticky-container' not in p['class']:
+                    return p
+            logger.warn("First X posts all sticky? Using first-first post.")
+        return posts[0]
 
     def get_first_post_body(self,topsoup):
         return self.get_post_body(self.get_first_post(topsoup))
