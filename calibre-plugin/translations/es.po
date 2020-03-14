@@ -6,10 +6,10 @@
 # Albert, 2016
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
-# Enrique Medina <medina9304@gmail.com>, 2016
+# 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
 # Jellby <jellby@yahoo.com>, 2014-2019
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
-# juanda097 <juanda097@protonmail.ch>, 2016
+# Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu <retiefjimm@gmail.com>, 2015
 msgid ""
 msgstr ""
