@@ -59,7 +59,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             params['login'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
 
-        if not params['login']:
+        if not params['password']:
             raise exceptions.FailedToLogin(self.url,"No username given.  Set in personal.ini or enter when prompted.")
 
         ## need a login token.
