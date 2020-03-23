@@ -231,7 +231,7 @@ def get_valid_set_options():
                'clean_chapter_titles':(['literotica.com'],None,boollist),
                'description_in_chapter':(['literotica.com'],None,boollist),
 
-               'inject_chapter_title':(['asianfanfics.com'],None,boollist),
+               'inject_chapter_title':(['asianfanfics.com','storiesonline.net'],None,boollist),
 
                'auto_sub':(['asianfanfics.com'],None,boollist),
 
