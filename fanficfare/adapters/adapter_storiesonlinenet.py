@@ -545,7 +545,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             while a != None:
                 # logger.debug("before dates: {0}".format(a))
                 b = a.previousSibling
-                a.extract()
+                if a.name == 'h2' and self.getConfig('inject_chapter_title'):
+                    # keep chapter header, but make match usual size.
+                    # will double up unless chapter_start is also changed
+                    a.name = 'h3'
+                else:
+                    a.extract()
                 a = b
             for a in pagetag.findAll('div', {'class' : 'date'}):
                 a.extract()
