@@ -215,7 +215,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             if story.getMetadataRaw('dateCreated'):
                 book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
             else:
-                book['timestamp'] = datetime.now() # need *something* there for calibre.
+                book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
 
             writer = writers.getWriter(options['fileform'],configuration,adapter)
             outfile = book['outfile']

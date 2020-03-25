@@ -1250,7 +1250,7 @@ class FanFicFarePlugin(InterfaceAction):
             if story.getMetadataRaw('dateCreated'):
                 book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
             else:
-                book['timestamp'] = datetime.now() # need *something* there for calibre.
+                book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
 
         if not merge:# skip all the collision code when d/ling for merging.
             if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
@@ -1936,7 +1936,7 @@ class FanFicFarePlugin(InterfaceAction):
         if book['calibre_id'] and lastcheckedcol_label:
             #logger.debug("lastcheckedcol %s %s %s"%(book['title'],book['url'],book['timestamp']))
             self.set_custom(db, book['calibre_id'], 'timestamp',
-                            book.get('timestamp',datetime.now()), # default to now if not in book.
+                            book.get('timestamp',datetime.now().replace(tzinfo=local_tz)), # default to now if not in book.
                             label=lastcheckedcol_label, commit=True)
 
     def add_book_or_update_format(self,book,options,prefs,mi=None):
