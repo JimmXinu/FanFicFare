@@ -40,7 +40,7 @@ else: # > 3.0
     def pickle_load(f):
         return pickle.load(f,encoding="bytes")
 
-version="3.17.4"
+version="3.17.5"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
