@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,6 +62,12 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %m %Y"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -110,7 +116,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # Find authorid and URL from... author url.
         # assume first avatar-nickname -- there can be a second marked 'beta'.
-        a = soup.find('a',{'class':'avatar-nickname'})
+        a = soup.find('a',{'class':'creator-nickname'})
         self.story.setMetadata('authorId',a.text) # Author's name is unique
         self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.text)
@@ -192,11 +198,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if i > 1:
             self.story.addToList('genre', u'Кроссовер')
 
-        for genre in dlinfo.findAll('a',href=re.compile(r'/genres/')):
+        for genre in dlinfo.findAll('a',href=re.compile(r'/tags/')):
             self.story.addToList('genre',stripHTML(genre))
 
         ratingdt = dlinfo.find('dt',text='Рейтинг:')
-        self.story.setMetadata('rating', stripHTML(ratingdt.next_sibling))
+        self.story.setMetadata('rating', stripHTML(ratingdt.find_next('dd')))
 
         # meta=table.findAll('a', href=re.compile(r'/ratings/'))
         # i=0
@@ -217,14 +223,16 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'In-Progress')
 
 
-        tags = dlinfo.findAll('dt')
-        for tag in tags:
-            label = translit.translit(tag.text)
-            if 'Piersonazhi:' in label or u'Персонажи:' in label:
-                chars=stripHTML(tag.next_sibling).split(', ')
+        paircharsdt = dlinfo.find('dt',text='Пэйринг и персонажи:')
+        # site keeps both ships and indiv chars in /pairings/ links.
+        for paira in paircharsdt.find_next('dd').find_all('a', href=re.compile(r'/pairings/')):
+            if 'pairing-highlight' in paira['class']:
+                self.story.addToList('ships',stripHTML(paira))
+                chars=stripHTML(paira).split('/')
                 for char in chars:
                     self.story.addToList('characters',char)
-                break
+            else:
+                self.story.addToList('characters',stripHTML(paira))
 
         summary=soup.find('div', {'class' : 'urlize'})
         self.setDescription(url,summary)
