@@ -225,14 +225,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         paircharsdt = dlinfo.find('dt',text='Пэйринг и персонажи:')
         # site keeps both ships and indiv chars in /pairings/ links.
-        for paira in paircharsdt.find_next('dd').find_all('a', href=re.compile(r'/pairings/')):
-            if 'pairing-highlight' in paira['class']:
-                self.story.addToList('ships',stripHTML(paira))
-                chars=stripHTML(paira).split('/')
-                for char in chars:
-                    self.story.addToList('characters',char)
-            else:
-                self.story.addToList('characters',stripHTML(paira))
+        if paircharsdt:
+            for paira in paircharsdt.find_next('dd').find_all('a', href=re.compile(r'/pairings/')):
+                if 'pairing-highlight' in paira['class']:
+                    self.story.addToList('ships',stripHTML(paira))
+                    chars=stripHTML(paira).split('/')
+                    for char in chars:
+                        self.story.addToList('characters',char)
+                else:
+                    self.story.addToList('characters',stripHTML(paira))
 
         summary=soup.find('div', {'class' : 'urlize'})
         self.setDescription(url,summary)
