@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/code/show_story.asp/recid/")+r"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/code/show_story.asp/recid/")+r"\d+$"
 
     ################################################################################################
     def get_page(self, page):
