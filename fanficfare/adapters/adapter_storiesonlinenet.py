@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -300,7 +300,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # Parse the description field for the series or universe and the
         # actual description.
 
-        desc = description_element.contents[0]
         try:
             a = description_element.find('a', href=re.compile(r"/series/\d+/.*"))
             # logger.debug("Looking for series - a='{0}'".format(a))
@@ -320,7 +319,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     series_name = re.sub(r' . a (series by|collection from).*$','',series_name)
                     # logger.debug("Series name: '%s'" % series_name)
                 self.setSeries(series_name, i)
-                desc = description_element.contents[2]
                 # Check if series is in a universe
                 if self.has_universes:
                     universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
@@ -354,7 +352,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             # logger.debug("Looking for universe - a='{0}'".format(a))
             if a:
                 self.story.setMetadata("universe",stripHTML(a))
-                desc = description_element.contents[2]
                 # Assumed only one universe, but it does have a URL--use universeHTML
                 universe_name = stripHTML(a)
                 universeUrl = 'https://'+self.host+a['href']
@@ -384,7 +381,18 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise
             pass
 
-        self.setDescription('https://'+self.host+'/s/'+self.story.getMetadata('storyId'),desc)
+        # There's nothing around the desc to grab it by, and there's a
+        # variable number of links before it.
+        for line in description_element.contents:
+            line = unicode(line)
+            if line.strip() == '' or line.startswith("<span") or line.startswith("<br"):
+                # skip empty, <span (universe, series or context) and <br>.
+                # logger.debug("Discard: %s"%line)
+                pass
+            else:
+                # logger.debug("Use: %s"%line)
+                self.setDescription('https://'+self.host+'/s/'+self.story.getMetadata('storyId'),line)
+                break
 
     def parseDate(self,label):
         # date is passed as a timestamp and converted in JS.  used to
