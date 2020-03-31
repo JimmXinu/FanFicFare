@@ -36,7 +36,6 @@ from . import adapter_test1
 from . import adapter_fanfictionnet
 from . import adapter_fanficcastletvnet
 from . import adapter_fictionalleyorg
-from . import adapter_fictionalleyikeranorg
 from . import adapter_fictionpresscom
 from . import adapter_ficwadcom
 from . import adapter_fimfictionnet
