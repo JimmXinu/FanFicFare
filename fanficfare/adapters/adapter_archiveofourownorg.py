@@ -44,6 +44,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
+        self.addurl = ""
 
         self.full_work_soup = None
         self.full_work_chapters = None
@@ -94,7 +95,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # https://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
-        logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
+        # logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
         return r"https?://(" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
 
     # The certificate is only valid for the following names:
@@ -154,12 +155,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         if self.is_adult or self.getConfig("is_adult"):
-            addurl = "?view_adult=true"
+            self.addurl = "?view_adult=true"
         else:
-            addurl=""
+            self.addurl=""
 
-        metaurl = self.url+addurl
-        url = self.url+'/navigate'+addurl
+        metaurl = self.url+self.addurl
+        url = self.url+'/navigate'+self.addurl
         logger.info("url: "+url)
         logger.info("metaurl: "+metaurl)
 
@@ -168,7 +169,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             meta = self._fetchUrl(metaurl)
 
             if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
-                raise exceptions.AdultCheckRequired(self.url)
+                if self.addurl:
+                    ## "?view_adult=true" doesn't work on base story
+                    ## URL anymore, which means we have to
+                    metasoup = self.make_soup(meta)
+                    a = metasoup.find('a',text='Proceed')
+                    metaurl = 'https://'+self.host+a['href']
+                    meta = self._fetchUrl(metaurl)
+                else:
+                    raise exceptions.AdultCheckRequired(self.url)
 
         except HTTPError as e:
             if e.code == 404:
@@ -422,7 +431,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
-                self.full_work_soup = self.make_soup(self._fetchUrl(self.url+"?view_full_work=true"))
+                self.full_work_soup = self.make_soup(self._fetchUrl(self.url+"?view_full_work=true"+self.addurl.replace('?','&')))
                 ## AO3 has had several cases now where chapter numbers
                 ## are missing, breaking the link between
                 ## <div id=chapter-##> and Chapter ##.
@@ -439,7 +448,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if whole_dl_soup:
             chapter_dl_soup = self.full_work_chapters[index]
         else:
-            whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url))
+            whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url+self.addurl))
             if None == chapter_dl_soup:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
