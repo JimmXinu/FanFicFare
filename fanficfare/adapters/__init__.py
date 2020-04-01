@@ -41,6 +41,7 @@ from . import adapter_ficwadcom
 from . import adapter_fimfictionnet
 from . import adapter_mediaminerorg
 from . import adapter_potionsandsnitches
+from . import adapter_tenhawkpresentscom
 from . import adapter_adastrafanficcom
 from . import adapter_tthfanficorg
 from . import adapter_twilightednet
