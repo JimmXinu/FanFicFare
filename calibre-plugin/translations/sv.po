@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
-"PO-Revision-Date: 2020-03-07 07:45+0000\n"
+"PO-Revision-Date: 2020-03-29 10:05+0000\n"
 "Last-Translator: Jonatan Nyberg\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -359,7 +359,7 @@ msgstr "Fyll i webbadresser från giltiga webbadresser i urklipp när du lägger
 
 #: config.py:580
 msgid "FanFicFare button opens menu?"
-msgstr ""
+msgstr "Knappen FanFicFare öppnar menyn?"
 
 #: config.py:581
 msgid ""
