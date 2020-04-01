@@ -30,11 +30,11 @@ from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
-class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
+class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','thpc')
+        self.story.setMetadata('siteabbrev','thpi')
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
@@ -50,14 +50,15 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'fanfiction.tenhawkpresents.com'
+        return 'fanfic.tenhawkpresents.ink'
 
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        # accept https, but don't use it--site SSL is broken.
+        return r"https?:"+re.escape("//"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     def use_pagecache(self):
         '''
@@ -247,5 +248,5 @@ class TenhawkPresentsComSiteAdapter(BaseSiteAdapter):
         return self.utf8FromSoup(url,span)
 
 def getClass():
-    return TenhawkPresentsComSiteAdapter
+    return TenhawkPresentsSiteAdapter
 
