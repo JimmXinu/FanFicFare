@@ -244,6 +244,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         for qdiv in self.get_quote_expand_tag(soup):
             qdiv.extract() # Remove <div class="...">click to expand</div>
 
+        ## <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+        ## data-cfemail="c283b0afb1afa3b1b6a7b08292b0adb6a7a1b6adb0a3b6a7878c87eca5adb4">[email&#160;protected]</a>
+        for a in soup.find_all('a',href="/cdn-cgi/l/email-protection", class_="__cf_email__"):
+            logger.debug(a)
+            email = decodeEmail(a['data-cfemail'])
+            logger.debug(email)
+            a.insert_before(email)
+            a.extract()
+
         self.convert_quotes(soup)
 
         self.handle_spoilers(soup)
@@ -774,3 +783,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 # fixes englisher contractions being title cased incorrectly.
 def title(title):
     return re.sub(r"(?<=[a-z])[\']([A-Z])", lambda x: x.group().lower(), title.title())
+
+# decode obscured email addresses.  Since we're downloading fiction,
+# they're going to be fictitious and fictitious characters don't
+# benefit from spam prevention.
+def decodeEmail(e):
+    de = ""
+    k = int(e[:2], 16)
+
+    for i in range(2, len(e)-1, 2):
+        de += chr(int(e[i:i+2], 16)^k)
+
+    return de
