@@ -151,7 +151,7 @@ default_prefs['addtoreadlists'] = False
 default_prefs['addtolistsonread'] = False
 default_prefs['autounnew'] = False
 
-default_prefs['updatecalcover'] = None
+default_prefs['updatecalcover'] = SAVE_YES_IF_IMG
 default_prefs['gencalcover'] = SAVE_YES
 default_prefs['updatecover'] = False
 default_prefs['calibre_gen_cover'] = False
