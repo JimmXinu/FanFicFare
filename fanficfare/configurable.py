@@ -220,7 +220,7 @@ def get_valid_set_options():
                'force_login':(['phoenixsong.net'],None,boollist),
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'download_text_version':(['fictionmania.tv'],None,boollist),
-               'universe_as_series':(['storiesonline.net','finestories.com'],None,boollist),
+               'universe_as_series':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
                'strip_text_links':(['bloodshedverse.com','asexstories.com'],None,boollist),
                'centeredcat_to_characters':(['tthfanfic.org'],None,boollist),
                'pairingcat_to_characters_ships':(['tthfanfic.org'],None,boollist),
@@ -231,7 +231,7 @@ def get_valid_set_options():
                'clean_chapter_titles':(['literotica.com'],None,boollist),
                'description_in_chapter':(['literotica.com'],None,boollist),
 
-               'inject_chapter_title':(['asianfanfics.com','storiesonline.net','finestories.com'],None,boollist),
+               'inject_chapter_title':(['asianfanfics.com','storiesonline.net','finestories.com','scifistories.com'],None,boollist),
 
                'auto_sub':(['asianfanfics.com'],None,boollist),
 
