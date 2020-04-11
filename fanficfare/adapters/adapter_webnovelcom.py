@@ -17,7 +17,12 @@
 
 # Adapted by GComyn on April 16, 2017
 from __future__ import absolute_import
-import cgi
+try:
+    # python3
+    from html import escape
+except ImportError:
+    # python2
+    from cgi import escape
 import difflib
 import json
 import logging
@@ -58,7 +63,7 @@ def getClass():
 def fix_pseudo_html(pseudo_html, whitelist_tags=()):
     tags = set(HTML_TAGS).union(whitelist_tags)
     pseudo_html_regex = re.compile(pseudo_html_regex_format % '|'.join(tags), re.IGNORECASE)
-    return pseudo_html_regex.sub(lambda match: cgi.escape(match.group(1)), pseudo_html)
+    return pseudo_html_regex.sub(lambda match: escape(match.group(1)), pseudo_html)
 
 
 class WWWWebNovelComAdapter(BaseSiteAdapter):
@@ -252,6 +257,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             content = "".join([ x['content'] for x in contents])
             # Content is raw text, so convert paired newlines into paragraphs like the website
             content = content.replace('\r', '')
-            content = cgi.escape(content)
+            content = escape(content)
             content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
         return content
