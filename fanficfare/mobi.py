@@ -34,10 +34,6 @@ languages = {"en-us" : 0x0409,
              "en"    : 0x0009,
              "en-gb" : 0x0809}
 
-def ToHex(s):
-  v = ['%.2x' % ord(c) for c in s]
-  return ' '.join(v)
-
 class _SubEntry:
   def __init__(self, pos, html_data):
     self.pos = pos
