@@ -1013,7 +1013,12 @@ class Configuration(configparser.SafeConfigParser):
                 logger.debug(e)
                 pass
         logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
-        return "".join([x for x in data if ord(x) < 128])
+        try:
+            # python2
+            return "".join([x for x in data if ord(x) < 128])
+        except TypeError:
+            # python3
+            return "".join([chr(x) for x in data if x < 128])
 
     def _progressbar(self):
         if self.getConfig('progressbar'):
