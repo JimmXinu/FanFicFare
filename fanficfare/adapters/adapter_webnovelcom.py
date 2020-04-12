@@ -259,5 +259,5 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             content = content.replace('\r', '')
             content = escape(content)
             content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
-        content = re.sub(r'<pirate>.+?</pirate>', r'', content)
+        content = re.sub(r'(<|&lt;)pirate(>|&gt;).+?(<|&lt;)/pirate(>|&gt;)', r'', content)
         return content
