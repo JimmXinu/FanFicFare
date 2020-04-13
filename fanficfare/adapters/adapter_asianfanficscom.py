@@ -274,7 +274,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
                 # the dumbest workaround ever for the abbreviated chapter titles from before
                 logger.debug("Injecting full-length chapter title")
                 newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-                newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
+                newTitle = self.make_soup('<h4>%s</h4>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
                 newTitle.name='div' # change body to a div.
                 newTitle.append(content)
                 return self.utf8FromSoup(url,newTitle)

@@ -556,7 +556,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if a.name == 'h2' and self.getConfig('inject_chapter_title'):
                     # keep chapter header, but make match usual size.
                     # will double up unless chapter_start is also changed
-                    a.name = 'h3'
+                    a.name = 'h4'
                 else:
                     a.extract()
                 a = b
