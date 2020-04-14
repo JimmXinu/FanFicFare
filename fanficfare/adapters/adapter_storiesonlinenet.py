@@ -495,7 +495,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def cleanPage(self,pagetag):
         "Consolidate 'page' clean up code so it can be called."
-#         logger.debug("cleanPage start: {0}".format(pagetag))
+        # logger.debug("cleanPage start: {0}".format(pagetag))
+
+        chapter_title = None
+        if self.getConfig('inject_chapter_title'):
+            chapter_title = pagetag.find('h2').extract()
 
         # Strip te header section
         tag = pagetag.find('header')
@@ -548,17 +552,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # If it is a chapter, there are dates at the start for when it was posted or modified. These plus
         # everything before them can be discarded.
         postedDates = pagetag.findAll('div', {'class' : 'date'})
+        # logger.debug(postedDates)
         if postedDates:
             a = postedDates[0].previousSibling
             while a != None:
                 # logger.debug("before dates: {0}".format(a))
                 b = a.previousSibling
-                if a.name == 'h2' and self.getConfig('inject_chapter_title'):
-                    # keep chapter header, but make match usual size.
-                    # will double up unless chapter_start is also changed
-                    a.name = 'h4'
-                else:
-                    a.extract()
+                a.extract()
                 a = b
             for a in pagetag.findAll('div', {'class' : 'date'}):
                 a.extract()
@@ -578,4 +578,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             b = a.nextSibling
             a.extract()
             a=b
-
+        # inject_chapter_title
+        if chapter_title:
+            chapter_title.name='h4'
+            pagetag.insert(0,chapter_title)
