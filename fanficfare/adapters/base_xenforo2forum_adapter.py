@@ -144,14 +144,22 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         return topsoup.find('div',{'class':'p-description'}).findAll('a',{'class':'tagItem'})
 
     def parse_author(self,souptag):
-        a = souptag.find('section',{'class':'message-user'}).find('a',{'class':'username'})
-        # logger.debug(a)
-        self.story.addToList('authorId',a['href'].split('/')[-2])
-        authorUrl = a['href']
-        if not authorUrl.startswith('http'):
-            authorUrl = self.getURLPrefix()+authorUrl
-        self.story.addToList('authorUrl',authorUrl)
-        self.story.addToList('author',a.text)
+        user = souptag.find('section',{'class':'message-user'})
+        a = user.find('a',{'class':'username'})
+        if a:
+            # logger.debug(a)
+            self.story.addToList('authorId',a['href'].split('/')[-2])
+            authorUrl = a['href']
+            if not authorUrl.startswith('http'):
+                authorUrl = self.getURLPrefix()+authorUrl
+            self.story.addToList('authorUrl',authorUrl)
+            self.story.addToList('author',a.text)
+        else:
+            # No author link found--it's a rare case, but at least one
+            # thread had a 'Guest' account author.
+            self.story.setMetadata('author',stripHTML(user.find('span',{'class':'username'})))
+            self.story.setMetadata('authorUrl',self.getURLPrefix())
+            self.story.setMetadata('authorId','0')
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('article',{'class':'message--post'}):
