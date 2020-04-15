@@ -580,5 +580,5 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             a=b
         # inject_chapter_title
         if chapter_title:
-            chapter_title.name='h4'
+            chapter_title.name='h3'
             pagetag.insert(0,chapter_title)
