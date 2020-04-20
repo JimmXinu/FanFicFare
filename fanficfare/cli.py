@@ -29,6 +29,8 @@ import string
 import os, sys
 import pickle
 
+from .six import text_type as unicode
+
 if sys.version_info < (2, 7):
     sys.exit('This program requires Python 2.7 or newer.')
 elif sys.version_info < (3, 0):
