@@ -273,13 +273,11 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             self.setCoverImage(self.url,div.img['src'].replace('_200_300',''))
         
         # dates
-        othermeta = soup.find('div',class_='ContentTable_Half')
-        dtd = othermeta.find('td',string=u'Опубликован:')
-        self.story.setMetadata('datePublished', makeDate(stripHTML(dtd.find_next('td')), self.dateformat))
-        dtd = othermeta.find('td',string=u'Изменен:')
-        self.story.setMetadata('dateUpdated', makeDate(stripHTML(dtd.find_next('td')), self.dateformat))
-
-        
+        # <span class="DateUpdate" title="Опубликовано 22.04.2020, изменено 22.04.2020">22.04.2020 - 22.04.2020</span>
+        datespan = soup.find('span',class_='DateUpdate')
+        dates = stripHTML(datespan).split(" - ")
+        self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
+        self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
 
         # series 
         seriesdiv = soup.find('div',id='fic_info_content_serie')
