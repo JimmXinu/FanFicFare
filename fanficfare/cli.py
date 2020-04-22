@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import pprint
 import string
 import os, sys
 import pickle
-
-from .six import text_type as unicode
 
 if sys.version_info < (2, 7):
     sys.exit('This program requires Python 2.7 or newer.')
@@ -66,6 +64,7 @@ try:
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
     from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import configparser
     from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import http_cookiejar as cl
+    from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
 except ImportError:
     from fanficfare import adapters, writers, exceptions
     from fanficfare.configurable import Configuration
@@ -74,6 +73,7 @@ except ImportError:
     from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
     from fanficfare.six.moves import configparser
     from fanficfare.six.moves import http_cookiejar as cl
+    from fanficfare.six import text_type as unicode
 
 
 def write_story(config, adapter, writeformat,
