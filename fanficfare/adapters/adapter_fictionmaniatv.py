@@ -189,7 +189,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             ## fetching SWI version now instead of text.
             htmlurl = url.replace('readtextstory','readhtmlstory')
             soup = self._customized_fetch_url(htmlurl)
-            div = soup.find('div',style="margin-left:10ex;margin-right:10em")
+            div = soup.find('div',style="margin-left:10ex;margin-right:10ex")
             if div:
                 return self.utf8FromSoup(htmlurl,div)
             else:
