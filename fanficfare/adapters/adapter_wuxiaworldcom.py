@@ -88,7 +88,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
         ld = self._parse_linked_data(soup)
-        logger.debug(ld)
+        # logger.debug(ld)
         author_name = ld['author']['name']
         self.story.setMetadata('author', author_name)
         self.story.setMetadata('authorId', author_name.lower())
