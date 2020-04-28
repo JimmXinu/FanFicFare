@@ -611,4 +611,6 @@ def get_configuration(url,
     return configuration
 
 if __name__ == '__main__':
+    ## this isn't actually used by pip installed CLI.
+    ## that calls main() itself.
     main()
