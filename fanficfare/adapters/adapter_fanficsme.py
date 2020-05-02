@@ -199,7 +199,11 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                 self.story.setMetadata('authorId','0')
 
         # translator(s)
-        content = get_meta_content(u'Переводчики')
+        content = get_meta_content(u'Переводчик')
+        if not content:
+            # Переводчик vs Переводчи is 'Translator' vs 'TranslatorS'
+            content = get_meta_content(u'Переводчи')
+        logger.debug(content)
         if content:
             for a in content.find_all('a', class_='user'):
                 self.story.addToList('translatorsId',a['href'].split('/user')[-1])
