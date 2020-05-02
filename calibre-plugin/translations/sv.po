@@ -4,9 +4,9 @@
 # Translators:
 # Henrik Mattsson-Mårn <h@reglage.net>, 2016
 # J M <JimmXinuTwo@xinu.nu>, 2016
-# Jonatan Nyberg, 2016-2017
-# Jonatan Nyberg, 2018-2020
-# Jonatan Nyberg, 2017
+# Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2016-2017
+# Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2018-2020
+# Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2017
 # Kristoffer Grundström <hamnisdude@gmail.com>, 2017
 # Mars Northman <marsnorthman@gmail.com>, 2017
 # Merarom <merarom@yahoo.es>, 2014-2015
@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
 "PO-Revision-Date: 2020-03-29 10:05+0000\n"
-"Last-Translator: Jonatan Nyberg\n"
+"Last-Translator: Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
