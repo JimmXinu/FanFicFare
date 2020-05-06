@@ -195,7 +195,8 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         soup = self._customized_fetch_url(url)
-        storytext_div = soup.find('div', {'class': 'storytext'})
+        storytext_div = soup.find('div', {'class': 'tl'})
+        storytext_div = storytext_div.find('div', {'class': ''})
 
         if self.getConfig('strip_text_links'):
             for anchor in storytext_div('a', {'class': 'FAtxtL'}):
