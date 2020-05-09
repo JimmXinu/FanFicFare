@@ -156,7 +156,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             self.add_chapter(chapter,'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value'])
 
         ## title="Wörter" failed with max_zalgo:1
-        self.story.setMetadata('numWords',stripHTML(soup.find("span",{'class':"fa-keyboard"}).parent))
+        self.story.setMetadata('numWords',stripHTML(soup.find("span",{'class':"fa-keyboard"}).parent).replace('.','')) # 1.234 = 1,234
         self.story.setMetadata('language','German')
 
         self.story.setMetadata('datePublished', makeDate(stripHTML(head.find('span',title='erstellt').parent), self.dateformat))
