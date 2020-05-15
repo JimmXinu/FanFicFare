@@ -1236,7 +1236,10 @@ class Story(Configurable):
                                                     imgtype,
                                                     background="#"+bgcolor)
             except Exception as e:
-                logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
+                try:
+                    logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
+                except:
+                    logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
                 return ("failedtoload","failedtoload")
 
             # explicit cover, make the first image.
