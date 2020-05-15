@@ -7,19 +7,19 @@
 # Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2016-2017
 # Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2018-2020
 # Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>, 2017
-# Kristoffer Grundström <hamnisdude@gmail.com>, 2017
+# Kristoffer Grundström <lovaren@gmail.com>, 2017
 # Mars Northman <marsnorthman@gmail.com>, 2017
 # Merarom <merarom@yahoo.es>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2019-11-29 09:28+Central Standard Time\n"
-"PO-Revision-Date: 2020-03-29 10:05+0000\n"
-"Last-Translator: Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>\n"
+"POT-Creation-Date: 2020-05-14 19:00-0500\n"
+"PO-Revision-Date: 2020-05-15 04:30+0000\n"
+"Last-Translator: Henrik Mattsson-Mårn <h@reglage.net>\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: ENCODING\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,159 +34,159 @@ msgid ""
 "settings."
 msgstr "Sökväg till calibre-biblioteket. Som standard är att använda sökvägen lagrad i inställningarna."
 
-#: common_utils.py:415
+#: common_utils.py:417
 msgid "Keyboard shortcuts"
 msgstr "Tangentbordsgenvägar"
 
-#: common_utils.py:461
+#: common_utils.py:463
 msgid "Undefined"
 msgstr "Odefinerad"
 
-#: common_utils.py:481
+#: common_utils.py:483
 msgid "Prefs Viewer dialog"
 msgstr "Dialogrutan Inställningsöversikt"
 
-#: common_utils.py:482
+#: common_utils.py:484
 msgid "Preferences for: "
 msgstr "Inställningar för:"
 
-#: common_utils.py:514
+#: common_utils.py:516
 msgid "Clear"
 msgstr "Rensa"
 
-#: common_utils.py:516
+#: common_utils.py:518
 msgid "Clear all settings for this plugin"
 msgstr "Rensa alla inställningar för detta tillägg"
 
-#: common_utils.py:520
+#: common_utils.py:522
 msgid "Edit"
 msgstr "Redigera"
 
-#: common_utils.py:522
+#: common_utils.py:524
 msgid "Edit settings."
 msgstr "Redigera inställningar."
 
-#: common_utils.py:525
+#: common_utils.py:527
 msgid "Save"
 msgstr "Spara"
 
-#: common_utils.py:527
+#: common_utils.py:529
 msgid "Save setting for this plugin"
 msgstr "Spara inställning för denna insticksmodul"
 
-#: common_utils.py:555
+#: common_utils.py:557
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
 msgstr "Är du säker på att du vill redigera inställningar i detta bibliotek för denna insticksmodul?"
 
-#: common_utils.py:556
+#: common_utils.py:558
 msgid "The FanFicFare team does not support hand edited configurations."
 msgstr "Fanficfare-teamet stöder inte handredigerade konfigurationer."
 
-#: common_utils.py:564
+#: common_utils.py:566
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
 msgstr "Är du säker på att du vill spara den här inställningen i det här biblioteket för denna insticksmodul?"
 
-#: common_utils.py:565 common_utils.py:593
+#: common_utils.py:567 common_utils.py:595
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
 msgstr "Alla inställningar i andra bibliotek eller sparade i en JSON-fil i din calibre-tilläggsmapp kommer inte att röras."
 
-#: common_utils.py:566 common_utils.py:594
+#: common_utils.py:568 common_utils.py:596
 msgid "You must restart calibre afterwards."
 msgstr "Du måste starta om calibre efteråt."
 
-#: common_utils.py:574
+#: common_utils.py:576
 msgid "All settings for this plugin in this library have been saved."
 msgstr "Alla inställningar för denna insticksmodul i detta bibliotek har sparats."
 
-#: common_utils.py:575 common_utils.py:604
+#: common_utils.py:577 common_utils.py:606
 msgid "Please restart calibre now."
 msgstr "Var god starta om calibre nu."
 
-#: common_utils.py:577 common_utils.py:606
+#: common_utils.py:579 common_utils.py:608
 msgid "Restart calibre now"
 msgstr "Starta om calibre nu."
 
-#: common_utils.py:592
+#: common_utils.py:594
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
 msgstr "Är du säker på att du vill rensa dina inställningar i detta bibliotek för detta tillägg?"
 
-#: common_utils.py:603
+#: common_utils.py:605
 msgid "All settings for this plugin in this library have been cleared."
 msgstr "Alla inställningar för detta tillägg i detta bibliotek har rensats."
 
-#: config.py:223
+#: config.py:225
 msgid "List of Supported Sites"
 msgstr "Lista av stödda platser"
 
-#: config.py:225
+#: config.py:227
 msgid "FAQs"
 msgstr "Vanliga frågor"
 
-#: config.py:240
+#: config.py:242
 msgid "Basic"
 msgstr "Grundläggande"
 
-#: config.py:251
+#: config.py:253
 msgid "Calibre Cover"
 msgstr "calibre-omslag"
 
-#: config.py:259
+#: config.py:261
 msgid "Standard Columns"
 msgstr "Standard kolumner"
 
-#: config.py:262
+#: config.py:264
 msgid "Custom Columns"
 msgstr "Anpassade kolumner"
 
-#: config.py:265
+#: config.py:267
 msgid "Email Settings"
 msgstr "E-posta inställningar"
 
-#: config.py:268
+#: config.py:270
 msgid "Other"
 msgstr "Andra"
 
-#: config.py:431
+#: config.py:433
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
 msgstr "Dessa inställningar styr grundläggande funktioner av tillägget--ladda ner FanFiction."
 
-#: config.py:435
+#: config.py:437
 msgid "Defaults Options on Download"
 msgstr "Grundinställningar för hämtning"
 
-#: config.py:439
+#: config.py:441
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
 msgstr "Under varje hämtning, erbjuder FanFicFare en möjlighet att välja utmatningsformat. <br />Detta ställer in vilket val kommer att vara standard."
 
-#: config.py:441
+#: config.py:443
 msgid "Default Output &Format:"
 msgstr "Standard utdata&format:"
 
-#: config.py:456
+#: config.py:458
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
 msgstr "Under varje hämtning, erbjuder FanFicFare en möjlighet för vad som händer om berättelsen redan finns. <br />Detta ställer in vilket val kommer att vara standard."
 
-#: config.py:458
+#: config.py:460
 msgid "Default If Story Already Exists?"
 msgstr "Standard om berättelsen redan finns?"
 
-#: config.py:473
+#: config.py:475
 msgid "Default Update Calibre &Metadata?"
 msgstr "Standard uppdatera calibre-&metadata?"
 
-#: config.py:474
+#: config.py:476
 msgid ""
 "On each download, FanFicFare offers an option to update Calibre's metadata "
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
@@ -194,22 +194,22 @@ msgid ""
 "'New Only' in the column tabs will only be set for new books."
 msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera calibre-metadata (titel, författare, URL, taggar, anpassade kolumner, osv.) från webbsidan. <br />Detta ställer in det som standard till på eller av. <br />Kolumner satt till \"Endast ny\" i kolumnflikarna kommer endast att ställas in för nya böcker."
 
-#: config.py:478
+#: config.py:480
 msgid "Default Update EPUB Cover when Updating EPUB?"
 msgstr "Som standard uppdatera EPUB-omslag vid uppdatering av EPUB?"
 
-#: config.py:479
+#: config.py:481
 msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
 msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera bokomslagesbilden <i>i</ i> EPUB:n från webbsidan när EPUB:n uppdateras.<br />Detta ställer in det standard till på eller av."
 
-#: config.py:483
+#: config.py:485
 msgid "Default Background Metadata?"
 msgstr "Standard bakgrundsmetadata?"
 
-#: config.py:484
+#: config.py:486
 msgid ""
 "On each download, FanFicFare offers an option to Collect Metadata from sites"
 " in a Background process.<br />This returns control to you quicker while "
@@ -219,25 +219,25 @@ msgid ""
 "matches to existing book by Title/Author."
 msgstr "För varje hämtning, erbjuder FanFicFare ett alternativ att Samla Metadata från webbplatser i en bakgrundsprocess.<br />Detta återger kontroll till dig snabbare under uppdatering, men du kommer inte att bli ombedd om användarnamn/lösenord eller om du är en vuxen--berättelser som behöver dem kommer bara att misslyckas.<br />Endast tillgänglig för uppdatering/överskrivning av befintliga böcker om webbadressen inte kanonisk eller matchar med befintlig bok för Titel/Författare."
 
-#: config.py:490
+#: config.py:492
 msgid "Updating Calibre Options"
 msgstr "Uppdatera calibres-alternativ"
 
-#: config.py:494
+#: config.py:496
 msgid "Delete other existing formats?"
 msgstr "Ta bort andra befintliga format?"
 
-#: config.py:495
+#: config.py:497
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
 msgstr "Kryssa i det här för att automatiskt ta bort alla andra e-bokformat när du uppdaterar en befintlig bok.\nPraktiskt om du har både en Nook (EPUB) och Kindle (MOBI), till exempel."
 
-#: config.py:499
+#: config.py:501
 msgid "Keep Existing Tags when Updating Metadata?"
 msgstr "Spara existerande taggar när Metadata Uppdateras?"
 
-#: config.py:500
+#: config.py:502
 msgid ""
 "Existing tags will be kept and any new tags added.\n"
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
@@ -245,421 +245,421 @@ msgid ""
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
 msgstr "Befintliga etiketter sparas och nya etiketter läggs till\n%(cmplt)s och %(inprog)s etiketter kommer fortfarande att uppdateras, om kända.\n%(lul)s-etiketter kommer att uppdateras om %(lus)s i %(is)s.\n(Om etiketter är inställda på \"Endast nya\" i fliken Standardkolumner har detta ingen effekt.)"
 
-#: config.py:504
+#: config.py:506
 msgid "Check for existing Series Anthology books?"
 msgstr "Sök efter existerande serier antologi böcker?"
 
-#: config.py:505
+#: config.py:507
 msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
 msgstr ""
 
-#: config.py:509 config.py:638
+#: config.py:511 config.py:640
 msgid "Reject Without Confirmation?"
 msgstr "Avfärda utan bekräftelse?"
 
-#: config.py:510
+#: config.py:512
 msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
 msgstr ""
 
-#: config.py:519
+#: config.py:521
 msgid "Check for changed Story URL?"
 msgstr "Kolla efter ändrad berättelse-adress?"
 
-#: config.py:520
+#: config.py:522
 msgid ""
 "Warn you if an update will change the URL of an existing book(normally automatic and silent).\n"
 "URLs may be changed from http to https silently if the site changed."
 msgstr ""
 
-#: config.py:524
+#: config.py:526
 msgid "Search inside ebooks for Story URL?"
 msgstr "Sök i böcker efter berättelse-URL?"
 
-#: config.py:525
+#: config.py:527
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
 msgstr ""
 
-#: config.py:529
+#: config.py:531
 msgid "Post Processing Options"
 msgstr "Efterbehandlings alternativ"
 
-#: config.py:533
+#: config.py:535
 msgid "Mark added/updated books when finished?"
 msgstr "Markera tillagda/uppdaterade böcker när det är klart?"
 
-#: config.py:534
+#: config.py:536
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
 msgstr ""
 
-#: config.py:538
+#: config.py:540
 msgid "Show Marked books when finished?"
 msgstr "Visa markerade böcker när det är klart?"
 
-#: config.py:539
+#: config.py:541
 msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
 msgstr ""
 
-#: config.py:543
+#: config.py:545
 msgid "Smarten Punctuation (EPUB only)"
 msgstr "Skärpa interpunktion (EPUB endast)"
 
-#: config.py:544
+#: config.py:546
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
 msgstr "Kör Förbättra interpunktion från calibres Polera bok-funktion vid varje EPUB-hämtning och uppdatering."
 
-#: config.py:549
+#: config.py:551
 msgid ""
 "Calculate Word Counts using Calibre internal methods.\n"
 "Many sites include Word Count, but many do not.\n"
 "This will count the words in each book and include it as if it came from the site."
 msgstr ""
 
-#: config.py:553
+#: config.py:555
 msgid "Calculate Word Count:"
 msgstr "Beräkna antalet ord:"
 
-#: config.py:566
+#: config.py:568
 msgid "Automatically Convert new/update books?"
 msgstr "Konvertera automatiskt nya/uppdaterade böcker?"
 
-#: config.py:567
+#: config.py:569
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
 msgstr ""
 
-#: config.py:571
+#: config.py:573
 msgid "GUI Options"
 msgstr "GUI-alternativ"
 
-#: config.py:575
+#: config.py:577
 msgid "Take URLs from Clipboard?"
 msgstr "Ta webbadresser från urklipp?"
 
-#: config.py:576
+#: config.py:578
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
 msgstr "Fyll i webbadresser från giltiga webbadresser i urklipp när du lägger till nytt."
 
-#: config.py:580
+#: config.py:582
 msgid "FanFicFare button opens menu?"
 msgstr "Knappen FanFicFare öppnar menyn?"
 
-#: config.py:581
+#: config.py:583
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
 msgstr ""
 
-#: config.py:585
+#: config.py:587
 msgid "Default to Update when books selected?"
 msgstr "Standard att uppdatera när böcker väljs?"
 
-#: config.py:586
+#: config.py:588
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
 msgstr ""
 
-#: config.py:595
+#: config.py:597
 msgid "Keep 'Add New from URL(s)' dialog on top?"
 msgstr "Håll 'Lägg till ny från URL'-dialog överst?"
 
-#: config.py:596
+#: config.py:598
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
 msgstr ""
 
-#: config.py:600
+#: config.py:602
 msgid "Show estimated time left?"
 msgstr "Visa beräknad tid som återstår?"
 
-#: config.py:601
+#: config.py:603
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
 msgstr "När en förloppsmätare visas, visa en grov uppskattning av den tid som återstår."
 
-#: config.py:605
+#: config.py:607
 msgid "Misc Options"
 msgstr "Tillbehör och övriga alternativ"
 
-#: config.py:609
+#: config.py:611
 msgid "Inject calibre Series when none found?"
 msgstr "Inför calibre-serier när ingen finns?"
 
-#: config.py:610
+#: config.py:612
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
 msgstr ""
 
-#: config.py:614
+#: config.py:616
 msgid "Search by Title/Author(s) for If Story Already Exists?"
 msgstr ""
 
-#: config.py:615
+#: config.py:617
 msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
 msgstr ""
 
-#: config.py:619
+#: config.py:621
 msgid "Reject List"
 msgstr "Avvisa lista"
 
-#: config.py:623
+#: config.py:625
 msgid "Edit Reject URL List"
 msgstr ""
 
-#: config.py:624
+#: config.py:626
 msgid "Edit list of URLs FanFicFare will automatically Reject."
 msgstr ""
 
-#: config.py:628 config.py:706
+#: config.py:630 config.py:708
 msgid "Add Reject URLs"
 msgstr "Lägg till Reject webbadresser"
 
-#: config.py:629
+#: config.py:631
 msgid "Add additional URLs to Reject as text."
 msgstr ""
 
-#: config.py:633
+#: config.py:635
 msgid "Edit Reject Reasons List"
 msgstr "Redigera lista med förklaringsavvisningar"
 
-#: config.py:634 config.py:696
+#: config.py:636 config.py:698
 msgid "Customize the Reasons presented when Rejecting URLs"
 msgstr ""
 
-#: config.py:639
+#: config.py:641
 msgid "Always reject URLs on the Reject List without stopping and asking."
 msgstr ""
 
-#: config.py:643
+#: config.py:645
 msgid "Delete on Reject by Default?"
 msgstr ""
 
-#: config.py:644
+#: config.py:646
 msgid "Should the checkbox to delete Rejected books be checked by default?"
 msgstr ""
 
-#: config.py:681
+#: config.py:683
 msgid "Edit Reject URLs List"
 msgstr ""
 
-#: config.py:694
+#: config.py:696
 msgid "Reject Reasons"
 msgstr "Avvisa förklaringar"
 
-#: config.py:695
+#: config.py:697
 msgid "Customize Reject List Reasons"
 msgstr "Anpassa listförklaringar för avvisningar"
 
-#: config.py:704
+#: config.py:706
 msgid "Reason why I rejected it"
 msgstr "Anledningen till att jag avvisade den"
 
-#: config.py:704
+#: config.py:706
 msgid "Title by Author"
 msgstr "Titel per författare"
 
-#: config.py:707
+#: config.py:709
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
 msgstr ""
 
-#: config.py:708
+#: config.py:710
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
 msgstr ""
 
-#: config.py:710 dialogs.py:1162
+#: config.py:712 dialogs.py:1164
 msgid "Add this reason to all URLs added:"
 msgstr ""
 
-#: config.py:726
+#: config.py:728
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
 msgstr ""
 
-#: config.py:733
+#: config.py:735
 msgid "personal.ini"
 msgstr "personal.ini"
 
-#: config.py:740 config.py:844 config.py:845
+#: config.py:742 config.py:846 config.py:847
 msgid "Edit personal.ini"
 msgstr "Redigera personal.ini"
 
-#: config.py:745
+#: config.py:747
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
 msgstr ""
 
-#: config.py:753
+#: config.py:755
 msgid "View \"Safe\" personal.ini"
 msgstr "Visa \"säker\" personal.ini"
 
-#: config.py:758 config.py:835
+#: config.py:760 config.py:837
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
 msgstr ""
 
-#: config.py:764
+#: config.py:766
 msgid "defaults.ini"
 msgstr "defaults.ini"
 
-#: config.py:769
+#: config.py:771
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
 msgstr "Visa alla tilläggets konfigurerbara inställningar\noch standardinställningarna."
 
-#: config.py:770
+#: config.py:772
 msgid "View Defaults"
 msgstr "Visa standardvärden"
 
-#: config.py:781
+#: config.py:783
 msgid "Calibre Columns"
 msgstr "calibre-kolumner"
 
-#: config.py:788
+#: config.py:790
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
 msgstr ""
 
-#: config.py:789
+#: config.py:791
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
 msgstr ""
 
-#: config.py:802
+#: config.py:804
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
 msgstr ""
 
-#: config.py:803
+#: config.py:805
 msgid "Show Calibre Column Names"
 msgstr "Visa calibre-kolumn namn"
 
-#: config.py:812
+#: config.py:814
 msgid ""
 "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
 msgstr ""
 
-#: config.py:822
+#: config.py:824
 msgid "Plugin Defaults"
 msgstr "Tilläggets standardinställningar"
 
-#: config.py:823
+#: config.py:825
 msgid "Plugin Defaults (%s) (Read-Only)"
 msgstr "plugin standardinställningar (%s) (skrivskyddad)"
 
-#: config.py:834
+#: config.py:836
 msgid "View 'Safe' personal.ini"
 msgstr "Visa 'säker' personal.ini"
 
-#: config.py:868
+#: config.py:870
 msgid "Calibre Column Entry Names"
 msgstr "calibre-kolumnens postnamn"
 
-#: config.py:869
+#: config.py:871
 msgid "Label (entry_name)"
 msgstr "Etikett (entry_name)"
 
-#: config.py:889
+#: config.py:891
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
 msgstr ""
 
-#: config.py:894
+#: config.py:896
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
 msgstr ""
 
-#: config.py:895
+#: config.py:897
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
 msgstr ""
 
-#: config.py:900
+#: config.py:902
 msgid "\"Send to Device\" Reading Lists"
 msgstr "\"Överför till enhet\" läslista"
 
-#: config.py:901 config.py:904 config.py:918 config.py:921
+#: config.py:903 config.py:906 config.py:920 config.py:923
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
 msgstr ""
 
-#: config.py:911
+#: config.py:913
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
 msgstr ""
 
-#: config.py:912
+#: config.py:914
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
 msgstr ""
 
-#: config.py:917
+#: config.py:919
 msgid "\"To Read\" Reading Lists"
 msgstr "*Att läsa* läslista"
 
-#: config.py:928
+#: config.py:930
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
 msgstr ""
 
-#: config.py:929
+#: config.py:931
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
 msgstr ""
 
-#: config.py:933
+#: config.py:935
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
 msgstr ""
 
-#: config.py:934
+#: config.py:936
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
 msgstr ""
 
-#: config.py:962
+#: config.py:964
 msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
 msgstr ""
 
-#: config.py:970
+#: config.py:972
 msgid ""
 "Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
@@ -667,66 +667,66 @@ msgid ""
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
 msgstr ""
 
-#: config.py:975
+#: config.py:977
 msgid "Update Calibre Cover (from EPUB):"
 msgstr "Uppdatera calibre-omslag (för EPUB):"
 
-#: config.py:993
+#: config.py:995
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Defaults to 'Yes, Always' for backward compatibility and because "
 "%(gc)s(Plugin) will only run if configured for Default or site."
 msgstr ""
 
-#: config.py:997
+#: config.py:999
 msgid "Generate Calibre Cover:"
 msgstr "Generera calibre-omslag:"
 
-#: config.py:1024
+#: config.py:1026
 msgid "Plugin %(gc)s"
 msgstr "Tillägg %(gc)s"
 
-#: config.py:1025
+#: config.py:1027
 msgid "Use plugin to create covers.  Additional settings are below."
 msgstr "Använd tillägg för att skapa omslag. Ytterligare inställningar finns nedan."
 
-#: config.py:1032
+#: config.py:1034
 msgid "Calibre Generate Cover"
 msgstr ""
 
-#: config.py:1033
+#: config.py:1035
 msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
 msgstr ""
 
-#: config.py:1047
+#: config.py:1049
 msgid "Generate Covers Only for New Books"
 msgstr "Skapa omslag endast för nya böcker"
 
-#: config.py:1048
+#: config.py:1050
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
 msgstr ""
 
-#: config.py:1054
+#: config.py:1056
 msgid "Inject/update the cover inside EPUB"
 msgstr "Införa/uppdatera omslag i EPUB"
 
-#: config.py:1055
+#: config.py:1057
 msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
 msgstr ""
 
-#: config.py:1061
+#: config.py:1063
 msgid "%(gc)s(Plugin) Settings"
 msgstr "%(gc)s(Plugin) Inställningar"
 
-#: config.py:1069
+#: config.py:1071
 msgid ""
 "The %(gc)s plugin can create cover images for books using various metadata "
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
@@ -734,296 +734,296 @@ msgid ""
 " by site and/or one to use by Default."
 msgstr ""
 
-#: config.py:1087 config.py:1091 config.py:1104
+#: config.py:1089 config.py:1093 config.py:1106
 msgid "Default"
 msgstr "Standard"
 
-#: config.py:1092
+#: config.py:1094
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
 msgstr ""
 
-#: config.py:1095
+#: config.py:1097
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
 msgstr ""
 
-#: config.py:1118
+#: config.py:1120
 msgid "Allow %(gcset)s from %(pini)s to override"
 msgstr "Tillåt %(gcset)s från %(pini)s att åsidosätta"
 
-#: config.py:1119
+#: config.py:1121
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
 " ignored when this is off."
 msgstr ""
 
-#: config.py:1157
+#: config.py:1159
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
 msgstr ""
 
-#: config.py:1162
+#: config.py:1164
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
 msgstr ""
 
-#: config.py:1168
+#: config.py:1170
 msgid "Which column and algorithm to use are configured in %(cp)s."
 msgstr "Vilken kolumn och algoritm att använda är konfigurerade i%(cp)s."
 
-#: config.py:1178
+#: config.py:1180
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
 msgstr ""
 
-#: config.py:1183
+#: config.py:1185
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
 msgstr ""
 
-#: config.py:1219
+#: config.py:1221
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
 msgstr ""
 
-#: config.py:1224
+#: config.py:1226
 msgid "Keyboard shortcuts..."
 msgstr "Kortkommando..."
 
-#: config.py:1225
+#: config.py:1227
 msgid "Edit the keyboard shortcuts associated with this plugin"
 msgstr "Redigera tangentbordets kortkommandon som hör samman med detta tilläggsprogram"
 
-#: config.py:1229
+#: config.py:1231
 msgid "Reset disabled &confirmation dialogs"
 msgstr "Återställ avstängda &konfirmationsdialogrutor"
 
-#: config.py:1230
+#: config.py:1232
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
 msgstr ""
 
-#: config.py:1234
+#: config.py:1236
 msgid "&View library preferences..."
 msgstr "&Visa biblioteksinställningar..."
 
-#: config.py:1235
+#: config.py:1237
 msgid "View data stored in the library database for this plugin"
 msgstr "Visa data lagrat i biblioteksdatabasen för detta tilläggsprogram"
 
-#: config.py:1245
+#: config.py:1247
 msgid "Done"
 msgstr "Klar"
 
-#: config.py:1246
+#: config.py:1248
 msgid "Confirmation dialogs have all been reset"
 msgstr "Alla konfirmationsdialogrutor har blivit återställda."
 
-#: config.py:1295
+#: config.py:1297
 msgid "Category"
 msgstr "Kategori"
 
-#: config.py:1296
+#: config.py:1298
 msgid "Genre"
 msgstr "Genre"
 
-#: config.py:1297
+#: config.py:1299
 msgid "Language"
 msgstr "Språk"
 
-#: config.py:1298 fff_plugin.py:1520 fff_plugin.py:1737 fff_plugin.py:1760
+#: config.py:1300 fff_plugin.py:1523 fff_plugin.py:1743 fff_plugin.py:1766
 msgid "Status"
 msgstr "Status"
 
-#: config.py:1299
+#: config.py:1301
 msgid "Status:%(cmplt)s"
 msgstr "Status:%(cmplt)s"
 
-#: config.py:1300
+#: config.py:1302
 msgid "Status:%(inprog)s"
 msgstr "Status:%(inprog)s"
 
-#: config.py:1301 config.py:1482
+#: config.py:1303 config.py:1487
 msgid "Series"
 msgstr "Serier"
 
-#: config.py:1302
+#: config.py:1304
 msgid "Characters"
 msgstr "Karaktärer"
 
-#: config.py:1303
+#: config.py:1305
 msgid "Relationships"
 msgstr "Relationer"
 
-#: config.py:1304
+#: config.py:1306
 msgid "Published"
 msgstr "Publicerad"
 
-#: config.py:1305 fff_plugin.py:1900 fff_plugin.py:1916
+#: config.py:1307 fff_plugin.py:1906 fff_plugin.py:1922
 msgid "Updated"
 msgstr "Uppdaterad"
 
-#: config.py:1306
+#: config.py:1308
 msgid "Created"
 msgstr "Skapad"
 
-#: config.py:1307
+#: config.py:1309
 msgid "Rating"
 msgstr "Betyg"
 
-#: config.py:1308
+#: config.py:1310
 msgid "Warnings"
 msgstr "Varningar"
 
-#: config.py:1309
+#: config.py:1311
 msgid "Chapters"
 msgstr "Kapitel"
 
-#: config.py:1310
+#: config.py:1312
 msgid "Words"
 msgstr "Ord"
 
-#: config.py:1311
+#: config.py:1313
 msgid "Site"
 msgstr "Sajt"
 
-#: config.py:1312 config.py:1476
+#: config.py:1314 config.py:1481
 msgid "Publisher"
 msgstr "Förlag"
 
-#: config.py:1313
+#: config.py:1315
 msgid "Story ID"
 msgstr "Berättelse-ID"
 
-#: config.py:1314
+#: config.py:1316
 msgid "Author ID"
 msgstr "Författar-ID"
 
-#: config.py:1315
+#: config.py:1317
 msgid "Extra Tags"
 msgstr "Extra taggar"
 
-#: config.py:1316 config.py:1474 dialogs.py:953 dialogs.py:1049
-#: fff_plugin.py:1520 fff_plugin.py:1737 fff_plugin.py:1760
+#: config.py:1318 config.py:1479 dialogs.py:955 dialogs.py:1051
+#: fff_plugin.py:1523 fff_plugin.py:1743 fff_plugin.py:1766
 msgid "Title"
 msgstr "Titel"
 
-#: config.py:1317
+#: config.py:1319
 msgid "Story URL"
 msgstr "Berättelse-URL"
 
-#: config.py:1318
+#: config.py:1320
 msgid "Description"
 msgstr "Beskrivning"
 
-#: config.py:1319 dialogs.py:953 dialogs.py:1049 fff_plugin.py:1520
-#: fff_plugin.py:1737 fff_plugin.py:1760
+#: config.py:1321 dialogs.py:955 dialogs.py:1051 fff_plugin.py:1523
+#: fff_plugin.py:1743 fff_plugin.py:1766
 msgid "Author"
 msgstr "Författare"
 
-#: config.py:1320
+#: config.py:1322
 msgid "Author URL"
 msgstr "Författar-URL"
 
-#: config.py:1321
+#: config.py:1323
 msgid "File Format"
 msgstr "Filformat"
 
-#: config.py:1322
+#: config.py:1324
 msgid "File Extension"
 msgstr "Filändelse"
 
-#: config.py:1323
+#: config.py:1325
 msgid "Site Abbrev"
 msgstr ""
 
-#: config.py:1324
+#: config.py:1326
 msgid "FanFicFare Version"
 msgstr "FanFicFare-version"
 
-#: config.py:1339
+#: config.py:1342
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
 msgstr ""
 
-#: config.py:1364
+#: config.py:1368
 msgid "Update this %s column(%s) with..."
 msgstr "Uppdatera denna %s kolumn(%s) med..."
 
-#: config.py:1374
+#: config.py:1378
 msgid "Values that aren't valid for this enumeration column will be ignored."
 msgstr ""
 
-#: config.py:1374 config.py:1376
+#: config.py:1378 config.py:1380
 msgid "Metadata values valid for this type of column."
 msgstr "Metadatavärden som gäller för denna typ av kolumn."
 
-#: config.py:1379 config.py:1503
+#: config.py:1383 config.py:1508
 msgid "New Only"
 msgstr "Nya endast"
 
-#: config.py:1380
+#: config.py:1384
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
 msgstr ""
 
-#: config.py:1391
+#: config.py:1395
 msgid "Allow %(ccset)s from %(pini)s to override"
 msgstr ""
 
-#: config.py:1392
+#: config.py:1396
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
 msgstr ""
 
-#: config.py:1396
+#: config.py:1400
 msgid "Special column:"
 msgstr "Special kolumn:"
 
-#: config.py:1401
+#: config.py:1405
 msgid "Update/Overwrite Error Column:"
 msgstr "Uppdatera/skriv över fel kolumn:"
 
-#: config.py:1402
+#: config.py:1406
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
 msgstr ""
 
-#: config.py:1415
+#: config.py:1419
 msgid "Save All Errors"
 msgstr "Spara alla fel"
 
-#: config.py:1416
+#: config.py:1420
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr ""
 
-#: config.py:1418 fff_plugin.py:1392 jobs.py:241
+#: config.py:1422 fff_plugin.py:1395 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
 msgstr "Skriver inte över, webbsida är inte nyare."
 
-#: config.py:1419 fff_plugin.py:1371 jobs.py:282
+#: config.py:1423 fff_plugin.py:1374 jobs.py:284
 msgid "Already contains %d chapters."
 msgstr "Innehåller redan %d kapitel."
 
-#: config.py:1426
+#: config.py:1430
 msgid "Saved Metadata Column:"
 msgstr "Sparad metadatakolumn:"
 
-#: config.py:1427
+#: config.py:1431
 msgid ""
 "If set, FanFicFare will save a copy of all its metadata in this column when "
 "the book is downloaded or updated.<br/>The metadata from this column can "
@@ -1031,210 +1031,210 @@ msgid ""
 "metadata from the server again.<br/>(Long Text columns only.)"
 msgstr ""
 
-#: config.py:1445
+#: config.py:1449
 msgid "Last Checked Column:"
 msgstr "Senaste kontrollerade kolumn: "
 
-#: config.py:1446
+#: config.py:1450
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
 msgstr ""
 
-#: config.py:1475
+#: config.py:1480
 msgid "Author(s)"
 msgstr "Författare"
 
-#: config.py:1477
+#: config.py:1482
 msgid "Tags"
 msgstr "Taggar"
 
-#: config.py:1478
+#: config.py:1483
 msgid "Languages"
 msgstr "Språk"
 
-#: config.py:1479
+#: config.py:1484
 msgid "Published Date"
 msgstr "Publiceringsdatum"
 
-#: config.py:1480
+#: config.py:1485
 msgid "Date"
 msgstr "Datum"
 
-#: config.py:1481
+#: config.py:1486
 msgid "Comments"
 msgstr "Kommentarer"
 
-#: config.py:1483
+#: config.py:1488
 msgid "Ids(url id only)"
 msgstr ""
 
-#: config.py:1488
+#: config.py:1493
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
 msgstr ""
 
-#: config.py:1504
+#: config.py:1509
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
 msgstr ""
 
-#: config.py:1511
+#: config.py:1516
 msgid "Force Title into Title Sort?"
 msgstr "Tvinga Titel in i Titelsortering?"
 
-#: config.py:1512
+#: config.py:1517
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
 msgstr "Om den bockas, kommer titeln som är angiven också att användas till titelsorteringen.\nOm inte bockas kommer calibre att appliceras den inbyggda algoritm som gör \"The Titel\" till \"Titel, The\" etc."
 
-#: config.py:1515
+#: config.py:1520
 msgid "Fix Title Case?"
 msgstr ""
 
-#: config.py:1516
+#: config.py:1521
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
 msgstr ""
 
-#: config.py:1517 config.py:1528
+#: config.py:1522 config.py:1533
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
 msgstr ""
 
-#: config.py:1521
+#: config.py:1526
 msgid "Force Author into Author Sort?"
 msgstr "Tvingar författare in i författarsortering?"
 
-#: config.py:1522
+#: config.py:1527
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
 msgstr "Om den är markerad, kommer författar(en/na) att användas för författarsortering, också.\nOm inte markerad, kommer calibre att tillämpa dess inbyggd i algoritmen vilket gör att \"Bob Smith\" sorteras som \"Smith, Bob\" o.s.v."
 
-#: config.py:1525
+#: config.py:1530
 msgid "Fix Author Case?"
 msgstr ""
 
-#: config.py:1526
+#: config.py:1531
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
 msgstr ""
 
-#: config.py:1527
+#: config.py:1532
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
 msgstr ""
 
-#: config.py:1539
+#: config.py:1544
 msgid "Other Standard Column Options"
 msgstr ""
 
-#: config.py:1544
+#: config.py:1549
 msgid "Set Calibre Author URL"
 msgstr "Ange calibre-författar-webbadress"
 
-#: config.py:1545
+#: config.py:1550
 msgid "Set Calibre Author URL to Author's URL on story site."
 msgstr ""
 
-#: config.py:1549
+#: config.py:1554
 msgid "Include Books' Comments in Anthology Comments?"
 msgstr "Inkludera bokkommentarer i antologi-kommentarer?"
 
-#: config.py:1550
+#: config.py:1555
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
 msgstr ""
 
-#: config.py:1555
+#: config.py:1560
 msgid "Set Anthology Comments only for new books"
 msgstr ""
 
-#: config.py:1556
+#: config.py:1561
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
 msgstr ""
 
-#: config.py:1573
+#: config.py:1578
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
 msgstr ""
 
-#: config.py:1578
+#: config.py:1583
 msgid "IMAP Server Name"
 msgstr "IMAP-servernamn"
 
-#: config.py:1579
+#: config.py:1584
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
 msgstr ""
 
-#: config.py:1588
+#: config.py:1593
 msgid "IMAP User Name"
 msgstr "IMAP-användarnamn"
 
-#: config.py:1589
+#: config.py:1594
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
 msgstr ""
 
-#: config.py:1598
+#: config.py:1603
 msgid "IMAP User Password"
 msgstr "IMAP-användarlösenord"
 
-#: config.py:1599
+#: config.py:1604
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
 msgstr ""
 
-#: config.py:1609
+#: config.py:1614
 msgid "Remember Password for Session (when not saved above)"
 msgstr ""
 
-#: config.py:1610
+#: config.py:1615
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
 msgstr ""
 
-#: config.py:1615
+#: config.py:1620
 msgid "IMAP Folder Name"
 msgstr "IMAP katalognamn"
 
-#: config.py:1616
+#: config.py:1621
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
 msgstr ""
 
-#: config.py:1625
+#: config.py:1630
 msgid "Mark Emails Read"
 msgstr "Märk lästa epostmeddelanden"
 
-#: config.py:1626
+#: config.py:1631
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
 msgstr ""
 
-#: config.py:1631
+#: config.py:1636
 msgid "Discard URLs on Reject List"
 msgstr ""
 
-#: config.py:1632
+#: config.py:1637
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
@@ -1242,44 +1242,44 @@ msgid ""
 "configured to."
 msgstr ""
 
-#: config.py:1637
+#: config.py:1642
 msgid "Update Existing Books Only"
 msgstr ""
 
-#: config.py:1638
+#: config.py:1643
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
 msgstr ""
 
-#: config.py:1643
+#: config.py:1648
 msgid "Download from Email Immediately"
 msgstr "Hämta från e-post omedelbart"
 
-#: config.py:1644
+#: config.py:1649
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
 msgstr ""
 
-#: config.py:1649
+#: config.py:1654
 msgid "Add these Tag(s) Automatically"
 msgstr ""
 
-#: config.py:1650
+#: config.py:1655
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
 msgstr ""
 
-#: config.py:1651
+#: config.py:1656
 msgid ""
 "Any additional stories if you then manually add to the Story URL dialog will"
 " also have these tags added."
 msgstr ""
 
-#: config.py:1662
+#: config.py:1667
 msgid ""
 "<b>It's safest if you create a separate email account that you use only for "
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
@@ -1287,212 +1287,212 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr ""
 
-#: dialogs.py:269 dialogs.py:829
+#: dialogs.py:270 dialogs.py:831
 msgid "Show Download Options"
 msgstr "Visa hämtningsalternativ"
 
-#: dialogs.py:288 dialogs.py:849
+#: dialogs.py:289 dialogs.py:851
 msgid "Output &Format:"
 msgstr "Utdata&format:"
 
-#: dialogs.py:296 dialogs.py:857
+#: dialogs.py:297 dialogs.py:859
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Välj utdataformat att skapa. Kan fastställa standard från plugin konfiguration."
 
-#: dialogs.py:324 dialogs.py:877
+#: dialogs.py:325 dialogs.py:879
 msgid "Update Calibre &Metadata?"
 msgstr "Uppdatera calibre-&metadata?"
 
-#: dialogs.py:325 dialogs.py:878
+#: dialogs.py:326 dialogs.py:880
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr ""
 
-#: dialogs.py:331 dialogs.py:882
+#: dialogs.py:332 dialogs.py:884
 msgid "Update EPUB Cover?"
 msgstr "Uppdatera EPUB-omslag?"
 
-#: dialogs.py:332 dialogs.py:883
+#: dialogs.py:333 dialogs.py:885
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
 msgstr ""
 
-#: dialogs.py:398
+#: dialogs.py:399
 msgid "Story URLs for anthology, one per line:"
 msgstr ""
 
-#: dialogs.py:399
+#: dialogs.py:400
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
 msgstr ""
 
-#: dialogs.py:400
+#: dialogs.py:401
 msgid "If Story Already Exists in Anthology?"
 msgstr ""
 
-#: dialogs.py:401
+#: dialogs.py:402
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
 msgstr ""
 
-#: dialogs.py:410
+#: dialogs.py:411
 msgid "Story URLs, one per line:"
 msgstr ""
 
-#: dialogs.py:411
+#: dialogs.py:412
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
 msgstr ""
 
-#: dialogs.py:412
+#: dialogs.py:413
 msgid "If Story Already Exists?"
 msgstr ""
 
-#: dialogs.py:413
+#: dialogs.py:414
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
 msgstr ""
 
-#: dialogs.py:536
+#: dialogs.py:538
 msgid "For Individual Books"
 msgstr "För individuella böcker"
 
-#: dialogs.py:537
+#: dialogs.py:539
 msgid "Get URLs and go to dialog for individual story downloads."
 msgstr ""
 
-#: dialogs.py:542
+#: dialogs.py:544
 msgid "For Anthology Epub"
 msgstr ""
 
-#: dialogs.py:543
+#: dialogs.py:545
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
 msgstr ""
 
-#: dialogs.py:547 dialogs.py:601 dialogs.py:648 dialogs.py:1576
+#: dialogs.py:549 dialogs.py:603 dialogs.py:650 dialogs.py:1578
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: dialogs.py:579 dialogs.py:1564
+#: dialogs.py:581 dialogs.py:1566
 msgid "Password"
 msgstr "Lösenord"
 
-#: dialogs.py:580
+#: dialogs.py:582
 msgid "Author requires a password for this story(%s)."
 msgstr ""
 
-#: dialogs.py:585
+#: dialogs.py:587
 msgid "User/Password"
 msgstr "Användare/Lösenord"
 
-#: dialogs.py:586
+#: dialogs.py:588
 msgid "%s requires you to login to download this story."
 msgstr ""
 
-#: dialogs.py:588
+#: dialogs.py:590
 msgid "User:"
 msgstr "Användare:"
 
-#: dialogs.py:592
+#: dialogs.py:594
 msgid "Password:"
 msgstr "Lösenord:"
 
-#: dialogs.py:597 dialogs.py:771 dialogs.py:1572
+#: dialogs.py:599 dialogs.py:773 dialogs.py:1574
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:619 dialogs.py:643 fff_plugin.py:994
+#: dialogs.py:621 dialogs.py:645 fff_plugin.py:997
 msgid "Fetching metadata for stories..."
 msgstr "Hämtar metadata för berättelser..."
 
-#: dialogs.py:620 dialogs.py:644 fff_plugin.py:995
+#: dialogs.py:622 dialogs.py:646 fff_plugin.py:998
 msgid "Downloading metadata for stories"
 msgstr "Hämtar metadata för berättelser"
 
-#: dialogs.py:621 dialogs.py:645 fff_plugin.py:996
+#: dialogs.py:623 dialogs.py:647 fff_plugin.py:999
 msgid "Fetched metadata for"
 msgstr "Hämtade metadata för"
 
-#: dialogs.py:675
+#: dialogs.py:677
 msgid " - %s estimated until done"
 msgstr " - %s estimaterade till klart"
 
-#: dialogs.py:699 fff_plugin.py:1212 fff_plugin.py:2427 jobs.py:113
+#: dialogs.py:701 fff_plugin.py:1215 fff_plugin.py:2433 jobs.py:115
 msgid "Skipped"
 msgstr "Hoppade över"
 
-#: dialogs.py:707 fff_plugin.py:1963 jobs.py:115 jobs.py:340 jobs.py:343
+#: dialogs.py:709 fff_plugin.py:1969 jobs.py:117 jobs.py:342 jobs.py:345
 msgid "Error"
 msgstr "Fel"
 
-#: dialogs.py:731
+#: dialogs.py:733
 msgid "%d day"
 msgstr "%d dag"
 
-#: dialogs.py:731
+#: dialogs.py:733
 msgid "%d days"
 msgstr "%d dagar"
 
-#: dialogs.py:732
+#: dialogs.py:734
 msgid "%d hour"
 msgstr "%d timme"
 
-#: dialogs.py:732
+#: dialogs.py:734
 msgid "%d hours"
 msgstr "%d timmar"
 
-#: dialogs.py:733
+#: dialogs.py:735
 msgid "%d minute"
 msgstr "%d minut"
 
-#: dialogs.py:733
+#: dialogs.py:735
 msgid "%d minutes"
 msgstr "%d minuter"
 
-#: dialogs.py:734
+#: dialogs.py:736
 msgid "%d second"
 msgstr "%d sekund"
 
-#: dialogs.py:734
+#: dialogs.py:736
 msgid "%d seconds"
 msgstr "%d sekunder"
 
-#: dialogs.py:749
+#: dialogs.py:751
 msgid "less than 1 second"
 msgstr "mindre än 1 sekund"
 
-#: dialogs.py:766 fff_plugin.py:388 fff_plugin.py:391
+#: dialogs.py:768 fff_plugin.py:390 fff_plugin.py:393
 msgid "About FanFicFare"
 msgstr "Om FanFicFare"
 
-#: dialogs.py:820
+#: dialogs.py:822
 msgid "Remove selected books from the list"
 msgstr "Ta bort valda böcker från listan"
 
-#: dialogs.py:862
+#: dialogs.py:864
 msgid "Update Mode:"
 msgstr "Uppdateringsläge:"
 
-#: dialogs.py:865
+#: dialogs.py:867
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:887
+#: dialogs.py:889
 msgid "Background Metadata?"
 msgstr "Bakgrundsmetadata?"
 
-#: dialogs.py:888
+#: dialogs.py:890
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1500,799 +1500,851 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:953 fff_plugin.py:1520 fff_plugin.py:1737 fff_plugin.py:1760
+#: dialogs.py:955 fff_plugin.py:1523 fff_plugin.py:1743 fff_plugin.py:1766
 msgid "Comment"
 msgstr "Kommentar"
 
-#: dialogs.py:1021
+#: dialogs.py:1023
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Är du säker du vill ta bort denna bok från listan?"
 
-#: dialogs.py:1023
+#: dialogs.py:1025
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Är du säker du vill ta bort valda %d böcker från listan?"
 
-#: dialogs.py:1049
+#: dialogs.py:1051
 msgid "Note"
 msgstr "Anteckning"
 
-#: dialogs.py:1088
+#: dialogs.py:1090
 msgid "Select or Edit Reject Note."
 msgstr ""
 
-#: dialogs.py:1097
+#: dialogs.py:1099
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr ""
 
-#: dialogs.py:1099
+#: dialogs.py:1101
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr ""
 
-#: dialogs.py:1117
+#: dialogs.py:1119
 msgid "List of Books to Reject"
 msgstr "Lista över böcker att avvisa"
 
-#: dialogs.py:1130
+#: dialogs.py:1132
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr ""
 
-#: dialogs.py:1144
+#: dialogs.py:1146
 msgid "Remove selected URLs from the list"
 msgstr "Ta bort valda URL:er från listan"
 
-#: dialogs.py:1159 dialogs.py:1163
+#: dialogs.py:1161 dialogs.py:1165
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr ""
 
-#: dialogs.py:1176
+#: dialogs.py:1178
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr ""
 
-#: dialogs.py:1177
+#: dialogs.py:1179
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr ""
 
-#: dialogs.py:1333
+#: dialogs.py:1335
 msgid "Search for string in edit box."
 msgstr "Sök efter sträng i redigeringsrutan."
 
-#: dialogs.py:1336
+#: dialogs.py:1338
 msgid "Find:"
 msgstr "Hitta:"
 
-#: dialogs.py:1341
+#: dialogs.py:1343
 msgid "Find"
 msgstr "Hitta"
 
-#: dialogs.py:1351
+#: dialogs.py:1353
 msgid "Case sensitive"
 msgstr "Teckenlägeskänslig"
 
-#: dialogs.py:1352
+#: dialogs.py:1354
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr ""
 
-#: dialogs.py:1381
+#: dialogs.py:1383
 msgid "Go back to fix errors?"
 msgstr "Gå tillbaka för att åtgärda fel?"
 
-#: dialogs.py:1493
+#: dialogs.py:1495
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr ""
 
-#: dialogs.py:1516
+#: dialogs.py:1518
 msgid "Click to go to line %s"
 msgstr "Klicka för att gå till rad %s"
 
-#: dialogs.py:1532
+#: dialogs.py:1534
 msgid "Return to Editing"
 msgstr "Återgå till redigering"
 
-#: dialogs.py:1536
+#: dialogs.py:1538
 msgid "Save Anyway"
 msgstr "Spara i alla fall"
 
-#: dialogs.py:1565
+#: dialogs.py:1567
 msgid "Enter Email Password for %s:"
 msgstr "Ange e-postadress lösenord för %s:"
 
-#: fff_plugin.py:137 fff_plugin.py:168
+#: fff_plugin.py:139 fff_plugin.py:170
 msgid "FanFicFare"
 msgstr "FanFicFare"
 
-#: fff_plugin.py:138
+#: fff_plugin.py:140
 msgid "Download FanFiction stories from various web sites"
 msgstr ""
 
-#: fff_plugin.py:300
+#: fff_plugin.py:302
 msgid "&Download from URLs"
 msgstr "&Hämta från adresser"
 
-#: fff_plugin.py:302
+#: fff_plugin.py:304
 msgid "Download FanFiction Books from URLs"
 msgstr "Hämta FanFiction Böcker från adresser"
 
-#: fff_plugin.py:305
+#: fff_plugin.py:307
 msgid "&Update Existing FanFiction Books"
 msgstr "&Uppdatera existerande FanFiction böcker"
 
-#: fff_plugin.py:310
+#: fff_plugin.py:312
 msgid "Get Story URLs from &Email"
 msgstr ""
 
-#: fff_plugin.py:314 fff_plugin.py:553
+#: fff_plugin.py:316 fff_plugin.py:555
 msgid "Get Story URLs from Web Page"
 msgstr ""
 
-#: fff_plugin.py:320
+#: fff_plugin.py:322
 msgid "&Make Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:322
+#: fff_plugin.py:324
 msgid "Make FanFiction Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:325
+#: fff_plugin.py:327
 msgid "Make Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:327
+#: fff_plugin.py:329
 msgid "Make FanFiction Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:330
+#: fff_plugin.py:332
 msgid "Update Anthology Epub"
 msgstr "Uppdatera antologi-epub"
 
-#: fff_plugin.py:332
+#: fff_plugin.py:334
 msgid "Update FanFiction Anthology Epub"
 msgstr ""
 
-#: fff_plugin.py:339
+#: fff_plugin.py:341
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:341
+#: fff_plugin.py:343
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:343 fff_plugin.py:348
+#: fff_plugin.py:345 fff_plugin.py:350
 msgid "Mark Read: Remove from \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:345
+#: fff_plugin.py:347
 msgid "Add to \"Send to Device\" Lists"
 msgstr "Lägg till \"Skicka till enhet\"-listor"
 
-#: fff_plugin.py:347
+#: fff_plugin.py:349
 msgid "Mark Unread: Add to \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:363
+#: fff_plugin.py:365
 msgid "Remove \"New\" Chapter Marks from Selected books"
 msgstr ""
 
-#: fff_plugin.py:369
+#: fff_plugin.py:371
 msgid "Get Story URLs from Selected Books"
 msgstr ""
 
-#: fff_plugin.py:374
+#: fff_plugin.py:376
 msgid "Reject Selected Books"
 msgstr "Avvisa markerade böcker"
 
-#: fff_plugin.py:382
+#: fff_plugin.py:384
 msgid "&Configure FanFicFare"
 msgstr "&Anpassa FanFicFare"
 
-#: fff_plugin.py:385
+#: fff_plugin.py:387
 msgid "Configure FanFicFare"
 msgstr "Anpassa FanFicFare"
 
-#: fff_plugin.py:452
+#: fff_plugin.py:454
 msgid "Cannot Update Reading Lists from Device View"
 msgstr ""
 
-#: fff_plugin.py:456
+#: fff_plugin.py:458
 msgid "No Selected Books to Update Reading Lists"
 msgstr ""
 
-#: fff_plugin.py:466
+#: fff_plugin.py:468
 msgid "FanFicFare Email Settings are not configured."
 msgstr ""
 
-#: fff_plugin.py:486
+#: fff_plugin.py:488
 msgid "Fetching Story URLs from Email..."
 msgstr ""
 
-#: fff_plugin.py:509 fff_plugin.py:534
+#: fff_plugin.py:511 fff_plugin.py:536
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr ""
 
-#: fff_plugin.py:525
+#: fff_plugin.py:527
 msgid "Finished Fetching Story URLs from Email."
 msgstr ""
 
-#: fff_plugin.py:530
+#: fff_plugin.py:532
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
 msgstr ""
 
-#: fff_plugin.py:536
+#: fff_plugin.py:538
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr ""
 
-#: fff_plugin.py:538
+#: fff_plugin.py:540
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr ""
 
-#: fff_plugin.py:539
+#: fff_plugin.py:541
 msgid "Get Story URLs from Email"
 msgstr ""
 
-#: fff_plugin.py:562
+#: fff_plugin.py:564
 msgid "Fetching Story URLs from Page..."
 msgstr ""
 
-#: fff_plugin.py:566
+#: fff_plugin.py:568
 msgid "Finished Fetching Story URLs from Page."
 msgstr ""
 
-#: fff_plugin.py:571 fff_plugin.py:623
+#: fff_plugin.py:573 fff_plugin.py:625
 msgid "List of Story URLs"
 msgstr ""
 
-#: fff_plugin.py:572
+#: fff_plugin.py:574
 msgid "No Valid Story URLs found on given page."
 msgstr ""
 
-#: fff_plugin.py:588 fff_plugin.py:640
+#: fff_plugin.py:590 fff_plugin.py:642
 msgid "No Selected Books to Get URLs From"
 msgstr ""
 
-#: fff_plugin.py:604
+#: fff_plugin.py:606
 msgid "Collecting URLs for stories..."
 msgstr ""
 
-#: fff_plugin.py:605
+#: fff_plugin.py:607
 msgid "Get URLs for stories"
 msgstr ""
 
-#: fff_plugin.py:606 fff_plugin.py:725 fff_plugin.py:917
+#: fff_plugin.py:608 fff_plugin.py:728 fff_plugin.py:920
 msgid "URL retrieved"
 msgstr "URL hämtad"
 
-#: fff_plugin.py:616 jobs.py:114 jobs.py:333
+#: fff_plugin.py:618 jobs.py:116 jobs.py:335
 msgid "Bad"
 msgstr "Dålig"
 
-#: fff_plugin.py:627
+#: fff_plugin.py:629
 msgid "List of URLs"
 msgstr "Lista över URL:er"
 
-#: fff_plugin.py:628
+#: fff_plugin.py:630
 msgid "No Story URLs found in selected books."
 msgstr ""
 
-#: fff_plugin.py:635
+#: fff_plugin.py:637
 msgid "Can only UnNew books in library"
 msgstr ""
 
-#: fff_plugin.py:652
+#: fff_plugin.py:654
 msgid "UnNewing books..."
 msgstr ""
 
-#: fff_plugin.py:653
+#: fff_plugin.py:655
 msgid "UnNew Books"
 msgstr ""
 
-#: fff_plugin.py:654
+#: fff_plugin.py:656
 msgid "Books UnNewed"
 msgstr ""
 
-#: fff_plugin.py:700 fff_plugin.py:1692
+#: fff_plugin.py:702 fff_plugin.py:703 fff_plugin.py:1697 fff_plugin.py:1698
 msgid "Starting auto conversion of %d books."
 msgstr ""
 
-#: fff_plugin.py:715
+#: fff_plugin.py:718
 msgid "No Selected Books have URLs to Reject"
 msgstr ""
 
-#: fff_plugin.py:723
+#: fff_plugin.py:726
 msgid "Collecting URLs for Reject List..."
 msgstr ""
 
-#: fff_plugin.py:724
+#: fff_plugin.py:727
 msgid "Get URLs for Reject List"
 msgstr ""
 
-#: fff_plugin.py:759
+#: fff_plugin.py:762
 msgid "Proceed to Remove?"
 msgstr "Fortskrida att ta bort?"
 
-#: fff_plugin.py:759
+#: fff_plugin.py:762
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr ""
 
-#: fff_plugin.py:781
+#: fff_plugin.py:784
 msgid "Cannot Make Anthologys without %s"
 msgstr ""
 
-#: fff_plugin.py:785 fff_plugin.py:894
+#: fff_plugin.py:788 fff_plugin.py:897
 msgid "Cannot Update Books from Device View"
 msgstr ""
 
-#: fff_plugin.py:789
+#: fff_plugin.py:792
 msgid "Can only update 1 anthology at a time"
 msgstr ""
 
-#: fff_plugin.py:798
+#: fff_plugin.py:801
 msgid "Can only Update Epub Anthologies"
 msgstr ""
 
-#: fff_plugin.py:816 fff_plugin.py:817
+#: fff_plugin.py:819 fff_plugin.py:820
 msgid "Cannot Update Anthology"
 msgstr ""
 
-#: fff_plugin.py:817
+#: fff_plugin.py:820
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr ""
 
-#: fff_plugin.py:824
+#: fff_plugin.py:827
 msgid "Fetching Story URLs for Series..."
 msgstr ""
 
-#: fff_plugin.py:834
+#: fff_plugin.py:837
 msgid "Finished Fetching Story URLs for Series."
 msgstr ""
 
-#: fff_plugin.py:880
+#: fff_plugin.py:883
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr ""
 
-#: fff_plugin.py:881
+#: fff_plugin.py:884
 msgid "Story URLs that will be removed:"
 msgstr ""
 
-#: fff_plugin.py:883
+#: fff_plugin.py:886
 msgid "Update anyway?"
 msgstr "Uppdatera ändå?"
 
-#: fff_plugin.py:884
+#: fff_plugin.py:887
 msgid "Stories Removed"
 msgstr "Berättelser borttagna"
 
-#: fff_plugin.py:901
+#: fff_plugin.py:904
 msgid "No Selected Books to Update"
 msgstr ""
 
-#: fff_plugin.py:915
+#: fff_plugin.py:918
 msgid "Collecting stories for update..."
 msgstr "Samlar historier för uppdatering..."
 
-#: fff_plugin.py:916
+#: fff_plugin.py:919
 msgid "Get stories for updates"
 msgstr "Hämta historier för uppdateringar"
 
-#: fff_plugin.py:926
+#: fff_plugin.py:929
 msgid "Update Existing List"
 msgstr "Uppdatera existerande lista"
 
-#: fff_plugin.py:988
+#: fff_plugin.py:991
 msgid "Start queuing downloading for %s stories."
 msgstr ""
 
-#: fff_plugin.py:989
+#: fff_plugin.py:992
 msgid "Queuing download for stories..."
 msgstr ""
 
-#: fff_plugin.py:990
+#: fff_plugin.py:993
 msgid "Queuing download for stories"
 msgstr ""
 
-#: fff_plugin.py:991
+#: fff_plugin.py:994
 msgid "Queued download for"
 msgstr ""
 
-#: fff_plugin.py:993
+#: fff_plugin.py:996
 msgid "Started fetching metadata for %s stories."
 msgstr ""
 
-#: fff_plugin.py:1007
+#: fff_plugin.py:1010
 msgid "No valid story URLs entered."
 msgstr ""
 
-#: fff_plugin.py:1017 fff_plugin.py:1023
+#: fff_plugin.py:1020 fff_plugin.py:1026
 msgid "Reject URL?"
 msgstr ""
 
-#: fff_plugin.py:1024 fff_plugin.py:1042
+#: fff_plugin.py:1027 fff_plugin.py:1045
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr ""
 
-#: fff_plugin.py:1026
+#: fff_plugin.py:1029
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Klicka på '<b>Ja</b>' för att avvisa."
 
-#: fff_plugin.py:1027 fff_plugin.py:1204
+#: fff_plugin.py:1030 fff_plugin.py:1207
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Klicka på '<b>Nej</b>' för att hämta ändå."
 
-#: fff_plugin.py:1029
+#: fff_plugin.py:1032
 msgid "Story on Reject URLs list (%s)."
 msgstr ""
 
-#: fff_plugin.py:1032 jobs.py:112
+#: fff_plugin.py:1035 jobs.py:114
 msgid "Rejected"
 msgstr "Avvisad"
 
-#: fff_plugin.py:1035
+#: fff_plugin.py:1038
 msgid "Remove Reject URL?"
 msgstr ""
 
-#: fff_plugin.py:1041
+#: fff_plugin.py:1044
 msgid "Remove URL from Reject List?"
 msgstr ""
 
-#: fff_plugin.py:1044
+#: fff_plugin.py:1047
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Klicka på '<b>Ja</b>' för att ta bort från listan,"
 
-#: fff_plugin.py:1045
+#: fff_plugin.py:1048
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Klicka på '<b>Nej</b>' att lämna den på listan."
 
-#: fff_plugin.py:1066
+#: fff_plugin.py:1069
 msgid "Are You an Adult?"
 msgstr "Är du vuxen?"
 
-#: fff_plugin.py:1067
+#: fff_plugin.py:1070
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr ""
 
-#: fff_plugin.py:1112
+#: fff_plugin.py:1115
 msgid "Cannot update non-epub format."
 msgstr "Kan inte uppdatera icke-EPUB format."
 
-#: fff_plugin.py:1195
+#: fff_plugin.py:1198
 msgid "Skip Story?"
 msgstr "Hoppa över berättelse?"
 
-#: fff_plugin.py:1201
+#: fff_plugin.py:1204
 msgid "Skip Anthology Story?"
 msgstr ""
 
-#: fff_plugin.py:1202
+#: fff_plugin.py:1205
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr ""
 
-#: fff_plugin.py:1203
+#: fff_plugin.py:1206
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Tryck '<b>Ja</b>' för att hoppa över."
 
-#: fff_plugin.py:1206
+#: fff_plugin.py:1209
 msgid "Story in Series Anthology(%s)."
 msgstr ""
 
-#: fff_plugin.py:1222 jobs.py:108
+#: fff_plugin.py:1225 jobs.py:110
 msgid "Add"
 msgstr "Lägg till"
 
-#: fff_plugin.py:1255 jobs.py:110
+#: fff_plugin.py:1258 jobs.py:112
 msgid "Meta"
 msgstr "Meta"
 
-#: fff_plugin.py:1284
+#: fff_plugin.py:1287
 msgid "Skipping duplicate story."
 msgstr ""
 
-#: fff_plugin.py:1287
+#: fff_plugin.py:1290
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr ""
 
-#: fff_plugin.py:1298 jobs.py:109
+#: fff_plugin.py:1301 jobs.py:111
 msgid "Update"
 msgstr "Uppdatera"
 
-#: fff_plugin.py:1308
+#: fff_plugin.py:1311
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr ""
 
-#: fff_plugin.py:1311 fff_plugin.py:1348 jobs.py:111
+#: fff_plugin.py:1314 fff_plugin.py:1351 jobs.py:113
 msgid "Different URL"
 msgstr "Annan URL"
 
-#: fff_plugin.py:1313 fff_plugin.py:1320
+#: fff_plugin.py:1316 fff_plugin.py:1323
 msgid "Change Story URL?"
 msgstr ""
 
-#: fff_plugin.py:1321
+#: fff_plugin.py:1324
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
 msgstr ""
 
-#: fff_plugin.py:1322
+#: fff_plugin.py:1325
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "I bibliotek: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1323 fff_plugin.py:1337
+#: fff_plugin.py:1326 fff_plugin.py:1340
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Ny webbadress: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1324
+#: fff_plugin.py:1327
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Klicka '<b>Ja</b>' för att uppdatera/skriva över bok med ny webbadress."
 
-#: fff_plugin.py:1325
+#: fff_plugin.py:1328
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr ""
 
-#: fff_plugin.py:1327 fff_plugin.py:1334
+#: fff_plugin.py:1330 fff_plugin.py:1337
 msgid "Download as New Book?"
 msgstr "Ladda ner som ny bok?"
 
-#: fff_plugin.py:1335
+#: fff_plugin.py:1338
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
 msgstr ""
 
-#: fff_plugin.py:1336
+#: fff_plugin.py:1339
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr ""
 
-#: fff_plugin.py:1338
+#: fff_plugin.py:1341
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Klicka '<b>Ja</b>' till en ny bok med ny webbadress."
 
-#: fff_plugin.py:1339
+#: fff_plugin.py:1342
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "Klicka '<b>Nej</b>' för att hoppa över URL."
 
-#: fff_plugin.py:1345
+#: fff_plugin.py:1348
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr ""
 
-#: fff_plugin.py:1353
+#: fff_plugin.py:1356
 msgid "Metadata collected."
 msgstr "Metadata samlad."
 
-#: fff_plugin.py:1373 jobs.py:284
+#: fff_plugin.py:1376 jobs.py:286
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "Existerande EPUB innehåller %d kapitel, webbsidan har endast %d. Använd Överskriva för att forcera uppdatering."
 
-#: fff_plugin.py:1375 jobs.py:286
+#: fff_plugin.py:1378 jobs.py:288
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr ""
 
-#: fff_plugin.py:1516
+#: fff_plugin.py:1519
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr ""
 
-#: fff_plugin.py:1517 fff_plugin.py:1733 fff_plugin.py:1756
+#: fff_plugin.py:1520 fff_plugin.py:1739 fff_plugin.py:1762
 msgid "See log for details."
 msgstr "Se logg för detaljer."
 
-#: fff_plugin.py:1518
+#: fff_plugin.py:1521
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr ""
 
-#: fff_plugin.py:1532 fff_plugin.py:1538
+#: fff_plugin.py:1535 fff_plugin.py:1541
 msgid "FanFicFare download ended"
 msgstr "FanFicFare-hämtning slutade"
 
-#: fff_plugin.py:1532 fff_plugin.py:1538 fff_plugin.py:1775 fff_plugin.py:1781
+#: fff_plugin.py:1535 fff_plugin.py:1541 fff_plugin.py:1781 fff_plugin.py:1787
 msgid "FanFicFare log"
 msgstr "FanFicFare logg"
 
-#: fff_plugin.py:1559
+#: fff_plugin.py:1562
 msgid "Download %s FanFiction Book(s)"
 msgstr "Hämta %s FanFiction bok/böcker"
 
-#: fff_plugin.py:1566
+#: fff_plugin.py:1569
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Startar %d FanFicFare-hämtningar"
 
-#: fff_plugin.py:1604
+#: fff_plugin.py:1607
 msgid "Story Details:"
 msgstr "Berättelsedetaljer:"
 
-#: fff_plugin.py:1607
+#: fff_plugin.py:1610
 msgid "Error Updating Metadata"
 msgstr "Fel vid uppdatering av metadata"
 
-#: fff_plugin.py:1608
+#: fff_plugin.py:1611
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr ""
 
-#: fff_plugin.py:1609
+#: fff_plugin.py:1612
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "E-boken har uppdaterats, men inte metadata."
 
-#: fff_plugin.py:1663
+#: fff_plugin.py:1666 fff_plugin.py:1667
 msgid "Finished Adding/Updating %d books."
 msgstr "Klar med tilläggning/uppdatering av %d böcker."
 
-#: fff_plugin.py:1717
+#: fff_plugin.py:1723
 msgid "No Good Stories for Anthology"
 msgstr ""
 
-#: fff_plugin.py:1718
+#: fff_plugin.py:1724
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr ""
 
-#: fff_plugin.py:1723 fff_plugin.py:1755
+#: fff_plugin.py:1729 fff_plugin.py:1761
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: fff_plugin.py:1730
+#: fff_plugin.py:1736
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr ""
 
-#: fff_plugin.py:1731
+#: fff_plugin.py:1737
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr ""
 
-#: fff_plugin.py:1732
+#: fff_plugin.py:1738
 msgid "However, if there's an older version, it will still be included."
 msgstr ""
 
-#: fff_plugin.py:1735
+#: fff_plugin.py:1741
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Fortsätt med att uppdatera denna antologi och ditt bibliotek?"
 
-#: fff_plugin.py:1757
+#: fff_plugin.py:1763
 msgid "Proceed with updating your library?"
 msgstr "Vill du fortsätta uppdatera ditt bibliotek?"
 
-#: fff_plugin.py:1775 fff_plugin.py:1781
+#: fff_plugin.py:1781 fff_plugin.py:1787
 msgid "FanFicFare download complete"
 msgstr "FanFicFare nerladdning klar"
 
-#: fff_plugin.py:1795
+#: fff_plugin.py:1801
 msgid "Merging %s books."
 msgstr "Slår samman %s böcker."
 
-#: fff_plugin.py:1884
+#: fff_plugin.py:1890
 msgid "FanFicFare Adding/Updating books."
 msgstr "FanFicFare Lägger till/Uppdaterar böcker."
 
-#: fff_plugin.py:1898
+#: fff_plugin.py:1904
 msgid "Updating calibre for FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:1899
+#: fff_plugin.py:1905
 msgid "Update calibre for FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:1909
+#: fff_plugin.py:1915
 msgid "Adding/Updating %s BAD books."
 msgstr "Lägga till/uppdatera %s DÅLIGA böcker."
 
-#: fff_plugin.py:1914
+#: fff_plugin.py:1920
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:1915
+#: fff_plugin.py:1921
 msgid "Update calibre for BAD FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:1960
+#: fff_plugin.py:1966
 msgid "Adding format to book failed for some reason..."
 msgstr ""
 
-#: fff_plugin.py:2324
+#: fff_plugin.py:2330
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: fff_plugin.py:2336
+#: fff_plugin.py:2342
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2346 fff_plugin.py:2364
+#: fff_plugin.py:2352 fff_plugin.py:2370
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr ""
 
-#: fff_plugin.py:2352
+#: fff_plugin.py:2358
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2426
+#: fff_plugin.py:2432
 msgid "Same story already included."
 msgstr "Samma berättelse ingår redan."
 
-#: fff_plugin.py:2484
+#: fff_plugin.py:2490
 msgid "No story URL found."
 msgstr "Ingen berättelse-URL hittades."
 
-#: fff_plugin.py:2487
+#: fff_plugin.py:2493
 msgid "Not Found"
 msgstr "Hittades inte"
 
-#: fff_plugin.py:2493
+#: fff_plugin.py:2499
 msgid "URL is not a valid story URL."
 msgstr "URL är inte giltig berättelse-URL."
 
-#: fff_plugin.py:2496
+#: fff_plugin.py:2502
 msgid "Bad URL"
 msgstr "Felaktig URL"
 
-#: fff_plugin.py:2650
+#: fff_plugin.py:2656
 msgid "Anthology containing:"
 msgstr "Antologi innehåller:"
 
-#: fff_plugin.py:2652
+#: fff_plugin.py:2658
 msgid "%s by %s"
 msgstr "%s av %s"
 
-#: fff_plugin.py:2694
+#: fff_plugin.py:2700
 msgid " Anthology"
 msgstr "Antologi"
 
-#: fff_plugin.py:2731
+#: fff_plugin.py:2737
 msgid "(was set, removed for security)"
 msgstr "(fastställdes, avlägsnats för säkerhet)"
 
-#: jobs.py:75
+#: jobs.py:77
 msgid "Downloading FanFiction Stories"
 msgstr "Hämtar FanFiction-berättelser"
 
-#: jobs.py:91
+#: jobs.py:93
 msgid "%d of %d stories finished downloading"
 msgstr "%d av %d berättelser slutade hämtas"
 
-#: jobs.py:98
+#: jobs.py:100
 msgid "Download Results:"
 msgstr "Hämtningsresultat:"
 
-#: jobs.py:161
+#: jobs.py:163
 msgid "Download started..."
 msgstr "Nerladdning påbörjad..."
 
-#: jobs.py:248
+#: jobs.py:250
 msgid "Download %s completed, %s chapters."
 msgstr "Hämta %s färdiga, %s kapitel."
 
-#: jobs.py:275
+#: jobs.py:277
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Innehåller redan %d kapitel. Återanvänd som de är."
 
-#: jobs.py:298
+#: jobs.py:300
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr "Uppdatera %s färdiga, tillagda %s kapitel för %s totalt."
+
+#: prefs.py:21
+msgid "Skip"
+msgstr "Hoppa över"
+
+#: prefs.py:22
+msgid "Add New Book"
+msgstr "Lägg till ny bok"
+
+#: prefs.py:23
+msgid "Update EPUB if New Chapters"
+msgstr ""
+
+#: prefs.py:24
+msgid "Update EPUB Always"
+msgstr "Uppdatera alltid EPUB"
+
+#: prefs.py:25
+msgid "Overwrite if Newer"
+msgstr "Skriv över om nyare"
+
+#: prefs.py:26
+msgid "Overwrite Always"
+msgstr "Skriv alltid över"
+
+#: prefs.py:27
+msgid "Update Calibre Metadata from Web Site"
+msgstr ""
+
+#: prefs.py:28
+msgid "Update Calibre Metadata from Saved Metadata Column"
+msgstr ""
+
+#: prefs.py:74
+msgid "Yes, Always"
+msgstr ""
+
+#: prefs.py:76
+msgid "Yes, if EPUB has a cover image"
+msgstr ""
+
+#: prefs.py:78
+msgid "Yes, unless FanFicFare found a cover image"
+msgstr ""
+
+#: prefs.py:80
+msgid "Yes, unless found on site"
+msgstr ""
+
+#: prefs.py:82
+msgid "No"
+msgstr ""
