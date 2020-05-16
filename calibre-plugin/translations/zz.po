@@ -2457,29 +2457,29 @@ msgstr "zzAlready contains %d chapters.  Reuse as is."
 msgid "Update %s completed, added %s chapters for %s total."
 msgstr "zzUpdate %s completed, added %s chapters for %s total."
 
-#~ msgid "Skip"
-#~ msgstr "zzSkip"
+msgid "Skip"
+msgstr "zzSkip"
 
-#~ msgid "Update EPUB if New Chapters"
-#~ msgstr "zzUpdate EPUB if New Chapters"
+msgid "Update EPUB if New Chapters"
+msgstr "zzUpdate EPUB if New Chapters"
 
-#~ msgid "Update EPUB Always"
-#~ msgstr "zzUpdate EPUB Always"
+msgid "Update EPUB Always"
+msgstr "zzUpdate EPUB Always"
 
-#~ msgid "Overwrite if Newer"
-#~ msgstr "zzOverwrite if Newer"
+msgid "Overwrite if Newer"
+msgstr "zzOverwrite if Newer"
 
-#~ msgid "Overwrite Always"
-#~ msgstr "zzOverwrite Always"
+msgid "Overwrite Always"
+msgstr "zzOverwrite Always"
 
-#~ msgid "Update Calibre Metadata Only"
-#~ msgstr "zzUpdate Calibre Metadata Only"
+msgid "Update Calibre Metadata Only"
+msgstr "zzUpdate Calibre Metadata Only"
 
-#~ msgid "Update Calibre Cover when Updating Metadata?"
-#~ msgstr "zzUpdate Calibre Cover when Updating Metadata?"
+msgid "Update Calibre Cover when Updating Metadata?"
+msgstr "zzUpdate Calibre Cover when Updating Metadata?"
 
-#~ msgid "Include images in EPUBs?"
-#~ msgstr "zzInclude images in EPUBs?"
+msgid "Include images in EPUBs?"
+msgstr "zzInclude images in EPUBs?"
 
 #~ msgid ""
 #~ "Download and include images in EPUB stories.  This is equivalent to "

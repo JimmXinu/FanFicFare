@@ -15,6 +15,12 @@ import copy
 from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
+# pulls in translation files for _() strings
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 from calibre_plugins.fanficfare_plugin import __version__ as plugin_version
 from calibre_plugins.fanficfare_plugin.common_utils import get_library_uuid
 
