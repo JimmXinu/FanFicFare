@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -- coding: utf-8 --
-# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -402,5 +402,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         chaptertag = soup.find('div',{'class' : 'pagination'}).parent.findNext('td')
         if None == chaptertag:
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
+        # Change td to a div.
+        chaptertag.name='div'
 
         return self.utf8FromSoup(url,chaptertag)
