@@ -7,7 +7,7 @@
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
-# Jellby <jellby@yahoo.com>, 2014-2019
+# Jellby <jellby@yahoo.com>, 2014-2020
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu <retiefjimm@gmail.com>, 2015
@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-05-14 19:00-0500\n"
-"PO-Revision-Date: 2020-05-15 04:30+0000\n"
-"Last-Translator: Adolfo Jayme-Barrientos\n"
+"PO-Revision-Date: 2020-05-17 14:30+0000\n"
+"Last-Translator: Jellby <jellby@yahoo.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2332,20 +2332,20 @@ msgstr "Actualizar metadatos de calibre de la columna de metadatos guardada"
 
 #: prefs.py:74
 msgid "Yes, Always"
-msgstr ""
+msgstr "Sí, siempre"
 
 #: prefs.py:76
 msgid "Yes, if EPUB has a cover image"
-msgstr ""
+msgstr "Si, si el EPUB tiene una imagen de portada"
 
 #: prefs.py:78
 msgid "Yes, unless FanFicFare found a cover image"
-msgstr ""
+msgstr "Sí, a menos que FanFicFare encuentre una imagen de portada"
 
 #: prefs.py:80
 msgid "Yes, unless found on site"
-msgstr ""
+msgstr "Sí, a menos que se encuentre en el sitio"
 
 #: prefs.py:82
 msgid "No"
-msgstr ""
+msgstr "No"
