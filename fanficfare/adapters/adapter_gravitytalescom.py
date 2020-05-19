@@ -66,6 +66,10 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
         # http://gravitytales.com/novel/a-dragons-curiosity
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/')[2])
 
+        # normalized story URL.
+        self._setURL("http://"+self.getSiteDomain()\
+                         +"/novel/"+self.story.getMetadata('storyId'))
+
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','gtcom')
 
@@ -87,7 +91,7 @@ class GravityTalesComSiteAdapter(BaseSiteAdapter):
 
 ####################################################################################################
     def getSiteURLPattern(self):
-        return r"http://"+re.escape(self.getSiteDomain())+r"/novel/*(?P<id>[^/]+)"
+        return r"http://"+re.escape(self.getSiteDomain())+r"/(novel|post)/*(?P<id>[^/]+)"
 
 ####################################################################################################
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
