@@ -148,56 +148,78 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                            # is empty.
         self.setDescription(url,summary)
         
-        # no convenient way to extract metadata so bodge it by finding relevant identifier string and using next element as the data source
+        # some metadata can be retrieved through regexes so will do that instead of the alternative janky mess.
 
         #get characters
-        charList = workDetails.findAll('a', href=re.compile(r'browse.php?type=characters'+"&charid=\d+$"))
-        charText = [char.string for char in charList]
-        self.chararacters = ', '.join(charText)
-        for char in charText:
-            self.story.addToList('characters',char.string)
+        try:
+            charList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=characters'+"&charid=\d+$"))
+            for char in charList:
+                self.story.addToList('characters',char.string)
+                
+        except Exception as e:
+            logger.warn("character parsing failed(%s)"%e)
             
         #get warnings
-        warnList = workDetails.findAll('a', href=re.compile(r'browse.php?type=characters'+"&charid=\d+$"))
-        warnText = [warn.string for warn in warnList]
-        self.warnings = ', '.join(charText)
-        for warn in charText:
-            self.story.addToList('warnings',char.string)
+        try:
+            warnList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=2'+"&classid=\d+$"))
+            for warn in warnList:
+                self.story.addToList('warnings', warn.string)
+                
+        except Exception as e:
+            logger.warn("warning parsing failed(%s)"%e)
             
         #get genres
-        genresList = workDetails.findAll('a', href=re.compile(r'browse.php?type=class&type_id=1'+"&classid=\d+$"))
-        genrestext = [genre.string for genre in genresList]
-        self.genre = ', '.join(genrestext)
-        for genre in genrestext:
-            self.story.addToList('genre',genre.string)            
+        try:
+            genresList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=1'+"&classid=\d+$"))
+            for genre in genresList:
+                self.story.addToList('genre', genre.string)
+                
+        except Exception as e:
+            logger.warn("genre parsing failed(%s)"%e)    
+        
+        # no convenient way to extract remaining metadata so bodge it by finding relevant identifier string and using next element as the data source
         
         #get rating
-        rating = workDetails.find('strong',text='Rated:').next_sibling.string
+        try:
+            rating = workDetails.find('strong',text='Rated:').next_sibling.string
+            self.story.setMetadata('rating', rating)
+        except Exception as e:
+            logger.warn("rating parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
         
         #get completion status and correct for consistency with other adapters
-        if (workDetails.find('strong',text='Completed:').next_sibling.string).lower() == "yes":
-            status="Completed"
-        else:
-            status="In-Progress"
-        
+        try:
+            if (workDetails.find('strong',text='Completed:').next_sibling.string).lower() == "yes":
+                status="Completed"
+                
+            else:
+                status="In-Progress"
+                
+            self.story.setMetadata('status', status)
+        except Exception as e:
+            logger.warn("status parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            
         #get wordcount
-        wordCount = workDetails.find('strong',text='Word count:').next_sibling.string
+        try:
+            wordCount = workDetails.find('strong',text='Word count:').next_sibling.string
+            self.story.setMetadata('numWords', wordCount)
+        except Exception as e:
+            logger.warn("wordcount parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
         
         #get published date, this works for some reason yet doesn't without the spaces in it
-        datePublished = workDetails.find('strong',text=' Published: ').next_sibling.string
+        try:
+            datePublished = workDetails.find('strong',text=' Published: ').next_sibling.string
+            self.story.setMetadata('datePublished', makeDate(datePublished, self.dateformat))
+            
+        except Exception as e:
+            logger.warn("datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
         
         #get updated date
-        dateUpdated = workDetails.find('strong',text='Updated:').next_sibling.string
-        
-        # try setting metadata values on story, warn if it fails
         try:
-            self.story.setMetadata('rating', rating)
-            self.story.setMetadata('status', status)
-            self.story.setMetadata('numWords', wordCount)
-            self.story.setMetadata('datePublished', makeDate(datePublished, self.dateformat))
+            dateUpdated = workDetails.find('strong',text='Updated:').next_sibling.string
             self.story.setMetadata('dateUpdated', makeDate(dateUpdated, self.dateformat))
+            
         except Exception as e:
-            logger.warn("rating, status and/or datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warn("dateUpdated parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
