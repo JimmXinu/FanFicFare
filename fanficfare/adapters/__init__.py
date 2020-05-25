@@ -168,6 +168,7 @@ from . import adapter_swiorgru
 from . import adapter_fanficsme
 from . import adapter_archivehpfanfictalkcom
 from . import adapter_scifistoriescom
+from . import adapter_silmarillionwritersguildorg
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
