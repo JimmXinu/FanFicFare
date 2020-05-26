@@ -266,10 +266,6 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
         
         contentParent = soup.find('div', {'id' : 'maincontent'}).find('div', {'id' : 'general'})
         
-        #remove redundant formating tags
-        for tag in contentParent("hr"):
-            tag.decompose()
-        
         contentParent.find('p').decompose() # remove page header        
         contentParent.find_all('div',id='general')[2].decompose() #remove page footer
         contentParent.find_all('div',id='general')[0].decompose() #remove chapter select etc.
