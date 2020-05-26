@@ -86,7 +86,6 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
@@ -103,23 +102,43 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('title',a.find('strong').find('a').get_text())
         
+        # Site does some weird stuff with pagination on series view and will only display first 25 stories, code fails to get series index if story isn't on first page of results
+        # because of this I have commented out previous code and will no longer attempt to get index number for series on this site
+        #
+        #try:
+        #    # Find Series name from series URL.
+        #    a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
+        #    series_name = a.string
+        #    series_url = 'https://'+self.host+'/archive/home/'+a['href']
+        #    
+        #    logger.debug(series_name)
+        #    logger.debug(series_url)
+	#
+        #    # use BeautifulSoup HTML parser to make everything easier to find.
+        #    seriessoup = self.make_soup(self._fetchUrl(series_url))
+        #    storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+        #    i=1
+        #    for a in storyas:
+        #        logger.debug("Story URL: "+('viewstory.php?sid='+self.story.getMetadata('storyId')))
+        #        logger.debug(a['href'])
+        #        if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+        #            self.setSeries(series_name, i)
+        #            self.story.setMetadata('seriesUrl',series_url)
+        #            logger.debug("Set Series info")
+        #            break
+        #        i+=1
+        
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
             series_url = 'https://'+self.host+'/archive/home/'+a['href']
-
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self_make_soup(self._fetchUrl(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-            i=1
-            for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    self.story.setMetadata('seriesUrl',series_url)
-                    break
-                i+=1
-
+            
+            self.story.setMetadata('seriesUrl',series_url)
+            self.story.setMetadata('series', series_name)
+            #logger.debug(series_name)
+            #logger.debug(series_url)
+            
         except:
             # I find it hard to care if the series parsing fails
             pass
