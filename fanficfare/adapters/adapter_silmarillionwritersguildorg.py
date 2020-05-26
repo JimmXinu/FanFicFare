@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
+from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -134,21 +135,12 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             for chapter in chapters:
                 logger.debug("Added Chapter: "+chapter.string)
                 self.add_chapter(chapter,'https://'+self.host+'/archive/home/'+chapter['href'])
-                
-        
 
-	# find the details section for the work
+	# find the details section for the work, will hopefully make parsing metadata a bit easier
 	
         workDetails = soup.find('div', {'id' : 'general'}).find('div', {'id' : 'general'})
         
-        # Find the summary 
-        summary = workDetails.find_all('p')[3]
-        summary.name='div' # change td to div.  Makes Calibre
-                           # sanitize_html() happier when description
-                           # is empty.
-        self.setDescription(url,summary)
-        
-        # some metadata can be retrieved through regexes so will do that instead of the alternative janky mess.
+        # some metadata can be retrieved through regexes so will do that to try and avoid a janky mess.
 
         #get characters
         try:
@@ -178,6 +170,20 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             logger.warn("genre parsing failed(%s)"%e)    
         
         # no convenient way to extract remaining metadata so bodge it by finding relevant identifier string and using next element as the data source
+        
+        #get summary by finding identifier, then itterating until next identifier is found and using data between the two as the summary
+        try:
+            summaryStart = workDetails.find('strong',text='Summary: ')
+            currentElement = summaryStart.parent.next_sibling
+            summaryValue = ""
+            while not isinstance(currentElement,Tag) or currentElement.name != 'strong':
+                summaryValue += unicode(currentElement)
+                currentElement = currentElement.next_sibling
+                #logger.debug(summaryValue)
+            self.setDescription(url,summaryValue)
+        except Exception as e:
+            logger.warn("summary parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+
         
         #get rating
         try:
