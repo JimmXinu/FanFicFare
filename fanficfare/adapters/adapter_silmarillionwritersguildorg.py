@@ -90,15 +90,16 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         ## Title and author
+        
+        # find story header
         a = soup.find('h6')
 
-        titlelinks = a.find_all('a')
-        aut= titlelinks[1]
+        titleLinks = a.find_all('a')
+        authorLink= titleLinks[1]
         
-        self.story.setMetadata('authorId',aut['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','https://'+self.host+'/archive/home/'+aut['href'])
-        self.story.setMetadata('author',aut.string)
-        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        self.story.setMetadata('authorId',authorLink['href'].split('=')[1])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/archive/home/'+authorLink['href'])
+        self.story.setMetadata('author',authorLink.string)
 
         self.story.setMetadata('title',a.find('strong').find('a').get_text())
         
@@ -258,9 +259,6 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url)
 
         soup = self.make_soup(data)
-
-        if "Please indicate that you are an adult by selecting the appropriate choice below" in data:
-            raise exceptions.FailedToDownload("Chapter requires you be an adult.  Set is_adult in personal.ini (chapter url:%s)" % url)
 
         # No convenient way to get story without the rest of the page, so get whole page and strip unneeded sections
         
