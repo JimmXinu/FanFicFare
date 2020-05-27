@@ -68,6 +68,13 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/archive/home/viewstory.php?sid=")+r"\d+$"
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     ## Getting the chapter list and the meta data
     def extractChapterUrlsAndMetadata(self):
 
@@ -119,33 +126,40 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #logger.debug("Series Url: "+seriesUrl)
 
                 # Get Series page and convert to soup
-                seriesPageSoup = self.make_soup(self._fetchUrl(seriesUrl))
+                seriesPageSoup = self.make_soup(self._fetchUrl(seriesUrl+"&offset=0"))
+                ## &offset=0 is the same as the first page, by adding
+                ## that, the page cache will save us from fetching it
+                ## twice in the loop below.
+
                 # Find Series page sub-pages
                 seriesPageUrlList = []
+                seriesStoryList = []
                 for i in seriesPageSoup.findAll('a', href=re.compile("viewseries.php\?seriesid=\d+&offset=\d+$")):
-                        # Don't include url from next button, is another http request and parse + could cause more bugs!
-                        if i.string != '[Next]':
-                            seriesPageUrlList.append(i)
+                    # Don't include url from next button, is another http request and parse + could cause more bugs!
+                    if i.string != '[Next]':
+                        seriesPageUrlList.append(i)
 
                 #get urls from all subpages and append to list
-                seriesStoryList = []
+                i=1
                 for seriesPagePageUrl in seriesPageUrlList:
                     seriesPagePageSoup = self.make_soup(self._fetchUrl('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
-                    seriesPagePageStoryList = seriesPagePageSoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                    storyHeaders = seriesPagePageSoup.findAll('h5')
+                    ## can't just search for story URLs, some story
+                    ## descs also contain story URLs.  Looks like only
+                    ## story titles are <h5>.
+                    for storyHeader in storyHeaders:
+                        seriesPagePageStoryUrl = storyHeader.find('a',href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                        if seriesPagePageStoryUrl['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                            #logger.debug("Series Name: "+ seriesName)
+                            #logger.debug("Series Index: "+i)
+                            self.setSeries(seriesName, i)
+                            raise StopIteration("Break out of series parsing loops")
+                        i+=1
 
-                    for seriesPagePageStoryUrl in seriesPagePageStoryList:
-                        seriesStoryList.append(seriesPagePageStoryUrl)
-
-                # Find series index for story
-                i=1
-                for seriesStoriesUrl in seriesStoryList:
-                    if seriesStoriesUrl['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                        self.setSeries(seriesName, i)
-                        #logger.debug("Series Name: "+ seriesName)
-                        #logger.debug("Series Index: "+i)
-                        break
-                    i+=1
-
+        except StopIteration:
+            # break out of both loops, don't need to fetch further
+            # pages after story found.
+            pass
         except Exception as e:
             logger.warn("series parsing failed(%s)"%e)
             pass
@@ -157,7 +171,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/archive/home/'+chapters[0]['href'])
         else:
             for chapter in chapters:
-                logger.debug("Added Chapter: "+chapter.string)
+                # logger.debug("Added Chapter: "+chapter.string)
                 self.add_chapter(chapter,'https://'+self.host+'/archive/home/'+chapter['href'])
 
 	# find the details section for the work, will hopefully make parsing metadata a bit easier
