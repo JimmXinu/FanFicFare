@@ -50,7 +50,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
 
         ## All Russian as far as I know.
         self.story.setMetadata('language','Russian')
-        
+
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
@@ -152,7 +152,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         def get_meta_content(title):
             val_label = fichead.find('div',string=title+u':')
             if val_label:
-                return val_label.find_next('div')        
+                return val_label.find_next('div')
 
         ## fanfics.me doesn't have separate adult--you have to set
         ## your age to 18+ in your user account
@@ -257,8 +257,10 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             self.story.setMetadata('originUrl',stripHTML(titletd.find_next('td')))
 
         ## size block, only saving word count.
-        content = get_meta_content(u'Размер')        
-        self.story.setMetadata('numWords',stripHTML(content.find_all('li')[1]).replace(u'слов','').replace(' ',''))
+        content = get_meta_content(u'Размер')
+        words = stripHTML(content.find_all('li')[1])
+        words = re.sub(r'[^0-9]','',words) # only keep numbers
+        self.story.setMetadata('numWords',words)
 
         ## status by color code
         statuscolors = {'red':'In-Progress',
@@ -275,7 +277,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         if div:
             # get the larger version.
             self.setCoverImage(self.url,div.img['src'].replace('_200_300',''))
-        
+
         # dates
         # <span class="DateUpdate" title="Опубликовано 22.04.2020, изменено 22.04.2020">22.04.2020 - 22.04.2020</span>
         datespan = soup.find('span',class_='DateUpdate')
@@ -283,10 +285,10 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
 
-        # series 
+        # series
         seriesdiv = soup.find('div',id='fic_info_content_serie')
         if seriesdiv:
-            seriesa = seriesdiv.find('a', href=re.compile('/serie\d+$'))            
+            seriesa = seriesdiv.find('a', href=re.compile('/serie\d+$'))
             i=1
             for a in seriesdiv.find_all('a', href=re.compile('/fic\d+$')):
                 if a['href'] == ('/fic'+self.story.getMetadata('storyId')):
