@@ -3,13 +3,13 @@
 # 
 # Translators:
 # ashed <craysy@gmail.com>, 2017,2020
-# Ilya Trofimov <inactive+iltrof@transifex.com>, 2014
+# 3f8f9c00d81c4c6472ea90c31062787f_3a6a5f8 <579c3b116bb0c0395bb3df6f1ae34246_210356>, 2014
 # Алексей Воробьёв <svbvap@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-05-14 19:00-0500\n"
-"PO-Revision-Date: 2020-05-19 14:22+0000\n"
+"PO-Revision-Date: 2020-05-20 03:09+0000\n"
 "Last-Translator: ashed <craysy@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/calibre/calibre-plugins/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -1284,16 +1284,16 @@ msgstr "<b>Безопаснее всего создать отдельную у�
 
 #: dialogs.py:270 dialogs.py:831
 msgid "Show Download Options"
-msgstr ""
+msgstr "Показать параметры загрузки"
 
 #: dialogs.py:289 dialogs.py:851
 msgid "Output &Format:"
-msgstr ""
+msgstr "Выходной &формат:"
 
 #: dialogs.py:297 dialogs.py:859
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr ""
+msgstr "Выберите выходной формат для создания. Может установить значение по умолчанию из конфигурации плагина."
 
 #: dialogs.py:325 dialogs.py:879
 msgid "Update Calibre &Metadata?"
@@ -1551,7 +1551,7 @@ msgstr "Удалите выбранные книги после добавлен
 
 #: dialogs.py:1335
 msgid "Search for string in edit box."
-msgstr ""
+msgstr "Поиск строки в окне редактирования."
 
 #: dialogs.py:1338
 msgid "Find:"
@@ -2020,55 +2020,55 @@ msgstr "Изменить URL истории?"
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
-msgstr ""
+msgstr "<b>%s</b>от <b>%s</b> уже в вашей библиотеке с другим исходным URL:"
 
 #: fff_plugin.py:1325
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr ""
+msgstr "в библиотеке: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
 #: fff_plugin.py:1326 fff_plugin.py:1340
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr ""
+msgstr "Новый URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
 #: fff_plugin.py:1327
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr ""
+msgstr "Нажмите «<b>Да</b>», чтобы обновить/перезаписать книгу новым URL."
 
 #: fff_plugin.py:1328
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
-msgstr ""
+msgstr "Нажмите «<b>Нет</b>», чтобы пропустить обновление/перезапись книги новым URL."
 
 #: fff_plugin.py:1330 fff_plugin.py:1337
 msgid "Download as New Book?"
-msgstr ""
+msgstr "Скачать как новую книгу?"
 
 #: fff_plugin.py:1338
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
-msgstr ""
+msgstr "<b>%s</b>от <b>%s</b> уже в вашей библиотеке с другим исходным URL."
 
 #: fff_plugin.py:1339
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
-msgstr ""
+msgstr "Вы решили не обновлять существующую книгу. Хотите добавить новую книгу для этого URL?"
 
 #: fff_plugin.py:1341
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr ""
+msgstr "Нажмите '<b>Да</b>' для новой книги с новым URL."
 
 #: fff_plugin.py:1342
 msgid "Click '<b>No</b>' to skip URL."
-msgstr ""
+msgstr "Нажмите '<b>Нет</b>' , чтобы пропустить URL."
 
 #: fff_plugin.py:1348
 msgid "Update declined by user due to differing story URL(%s)"
-msgstr ""
+msgstr "Обновление отклонено пользователем из-за различия URL-адреса истории (%s)"
 
 #: fff_plugin.py:1356
 msgid "Metadata collected."
-msgstr ""
+msgstr "Метаданные собраны."
 
 #: fff_plugin.py:1376 jobs.py:286
 msgid ""
@@ -2080,7 +2080,7 @@ msgstr "Существующий epub содержит %d глав, а веб-с
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
-msgstr ""
+msgstr "FanFicFare не распознает главы в существующем epub, вероятно, epub из другого источника. Используйте Overwrite для принудительного обновления."
 
 #: fff_plugin.py:1519
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
@@ -2088,21 +2088,21 @@ msgstr "Ни один из <b>%d</b> приведенных URL/историй �
 
 #: fff_plugin.py:1520 fff_plugin.py:1739 fff_plugin.py:1762
 msgid "See log for details."
-msgstr ""
+msgstr "Смотрите журнал для деталей."
 
 #: fff_plugin.py:1521
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
-msgstr ""
+msgstr "Приступить к обновлению вашей библиотеки (если настроены столбцы Ошибка или Последнее проверенное)?"
 
 #: fff_plugin.py:1535 fff_plugin.py:1541
 msgid "FanFicFare download ended"
-msgstr ""
+msgstr "FanFicFare загрузка закончилась"
 
 #: fff_plugin.py:1535 fff_plugin.py:1541 fff_plugin.py:1781 fff_plugin.py:1787
 msgid "FanFicFare log"
-msgstr ""
+msgstr "FanFicFare журнал"
 
 #: fff_plugin.py:1562
 msgid "Download %s FanFiction Book(s)"
@@ -2114,21 +2114,21 @@ msgstr "Начато %d FanFicFare закачек"
 
 #: fff_plugin.py:1607
 msgid "Story Details:"
-msgstr ""
+msgstr "Детали истории:"
 
 #: fff_plugin.py:1610
 msgid "Error Updating Metadata"
-msgstr ""
+msgstr "Ошибка обновления метаданных"
 
 #: fff_plugin.py:1611
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
-msgstr ""
+msgstr "Произошла ошибка, когда FanFicFare обновлял метаданные calibre для <a href='%s'>%s</a>."
 
 #: fff_plugin.py:1612
 msgid "The ebook has been updated, but the metadata has not."
-msgstr ""
+msgstr "Книга была обновлена, а метаданные - нет."
 
 #: fff_plugin.py:1666 fff_plugin.py:1667
 msgid "Finished Adding/Updating %d books."
@@ -2136,12 +2136,12 @@ msgstr "Закончено Добавление/Обновление %d книг
 
 #: fff_plugin.py:1723
 msgid "No Good Stories for Anthology"
-msgstr ""
+msgstr "Нет хороших историй для антологии"
 
 #: fff_plugin.py:1724
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
-msgstr ""
+msgstr "Нет хороших историй/обновлений в скачанном, создание/обновление Антологии прервано."
 
 #: fff_plugin.py:1729 fff_plugin.py:1761
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
@@ -2150,123 +2150,123 @@ msgstr "FanFicFare найдено <b>%s</b> хороших и <b>%s</b> плох
 #: fff_plugin.py:1736
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
-msgstr ""
+msgstr "Вы уверены, что хотите продолжить создание/обновление этой Антологии?"
 
 #: fff_plugin.py:1737
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
-msgstr ""
+msgstr "Любые сбойные обновления <b>не</b> будут включены в Антологию."
 
 #: fff_plugin.py:1738
 msgid "However, if there's an older version, it will still be included."
-msgstr ""
+msgstr "Однако, если есть более старая версия, она все равно будет включена."
 
 #: fff_plugin.py:1741
 msgid "Proceed with updating this anthology and your library?"
-msgstr ""
+msgstr "Продолжить обновление этой антологии и вашей библиотеки?"
 
 #: fff_plugin.py:1763
 msgid "Proceed with updating your library?"
-msgstr ""
+msgstr "Продолжить обновление вашей библиотеки?"
 
 #: fff_plugin.py:1781 fff_plugin.py:1787
 msgid "FanFicFare download complete"
-msgstr ""
+msgstr "FanFicFare загрузка завершена"
 
 #: fff_plugin.py:1801
 msgid "Merging %s books."
-msgstr "Объединено %s книг."
+msgstr "Объединение %s книг."
 
 #: fff_plugin.py:1890
 msgid "FanFicFare Adding/Updating books."
-msgstr ""
+msgstr " FanFicFare Добавление/Обновление книг."
 
 #: fff_plugin.py:1904
 msgid "Updating calibre for FanFiction stories..."
-msgstr ""
+msgstr "Обновление calibre для FanFiction историй..."
 
 #: fff_plugin.py:1905
 msgid "Update calibre for FanFiction stories"
-msgstr ""
+msgstr "Обновление calibre для FanFiction историй"
 
 #: fff_plugin.py:1915
 msgid "Adding/Updating %s BAD books."
-msgstr "ДобавлениеяОбновление %s ПЛОХИХ книг."
+msgstr "Добавление/Обновление %s ПЛОХИХ книг."
 
 #: fff_plugin.py:1920
 msgid "Updating calibre for BAD FanFiction stories..."
-msgstr ""
+msgstr "Обновление calibre для ПЛОХИХ FanFiction историй..."
 
 #: fff_plugin.py:1921
 msgid "Update calibre for BAD FanFiction stories"
-msgstr ""
+msgstr "Обновление calibre для ПЛОХИХ FanFiction историй"
 
 #: fff_plugin.py:1966
 msgid "Adding format to book failed for some reason..."
-msgstr ""
+msgstr "Не удалось добавить формат в книгу по какой-то причине..."
 
 #: fff_plugin.py:2330
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr ""
+msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения, но у вас больше не установлен %s плагин?"
 
 #: fff_plugin.py:2342
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr ""
+msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Для чтения», но у вас не настроены списки?"
 
 #: fff_plugin.py:2352 fff_plugin.py:2370
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr ""
+msgstr "Вы настроили FanFicFare для автоматического обновления списка чтения '%s', но у вас нет списка с таким именем?"
 
 #: fff_plugin.py:2358
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr ""
+msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Отправить на устройство», но у вас нет установленных списков?"
 
 #: fff_plugin.py:2432
 msgid "Same story already included."
-msgstr ""
+msgstr "Та же история уже включена."
 
 #: fff_plugin.py:2490
 msgid "No story URL found."
-msgstr ""
+msgstr "Не найден URL истории"
 
 #: fff_plugin.py:2493
 msgid "Not Found"
-msgstr ""
+msgstr "Не найдено"
 
 #: fff_plugin.py:2499
 msgid "URL is not a valid story URL."
-msgstr ""
+msgstr "URL не является действительным URL истории."
 
 #: fff_plugin.py:2502
 msgid "Bad URL"
-msgstr ""
+msgstr "Плохой URL"
 
 #: fff_plugin.py:2656
 msgid "Anthology containing:"
-msgstr ""
+msgstr "Антология, содержащая:"
 
 #: fff_plugin.py:2658
 msgid "%s by %s"
-msgstr "%s by %s"
+msgstr "%s от %s"
 
 #: fff_plugin.py:2700
 msgid " Anthology"
-msgstr ""
+msgstr "Антология"
 
 #: fff_plugin.py:2737
 msgid "(was set, removed for security)"
-msgstr ""
+msgstr "(был установлен, удален в целях безопасности)"
 
 #: jobs.py:77
 msgid "Downloading FanFiction Stories"
-msgstr ""
+msgstr "Скачивание FanFiction историй"
 
 #: jobs.py:93
 msgid "%d of %d stories finished downloading"
@@ -2274,11 +2274,11 @@ msgstr "%d из %d историй скачано"
 
 #: jobs.py:100
 msgid "Download Results:"
-msgstr ""
+msgstr "Результаты скачивания:"
 
 #: jobs.py:163
 msgid "Download started..."
-msgstr ""
+msgstr "Скачивание началось..."
 
 #: jobs.py:250
 msgid "Download %s completed, %s chapters."
@@ -2294,52 +2294,52 @@ msgstr "Обновление %s завершено, добавлено %s гла
 
 #: prefs.py:21
 msgid "Skip"
-msgstr ""
+msgstr "Пропустить"
 
 #: prefs.py:22
 msgid "Add New Book"
-msgstr ""
+msgstr "Добавить новую книгу"
 
 #: prefs.py:23
 msgid "Update EPUB if New Chapters"
-msgstr ""
+msgstr "Обновлять EPUB, если новые главы"
 
 #: prefs.py:24
 msgid "Update EPUB Always"
-msgstr ""
+msgstr "Обновлять EPUB всегда"
 
 #: prefs.py:25
 msgid "Overwrite if Newer"
-msgstr ""
+msgstr "Перезаписать если новее"
 
 #: prefs.py:26
 msgid "Overwrite Always"
-msgstr ""
+msgstr "Перезаписывать всегда"
 
 #: prefs.py:27
 msgid "Update Calibre Metadata from Web Site"
-msgstr ""
+msgstr "Обновить метаданные Calibre с веб-сайта"
 
 #: prefs.py:28
 msgid "Update Calibre Metadata from Saved Metadata Column"
-msgstr ""
+msgstr "Обновить метаданные Calibre из столбца Сохраненные метаданные"
 
 #: prefs.py:74
 msgid "Yes, Always"
-msgstr ""
+msgstr "Да, всегда"
 
 #: prefs.py:76
 msgid "Yes, if EPUB has a cover image"
-msgstr ""
+msgstr "Да, если у EPUB есть изображение обложки"
 
 #: prefs.py:78
 msgid "Yes, unless FanFicFare found a cover image"
-msgstr ""
+msgstr "Да, если FanFicFare не нашел изображение обложки"
 
 #: prefs.py:80
 msgid "Yes, unless found on site"
-msgstr ""
+msgstr "Да, если не найдено на сайте"
 
 #: prefs.py:82
 msgid "No"
-msgstr ""
+msgstr "Нет"

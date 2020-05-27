@@ -8,7 +8,7 @@
 # Patrick Wacker <crayzyone@gmail.com>, 2019
 # Sebastian Keller <Haggard@gmx.de>, 2015
 # Simon Schütte, 2014-2016
-# Simon S, 2015
+# 09215992c03111635ee62febbe4f09f4_1f58291, 2015
 # valsu <valsu@hylia.de>, 2016
 # valsu <valsu@hylia.de>, 2015
 msgid ""
