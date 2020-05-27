@@ -68,11 +68,9 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/archive/home/viewstory.php?sid=")+r"\d+$"
 
-    ## Getting the chapter list and the meta data, plus 'is adult' checking.
+    ## Getting the chapter list and the meta data
     def extractChapterUrlsAndMetadata(self):
 
-        # index=1 makes sure we see the story chapter index.  Some
-        # sites skip that for one-chapter stories.
         url = self.url
         logger.debug("URL: "+url)
 
@@ -103,51 +101,57 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('title',a.find('strong').find('a').get_text())
         
-        # Site does some weird stuff with pagination on series view and will only display first 25 stories, code fails to get series index if story isn't on first page of results
-        # because of this I have commented out previous code and will no longer attempt to get index number for series on this site
-        #
-        #try:
-        #    # Find Series name from series URL.
-        #    a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-        #    series_name = a.string
-        #    series_url = 'https://'+self.host+'/archive/home/'+a['href']
-        #    
-        #    logger.debug(series_name)
-        #    logger.debug(series_url)
-	#
-        #    # use BeautifulSoup HTML parser to make everything easier to find.
-        #    seriessoup = self.make_soup(self._fetchUrl(series_url))
-        #    storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-        #    i=1
-        #    for a in storyas:
-        #        logger.debug("Story URL: "+('viewstory.php?sid='+self.story.getMetadata('storyId')))
-        #        logger.debug(a['href'])
-        #        if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-        #            self.setSeries(series_name, i)
-        #            self.story.setMetadata('seriesUrl',series_url)
-        #            logger.debug("Set Series info")
-        #            break
-        #        i+=1
+        # Site does some weird stuff with pagination on series view and will only display 25 stories per page of results
+        # Therefor to get accurate index for series, we fetch all sub-pages of series and parse for valid story urls and add to a list,
+        # Then find first instance of current story url and use the number of loop itteration for index
+        
+        # This is pretty slow but ehh it works 
         
         try:
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-            series_name = a.string
-            series_url = 'https://'+self.host+'/archive/home/'+a['href']
+            seriesName = a.string
+            seriesUrl = 'https://'+self.host+'/archive/home/'+a['href']
             
-            self.story.setMetadata('seriesUrl',series_url)
-            self.story.setMetadata('series', series_name)
-            #logger.debug(series_name)
-            #logger.debug(series_url)
+            self.story.setMetadata('seriesUrl',seriesUrl)
             
-        except:
+            #logger.debug("Series Url: "+seriesUrl)
+            
+            # Get Series page and convert to soup
+            seriesPageSoup = self.make_soup(self._fetchUrl(seriesUrl))
+            # Find Series page sub-pages
+            seriesPageUrlList = []
+            for i in seriesPageSoup.findAll('a', href=re.compile("viewseries.php\?seriesid=\d+&offset=\d+$")):
+                    # Don't include url from next button, is another http request and parse + could cause more bugs!
+                    if i.string != '[Next]':
+                        seriesPageUrlList.append(i)
+            
+            #get urls from all subpages and append to list
+            seriesStoryList = []
+            for seriesPagePageUrl in seriesPageUrlList:
+                seriesPagePageSoup = self.make_soup(self._fetchUrl('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
+                seriesPagePageStoryList = seriesPagePageSoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                
+                for seriesPagePageStoryUrl in seriesPagePageStoryList:
+                    seriesStoryList.append(seriesPagePageStoryUrl)
+
+            # Find series index for story
+            i=1
+            for seriesStoriesUrl in seriesStoryList:
+                if seriesStoriesUrl['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                    self.setSeries(seriesName, i)
+                    #logger.debug("Series Name: "+ seriesName)
+                    #logger.debug("Series Index: "+i)
+                    break
+                i+=1
+            
+        except Exception as e:
+            raise e
             # I find it hard to care if the series parsing fails
-            pass
+            #pass
 
         # Find the chapters by regexing urls
         chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$"))
-        
-        #logger.debug(chapters)
         
         if len(chapters)==1:
             self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/archive/home/'+chapters[0]['href'])
@@ -249,17 +253,12 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
-
+        
         logger.debug('Getting chapter text from: %s' % url)
-
-        if self.getConfig('is_adult'):
-            params = {'confirmAge':'1'}
-            data = self._postUrl(url,params)
-        else:
-            data = self._fetchUrl(url)
-
+        
+        data = self._fetchUrl(url)
         soup = self.make_soup(data)
-
+        
         # No convenient way to get story without the rest of the page, so get whole page and strip unneeded sections
         
         contentParent = soup.find('div', {'id' : 'maincontent'}).find('div', {'id' : 'general'})
