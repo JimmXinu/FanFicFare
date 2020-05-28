@@ -167,7 +167,14 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.extendList('genre',genres[:genres.index(' / ')].split(', '))
         self.story.setMetadata('rating', genres[genres.index(' / ')+3:])
 
-        self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split('/')[2].strip())
+        # self.story.addToList('category',stripHTML(soup.find('span',id='ffcbox-story-topic-1')).split('/')[2].strip())
+        for a in soup.find('span',id='ffcbox-story-topic-1').find_all('a',href=re.compile(r'/c/')):
+            cat = stripHTML(a)
+            if cat != 'Fanfiction':
+                self.story.addToList('category',cat)
+
+        for span in soup.find_all('span',class_='badge-character'):
+            self.story.addToList('characters',stripHTML(span))
 
         try:
             self.story.setMetadata('native_status', head.find_all('span',{'class':'titled-icon'})[3]['title'])
