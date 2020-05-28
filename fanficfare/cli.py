@@ -499,6 +499,10 @@ def do_download(arg,
                     metadata['zchapters'] = []
                     for i, chap in enumerate(adapter.get_chapters()):
                         metadata['zchapters'].append((i+1,chap))
+                else:
+                    # If no chapters, also suppress output_css so
+                    # metadata is shorter.
+                    del metadata['output_css']
                 pprint.pprint(metadata)
 
         if not options.metaonly and adapter.getConfig('post_process_cmd'):
