@@ -67,6 +67,8 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
+        if self.is_adult or self.getConfig("is_adult"):
+            url = url+'&showRestricted'
         logger.debug("URL: "+url)
 
         try:
@@ -76,6 +78,9 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+
+        if "This story may contain chapters not appropriate for a general audience." in data and not (self.is_adult or self.getConfig("is_adult")):
+            raise exceptions.AdultCheckRequired(self.url)
 
         ## Don't know if these still apply
         # if "Access denied. This story has not been validated by the adminstrators of this site." in data:
@@ -90,11 +95,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         h2 = soup.find('h2')
         h2.find('i').extract() # remove author
         self.story.setMetadata('title',stripHTML(h2))
-        ## Don't know if these still apply
-        ## javascript:if (confirm('Please note. This story may contain adult themes. By clicking here you are stating that you are over 17. Click cancel if you do not meet this requirement.')) location = '?psid=290995'
-        # if "This story may contain adult themes." in a['href'] and not (self.is_adult or self.getConfig("is_adult")):
-        #     raise exceptions.AdultCheckRequired(self.url)
-
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
