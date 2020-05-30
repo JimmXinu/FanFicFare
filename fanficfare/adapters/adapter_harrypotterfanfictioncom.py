@@ -118,9 +118,11 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         # fetch author page to get story description.
         authorsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
 
-        # assumes don't need to worry about story URLs in descs.
-        storya = authorsoup.find('a', href=re.compile(r"^/viewstory.php\?psid="+self.story.getMetadata('storyId')))
-        storydiv = storya.find_parent('div')
+        for story in authorsoup.find_all('article',class_='story-summary'):
+            storya = story.find('h3').find('a',href=re.compile(r"^/viewstory.php\?psid="+self.story.getMetadata('storyId')))
+            if storya:
+                storydiv = storya.find_parent('div')
+                break
 
         # desc is escaped html in attr on iframe.
         iframe = storydiv.find('iframe')
