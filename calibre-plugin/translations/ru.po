@@ -4,13 +4,14 @@
 # Translators:
 # ashed <craysy@gmail.com>, 2017,2020
 # 3f8f9c00d81c4c6472ea90c31062787f_3a6a5f8 <579c3b116bb0c0395bb3df6f1ae34246_210356>, 2014
+# Vikarti Anatra <vikarti.anatra@viorsan.com>, 2020
 # Алексей Воробьёв <svbvap@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-05-14 19:00-0500\n"
-"PO-Revision-Date: 2020-05-20 03:09+0000\n"
-"Last-Translator: ashed <craysy@gmail.com>\n"
+"PO-Revision-Date: 2020-06-02 15:48+0000\n"
+"Last-Translator: Vikarti Anatra <vikarti.anatra@viorsan.com>\n"
 "Language-Team: Russian (http://www.transifex.com/calibre/calibre-plugins/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -191,7 +192,7 @@ msgstr "При каждой загрузке FanFicFare предлагает в�
 
 #: config.py:480
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr " Умолчально обновлять обложку EPUB при обновлении EPUB?"
+msgstr "Обновлять обложку EPUB при обновлении EPUB по умолчанию?"
 
 #: config.py:481
 msgid ""
@@ -1012,7 +1013,7 @@ msgstr "Не перезаписывать, вебсайт не новее."
 
 #: config.py:1423 fff_plugin.py:1374 jobs.py:284
 msgid "Already contains %d chapters."
-msgstr "Уже содержит %dглав."
+msgstr "Уже содержит %d глав."
 
 #: config.py:1430
 msgid "Saved Metadata Column:"
