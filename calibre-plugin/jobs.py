@@ -302,6 +302,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
+            else:
+                ## Shouldn't ever get here, but hey, it happened once
+                ## before with prefs['collision']
+                raise Exception("Impossible state reached -- Book: %s:\nOptions:%s:"%(book,options))
 
             if options['do_wordcount'] == SAVE_YES or (
                 options['do_wordcount'] == SAVE_YES_UNLESS_SITE and not story.getMetadataRaw('numWords') ):

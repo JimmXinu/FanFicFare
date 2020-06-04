@@ -104,7 +104,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
     OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
-    CALIBREONLYSAVECOL,
+    CALIBREONLYSAVECOL, save_collisions,
     NotGoingToDownload, RejectUrlEntry )
 
 # because calibre immediately transforms html into zip and don't want
@@ -515,7 +515,8 @@ class FanFicFarePlugin(InterfaceAction):
             if url_list:
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
-                        'collision': prefs['collision'],
+                        # save_collisions==convert from save value to local lang value
+                        'collision': save_collisions[prefs['collision']],
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
                         'updateepubcover': prefs['updateepubcover'],
