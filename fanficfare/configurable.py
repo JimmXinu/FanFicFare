@@ -519,7 +519,7 @@ def make_generate_cover_settings(param):
 
 class Configuration(configparser.SafeConfigParser):
 
-    def __init__(self, sections, fileform, lightweight=False):
+    def __init__(self, sections, fileforms, lightweight=False):
         site = sections[-1] # first section is site DN.
         configparser.SafeConfigParser.__init__(self)
 
@@ -546,14 +546,15 @@ class Configuration(configparser.SafeConfigParser):
         self.addConfigSection(sitewith)
         self.addConfigSection(sitewithout)
 
-        if fileform:
-            self.addConfigSection(fileform)
-            ## add other sections:fileform (not including site DN)
-            ## after fileform, but before site-specific:fileform.
-            for section in sections[:-1]:
-                self.addConfigSection(section+":"+fileform)
-            self.addConfigSection(sitewith+":"+fileform)
-            self.addConfigSection(sitewithout+":"+fileform)
+        if fileforms:
+            for fileform in fileforms:
+                self.addConfigSection(fileform)
+                ## add other sections:fileform (not including site DN)
+                ## after fileform, but before site-specific:fileform.
+                for section in sections[:-1]:
+                    self.addConfigSection(section+":"+fileform)
+                self.addConfigSection(sitewith+":"+fileform)
+                self.addConfigSection(sitewithout+":"+fileform)
         self.addConfigSection("overrides")
 
         self.listTypeEntries = get_valid_list_entries()

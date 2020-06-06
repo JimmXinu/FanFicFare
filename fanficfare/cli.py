@@ -76,18 +76,21 @@ except ImportError:
     from fanficfare.six import text_type as unicode
 
 
-def write_story(config, adapter, writeformat,
+def write_story(config, adapter, writeformats,
                 metaonly=False, nooutput=False,
                 outstream=None):
-    writer = writers.getWriter(writeformat, config, adapter)
-    output_filename = writer.getOutputFileName()
-    if nooutput:
-        logger.info("Output suppressed by --no-output")
-    else:
-        writer.writeStory(outstream=outstream, metaonly=metaonly)
-        logger.debug("Successfully wrote '%s'"%output_filename)
-    del writer
-    return output_filename
+    output_filenames = []
+    for writeformat in writeformats:
+        writer = writers.getWriter(writeformat, config, adapter)
+        output_filename = writer.getOutputFileName()
+        if nooutput:
+            logger.info("Output suppressed by --no-output")
+        else:
+            writer.writeStory(outstream=outstream, metaonly=metaonly)
+            logger.debug("Successfully wrote '%s'"%output_filename)
+        del writer
+        output_filenames.append(output_filename)
+    return output_filenames
 
 def main(argv=None,
          parser=None,
@@ -98,8 +101,9 @@ def main(argv=None,
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
-    parser.add_option('-f', '--format', dest='format', default='epub',
-                      help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
+    parser.add_option('-f', '--format', action="append",
+                      default=[],  metavar='FORMAT',
+                      help='Write story as FORMAT, epub(default), mobi, txt or html.')
     if passed_defaultsini:
         config_help = 'calibre plugin defaults.ini, calibre plugin personal.ini'
     else:
@@ -192,6 +196,14 @@ def main(argv=None,
                       help=SUPPRESS_HELP, )
 
     options, args = parser.parse_args(argv)
+    # rename format -> formats.
+    # we still use 'format' as an argument name for backward compatibility
+    # also set default here, so 'epub' is not always specified.
+    if len(options.format) == 0:
+        options.formats = ['epub']
+    else:
+        options.formats = option.format
+    del options.format
 
     if not options.debug:
         logger.setLevel(logging.WARNING)
@@ -226,10 +238,10 @@ def main(argv=None,
     if options.updatealways:
         options.update = True
 
-    if options.update and options.format != 'epub':
+    if options.update and options.formats != ['epub']:
         parser.error('-u/--update-epub/-U/--update-epub-always only work with epub')
 
-    if options.unnew and options.format != 'epub':
+    if options.unnew and options.formats != ['epub']:
         parser.error('--unnew only works with epub')
 
     urls=args
@@ -328,7 +340,7 @@ def do_download(arg,
 
     # Attempt to update an existing epub.
     chaptercount = None
-    output_filename = None
+    epub_filename = None
 
     if options.unnew:
         # remove mark_new_chapters marks
@@ -342,7 +354,7 @@ def do_download(arg,
                 print('No story URL found in epub to update.')
                 return
             print('Updating %s, URL: %s' % (arg, url))
-            output_filename = arg
+            epub_filename = arg
         except Exception:
             # if there's an error reading the update file, maybe it's a URL?
             # we'll look for an existing outputfile down below.
@@ -355,7 +367,7 @@ def do_download(arg,
                                       passed_personalini,
                                       options,
                                       chaptercount,
-                                      output_filename)
+                                      epub_filename)
 
     try:
         # Allow chapter range with URL.
@@ -389,9 +401,9 @@ def do_download(arg,
         if update_story and not chaptercount:
             try:
                 writer = writers.getWriter('epub', configuration, adapter)
-                output_filename = writer.getOutputFileName()
-                noturl, chaptercount = get_dcsource_chaptercount(output_filename)
-                print('Updating %s, URL: %s' % (output_filename, url))
+                epub_filename = writer.getOutputFileName()
+                noturl, chaptercount = get_dcsource_chaptercount(epub_filename)
+                print('Updating %s, URL: %s' % (epub_filename, url))
             except Exception as e:
                 print("Failed to read epub for update: (%s) Continuing with update=false"%e)
                 update_story = False
@@ -448,11 +460,11 @@ def do_download(arg,
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
             if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
-                print('%s already contains %d chapters.' % (output_filename, chaptercount))
+                print('%s already contains %d chapters.' % (epub_filename, chaptercount))
             elif chaptercount > urlchaptercount:
-                print('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
+                print('%s contains %d chapters, more than source: %d.' % (epub_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
-                print("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
+                print("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % epub_filename)
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
@@ -465,7 +477,7 @@ def do_download(arg,
                  adapter.calibrebookmark,
                  adapter.logfile,
                  adapter.oldchaptersmap,
-                 adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
+                 adapter.oldchaptersdata) = (get_update_data(epub_filename))[0:9]
 
                 print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 
@@ -478,7 +490,7 @@ def do_download(arg,
                     metadata = adapter.story.getAllMetadata()
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
-                output_filename = write_story(configuration, adapter, 'epub',
+                output_filenames = write_story(configuration, adapter, ['epub'],
                                               nooutput=options.nooutput)
 
         else:
@@ -489,12 +501,17 @@ def do_download(arg,
                     metadata = adapter.story.getAllMetadata()
                 call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
 
-            output_filename = write_story(configuration, adapter, options.format,
+            output_filenames = write_story(configuration, adapter, options.formats,
                                           metaonly=options.metaonly, nooutput=options.nooutput)
 
             if options.metaonly and not options.jsonmeta:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
-                metadata['output_filename'] = output_filename
+                
+                if len(output_filenames) == 1:
+                    metadata['output_filename'] = output_filenames[0]
+                else:
+                    metadata['output_filenames'] = output_filenames
+                    
                 if not options.nometachapters:
                     metadata['zchapters'] = []
                     for i, chap in enumerate(adapter.get_chapters()):
@@ -510,13 +527,23 @@ def do_download(arg,
                 metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('post_process_safepattern'))
             else:
                 metadata = adapter.story.getAllMetadata()
-            metadata['output_filename'] = output_filename
+                
+            if len(output_filenames) == 1:
+                metadata['output_filename'] = output_filenames[0]
+            else:
+                metadata['output_filenames'] = output_filenames
+                
             call(string.Template(adapter.getConfig('post_process_cmd')).substitute(metadata), shell=True)
 
         if options.jsonmeta:
             metadata = adapter.getStoryMetadataOnly().getAllMetadata()
-            metadata['output_filename'] = output_filename
+            
+            if len(output_filenames) == 1:
+                metadata['output_filename'] = output_filenames[0]
+            else:
+                metadata['output_filenames'] = output_filenames
             if not options.nometachapters:
+                
                 metadata['zchapters'] = []
                 for i, chap in enumerate(adapter.get_chapters()):
                     metadata['zchapters'].append((i+1,chap))
@@ -542,11 +569,11 @@ def get_configuration(url,
                       chaptercount=None,
                       output_filename=None):
     try:
-        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+        configuration = Configuration(adapters.getConfigSectionsFor(url), options.formats)
     except exceptions.UnknownSite as e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
-            configuration = Configuration(['unknown'], options.format)
+            configuration = Configuration(['unknown'], options.formats)
         else:
             raise e
 
@@ -601,7 +628,7 @@ def get_configuration(url,
 
     # images only for epub, even if the user mistakenly turned it
     # on else where.
-    if options.format not in ('epub', 'html'):
+    if ('epub' not in options.formats) and ('html' not in options.formats):
         configuration.set('overrides', 'include_images', 'false')
 
     if options.options:
