@@ -162,10 +162,10 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
         self.story.extendList('category',[stripHTML(cat) for cat in cats])
 
-        poptags = soup.find('p',{'class':'pop-tags'})
+        poptags = soup.find('div',{'class':'m-tags'})
         if poptags:
             sitetags = poptags.find_all('a',href=re.compile(r'/tag/list'))
-            self.story.extendList('sitetags',[sitetag.string for sitetag in sitetags])
+            self.story.extendList('sitetags',[sitetag.string.replace("# ","") for sitetag in sitetags])
 
         ## get _csrfToken cookie for chapter list fetch
         for cookie in self.get_configuration().get_cookiejar():
