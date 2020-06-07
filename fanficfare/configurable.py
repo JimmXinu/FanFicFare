@@ -547,6 +547,9 @@ class Configuration(configparser.SafeConfigParser):
         self.addConfigSection(sitewithout)
 
         if fileforms:
+            if not isinstance(fileforms, (list, tuple)):
+                # convert for backwards compatibility
+                fileforms = [fileforms]
             for fileform in fileforms:
                 self.addConfigSection(fileform)
                 ## add other sections:fileform (not including site DN)
