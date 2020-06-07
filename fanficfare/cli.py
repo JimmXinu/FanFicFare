@@ -18,7 +18,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from io import StringIO
-from optparse import OptionParser, SUPPRESS_HELP
+import argparse
 from os.path import expanduser, join, dirname
 from os import access, R_OK
 from subprocess import call
@@ -100,110 +100,110 @@ def main(argv=None,
         argv = sys.argv[1:]
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
-        parser = OptionParser('usage: %prog [options] [STORYURL]...')
-    parser.add_option('-f', '--format', action="append",
-                      default=[],  metavar='FORMAT',
+        parser = argparse.ArgumentParser(usage='%(prog)s [options] [STORYURL]...')
+    parser.add_argument('-f', '--format', action="append", dest="formats",
+                      default=None,  metavar='FORMAT',  # default replaced later
                       help='Write story as FORMAT, epub(default), mobi, txt or html.')
     if passed_defaultsini:
         config_help = 'calibre plugin defaults.ini, calibre plugin personal.ini'
     else:
         config_help = '~/.fanficfare/defaults.ini, $XDG_CONFIG_HOME/fanficfare/defaults.ini, ./defaults.ini'
-    parser.add_option('-c', '--config',
+    parser.add_argument('-c', '--config',
                       action='append', dest='configfile', default=None,
                       help=('Read config from specified file(s) in addition to (ordered lowest to highest priority): '
                             +config_help
                             +', ~/.fanficfare/personal.ini, $XDG_CONFIG_HOME/fanficfare/personal.ini, and ./personal.ini.  -c/--config files take highest priority'),
                       metavar='CONFIG')
     range_help = '  --begin and --end will be overridden by a chapter range on the STORYURL like STORYURL[1-2], STORYURL[-3], STORYURL[3-] or STORYURL[3]'
-    parser.add_option('-b', '--begin', dest='begin', default=None,
+    parser.add_argument('-b', '--begin', dest='begin', default=None,
                       help='Begin story with Chapter START.'+range_help, metavar='START')
-    parser.add_option('-e', '--end', dest='end', default=None,
+    parser.add_argument('-e', '--end', dest='end', default=None,
                       help='End story with Chapter END.'+range_help, metavar='END')
-    parser.add_option('-o', '--option',
+    parser.add_argument('-o', '--option',
                       action='append', dest='options',
                       help='Set config option NAME=VALUE  Overrides config file setting.', metavar='NAME=VALUE')
-    parser.add_option('-m', '--meta-only',
+    parser.add_argument('-m', '--meta-only',
                       action='store_true', dest='metaonly',
                       help='Retrieve and write metadata to stdout without downloading or saving chapters; saves story file with titlepage only. (See also --json-meta)', )
-    parser.add_option('-z', '--no-meta-chapters',
+    parser.add_argument('-z', '--no-meta-chapters',
                       action='store_true', dest='nometachapters',
                       help='Exclude list of chapters("zchapters") from metadata stdout output.  No effect without --meta-only or --json-meta flags', )
-    parser.add_option('-j', '--json-meta',
+    parser.add_argument('-j', '--json-meta',
                       action='store_true', dest='jsonmeta',
                       help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)', )
-    parser.add_option('--no-output',
+    parser.add_argument('--no-output',
                       action='store_true', dest='nooutput',
                       help='Do not download chapters and do not write output file.  Intended for testing and with --meta-only.', )
-    parser.add_option('-u', '--update-epub',
+    parser.add_argument('-u', '--update-epub',
                       action='store_true', dest='update',
                       help='Update an existing epub(if present) with new chapters.  Give either epub filename or story URL.', )
-    parser.add_option('-U', '--update-epub-always',
+    parser.add_argument('-U', '--update-epub-always',
                       action='store_true', dest='updatealways',
                       help="Update an existing epub(if present) even if there aren't new chapters.  Give either epub filename or story URL.", )
-    parser.add_option('--update-cover',
+    parser.add_argument('--update-cover',
                       action='store_true', dest='updatecover',
                       help='Update cover in an existing epub, otherwise existing cover (if any) is used on update.  Only valid with --update-epub.', )
-    parser.add_option('--unnew',
+    parser.add_argument('--unnew',
                       action='store_true', dest='unnew',
                       help='Remove (new) chapter marks left by mark_new_chapters setting.', )
-    parser.add_option('--force',
+    parser.add_argument('--force',
                       action='store_true', dest='force',
                       help='Force overwrite of an existing epub, download and overwrite all chapters.', )
-    parser.add_option('-i', '--infile',
+    parser.add_argument('-i', '--infile',
                       help='Give a filename to read for URLs (and/or existing EPUB files with --update-epub).',
                       dest='infile', default=None,
                       metavar='INFILE')
 
-    parser.add_option('-l', '--list',
+    parser.add_argument('-l', '--list',
                       dest='list', default=None, metavar='URL',
                       help='Get list of valid story URLs from page given.', )
-    parser.add_option('-n', '--normalize-list',
+    parser.add_argument('-n', '--normalize-list',
                       dest='normalize', default=None, metavar='URL',
                       help='Get list of valid story URLs from page given, but normalized to standard forms.', )
-    parser.add_option('--download-list',
+    parser.add_argument('--download-list',
                       dest='downloadlist', default=None, metavar='URL',
                       help='Download story URLs retrieved from page given.  Update existing EPUBs if used with --update-epub.', )
 
-    parser.add_option('--imap',
+    parser.add_argument('--imap',
                       action='store_true', dest='imaplist',
                       help='Get list of valid story URLs from unread email from IMAP account configured in ini.', )
 
-    parser.add_option('--download-imap',
+    parser.add_argument('--download-imap',
                       action='store_true', dest='downloadimap',
                       help='Download valid story URLs from unread email from IMAP account configured in ini.  Update existing EPUBs if used with --update-epub.', )
 
-    parser.add_option('-s', '--sites-list',
+    parser.add_argument('-s', '--sites-list',
                       action='store_true', dest='siteslist', default=False,
                       help='Get list of valid story URLs examples.', )
-    parser.add_option('--non-interactive',
+    parser.add_argument('--non-interactive',
                       action='store_false', dest='interactive', default=sys.stdin.isatty() and sys.stdout.isatty(),
                       help='Prevent interactive prompts (for scripting).', )
-    parser.add_option('-d', '--debug',
+    parser.add_argument('-d', '--debug',
                       action='store_true', dest='debug',
                       help='Show debug and notice output.', )
-    parser.add_option('-p', '--progressbar',
+    parser.add_argument('-p', '--progressbar',
                       action='store_true', dest='progressbar',
                       help='Display a simple progress bar while downloading--one dot(.) per network fetch.', )
-    parser.add_option('-v', '--version',
+    parser.add_argument('-v', '--version',
                       action='store_true', dest='version',
                       help='Display version and quit.', )
 
     ## undocumented feature for development use.  Save page cache and
     ## cookies between runs.  Saves in PWD as files global_cache and
     ## global_cookies
-    parser.add_option('--save-cache', '--save_cache',
+    parser.add_argument('--save-cache', '--save_cache',
                       action='store_true', dest='save_cache',
-                      help=SUPPRESS_HELP, )
+                      help=argparse.SUPPRESS, )
+    
+    parser.add_argument("args", nargs="*", help=argparse.SUPPRESS)
 
-    options, args = parser.parse_args(argv)
-    # rename format -> formats.
-    # we still use 'format' as an argument name for backward compatibility
-    # also set default here, so 'epub' is not always specified.
-    if len(options.format) == 0:
+    options = parser.parse_args(argv)
+    # check if no formats were specified. We can not use argparse's
+    # 'default' with a list in combination with 'append'
+    # see https://stackoverflow.com/a/43663319 for explanation
+    if options.formats is None:
         options.formats = ['epub']
-    else:
-        options.formats = option.format
-    del options.format
+    args = options.args
 
     if not options.debug:
         logger.setLevel(logging.WARNING)
