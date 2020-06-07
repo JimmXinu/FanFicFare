@@ -243,7 +243,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
             # logger.debug(div.find_all('p')[1])
             metaline = re.sub(r' +',' ',stripHTML(div.find_all('p')[1]).replace('\n',' '))
             # logger.debug(metaline)
-            match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: (?P<genre>.+?)$",metaline)
+            match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: ?(?P<genre>.*?)$",metaline)
             if match:
                 # logger.debug(match.group('status'))
                 # logger.debug(match.group('rating'))
