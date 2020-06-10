@@ -30,11 +30,11 @@ from ..six.moves.urllib.error import HTTPError
 from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
-    return EfictionEstelielDeAdapter
+    return FaerieArchiveComAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class EfictionEstelielDeAdapter(BaseSiteAdapter):
+class FaerieArchiveComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -51,7 +51,7 @@ class EfictionEstelielDeAdapter(BaseSiteAdapter):
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','eesd')
+        self.story.setMetadata('siteabbrev','fae')
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
@@ -60,15 +60,26 @@ class EfictionEstelielDeAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'efiction.esteliel.de'
+        return 'faerie-archive.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        # for backward compatibility
+        return ['efiction.esteliel.de',cls.getSiteDomain()]
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        # for backward compatibility
+        return ['efiction.esteliel.de',cls.getSiteDomain()]
 
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
-
+        siter = "("+"|".join([re.escape(x) for x in self.getAcceptDomains()])+")"
+        return re.escape("http://")+siter+re.escape("/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):

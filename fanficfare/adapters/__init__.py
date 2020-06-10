@@ -86,7 +86,7 @@ from . import adapter_bloodtiesfancom
 from . import adapter_qafficcom
 from . import adapter_efpfanficnet
 from . import adapter_potterficscom
-from . import adapter_efictionestelielde
+from . import adapter_faeriearchivecom
 from . import adapter_imagineeficcom
 from . import adapter_potterheadsanonymouscom
 from . import adapter_fictionpadcom
