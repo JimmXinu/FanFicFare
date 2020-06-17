@@ -2293,7 +2293,8 @@ class FanFicFarePlugin(InterfaceAction):
                     cover_generated = True
 
             if cover_generated and prefs['gc_polish_cover'] and \
-                    options['fileform'] == "epub":
+                    options['fileform'] == "epub" and \
+                    db.has_format(book['calibre_id'],'EPUB',index_is_id=True) :
                 # set cover inside epub from calibre's polish feature
                 from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                 from calibre.utils.logging import Log
