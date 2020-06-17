@@ -9,7 +9,7 @@
 # Ptit Prince <leporello1791@gmail.com>, 2014-2016
 # Nicolas F. <fernetn@gmail.com>, 2017
 # Piconcely Yoann <yoanncoolazz@gmail.com>, 2015
-# Ptit Prince <leporello1791@gmail.com>, 2016-2017,2019
+# Ptit Prince <leporello1791@gmail.com>, 2016-2017,2019-2020
 # sengian <sengian1@gmail.com>, 2016
 # sengian <sengian1@gmail.com>, 2015
 # Thibault San <diablodu02@gmail.com>, 2015
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-05-14 19:00-0500\n"
-"PO-Revision-Date: 2020-05-15 04:30+0000\n"
-"Last-Translator: JimmXinu <retiefjimm@gmail.com>\n"
+"PO-Revision-Date: 2020-06-17 09:45+0000\n"
+"Last-Translator: Ptit Prince <leporello1791@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2334,20 +2334,20 @@ msgstr "Mettre à Jour les Métadonnées de calibre à partir d'une Colonne de M
 
 #: prefs.py:74
 msgid "Yes, Always"
-msgstr ""
+msgstr "Oui, Toujours"
 
 #: prefs.py:76
 msgid "Yes, if EPUB has a cover image"
-msgstr ""
+msgstr "Oui, si l'EPUB à une image de couverture"
 
 #: prefs.py:78
 msgid "Yes, unless FanFicFare found a cover image"
-msgstr ""
+msgstr "Oui, sauf si FanFicFare a trouvé une image de couverture"
 
 #: prefs.py:80
 msgid "Yes, unless found on site"
-msgstr ""
+msgstr "Oui, à moins qu'elle ne soit trouvée sur place"
 
 #: prefs.py:82
 msgid "No"
-msgstr ""
+msgstr "Non"
