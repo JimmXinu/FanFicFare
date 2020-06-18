@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -106,22 +106,21 @@ class BaseStoryWriter(Configurable):
             wideTitleEntriesList = self.getConfigList("wide_titlepage_entries")
 
             for entry in titleEntriesList:
+                logger.debug("entry:%s"%entry)
+                show_empty = False
+                if entry.endswith('.SHOW_EMPTY'):
+                    entry = entry[:-len('.SHOW_EMPTY')]
+                    show_empty = True
+                logger.debug("entry:%s"%entry)
+                logger.debug("show_empty:%s"%show_empty)
                 if self.isValidMetaEntry(entry):
-                    if self.story.getMetadata(entry):
+                    if self.story.getMetadata(entry) or show_empty:
                         if entry in wideTitleEntriesList:
                             TEMPLATE=WIDE_ENTRY
                         else:
                             TEMPLATE=ENTRY
 
                         label=self.get_label(entry)
-                        # if self.hasConfig(entry+"_label"):
-                        #     label=self.getConfig(entry+"_label")
-                        # elif entry in self.titleLabels:
-                        #     logger.debug("Using fallback label for %s_label"%entry)
-                        #     label=self.titleLabels[entry]
-                        # else:
-                        #     label="%s"%entry.title()
-                        #     logger.debug("No known label for %s, fallback to '%s'"%(entry,label))
 
                         # If the label for the title entry is empty, use the
                         # 'no title' option if there is one.
