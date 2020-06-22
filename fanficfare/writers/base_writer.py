@@ -106,13 +106,13 @@ class BaseStoryWriter(Configurable):
             wideTitleEntriesList = self.getConfigList("wide_titlepage_entries")
 
             for entry in titleEntriesList:
-                logger.debug("entry:%s"%entry)
+                # logger.debug("entry:%s"%entry)
                 show_empty = False
                 if entry.endswith('.SHOW_EMPTY'):
                     entry = entry[:-len('.SHOW_EMPTY')]
                     show_empty = True
-                logger.debug("entry:%s"%entry)
-                logger.debug("show_empty:%s"%show_empty)
+                # logger.debug("entry:%s"%entry)
+                # logger.debug("show_empty:%s"%show_empty)
                 if self.isValidMetaEntry(entry):
                     if self.story.getMetadata(entry) or show_empty:
                         if entry in wideTitleEntriesList:
