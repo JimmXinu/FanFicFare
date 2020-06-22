@@ -991,6 +991,15 @@ class Story(Configurable):
                         retlist = newretlist
                         ## logger.debug(retlist)
 
+            if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
+                                                                                                            removeallentities=False,
+                                                                                                            # to avoid inf loops if genre/cat substs
+                                                                                                            includelist=includelist+[listname],
+                                                                                                            doreplacements=False,
+                                                                                                            seen_list=seen_list
+                                                                                                            )) > 1:
+                retlist.append(self.getConfig('add_genre_when_multi_category'))
+
             if retlist:
                 if doreplacements:
                     newretlist = []
@@ -1003,14 +1012,6 @@ class Story(Configurable):
                     retlist = [ removeAllEntities(x) for x in retlist ]
 
                 retlist = [x for x in retlist if x!=None and x!='']
-
-            if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
-                                                                                                            removeallentities=False,
-                                                                                                            # to avoid inf loops if genre/cat substs
-                                                                                                            doreplacements=False,
-                                                                                                            seen_list=seen_list
-                                                                                                            )) > 1:
-                retlist.append(self.getConfig('add_genre_when_multi_category'))
 
             if retlist:
                 if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
