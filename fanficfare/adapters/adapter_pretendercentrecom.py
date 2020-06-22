@@ -60,11 +60,7 @@ class PretenderCenterComAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'pretendercentre.com'
-
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['www.pretendercentre.com','pretendercentre.com']
+        return 'www.pretendercentre.com'
 
     @classmethod
     def getSiteExampleURLs(cls):
