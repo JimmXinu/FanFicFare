@@ -411,6 +411,7 @@ def get_valid_keywords():
                  'max_fg_sleep_at_downloads',
                  'min_fg_sleep',
                  'never_make_cover',
+                 'cover_min_size',
                  'no_image_processing',
                  'non_breaking_spaces',
                  'download_text_version',

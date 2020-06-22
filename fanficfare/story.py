@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,8 +56,13 @@ imagetypes = {
 
 try:
     from calibre.utils.magick import Image
-    from .six import BytesIO
     convtype = {'jpg':'JPG', 'png':'PNG'}
+
+    def get_image_size(data):
+        img = Image()
+        img.load(data)
+        owidth, oheight = img.size
+        return owidth, oheight
 
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff'):
@@ -104,6 +109,12 @@ except:
         from PIL import Image
         from .six import BytesIO
         convtype = {'jpg':'JPEG', 'png':'PNG'}
+
+        def get_image_size(data):
+            img = Image.open(BytesIO(data))
+            owidth, oheight = img.size
+            return owidth, oheight
+
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
             # logger.debug("Pillow convert_image called")
@@ -1242,8 +1253,18 @@ class Story(Configurable):
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
                 return ("failedtoload","failedtoload")
 
+            cover_big_enough = True
+            try:
+                sizes = [ int(x) for x in self.getConfigList('cover_min_size') ]
+                if sizes:
+                    owidth, oheight = get_image_size(data)
+                    cover_big_enough = owidth >= sizes[0] and oheight >= sizes[1]
+                    logger.debug("cover_big_enough:%s %s>=%s, %s>=%s"%(cover_big_enough,owidth,sizes[0],oheight,sizes[1]))
+            except Exception as e:
+                raise exceptions.FailedToDownload("Failed to process cover_min_size from personal.ini:%s\nException: %s"%(self.getConfigList('cover_min_size'),e))
+
             # explicit cover, make the first image.
-            if cover:
+            if cover and cover_big_enough:
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
                     del self.imgurls[0]
@@ -1263,7 +1284,8 @@ class Story(Configurable):
                 if self.cover == None and \
                         self.getConfig('make_firstimage_cover') and \
                         not self.getConfig('never_make_cover') and \
-                        not (coverexclusion and re.search(coverexclusion,imgurl)):
+                        not (coverexclusion and re.search(coverexclusion,imgurl)) and \
+                        cover_big_enough:
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
                     self.setMetadata('cover_image','first')
