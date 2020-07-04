@@ -4,15 +4,18 @@ from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2017, Jim Miller'
+__copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 try:
-    from PyQt5.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
+    from PyQt5.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
 except ImportError as e:
-    from PyQt4.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
+    from PyQt4.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
 
 from .fanficfare.six import string_types
 
@@ -28,53 +31,78 @@ class IniHighlighter(QSyntaxHighlighter):
 
         self.highlightingRules = []
 
+        colors = {
+            'knownentries':Qt.darkGreen,
+            'errors':Qt.red,
+            'allkeywords':Qt.darkMagenta,
+            'knownkeywords':Qt.blue,
+            'knownsections':Qt.darkBlue,
+            'teststories':Qt.darkCyan,
+            'storyUrls':Qt.darkMagenta,
+            'comments':Qt.darkYellow
+            }
+        try:
+            if QApplication.instance().is_dark_theme:
+                colors = {
+                    'knownentries':Qt.green,
+                    'errors':Qt.red,
+                    'allkeywords':Qt.magenta,
+                    'knownkeywords':QColor(Qt.blue).lighter(150),
+                    'knownsections':Qt.darkCyan,
+                    'teststories':Qt.cyan,
+                    'storyUrls':Qt.magenta,
+                    'comments':Qt.yellow
+                    }
+        except Exception as e:
+            logger.error("Failed to set dark theme highlight colors: %s"%e)
+
         if entries:
             # *known* entries
             reentries = r'('+(r'|'.join(entries))+r')'
-            self.highlightingRules.append( HighlightingRule( r"\b"+reentries+r"\b", Qt.darkGreen ) )
+            self.highlightingRules.append( HighlightingRule( r"\b"+reentries+r"\b", colors['knownentries'] ) )
 
         # true/false -- just to be nice.
-        self.highlightingRules.append( HighlightingRule( r"\b(true|false)\b", Qt.darkGreen ) )
+        self.highlightingRules.append( HighlightingRule( r"\b(true|false)\b", colors['knownentries'] ) )
 
         # *all* keywords -- change known later.
-        self.errorRule = HighlightingRule( r"^[^:=\s][^:=]*[:=]", Qt.red )
+        self.errorRule = HighlightingRule( r"^[^:=\s][^:=]*[:=]", colors['errors'] )
         self.highlightingRules.append( self.errorRule )
 
         # *all* entry keywords -- change known later.
         reentrykeywords = r'('+(r'|'.join([ e % r'[a-zA-Z0-9_]+' for e in entry_keywords ]))+r')'
-        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", Qt.darkMagenta ) )
+        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", colors['allkeywords'] ) )
 
         if entries: # separate from known entries so entry named keyword won't be masked.
             # *known* entry keywords
             reentrykeywords = r'('+(r'|'.join([ e % reentries for e in entry_keywords ]))+r')'
-            self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", Qt.blue ) )
+            self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+reentrykeywords+r"(_filelist)?\s*[:=]", colors['knownkeywords'] ) )
 
         # *known* keywords
         rekeywords = r'('+(r'|'.join(keywords))+r')'
-        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+rekeywords+r"(_filelist)?\s*[:=]", Qt.blue ) )
+        self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+rekeywords+r"(_filelist)?\s*[:=]", colors['knownkeywords'] ) )
 
         # *all* sections -- change known later.
-        self.highlightingRules.append( HighlightingRule( r"^\[[^\]]+\].*?$", Qt.red, QFont.Bold, blocknum=1 ) )
+        self.highlightingRules.append( HighlightingRule( r"^\[[^\]]+\].*?$", colors['errors'], QFont.Bold, blocknum=1 ) )
 
         if sections:
             # *known* sections
             resections = r'('+(r'|'.join(sections))+r')'
             resections = resections.replace('.','\.') #escape dots.
-            self.highlightingRules.append( HighlightingRule( r"^\["+resections+r"\]\s*$", Qt.darkBlue, QFont.Bold, blocknum=2 ) )
+            self.highlightingRules.append( HighlightingRule( r"^\["+resections+r"\]\s*$", colors['knownsections'], QFont.Bold, blocknum=2 ) )
 
         # test story sections
-        self.teststoryRule = HighlightingRule( r"^\[teststory:([0-9]+|defaults)\]", Qt.darkCyan, blocknum=3 )
+        self.teststoryRule = HighlightingRule( r"^\[teststory:([0-9]+|defaults)\]", colors['teststories'], blocknum=3 )
         self.highlightingRules.append( self.teststoryRule )
 
         # storyUrl sections
-        self.storyUrlRule = HighlightingRule( r"^\[https?://.*\]", Qt.darkMagenta, blocknum=4 )
+        self.storyUrlRule = HighlightingRule( r"^\[https?://.*\]", colors['storyUrls'], blocknum=4 )
         self.highlightingRules.append( self.storyUrlRule )
 
         # NOT comments -- but can be custom columns, so don't flag.
-        #self.highlightingRules.append( HighlightingRule( r"(?<!^)#[^\n]*" , Qt.red ) )
+        #self.highlightingRules.append( HighlightingRule( r"(?<!^)#[^\n]*" , colors['errors'] ) )
 
         # comments -- comments must start from column 0.
-        self.commentRule = HighlightingRule( r"^#[^\n]*" , Qt.darkYellow )
+        self.commentRule = HighlightingRule( r"^#[^\n]*" , colors['comments'] )
         self.highlightingRules.append( self.commentRule )
 
     def highlightBlock( self, text ):
