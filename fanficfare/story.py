@@ -996,6 +996,7 @@ class Story(Configurable):
                                                                                                             # to avoid inf loops if genre/cat substs
                                                                                                             includelist=includelist+[listname],
                                                                                                             doreplacements=False,
+                                                                                                            skip_cache=True,
                                                                                                             seen_list=seen_list
                                                                                                             )) > 1:
                 retlist.append(self.getConfig('add_genre_when_multi_category'))
