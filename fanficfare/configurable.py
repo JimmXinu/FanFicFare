@@ -522,7 +522,7 @@ class Configuration(configparser.SafeConfigParser):
 
     def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
-        configparser.SafeConfigParser.__init__(self)
+        configparser.ConfigParser.__init__(self)
 
         self.lightweight = lightweight
         self.use_pagecache = False # default to false for old adapters.
@@ -691,7 +691,7 @@ class Configuration(configparser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
+        vlist = [x for x in [ v.strip().replace(r'\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:
             return default
