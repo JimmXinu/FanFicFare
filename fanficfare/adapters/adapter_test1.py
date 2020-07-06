@@ -255,7 +255,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             self.story.addToList('category','Harry Potter')
             self.story.addToList('category','Furbie')
-            self.story.addToList('category','Crossover')
             self.story.addToList('category',u'Puella Magi Madoka Magica/魔法少女まどか★マギカ')
             self.story.addToList('category',u'Magical Girl Lyrical Nanoha')
             self.story.addToList('category',u'Once Upon a Time (TV)')
