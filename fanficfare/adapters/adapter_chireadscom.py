@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2019 FanFicFare team
+# Copyright 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,10 +55,6 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     @staticmethod
     def getSiteDomain():
         return 'chireads.com'
-
-    @classmethod
-    def getAcceptDomains(cls):
-        return ['chireads.com']
 
     @classmethod
     def getSiteExampleURLs(cls):
