@@ -1018,14 +1018,6 @@ class Story(Configurable):
 
                 retlist = [x for x in retlist if x!=None and x!='']
 
-            ## Add value of add_genre_when_multi_category to category
-            ## if there's more than one category value (before this,
-            ## obviously).  Applied *after* doReplacements.  For
-            ## normalization crusaders who want Crossover as a
-            ## category instead of genre.
-            if listname == 'category' and self.getConfig('add_category_when_multi_category') and len(retlist) > 1:
-                retlist.append(self.getConfig('add_category_when_multi_category'))
-
             if retlist:
                 if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):
                     # need to retain order for author & authorUrl so the
@@ -1034,6 +1026,16 @@ class Story(Configurable):
                 else:
                     # remove dups and sort.
                     retlist = sorted(list(set(retlist)))
+
+                    ## Add value of add_genre_when_multi_category to
+                    ## category if there's more than one category
+                    ## value (before this, obviously).  Applied
+                    ## *after* doReplacements.  For normalization
+                    ## crusaders who want Crossover as a category
+                    ## instead of genre.  Moved after dedup'ing so
+                    ## consolidated category values don't count.
+                    if listname == 'category' and self.getConfig('add_category_when_multi_category') and len(retlist) > 1:
+                        retlist.append(self.getConfig('add_category_when_multi_category'))
             else:
                 retlist = []
 
