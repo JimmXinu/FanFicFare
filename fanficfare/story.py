@@ -991,6 +991,10 @@ class Story(Configurable):
                         retlist = newretlist
                         ## logger.debug(retlist)
 
+            ## Add value of add_genre_when_multi_category to genre if
+            ## there's more than one category value.  Does not work
+            ## consistently well if you try to include_in_ chain genre
+            ## back into category--breaks with fandoms sites like AO3
             if listname == 'genre' and self.getConfig('add_genre_when_multi_category') and len(self.getList('category',
                                                                                                             removeallentities=False,
                                                                                                             # to avoid inf loops if genre/cat substs
@@ -1013,6 +1017,14 @@ class Story(Configurable):
                     retlist = [ removeAllEntities(x) for x in retlist ]
 
                 retlist = [x for x in retlist if x!=None and x!='']
+
+            ## Add value of add_genre_when_multi_category to category
+            ## if there's more than one category value (before this,
+            ## obviously).  Applied *after* doReplacements.  For
+            ## normalization crusaders who want Crossover as a
+            ## category instead of genre.
+            if listname == 'category' and self.getConfig('add_category_when_multi_category') and len(retlist) > 1:
+                retlist.append(self.getConfig('add_category_when_multi_category'))
 
             if retlist:
                 if listname in ('author','authorUrl','authorId') or self.getConfig('keep_in_order_'+listname):

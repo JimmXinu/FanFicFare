@@ -323,6 +323,7 @@ def get_valid_keywords():
     return list(['(in|ex)clude_metadata_(pre|post)',
                  'add_chapter_numbers',
                  'add_genre_when_multi_category',
+                 'add_category_when_multi_category',
                  'adult_ratings',
                  'allow_unsafe_filename',
                  'always_overwrite',
