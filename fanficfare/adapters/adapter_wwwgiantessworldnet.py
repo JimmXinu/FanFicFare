@@ -18,7 +18,7 @@
 ### Adapted by GComyn - November 18, 2016
 ###########################################################################
 # Software: eFiction
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 from .base_efiction_adapter import BaseEfictionAdapter
 
 class WWWGiantessworldNetAdapter(BaseEfictionAdapter):

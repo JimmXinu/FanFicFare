@@ -16,7 +16,7 @@
 #
 
 # Software: eFiction
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 from .base_efiction_adapter import BaseEfictionAdapter
 
 class NCISFictionComAdapter(BaseEfictionAdapter):

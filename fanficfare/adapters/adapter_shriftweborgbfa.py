@@ -21,7 +21,7 @@
 ###=================================================================================================
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 ''' This adapter scrapes the metadata and chapter text from stories on archive.shriftweb.org '''
 import logging
 import re

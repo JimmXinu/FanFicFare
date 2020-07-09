@@ -6,7 +6,7 @@
 
 ## This module is used by mobi.py exclusively.
 ## Renamed Jul 2018 to avoid conflict with other 'html' packages
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 
 import re
 import sys

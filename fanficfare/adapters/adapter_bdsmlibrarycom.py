@@ -23,7 +23,7 @@
 ###     Fixed the removal of the extra tags from some of the stories and
 ###         removed the attributes from the paragraph and span tags
 ###########################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 '''
 This works, but some of the stories have abysmal formatting, so it would
 probably need to be edited for reading.

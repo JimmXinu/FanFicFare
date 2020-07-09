@@ -16,7 +16,7 @@
 
 # Adapted by GComyn on December 14. 2016
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import json
 import logging
 import re

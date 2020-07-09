@@ -18,7 +18,7 @@
 # Adapted by GComyn on April 24, 2017
 # Updated by GComyn on June 11, 2018
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import logging
 import re
 import sys

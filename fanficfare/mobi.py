@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # Copyright(c) 2009 Andrew Chatham and Vijay Pandurangan
 # Changes Copyright 2018 FanFicFare team
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 
 import struct
 import time

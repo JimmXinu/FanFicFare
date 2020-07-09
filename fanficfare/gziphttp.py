@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ## Borrowed from http://techknack.net/python-urllib2-handlers/
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 
 from gzip import GzipFile
 from .six.moves.urllib.request import BaseHandler

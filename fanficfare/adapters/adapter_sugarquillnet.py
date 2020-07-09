@@ -26,7 +26,7 @@
 ###         take a long gime to process. I've removed as much of the extra
 ###         formatting as I thought I could.
 #############################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import logging
 logger = logging.getLogger(__name__)
 import re

@@ -20,7 +20,7 @@
 # Updated on January 07, 2017 - fixed metadata capturing after Jimm fixed the UnidecodeError problem
 ####################################################################################################
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import logging
 logger = logging.getLogger(__name__)
 import re

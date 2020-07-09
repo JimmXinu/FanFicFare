@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import re
 
 from .base_xenforo2forum_adapter import BaseXenForo2ForumAdapter

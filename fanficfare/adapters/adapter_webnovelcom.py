@@ -16,7 +16,7 @@
 #
 
 # Adapted by GComyn on April 16, 2017
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 try:
     # python3
     from html import escape

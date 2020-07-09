@@ -22,7 +22,7 @@
 ###=================================================================================================
 ### I have started to use lines of # on the line just before a function so they are easier to find.
 ####################################################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 '''
 This will scrape the chapter text and metadata from stories on the site trekfanfiction.net
 '''

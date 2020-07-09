@@ -1,5 +1,5 @@
 # Software: eFiction
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import re
 
 from bs4.element import Tag
