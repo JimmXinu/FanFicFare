@@ -23,6 +23,11 @@ import codecs
 from . import six
 from .six.moves import configparser
 from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+if six.PY2:
+  ConfigParser = configparser.SafeConfigParser
+else: # PY3
+  ConfigParser = configparser.ConfigParser
+
 from .six.moves import urllib
 from .six.moves.urllib.parse import (urlencode, quote_plus)
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
@@ -31,6 +36,7 @@ from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_binary, ensure_text
+
 
 import time
 import logging
@@ -519,11 +525,11 @@ def make_generate_cover_settings(param):
     return vlist
 
 
-class Configuration(configparser.SafeConfigParser):
+class Configuration(ConfigParser):
 
     def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
-        configparser.SafeConfigParser.__init__(self)
+        ConfigParser.__init__(self)
 
         self.lightweight = lightweight
         self.use_pagecache = False # default to false for old adapters.
@@ -692,7 +698,7 @@ class Configuration(configparser.SafeConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
+        vlist = [x for x in [ v.strip().replace(r'\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:
             return default
