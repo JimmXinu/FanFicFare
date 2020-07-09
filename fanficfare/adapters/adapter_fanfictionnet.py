@@ -143,7 +143,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 if e.code == 503:
                     raise e
             except Exception as e:
-                logger.warn("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
+                logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
                 pass
 
         # Find authorid and URL from... author url.

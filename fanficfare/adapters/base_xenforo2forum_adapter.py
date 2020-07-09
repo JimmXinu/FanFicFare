@@ -174,7 +174,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             for p in posts:
                 if 'sticky-container' not in p['class']:
                     return p
-            logger.warn("First X posts all sticky? Using first-first post.")
+            logger.warning("First X posts all sticky? Using first-first post.")
         return posts[0]
 
     def get_first_post_body(self,topsoup):
@@ -246,7 +246,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             # not paying any attention to TZ issues.
             return datetime.fromtimestamp(float(datetag['data-time']))
         except:
-            # logger.warn('No date found in %s'%parenttag,exc_info=True)
+            # logger.warning('No date found in %s'%parenttag,exc_info=True)
             return None
 
     def make_reader_url(self,tmcat_num,reader_page_num):

@@ -41,7 +41,7 @@ def _unirepl(match):
     except:
         # This way, at least if there's more of entities out there
         # that fail, it doesn't blow the entire download.
-        logger.warn("Numeric entity translation failed, skipping: &#x%s%s"%(match.group(1),match.group(2)))
+        logger.warning("Numeric entity translation failed, skipping: &#x%s%s"%(match.group(1),match.group(2)))
         retval = ""
     return retval
 

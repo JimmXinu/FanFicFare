@@ -442,7 +442,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     ## sanity check just in case.
                     self.use_full_work_soup = False
                     self.full_work_soup = None
-                    logger.warn("chapter count in view_full_work(%s) disagrees with num of chapters(%s)--ending use_view_full_work"%(len(self.full_work_chapters),self.num_chapters()))
+                    logger.warning("chapter count in view_full_work(%s) disagrees with num of chapters(%s)--ending use_view_full_work"%(len(self.full_work_chapters),self.num_chapters()))
             whole_dl_soup = self.full_work_soup
 
         if whole_dl_soup:

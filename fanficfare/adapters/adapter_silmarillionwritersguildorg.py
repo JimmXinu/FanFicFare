@@ -161,7 +161,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             # pages after story found.
             pass
         except Exception as e:
-            logger.warn("series parsing failed(%s)"%e)
+            logger.warning("series parsing failed(%s)"%e)
             pass
 
         # Find the chapters by regexing urls
@@ -187,7 +187,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 self.story.addToList('characters',char.string)
 
         except Exception as e:
-            logger.warn("character parsing failed(%s)"%e)
+            logger.warning("character parsing failed(%s)"%e)
 
         #get warnings
         try:
@@ -196,7 +196,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 self.story.addToList('warnings', warn.string)
 
         except Exception as e:
-            logger.warn("warning parsing failed(%s)"%e)
+            logger.warning("warning parsing failed(%s)"%e)
 
         #get genres
         try:
@@ -205,7 +205,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 self.story.addToList('genre', genre.string)
 
         except Exception as e:
-            logger.warn("genre parsing failed(%s)"%e)
+            logger.warning("genre parsing failed(%s)"%e)
 
         # no convenient way to extract remaining metadata so bodge it by finding relevant identifier string and using next element as the data source
 
@@ -220,7 +220,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #logger.debug(summaryValue)
             self.setDescription(url,summaryValue)
         except Exception as e:
-            logger.warn("summary parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("summary parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
 
         #get rating
@@ -228,7 +228,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             rating = workDetails.find('strong',text='Rated:').next_sibling.string
             self.story.setMetadata('rating', rating)
         except Exception as e:
-            logger.warn("rating parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("rating parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
         #get completion status and correct for consistency with other adapters
         try:
@@ -240,14 +240,14 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
             self.story.setMetadata('status', status)
         except Exception as e:
-            logger.warn("status parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("status parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
         #get wordcount
         try:
             wordCount = workDetails.find('strong',text='Word count:').next_sibling.string
             self.story.setMetadata('numWords', wordCount)
         except Exception as e:
-            logger.warn("wordcount parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("wordcount parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
         #get published date, this works for some reason yet doesn't without the spaces in it
         try:
@@ -255,7 +255,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('datePublished', makeDate(datePublished, self.dateformat))
 
         except Exception as e:
-            logger.warn("datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
         #get updated date
         try:
@@ -263,7 +263,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('dateUpdated', makeDate(dateUpdated, self.dateformat))
 
         except Exception as e:
-            logger.warn("dateUpdated parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("dateUpdated parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

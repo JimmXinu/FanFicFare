@@ -49,7 +49,7 @@ class WattpadComAdapter(BaseSiteAdapter):
             try:
                 WattpadComAdapter.CATEGORY_DEFs = json.loads(self._fetchUrl(WattpadComAdapter.API_GETCATEGORIES))
             except:
-                logger.warn('API_GETCATEGORIES failed.')
+                logger.warning('API_GETCATEGORIES failed.')
                 WattpadComAdapter.CATEGORY_DEFs = []
 
     @staticmethod

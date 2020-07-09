@@ -590,7 +590,7 @@ class Configuration(ConfigParser):
             self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in six.viewitems(self._sections))
             # logger.debug(self._sections.keys())
         except Exception as e:
-            logger.warn("Failed to perform section_url_names: %s"%e)
+            logger.warning("Failed to perform section_url_names: %s"%e)
 
     def addUrlConfigSection(self,url):
         if not self.lightweight: # don't need when just checking for normalized URL.
@@ -671,7 +671,7 @@ class Configuration(ConfigParser):
                 except:
                     pass
             if not file_val:
-                logger.warn("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
+                logger.warning("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
                             (key+"_filelist",key,val_files))
 
         if not file_val:
@@ -1040,7 +1040,7 @@ class Configuration(ConfigParser):
             try:
                 return reduce_zalgo(data,max_zalgo)
             except Exception as e:
-                logger.warn("reduce_zalgo failed(%s), continuing."%e)
+                logger.warning("reduce_zalgo failed(%s), continuing."%e)
         return data
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s

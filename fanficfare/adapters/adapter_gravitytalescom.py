@@ -34,7 +34,7 @@ except ImportError:
         # A version of feedparser is available in the Calibre plugin version
         from calibre.web.feeds import feedparser
     except ImportError:
-        # logger.warn('No version of feedparser module available, falling back to naive published and updated date')
+        # logger.warning('No version of feedparser module available, falling back to naive published and updated date')
         feedparser = None
 
 # py2 vs py3 transition
