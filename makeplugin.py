@@ -22,7 +22,7 @@ from makezip import createZipFile
 
 if __name__=="__main__":
     filename="FanFicFare.zip"
-    exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db','*tests']
+    exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db']
     
     os.chdir('calibre-plugin')
     files=['plugin-defaults.ini','plugin-example.ini','about.html',
