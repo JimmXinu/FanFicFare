@@ -61,8 +61,8 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         3) editor signatures an an option to remove them.
     """
 
-    WORD_PATTERN = re.compile(u'\w+', re.UNICODE)
-    DOCUMENT_ID_PATTERN = re.compile(u'\d+-\d+-\d+-\d+')
+    WORD_PATTERN = re.compile(r'\w+', re.UNICODE)
+    DOCUMENT_ID_PATTERN = re.compile(r'\d+-\d+-\d+-\d+')
     SITE_LANGUAGE = u'Russian'
 
     def __init__(self, config, url):
@@ -145,7 +145,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         largestCommonPrefix = _getLargestCommonPrefix(*headings)
         prefixLength = len(largestCommonPrefix)
         storyTitleEnd, chapterTitleStart = prefixLength, prefixLength
-        match = re.search(u'[:.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
+        match = re.search(r'[:.\s]*(?P<chapter>глава\s+)?$', largestCommonPrefix, re.IGNORECASE | re.UNICODE)
         if match:
             storyTitleEnd -= len(match.group())
             label = match.group('chapter')
@@ -154,7 +154,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
         storyTitle = largestCommonPrefix[:storyTitleEnd]
         self.story.setMetadata('title', storyTitle)
 
-        garbagePattern = re.compile(u'(?P<start>^)?[:.\s]*(?(start)|$)', re.UNICODE)
+        garbagePattern = re.compile(r'(?P<start>^)?[:.\s]*(?(start)|$)', re.UNICODE)
 
         for chapter in chapters:
             url = chapter.getUrl()
@@ -383,7 +383,7 @@ class Chapter(object):
         optimum, zero inhibits the check, and positive value adjusts threshold."""
 
         def getFirstWord(string):
-            match = re.search(u'^\s*\w+', string, re.UNICODE)
+            match = re.search(r'^\s*\w+', string, re.UNICODE)
             return string[match.start():match.end()]
 
         thisStoryTitle = self.getHeading()
@@ -430,7 +430,7 @@ class Chapter(object):
                 .findNextSibling('a')
         except AttributeError:
             raise ParsingError(u'Failed to locate author link.')
-        match = re.search(u'(8-\d+)', authorLink['onclick'])
+        match = re.search(r'(8-\d+)', authorLink['onclick'])
         if not match:
             raise ParsingError(u'Failed to extract author ID.')
         authorId = match.group(0)
@@ -562,7 +562,7 @@ class Chapter(object):
         return attributes
 
     # Most, but not all, URLs of rating icons match this.
-    RATING_LABEL_PATTERN = re.compile(u'/(?P<rating>[ERATINnG]+)\.png$')
+    RATING_LABEL_PATTERN = re.compile(r'/(?P<rating>[ERATINnG]+)\.png$')
 
     def _parseRatingFromImage(self, element):
         """Given an image element, try to parse story rating from it."""
@@ -594,7 +594,7 @@ class Chapter(object):
     # Various `et cetera' and `et al' forms in Russian texts.
     # Intended to be used with whole strings!
     ETC_PATTERN = re.compile(
-        u'''[и&]\s(?:
+        r'''[и&]\s(?:
               (?:т\.?\s?[пд]?\.?)|
               (?:др(?:угие|\.)?)|
               (?:пр(?:очие|\.)?)|
@@ -606,7 +606,7 @@ class Chapter(object):
         re.IGNORECASE + re.UNICODE + re.VERBOSE)
 
     # `Author's Notes' and its variants in Russian.
-    ANNOTATION_PATTERN = re.compile(u'аннотация|описание|(?:(?:за|при)мечание\s)?(?:от\s)?автора', re.UNICODE)
+    ANNOTATION_PATTERN = re.compile(r'аннотация|описание|(?:(?:за|при)мечание\s)?(?:от\s)?автора', re.UNICODE)
 
     def _parseAttribute(self, key, value):
         """
@@ -686,7 +686,7 @@ class Chapter(object):
         return root
 
     # Editor signature always starts with something like this.
-    SIGNED_PATTERN = re.compile(u'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
+    SIGNED_PATTERN = re.compile(r'отредактирова(?:но|ла?)[:.\s]', re.IGNORECASE + re.UNICODE)
 
     def _excludeEditorSignature(self, root):
         """Exclude editor signature from within `root' element."""

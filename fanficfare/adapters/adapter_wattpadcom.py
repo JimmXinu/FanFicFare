@@ -137,7 +137,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('%s' % url)
-        chapterID = re.search(u'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
+        chapterID = re.search(r'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
         return self.utf8FromSoup(url,self.make_soup(self._fetchUrl(WattpadComAdapter.API_STORYTEXT % chapterID)))
 
 # adapter self-dicovery is not implemented in fanficfare (it existed for the previous project)
