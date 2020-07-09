@@ -131,7 +131,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', td[2].string.split(': ')[1])
             self.story.setMetadata('datePublished', makeDate(stripHTML(td[4]).split(': ')[1], self.dateformat))
         except Exception as e:
-            logger.warn("rating, status and/or datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
+            logger.warning("rating, status and/or datePublished parsing failed(%s) -- This can be caused by bad HTML in story description."%e)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

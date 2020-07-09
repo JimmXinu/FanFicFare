@@ -82,8 +82,8 @@ def get_update_data(inputio,
                     continue
             except Exception as e:
                 ## Calibre's Polish Book corrupts sub-book covers.
-                logger.warn("Cover (x)html file %s not found"%href)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warning("Cover (x)html file %s not found"%href)
+                logger.warning("Exception: %s"%(unicode(e)))
 
             try:
                 # remove all .. and the path part above it, if present.
@@ -98,8 +98,8 @@ def get_update_data(inputio,
                         break
                 oldcover = (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
             except Exception as e:
-                logger.warn("Cover Image %s not found"%src)
-                logger.warn("Exception: %s"%(unicode(e)))
+                logger.warning("Cover Image %s not found"%src)
+                logger.warning("Exception: %s"%(unicode(e)))
 
     filecount = 0
     soups = [] # list of xhmtl blocks
@@ -142,8 +142,8 @@ def get_update_data(inputio,
                                 # it indicates a failed download
                                 # originally.
                                 if newsrc != u'OEBPS/failedtoload':
-                                    logger.warn("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warn("Exception: %s"%(unicode(e)),exc_info=True)
+                                    logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+                                    logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')

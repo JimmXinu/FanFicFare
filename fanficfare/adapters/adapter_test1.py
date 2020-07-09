@@ -62,7 +62,7 @@ class TestSiteAdapter(BaseSiteAdapter):
         self.do_sleep()
 
         if idnum >= 1000:
-            logger.warn("storyId:%s - Custom INI data will be used."%idstr)
+            logger.warning("storyId:%s - Custom INI data will be used."%idstr)
 
             sections = ['teststory:%s'%idstr,'teststory:defaults']
             #print("self.get_config_list(sections,'valid_entries'):%s"%self.get_config_list(sections,'valid_entries'))
@@ -98,7 +98,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             idnum = int(idstr)
 
         if idstr == '665' and not (self.is_adult or self.getConfig("is_adult")):
-            logger.warn("self.is_adult:%s"%self.is_adult)
+            logger.warning("self.is_adult:%s"%self.is_adult)
             raise exceptions.AdultCheckRequired(self.url)
 
         if idstr == '666':

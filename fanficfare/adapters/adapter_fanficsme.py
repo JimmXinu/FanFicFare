@@ -331,7 +331,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             chapter_div = whole_dl_soup.find('div',{'id':'c%s'%(index)})
             if not chapter_div:
                 self.use_full_work_soup = False
-                logger.warn("c%s not found in view_full_work--ending use_view_full_work"%(index))
+                logger.warning("c%s not found in view_full_work--ending use_view_full_work"%(index))
         if chapter_div == None:
             whole_dl_soup = self.make_soup(self._fetchUrl(url))
             chapter_div = whole_dl_soup.find('div',{'id':'c%s'%(index)})

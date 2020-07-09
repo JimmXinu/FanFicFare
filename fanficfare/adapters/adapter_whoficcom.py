@@ -140,7 +140,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         # 	<li class="list-inline-item small"><b>Word count:</b> 6363</li>
         # </ul>
         # </div>
-        # logger.warn(metadata)
+        # logger.warning(metadata)
 
         cat_as = metadata.find_all('a', href=re.compile(r'categories.php'))
         for cat_a in cat_as:
@@ -207,7 +207,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
                 self.setSeries(series_name, 0)
                 self.story.setMetadata('seriesUrl',series_url)
 
-        # logger.warn(metadata) #.find_all('p')
+        # logger.warning(metadata) #.find_all('p')
 
         ps = metadata.find_all('p')
 
@@ -230,7 +230,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         if chars != 'None':
             self.story.extendList('characters',chars.split(', '))
 
-        # logger.warn(metadata)
+        # logger.warning(metadata)
 
     def getChapterText(self, url):
 

@@ -69,7 +69,7 @@ def parse_relative_date_string(string_):
         else:
             # This is "just as wrong" as always returning the currentq
             # date, but prevents unneeded updates each time
-            logger.warn('Failed to parse relative date string: %r, falling back to unix epoche', string_)
+            logger.warning('Failed to parse relative date string: %r, falling back to unix epoche', string_)
             return UNIX_EPOCHE
 
     kwargs = {unit: int(value)}

@@ -195,7 +195,7 @@ class BaseStoryWriter(Configurable):
                     lastupdated=self.story.getMetadataRaw('dateUpdated').date()
                     fileupdated=datetime.datetime.fromtimestamp(os.stat(outfilename)[8]).date()
                     if fileupdated > lastupdated:
-                        logger.warn("File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated))
+                        logger.warning("File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated))
                         return
             if not metaonly:
                 self.story = self.adapter.getStory() # get full story

@@ -86,7 +86,7 @@ class HtmlProcessor:
       # TODO(chatham): Using regexes and looking for name= would be better.
       newpos = assembled_text.find(b'name="'+ensure_binary(ref)) # .encode('utf-8')
       if newpos == -1:
-        logger.warn('Could not find anchor "%s"' % original_ref)
+        logger.warning('Could not find anchor "%s"' % original_ref)
         continue
       # instead of somewhere slightly *after* the <a> tag pointed to,
       # let's go right in front of it instead by looking for the page

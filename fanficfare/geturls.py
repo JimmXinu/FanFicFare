@@ -235,7 +235,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
                 folders.append(m.group("folder").replace("\\",""))
                 # logger.debug(folders[-1])
             else:
-                logger.warn("Failed to parse IMAP folder line(%s)"%ensure_str(f))
+                logger.warning("Failed to parse IMAP folder line(%s)"%ensure_str(f))
     except:
         folders = []
         logger.warning("Failed to parse IMAP folder list, continuing without list.")
