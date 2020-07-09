@@ -67,7 +67,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         # get storyId from url--url validation guarantees query is only fiction/1234
-        self.story.setMetadata('storyId',re.match('/fiction/(\d+)(/.*)?$',self.parsedUrl.path).groups()[0])
+        self.story.setMetadata('storyId',re.match(r'/fiction/(\d+)(/.*)?$',self.parsedUrl.path).groups()[0])
 
 
         # normalized story URL.

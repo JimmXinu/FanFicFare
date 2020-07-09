@@ -226,17 +226,17 @@ class FanFicsMeAdapter(BaseSiteAdapter):
 
         content = get_meta_content(u'Фандом')
         self.story.extendList('fandoms', [ stripHTML(a) for a in
-                                           fichead.find_all('a',href=re.compile('/fandom\d+$')) ] )
+                                           fichead.find_all('a',href=re.compile(r'/fandom\d+$')) ] )
 
         ## 'Characters' header has both ships and chars lists
         content = get_meta_content(u'Персонажи')
         if content:
             self.story.extendList('ships', [ stripHTML(a) for a in
-                                             content.find_all('a',href=re.compile('/paring\d+_\d+$')) ] )
+                                             content.find_all('a',href=re.compile(r'/paring\d+_\d+$')) ] )
             for ship in self.story.getList('ships'):
                 self.story.extendList('characters', ship.split('/'))
             self.story.extendList('characters', [ stripHTML(a) for a in
-                                                  content.find_all('a',href=re.compile('/character\d+$')) ] )
+                                                  content.find_all('a',href=re.compile(r'/character\d+$')) ] )
 
         self.story.extendList('genre',stripHTML(get_meta_content(u'Жанр')).split(', '))
         ## fanfics.me includes 'AU' and 'OOC' as warnings...
@@ -247,7 +247,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         content = get_meta_content(u'События')
         if content:
             self.story.extendList('events', [ stripHTML(a) for a in
-                                              content.find_all('a',href=re.compile('/find\?keyword=\d+$')) ] )
+                                              content.find_all('a',href=re.compile(r'/find\?keyword=\d+$')) ] )
 
         ## Original work block
         content = get_meta_content(u'Оригинал')
@@ -288,9 +288,9 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         # series
         seriesdiv = soup.find('div',id='fic_info_content_serie')
         if seriesdiv:
-            seriesa = seriesdiv.find('a', href=re.compile('/serie\d+$'))
+            seriesa = seriesdiv.find('a', href=re.compile(r'/serie\d+$'))
             i=1
-            for a in seriesdiv.find_all('a', href=re.compile('/fic\d+$')):
+            for a in seriesdiv.find_all('a', href=re.compile(r'/fic\d+$')):
                 if a['href'] == ('/fic'+self.story.getMetadata('storyId')):
                     self.setSeries(stripHTML(seriesa), i)
                     self.story.setMetadata('seriesUrl','https://'+self.host+seriesa['href'])

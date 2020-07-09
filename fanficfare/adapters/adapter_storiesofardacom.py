@@ -103,7 +103,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters: chapterview.asp?sid=7000&cid=30919
-        chapters=soup.findAll('a', href=re.compile(r'chapterview.asp\?sid='+self.story.getMetadata('storyId')+"&cid=\d+$"))
+        chapters=soup.findAll('a', href=re.compile(r'chapterview.asp\?sid='+self.story.getMetadata('storyId')+r"&cid=\d+$"))
         if len(chapters)==1:
             self.add_chapter(self.story.getMetadata('title'),'http://'+self.host+'/'+chapters[0]['href'])
         else:
@@ -120,7 +120,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         # no convenient way to get word count
 
         for td in asoup.findAll('td', {'colspan' : '3'}):
-            if td.find('a', href=re.compile('chapterlistview.asp\?SID='+self.story.getMetadata('storyId'))) != None:
+            if td.find('a', href=re.compile(r'chapterlistview.asp\?SID='+self.story.getMetadata('storyId'))) != None:
                 break
         td=td.nextSibling.nextSibling
         self.story.setMetadata('dateUpdated', makeDate(stripHTML(td).split(': ')[1], self.dateformat))

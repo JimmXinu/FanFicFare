@@ -96,7 +96,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # https://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
         # logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
-        return r"https?://(" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
+        return r"https?://(" + r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
 
     # The certificate is only valid for the following names:
     # ao3.org,
@@ -266,7 +266,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # change the dates of earlier ones by editing them--That WILL
         # break epub update.
         # Find the chapters:
-        chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+"/chapters/\d+$"))
+        chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+r"/chapters/\d+$"))
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
@@ -405,7 +405,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
     ## https and b) in case of title change.  That way updates to
     ## existing stories don't re-download all chapters.
     def normalize_chapterurl(self,url):
-        url = re.sub(r"https?://("+self.getSiteDomain()+"/works/\d+/chapters/\d+)(\?view_adult=true)?$",
+        url = re.sub(r"https?://("+self.getSiteDomain()+r"/works/\d+/chapters/\d+)(\?view_adult=true)?$",
                      r"https://\1",url)
         return url
 
@@ -437,7 +437,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 ## <div id=chapter-##> and Chapter ##.
                 ## But they should all still be there and in the right
                 ## order, so array[index]
-                self.full_work_chapters = self.full_work_soup.find_all('div',{'id':re.compile('chapter-\d+')})
+                self.full_work_chapters = self.full_work_soup.find_all('div',{'id':re.compile(r'chapter-\d+')})
                 if len(self.full_work_chapters) != self.num_chapters():
                     ## sanity check just in case.
                     self.use_full_work_soup = False

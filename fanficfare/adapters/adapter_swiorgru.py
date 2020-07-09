@@ -137,7 +137,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('language','Russian')
 
-        chapters=chapters_table.findAll('a', href=re.compile(r'/mlp-fim/story/'+self.story.getMetadata('storyId')+"/chapter\d+"))
+        chapters=chapters_table.findAll('a', href=re.compile(r'/mlp-fim/story/'+self.story.getMetadata('storyId')+r"/chapter\d+"))
         self.story.setMetadata('numChapters', len(chapters))
         logger.debug("numChapters: (%s)"%str(self.story.getMetadata('numChapters')))
 

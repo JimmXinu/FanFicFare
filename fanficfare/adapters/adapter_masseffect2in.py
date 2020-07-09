@@ -87,7 +87,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                           cls._makeDocumentUrl('24-1-0-4321')])
 
     def getSiteURLPattern(self):
-        return 'https?://(?:www\.)?masseffect2.in/publ/' + self.DOCUMENT_ID_PATTERN.pattern
+        return r'https?://(?:www\.)?masseffect2.in/publ/' + self.DOCUMENT_ID_PATTERN.pattern
 
     def use_pagecache(self):
         """Allows use of downloaded page cache.  It is essential for this

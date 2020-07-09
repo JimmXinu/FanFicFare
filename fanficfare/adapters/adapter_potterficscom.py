@@ -229,7 +229,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #To make things worse, there is also another genre field, which often holds similar/duplicate info. Links to genre pages do not work
         #though, so perhaps those will be phased out?
         #for now, put them all into the genre list
-        links = mb.findAll('a',href=re.compile('/(categorias|generos)/\d+'))
+        links = mb.findAll('a',href=re.compile(r'/(categorias|generos)/\d+'))
         genlist = [i.string.strip() for i in links]
         self.story.extendList('genre',genlist)
 

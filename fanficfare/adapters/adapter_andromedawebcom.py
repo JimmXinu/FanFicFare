@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# ####### Not all lables are captured. they are not formtted correctly on the 
+# ####### Not all lables are captured. they are not formtted correctly on the
 # #######  webpage.
 
 # Software: eFiction
@@ -191,7 +191,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/fiction/'+chapter['href']+addurl)
 
@@ -280,7 +280,7 @@ class AndromedaWebComAdapter(BaseSiteAdapter):  # XXX
         except:
             # I find it hard to care if the series parsing fails
             pass
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 

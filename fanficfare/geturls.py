@@ -137,7 +137,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
-    for href in re.findall('\(?http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\)?', data):
+    for href in re.findall(r'\(?http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\)?', data):
         ## detect and remove ()s around URL ala markdown.
         if href[0] == '(' and href[-1] == ')':
             href = href[1:-1]

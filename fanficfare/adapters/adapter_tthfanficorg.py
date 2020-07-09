@@ -320,7 +320,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         pseries = soup.find('p', {'style':'margin-top:0px'})
         #print("pseries:%s"%pseries.get_text())
-        m = re.match('This story is No\. (?P<num>\d+) in the series "(?P<series>.+)"\.',
+        m = re.match(r'This story is No\. (?P<num>\d+) in the series "(?P<series>.+)"\.',
                      pseries.get_text())
         if m:
             self.setSeries(m.group('series'),m.group('num'))
@@ -346,10 +346,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     ## https and b) in case of title change.  That way updates to
     ## existing stories don't re-download all chapters.
     def normalize_chapterurl(self,url):
-        url = re.sub(r"https?://("+self.getSiteDomain()+"/Story-\d+(-\d+)?)(/.*)?$",
+        url = re.sub(r"https?://("+self.getSiteDomain()+r"/Story-\d+(-\d+)?)(/.*)?$",
                      r"https://\1",url)
         return url
 
 def getClass():
     return TwistingTheHellmouthSiteAdapter
-

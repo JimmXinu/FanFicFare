@@ -50,7 +50,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         return "https://ficwad.com/story/1234"
 
     def getSiteURLPattern(self):
-        return r"https?:"+re.escape(r"//"+self.getSiteDomain())+"/story/\d+?$"
+        return r"https?:"+re.escape(r"//"+self.getSiteDomain())+r"/story/\d+?$"
 
     def performLogin(self,url):
         params = {}
@@ -110,7 +110,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
                 soup = self.make_soup(self._fetchUrl(url,usecache=False))
 
         divstory = soup.find('div',id='story')
-        storya = divstory.find('a',href=re.compile("^/story/\d+$"))
+        storya = divstory.find('a',href=re.compile(r"^/story/\d+$"))
         if storya : # if there's a story link in the divstory header, this is a chapter page.
             # normalize story URL on chapter list.
             self.story.setMetadata('storyId',storya['href'].split('/',)[2])
@@ -137,7 +137,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         if 'Deleted story' in self.story.getMetadata('title'):
             raise exceptions.StoryDoesNotExist("This story was deleted. %s"%self.url)
-        
+
         # Find authorid and URL from... author url.
         a = soup.find('span',{'class':'author'}).find('a', href=re.compile(r"^/a/"))
         self.story.setMetadata('authorId',a['href'].split('/')[2])
@@ -233,4 +233,3 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
 def getClass():
     return FicwadComSiteAdapter
-

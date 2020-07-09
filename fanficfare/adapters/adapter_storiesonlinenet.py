@@ -206,7 +206,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         soup = soup.find('article')
 
         # Find the chapters:
-        chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+":\d+(/.*)?$"))
+        chapters = soup.findAll('a', href=re.compile(r'^/s/'+self.story.getMetadata('storyId')+r":\d+(/.*)?$"))
         if len(chapters) != 0:
             logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:

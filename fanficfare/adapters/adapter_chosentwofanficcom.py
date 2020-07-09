@@ -87,7 +87,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             addURL = "&ageconsent=ok&warning=3"
         else:
             addURL = ""
-    
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = '{0}&index=1{1}'.format(self.url,addURL)
@@ -127,7 +127,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             #self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
             self.add_chapter(chapter,'http://{0}/{1}{2}'.format(self.host, chapter['href'],addURL))

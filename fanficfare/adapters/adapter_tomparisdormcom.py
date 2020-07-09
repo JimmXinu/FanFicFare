@@ -108,25 +108,25 @@ class TomParisDormComAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
 
 
         # eFiction sites don't help us out a lot with their meta data
         # formating, so it's a little ugly.
-        
+
         ## Getting the Summary
         value = stripHTML(soup.find('div',{'class' : 'summary'})).strip('Summary')
         self.setDescription(url,value)
-        
+
         # Get the rest of the Metadata
         mdsoup = soup.find('div',{'id' : 'output'})
-        
+
         mdstr = unicode(mdsoup).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
         mdstr = stripHTML(mdstr.replace(r'<br/>',r'-:-').replace('|','-:-'))
         mdstr = mdstr.replace(r'[Rev',r'-:-[Rev').replace(' -:- ','-:-').strip('-:-').strip('-:-')
-        
+
         ##I am using this method, because the summary does not have a 'label', and the Metadata is always in this order (as far as I've tested)
         for i, value in enumerate(mdstr.split('-:-')):
             if 'Published:' in value:

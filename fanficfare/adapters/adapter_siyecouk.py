@@ -124,7 +124,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('title',stripHTML(titlea))
 
         # Find the chapters (from soup, not authsoup):
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/siye/'+chapter['href'])
 
