@@ -188,7 +188,7 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/fiction/'+chapter['href']+addurl)
 
@@ -278,7 +278,7 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
         except:
             # I find it hard to care if the series parsing fails
             pass
-        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -292,4 +292,3 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
-

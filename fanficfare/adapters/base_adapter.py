@@ -536,7 +536,7 @@ class BaseSiteAdapter(Configurable):
             # nook gets confused and displays it on every page after
             # that under the text for the rest of the chapter.
             retval = re.sub(r"(?!<(div|p)>)\s*(?P<imgtag><img[^>]+>)\s*(?!</(div|p)>)",
-                            "<div>\g<imgtag></div>",retval)
+                            r"<div>\g<imgtag></div>",retval)
 
         # Don't want html, head or body tags in chapter html--writers add them.
         # This is primarily for epub updates.
@@ -546,7 +546,7 @@ class BaseSiteAdapter(Configurable):
             xbr = int(self.getConfig("replace_xbr_with_hr",default=0))
             if xbr > 0:
                 start = datetime.now()
-                retval = re.sub('(\s*<br[^>]*>\s*){%d,}'%xbr,
+                retval = re.sub(r'(\s*<br[^>]*>\s*){%d,}'%xbr,
                                 '<br/>\n<br/>\n<hr/>\n<br/>',retval)
                 self.times.add("utf8FromSoup->replace_xbr_with_hr", datetime.now() - start)
         except:
@@ -650,4 +650,3 @@ def makeDate(string,dateform):
         date += timedelta(hours=12)
 
     return date
-

@@ -71,7 +71,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234 http://explicit."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+"(www\.|explicit\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return re.escape("http://")+r"(www\.|explicit\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -142,7 +142,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href']+addurl)
 

@@ -134,7 +134,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 # Find Series page sub-pages
                 seriesPageUrlList = []
                 seriesStoryList = []
-                for i in seriesPageSoup.findAll('a', href=re.compile("viewseries.php\?seriesid=\d+&offset=\d+$")):
+                for i in seriesPageSoup.findAll('a', href=re.compile(r"viewseries.php\?seriesid=\d+&offset=\d+$")):
                     # Don't include url from next button, is another http request and parse + could cause more bugs!
                     if i.string != '[Next]':
                         seriesPageUrlList.append(i)
@@ -165,7 +165,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             pass
 
         # Find the chapters by regexing urls
-        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$"))
+        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$"))
 
         if len(chapters)==1:
             self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/archive/home/'+chapters[0]['href'])
@@ -182,7 +182,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         #get characters
         try:
-            charList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=characters'+"&charid=\d+$"))
+            charList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=characters'+r"&charid=\d+$"))
             for char in charList:
                 self.story.addToList('characters',char.string)
 
@@ -191,7 +191,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         #get warnings
         try:
-            warnList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=2'+"&classid=\d+$"))
+            warnList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=2'+r"&classid=\d+$"))
             for warn in warnList:
                 self.story.addToList('warnings', warn.string)
 
@@ -200,7 +200,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         #get genres
         try:
-            genresList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=1'+"&classid=\d+$"))
+            genresList = workDetails.findAll('a', href=re.compile(r'browse.php\?type=class&type_id=1'+r"&classid=\d+$"))
             for genre in genresList:
                 self.story.addToList('genre', genre.string)
 

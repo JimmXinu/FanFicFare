@@ -127,7 +127,7 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
         self.story.setMetadata('rating', rate)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href']+addurl)
 
@@ -229,4 +229,3 @@ class CSIForensicsComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
-

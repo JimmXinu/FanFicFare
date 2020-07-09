@@ -54,10 +54,10 @@ _WRONGPASSWORD = "That password doesn't match the one in our database"
 _USERACCOUNT = 'Member Account'
 
 # Regular expressions
-_REGEX_WARNING_PARAM = re.compile("warning=(?P<warningId>\d+)")
-_REGEX_CHAPTER_B = re.compile("^(?P<chapterId>\d+)\.")
-_REGEX_CHAPTER_PARAM = re.compile("chapter=(?P<chapterId>\d+)$")
-_REGEX_CHAPTER_FRAGMENT = re.compile("^#(?P<chapterId>\d+)$")
+_REGEX_WARNING_PARAM = re.compile(r"warning=(?P<warningId>\d+)")
+_REGEX_CHAPTER_B = re.compile(r"^(?P<chapterId>\d+)\.")
+_REGEX_CHAPTER_PARAM = re.compile(r"chapter=(?P<chapterId>\d+)$")
+_REGEX_CHAPTER_FRAGMENT = re.compile(r"^#(?P<chapterId>\d+)$")
 _REGEX_DOESNT_START_WITH_HTTP = re.compile("^(?!http)")
 
 class BaseEfictionAdapter(BaseSiteAdapter):
@@ -306,19 +306,19 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         if value == 'None':
             return
         elif 'Genre' in key:
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('genre', val)
         elif 'Warning' in key:
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('warnings', val)
         elif 'Characters' in key:
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('characters', val)
         elif 'Categories' in key:
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('category', val)
         elif 'Challenges' in key:
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 # TODO this should be an official field I guess
                 self.story.addToList('challenge', val)
         elif key == 'Chapters':
@@ -340,7 +340,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         elif key == 'Updated':
             self.story.setMetadata('dateUpdated', makeDate(value, self.getDateFormat()))
         elif key == 'Pairing':
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('ships', val)
         elif key == 'Series':
             ## TODO is not a link in the printable view, so no seriesURL possible
@@ -350,7 +350,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             # w/o spaces and use as key.  Still needs to be in
             # extra_valid_entries to be used.
             autokey = key.replace(' ','').lower()
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList(autokey, val)
             logger.debug("Auto metadata: entry:%s %s_label:%s value:%s" % (autokey, autokey, key, value))
 
@@ -415,7 +415,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', pagetitleDiv.find("a").string)
         authorLink = pagetitleDiv.findAll("a")[1]
         self.story.setMetadata('author', authorLink.string)
-        self.story.setMetadata('authorId', re.search("\d+", authorLink['href']).group(0))
+        self.story.setMetadata('authorId', re.search(r"\d+", authorLink['href']).group(0))
         self.story.setMetadata('authorUrl', self.getViewUserUrl(self.story.getMetadata('authorId')))
 
         ## Parse the infobox
@@ -437,7 +437,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             key = labelSpan.string.strip()
 
             ## strip trailing colons
-            key = re.sub("\s*:\s*$", "", key)
+            key = re.sub(r"\s*:\s*$", "", key)
 
             ## strip whitespace
             key = key.strip()

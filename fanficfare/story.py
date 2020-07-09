@@ -40,8 +40,8 @@ from .htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEnt
 from .configurable import Configurable, re_compile
 from .htmlheuristics import was_run_marker
 
-SPACE_REPLACE=u'\s'
-SPLIT_META=u'\,'
+SPACE_REPLACE=r'\s'
+SPLIT_META=r'\,'
 
 # Create convert_image method depending on which graphics lib we can
 # load.  Preferred: calibre, PIL, none

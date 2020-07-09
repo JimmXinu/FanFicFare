@@ -242,8 +242,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # upvote, subs, and views
         a = soup.find('div',{'class':'title-meta'})
         spans = a.findAll('span', recursive=False)
-        self.story.setMetadata('upvotes', re.search('\(([^)]+)', spans[0].find('span').text).group(1))
-        self.story.setMetadata('subscribers', re.search('\(([^)]+)', spans[1].find('span').text).group(1))
+        self.story.setMetadata('upvotes', re.search(r'\(([^)]+)', spans[0].find('span').text).group(1))
+        self.story.setMetadata('subscribers', re.search(r'\(([^)]+)', spans[1].find('span').text).group(1))
         if len(spans) > 2: # views can be private
             self.story.setMetadata('views', spans[2].text.split()[0])
 

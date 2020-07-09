@@ -60,7 +60,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # http://www.fictionalley.org/authors/drt/DA.html
         # http://www.fictionalley.org/authors/drt/JOTP01a.html
-        return re.escape("http://"+self.getSiteDomain())+"/authors/(?P<auth>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)\.html"
+        return re.escape("http://"+self.getSiteDomain())+r"/authors/(?P<auth>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)\.html"
 
     def _postFetchWithIAmOld(self,url):
         if self.is_adult or self.getConfig("is_adult"):
@@ -236,4 +236,3 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
 def getClass():
     return FictionAlleyOrgSiteAdapter
-

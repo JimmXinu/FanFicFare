@@ -76,7 +76,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/fanfiction/story/1234/1 http://"+cls.getSiteDomain()+"/spark/story/1234/1"
 
     def getSiteURLPattern(self):
-        return r"http://"+self.getSiteDomain()+"/(fanfiction|spark)?/story/\d+/?\d+?$"
+        return r"http://"+self.getSiteDomain()+r"/(fanfiction|spark)?/story/\d+/?\d+?$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):

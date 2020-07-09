@@ -286,7 +286,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Highest view for a chapter and total views
         viewSpan = storyToolbar.find('span', {'title':re.compile(r'.*\btotal views\b.*')})
-        viewResults = re.search('([0-9]*) views \/ ([0-9]*)', viewSpan['title'].replace(',',''))
+        viewResults = re.search(r'([0-9]*) views \/ ([0-9]*)', viewSpan['title'].replace(',',''))
         self.story.setMetadata("views", viewResults.group(1))
         self.story.setMetadata("total_views", viewResults.group(2))
 

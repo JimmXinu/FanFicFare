@@ -62,7 +62,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteURLPattern(cls):
-        return 'https://www\.wattpad\.com/(story/)?(?P<storyId>\d+).*'
+        return r'https://www\.wattpad\.com/(story/)?(?P<storyId>\d+).*'
 
     @classmethod
     def getSiteAbbrev(cls):
@@ -76,11 +76,11 @@ class WattpadComAdapter(BaseSiteAdapter):
         return True
 
     def getStoryId(self, url):
-        storyIdInUrl = re.match('https://www\.wattpad\.com/story/(?P<storyId>\d+).*', url)
+        storyIdInUrl = re.match(r'https://www\.wattpad\.com/story/(?P<storyId>\d+).*', url)
         if storyIdInUrl is not None:
             return storyIdInUrl.group("storyId")
         else:
-            chapterIdInUrl = re.match('https://www\.wattpad\.com/(?P<chapterId>\d+).*', url)
+            chapterIdInUrl = re.match(r'https://www\.wattpad\.com/(?P<chapterId>\d+).*', url)
             chapterInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_CHAPTERINFO % chapterIdInUrl.group('chapterId')))
             groupid = chapterInfo.get('groupId', None)
             if groupid is None:

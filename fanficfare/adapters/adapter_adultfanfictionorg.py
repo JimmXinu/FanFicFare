@@ -72,7 +72,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
-        
+
 
 
     ## Added because adult-fanfiction.org does send you to
@@ -182,7 +182,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
     #    d = self._postUrl(url, params, usecache=False)
     #    d = self._fetchUrl(url, params, usecache=False)
     #    soup = self.make_soup(d)
-        
+
         #if not (soup.find('form', {'name' : 'login'}) == None):
         #    logger.info("Failed to login to URL %s as %s" % (url, params['email']))
         #    raise exceptions.FailedToLogin(url,params['email'])
@@ -215,10 +215,10 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
         if "The dragons running the back end of the site can not seem to find the story you are looking for." in data:
             raise exceptions.StoryDoesNotExist("{0}.{1} says: The dragons running the back end of the site can not seem to find the story you are looking for.".format(self.zone, self.getBaseDomain()))
-            
+
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        
+
         ##This is not working right now, so I'm commenting it out, but leaving it for future testing
         #self.performLogin(url, soup)
 
@@ -236,12 +236,12 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         chapters = soup.find('div',{'class':'dropdown-content'})
         for i, chapter in enumerate(chapters.findAll('a')):
             self.add_chapter(chapter,self.url+'&chapter='+unicode(i+1))
-        
+
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"profile.php\?no=\d+"))
         if a == None:
-            # I know that the original author of fanficfare wants to always have metadata, 
+            # I know that the original author of fanficfare wants to always have metadata,
             # but I posit that if the story is there, even if we can't get the metadata from the
             # author page, the story should still be able to be downloaded, which is what I've done here.
             self.story.setMetadata('authorId','000000000')
@@ -255,16 +255,16 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('author',stripHTML(a))
 
             ##The story page does not give much Metadata, so we go to the Author's page
-            
-            ##Get the first Author page to see if there are multiple pages. 
-            ##AFF doesn't care if the page number is larger than the actual pages, 
+
+            ##Get the first Author page to see if there are multiple pages.
+            ##AFF doesn't care if the page number is larger than the actual pages,
             ##it will continue to show the last page even if the variable is larger than the actual page
             author_Url = '{0}&view=story&zone={1}&page=1'.format(self.story.getMetadata('authorUrl'), self.zone)
             #author_Url = self.story.getMetadata('authorUrl')+'&view=story&zone='+self.zone+'&page=1'
-    
+
             ##I'm resetting the author page to the zone for this story
             self.story.setMetadata('authorUrl',author_Url)
-    
+
             logger.debug('Getting the author page: {0}'.format(author_Url))
             try:
                 adata = self._fetchUrl(author_Url)
@@ -275,27 +275,27 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
                 else:
                     raise e
-    
+
             if "The member you are looking for does not exist." in adata:
                 raise exceptions.StoryDoesNotExist("{0}.{1} says: The member you are looking for does not exist.".format(self.zone, self.getBaseDomain()))
                 #raise exceptions.StoryDoesNotExist(self.zone+'.'+self.getBaseDomain() +" says: The member you are looking for does not exist.")
-    
+
             asoup = self.make_soup(adata)
-    
+
             ##Getting the number of pages
             pages=asoup.find('div',{'class' : 'pagination'}).findAll('li')[-1].find('a')
             if not pages == None:
                 pages = pages['href'].split('=')[-1]
             else:
                 pages = 0
-    
-            ##If there is only 1 page of stories, check it to get the Metadata, 
+
+            ##If there is only 1 page of stories, check it to get the Metadata,
             if pages == 0:
                 a = asoup.findAll('li')
                 for lc2 in a:
                     if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
                         break
-            ## otherwise go through the pages 
+            ## otherwise go through the pages
             else:
                 page=1
                 i=0
@@ -313,14 +313,14 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                                 raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
                             else:
                                 raise e
-                        ##This will probably never be needed, since AFF doesn't seem to care what number you put as 
+                        ##This will probably never be needed, since AFF doesn't seem to care what number you put as
                         ## the page number, it will default to the last page, even if you use 1000, for an author
                         ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).
                         if "The member you are looking for does not exist." in adata:
                             raise exceptions.StoryDoesNotExist("{0}.{1} says: The member you are looking for does not exist.".format(self.zone, self.getBaseDomain()))
                     # we look for the li element that has the story here
                     asoup = self.make_soup(adata)
-        
+
                     a = asoup.findAll('li')
                     for lc2 in a:
                         if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
@@ -329,9 +329,9 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     page = page + 1
                     if page > int(pages):
                         break
-    
+
             ##Split the Metadata up into a list
-            ##We have to change the soup type to a string, then remove the newlines, and double spaces, 
+            ##We have to change the soup type to a string, then remove the newlines, and double spaces,
             ##then changes the <br/> to '-:-', which seperates the different elemeents.
             ##Then we strip the HTML elements from the string.
             ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
@@ -368,7 +368,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                             # It is unknown how the 200 became 008, but I'm going to change it back here
                             value = value.replace('008','200')
                         elif value.startswith('0000'):
-                            # Since the date is showing as 0000, 
+                            # Since the date is showing as 0000,
                             # I'm going to put the memberdate here
                             value = asoup.find('div',{'id':'contentdata'}).find('p').get_text(strip=True).replace('Member Since','').strip()
                         self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
@@ -382,7 +382,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                             value = value.replace('008','200')
                             self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
                         elif value.startswith('0000') or '-00-' in value:
-                            # Since the date is showing as 0000, 
+                            # Since the date is showing as 0000,
                             # or there is -00- in the date,
                             # I'm going to put the Published date here
                             self.story.setMetadata('dateUpdated', self.story.getMetadata('datPublished'))
@@ -392,7 +392,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                         # This catches the blank elements, and the Review and Dragon Prints.
                         # I am not interested in these, so do nothing
                         zzzzzzz=0
-                        
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.

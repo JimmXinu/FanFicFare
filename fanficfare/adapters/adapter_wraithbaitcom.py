@@ -127,7 +127,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         # self.story.setMetadata('reviews',stripHTML(a))
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # include author on chapters if multiple authors.
             if len(alist) > 1:
                 add = " by %s"%stripHTML(chapter.findNext('a', href=re.compile(r"viewuser.php\?uid=\d+")))
@@ -227,4 +227,3 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
-

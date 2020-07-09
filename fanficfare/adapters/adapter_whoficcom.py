@@ -47,7 +47,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     def use_pagecache(self):
         '''
@@ -255,4 +255,3 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
 def getClass():
     return WhoficComSiteAdapter
-

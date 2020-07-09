@@ -74,7 +74,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         return cls.READ_TEXT_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return r'https?' + re.escape(self.BASE_URL[len('https'):]) + '(readtextstory|readhtmlstory|readxstory|details)\.html\?storyID=\d+$'
+        return r'https?' + re.escape(self.BASE_URL[len('https'):]) + r'(readtextstory|readhtmlstory|readxstory|details)\.html\?storyID=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         url = self.DETAILS_URL_TEMPLATE % self.story.getMetadata('storyId')

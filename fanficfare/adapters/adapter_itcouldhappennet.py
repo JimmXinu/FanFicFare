@@ -38,7 +38,7 @@ class ItCouldHappenNetSiteAdapter(BaseEfictionAdapter):
         # This site is all one 'category' as it's usually defined and
         # uses Category for what is usually genre.
         if key == 'Categories':
-            for val in re.split("\s*,\s*", value):
+            for val in re.split(r"\s*,\s*", value):
                 self.story.addToList('genre', val)
         else:
             super(ItCouldHappenNetSiteAdapter, self).handleMetadataPair(key, value)

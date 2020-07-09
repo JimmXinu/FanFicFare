@@ -126,7 +126,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         pubdate = None
         chapters = soup.find('ul', {'class' : 'table-of-contents'})
         if chapters != None:
-            chapters=chapters.findAll('a', href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"/\d+#part_content$"))
+            chapters=chapters.findAll('a', href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
             self.story.setMetadata('numChapters',len(chapters))
             for x in range(0,len(chapters)):
                 chapter=chapters[x]

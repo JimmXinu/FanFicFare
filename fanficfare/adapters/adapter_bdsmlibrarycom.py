@@ -155,7 +155,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         # The update date is with the chapter links... so we will update it here as well
-        for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+"&chapterid=\d+$")):
+        for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+r"&chapterid=\d+$")):
             value = chapter.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
             self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
             self.add_chapter(chapter,'https://'+self.getSiteDomain()+chapter['href'])
