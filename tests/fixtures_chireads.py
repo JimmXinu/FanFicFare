@@ -1,9 +1,4 @@
-import pytest
-
-
-@pytest.fixture
-def chireads_html_return():
-    return """
+chireads_html_return = """
     <!DOCTYPE html><html lang="fr-FR" class="no-js"> <head> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"> <meta name="keywords" content="关键字" /> <meta name="description" content="网站描述" /> <meta name="renderer" content="webkit"> <meta name="force-rendering" content="webkit"> <link rel="shortcut icon" href="//chireads.com/favicon.ico"> <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700" data-ignore="true"> <link data-ignore="true" href="https://fonts.googleapis.com/css?family=Merriweather:700,400,400i" rel="stylesheet"> <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet'><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','UA-98046692-1');</script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','GA_TRACKING_ID',{'content_group1':'Shadow Hack | 我的影子会挂机'});</script><title>Shadow Hack | 我的影子会挂机 français - Chireads - web novel en français, Culture Chinoise et Light Novels, Romans fantastiques chinois et Light Novels </title>
 
     <meta name="robots" content="noindex, follow" />
@@ -168,9 +163,7 @@ def chireads_html_return():
     """
 
 
-@pytest.fixture
-def chireads_html_with_chapters_return():
-    return """
+chireads_html_with_chapters_return ="""
     <!DOCTYPE html><html lang="fr-FR" class="no-js"> <head> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"> <meta name="keywords" content="关键字" /> <meta name="description" content="网站描述" /> <meta name="renderer" content="webkit"> <meta name="force-rendering" content="webkit"> <link rel="shortcut icon" href="//chireads.com/favicon.ico"> <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700" data-ignore="true"> <link data-ignore="true" href="https://fonts.googleapis.com/css?family=Merriweather:700,400,400i" rel="stylesheet"> <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet'><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','UA-98046692-1');</script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','GA_TRACKING_ID',{'content_group1':'Panlong | Coiling Dragon | 盘龙'});</script><title>Panlong | Coiling Dragon | 盘龙 français - Chireads - web novel en français, Culture Chinoise et Light Novels, Romans fantastiques chinois et Light Novels </title>
     <meta name="robots" content="noindex, follow" />
     <meta property="og:locale" content="fr_FR" />
@@ -416,9 +409,7 @@ def chireads_html_with_chapters_return():
     """
 
 
-@pytest.fixture
-def chireads_html_chapter_return():
-    return """
+chireads_html_chapter_return = """
     <!DOCTYPE html><html lang="fr-FR" class="no-js"> <head> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"> <meta name="keywords" content="关键字" /> <meta name="description" content="网站描述" /> <meta name="renderer" content="webkit"> <meta name="force-rendering" content="webkit"> <link rel="shortcut icon" href="//chireads.com/favicon.ico"> <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700" data-ignore="true"> <link data-ignore="true" href="https://fonts.googleapis.com/css?family=Merriweather:700,400,400i" rel="stylesheet"> <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet'><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','UA-98046692-1');</script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-98046692-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','GA_TRACKING_ID',{'content_group1':'Shadow Hack | 我的影子会挂机'});</script><title>Chapitre 1 &#8211; Ombre mystérieuse - Shadow Hack | 我的影子会挂机 français - Chireads - web novel en français, Culture Chinoise et Light Novels, Romans fantastiques chinois et Light Novels </title>
 
     <meta name="robots" content="index, follow" />
