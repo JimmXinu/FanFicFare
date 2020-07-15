@@ -26,8 +26,20 @@ from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
+from ..six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
+from ..six.moves.urllib.parse import urlencode, quote_plus
+from ..six.moves import http_cookiejar as cl
+from ..six import ensure_binary, ensure_text
+
+from ..gziphttp import GZipProcessor
+
+from ..configurable import Configuration
+
+
 
 from .base_adapter import BaseSiteAdapter,  makeDate
+
+# Need requests to curl the table of contents
 
 # In general an 'adapter' needs to do these five things:
 
@@ -58,24 +70,42 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         self.password = ""
         self.is_adult=False
 
-        # get storyId from url--url validation guarantees query is only sid=1234
-        # print(url)
-        # print(self.parsedUrl.query.split("series/",)[1])
-    #     self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-
+        # get storyId from url--sid is always 4th element in scribblehub url
+        self.story.setMetadata('storyId', url.split("/")[4])
 
         # normalized story URL.
         # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        # self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-        print(url)
+        self._setURL('https://' + self.getSiteDomain() + '/series/' + self.story.getMetadata('storyId') + "/")
         self._setURL(url)
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','shcom') # XXX
+        self.story.setMetadata('siteabbrev','scrhub') # XXX
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y" # XXX
+    
+    # Can't use postUrl or fetchUrl in configurable.py. Private method as a quick override
+    # Scribblehuib needs a proper payload - all tried:
+    # payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"
+    # payload = {"action": "wi_gettocchp", "strSID": self.story.getMetadata('storyId'), "strmypostid": "0", "strFic": "yes"}
+    # payload = {"":"action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"}
+    # data = self._fetchUrlRawOpened("https://www.scribblehub.com/wp-admin/admin-ajax.php", payload)
+    def _get_contents(self):
+        payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"     
+        req = Request("https://www.scribblehub.com/wp-admin/admin-ajax.php", data=payload.encode('utf-8'))
+    
+        ## Specific UA because too many sites are blocking the default python UA.
+        opener = build_opener(HTTPCookieProcessor(cl.LWPCookieJar()),GZipProcessor())
+        opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
+                            ('X-Clacks-Overhead','GNU Terry Pratchett')]
+
+        encoded_data = opener.open(req, None, float(self.getConfig('connect_timeout',30.0))).read()
+        data = Configuration._do_reduce_zalgo(self, Configuration._decode(self, encoded_data))
+
+        return data
+        
+
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -84,10 +114,10 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/series/1234"
+        return "https://"+cls.getSiteDomain()+"/series/1234/storyname/"
 
     def getSiteURLPattern(self):
-        return re.escape("https://"+self.getSiteDomain()+"/series/")+r"\d+$"
+        return re.escape("https://"+self.getSiteDomain()+"/series/")+r"\S+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -189,18 +219,27 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         pagetitle = soup.find('div',{'class':'fic_title'})
         self.story.setMetadata('title',stripHTML(pagetitle))
 
-        # Find authorid and URL from... author url.
+        # Find authorid and URL from main story page 
         self.story.setMetadata('authorId',stripHTML(soup.find('span',{'class':'auth_name_fic'})))
         self.story.setMetadata('authorUrl',soup.find('div',{'class':'author'}).find('div',{'property':'author'}).find('span',{'property':'name'}).find('a').get('href'))
         self.story.setMetadata('author',stripHTML(soup.find('span',{'class':'auth_name_fic'})))
 
         # Find the chapters:
         # This is where scribblehub is gonna get a lil bit messy..
+
+        # Get the contents list from scribblehub, iterate through and add to chapters
+        # Can be fairly certain this will not 404 - we know the story id is vlid thansk
+        contents_soup = self.make_soup(self._get_contents())
+
+
+        for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count'))):
+            chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
+            chapter_name = contents_soup.find('li',{'cnt':str(i)}).find('a').get('title')
+            logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
+            self.add_chapter(chapter_name, chapter_url)
+
         
-        # Chapter 1 is linked from the main page
-        chapter1_url = soup.find('div',{'class':'read_buttons'}).find('a').get('href')
-        soup = self.make_soup(chapter1_url)
-        self.add_chapter(soup.find('div',{'class':'chapter-title'}), chapter1_url)
+
 
         # for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
         #     # just in case there's tags, like <i> in chapter titles.
@@ -218,92 +257,43 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 return ""
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
-        for labelspan in labels:
-            value = labelspan.nextSibling
-            label = labelspan.string
+        
+        # Story Description
+        if soup.find('div',{'class': 'wi_fic_desc'}):
+            svalue = soup.find('div',{'class': 'wi_fic_desc'})
+            self.setDescription(url,svalue)
+            #self.story.setMetadata('description',stripHTML(svalue))
 
-            if 'Summary' in label:
-                ## Everything until the next span class='label'
-                svalue = ""
-                while value and 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
-                    value = value.nextSibling
-                self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
+        # Categories
+        if soup.find('span',{'class': 'wi_fic_showtags_inner'}):
+            categories = soup.find('span',{'class': 'wi_fic_showtags_inner'}).findAll('a')
+            for category in categories:
+                self.story.addToList('category', stripHTML(category))
+        
+        # Genres
+        if soup.find('a',{'class': 'fic_genre'}):
+            genres = soup.findAll('a',{'class': 'fic_genre'})
+            for genre in genres:
+                self.story.addToList('genre', stripHTML(genre))
+       
+        # Content Warnings
+        if soup.find('ul',{'class': 'ul_rate_expand'}):
+            warnings = soup.find('ul',{'class': 'ul_rate_expand'}).findAll('a')
+            for warn in warnings:
+                self.story.addToList('warnings', stripHTML(warn))
+        
+        # Complete
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
 
-            if 'Rated' in label:
-                self.story.setMetadata('rating', value)
 
-            if 'Word count' in label:
-                self.story.setMetadata('numWords', value)
+        # Updated
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
+            date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+            self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
 
-            if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
-                catstext = [cat.string for cat in cats]
-                for cat in catstext:
-                    self.story.addToList('category',cat.string)
-
-            if 'Characters' in label:
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
-                charstext = [char.string for char in chars]
-                for char in charstext:
-                    self.story.addToList('characters',char.string)
-
-            ## Not all sites use Genre, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
-            if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
-                genrestext = [genre.string for genre in genres]
-                self.genre = ', '.join(genrestext)
-                for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
-
-            ## Not all sites use Warnings, but there's no harm to
-            ## leaving it in.  Check to make sure the type_id number
-            ## is correct, though--it's site specific.
-            if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
-                warningstext = [warning.string for warning in warnings]
-                self.warning = ', '.join(warningstext)
-                for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
-
-            if 'Completed' in label:
-                if 'Yes' in value:
-                    self.story.setMetadata('status', 'Completed')
-                else:
-                    self.story.setMetadata('status', 'In-Progress')
-
-            if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-
-            if 'Updated' in label:
-                # there's a stray [ at the end.
-                #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
-        try:
-            # Find Series name from series URL.
-            a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-            series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
-
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-            i=1
-            for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    self.story.setMetadata('seriesUrl',series_url)
-                    break
-                i+=1
-
-        except:
-            # I find it hard to care if the series parsing fails
-            pass
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
