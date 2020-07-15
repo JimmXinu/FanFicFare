@@ -5,7 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import six
 
 __license__   = 'GPL v3'
-__copyright__ = '2019, Jim Miller'
+__copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -366,6 +366,7 @@ class ConfigWidget(QWidget):
             prefs['suppresstitlesort'] = self.std_columns_tab.suppresstitlesort.isChecked()
             prefs['authorcase'] = self.std_columns_tab.authorcase.isChecked()
             prefs['titlecase'] = self.std_columns_tab.titlecase.isChecked()
+            prefs['setanthologyseries'] = self.std_columns_tab.setanthologyseries.isChecked()
 
             prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
             prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
@@ -1533,6 +1534,11 @@ class StandardColumnsTab(QWidget):
                                           +"\n"+_("This effects Calibre metadata only, not FanFicFare metadata in title page."))
                 self.authorcase.setChecked(prefs['authorcase'])
                 row.append(self.authorcase)
+            elif key == 'series':
+                self.setanthologyseries = QCheckBox(_("Set 'Series [0]' for New Anthologies?"),self)
+                self.setanthologyseries.setToolTip(_("If checked, the Series column will be set to 'Series Name [0]' when an Anthology for a series is first created."))
+                self.setanthologyseries.setChecked(prefs['setanthologyseries'])
+                row.append(self.setanthologyseries)
 
         grid = QGridLayout()
         for rownum, row in enumerate(rows):

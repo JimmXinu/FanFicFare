@@ -6,7 +6,7 @@ import six
 from six.moves import range
 
 __license__   = 'GPL v3'
-__copyright__ = '2019, Jim Miller'
+__copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from .fanficfare.six import string_types, text_type as unicode
@@ -2232,10 +2232,11 @@ class FanFicFarePlugin(InterfaceAction):
                     logger.info("Failed to set_cover, skipping")
 
         # First, should cover generation happen at all?
+        logger.debug("book['all_metadata']['cover_image']:%s"%book['all_metadata']['cover_image'])
         if (book['added'] or not prefs['gcnewonly']) and ( # skip if not new book and gcnewonly is True
             prefs['gencalcover'] == SAVE_YES ## yes, always
             or (prefs['gencalcover'] == SAVE_YES_UNLESS_IMG ## yes, unless image.
-                and book['all_metadata']['cover_image'] not in ('specific','first','default')) ):
+                and not book['all_metadata']['cover_image']) ): # not in ('specific','first','default','old')
 
             cover_generated = False # flag for polish below.
             # Yes, should do gencov.  Which?
@@ -2691,6 +2692,8 @@ class FanFicFarePlugin(InterfaceAction):
                     if series != sr:
                         book['title'] = deftitle
                         break
+            if prefs['setanthologyseries'] and book['title'] == series:
+                book['series'] = series+' [0]'
 
             logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):

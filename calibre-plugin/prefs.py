@@ -130,6 +130,7 @@ default_prefs['suppressauthorsort'] = False
 default_prefs['suppresstitlesort'] = False
 default_prefs['authorcase'] = False
 default_prefs['titlecase'] = False
+default_prefs['setanthologyseries'] = False
 default_prefs['mark'] = False
 default_prefs['showmarked'] = False
 default_prefs['autoconvert'] = False
