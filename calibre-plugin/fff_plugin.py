@@ -91,7 +91,8 @@ from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_imap)
 
 from calibre_plugins.fanficfare_plugin.fff_util import (
-    get_fff_adapter, get_fff_config, get_fff_personalini)
+    get_fff_adapter, get_fff_config, get_fff_personalini,
+    get_common_elements)
 
 from calibre_plugins.fanficfare_plugin.config import (
     permitted_values, rejecturllist, STD_COLS_SKIP)
@@ -2232,7 +2233,7 @@ class FanFicFarePlugin(InterfaceAction):
                     logger.info("Failed to set_cover, skipping")
 
         # First, should cover generation happen at all?
-        logger.debug("book['all_metadata']['cover_image']:%s"%book['all_metadata']['cover_image'])
+        # logger.debug("book['all_metadata']['cover_image']:%s"%book['all_metadata']['cover_image'])
         if (book['added'] or not prefs['gcnewonly']) and ( # skip if not new book and gcnewonly is True
             prefs['gencalcover'] == SAVE_YES ## yes, always
             or (prefs['gencalcover'] == SAVE_YES_UNLESS_IMG ## yes, unless image.
@@ -2584,15 +2585,27 @@ class FanFicFarePlugin(InterfaceAction):
         book['series'] = None
 
         serieslist=[]
+        serieslists=[]
 
         # copy list top level
         for b in book_list:
             if b['series']:
+                bookserieslist = []
+                serieslists.append(bookserieslist)
+                j = 0
+                # looking for series00, series01, etc.  it is assumed
+                # that 'series' is set and == series00 when numbered
+                # series are used.
+                while b['all_metadata'].get('series%02d'%j,False):
+                    try:
+                        bookserieslist.append(b['all_metadata']['series%02d'%j][:b['all_metadata']['series%02d'%j].index(" [")])
+                    except ValueError: # substring not found
+                        bookserieslist.append(b['all_metadata']['series%02d'%j])
+                    j+=1
                 try:
                     serieslist.append(b['series'][:b['series'].index(" [")])
                 except ValueError: # substring not found
                     serieslist.append(b['series'])
-                #print("book series:%s"%serieslist[-1])
 
             if b['publisher']:
                 if not book['publisher']:
@@ -2684,6 +2697,7 @@ class FanFicFarePlugin(InterfaceAction):
             book['title'] = deftitle = book_list[0]['title']
             # book['all_metadata']['description']
 
+            logger.debug("serieslists:%s"%serieslists)
             # if all same series, use series for name.  But only if all and not previous named
             if len(serieslist) == len(book_list):
                 series = serieslist[0]
@@ -2691,7 +2705,18 @@ class FanFicFarePlugin(InterfaceAction):
                 for sr in serieslist:
                     if series != sr:
                         book['title'] = deftitle
+                        series = None
                         break
+            if not series and serieslists:
+                # for multiple series sites: if all stories are
+                # members of the same series, use it.  Or the first
+                # one, rather.
+                common_series = get_common_elements(serieslists)
+                logger.debug("common_series:%s"%common_series)
+                if common_series:
+                    series = common_series[0]
+                    book['title'] = series
+
             if prefs['setanthologyseries'] and book['title'] == series:
                 book['series'] = series+' [0]'
 
@@ -2743,3 +2768,4 @@ def pretty_book(d, indent=0, spacer='     '):
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer))
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)
+
