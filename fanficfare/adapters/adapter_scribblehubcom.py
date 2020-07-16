@@ -233,7 +233,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         contents_soup = self.make_soup(self._get_contents())
 
 
-        for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count'))):
+        for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
             chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
             chapter_name = contents_soup.find('li',{'cnt':str(i)}).find('a').get('title')
             logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
