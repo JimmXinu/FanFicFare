@@ -21,7 +21,7 @@ from datetime import datetime
 try:
     from PyQt5 import QtWidgets as QtGui
     from PyQt5 import QtCore
-    from PyQt5.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+    from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
                           QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                           QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
@@ -29,7 +29,7 @@ try:
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
-    from PyQt4.Qt import (QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+    from PyQt4.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
                           QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                           QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
@@ -1514,7 +1514,10 @@ class ViewLog(SizePersistedDialog):
                 error_msg=error_msg[:200]+" ..."
             label = QLabel('%s: %s'%(lineno, error_msg))
             label.setWordWrap(True)
-            label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
+            if QApplication.instance().is_dark_theme:
+                label.setStyleSheet("QLabel { margin-left: 2em; color : aqua; } QLabel:hover { color: red; }");
+            else:
+                label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
             label.setToolTip(_('Click to go to line %s')%lineno)
             label.mouseReleaseEvent = partial(self.label_clicked, lineno=lineno)
             self.sl.addWidget(label)
