@@ -228,7 +228,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # This is where scribblehub is gonna get a lil bit messy..
 
         # Get the contents list from scribblehub, iterate through and add to chapters
-        # Can be fairly certain this will not 404 - we know the story id is vlid thansk
+        # Can be fairly certain this will not 404 - we know the story id is valid
+        # Also, fails when tested with fewer than 2 chapters, which is stumping me - but it has nothing to do with this class I think
         contents_soup = self.make_soup(self._get_contents())
 
 
@@ -282,17 +283,22 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             for warn in warnings:
                 self.story.addToList('warnings', stripHTML(warn))
         
-        # Complete
-        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
-            self.story.setMetadata('status', 'Completed')
-        else:
-            self.story.setMetadata('status', 'In-Progress')
+        # The date parsing is a bit of a bodge, plenty of corner cased I probably haven't thought of, but try anyway 
+        try:
+            # Complete
+            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
+                self.story.setMetadata('status', 'Completed')
+            else:
+                self.story.setMetadata('status', 'In-Progress')
 
 
-        # Updated
-        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
-            date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
-            self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
+            # Updated
+            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
+                date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+                self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
+        except:
+            logger.warning("Failed to extract date data for " + url)
+            pass 
 
 
     # grab the text for an individual chapter.
@@ -303,7 +309,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'chp_raw'})
-        div.find('div', {'class' : 'wi_authornotes'}).decompose()
+        if div.find('div', {'class' : 'wi_authornotes'}):
+            div.find('div', {'class' : 'wi_authornotes'}).decompose()
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
