@@ -197,9 +197,12 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # Get the contents list from scribblehub, iterate through and add to chapters
         # Can be fairly certain this will not 404 - we know the story id is valid
-        # Also, fails when tested with fewer than 2 chapters, which is stumping me - but it has nothing to do with this class I think
-        contents_payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"     
-        contents_data = self._postUrl_raw("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
+        contents_payload = {"action": "wi_gettocchp",
+                            "strSID": self.story.getMetadata('storyId'),
+                            "strmypostid": 0,
+                            "strFic": "yes"}        
+        
+        contents_data = self._postUrl("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
         
         contents_soup = self.make_soup(contents_data)
 
