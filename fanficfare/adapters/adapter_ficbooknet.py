@@ -124,21 +124,16 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         pubdate = None
-        chapters = soup.find('ul', {'class' : 'table-of-contents'})
+        chapters = soup.find('ul', {'class' : 'list-of-fanfic-parts'})
         if chapters != None:
-            chapters=chapters.findAll('a', href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"/\d+#part_content$"))
-            self.story.setMetadata('numChapters',len(chapters))
-            for x in range(0,len(chapters)):
-                chapter=chapters[x]
+            for chapdiv in chapters.findAll('div', {'class':'part-info'}):
+                chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
                 self.add_chapter(chapter,churl)
                 ## First chapter doesn't always have a date, skip it.
                 if pubdate == None and chapter.parent.find('span'):
                     pubdate = translit.translit(stripHTML(chapter.parent.find('span')))
-                    # pubdate = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
-                if x == len(chapters)-1:
-                    update = translit.translit(stripHTML(chapter.parent.find('span')))
-                    # update = translit.translit(stripHTML(self.make_soup(self._fetchUrl(churl)).find('div', {'class' : 'part_added'}).find('span')))
+                update = translit.translit(stripHTML(chapter.parent.find('span')))
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
@@ -188,21 +183,23 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # self.story.setMetadata('numWords', unicode(i))
 
 
-        dlinfo = soup.find('dl',{'class':'info'})
+        dlinfo = soup.find('div',{'class':'fanfic-main-info'})
 
         i=0
-        fandoms = dlinfo.find('dd').findAll('a', href=re.compile(r'/fanfiction/\w+'))
+        fandoms = dlinfo.find('div').findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
         if i > 1:
             self.story.addToList('genre', u'Кроссовер')
 
-        for genre in dlinfo.findAll('a',href=re.compile(r'/tags/')):
-            self.story.addToList('genre',stripHTML(genre))
+        tags = soup.find('div',{'class':'tags'})
+        if tags:
+            for genre in tags.findAll('a',href=re.compile(r'/tags/')):
+                self.story.addToList('genre',stripHTML(genre))
 
-        ratingdt = dlinfo.find('dt',text='Рейтинг:')
-        self.story.setMetadata('rating', stripHTML(ratingdt.find_next('dd')))
+        ratingdt = dlinfo.find('strong',{'class':re.compile(r'badge-rating-.*')})
+        self.story.setMetadata('rating', stripHTML(ratingdt.find_next('span')))
 
         # meta=table.findAll('a', href=re.compile(r'/ratings/'))
         # i=0
@@ -217,16 +214,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
         #     elif i == 2:
         #         self.story.addToList('warnings', m.find('b').text)
 
-        if dlinfo.find('span', {'style' : 'color: green'}):
+        if dlinfo.find('span', {'class':'badge-status-finished'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-
-        paircharsdt = dlinfo.find('dt',text='Пэйринг и персонажи:')
+        paircharsdt = soup.find('strong',text='Пэйринг и персонажи:')
         # site keeps both ships and indiv chars in /pairings/ links.
         if paircharsdt:
-            for paira in paircharsdt.find_next('dd').find_all('a', href=re.compile(r'/pairings/')):
+            for paira in paircharsdt.find_next('div').find_all('a', href=re.compile(r'/pairings/')):
                 if 'pairing-highlight' in paira['class']:
                     self.story.addToList('ships',stripHTML(paira))
                     chars=stripHTML(paira).split('/')
@@ -246,8 +242,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(self._fetchUrl(url))
 
-        chapter = soup.find('div', {'class' : 'public_beta'})
-        if chapter == None:
+        chapter = soup.find('div', {'id' : 'content'})
+        if chapter == None: ## still needed?
             chapter = soup.find('div', {'class' : 'public_beta_disabled'})
 
         if None == chapter:
