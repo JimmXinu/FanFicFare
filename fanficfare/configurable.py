@@ -23,11 +23,6 @@ import codecs
 from . import six
 from .six.moves import configparser
 from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
-if six.PY2:
-  ConfigParser = configparser.SafeConfigParser
-else: # PY3
-  ConfigParser = configparser.ConfigParser
-
 from .six.moves import urllib
 from .six.moves.urllib.parse import (urlencode, quote_plus)
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
@@ -36,7 +31,6 @@ from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_binary, ensure_text
-
 
 import time
 import logging
@@ -525,11 +519,11 @@ def make_generate_cover_settings(param):
     return vlist
 
 
-class Configuration(ConfigParser):
+class Configuration(configparser.SafeConfigParser):
 
     def __init__(self, sections, fileform, lightweight=False):
         site = sections[-1] # first section is site DN.
-        ConfigParser.__init__(self)
+        configparser.SafeConfigParser.__init__(self)
 
         self.lightweight = lightweight
         self.use_pagecache = False # default to false for old adapters.
@@ -698,7 +692,7 @@ class Configuration(ConfigParser):
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
         vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
-        vlist = [x for x in [ v.strip().replace(r'\,',',') for v in vlist ] if x !='']
+        vlist = [x for x in [ v.strip().replace('\,',',') for v in vlist ] if x !='']
         #print("vlist("+key+"):"+unicode(vlist))
         if not vlist:
             return default
@@ -1043,6 +1037,22 @@ class Configuration(ConfigParser):
                 logger.warn("reduce_zalgo failed(%s), continuing."%e)
         return data
 
+    # Post raw data, Parameters is a string - no headers or cache
+    def _postUrl_raw(self, url, parameters=""):
+
+        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
+        logger.debug("#####################################\npostURL_raw(POST) MISS: %s"%safe_url(url))
+        req = Request(url, data=parameters.encode('utf-8'))
+
+        ## Specific UA because too many sites are blocking the default python UA.
+        self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
+                                  ('X-Clacks-Overhead','GNU Terry Pratchett')]
+
+        data = self._do_reduce_zalgo(self._decode(self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read()))
+        self._progressbar()
+        return data
+
+
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url,
                  parameters={},
@@ -1083,6 +1093,7 @@ class Configuration(ConfigParser):
         #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
         #     headers['Authorization']=b"Basic %s" % base64string
         #     logger.debug("http login for SB xf2test")
+
 
         req = Request(url,
                       data=ensure_binary(urlencode(parameters)),
@@ -1164,6 +1175,7 @@ class Configuration(ConfigParser):
         #     logger.debug("http login for SB xf2test")
 
         self.opener.addheaders = headers
+
 
         if parameters != None:
             opened = self.opener.open(url,
@@ -1300,6 +1312,9 @@ class Configurable(object):
 
     def set_decode(self,decode):
         self.configuration.decode = decode
+    
+    def _postUrl_raw(self, url, parameters=""):
+        return self.configuration._postUrl_raw(url, parameters)
 
     def _postUrl(self, url,
                  parameters={},

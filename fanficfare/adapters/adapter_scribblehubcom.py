@@ -25,21 +25,10 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
-from ..six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
-from ..six.moves.urllib.parse import urlencode, quote_plus
-from ..six.moves import http_cookiejar as cl
-from ..six import ensure_binary, ensure_text
-
-from ..gziphttp import GZipProcessor
-
-from ..configurable import Configuration
-
 
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
-# Need requests to curl the table of contents
 
 # In general an 'adapter' needs to do these five things:
 
@@ -84,28 +73,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y" # XXX
-    
-    # Can't use postUrl or fetchUrl in configurable.py. Private method as a quick override
-    # Scribblehuib needs a proper payload - all tried:
-    # payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"
-    # payload = {"action": "wi_gettocchp", "strSID": self.story.getMetadata('storyId'), "strmypostid": "0", "strFic": "yes"}
-    # payload = {"":"action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"}
-    # data = self._fetchUrlRawOpened("https://www.scribblehub.com/wp-admin/admin-ajax.php", payload)
-    def _get_contents(self):
-        payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"     
-        req = Request("https://www.scribblehub.com/wp-admin/admin-ajax.php", data=payload.encode('utf-8'))
-    
-        ## Specific UA because too many sites are blocking the default python UA.
-        opener = build_opener(HTTPCookieProcessor(cl.LWPCookieJar()),GZipProcessor())
-        opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
-                            ('X-Clacks-Overhead','GNU Terry Pratchett')]
-
-        encoded_data = opener.open(req, None, float(self.getConfig('connect_timeout',30.0))).read()
-        data = Configuration._do_reduce_zalgo(self, Configuration._decode(self, encoded_data))
-
-        return data
         
-
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -230,7 +198,10 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # Get the contents list from scribblehub, iterate through and add to chapters
         # Can be fairly certain this will not 404 - we know the story id is valid
         # Also, fails when tested with fewer than 2 chapters, which is stumping me - but it has nothing to do with this class I think
-        contents_soup = self.make_soup(self._get_contents())
+        contents_payload = "action=wi_gettocchp&strSID=" + self.story.getMetadata('storyId') + "&strmypostid=0&strFic=yes"     
+        contents_data = self._postUrl_raw("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
+        
+        contents_soup = self.make_soup(contents_data)
 
         for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
             chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
