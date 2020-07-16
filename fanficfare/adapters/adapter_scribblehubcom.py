@@ -232,19 +232,11 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # Also, fails when tested with fewer than 2 chapters, which is stumping me - but it has nothing to do with this class I think
         contents_soup = self.make_soup(self._get_contents())
 
-
         for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
             chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
             chapter_name = contents_soup.find('li',{'cnt':str(i)}).find('a').get('title')
             logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
             self.add_chapter(chapter_name, chapter_url)
-
-        
-
-
-        # for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"&chapter=\d+$")):
-        #     # just in case there's tags, like <i> in chapter titles.
-        #     self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href']+addurl)
 
 
         # eFiction sites don't help us out a lot with their meta data
@@ -263,7 +255,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         if soup.find('div',{'class': 'wi_fic_desc'}):
             svalue = soup.find('div',{'class': 'wi_fic_desc'})
             self.setDescription(url,svalue)
-            #self.story.setMetadata('description',stripHTML(svalue))
 
         # Categories
         if soup.find('span',{'class': 'wi_fic_showtags_inner'}):
