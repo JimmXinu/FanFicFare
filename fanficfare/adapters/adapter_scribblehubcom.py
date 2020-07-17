@@ -17,7 +17,7 @@
 
 # Software: eFiction
 from __future__ import absolute_import
-import logging
+import logging, time, datetime
 logger = logging.getLogger(__name__)
 import re
 from ..htmlcleanup import stripHTML
@@ -25,6 +25,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six.moves import http_cookiejar as cl
 
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -96,6 +97,21 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         else:
             return False
 
+    # Set cookie to ascending order before page loads, means we know date published
+    def set_contents_cookie(self):
+        cookie = cl.Cookie(version=0, name='toc_sorder', value='asc',
+                           port=None, port_specified=False,
+                           domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
+                           path='/', path_specified=True,
+                           secure=False,
+                           expires=time.time()+10000,
+                           discard=False,
+                           comment=None,
+                           comment_url=None,
+                           rest={'HttpOnly': None},
+                           rfc2109=False)
+        self.get_configuration().get_cookiejar().set_cookie(cookie)
+
     def performLogin(self, url):
         params = {}
 
@@ -123,7 +139,10 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             return True
 
          ## Getting the chapter list and the meta data, plus 'is adult' checking.
-    def extractChapterUrlsAndMetadata(self):
+    def extractChapterUrlsAndMetadata(self, get_cover=True):
+
+        # Set the chapters list cookie to asc
+        self.set_contents_cookie()
 
         if self.is_adult or self.getConfig("is_adult"):
             # Weirdly, different sites use different warning numbers.
@@ -179,7 +198,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
@@ -249,21 +267,44 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 self.story.addToList('warnings', stripHTML(warn))
         
         # The date parsing is a bit of a bodge, plenty of corner cased I probably haven't thought of, but try anyway 
-        try:
-            # Complete
-            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
-                self.story.setMetadata('status', 'Completed')
-            else:
-                self.story.setMetadata('status', 'In-Progress')
+        # Complete
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
 
 
-            # Updated
-            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
-                date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+        # Updated | looks like this: <span title="Last updated: Jul 16, 2020 01:02 AM">Jul 16, 2020</span> -- snip out the date
+        # if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
+            date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+            try:
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
-        except:
-            logger.warning("Failed to extract date data for " + url)
-            pass 
+            except ValueError:  
+                self.story.setMetadata('datePublished', datetime.date.today())
+
+        # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
+        if get_cover:
+            cover_url = ""
+            cover_url = soup.find('div',{'class':'fic_image'}).find('img').get('src')
+            if cover_url:
+                self.setCoverImage(url,cover_url)
+        
+        # Date Published - if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
+        try:
+            self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
+        except ValueError:
+            self.story.setMetadata('datePublished', datetime.date.today())
+
+
+        # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
+        self.story.setMetadata('rating', "Not Rated")
+
+        if soup.find("a", {"gid" : "20"}):
+            self.story.setMetadata('rating', "Mature")
+        
+        if soup.find("a", {"gid" : "902"}):
+            self.story.setMetadata('rating', "Adult")
 
 
     # grab the text for an individual chapter.
