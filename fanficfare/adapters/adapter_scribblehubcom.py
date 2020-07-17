@@ -17,7 +17,7 @@
 
 # Software: eFiction
 from __future__ import absolute_import
-import logging
+import logging, time
 logger = logging.getLogger(__name__)
 import re
 from ..htmlcleanup import stripHTML
@@ -25,6 +25,7 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
+from ..six.moves import http_cookiejar as cl
 
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -96,6 +97,20 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         else:
             return False
 
+    def set_contents_cookie(self):
+        cookie = cl.Cookie(version=0, name='toc_sorder', value='asc',
+                           port=None, port_specified=False,
+                           domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
+                           path='/', path_specified=True,
+                           secure=False,
+                           expires=time.time()+10000,
+                           discard=False,
+                           comment=None,
+                           comment_url=None,
+                           rest={'HttpOnly': None},
+                           rfc2109=False)
+        self.get_configuration().get_cookiejar().set_cookie(cookie)
+
     def performLogin(self, url):
         params = {}
 
@@ -123,7 +138,10 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             return True
 
          ## Getting the chapter list and the meta data, plus 'is adult' checking.
-    def extractChapterUrlsAndMetadata(self):
+    def extractChapterUrlsAndMetadata(self, get_cover=True):
+
+        # Set the chapters list cookie to asc
+        self.set_contents_cookie()
 
         if self.is_adult or self.getConfig("is_adult"):
             # Weirdly, different sites use different warning numbers.
@@ -264,6 +282,19 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         except:
             logger.warning("Failed to extract date data for " + url)
             pass 
+
+        # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
+        if get_cover:
+            cover_url = ""
+            cover_url = soup.find('div',{'class':'fic_image'}).find('img').get('src')
+            if cover_url:
+                self.setCoverImage(url,cover_url)
+        
+        # Date Published
+        self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
+
+        # Ratings
+        
 
 
     # grab the text for an individual chapter.
