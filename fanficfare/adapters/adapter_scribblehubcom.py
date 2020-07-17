@@ -97,6 +97,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         else:
             return False
 
+    # Set cookie to ascending order before page loads, means we know date published
     def set_contents_cookie(self):
         cookie = cl.Cookie(version=0, name='toc_sorder', value='asc',
                            port=None, port_specified=False,
@@ -197,7 +198,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
-        # print data
 
         # Now go hunting for all the meta data and the chapter list.
 
@@ -275,7 +275,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 self.story.setMetadata('status', 'In-Progress')
 
 
-            # Updated
+            # Updated | looks like this: <span title="Last updated: Jul 16, 2020 01:02 AM">Jul 16, 2020</span> -- snip out the date
             if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
                 date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
@@ -293,8 +293,14 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # Date Published
         self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
 
-        # Ratings
+        # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
+        self.story.setMetadata('rating', "Not Rated")
+
+        if soup.find("a", {"gid" : "20"}):
+            self.story.setMetadata('rating', "Mature")
         
+        if soup.find("a", {"gid" : "902"}):
+            self.story.setMetadata('rating', "Adult")
 
 
     # grab the text for an individual chapter.
