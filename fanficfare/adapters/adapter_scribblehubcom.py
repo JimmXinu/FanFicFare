@@ -295,7 +295,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
         except ValueError:
             self.story.setMetadata('datePublished', datetime.date.today())
-
+        except AttributeError:
+            logger.warn("Failed to retrieve date published for " + url)
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
         self.story.setMetadata('rating', "Not Rated")
