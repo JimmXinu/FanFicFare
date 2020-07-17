@@ -17,7 +17,7 @@
 
 # Software: eFiction
 from __future__ import absolute_import
-import logging, time
+import logging, time, datetime
 logger = logging.getLogger(__name__)
 import re
 from ..htmlcleanup import stripHTML
@@ -267,21 +267,21 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 self.story.addToList('warnings', stripHTML(warn))
         
         # The date parsing is a bit of a bodge, plenty of corner cased I probably haven't thought of, but try anyway 
-        try:
-            # Complete
-            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
-                self.story.setMetadata('status', 'Completed')
-            else:
-                self.story.setMetadata('status', 'In-Progress')
+        # Complete
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
 
 
-            # Updated | looks like this: <span title="Last updated: Jul 16, 2020 01:02 AM">Jul 16, 2020</span> -- snip out the date
-            if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
-                date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+        # Updated | looks like this: <span title="Last updated: Jul 16, 2020 01:02 AM">Jul 16, 2020</span> -- snip out the date
+        # if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
+        if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
+            date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
+            try:
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
-        except:
-            logger.warning("Failed to extract date data for " + url)
-            pass 
+            except ValueError:  
+                self.story.setMetadata('datePublished', datetime.date.today())
 
         # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
         if get_cover:
@@ -290,8 +290,12 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             if cover_url:
                 self.setCoverImage(url,cover_url)
         
-        # Date Published
-        self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
+        # Date Published - if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
+        try:
+            self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
+        except ValueError:
+            self.story.setMetadata('datePublished', datetime.date.today())
+
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
         self.story.setMetadata('rating', "Not Rated")
