@@ -112,32 +112,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                            rfc2109=False)
         self.get_configuration().get_cookiejar().set_cookie(cookie)
 
-    def performLogin(self, url):
-        params = {}
-
-        if self.password:
-            params['penname'] = self.username
-            params['password'] = self.password
-        else:
-            params['penname'] = self.getConfig("username")
-            params['password'] = self.getConfig("password")
-        params['cookiecheck'] = '1'
-        params['submit'] = 'Submit'
-
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
-        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['penname']))
-
-        d = self._fetchUrl(loginUrl, params)
-
-        if "Member Account" not in d : #Member Account
-            logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['penname']))
-            raise exceptions.FailedToLogin(url,params['penname'])
-            return False
-        else:
-            return True
-
          ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self, get_cover=True):
 
@@ -158,11 +132,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             else:
                 raise e
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
-            
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
