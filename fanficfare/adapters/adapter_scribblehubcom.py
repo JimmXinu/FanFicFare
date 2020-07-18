@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -317,6 +317,26 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         
         if soup.find("a", {"gid" : "902"}):
             self.story.setMetadata('rating', "Adult")
+
+
+        # Extra metadata from URL + /stats/
+        # Again we know the storyID is valid from before, so this shouldn't raise an exception, and if it does we might want to know about it..
+        data = self._fetchUrl(url + 'stats/')
+        soup = self.make_soup(data)
+        
+        def find_stats_data(element, row, metadata):
+            if element in stripHTML(row.find('th')):
+                self.story.setMetadata(metadata, stripHTML(row.find('td')))
+        
+        if soup.find('table',{'class': 'table_pro_overview'}):
+            stats_table = soup.find('table',{'class': 'table_pro_overview'}).findAll('tr')
+            for row in stats_table:
+                find_stats_data("Total Views (All)", row, "views")
+                find_stats_data("Word Count", row, "numWords")
+                find_stats_data("Average Words", row, "averageWords")
+        else:
+            logger.debug('Failed to get additional metadata [see PR #512] from url: ' + url + "stats/")
+
 
 
     # grab the text for an individual chapter.
