@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -112,47 +112,13 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                            rfc2109=False)
         self.get_configuration().get_cookiejar().set_cookie(cookie)
 
-    def performLogin(self, url):
-        params = {}
-
-        if self.password:
-            params['penname'] = self.username
-            params['password'] = self.password
-        else:
-            params['penname'] = self.getConfig("username")
-            params['password'] = self.getConfig("password")
-        params['cookiecheck'] = '1'
-        params['submit'] = 'Submit'
-
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
-        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['penname']))
-
-        d = self._fetchUrl(loginUrl, params)
-
-        if "Member Account" not in d : #Member Account
-            logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['penname']))
-            raise exceptions.FailedToLogin(url,params['penname'])
-            return False
-        else:
-            return True
-
          ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self, get_cover=True):
 
         # Set the chapters list cookie to asc
         self.set_contents_cookie()
 
-        if self.is_adult or self.getConfig("is_adult"):
-            # Weirdly, different sites use different warning numbers.
-            # If the title search below fails, there's a good chance
-            # you need a different number.  print data at that point
-            # and see what the 'click here to continue' url says.
-            addurl = "&ageconsent=ok&warning=3"
-        else:
-            addurl=""
-
+        
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
@@ -165,36 +131,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
-
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self._fetchUrl(url)
-
-        m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
-        if m != None:
-            if self.is_adult or self.getConfig("is_adult"):
-                # We tried the default and still got a warning, so
-                # let's pull the warning number from the 'continue'
-                # link and reload data.
-                addurl = m.group(1)
-                # correct stupid &amp; error in url.
-                addurl = addurl.replace("&amp;","&")
-                url = self.url+'&index=1'+addurl
-                logger.debug("URL 2nd try: "+url)
-
-                try:
-                    data = self._fetchUrl(url)
-                except HTTPError as e:
-                    if e.code == 404:
-                        raise exceptions.StoryDoesNotExist(self.url)
-                    else:
-                        raise e
-            else:
-                raise exceptions.AdultCheckRequired(self.url)
-
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
@@ -290,13 +226,24 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             if cover_url:
                 self.setCoverImage(url,cover_url)
         
-        # Date Published - if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
-        try:
-            self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : '1'}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
-        except ValueError:
-            self.story.setMetadata('datePublished', datetime.date.today())
-        except AttributeError:
-            logger.warn("Failed to retrieve date published for " + url)
+        # Lil recursive funciton to get Date Published: 
+        # if we get a ValueError it's because it's today and it says somehting like "6 hours ago"
+        # if we get AttributeError it's because that index doesn't exist, iterate up to 10 to try and find the 1st chapter, give up if not
+        def find_date_published(index_val=1):
+            try:
+                self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : str(index_val)}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
+                return
+            except ValueError:
+                self.story.setMetadata('datePublished', datetime.date.today())
+                return
+            except AttributeError:
+                if index_val > 10:
+                    logger.warn("Failed to retrieve date published for " + url)
+                    return
+                find_date_published(index_val + 1)
+                return
+
+        find_date_published()
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
         self.story.setMetadata('rating', "Not Rated")
@@ -306,6 +253,26 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         
         if soup.find("a", {"gid" : "902"}):
             self.story.setMetadata('rating', "Adult")
+
+
+        # Extra metadata from URL + /stats/
+        # Again we know the storyID is valid from before, so this shouldn't raise an exception, and if it does we might want to know about it..
+        data = self._fetchUrl(url + 'stats/')
+        soup = self.make_soup(data)
+        
+        def find_stats_data(element, row, metadata):
+            if element in stripHTML(row.find('th')):
+                self.story.setMetadata(metadata, stripHTML(row.find('td')))
+        
+        if soup.find('table',{'class': 'table_pro_overview'}):
+            stats_table = soup.find('table',{'class': 'table_pro_overview'}).findAll('tr')
+            for row in stats_table:
+                find_stats_data("Total Views (All)", row, "views")
+                find_stats_data("Word Count", row, "numWords")
+                find_stats_data("Average Words", row, "averageWords")
+        else:
+            logger.debug('Failed to get additional metadata [see PR #512] from url: ' + url + "stats/")
+
 
 
     # grab the text for an individual chapter.
