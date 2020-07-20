@@ -124,15 +124,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 storydiv = storya.find_parent('div')
                 break
 
-        # desc is escaped html in attr on iframe.
-        iframe = storydiv.find('iframe')
-        iframesrc = removeAllEntities(iframe['srcdoc'])
-        # logger.debug(iframesrc)
-        descsoup=self.make_soup(iframesrc)
-        desc = descsoup.body
-        desc.name='div'   # change body tag to div
-        del desc['class'] # clear class='iframe'
-        # logger.debug(desc.body)
+        desc = storydiv.find('div',class_='story-summary__summary')
         self.setDescription(url,desc)
 
         # <div class='entry'>
