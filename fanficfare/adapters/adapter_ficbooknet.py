@@ -127,7 +127,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         chapters = soup.find('ul', {'class' : 'list-of-fanfic-parts'})
         if chapters != None:
             for chapdiv in chapters.findAll('div', {'class':'part-info'}):
-                chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+"r/\d+#part_content$"))
+                chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
                 self.add_chapter(chapter,churl)
                 ## First chapter doesn't always have a date, skip it.
