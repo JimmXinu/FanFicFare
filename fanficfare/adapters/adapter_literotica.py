@@ -47,10 +47,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         storyId = re.sub("-ch-?\d\d", "", storyId)
         self.story.setMetadata('storyId', storyId)
 
-        ## accept m(mobile)url, but use www.
-        url = re.sub("^(www|german|spanish|french|dutch|italian|romanian|portuguese|other)\.i",
-                              "\1",
-                              url)
+        ## normalize to www.literotica.com.
+        url = re.sub(r"^(https?://)(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?",
+                     r"\1www",
+                     url)
 
         ## strip ?page=...
         url = re.sub("\?page=.*$", "", url)
