@@ -217,7 +217,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             try:
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
             except ValueError:  
-                self.story.setMetadata('datePublished', datetime.date.today())
+                self.story.setMetadata('dateUpdated', datetime.date.today())
 
         # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
         if get_cover:
@@ -226,24 +226,11 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             if cover_url:
                 self.setCoverImage(url,cover_url)
         
-        # Lil recursive funciton to get Date Published: 
-        # if we get a ValueError it's because it's today and it says somehting like "6 hours ago"
-        # if we get AttributeError it's because that index doesn't exist, iterate up to 10 to try and find the 1st chapter, give up if not
-        def find_date_published(index_val=1):
-            try:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('ol', {'class' : 'toc_ol'}).find('li', {'order' : str(index_val)}).find('span', {'class': 'fic_date_pub'})), self.dateformat))
-                return
-            except ValueError:
-                self.story.setMetadata('datePublished', datetime.date.today())
-                return
-            except AttributeError:
-                if index_val > 10:
-                    logger.warn("Failed to retrieve date published for " + url)
-                    return
-                find_date_published(index_val + 1)
-                return
-
-        find_date_published()
+        try:
+            self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('span', {'class': 'fic_date_pub'})), self.dateformat))
+        except ValueError:
+            # if we get a ValueError it's because it's today and it says somehting like "6 hours ago"
+            self.story.setMetadata('datePublished', datetime.date.today())
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
         self.story.setMetadata('rating', "Not Rated")
