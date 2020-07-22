@@ -151,7 +151,10 @@ class RejectURLList:
     def _save_list(self,listcache,clearcache=True):
         with busy_cursor():
             #print("_save_list")
-            self.prefs['rejecturls'] = '\n'.join([x.to_line() for x in listcache.values()])
+            ## As of July 2020 it's been > 1.5 years since
+            ## rejects_data added.  Stop keeping older version in
+            ## prefs.
+            del self.prefs['rejecturls']
             self.prefs.save_to_db()
             rejects_data['rejecturls_data'] = [x.to_data() for x in listcache.values()]
             rejects_data.save_to_db()
