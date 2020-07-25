@@ -217,7 +217,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             try:
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
             except ValueError:  
-                self.story.setMetadata('dateUpdated', datetime.date.today())
+                self.story.setMetadata('dateUpdated', datetime.datetime.now())
 
         # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
         if get_cover:
@@ -230,7 +230,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('span', {'class': 'fic_date_pub'})), self.dateformat))
         except ValueError:
             # if we get a ValueError it's because it's today and it says somehting like "6 hours ago"
-            self.story.setMetadata('datePublished', datetime.date.today())
+            self.story.setMetadata('datePublished', datetime.datetime.now())
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these
         self.story.setMetadata('rating', "Not Rated")
