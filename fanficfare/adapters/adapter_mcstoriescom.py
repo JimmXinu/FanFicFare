@@ -64,7 +64,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://mcstories.com/StoryTitle https://mcstories.com/StoryTitle/index.html https://mcstories.com/StoryTitle/StoryTitle1.html"
+        return "https://mcstories.com/StoryTitle/ https://mcstories.com/StoryTitle/index.html https://mcstories.com/StoryTitle/StoryTitle1.html"
 
     def getSiteURLPattern(self):
         return r"https?://(www\.)?mcstories\.com/([a-zA-Z0-9_-]+)/"
