@@ -51,7 +51,7 @@ version="2.3.6"
         r'(?P<minor>[0-9]+)(?P<dot2>[, \\.-]+)' \
         r'(?P<micro>[0-9]+[a-z]?)(?P<suffix>[",\\)]*\r?\n)$'
 
-    version_subs = '\g<prefix>version\g<infix>%s\g<dot1>%s\g<dot2>%s\g<suffix>' % tuple(args)
+    version_subs = r'\g<prefix>version\g<infix>%s\g<dot1>%s\g<dot2>%s\g<suffix>' % tuple(args)
     
     do_loop(version_files, version_re, version_subs)
 
