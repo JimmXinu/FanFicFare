@@ -73,10 +73,18 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         # get storyId from url
         # https://www.webnovel.com/book/6831837102000205
-        self.story.setMetadata('storyId', self.parsedUrl.path.split('/')[2])
 
-        # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/book/' + self.story.getMetadata('storyId'))
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            self.story.setMetadata('storyId',m.group('id'))
+            # normalized story URL.
+            title = m.group('title') or ""
+            self._setURL('https://' + self.getSiteDomain() + '/book/' + title + self.story.getMetadata('storyId'))
+        else:
+            raise exceptions.InvalidStoryURL(url,
+                                             self.getSiteDomain(),
+                                             self.getSiteExampleURLs())
+
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev', 'wncom')
@@ -90,10 +98,11 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return 'https://' + cls.getSiteDomain() + '/book/123456789012345'
+        return 'https://' + cls.getSiteDomain() + '/book/story-title_123456789012345 https://' + cls.getSiteDomain() + '/book/123456789012345'
 
     def getSiteURLPattern(self):
-        return r'https://' + re.escape(self.getSiteDomain()) + r'/book/*(?P<id>\d+)'
+        # https://www.webnovel.com/book/game-of-thrones%3A-the-prideful-one._17509790806343405
+        return r'https://' + re.escape(self.getSiteDomain()) + r'/book/(?P<title>.*_)?(?P<id>\d+)'
 
     def use_pagecache(self):
         '''
