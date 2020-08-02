@@ -99,7 +99,7 @@ try:
         if export:
             return (img.export(convtype[imgtype]),imgtype,imagetypes[imgtype])
         else:
-            logger.debug("image used unchanged")
+            # logger.debug("image used unchanged")
             return (data,imgtype,imagetypes[imgtype])
 
 except:
@@ -171,7 +171,7 @@ def no_convert_image(url,data):
         # parameter.
         ext = url[url.rfind('.')+1:].lower()
         if ext not in imagetypes:
-            logger.debug("no_convert_image url:%s - no known extension -- using .jpg"%url)
+            logger.info("no_convert_image url:%s - no known extension -- using .jpg"%url)
             # doesn't have extension? use jpg.
             ext='jpg'
 
@@ -212,7 +212,7 @@ except:
     def sanitize_comments_html(t):
         ## should only be called by Calibre version, so this shouldn't
         ## trip.
-        logger.debug("fake sanitize called...")
+        # logger.debug("fake sanitize called...")
         return t
 
 # The list comes from ffnet, the only multi-language site we support
