@@ -115,6 +115,7 @@ default_prefs = {}
 default_prefs['last_saved_version'] = (0,0,0)
 default_prefs['personal.ini'] = get_resources('plugin-example.ini')
 default_prefs['cal_cols_pass_in'] = False
+default_prefs['rejecturls'] = '' # removed, but need empty default for fallback
 default_prefs['rejectreasons'] = '''Sucked
 Boring
 Dup from another site'''
