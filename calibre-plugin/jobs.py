@@ -43,7 +43,7 @@ def do_download_worker(book_list,
                        merge=False,
                        notification=lambda x,y:x):
     '''
-    Master job, to launch child jobs to extract ISBN for a set of books
+    Coordinator job, to launch child jobs to extract ISBN for a set of books
     This is run as a worker job in the background to keep the UI more
     responsive and get around the memory leak issues as it will launch
     a child job for each book as a worker process
