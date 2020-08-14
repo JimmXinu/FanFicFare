@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2019 FanFicFare team
+# Copyright 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -9,7 +9,7 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the Ljicense is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -36,8 +36,7 @@ def getClass():
 
 
 class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
-    NEW_DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
-    OLD_DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+    DATE_FORMAT = '%Y-m-%d %H:%M'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -84,9 +83,10 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         self.setCoverImage(self.url, soup.select_one('.book-img > img')['src'])
 
         book_info = soup.select_one('.book-info')
-        self.story.setMetadata('title', book_info.select_one('.book-name').string)
-        self.story.setMetadata('author', book_info.select_one('.author > .name').string)
-        self.story.setMetadata('authorId', book_info.select_one('.author > .name').string)
+        author = book_info.select_one('.author > .name').get_text()
+        self.story.setMetadata('title', book_info.select_one('.book-name').get_text())
+        self.story.setMetadata('author', author)
+        self.story.setMetadata('authorId', author)
 
         chapter_info = soup.select_one('.chapter-wrapper')
         date = makeDate(chapter_info.select_one('.update-time').get_text(), self.DATE_FORMAT)
@@ -101,9 +101,10 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
         chapters_data = [(int(ch.p.get_text().split()[0]), ch.p.get_text(), ch['href']) for ch in chapters]
         chapters_data.sort(key=lambda ch: ch[0])
-        current = 1
+        
+        current = 1 # Assume starts at chapter 1
         for chapter in chapters_data:
-            if current == chapter[0]:
+            if current == chapter[0]: # Only 1 chapter per chapter number allowed
                 title = chapter[1]
                 url = urlparse.urljoin(self.url, chapter[2])
                 self.add_chapter(title, url)
