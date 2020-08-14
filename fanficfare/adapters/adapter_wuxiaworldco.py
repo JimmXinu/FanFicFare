@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2019 FanFicFare team
+# Copyright 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ def getClass():
 
 
 class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
-    NEW_DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
-    OLD_DATE_FORMAT = '%m/%d/%Y %I:%M:%S %p'
+    DATE_FORMAT = '%Y-%m-%d %H:%M'
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
@@ -80,57 +79,61 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
             raise exception
 
         soup = self.make_soup(data)
-        info = soup.select_one('#info')
-        self.story.setMetadata('title', stripHTML(info.h1))
-        self.setCoverImage(self.url, soup.select_one('#fmimg > img')['src'])
 
-        info_paragraphs = info('p')
-        # Unicode strings because '：' isn't ':', but \xef\xbc\x9a
-        author = stripHTML(info_paragraphs[0]).replace(u'Author：', '', 1)
+        self.setCoverImage(self.url, soup.select_one('.book-img > img')['src'])
+
+        book_info = soup.select_one('.book-info')
+        author = book_info.select_one('.author > .name').get_text()
+        self.story.setMetadata('title', book_info.select_one('.book-name').get_text())
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
-        datestr = stripHTML(info_paragraphs[2]).replace(u'UpdateTime：', '', 1)
-        date = None
-        try:
-            ## Some older stories use a different date format.
-            date = makeDate(datestr, self.NEW_DATE_FORMAT)
-        except ValueError:
-            date = makeDate(datestr, self.OLD_DATE_FORMAT)
+
+        chapter_info = soup.select_one('.chapter-wrapper')
+        date = makeDate(chapter_info.select_one('.update-time').get_text(), self.DATE_FORMAT)
         if date:
             self.story.setMetadata('dateUpdated', date)
 
-        intro = soup.select_one('#intro')
-        # Strip <strong>Description</strong>
+        intro = soup.select_one('.synopsis > .content')
         if intro.strong:
             intro.strong.decompose()
         self.setDescription(self.url, intro)
 
-        dl = soup.select_one('#list > dl')
-        for el in dl.contents:
-            if el.name == u'dt':
-                match = re.match(ensure_text(r'^《.+》\s+(.+)$'), stripHTML(el), re.UNICODE)
-                volume = ''
-                if match and match.group(1) != 'Text':
-                    volume = match.group(1) + ' '
-            elif el.name == u'dd':
-                a = el.a
-                if a['style'] != 'color:Gray;':
-                    # skip grayed out "In preparation" chapters
-                    url = urlparse.urljoin(self.url, a['href'])
-                    title = volume + stripHTML(a)
-                    self.add_chapter(title, url)
-            # else:
-            #     logger.debug('Unexpected tag in #list > dl: %s', el.name)
+        chapters = chapter_info.select('.chapter-item')
+
+        # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
+        chapters_data = []
+        for ch in chapters:
+            chapter_title = ch.p.get_text()
+            chapter_url = ch['href']
+            if chapter_title.startswith('Chapter'):
+                try:
+                    number = int(chapter_title.split()[1])
+                except:
+                    continue
+            else:
+                try:
+                    number = int(chapter_title.split()[0])
+                except:
+                    continue
+            chapters_data.append((number, chapter_title, chapter_url))
+
+        chapters_data.sort(key=lambda ch: ch[0])
+
+        current = chapters_data[0][0] # Start with first number
+        for chapter in chapters_data:
+            if current == chapter[0]: # Only 1 chapter per chapter number allowed
+                title = chapter[1]
+                url = urlparse.urljoin(self.url, chapter[2])
+                self.add_chapter(title, url)
+                current+=1
+            else:
+                continue
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
         data = self._fetchUrl(url)
         soup = self.make_soup(data)
 
-        content = soup.select_one('#content')
-
-        # Script empty script tag at the end of the content
-        for script in content('script'):
-            script.decompose()
+        content = soup.select_one('.chapter-entity')
 
         return self.utf8FromSoup(url, content)
