@@ -93,16 +93,33 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         if date:
             self.story.setMetadata('dateUpdated', date)
 
-        intro = stripHTML(soup.select_one('.synopsis').p)
+        intro = soup.select_one('.synopsis > .content')
+        if intro.strong:
+            intro.strong.decompose()
         self.setDescription(self.url, intro)
 
         chapters = chapter_info.select('.chapter-item')
-        
+
         # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
-        chapters_data = [(int(ch.p.get_text().split()[0]), ch.p.get_text(), ch['href']) for ch in chapters]
+        chapters_data = []
+        for ch in chapters:
+            chapter_title = ch.p.get_text()
+            chapter_url = ch['href']
+            if chapter_title.startswith('Chapter'):
+                try:
+                    number = int(chapter_title.split()[1])
+                except:
+                    continue
+            else:
+                try:
+                    number = int(chapter_title.split()[0])
+                except:
+                    continue
+            chapters_data.append((number, chapter_title, chapter_url))
+
         chapters_data.sort(key=lambda ch: ch[0])
-        
-        current = 1 # Assume starts at chapter 1
+
+        current = chapters_data[0][0] # Start with first number
         for chapter in chapters_data:
             if current == chapter[0]: # Only 1 chapter per chapter number allowed
                 title = chapter[1]
