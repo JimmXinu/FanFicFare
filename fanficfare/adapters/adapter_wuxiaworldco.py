@@ -119,15 +119,14 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
         chapters_data.sort(key=lambda ch: ch[0])
 
-        current = chapters_data[0][0] # Start with first number
-        for chapter in chapters_data:
-            if current == chapter[0]: # Only 1 chapter per chapter number allowed
-                title = chapter[1]
-                url = urlparse.urljoin(self.url, chapter[2])
-                self.add_chapter(title, url)
-                current+=1
-            else:
-                continue
+        for index, chapter in enumerate(chapters_data):
+            if index > 0:
+                # No previous duplicate chapter names or same chapter numbers
+                if chapter[1] == chapters_data[index-1][1] or chapter[0] == chapters_data[index-1][0]:
+                    continue
+            title = chapter[1]
+            url = urlparse.urljoin(self.url, chapter[2])
+            self.add_chapter(title, url)
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
