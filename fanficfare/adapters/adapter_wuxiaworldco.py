@@ -99,33 +99,37 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         self.setDescription(self.url, intro)
 
         chapters = chapter_info.select('.chapter-item')
+        if self.getConfig("dedup_order_chapter_list",False):
+            # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
+            chapters_data = []
+            numbers_regex = re.compile('[^0-9\.]') # Everything except decimal and numbers
+            for ch in chapters:
+                chapter_title = ch.p.get_text()
+                chapter_url = ch['href']
+                if chapter_title.startswith('Chapter'):
+                    target_number = chapter_title.split()[1]
+                else:
+                    target_number = chapter_title.split()[0]
+                try:
+                    number = float(re.sub(numbers_regex, '', target_number))
+                except:
+                    continue # Cannot parse chapter number
+                chapters_data.append((number, chapter_title, chapter_url))
 
-        # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
-        chapters_data = []
-        numbers_regex = re.compile('[^0-9\.]') # Everything except decimal and numbers
-        for ch in chapters:
-            chapter_title = ch.p.get_text()
-            chapter_url = ch['href']
-            if chapter_title.startswith('Chapter'):
-                target_number = chapter_title.split()[1]
-            else:
-                target_number = chapter_title.split()[0]
-            try:
-                number = float(re.sub(numbers_regex, '', target_number))
-            except:
-                continue # Cannot parse chapter number
-            chapters_data.append((number, chapter_title, chapter_url))
+            chapters_data.sort(key=lambda ch: ch[0])
 
-        chapters_data.sort(key=lambda ch: ch[0])
-
-        for index, chapter in enumerate(chapters_data):
-            if index > 0:
-                # No previous duplicate chapter names or same chapter numbers
-                if chapter[1] == chapters_data[index-1][1] or chapter[0] == chapters_data[index-1][0]:
-                    continue
-            title = chapter[1]
-            url = urlparse.urljoin(self.url, chapter[2])
-            self.add_chapter(title, url)
+            for index, chapter in enumerate(chapters_data):
+                if index > 0:
+                    # No previous duplicate chapter names or same chapter numbers
+                    if chapter[1] == chapters_data[index-1][1] or chapter[0] == chapters_data[index-1][0]:
+                        continue
+                title = chapter[1]
+                url = urlparse.urljoin(self.url, chapter[2])
+                self.add_chapter(title, url)
+        else:
+            ## normal operation
+            for ch in chapters:
+                self.add_chapter(ch.p.get_text(), ch['href'])
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
