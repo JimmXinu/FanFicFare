@@ -129,7 +129,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         else:
             ## normal operation
             for ch in chapters:
-                self.add_chapter(ch.p.get_text(), ch['href'])
+                self.add_chapter(ch.p.get_text(), urlparse.urljoin(self.url, ch['href']))
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
