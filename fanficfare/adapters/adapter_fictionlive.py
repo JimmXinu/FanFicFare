@@ -28,11 +28,6 @@
 # story scripting (shows script tags visible in the text, not computed values or input fields)
 # multiroute stories (won't download them at all)
 
-### check if ok when merging:
-# rolling our own time handling for the fiction.live time format (unix-epoch milliseconds)
-# using api/json chapter urls in metadata that aren't user-friendly / browsable
-# should maybe normalize URLs?
-
 import json
 from datetime import datetime
 import logging
@@ -111,9 +106,9 @@ class FictionLiveAdapter(BaseSiteAdapter):
         
         # nearly everything optional from here out
         
-        self.story.setMetadata('numWords', data['w'] if 'w' in data else 0)        
-        self.story.setMetadata('likes', data['likeCount'] if 'likeCount' in data else 0)
-        self.story.setMetadata('reader_input', data['rInput'].title() if 'rInput' in data else "")
+        if 'w' in data: self.story.setMetadata('numWords', data['w'])
+        if 'likeCount' in data: self.story.setMetadata('likes', data['likeCount']) 
+        if 'rInput' in data: self.story.setMetadata('reader_input', data['rInput'].title()) 
         
         desc = data['d'].strip() if 'd' in data else ""
         firstblock = data['b'].strip() if 'b' in data else ""
@@ -125,8 +120,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
            not (self.is_adult or self.getConfig("is_adult")): 
             raise exceptions.AdultCheckRequired(self.url)
         
-        # BUG: tags are ordered on the site but unordered in book output -- spoiler tags should be last, etc.
-        # Something is sorting them alphabetically and it's not me
         show_spoiler_tags = self.getConfig('show_spoiler_tags')
         spoiler_tags = data['spoilerTags'] if 'spoilerTags' in data else []
         for tag in tags[:5]:
@@ -170,8 +163,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
             self.achievements = []
     
     def add_chapters(self, data):
+
         ## chapter urls are for the api. they return json and aren't user-navigatable, or the same as on the website
-        ## not sure this is ok. are chapter urls a user-facing ui element in fanficfare, or an implementation detail?
         chunkrange_url = "https://fiction.live/api/anonkun/chapters/{s_id}/{start}/{end}/"
         
         def add_chapter_url(title, start, end):
@@ -276,7 +269,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
     
     def add_spoiler_legends(self, soup):
         # find spoiler links and change link-anchor block to legend block
-        # default is that the spoiler text just turns up in the story content as (unmarked) regular text.
         spoilers = soup.find_all('a', class_="tydai-spoiler") 
         for link_tag in spoilers:
             link_tag.name = 'fieldset'
@@ -413,7 +405,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## so. a voter can roll with their post. these rolls are in a seperate dict, but have the **same uid**.
         ## they're then formatted with the roll above the writein for that user.
         ## I *think* that formatting roll-only before writein-only posts is correct, but tbh, it's hard to tell.
-        ## writeins are often opened by the author for posts or rolls, not both at once. 
+        ## writeins are usually opened by the author for posts or rolls, not both at once. 
         ## people tend to only mix the two by accident.
         if dice != {}:
             for uid, roll in dice.items():
@@ -432,11 +424,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def format_unknown(self, chunk):
         raise NotImplementedError("Unknown chunk type ({}) in fiction.live story.".format(chunk))
     
-
 # in future, I'd like to handle audio embeds somehow. but they're not availble to add to stories right now.
 # pretty sure they'll just format as a link (with a special tydai-audio class) and should be easier than achievements
-
-# BUG: adult checks not getting cached between stories! Is this still happening?
 
 # TODO: ETAs on livetimes? to match site formatting and help debugging timezone handling
 
@@ -447,4 +436,3 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
 # TODO: verify that show_timestamps is working, check times!
 
-# TODO: chapter ranges are a fanficfare feature -- check that they're working?
