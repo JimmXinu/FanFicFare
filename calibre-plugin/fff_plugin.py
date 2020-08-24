@@ -2617,9 +2617,12 @@ class FanFicFarePlugin(InterfaceAction):
 
             # copy authors & tags.
             for k in ('author','tags'):
-                for v in b[k]:
-                    if v not in book[k]:
-                        book[k].append(v)
+                if k in b:
+                    for v in b[k]:
+                        if v not in book[k]:
+                            book[k].append(v)
+                else:
+                    logger.debug("book: %s lacks %s"%(b['title'],k))
 
             # fill from first of each if not already present:
             for k in ('pubdate', 'timestamp', 'updatedate'):
