@@ -33,7 +33,7 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-from .base_adapter import BaseSiteAdapter#, makeDate
+from .base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
 
 from ..six import text_type as unicode
@@ -62,7 +62,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
         return r"https?://fiction\.live/(stories|anonkun)/[^/]*/([a-zA-Z0-9]{17}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/?(home)?"
-    
     
     @classmethod
     def getSiteExampleURLs(cls):

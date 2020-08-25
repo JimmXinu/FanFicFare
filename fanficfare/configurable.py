@@ -268,7 +268,7 @@ def get_valid_set_options():
                'use_reader_mode':(base_xenforo_list,None,boollist),
                'author_avatar_cover':(base_xenforo_list,None,boollist),
                'remove_spoilers':(base_xenforo_list+['royalroad.com'],None,boollist),
-               'legend_spoilers':(base_xenforo_list+['royalroad.com'],None,boollist),
+               'legend_spoilers':(base_xenforo_list+['royalroad.com', 'fiction.live'],None,boollist),
                'apocrypha_to_omake':(base_xenforo_list,None,boollist),
                'replace_failed_smilies_with_alt_text':(base_xenforo_list,None,boollist),
                'use_threadmark_wordcounts':(base_xenforo_list,None,boollist),
@@ -281,6 +281,9 @@ def get_valid_set_options():
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
                'dedup_order_chapter_list': (['wuxiaworld.co'], None, boollist),
+               'show_nsfw_cover_images': (['fiction.live'], None, boollist),
+               'show_timestamps': (['fiction.live'], None, boollist),
+               'show_nsfw_cover_images': (['fiction.live'], None, boollist)
                }
 
     return dict(valdict)
@@ -503,6 +506,9 @@ def get_valid_keywords():
                  'dedup_order_chapter_list',
                  'ignore_chapter_url_list',
                  'dedup_chapter_list',
+                 'show_timestamps',
+                 'show_nsfw_cover_images',
+                 'show_spoiler_tags',
                  'max_zalgo',
                  'epub_version',
                  ])
