@@ -212,9 +212,9 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
     
         chunk_handler = {
-            "choice"  : self.format_choice,
+            "choice"     : self.format_choice,
             "readerPost" : self.format_readerposts,
-            "chapter" : self.format_chapter
+            "chapter"    : self.format_chapter
         }
         
         response = self._fetchUrl(url)
@@ -240,8 +240,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
             text += handler(chunk)
             
             show_timestamps = self.getConfig('show_timestamps')
-            if show_timestamps:
-                logger.debug("Adding timestamp for chunk...")
+            if show_timestamps and 'ct' in chunk:
+                #logger.debug("Adding timestamp for chunk...")
                 timestamp = self.parse_timestamp(chunk['ct']).strftime("%b %d, %Y %H:%M %p")
                 text += '<div class="ut">' + timestamp + '</div>'
             
@@ -324,13 +324,14 @@ class FictionLiveAdapter(BaseSiteAdapter):
         with the count live and updated in realtime on your client.
         So instead we get the raw vote-data, but have to count it ourselves."""
         
-        choices = chunk['choices']
+        # optional. 
+        choices = chunk['choices'] if 'choices' in chunk else []
         
         def counter(votes):
             output = [0] * len(choices)
             for vote in votes.values():
                 ## votes are either a single option-index or a list of option-indicies, depending on the choice type
-                if chunk['multiple'] == False:
+                if 'multiple' in chunk and chunk['multiple'] == False:
                     vote = [vote] # normalize to list
                 for v in vote:
                     if 0 <= v <= len(choices):
