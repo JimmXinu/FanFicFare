@@ -169,7 +169,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front
         ## site has started putting https back on again.
-        storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:])))
+        ## site is now using language specific german.lit... etc on author pages.
+        storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
 #         storyLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
 
         if storyLink is not None:
