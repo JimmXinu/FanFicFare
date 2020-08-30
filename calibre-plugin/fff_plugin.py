@@ -2700,6 +2700,7 @@ class FanFicFarePlugin(InterfaceAction):
             book['title'] = deftitle = book_list[0]['title']
             # book['all_metadata']['description']
 
+            series = None
             logger.debug("serieslists:%s"%serieslists)
             # if all same series, use series for name.  But only if all and not previous named
             if len(serieslist) == len(book_list):
