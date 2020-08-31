@@ -30,10 +30,12 @@
 
 import json
 from datetime import datetime
+
 import logging
 logger = logging.getLogger(__name__)
 
 from .base_adapter import BaseSiteAdapter
+from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 from ..six import text_type as unicode
@@ -95,7 +97,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         # on the other, nearly *everything* in this api is optional. found that out the hard way. 
         
         # not optional
-        self.story.setMetadata('title', data['t'])
+        self.story.setMetadata('title', stripHTML(data['t']))
         self.story.setMetadata('status', data['storyStatus'])
         self.story.setMetadata('rating', data['contentRating']) 
         
@@ -111,9 +113,9 @@ class FictionLiveAdapter(BaseSiteAdapter):
         if 'likeCount' in data: self.story.setMetadata('likes', data['likeCount']) 
         if 'rInput' in data: self.story.setMetadata('reader_input', data['rInput'].title()) 
         
-        desc = data['d'].strip() if 'd' in data else ""
+        summary = stripHTML(data['d']) if 'd' in data else ""
         firstblock = data['b'].strip() if 'b' in data else ""
-        self.setDescription(self.url, desc if not firstblock else desc + "\n<br />\n" + firstblock)
+        self.setDescription(self.url, summary if not firstblock else summary + "\n<br />\n" + firstblock)
         
         tags = data['ta'] if 'ta' in data else []
         
