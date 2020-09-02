@@ -396,7 +396,10 @@ class AddNewDialog(SizePersistedDialog):
         self.groupbox.setVisible(not(self.merge and self.newmerge))
 
         if self.merge:
-            self.toplabel.setText(_('Story URLs for anthology, one per line:'))
+            count=""
+            if url_list_text:
+                count = " " + _("(%s URLs found)")%len(url_list_text.split()) # count lines
+            self.toplabel.setText(_('Story URLs for anthology, one per line:') + count)
             self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
             self.collisionlabel.setText(_('If Story Already Exists in Anthology?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL in the anthology."))
