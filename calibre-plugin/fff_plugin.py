@@ -2672,24 +2672,27 @@ class FanFicFarePlugin(InterfaceAction):
 
         logger.debug("book['url']:%s"%book['url'])
 
-        book['comments'] = _("Anthology containing:")+"\n\n"
+        book['comments'] = '<div><p>' +_("Anthology containing:")+"</p>\n\n"
+        wraptitle = lambda x : '<p><b>'+x+'</b></p>\n'
         if len(book['author']) > 1:
-            mkbooktitle = lambda x : _("%s by %s") % (x['title'],' & '.join(x['author']))
+            mkbooktitle = lambda x : wraptitle(_("%s by %s") % (x['title'],' & '.join(x['author'])))
         else:
-            mkbooktitle = lambda x : x['title']
+            mkbooktitle = lambda x : wraptitle(x['title'])
 
         if prefs['includecomments']:
             def mkbookcomments(x):
                 if x['comments']:
-                    return '<b>%s</b>\n\n%s'%(mkbooktitle(x),x['comments'])
+                    return '%s<div>%s</div>'%(mkbooktitle(x),x['comments'])
                 else:
-                    return '<b>%s</b>\n'%mkbooktitle(x)
+                    return '%s\n'%mkbooktitle(x)
 
-            book['comments'] += ('<div class="mergedbook">' +
+            book['comments'] += (
                             '<hr></div><div class="mergedbook">'.join([ mkbookcomments(x) for x in book_list]) +
                             '</div>')
         else:
             book['comments'] += '\n'.join( [ mkbooktitle(x) for x in book_list ] )
+        book['comments'] += '</div>'
+        logger.debug(book['comments'])
 
         configuration = get_fff_config(book['url'],fileform)
         if existingbook:
