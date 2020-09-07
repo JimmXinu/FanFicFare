@@ -38,7 +38,7 @@ from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from ..six import text_type as unicode
+from ..six import text_type as unicode, ensure_text
 
 def getClass():
     return FictionLiveAdapter
@@ -148,7 +148,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
             self.story.setMetadata('live', "Now! (at time of download)")
         elif 'nextLive' in data and data['nextLive']:
             # formatted to match site, not other fanficfare timestamps
-            next_live_time = self.parse_timestamp(data['nextLive']).strftime("%b %d, %Y at %H:%M %p")
+            next_live_time = self.parse_timestamp(data['nextLive'])
             self.story.setMetadata('live', next_live_time)
 
         show_nsfw_cover_images = self.getConfig('show_nsfw_cover_images')
@@ -247,7 +247,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
             show_timestamps = self.getConfig('show_timestamps')
             if show_timestamps and 'ct' in chunk:
                 #logger.debug("Adding timestamp for chunk...")
-                timestamp = self.parse_timestamp(chunk['ct']).strftime("%b %d, %Y %H:%M %p")
+                timestamp = six.ensure_text(self.parse_timestamp(chunk['ct']).strftime("%x -- %X"))
                 text += '<div class="ut">' + timestamp + '</div>'
 
             text += "</div><br />\n"
@@ -436,8 +436,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
 # in future, I'd like to handle audio embeds somehow. but they're not availble to add to stories right now.
 # pretty sure they'll just format as a link (with a special tydai-audio class) and should be easier than achievements
-
-# TODO: ETAs on livetimes? to match site formatting and help debugging timezone handling
 
 # TODO:
 # set fanficfare plugin to use "overwrite if newer" ? or 'update epub always' ?
