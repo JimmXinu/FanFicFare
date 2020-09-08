@@ -87,9 +87,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         data = json.loads(response)
 
-        # I have no idea how you'd make this work in a book.
+        ## get metadata for multi route chapters
         if 'multiRoute' in data and data['multiRoute'] == True:
-            raise NotImplementedError("Multiple-route fiction.live stories are not supported.")
+            route_metadata_url = "https://fiction.live/api/anonkun/routes/{s_id}/"
+            response = self._fetchUrl(route_metadata_url.format(s_id = self.story_id))
+
+            if not response: # this is how fiction.live responds to nonsense urls -- HTTP200 with empty response
+                raise exceptions.StoryDoesNotExist("Empty response for " + self.url)
+
+            data["route_metadata"] = json.loads(response)
 
         self.extract_metadata(data, get_cover)
         self.add_chapters(data)
@@ -172,19 +178,32 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## chapter urls are for the api. they return json and aren't user-navigatable, or the same as on the website
         chunkrange_url = "https://fiction.live/api/anonkun/chapters/{s_id}/{start}/{end}/"
 
+        ## api url to get content of a multi route chapter. requires only the route id and no timestamps
+        route_chunkrange_url = "https://fiction.live/api/anonkun/route/{c_id}/chapters"
+
         def add_chapter_url(title, start, end):
             "Adds a chapter url based on the start/end chunk-range timestamps."
             chapter_url = chunkrange_url.format(s_id = data['_id'], start = start, end = end)
             self.add_chapter(title, chapter_url)
 
+        def add_route_chapter_url(title, route_id):
+            "Adds a route chapter url based on the route id."
+            chapter_url = route_chunkrange_url.format(c_id = route_id)
+            self.add_chapter(title, chapter_url)
+
         ### chapter addition loop. bit complex, as both first and last chapters have special handling
 
         ## first thing to do is seperate out the appendices
-        appendices, maintext = [], []
-        chapters =  data['bm'] if 'bm' in data else [{"title": "Home", "ct": data['ct']}]
+        appendices, maintext, routes = [], [], []
+        chapters = data['bm'] if 'bm' in data else [{"title": "Home", "ct": data['ct']}]
 
         for c in chapters:
             appendices.append(c) if c['title'].startswith('#special') else maintext.append(c)
+
+        ## not all stories use multiple routes. Those that do have a route id and a title for each route
+        if 'route_metadata' in data and data['route_metadata']:
+            for r in data['route_metadata']:
+                routes.append({"id": r['_id'], "title": r['t']})
 
         # loop setup
         chapter_iter = iter(maintext)
@@ -213,6 +232,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
             chapter_start = a['ct']
             chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
             add_chapter_url(chapter_title, chapter_start, chapter_start + 1) # 1 msec range = this one chunk only
+
+        for r in routes:  # add route at the end, after appendices
+            route_id = r['id']  # to get route chapter content, the route id is needed, not the timestamp
+            chapter_title = "Route: " + r['title']  # 'Route: ' at beginning of name, since it's a multiroute chapter
+            add_route_chapter_url(chapter_title, route_id)
 
     def getChapterText(self, url):
 
