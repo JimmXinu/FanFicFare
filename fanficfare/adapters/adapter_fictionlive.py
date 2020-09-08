@@ -63,11 +63,13 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
-        return r"https?://fiction\.live/(stories|anonkun)/[^/]*/([a-zA-Z0-9]{17}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/?(home)?"
+        return r"https?://fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
 
     @classmethod
     def getSiteExampleURLs(cls):
         return ["https://fiction.live/stories/Example-Story-Title/17CharacterIDhere/home",
+                "https://fiction.live/stories/Example-Story-With-Long-ID/-20CharacterIDisHere",
+                "https://fiction.live/Sci-fi/Example-Story-With-URL-Genre/17CharacterIDhere/",
                 "https://fiction.live/stories/Example-Story-With-UUID/00000000-0000-4000-0000-000000000000/"]
 
     def parse_timestamp(self, timestamp):
