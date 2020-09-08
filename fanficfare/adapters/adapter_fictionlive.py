@@ -67,10 +67,10 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return ["https://fiction.live/stories/Example-Story-Title/17CharacterIDhere/home",
-                "https://fiction.live/stories/Example-Story-With-Long-ID/-20CharacterIDisHere",
-                "https://fiction.live/Sci-fi/Example-Story-With-URL-Genre/17CharacterIDhere/",
-                "https://fiction.live/stories/Example-Story-With-UUID/00000000-0000-4000-0000-000000000000/"]
+        return ("https://fiction.live/stories/Example-Story-Title/17CharacterIDhere/home "
+                +"https://fiction.live/stories/Example-Story-With-Long-ID/-20CharacterIDisHere "
+                +"https://fiction.live/Sci-fi/Example-Story-With-URL-Genre/17CharacterIDhere/ "
+                +"https://fiction.live/stories/Example-Story-With-UUID/00000000-0000-4000-0000-000000000000/")
 
     def parse_timestamp(self, timestamp):
         # fiction.live date format is unix-epoch milliseconds. not a good fit for fanficfare's makeDate.
