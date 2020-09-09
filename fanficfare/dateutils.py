@@ -49,6 +49,7 @@ def parse_relative_date_string(string_):
         'weeks': 'weeks',
         'second': 'seconds',
         'minute': 'minutes',
+        'mins': 'minutes',
         'hour': 'hours',
         'day': 'days',
         'week': 'weeks',
