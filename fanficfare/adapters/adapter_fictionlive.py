@@ -26,7 +26,6 @@
 # music / audio embeds
 # per-user achivement tracking with fancy achievement-get animations
 # story scripting (shows script tags visible in the text, not computed values or input fields)
-# multiroute stories (won't download them at all)
 
 import json
 from datetime import datetime
@@ -372,6 +371,23 @@ class FictionLiveAdapter(BaseSiteAdapter):
         # I believe that verified is always a subset of all votes, but that's not enforced here
         total_votes = counter(chunk['votes'] if 'votes' in chunk else {})
         verified_votes = counter(chunk['userVotes'] if 'userVotes' in chunk else {})
+
+        # Choices can link to route chapters, where the index of the choice in list 'choices' is a key in the
+        #   'routes' dict and the dict value is the route id.
+        # That route id is needed for the url to create the internal link from the choice to the route chapter.
+        routes = chunk['routes'] if 'routes' in chunk else {}
+        if choices and len(routes) > 0:
+            altered_choices = []
+            for i, choice in enumerate(choices):
+                choice_index = str(i)
+                if choice_index in routes.keys():
+                    route_chunkrange_url = "https://fiction.live/api/anonkun/route/{c_id}/chapters"
+                    route_url = route_chunkrange_url.format(c_id=routes[choice_index])
+                    choice_link = "<a data-orighref='" + route_url + "' >" + choice + "</a>"
+                    altered_choices.append(choice_link)
+                else:
+                    altered_choices.append(choice)
+            choices = altered_choices
 
         return zip(choices, verified_votes, total_votes)
 
