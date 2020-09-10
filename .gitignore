@@ -17,6 +17,9 @@
 *.back
 *.bak
 
+# pycharm project specific settings files
+.idea
+
 cleanup.sh
 FanFictionDownLoader.zip
 *.epub
