@@ -202,7 +202,12 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## not all stories use multiple routes. Those that do have a route id and a title for each route
         if 'route_metadata' in data and data['route_metadata']:
             for r in data['route_metadata']:
-                routes.append({"id": r['_id'], "title": r['t']})
+                # checking if route title even exists or is None, since most things in the api are optional
+                if 't' in r and r['t'] is not None:
+                    title = r['t']
+                else:
+                    title = ""
+                routes.append({{"id": r['_id'], "title": title}})
 
         # loop setup
         chapter_iter = iter(maintext)
