@@ -28,11 +28,18 @@ class ValentChamberComAdapter(BaseEfictionAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'www.valentchamber.com'
+        return 'valentchamber.com'
 
     @classmethod
     def getSiteAbbrev(self):
         return 'vccom'
+
+    @classmethod
+    def getProtocol(self):
+        """
+        Some, but not all site now require https.
+        """
+        return "https"
 
     @classmethod
     def getDateFormat(self):
