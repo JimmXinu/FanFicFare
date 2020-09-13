@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-09-10 16:30-0500\n"
-"PO-Revision-Date: 2020-09-11 04:17+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-09-13 08:15+0000\n"
+"Last-Translator: Ptit Prince <leporello1791@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1335,7 +1335,7 @@ msgstr "Met à jour l'image de couverture du livre depuis le site ou par défaut
 
 #: dialogs.py:401
 msgid "(%s URLs found)"
-msgstr ""
+msgstr "(%sURL trouvées)"
 
 #: dialogs.py:402
 msgid "Story URLs for anthology, one per line:"
