@@ -47,11 +47,8 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-        # has changed from http to https to http again.
-        self.protocol='http://'
-
         # normalized story URL.
-        self._setURL( self.protocol + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL( self.getProtocol() + self.getSiteDomain() + '/stories/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','hpffa')
@@ -66,8 +63,13 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         return 'hpfanficarchive.com'
 
     @classmethod
+    def getProtocol(cls):
+        # has changed from http to https to http again.
+        return "http://"
+
+    @classmethod
     def getSiteExampleURLs(cls):
-        return self.protocol+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
+        return cls.getProtocol()+cls.getSiteDomain()+"/stories/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
         return r"https?:"+re.escape("//"+self.getSiteDomain()+"/stories/viewstory.php?sid=")+r"\d+$"
@@ -107,13 +109,13 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('div', id="mainpage").find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl',self.protocol+self.host+'/stories/'+a['href'])
+        self.story.setMetadata('authorUrl',self.getProtocol()+self.host+'/stories/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,self.protocol+self.host+'/stories/'+chapter['href'])
+            self.add_chapter(chapter,self.getProtocol()+self.host+'/stories/'+chapter['href'])
 
 
         # eFiction sites don't help us out a lot with their meta data
@@ -189,7 +191,7 @@ class HPFanficArchiveComAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = self.protocol+self.host+'/stories/'+a['href']
+            series_url = self.getProtocol()+self.host+'/stories/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
