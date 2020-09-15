@@ -58,11 +58,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ["fiction.live"] # I still remember anonkun, but the domain has now lapsed
+        return ["fiction.live", "beta.fiction.live"] # I still remember anonkun, but the domain has now lapsed
 
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
-        return r"https?://fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
+        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -105,8 +105,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         # not optional
         self.story.setMetadata('title', stripHTML(data['t']))
-        self.story.setMetadata('status', data['storyStatus'])
-        self.story.setMetadata('rating', data['contentRating'])
 
         # stories have ut, rt, ct, and cht. fairly sure that ut = update time and rt = release time.
         # ct is 'creation time' and everything in the api has it -- you can create stories and edit before publishing
@@ -115,6 +113,25 @@ class FictionLiveAdapter(BaseSiteAdapter):
         self.story.setMetadata("datePublished", self.parse_timestamp(data['rt']))
 
         # nearly everything optional from here out
+
+        if 'storyStatus' in data:
+            status_translate = {'active': "In-Progress", 'finished': "Completed"} # fiction.live to fanficfare
+            status = data['storyStatus']
+            self.story.setMetadata('status', status_translate.get(status, status.title()))
+        elif 'complete' in data:
+            if data['complete'] == True:
+                self.story.setMetadata('status', "Completed")
+            else:
+                self.story.setMetadata('status', "In-Progress")
+        else:
+            self.story.setMetadata('status', "In-Progress")
+
+        if 'contentRating' in data:
+            self.story.setMetadata('rating', data['contentRating'])
+        elif 'tAge' in data:
+            self.story.setMetadata('rating', data['tAge'])
+        else:
+            self.story.setMetadata('rating', "teen")
 
         if 'w' in data: self.story.setMetadata('numWords', data['w'])
         if 'likeCount' in data: self.story.setMetadata('likes', data['likeCount'])
@@ -126,7 +143,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         tags = data['ta'] if 'ta' in data else []
 
-        if (data['contentRating'] == "nsfw" or 'smut' in tags) and \
+        if (self.story.getMetadata('rating') in {"nsfw", "adult"} or 'smut' in tags) and \
            not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
