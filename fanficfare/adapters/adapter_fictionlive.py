@@ -207,7 +207,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
                     title = r['t']
                 else:
                     title = ""
-                routes.append({{"id": r['_id'], "title": title}})
+                routes.append({"id": r['_id'], "title": title})
 
         # loop setup
         chapter_iter = iter(maintext)
