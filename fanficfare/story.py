@@ -457,6 +457,7 @@ class Story(Configurable):
         self.chapter_last = None
         self.imgurls = []
         self.imgtuples = []
+        self.imgsizes = defaultdict(list) # dict of img sizes -> lists of self.imgtuples indices
         # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
         # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
         self.processed_metadata_cache = {}
@@ -1283,6 +1284,7 @@ class Story(Configurable):
             if cover and cover_big_enough:
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
+                    self.imgsizes[len(self.imgtuples[0]['data'])].remove(0)
                     del self.imgurls[0]
                     del self.imgtuples[0]
                 self.imgurls.insert(0,imgurl)
@@ -1290,7 +1292,17 @@ class Story(Configurable):
                 self.cover=newsrc
                 self.setMetadata('cover_image','specific')
                 self.imgtuples.insert(0,{'newsrc':newsrc,'mime':mime,'data':data})
+                self.imgsizes[len(data)].append(0)
             else:
+                if self.getConfig('dedup_img_files',False):
+                    same_sz_imgs = self.imgsizes[len(data)]
+                    for szimg in same_sz_imgs:
+                        if data == self.imgtuples[szimg]['data']:
+                            # matching data, duplicate file with a different URL.
+                            logger.debug("found duplicate image: %s, %s"%(self.imgtuples[szimg]['newsrc'],
+                                                                          self.imgurls[szimg]))
+                            return (self.imgtuples[szimg]['newsrc'],
+                                    self.imgurls[szimg])
                 self.imgurls.append(imgurl)
                 # First image, copy not link because calibre will replace with it's cover.
                 # Only if: No cover already AND
@@ -1313,12 +1325,11 @@ class Story(Configurable):
                     self.imgurls.index(imgurl),
                     ext)
                 self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
+                self.imgsizes[len(data)].append(len(self.imgtuples)-1)
 
-            #logger.debug("\nimgurl:%s\nnewsrc:%s\nimage size:%d\n"%(imgurl,newsrc,len(data)))
+            # logger.debug("\n===============\nimgurl:%s\nnewsrc:%s\nimage size:%d %s\n============"%(imgurl,newsrc,len(data),self.imgsizes[len(data)]))
         else:
             newsrc = self.imgtuples[self.imgurls.index(imgurl)]['newsrc']
-
-        #print("===============\n%s\nimg url:%s\n============"%(newsrc,self.imgurls[-1]))
 
         return (newsrc, imgurl)
 
