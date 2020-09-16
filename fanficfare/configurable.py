@@ -408,6 +408,7 @@ def get_valid_keywords():
                  'keep_html_attrs',
                  'replace_tags_with_spans',
                  'keep_empty_tags',
+                 'remove_tags',
                  'keep_summary_html',
                  'logpage_end',
                  'logpage_entries',

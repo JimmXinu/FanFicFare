@@ -483,7 +483,7 @@ class BaseSiteAdapter(Configurable):
         else:
             ## remove all img tags entirely
             for img in soup.find_all('img'):
-                img.extract()
+                img.decompose()
 
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
@@ -519,11 +519,13 @@ class BaseSiteAdapter(Configurable):
                         t.name='div'
                     # removes paired, but empty non paragraph tags.
                     if t.name not in self.getConfigList('keep_empty_tags',['p','td','th']) and t.string != None and len(t.string.strip()) == 0 :
-                        t.extract()
+                        t.decompose()
 
                     # remove script tags cross the board.
-                    if t.name=='script':
-                        t.extract()
+                    # epub readers (Moon+, FBReader & Aldiko at least)
+                    # don't like <style> tags in body.
+                    if t.name in self.getConfigList('remove_tags',['script','style']):
+                        t.decompose()
 
         except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
