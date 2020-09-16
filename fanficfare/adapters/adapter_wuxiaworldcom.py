@@ -94,7 +94,8 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author_name.lower())
         self.story.setMetadata('title', ld['name'])
         self.story.setMetadata('datePublished', self._parse_date(ld['datePublished']))
-        
+        ## site doesn't have authorUrl links.
+
         tags = [stripHTML(a) for a in soup.select('.media-body .tags a')]
         for tag in tags:
             if 'Completed' == tag:

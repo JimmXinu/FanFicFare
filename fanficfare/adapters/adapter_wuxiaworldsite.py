@@ -91,9 +91,11 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('title', soup.find('meta', {'property': 'og:title'})['content'].split(' - ')[0])
 
-        author_name = soup.select_one('.author-content > a').get_text()
+        author = soup.select_one('.author-content > a')
+        author_name = author.get_text()
         self.story.setMetadata('author', author_name)
         self.story.setMetadata('authorId', author_name.lower())
+        self.story.setMetadata('authorUrl', author['href'])
 
         ld = self._parse_linked_data(soup)
         webpage_graph = [g for g in ld['@graph'] if g['@type'] == 'WebPage']

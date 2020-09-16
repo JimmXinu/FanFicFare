@@ -88,6 +88,7 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
         # author = stripHTML(info.h6).split('\xa0')[0].replace(u'Auteur : ', '', 1)
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
+        ## site doesn't have authorUrl links.
 
         datestr = stripHTML(soup.select_one('.newestchapitre > div > a')['href'])[-11:-1]
         date = makeDate(datestr, '%Y/%m/%d')
