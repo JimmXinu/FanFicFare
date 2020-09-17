@@ -252,4 +252,16 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
+        if self.getConfig("include_author_notes",True):
+            # collect both first, changing div for frontnote first
+            # causes confusion in the tree.
+            frontnote = div.find_previous('div', {'class':'author-note-portlet'})
+            endnote = div.find_next('div', {'class':'author-note-portlet'})
+            if frontnote:
+                # move frontnote into chapter text div.
+                div.insert(0,frontnote.extract())
+            if endnote:
+                # move endnote into chapter text div.
+                div.append(endnote.extract())
+
         return self.utf8FromSoup(url,div)
