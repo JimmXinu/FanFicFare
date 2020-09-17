@@ -83,11 +83,11 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         self.setCoverImage(self.url, soup.select_one('.book-img > img')['src'])
 
         book_info = soup.select_one('.book-info')
-        author = book_info.select_one('.author > .name')
+        author = book_info.select_one('.author > .name').get_text()
         self.story.setMetadata('title', book_info.select_one('.book-name').get_text())
-        self.story.setMetadata('author', author.get_text())
-        self.story.setMetadata('authorId', author.get_text())
-        self.story.setMetadata('authorUrl', author['href'])
+        self.story.setMetadata('author', author)
+        self.story.setMetadata('authorId', author)
+        ## site doesn't have authorUrl links.
 
         chapter_info = soup.select_one('.chapter-wrapper')
         date = makeDate(chapter_info.select_one('.update-time').get_text(), self.DATE_FORMAT)
