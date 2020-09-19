@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/siye/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/siye/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','siye') # XXX
@@ -68,10 +68,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
     def use_pagecache(self):
         '''
@@ -108,7 +108,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         if a is None:
             raise exceptions.StoryDoesNotExist(self.url)
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/siye/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/siye/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # need(or easier) to pull other metadata from the author's list page.
@@ -126,7 +126,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # Find the chapters (from soup, not authsoup):
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'http://'+self.host+'/siye/'+chapter['href'])
+            self.add_chapter(chapter,'https://'+self.host+'/siye/'+chapter['href'])
 
         if self.num_chapters() < 1:
             self.add_chapter(self.story.getMetadata('title'),url)
@@ -177,7 +177,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
                 nxt = label.next_sibling
                 while nxt and "Hitcount:" not in stripHTML(nxt):
                     summary += "%s"%nxt
-                    logger.debug(summary)
+                    # logger.debug(summary)
                     nxt = nxt.next_sibling
                 if summary.strip().endswith("<br/>"):
                     summary = summary.strip()[0:-len("<br/>")]
@@ -221,7 +221,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             # Find Series name from series URL.
             a = titlea.findPrevious('a', href=re.compile(r"series.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
