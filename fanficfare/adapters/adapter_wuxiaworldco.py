@@ -103,7 +103,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         if self.getConfig("dedup_order_chapter_list",False):
             # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
             chapters_data = []
-            numbers_regex = re.compile('[^0-9\.]') # Everything except decimal and numbers
+            numbers_regex = re.compile(r'[^0-9\.]') # Everything except decimal and numbers
             for ch in chapters:
                 chapter_title = ch.p.get_text()
                 chapter_url = ch['href']
