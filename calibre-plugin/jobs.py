@@ -5,7 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import six
 
 __license__   = 'GPL v3'
-__copyright__ = '2018, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
+__copyright__ = '2020, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import logging

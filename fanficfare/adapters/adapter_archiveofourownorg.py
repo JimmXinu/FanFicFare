@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2014 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2014 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -572,3 +572,46 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 # logger.debug(skip_tag)
 
         return self.utf8FromSoup(url,save_chapter)
+
+    def before_get_urls_from_page(self,url,normalize):
+        # special stuff to log into archiveofourown.org, if possible.
+        # Unlike most that show the links to 'adult' stories, but protect
+        # them, AO3 doesn't even show them if not logged in.  Only works
+        # with saved user/pass--not going to prompt for list.
+        if self.getConfig("username"):
+            if self.getConfig("is_adult"):
+                if '?' in url:
+                    addurl = "&view_adult=true"
+                else:
+                    addurl = "?view_adult=true"
+            else:
+                addurl=""
+            # just to get an authenticity_token.
+            data = self._fetchUrl(url+addurl)
+            # login the session.
+            self.performLogin(url,data)
+            # get the list page with logged in session.
+
+    def get_series_from_page(self,url,data):
+        '''
+        This method is to make it easier for adapters to detect a
+        series URL, pick out the series metadata and list of storyUrls
+        to return without needing to override get_urls_from_page
+        entirely.
+        '''
+        ## easiest way to get all the weird URL possibilities and stay
+        ## up to date with future changes.
+        m = re.match(self.getSiteURLPattern().replace('/works/','/series/'),url)
+        if m:
+            soup = self.make_soup(data)
+            retval = {}
+            retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('h4.heading a:first-child') ]
+            retval['name']=stripHTML(soup.select_one("h2.heading"))
+            desc=soup.select_one("div.wrapper dd blockquote.userstuff")
+            if desc:
+                desc.name='div' # change blockquote to div to match stories.
+                retval['desc']=desc
+            return retval
+        ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
+        ## optionally 'name' and 'desc'?
+        return {}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ from functools import partial
 import traceback
 import copy
 
-from bs4 import BeautifulSoup, __version__
+from bs4 import BeautifulSoup, Tag
 
 
 from ..htmlcleanup import stripHTML
@@ -391,6 +391,49 @@ class BaseSiteAdapter(Configurable):
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
         pass
+
+    def before_get_urls_from_page(self,url,normalize):
+        ## some sites need a login or other prep for 'from page' to
+        ## work best.  Separate function to keep adapter code minimal.
+        pass
+
+    def get_urls_from_page(self,url,normalize):
+        from ..geturls import get_urls_from_html
+        '''
+        This is a method in adapter now rather than the generic code
+        that was in geturls.py to allow individual adapters to
+        recognize and provide special handling if needed for series.
+        Prompted largely by AO3 authors leaving links to other stories
+        in story desc that were getting picked up.
+        '''
+
+        ## hook for logins, etc.
+        self.before_get_urls_from_page(url,normalize)
+
+        # this way it uses User-Agent or other special settings.
+        data = self._fetchUrl(url,usecache=False)
+        series = self.get_series_from_page(url,data)
+        if series:
+            # just to make it easier for adapters.
+            if isinstance(series.get('desc',None),(BeautifulSoup,Tag)):
+                series['desc'] = self.utf8FromSoup(url,series['desc'])
+            return series
+        else:
+            return {'urllist':get_urls_from_html(self.make_soup(data),
+                                                 url,
+                                                 configuration=self.configuration,
+                                                 normalize=normalize)}
+
+    def get_series_from_page(self,url,data):
+        '''
+        This method is to make it easier for adapters to detect a
+        series URL, pick out the series metadata and list of storyUrls
+        to return without needing to override get_urls_from_page
+        entirely.
+        '''
+        ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
+        ## 'name' and 'desc' are also used if given.
+        return {}
 
     # Just for series, in case we choose to change how it's stored or represented later.
     def setSeries(self,name,num):

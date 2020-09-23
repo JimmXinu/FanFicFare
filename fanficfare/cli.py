@@ -249,25 +249,40 @@ def main(argv=None,
         parser.print_help();
         return
 
+    if options.save_cache:
+        try:
+            with open(global_cache,'rb') as jin:
+                options.pagecache = pickle_load(jin)
+            options.cookiejar = cl.LWPCookieJar()
+            options.cookiejar.load(global_cookies)
+        except Exception as e:
+            ## This is not uncommon, will happen when starting a new
+            ## cache, for example.
+            print("Didn't load --save-cache %s"%e)
+
     if options.list:
         configuration = get_configuration(options.list,
                                           passed_defaultsini,
                                           passed_personalini,options)
-        retlist = get_urls_from_page(options.list, configuration)
+        ## XXX - add new option for outputing series info?  don't want
+        ## to change existing due to possible user scripts.
+        frompage = get_urls_from_page(options.list, configuration)
+        logger.debug(frompage)
+        retlist = frompage.get('urllist',[])
         print('\n'.join(retlist))
 
     if options.normalize:
         configuration = get_configuration(options.normalize,
                                           passed_defaultsini,
                                           passed_personalini,options)
-        retlist = get_urls_from_page(options.normalize, configuration,normalize=True)
+        retlist = get_urls_from_page(options.normalize, configuration,normalize=True).get('urllist',[])
         print('\n'.join(retlist))
 
     if options.downloadlist:
         configuration = get_configuration(options.downloadlist,
                                           passed_defaultsini,
                                           passed_personalini,options)
-        retlist = get_urls_from_page(options.downloadlist, configuration)
+        retlist = get_urls_from_page(options.downloadlist, configuration).get('urllist',[])
         urls.extend(retlist)
 
     if options.imaplist or options.downloadimap:
@@ -298,15 +313,6 @@ def main(argv=None,
                     #print("url: (%s)"%url)
                     urls.append(url)
 
-    if options.save_cache:
-        try:
-            with open(global_cache,'rb') as jin:
-                options.pagecache = pickle_load(jin)
-            options.cookiejar = cl.LWPCookieJar()
-            options.cookiejar.load(global_cookies)
-        except Exception as e:
-            print("Didn't load --save-cache %s"%e)
-
     if not list_only:
         if len(urls) < 1:
             print("No valid story URLs found")
@@ -322,12 +328,6 @@ def main(argv=None,
                     if len(urls) == 1:
                         raise
                     print("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
-
-    # Saved in configurable.py now.
-    # if options.save_cache:
-    #     with open('global_cache','wb') as jout:
-    #         pickle.dump(options.pagecache,jout,protocol=2)
-    #     options.cookiejar.save('global_cookies')
 
 # make rest a function and loop on it.
 def do_download(arg,
@@ -373,19 +373,6 @@ def do_download(arg,
         url,ch_begin,ch_end = adapters.get_url_chapter_range(url)
 
         adapter = adapters.getAdapter(configuration, url)
-
-        ## Share pagecache and cookiejar between multiple downloads.
-        if not hasattr(options,'pagecache'):
-            options.pagecache = configuration.get_empty_pagecache()
-        if not hasattr(options,'cookiejar'):
-            options.cookiejar = configuration.get_empty_cookiejar()
-        if options.save_cache:
-            save_cache = global_cache
-            save_cookies = global_cookies
-        else:
-            save_cache = save_cookies = None
-        configuration.set_pagecache(options.pagecache,save_cache)
-        configuration.set_cookiejar(options.cookiejar,save_cookies)
 
         # url[begin-end] overrides CLI option if present.
         if ch_begin or ch_end:
@@ -620,6 +607,19 @@ def get_configuration(url,
 
     if options.progressbar:
         configuration.set('overrides','progressbar','true')
+
+    ## Share pagecache and cookiejar between multiple downloads.
+    if not hasattr(options,'pagecache'):
+        options.pagecache = configuration.get_empty_pagecache()
+    if not hasattr(options,'cookiejar'):
+        options.cookiejar = configuration.get_empty_cookiejar()
+    if options.save_cache:
+        save_cache = global_cache
+        save_cookies = global_cookies
+    else:
+        save_cache = save_cookies = None
+    configuration.set_pagecache(options.pagecache,save_cache)
+    configuration.set_cookiejar(options.cookiejar,save_cookies)
 
     return configuration
 
