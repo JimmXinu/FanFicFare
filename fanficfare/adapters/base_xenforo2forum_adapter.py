@@ -63,7 +63,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             raise exceptions.FailedToLogin(self.url,"No username given.  Set in personal.ini or enter when prompted.")
 
         ## need a login token.
-        data = self._fetchUrl(self.getURLPrefix() + '/login',usecache=False)
+        data = self._fetchUrl(self.getURLPrefix() + 'login',usecache=False)
         # logger.debug(data)
         # <input type="hidden" name="_xfToken" value="1556822458,710e5bf6fc87c67ea04ab56a910ac3ff" />
         find_token='<input type="hidden" name="_xfToken" value="'
@@ -71,10 +71,10 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         xftoken = xftoken[:xftoken.index('"')]
         params['remember'] = '1'
         params['_xfToken'] = xftoken
-        params['_xfRedirect'] = self.getURLPrefix() + '/'
+        params['_xfRedirect'] = self.getURLPrefix()
 
         ## https://forum.questionablequesting.com/login/login
-        loginUrl = self.getURLPrefix() + '/login/login'
+        loginUrl = self.getURLPrefix() + 'login/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                              params['login']))
 
@@ -225,7 +225,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
     def get_threadmark_range_url(self,tm_item,tmcat_num):
         fetcher = tm_item.find('div',{'data-xf-click':'threadmark-fetcher'})
-        # logger.debug(fetcher)
+        logger.debug('data-fetchurl:%s'%fetcher)
         return self.getURLPrefix() + fetcher['data-fetchurl']
 
     def get_threadmark_date(self,tm_item):

@@ -38,9 +38,9 @@ class WWWAlternatehistoryComAdapter(BaseXenForo2ForumAdapter):
         return 'www.alternatehistory.com'
 
     @classmethod
-    def getURLPrefix(cls):
+    def getPathPrefix(cls):
         # in case it needs more than just site/
-        return 'https://' + cls.getSiteDomain() + '/forum'
+        return '/forum/'
 
     def get_threadmarks_top(self,souptag):
         return souptag.find('div',{'class':'block-outer-opposite--threadmarks'})
