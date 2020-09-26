@@ -55,7 +55,7 @@ from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
-from .fanficfare.six import text_type as unicode
+from .fanficfare.six import text_type as unicode, ensure_text
 
 # pulls in translation files for _() strings
 try:
@@ -1352,7 +1352,7 @@ class IniTextDialog(SizePersistedDialog):
 
         self.textedit.setReadOnly(read_only)
 
-        self.textedit.setText(text)
+        self.textedit.setText(ensure_text(text))
         self.l.addWidget(self.textedit)
 
         self.lastStart = 0
