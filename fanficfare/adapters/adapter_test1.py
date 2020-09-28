@@ -442,6 +442,30 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
         soup = self.make_soup(text)
         return self.utf8FromSoup(url,soup)
 
+    def get_urls_from_page(self,url,normalize):
+        logger.debug("Fake series test1.com")
+        '''
+        This method is to make it easier for adapters to detect a
+        series URL, pick out the series metadata and list of storyUrls
+        to return without needing to override get_urls_from_page
+        entirely.
+        '''
+        ## easiest way to get all the weird URL possibilities and stay
+        ## up to date with future changes.
+        return {'name':'The Great Test',
+                'desc':'<div>The Great Test Series of test1.com!</div>',
+                'urllist':['http://test1.com?sid=1',
+                           'http://test1.com?sid=2',
+                           'http://test1.com?sid=3',
+                           'http://test1.com?sid=4',
+                           'http://test1.com?sid=5',
+                           'http://test1.com?sid=6',
+                           'http://test1.com?sid=7',
+                           'http://test1.com?sid=8',
+                           'http://test1.com?sid=9',]
+                }
+
+
 def getClass():
     return TestSiteAdapter
 
