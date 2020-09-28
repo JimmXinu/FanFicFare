@@ -265,12 +265,30 @@ class AddNewDialog(SizePersistedDialog):
         self.l.addWidget(self.toplabel)
 
         ## XXX add labels for series name and desc? Desc in tooltip?
+        row = 0
+        grid = QGridLayout()
+        label = QLabel('<b>'+_('Series')+':</b>')
+        grid.addWidget(label,row,0)
         self.mergedname=QLabel("mergedname")
-        self.l.addWidget(self.mergedname)
+        tt = _('This name will be used with the %s setting to set the title of the new book.')%'<i>anthology_title_pattern</i>'
+        label.setToolTip(tt)
+        self.mergedname.setToolTip(tt)
+        grid.addWidget(self.mergedname,row,1,1,-1)
+        self.l.addLayout(grid)
         self.mergeshow.append(self.mergedname)
+
+        row+=1
+        label = QLabel('<b>'+_('Comments')+':</b>')
+        grid.addWidget(label,row,0)
         self.mergeddesc=QLabel("mergeddesc")
-        self.l.addWidget(self.mergeddesc)
+        tt = _('These comments about the series will be included in the Comments of the new book.')+'<i></i>' # for html for auto-wrap
+        label.setToolTip(tt)
+        self.mergeddesc.setToolTip(tt)
+        self.mergeddesc.setWordWrap(True)
+        grid.addWidget(self.mergeddesc,row,1,1,-1)
+        self.l.addLayout(grid)
         self.mergeshow.append(self.mergeddesc)
+        grid.setColumnStretch(1,1)
 
         self.url = DroppableQTextEdit(self)
         self.url.setToolTip("UrlTooltip")
@@ -409,7 +427,7 @@ class AddNewDialog(SizePersistedDialog):
             count=""
             if url_list_text:
                 count = " " + _("(%s URLs found)")%len(url_list_text.split()) # count lines
-            self.toplabel.setText(_('Story URLs for anthology, one per line:') + count)
+            self.toplabel.setText('<b>'+_('Story URLs for anthology, one per line:') + count + '</b>')
             self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
             self.collisionlabel.setText(_('If Story Already Exists in Anthology?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL in the anthology."))
