@@ -356,7 +356,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         if self.getConfig("is_adult"):
             self.setSiteMaxRating(url)
 
-    def get_series_from_page(self,url,data):
+    def get_series_from_page(self,url,data,normalize=False):
         '''
         This method is to make it easier for adapters to detect a
         series URL, pick out the series metadata and list of storyUrls

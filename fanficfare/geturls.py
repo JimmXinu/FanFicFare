@@ -81,6 +81,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=Fa
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
+                #logger.debug("adapter storyUrl:%s"%adapter.story.getMetadata('storyUrl'))
             except Exception as e:
                 #logger.debug e
                 pass

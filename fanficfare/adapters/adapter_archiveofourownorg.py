@@ -592,7 +592,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             self.performLogin(url,data)
             # get the list page with logged in session.
 
-    def get_series_from_page(self,url,data):
+    def get_series_from_page(self,url,data,normalize=False):
         '''
         This method is to make it easier for adapters to detect a
         series URL, pick out the series metadata and list of storyUrls

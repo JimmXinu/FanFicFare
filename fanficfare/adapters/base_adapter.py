@@ -411,8 +411,8 @@ class BaseSiteAdapter(Configurable):
         self.before_get_urls_from_page(url,normalize)
 
         # this way it uses User-Agent or other special settings.
-        data = self._fetchUrl(url,usecache=False)
-        series = self.get_series_from_page(url,data)
+        data = self._fetchUrl(url,usecache=True)
+        series = self.get_series_from_page(url,data,normalize)
         if series:
             # just to make it easier for adapters.
             if isinstance(series.get('desc',None),(BeautifulSoup,Tag)):
@@ -424,16 +424,56 @@ class BaseSiteAdapter(Configurable):
                                                  configuration=self.configuration,
                                                  normalize=normalize)}
 
-    def get_series_from_page(self,url,data):
+    def get_series_from_page(self,url,data,normalize=False):
+        from ..geturls import get_urls_from_html
         '''
         This method is to make it easier for adapters to detect a
         series URL, pick out the series metadata and list of storyUrls
         to return without needing to override get_urls_from_page
         entirely.
         '''
+        # return {}
+        retval = {}
         ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
         ## 'name' and 'desc' are also used if given.
-        return {}
+
+        ## for eFiction sites:
+        ## http://www.dracoandginny.com/viewseries.php?seriesid=45
+        logger.debug("base get_series_from_page:%s"%url)
+        try:
+            if re.match(r".*viewseries\.php\?s(erie)?sid=\d+.*",url): # seriesid or ssid
+                logger.debug("Attempting eFiction get_series_from_page")
+                soup = self.make_soup(data)
+                retval = {}
+                nametag = soup.select_one('div#pagetitle')
+                if nametag:
+                    nametag.find('a').decompose()
+                    retval['name'] = stripHTML(nametag)
+                    if retval['name'].endswith(' by'):
+                        # remove trailing ' by'
+                        retval['name'] = retval['name'][:-3]
+                summaryspan = soup.select_one("div#titleblock span.label")
+                if stripHTML(summaryspan) == "Summary:":
+                    desc = ""
+                    c = summaryspan.nextSibling
+                    while not isinstance(c,Tag):
+                        desc += unicode(c)
+                        c = c.nextSibling
+                    if desc:
+                        retval['desc']=desc
+
+                # trying to get story urls for series from different
+                # eFictions is a nightmare that the pre-existing
+                # get_urls_from_html() handles well enough.  I don't
+                # think eFiction allows HTML in story desc anyway...
+                retval['urllist']=get_urls_from_html(soup,
+                                                    url,
+                                                    configuration=self.configuration,
+                                                    normalize=normalize)
+        except Exception as e:
+            logger.debug("get_series_from_page for eFiction failed:%s"%e)
+            retval = {}
+        return retval
 
     # Just for series, in case we choose to change how it's stored or represented later.
     def setSeries(self,name,num):
