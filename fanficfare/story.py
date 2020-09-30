@@ -1284,7 +1284,7 @@ class Story(Configurable):
             if cover and cover_big_enough:
                 if len(self.imgtuples) > 0 and 'cover' in self.imgtuples[0]['newsrc']:
                     # remove existing cover, if there is one.
-                    self.imgsizes[len(self.imgtuples[0]['data'])].remove(0)
+                    # could have only come from first image and is assumed index 0.
                     del self.imgurls[0]
                     del self.imgtuples[0]
                 self.imgurls.insert(0,imgurl)
@@ -1292,7 +1292,10 @@ class Story(Configurable):
                 self.cover=newsrc
                 self.setMetadata('cover_image','specific')
                 self.imgtuples.insert(0,{'newsrc':newsrc,'mime':mime,'data':data})
-                self.imgsizes[len(data)].append(0)
+                ## *Don't* include cover in imgsizes because it can be
+                ## replaced by Calibre etc.  So don't re-use it.
+                ## Also saves removing it above.
+                # self.imgsizes[len(data)].append(0)
             else:
                 if self.getConfig('dedup_img_files',False):
                     same_sz_imgs = self.imgsizes[len(data)]
@@ -1319,6 +1322,9 @@ class Story(Configurable):
                     self.setMetadata('cover_image','first')
                     self.imgtuples.append({'newsrc':newsrc,'mime':mime,'data':data})
                     self.imgurls.append(imgurl)
+                    ## *Don't* include cover in imgsizes because it can be
+                    ## replaced by Calibre etc.  So don't re-use it.
+                    # self.imgsizes[len(data)].append(len(self.imgtuples)-1)
 
                 newsrc = "images/%s-%s.%s"%(
                     prefix,
