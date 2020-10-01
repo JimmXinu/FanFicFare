@@ -2752,6 +2752,11 @@ class FanFicFarePlugin(InterfaceAction):
         for v in ['Completed','In-Progress']:
             if v in book['tags']:
                 book['tags'].remove(v)
+        ## some adapters, like AO3, may have series status.
+        s = options.get('frompage',{}).get('status','')
+        if s:
+            book['all_metadata']['status'] = s
+            book['tags'].append(s)
         book['tags'].extend(configuration.getConfigList('anthology_tags'))
         book['all_metadata']['anthology'] = "true"
 

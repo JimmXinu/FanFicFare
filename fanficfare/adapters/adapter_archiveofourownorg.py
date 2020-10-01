@@ -611,6 +611,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             if desc:
                 desc.name='div' # change blockquote to div to match stories.
                 retval['desc']=desc
+            stats=stripHTML(soup.select_one("dl.series dl.stats"))
+            if 'Complete:Yes' in stats:
+                retval['status'] = "Completed"
+            elif 'Complete:No' in stats:
+                retval['status'] = "In-Progress"
             return retval
         ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
         ## optionally 'name' and 'desc'?
