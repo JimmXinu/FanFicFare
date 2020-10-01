@@ -396,7 +396,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
 
     def hookForUpdates(self,chaptercount):
-        if self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
+        if self.newestChapterNum and self.oldchapters and len(self.oldchapters) > self.newestChapterNum:
             logger.info("Existing epub has %s chapters\nNewest chapter is %s.  Discarding old chapters from there on."%(len(self.oldchapters), self.newestChapterNum+1))
             self.oldchapters = self.oldchapters[:self.newestChapterNum]
         return len(self.oldchapters)
