@@ -115,7 +115,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         ## fetch 'v' code, post action and redirected domain from login page.
         (data,opened) = self._fetchUrlOpened(loginUrl,
                                              usecache=False)
-        logger.debug(data)
+        # logger.debug(data)
         if not self.needToLoginCheck(data):
             ## hitting login URL reminds system we're logged in?
             logger.debug("don't need to login")
@@ -135,7 +135,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               '','',''))
         # try:
         data = self._postUrl(postUrl,params,usecache=False)
-        logger.debug(data)
+        # logger.debug(data)
         # except HTTPError as e:
         #     if e.code == 307:
         #         logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
@@ -157,10 +157,19 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._postUrl(postUrl,params,usecache=False)
+            # logger.debug(data)
         except HTTPError as e:
             if e.code == 307:
-                logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
-                return
+                logger.debug("e Location:%s"%e.headers['Location'])
+                try:
+                    ## need to hit redirect URL so cookies get set for
+                    ## the story site domain.  I think.
+                    data = self._postUrl(e.headers['Location'],params,usecache=False)
+                except HTTPError as e:
+                    if e.code == 307:
+                        # logger.debug(e)
+                        return
+
         if self.needToLoginCheck(data):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               username))
@@ -183,7 +192,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url+":i")
-            logger.debug(data)
+            # logger.debug(data)
         except HTTPError as e:
             if e.code in (404, 410):
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
@@ -373,8 +382,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                                 self.story.setMetadata("universe", universe_name)
                                 self.story.setMetadata('universeUrl','https://'+self.host+ '/library/universe.php?id=' + universe_id)
                                 break
-                    else:
-                        logger.debug("No universe page")
+                    # else:
+                    #     logger.debug("No universe page")
         except:
             raise
             pass
@@ -388,9 +397,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 universeUrl = 'https://'+self.host+a['href']
                 # logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
                 universe_soup = self.make_soup(self._fetchUrl(universeUrl))
-                logger.debug("Retrieving Universe - have page")
+                # logger.debug("Retrieving Universe - have page")
                 if universe_soup:
-                    logger.debug("Retrieving Universe - looking for name")
+                    # logger.debug("Retrieving Universe - looking for name")
                     universe_name = stripHTML(universe_soup.find('h1', {'id' : 'ptitle'}))
                     universe_name = re.sub(r' .\s+A Universe from the Mind.*$','',universe_name)
                     # logger.debug("Universes name: '{0}'".format(universe_name))
@@ -399,15 +408,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # logger.debug("Setting universe name: '{0}'".format(universe_name))
                 self.story.setMetadata('universe',universe_name)
                 if self.getConfig("universe_as_series") and not self.story.getMetadata('seriesUrl'):
-                    logger.debug("universe_as_series")
+                    # logger.debug("universe_as_series")
                     # take position in universe page as number in series.
                     for i, storya in enumerate(universe_soup.find_all('a',href=re.compile(r'^/s/\d+/'))):
                         if storya['href'].split('/')[2] == self.story.getMetadata('storyId'):
                             self.setSeries(universe_name, i+1)
                             self.story.setMetadata('seriesUrl',universeUrl)
                             break
-            else:
-                logger.debug("Do not have a universe")
+            # else:
+            #     logger.debug("Do not have a universe")
         except:
             raise
             pass
@@ -526,7 +535,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def cleanPage(self,pagetag):
         "Consolidate 'page' clean up code so it can be called."
-        logger.debug("cleanPage start: {0}".format(pagetag))
+        # logger.debug("cleanPage start: {0}".format(pagetag))
 
         chapter_title = None
         if self.getConfig('inject_chapter_title'):
