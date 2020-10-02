@@ -48,10 +48,10 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
 
         # normalized story URL.
         if "explicit" in self.parsedUrl.netloc:
-            self._setURL('http://explicit.' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+            self._setURL('https://explicit.' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
             self.dateformat = "%d/%b/%y"
         else:
-            self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+            self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
             self.dateformat = "%d %b %Y"
 
         # Each adapter needs to have a unique site abbreviation.
@@ -68,10 +68,10 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234 http://explicit."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234 https://explicit."+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.|explicit\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www\.|explicit\.)?"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -138,13 +138,13 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href']+addurl)
+            self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href']+addurl)
 
 
         # eFiction sites don't help us out a lot with their meta data
@@ -223,7 +223,7 @@ class PonyFictionArchiveNetAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
