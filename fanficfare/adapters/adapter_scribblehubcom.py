@@ -270,8 +270,44 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'chp_raw'})
-        if div.find('div', {'class' : 'wi_authornotes'}):
-            div.find('div', {'class' : 'wi_authornotes'}).decompose()
+
+        # Reformat the author's notes
+        # There can be multiple in one chapter, so loop until none are left
+        while div.find('div', {'class' : 'wi_authornotes'}):
+            author_notes = div.find('div', {'class' : 'wi_authornotes'})
+            author_notes['class'] = ['fff_chapter_notes']
+            notes_div = soup.new_tag('div')
+
+            new_tag = soup.new_tag('b')
+            new_tag.string = "Author's note:"
+            notes_div.append(new_tag)
+
+            new_tag = soup.new_tag('blockquote')
+            new_tag.append(author_notes.find('div', {'class' : 'wi_authornotes_body'}))
+            notes_div.append(new_tag)
+
+            # Clear old children from the note, then add this
+            author_notes.clear()
+            author_notes.append(notes_div)
+
+        # Reformat the news boxes
+        # There can be multiple in one chapter, so loop until none are left
+        while div.find('div', {'class' : 'wi_news'}):
+            news = div.find('div', {'class' : 'wi_news'})
+            news['class'] = ['fff_chapter_notes']
+            notes_div = soup.new_tag('div')
+
+            new_tag = soup.new_tag('b')
+            new_tag.string = news.find('div', {'class' : 'wi_news_title'}).get_text()
+            notes_div.append(new_tag)
+
+            new_tag = soup.new_tag('blockquote')
+            new_tag.append(news.find('div', {'class' : 'wi_news_body'}))
+            notes_div.append(new_tag)
+
+            # Clear old children from the news box, then add this
+            news.clear()
+            news.append(notes_div)
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
