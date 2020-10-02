@@ -166,7 +166,7 @@ from . import adapter_hentaifoundrycom
 from . import adapter_mugglenetfanfictioncom
 from . import adapter_swiorgru
 from . import adapter_fanficsme
-from . import adapter_archivehpfanfictalkcom
+from . import adapter_fanfictalkcom
 from . import adapter_scifistoriescom
 from . import adapter_silmarillionwritersguildorg
 from . import adapter_chireadscom
