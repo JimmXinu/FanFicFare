@@ -125,7 +125,7 @@ def main(argv=None,
                       help='Exclude list of chapters("zchapters") from metadata stdout output.  No effect without --meta-only or --json-meta flags', )
     parser.add_option('-j', '--json-meta',
                       action='store_true', dest='jsonmeta',
-                      help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)', )
+                      help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)  Also now series name and desc if available with --list', )
     parser.add_option('--no-output',
                       action='store_true', dest='nooutput',
                       help='Do not download chapters and do not write output file.  Intended for testing and with --meta-only.', )
@@ -264,12 +264,14 @@ def main(argv=None,
         configuration = get_configuration(options.list,
                                           passed_defaultsini,
                                           passed_personalini,options)
-        ## XXX - add new option for outputing series info?  don't want
-        ## to change existing due to possible user scripts.
         frompage = get_urls_from_page(options.list, configuration)
-        logger.debug(frompage)
-        retlist = frompage.get('urllist',[])
-        print('\n'.join(retlist))
+        if options.jsonmeta:
+            import json
+            print(json.dumps(frompage, sort_keys=True,
+                             indent=2, separators=(',', ':')))
+        else:
+            retlist = frompage.get('urllist',[])
+            print('\n'.join(retlist))
 
     if options.normalize:
         configuration = get_configuration(options.normalize,
