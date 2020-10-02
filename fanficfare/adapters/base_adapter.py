@@ -480,14 +480,14 @@ class BaseSiteAdapter(Configurable):
                         retval['desc']=desc.strip()
                 else:
                     # some(1?) sites
-                    summarydiv = soup.select_one("div.summarytext")
+                    summarydiv = soup.select_one("div.summarytext") or soup.select_one("blockquote2") # fanfictalk.com
+                    summarydiv.name='div' # force name to div.
                     if summarydiv:
                         retval['desc']=summarydiv
 
                 # trying to get story urls for series from different
                 # eFictions is a nightmare that the pre-existing
-                # get_urls_from_html() handles well enough.  I don't
-                # think eFiction allows HTML in story desc anyway...
+                # get_urls_from_html() handles well enough.
                 # logger.debug(soup)
                 retval['urllist']=get_urls_from_html(soup,
                                                      url,
