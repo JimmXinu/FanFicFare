@@ -417,6 +417,8 @@ class BaseSiteAdapter(Configurable):
             # just to make it easier for adapters.
             if isinstance(series.get('desc',None),(BeautifulSoup,Tag)):
                 series['desc'] = self.utf8FromSoup(url,series['desc'])
+            # NOTE: series desc imgs are *not* included in ebook.
+            # Should they be removed?
             return series
         else:
             return {'urllist':get_urls_from_html(self.make_soup(data),
@@ -439,28 +441,48 @@ class BaseSiteAdapter(Configurable):
 
         ## for eFiction sites:
         ## http://www.dracoandginny.com/viewseries.php?seriesid=45
-        logger.debug("base get_series_from_page:%s"%url)
+        # logger.debug("base get_series_from_page:%s"%url)
         try:
             if re.match(r".*viewseries\.php\?s(erie)?sid=\d+.*",url): # seriesid or ssid
-                logger.debug("Attempting eFiction get_series_from_page")
+                # logger.debug("Attempting eFiction get_series_from_page")
                 soup = self.make_soup(data)
                 retval = {}
-                nametag = soup.select_one('div#pagetitle')
+                nametag = soup.select_one('div#pagetitle') or soup.select_one('div#storytitle')
+                # logger.debug(nametag)
                 if nametag:
                     nametag.find('a').decompose()
                     retval['name'] = stripHTML(nametag)
-                    if retval['name'].endswith(' by'):
-                        # remove trailing ' by'
-                        retval['name'] = retval['name'][:-3]
+                    # some have [ - ], some have ' by', some have both.
+                    # order matters.
+                    trailing_strip_list=['[ - ]',' by']
+                    for s in trailing_strip_list:
+                        # logger.debug(retval['name'])
+                        if retval['name'].endswith(s):
+                            # remove trailing s
+                            retval['name'] = retval['name'][:-len(s)].strip()
                 summaryspan = soup.select_one("div#titleblock span.label")
-                if stripHTML(summaryspan) == "Summary:":
+                # logger.debug(summaryspan)
+                if summaryspan and stripHTML(summaryspan) == "Summary:":
                     desc = ""
                     c = summaryspan.nextSibling
-                    while not isinstance(c,Tag):
+                    # logger.debug(c)
+                    # strings and tags that aren't <span class='label'>
+                    while c and not (isinstance(c,Tag) and c.name == 'span' and 'label' in c['class']):
+                        # logger.debug(c)
                         desc += unicode(c)
                         c = c.nextSibling
+                        # logger.debug(c)
                     if desc:
+                        # logger.debug(desc)
+                        # strip spaces and trailing <br> tags.
+                        desc = re.sub(r'( *<br/?>)+$','',desc.strip(' \r\n'))
+                        # logger.debug(desc)
                         retval['desc']=desc
+                else:
+                    # some(1?) sites
+                    summarydiv = soup.select_one("div.summarytext")
+                    if summarydiv:
+                        retval['desc']=summarydiv
 
                 # trying to get story urls for series from different
                 # eFictions is a nightmare that the pre-existing
