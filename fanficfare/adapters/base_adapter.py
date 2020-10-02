@@ -443,7 +443,7 @@ class BaseSiteAdapter(Configurable):
         ## http://www.dracoandginny.com/viewseries.php?seriesid=45
         # logger.debug("base get_series_from_page:%s"%url)
         try:
-            if re.match(r".*viewseries\.php\?s(erie)?sid=\d+.*",url): # seriesid or ssid
+            if re.match(r".*(view)?series\.php\?s(erie)?sid=\d+.*",url): # seriesid or ssid
                 # logger.debug("Attempting eFiction get_series_from_page")
                 soup = self.make_soup(data)
                 retval = {}
@@ -460,14 +460,14 @@ class BaseSiteAdapter(Configurable):
                         if retval['name'].endswith(s):
                             # remove trailing s
                             retval['name'] = retval['name'][:-len(s)].strip()
-                summaryspan = soup.select_one("div#titleblock span.label")
+                summaryspan = soup.select_one("div#titleblock span.label") or soup.select_one("div#titleblock span.classification")
                 # logger.debug(summaryspan)
                 if summaryspan and stripHTML(summaryspan) == "Summary:":
                     desc = ""
                     c = summaryspan.nextSibling
                     # logger.debug(c)
                     # strings and tags that aren't <span class='label'>
-                    while c and not (isinstance(c,Tag) and c.name == 'span' and 'label' in c['class']):
+                    while c and not (isinstance(c,Tag) and c.name == 'span' and ('label' in c['class'] or 'classification' in c['class'])):
                         # logger.debug(c)
                         desc += unicode(c)
                         c = c.nextSibling
@@ -475,9 +475,9 @@ class BaseSiteAdapter(Configurable):
                     if desc:
                         # logger.debug(desc)
                         # strip spaces and trailing <br> tags.
-                        desc = re.sub(r'( *<br/?>)+$','',desc.strip(' \r\n'))
+                        desc = re.sub(r'( *<br/?>)+$','',desc.strip())
                         # logger.debug(desc)
-                        retval['desc']=desc
+                        retval['desc']=desc.strip()
                 else:
                     # some(1?) sites
                     summarydiv = soup.select_one("div.summarytext")
@@ -488,10 +488,11 @@ class BaseSiteAdapter(Configurable):
                 # eFictions is a nightmare that the pre-existing
                 # get_urls_from_html() handles well enough.  I don't
                 # think eFiction allows HTML in story desc anyway...
+                # logger.debug(soup)
                 retval['urllist']=get_urls_from_html(soup,
-                                                    url,
-                                                    configuration=self.configuration,
-                                                    normalize=normalize)
+                                                     url,
+                                                     configuration=self.configuration,
+                                                     normalize=normalize)
         except Exception as e:
             logger.debug("get_series_from_page for eFiction failed:%s"%e)
             retval = {}

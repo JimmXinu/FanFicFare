@@ -69,21 +69,21 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=Fa
 
     for a in soup.findAll('a'):
         if a.has_attr('href'):
-            #logger.debug("a['href']:%s"%a['href'])
+            # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
-            #logger.debug("1 urlhref:%s"%href)
+            # logger.debug("1 urlhref:%s"%href)
             href = cleanup_url(href,email)
             try:
-                #logger.debug("2 urlhref:%s"%href)
+                # logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
-                #logger.debug("found adapter")
+                # logger.debug("found adapter")
                 if adapter.story.getMetadata('storyUrl') not in urls:
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
-                #logger.debug("adapter storyUrl:%s"%adapter.story.getMetadata('storyUrl'))
+                # logger.debug("adapter storyUrl:%s"%adapter.story.getMetadata('storyUrl'))
             except Exception as e:
-                #logger.debug e
+                # logger.debug(e)
                 pass
 
     # Simply return the longest URL with the assumption that it contains the
