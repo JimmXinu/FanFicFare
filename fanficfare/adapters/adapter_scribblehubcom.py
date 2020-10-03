@@ -275,14 +275,11 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if 'authornotes' in exclude_notes:
             # Remove author's notes
-            # There can be multiple in one chapter, so loop until none are left
-            while div.find('div', {'class' : 'wi_authornotes'}):
-                div.find('div', {'class' : 'wi_authornotes'}).decompose()
+            for author_notes in div.find_all('div', {'class' : 'wi_authornotes'}):
+                author_notes.decompose()
         else:
             # Reformat the author's notes
-            # There can be multiple in one chapter, so loop until none are left
-            while div.find('div', {'class' : 'wi_authornotes'}):
-                author_notes = div.find('div', {'class' : 'wi_authornotes'})
+            for author_notes in div.find_all('div', {'class' : 'wi_authornotes'}):
                 author_notes['class'] = ['fff_chapter_notes']
                 notes_div = soup.new_tag('div')
 
@@ -302,14 +299,11 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if 'newsboxes' in exclude_notes:
             # Remove author's notes
-            # There can be multiple in one chapter, so loop until none are left
-            while div.find('div', {'class' : 'wi_news'}):
-                div.find('div', {'class' : 'wi_news'}).decompose()
+            for news in div.find('div', {'class' : 'wi_news'}):
+                news.decompose()
         else:
             # Reformat the news boxes
-            # There can be multiple in one chapter, so loop until none are left
-            while div.find('div', {'class' : 'wi_news'}):
-                news = div.find('div', {'class' : 'wi_news'})
+            for news in div.find_all('div', {'class' : 'wi_news'}):
                 news['class'] = ['fff_chapter_notes']
                 notes_div = soup.new_tag('div')
 
