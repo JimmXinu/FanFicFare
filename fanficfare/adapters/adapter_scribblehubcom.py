@@ -271,6 +271,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         div = soup.find('div', {'id' : 'chp_raw'})
 
+        exclude_notes=self.getConfigList('exclude_notes')
+
         if 'authornotes' in exclude_notes:
             # Remove author's notes
             # There can be multiple in one chapter, so loop until none are left
