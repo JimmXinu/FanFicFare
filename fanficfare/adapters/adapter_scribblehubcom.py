@@ -271,7 +271,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         div = soup.find('div', {'id' : 'chp_raw'})
 
-        exclude_notes=self.getConfigList('exclude_notes')
+        exclude_notes = self.getConfigList('exclude_notes')
 
         if 'authornotes' in exclude_notes:
             # Remove author's notes
@@ -290,9 +290,11 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 new_tag.string = "Author's note:"
                 notes_div.append(new_tag)
 
-                new_tag = soup.new_tag('blockquote')
-                new_tag.append(author_notes.find('div', {'class' : 'wi_authornotes_body'}))
-                notes_div.append(new_tag)
+                author_notes_body = author_notes.find('div', {'class' : 'wi_authornotes_body'})
+                if author_notes_body:
+                    new_tag = soup.new_tag('blockquote')
+                    new_tag.append(author_notes_body)
+                    notes_div.append(new_tag)
 
                 # Clear old children from the note, then add this
                 author_notes.clear()
@@ -311,13 +313,17 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 news['class'] = ['fff_chapter_notes']
                 notes_div = soup.new_tag('div')
 
-                new_tag = soup.new_tag('b')
-                new_tag.string = news.find('div', {'class' : 'wi_news_title'}).get_text()
-                notes_div.append(new_tag)
+                news_title = news.find('div', {'class' : 'wi_news_title'})
+                if news_title:
+                    new_tag = soup.new_tag('b')
+                    new_tag.string = news_title.get_text()
+                    notes_div.append(new_tag)
 
-                new_tag = soup.new_tag('blockquote')
-                new_tag.append(news.find('div', {'class' : 'wi_news_body'}))
-                notes_div.append(new_tag)
+                news_body = news.find('div', {'class' : 'wi_news_body'})
+                if news_body:
+                    new_tag = soup.new_tag('blockquote')
+                    new_tag.append(news_body)
+                    notes_div.append(new_tag)
 
                 # Clear old children from the news box, then add this
                 news.clear()
