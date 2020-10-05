@@ -272,6 +272,7 @@ class AddNewDialog(SizePersistedDialog):
         self.mergedname=QLabel("mergedname")
         tt = _('This name will be used with the %s setting to set the title of the new book.')%'<i>anthology_title_pattern</i>'
         label.setToolTip(tt)
+        self.mergeshow.append(label)
         self.mergedname.setToolTip(tt)
         grid.addWidget(self.mergedname,row,1,1,-1)
         self.l.addLayout(grid)
@@ -283,6 +284,7 @@ class AddNewDialog(SizePersistedDialog):
         self.mergeddesc=QLabel("mergeddesc")
         tt = _('These comments about the series will be included in the Comments of the new book.')+'<i></i>' # for html for auto-wrap
         label.setToolTip(tt)
+        self.mergeshow.append(label)
         self.mergeddesc.setToolTip(tt)
         self.mergeddesc.setWordWrap(True)
         grid.addWidget(self.mergeddesc,row,1,1,-1)
