@@ -173,7 +173,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',title)
 
         # Find authorid and URL from... author url.
-        mt_card_social = soup.find('',{'class':'mt-card-social'})
+        mt_card_social = soup.find(None,{'class':'mt-card-social'})
         author_link = mt_card_social('a')[-1]
         if author_link:
             authorId = author_link['href'].rsplit('/', 1)[1]
@@ -228,7 +228,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                 self.story.addToList('warnings',stripHTML(li))
 
         # get cover
-        img = soup.find('',{'class':'row fic-header'}).find('img')
+        img = soup.find(None,{'class':'row fic-header'}).find('img')
         if img:
             cover_url = img['src']
             self.setCoverImage(url,cover_url)
