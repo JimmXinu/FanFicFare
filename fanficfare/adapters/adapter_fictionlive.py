@@ -386,6 +386,10 @@ class FictionLiveAdapter(BaseSiteAdapter):
                 if 'multiple' in chunk and chunk['multiple'] == False:
                     vote = [vote] # normalize to list
                 for v in vote:
+                    # v should only be int, but there is at least one story where some unrelated string was returned,
+                    #   so let's just ignore non-int values here
+                    if not isinstance(v, int):
+                        continue
                     if 0 <= v <= len(choices):
                         output[v] += 1
             return output
