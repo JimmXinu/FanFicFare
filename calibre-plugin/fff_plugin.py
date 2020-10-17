@@ -49,7 +49,7 @@ from calibre.constants import numeric_version as calibre_version
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata as calibre_get_metadata
-from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
+from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog, safe_open_url
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.config import prefs as calibre_prefs
@@ -309,58 +309,91 @@ class FanFicFarePlugin(InterfaceAction):
                                                           unique_name='&Update Existing FanFiction Books',
                                                           triggered=self.update_dialog)
 
-            if prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']:
-                self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email'), image='view.png',
-                                                                     unique_name='Get Story URLs from IMAP',
-                                                                     triggered=self.get_urls_from_imap_menu)
+            self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email'), image='view.png',
+                                                                 unique_name='Get Story URLs from IMAP',
+                                                                 triggered=self.get_urls_from_imap_menu)
+            self.get_list_imap_action.setDisabled( not (prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']) )
+
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'), image='view.png',
                                                                 unique_name='Get Story URLs from Web Page',
                                                                 triggered=self.get_urls_from_page_menu)
+            self.get_list_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Selected Books'),
+                                                            unique_name='Get URLs from Selected Books',
+                                                            image='bookmarks.png',
+                                                            triggered=self.list_story_urls)
 
-            if self.get_epubmerge_plugin():
-                self.menu.addSeparator()
-                self.makeanth_action = self.create_menu_item_ex(self.menu, _('&Make Anthology Epub from URLs'), image='plusplus.png',
-                                                                unique_name='Make FanFiction Anthology Epub from URLs',
-                                                                shortcut_name=_('Make FanFiction Anthology Epub from URLs'),
-                                                                triggered=partial(self.add_dialog,merge=True) )
 
-                self.get_anthlist_url_action = self.create_menu_item_ex(self.menu, _('Make Anthology Epub from Web Page'), image='view.png',
-                                                                        unique_name='Make FanFiction Anthology Epub from Web Page',
-                                                                        shortcut_name=_('Make FanFiction Anthology Epub from Web Page'),
-                                                                        triggered=partial(self.get_urls_from_page_menu,anthology=True))
+            self.menu.addSeparator()
+            anth_on = bool(self.get_epubmerge_plugin())
+            self.anth_sub_menu = self.menu.addMenu(_('Anthology Options'))
+            if not anth_on:
+                self.noanth = self.create_menu_item_ex(self.anth_sub_menu,
+                                                       _('!!! Requires EpubMerge Plugin'),
+                                                       image='dialog_error.png',
+                                                       triggered=partial(safe_open_url,'https://www.mobileread.com/forums/showthread.php?t=169744'),
+                                                       shortcut=False)
+            self.get_anthlist_url_action = self.create_menu_item_ex(self.anth_sub_menu, _('Make Anthology Epub from Web Page'),
+                                                                    image='view.png',
+                                                                    unique_name='Make FanFiction Anthology Epub from Web Page',
+                                                                    shortcut_name=_('Make FanFiction Anthology Epub from Web Page'),
+                                                                    triggered=partial(self.get_urls_from_page_menu,anthology=True))
 
-                self.updateanth_action = self.create_menu_item_ex(self.menu, _('Update Anthology Epub'), image='plusplus.png',
-                                                                  unique_name='Update FanFiction Anthology Epub',
-                                                                  shortcut_name=_('Update FanFiction Anthology Epub'),
-                                                                  triggered=self.update_anthology)
+            self.makeanth_action = self.create_menu_item_ex(self.anth_sub_menu, _('&Make Anthology Epub from URLs'),
+                                                            image='plusplus.png',
+                                                            unique_name='Make FanFiction Anthology Epub from URLs',
+                                                            shortcut_name=_('Make FanFiction Anthology Epub from URLs'),
+                                                            triggered=partial(self.add_dialog,merge=True) )
 
-            if 'Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']) :
-                self.menu.addSeparator()
-                addmenutxt, rmmenutxt = None, None
-                if prefs['addtolists'] and prefs['addtoreadlists'] :
-                    addmenutxt = _('Mark Unread: Add to "To Read" and "Send to Device" Lists')
-                    if prefs['addtolistsonread']:
-                        rmmenutxt = _('Mark Read: Remove from "To Read" and add to "Send to Device" Lists')
-                    else:
-                        rmmenutxt = _('Mark Read: Remove from "To Read" Lists')
-                elif prefs['addtolists'] :
-                    addmenutxt = _('Add to "Send to Device" Lists')
-                elif prefs['addtoreadlists']:
-                    addmenutxt = _('Mark Unread: Add to "To Read" Lists')
+            self.updateanth_action = self.create_menu_item_ex(self.anth_sub_menu, _('Update Anthology Epub'),
+                                                              image='plusplus.png',
+                                                              unique_name='Update FanFiction Anthology Epub',
+                                                              shortcut_name=_('Update FanFiction Anthology Epub'),
+                                                              triggered=self.update_anthology)
+            for ac in [self.makeanth_action,
+                       self.get_anthlist_url_action,
+                       self.updateanth_action ]:
+                ac.setDisabled(not anth_on)
+
+            rl_on = bool('Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']))
+            self.rl_sub_menu = self.menu.addMenu(_('Reading List Options'))
+            if not 'Reading List' in self.gui.iactions:
+                self.norl = self.create_menu_item_ex(self.rl_sub_menu,
+                                                     _('!!! Requires Reading List Plugin'),
+                                                     image='dialog_error.png',
+                                                     triggered=partial(safe_open_url,'https://www.mobileread.com/forums/showthread.php?t=134856'),
+                                                     shortcut=False)
+            addmenutxt, rmmenutxt = None, None
+            if prefs['addtolists'] and prefs['addtoreadlists'] :
+                addmenutxt = _('Mark Unread: Add to "To Read" and "Send to Device" Lists')
+                if prefs['addtolistsonread']:
+                    rmmenutxt = _('Mark Read: Remove from "To Read" and add to "Send to Device" Lists')
+                else:
                     rmmenutxt = _('Mark Read: Remove from "To Read" Lists')
+            elif prefs['addtolists'] :
+                addmenutxt = _('Add to "Send to Device" Lists')
+            elif prefs['addtoreadlists']:
+                addmenutxt = _('Mark Unread: Add to "To Read" Lists')
+                rmmenutxt = _('Mark Read: Remove from "To Read" Lists')
 
-                if addmenutxt:
-                    self.add_send_action = self.create_menu_item_ex(self.menu, addmenutxt,
-                                                                    unique_name='Add to "To Read" and "Send to Device" Lists',
-                                                                    image='plusplus.png',
-                                                                    triggered=partial(self.update_lists,add=True))
+            add_off = not addmenutxt
+            if add_off:
+                addmenutxt = _('Add to Lists Not Configured')
 
-                if rmmenutxt:
-                    self.add_remove_action = self.create_menu_item_ex(self.menu, rmmenutxt,
-                                                                      unique_name='Remove from "To Read" and add to "Send to Device" Lists',
-                                                                      image='minusminus.png',
-                                                                      triggered=partial(self.update_lists,add=False))
+            self.add_send_action = self.create_menu_item_ex(self.rl_sub_menu, addmenutxt,
+                                                            unique_name='Add to "To Read" and "Send to Device" Lists',
+                                                            image='plusplus.png',
+                                                            triggered=partial(self.update_lists,add=True))
+            self.add_send_action.setDisabled(add_off)
+
+            rm_off = not rmmenutxt
+            if rm_off:
+                rmmenutxt = _('Remove from Lists Not Configured')
+            self.add_remove_action = self.create_menu_item_ex(self.rl_sub_menu, rmmenutxt,
+                                                              unique_name='Remove from "To Read" and add to "Send to Device" Lists',
+                                                              image='minusminus.png',
+                                                              triggered=partial(self.update_lists,add=False))
+            self.add_remove_action.setDisabled(rm_off)
 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
@@ -368,20 +401,15 @@ class FanFicFarePlugin(InterfaceAction):
                                                             image='edit-undo.png',
                                                             triggered=self.unnew_books)
 
-            self.menu.addSeparator()
-            self.get_list_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Selected Books'),
-                                                            unique_name='Get URLs from Selected Books',
-                                                            image='bookmarks.png',
-                                                            triggered=self.list_story_urls)
-
             self.reject_list_action = self.create_menu_item_ex(self.menu, _('Reject Selected Books'),
                                                                unique_name='Reject Selected Books', image='rotate-right.png',
                                                                triggered=self.reject_list_urls)
+            # self.menu.addSeparator()
 
             # print("platform.system():%s"%platform.system())
             # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
             if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
-                self.menu.addSeparator()
+                # self.menu.addSeparator()
                 self.config_action = self.create_menu_item_ex(self.menu, _('&Configure FanFicFare'),
                                                               image= 'config.png',
                                                               unique_name='Configure FanFicFare',
