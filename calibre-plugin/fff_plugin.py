@@ -344,7 +344,15 @@ class FanFicFarePlugin(InterfaceAction):
                                                               unique_name='Update FanFiction Anthology Epub',
                                                               shortcut_name=_('Update FanFiction Anthology Epub'),
                                                               triggered=self.update_anthology)
-            self.anth_sub_menu.menuAction().setVisible(anth_on)
+            # Make, but set invisible--that way they still appear in
+            # keyboard shortcuts (and can be set/reset) even when not
+            # available.  Set actions, not just sub invisible because
+            # that also serves to disable them.
+            for ac in (self.anth_sub_menu.menuAction(),
+                       self.get_anthlist_url_action,
+                       self.makeanth_action,
+                       self.updateanth_action):
+                ac.setVisible(anth_on)
 
             rl_on = bool('Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']))
             self.rl_sub_menu = self.menu.addMenu(_('Reading List Options'))
@@ -369,7 +377,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                             unique_name='Add to "To Read" and "Send to Device" Lists',
                                                             image='plusplus.png',
                                                             triggered=partial(self.update_lists,add=True))
-            self.add_send_action.setVisible(not add_off)
+            self.add_send_action.setVisible(rl_on and not add_off)
 
             rm_off = not rmmenutxt
             if rm_off:
@@ -378,7 +386,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                               unique_name='Remove from "To Read" and add to "Send to Device" Lists',
                                                               image='minusminus.png',
                                                               triggered=partial(self.update_lists,add=False))
-            self.add_remove_action.setVisible(not rm_off)
+            self.add_remove_action.setVisible(rl_on and not rm_off)
             self.rl_sub_menu.menuAction().setVisible(rl_on)
 
             self.menu.addSeparator()
@@ -478,8 +486,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.unnew_books()
 
     def get_urls_from_imap_menu(self):
-
-        if not prefs['imapserver'] or not prefs['imapuser'] or not prefs['imapfolder']:
+        if not (prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']):
             s=_('FanFicFare Email Settings are not configured.')
             info_dialog(self.gui, s, s, show=True, show_copy_button=False)
             return
@@ -790,7 +797,6 @@ class FanFicFarePlugin(InterfaceAction):
         Both new individual stories and new anthologies are created here.
         Expected extraoptions entries: anthology_url, add_tag, frompage
         '''
-
         if not url_list_text:
             url_list = self.get_urls_clip()
             url_list_text = "\n".join(url_list)
