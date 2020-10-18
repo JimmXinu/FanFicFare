@@ -49,7 +49,7 @@ from calibre.constants import numeric_version as calibre_version
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata as calibre_get_metadata
-from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog, safe_open_url
+from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.config import prefs as calibre_prefs
@@ -312,7 +312,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email'), image='view.png',
                                                                  unique_name='Get Story URLs from IMAP',
                                                                  triggered=self.get_urls_from_imap_menu)
-            self.get_list_imap_action.setDisabled( not (prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']) )
+            self.get_list_imap_action.setVisible( bool(prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']) )
 
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'), image='view.png',
@@ -327,12 +327,6 @@ class FanFicFarePlugin(InterfaceAction):
             self.menu.addSeparator()
             anth_on = bool(self.get_epubmerge_plugin())
             self.anth_sub_menu = self.menu.addMenu(_('Anthology Options'))
-            if not anth_on:
-                self.noanth = self.create_menu_item_ex(self.anth_sub_menu,
-                                                       _('!!! Requires EpubMerge Plugin'),
-                                                       image='dialog_error.png',
-                                                       triggered=partial(safe_open_url,'https://www.mobileread.com/forums/showthread.php?t=169744'),
-                                                       shortcut=False)
             self.get_anthlist_url_action = self.create_menu_item_ex(self.anth_sub_menu, _('Make Anthology Epub from Web Page'),
                                                                     image='view.png',
                                                                     unique_name='Make FanFiction Anthology Epub from Web Page',
@@ -350,19 +344,10 @@ class FanFicFarePlugin(InterfaceAction):
                                                               unique_name='Update FanFiction Anthology Epub',
                                                               shortcut_name=_('Update FanFiction Anthology Epub'),
                                                               triggered=self.update_anthology)
-            for ac in [self.makeanth_action,
-                       self.get_anthlist_url_action,
-                       self.updateanth_action ]:
-                ac.setDisabled(not anth_on)
+            self.anth_sub_menu.menuAction().setVisible(anth_on)
 
             rl_on = bool('Reading List' in self.gui.iactions and (prefs['addtolists'] or prefs['addtoreadlists']))
             self.rl_sub_menu = self.menu.addMenu(_('Reading List Options'))
-            if not 'Reading List' in self.gui.iactions:
-                self.norl = self.create_menu_item_ex(self.rl_sub_menu,
-                                                     _('!!! Requires Reading List Plugin'),
-                                                     image='dialog_error.png',
-                                                     triggered=partial(safe_open_url,'https://www.mobileread.com/forums/showthread.php?t=134856'),
-                                                     shortcut=False)
             addmenutxt, rmmenutxt = None, None
             if prefs['addtolists'] and prefs['addtoreadlists'] :
                 addmenutxt = _('Mark Unread: Add to "To Read" and "Send to Device" Lists')
@@ -384,7 +369,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                             unique_name='Add to "To Read" and "Send to Device" Lists',
                                                             image='plusplus.png',
                                                             triggered=partial(self.update_lists,add=True))
-            self.add_send_action.setDisabled(add_off)
+            self.add_send_action.setVisible(not add_off)
 
             rm_off = not rmmenutxt
             if rm_off:
@@ -393,7 +378,8 @@ class FanFicFarePlugin(InterfaceAction):
                                                               unique_name='Remove from "To Read" and add to "Send to Device" Lists',
                                                               image='minusminus.png',
                                                               triggered=partial(self.update_lists,add=False))
-            self.add_remove_action.setDisabled(rm_off)
+            self.add_remove_action.setVisible(not rm_off)
+            self.rl_sub_menu.menuAction().setVisible(rl_on)
 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
