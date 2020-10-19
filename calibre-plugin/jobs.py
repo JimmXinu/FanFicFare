@@ -90,7 +90,7 @@ def do_download_worker(book_list,
         book_list.append(job.result)
         book_id = job._book['calibre_id']
         count = count + 1
-        notification(float(count)/total, _('%d of %d stories finished downloading')%(count,total))
+        notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
         # Add this job's output to the current log
         logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
         logger.info(job.details)
@@ -297,8 +297,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
 
-                book['comment'] = _('Update %s completed, added %s chapters for %s total.')%\
-                    (options['fileform'],(urlchaptercount-chaptercount),urlchaptercount)
+                book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
+                    {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount)
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
