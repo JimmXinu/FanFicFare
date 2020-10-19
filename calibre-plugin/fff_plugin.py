@@ -1352,7 +1352,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                   <p>%s</p>
                                                   <p>%s</p>'''%(
                                 _('Change Story URL?'),
-                                _('<b>%s</b> by <b>%s</b> is already in your library with a different source URL:')%(mi.title,', '.join(mi.author)),
+                                _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL:')%{'title':mi.title,'author':', '.join(mi.author)},
                                 _('In library: <a href="%(liburl)s">%(liburl)s</a>')%{'liburl':liburl},
                                 _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
                                 _("Click '<b>Yes</b>' to update/overwrite book with new URL."),
@@ -1366,7 +1366,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                   <p>%s</p>
                                                   <p>%s</p>'''%(
                                     _('Download as New Book?'),
-                                    _('<b>%s</b> by <b>%s</b> is already in your library with a different source URL.')%(mi.title,', '.join(mi.author)),
+                                    _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL.')%{'title':mi.title,'author':', '.join(mi.author)},
                                     _('You chose not to update the existing book.  Do you want to add a new book for this URL?'),
                                     _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
                                     _("Click '<b>Yes</b>' to a new book with new URL."),
@@ -2700,7 +2700,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['comments'] = '<div>'+d+'<p>' +_("Anthology containing:")+"</p>\n\n"
         wraptitle = lambda x : '<p><b>'+x+'</b></p>\n'
         if len(book['author']) > 1:
-            mkbooktitle = lambda x : wraptitle(_("%s by %s") % (x['title'],' & '.join(x['author'])))
+            mkbooktitle = lambda x : wraptitle(_("%(title)s by %(author)s") % {'title':x['title'],'author':' & '.join(x['author'])})
         else:
             mkbooktitle = lambda x : wraptitle(x['title'])
 
