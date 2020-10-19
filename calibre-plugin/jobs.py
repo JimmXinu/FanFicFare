@@ -298,7 +298,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
 
                 book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
-                    {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount)
+                    {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
