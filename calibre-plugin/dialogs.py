@@ -79,9 +79,7 @@ from .inihighlighter import IniHighlighter
 
 ## moved to prefs.py so they can be included in jobs.py.
 from calibre_plugins.fanficfare_plugin.prefs import \
-    ( SAVE_YES,
-      SAVE_YES_UNLESS_SITE,
-      SKIP,
+    ( SKIP,
       ADDNEW,
       UPDATE,
       UPDATEALWAYS,
@@ -90,14 +88,6 @@ from calibre_plugins.fanficfare_plugin.prefs import \
       CALIBREONLY,
       CALIBREONLYSAVECOL,
       collision_order,
-      SAVE_SKIP,
-      SAVE_ADDNEW,
-      SAVE_UPDATE,
-      SAVE_UPDATEALWAYS,
-      SAVE_OVERWRITE,
-      SAVE_OVERWRITEALWAYS,
-      SAVE_CALIBREONLY,
-      SAVE_CALIBREONLYSAVECOL,
       save_collisions,
       anthology_collision_order,
       )
@@ -480,7 +470,13 @@ class AddNewDialog(SizePersistedDialog):
 
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(save_collisions[self.prefs['collision']])
+        if 'collision' in extraoptions:
+            use_collision = save_collisions[extraoptions['collision']]
+            self.collision.setDisabled(True)
+        else:
+            use_collision = save_collisions[self.prefs['collision']]
+            self.collision.setDisabled(False)
+        i = self.collision.findText(use_collision)
         if i > -1:
             self.collision.setCurrentIndex(i)
 
@@ -842,6 +838,7 @@ class AuthorTableWidgetItem(ReadOnlyTableWidgetItem):
 
 class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
+                 extraoptions={},
                  save_size_name='fff:update list dialog'):
         SizePersistedDialog.__init__(self, gui, save_size_name)
 
@@ -914,7 +911,13 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.collision.setToolTip(_("What sort of update to perform.  May set default from plugin configuration."))
         # add collision options
         self.set_collisions()
-        i = self.collision.findText(save_collisions[self.prefs['collision']])
+        if 'collision' in extraoptions:
+            use_collision = save_collisions[extraoptions['collision']]
+            self.collision.setDisabled(True)
+        else:
+            use_collision = save_collisions[self.prefs['collision']]
+            self.collision.setDisabled(False)
+        i = self.collision.findText(save_collisions[use_collision])
         if i > -1:
             self.collision.setCurrentIndex(i)
         label.setBuddy(self.collision)

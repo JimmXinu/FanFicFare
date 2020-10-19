@@ -98,14 +98,25 @@ from calibre_plugins.fanficfare_plugin.config import (
     permitted_values, rejecturllist, STD_COLS_SKIP)
 
 from calibre_plugins.fanficfare_plugin.prefs import (
-    prefs, SAVE_YES, SAVE_NO, SAVE_YES_IF_IMG, SAVE_YES_UNLESS_IMG)
+    prefs,
+    SKIP,
+    ADDNEW,
+    UPDATE,
+    UPDATEALWAYS,
+    OVERWRITE,
+    OVERWRITEALWAYS,
+    CALIBREONLY,
+    CALIBREONLYSAVECOL,
+    SAVE_YES,
+    SAVE_NO,
+    SAVE_YES_IF_IMG,
+    SAVE_YES_UNLESS_IMG)
 
 from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
-    OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY,
-    CALIBREONLYSAVECOL, save_collisions,
+    save_collisions,
     NotGoingToDownload, RejectUrlEntry )
 
 # because calibre immediately transforms html into zip and don't want
@@ -273,9 +284,9 @@ class FanFicFarePlugin(InterfaceAction):
     def do_drop(self,dropped_ids=None,urllist=None):
         # shouldn't ever be both.
         if dropped_ids:
-            self.update_dialog(dropped_ids)
+            self.update_dialog(False,dropped_ids)
         elif urllist:
-            self.add_dialog("\n".join(urllist))
+            self.add_dialog(False,"\n".join(urllist))
 
     def about_to_show_menu(self):
         self.rebuild_menus()
@@ -289,7 +300,8 @@ class FanFicFarePlugin(InterfaceAction):
 
     def rebuild_menus(self):
         with self.menus_lock:
-            do_user_config = self.interface_action_base_plugin.do_user_config
+            def do_user_config(checked):
+                self.interface_action_base_plugin.do_user_config(parent=self.gui)
             self.menu.clear()
 
             for action in self.menu_actions:
@@ -303,21 +315,47 @@ class FanFicFarePlugin(InterfaceAction):
             self.add_action = self.create_menu_item_ex(self.menu, _('&Download from URLs'), image='plus.png',
                                                        unique_name='Download FanFiction Books from URLs',
                                                        shortcut_name=_('Download FanFiction Books from URLs'),
-                                                       triggered=self.add_dialog )
+                                                       triggered=self.add_dialog)
+
+            self.add_action_add = self.create_menu_item_ex(self.menu, _('&Download from URLs ADDNEW'), image='plus.png',
+                                                       unique_name='Download FanFiction Books from URLs add',
+                                                       shortcut_name=_('Download FanFiction Books from URLs add'),
+                                                       triggered=partial(self.add_dialog,
+                                                                         extraoptions={'collision':ADDNEW}) )
+
+            self.add_action_skip = self.create_menu_item_ex(self.menu, _('&Download from URLs SKIP'), image='plus.png',
+                                                       unique_name='Download FanFiction Books from URLs skip',
+                                                       shortcut_name=_('Download FanFiction Books from URLs skip'),
+                                                       triggered=partial(self.add_dialog,
+                                                                         extraoptions={'collision':SKIP}) )
 
             self.update_action = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books'), image='plusplus.png',
                                                           unique_name='&Update Existing FanFiction Books',
                                                           triggered=self.update_dialog)
 
+            self.update_action_upalways = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books UPDATEALWAYS'), image='plusplus.png',
+                                                          unique_name='&Update Existing FanFiction Books UPDATEALWAYS',
+                                                          triggered=partial(self.update_dialog,extraoptions={'collision':UPDATEALWAYS}))
+
+            self.update_action_ovalways = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books OVERWRITEALWAYS'), image='plusplus.png',
+                                                          unique_name='&Update Existing FanFiction Books OVERWRITEALWAYS',
+                                                          triggered=partial(self.update_dialog,extraoptions={'collision':OVERWRITEALWAYS}))
+
             self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email'), image='view.png',
                                                                  unique_name='Get Story URLs from IMAP',
                                                                  triggered=self.get_urls_from_imap_menu)
             self.get_list_imap_action.setVisible( bool(prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']) )
+            self.get_list_imap_action_upalways = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email OVERWRITEALWAYS'), image='view.png',
+                                                                 unique_name='Get Story URLs from IMAP OVERWRITEALWAYS',
+                                                                 triggered=partial(self.get_urls_from_imap_menu,extraoptions={'collision':OVERWRITEALWAYS}))
 
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'), image='view.png',
                                                                 unique_name='Get Story URLs from Web Page',
                                                                 triggered=self.get_urls_from_page_menu)
+            self.get_list_url_action_skip = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page SKIP'), image='view.png',
+                                                                unique_name='Get Story URLs from Web Page SKIP',
+                                                                triggered=partial(self.get_urls_from_page_menu,extraoptions={'collision':SKIP}))
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Selected Books'),
                                                             unique_name='Get URLs from Selected Books',
                                                             image='bookmarks.png',
@@ -344,6 +382,12 @@ class FanFicFarePlugin(InterfaceAction):
                                                               unique_name='Update FanFiction Anthology Epub',
                                                               shortcut_name=_('Update FanFiction Anthology Epub'),
                                                               triggered=self.update_anthology)
+
+            self.updateanth_action_ov = self.create_menu_item_ex(self.anth_sub_menu, _('Update Anthology Epub OVERWRITEALWAYS'),
+                                                              image='plusplus.png',
+                                                              unique_name='Update FanFiction Anthology Epub OVERWRITEALWAYS',
+                                                              shortcut_name=_('Update FanFiction Anthology Epub OVERWRITEALWAYS'),
+                                                              triggered=partial(self.update_anthology,extraoptions={'collision':OVERWRITEALWAYS}))
             # Make, but set invisible--that way they still appear in
             # keyboard shortcuts (and can be set/reset) even when not
             # available.  Set actions, not just sub invisible because
@@ -408,7 +452,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                               image= 'config.png',
                                                               unique_name='Configure FanFicFare',
                                                               shortcut_name=_('Configure FanFicFare'),
-                                                              triggered=partial(do_user_config,parent=self.gui))
+                                                              triggered=do_user_config)
 
                 self.about_action = self.create_menu_item_ex(self.menu, _('About FanFicFare'),
                                                              image= 'images/icon.png',
@@ -419,7 +463,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.keyboard.finalize()
 
 
-    def about(self):
+    def about(self,checked):
         # Get the about text from a file inside the plugin zip file
         # The get_resources function is a builtin function defined for all your
         # plugin code. It loads files from the plugin zip file. It returns
@@ -436,11 +480,9 @@ class FanFicFarePlugin(InterfaceAction):
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
-        #print("create_menu_item_ex before %s"%menu_text)
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
                                        shortcut, triggered, is_checked, shortcut_name, unique_name)
         self.menu_actions.append(ac)
-        #print("create_menu_item_ex after %s"%menu_text)
         return ac
 
     def is_library_view(self):
@@ -451,9 +493,9 @@ class FanFicFarePlugin(InterfaceAction):
         if self.is_library_view() and \
                 len(self.gui.library_view.get_selected_ids()) > 0 and \
                 prefs['updatedefault']:
-            self.update_dialog()
+            self.update_dialog(False)
         else:
-            self.add_dialog()
+            self.add_dialog(False)
 
     def set_popup_mode(self):
         if prefs['button_instantpopup']:
@@ -471,7 +513,7 @@ class FanFicFarePlugin(InterfaceAction):
         if 'EpubMerge' in self.gui.iactions and self.gui.iactions['EpubMerge'].interface_action_base_plugin.version >= (1,3,1):
             return self.gui.iactions['EpubMerge']
 
-    def update_lists(self,add=True):
+    def update_lists(self,checked,add=True):
         if prefs['addtolists'] or prefs['addtoreadlists']:
             if not self.is_library_view():
                 self.gui.status_bar.show_message(_('Cannot Update Reading Lists from Device View'), 3000)
@@ -483,9 +525,9 @@ class FanFicFarePlugin(InterfaceAction):
 
             self.update_reading_lists(self.gui.library_view.get_selected_ids(),add)
             if not add and prefs['autounnew']:
-                self.unnew_books()
+                self.unnew_books(False)
 
-    def get_urls_from_imap_menu(self):
+    def get_urls_from_imap_menu(self,checked,extraoptions={}):
         if not (prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']):
             s=_('FanFicFare Email Settings are not configured.')
             info_dialog(self.gui, s, s, show=True, show_copy_button=False)
@@ -538,7 +580,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
                         # save_collisions==convert from save value to local lang value
-                        'collision': save_collisions[prefs['collision']],
+                        'collision': save_collisions[extraoptions.get('collision',prefs['collision'])],
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
                         'updateepubcover': prefs['updateepubcover'],
@@ -554,9 +596,10 @@ class FanFicFarePlugin(InterfaceAction):
                 if prefs['imaptags']:
                     message="<p>"+_("Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next dialog, including any story URLs you add manually.")%prefs['imaptags']+"</p>"
                     confirm(message,'fff_add_imaptags', self.gui, show_cancel_button=False)
-                self.add_dialog("\n".join(url_list),
+                extraoptions['add_tag']=prefs['imaptags']
+                self.add_dialog(False,"\n".join(url_list),
                                 merge=False,
-                                extraoptions={'add_tag':prefs['imaptags']})
+                                extraoptions=extraoptions)
             else:
                 msg = _('No Valid Story URLs Found in Unread Emails.')
                 if reject_list:
@@ -568,7 +611,7 @@ class FanFicFarePlugin(InterfaceAction):
                             show=True,
                             show_copy_button=False)
 
-    def get_urls_from_page_menu(self,anthology=False):
+    def get_urls_from_page_menu(self,checked,anthology=False,extraoptions={}):
 
         urltxt = ""
         if prefs['urlsfromclip']:
@@ -578,7 +621,7 @@ class FanFicFarePlugin(InterfaceAction):
                 urltxt = ""
 
         d = CollectURLDialog(self.gui,_("Get Story URLs from Web Page"),urltxt,
-                             anthology=(anthology or self.get_epubmerge_plugin()),
+                             anthology=anthology or ('collision' not in extraoptions and self.get_epubmerge_plugin()),
                              indiv=not anthology)
         d.exec_()
         if not d.status:
@@ -594,10 +637,13 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.status_bar.show_message(_('Finished Fetching Story URLs from Page.'),3000)
 
         if url_list:
-            self.add_dialog("\n".join(url_list),
+            # make a copy before adding to avoid changing passed param
+            eo = dict(extraoptions)
+            eo.update({'anthology_url':url,
+                       'frompage':frompage})
+            self.add_dialog(False,"\n".join(url_list),
                             merge=d.anthology,
-                            extraoptions={'anthology_url':url,
-                                          'frompage':frompage})
+                            extraoptions=eo)
         else:
             info_dialog(self.gui, _('List of Story URLs'),
                         _('No Valid Story URLs found on given page.'),
@@ -610,7 +656,7 @@ class FanFicFarePlugin(InterfaceAction):
         configuration = get_fff_config(url)
         return get_urls_from_page(url,configuration)
 
-    def list_story_urls(self):
+    def list_story_urls(self,checked):
         '''Get list of URLs from existing books.'''
         if not self.gui.current_view().selectionModel().selectedRows() :
             self.gui.status_bar.show_message(_('No Selected Books to Get URLs From'),
@@ -657,7 +703,7 @@ class FanFicFarePlugin(InterfaceAction):
                         show=True,
                         show_copy_button=False)
 
-    def unnew_books(self):
+    def unnew_books(self,checked):
         '''Get list of URLs from existing books.'''
         if not self.is_library_view():
             self.gui.status_bar.show_message(_('Can only UnNew books in library'),
@@ -729,7 +775,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.gui.status_bar.show_message(_('Starting auto conversion of %d books.')%(len(changed_ids)), 3000)
                 self.gui.iactions['Convert Books'].auto_convert_auto_add(changed_ids)
 
-    def reject_list_urls(self):
+    def reject_list_urls(self,checked):
         if self.is_library_view():
             book_list = [ self.make_book_id_only(x) for x in
                           self.gui.library_view.get_selected_ids() ]
@@ -790,6 +836,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.gui.iactions['Remove Books'].delete_books()
 
     def add_dialog(self,
+                   checked,
                    url_list_text=None,
                    merge=False,
                    extraoptions={}):
@@ -810,7 +857,7 @@ class FanFicFarePlugin(InterfaceAction):
                                         newmerge=True,
                                         extraoptions=extraoptions)
 
-    def update_anthology(self):
+    def update_anthology(self,checked,extraoptions={}):
         if not self.get_epubmerge_plugin():
             self.gui.status_bar.show_message(_('Cannot Make Anthologys without %s')%'EpubMerge 1.3.1+', 3000)
             return
@@ -874,15 +921,18 @@ class FanFicFarePlugin(InterfaceAction):
         # AddNewDialog collects URLs, format and presents buttons.
         # add_new_dialog is modeless and reused, both for new stories
         # and anthologies, and for updating existing anthologies.
+        # make a copy before adding to avoid changing passed param
+        eo = dict(extraoptions)
+        eo.update({'frompage':frompage,
+                   'tdir':tdir,
+                   'mergebook':mergebook})
         self.add_new_dialog.show_dialog(url_list_text,
                                         self.prep_anthology_downloads,
                                         show=False,
                                         merge=True,
                                         newmerge=False,
                                         extrapayload=urlmapfile,
-                                        extraoptions={'frompage':frompage,
-                                                      'tdir':tdir,
-                                                      'mergebook':mergebook})
+                                        extraoptions=eo)
         # Need to use AddNewDialog modal here because it's an update
         # of an existing book.  Don't want the user deleting it or
         # switching libraries on us.
@@ -926,7 +976,7 @@ class FanFicFarePlugin(InterfaceAction):
         # Now that we've
         self.prep_downloads( options, update_books, merge=True )
 
-    def update_dialog(self, id_list=None):
+    def update_dialog(self,checked,id_list=None,extraoptions={}):
         if not self.is_library_view():
             self.gui.status_bar.show_message(_('Cannot Update Books from Device View'), 3000)
             return
@@ -948,7 +998,7 @@ class FanFicFarePlugin(InterfaceAction):
         LoopProgressDialog(self.gui,
                            books,
                            partial(self.populate_book_from_calibre_id, db=self.gui.current_db),
-                           self.update_dialog_finish,
+                           partial(self.update_dialog_finish,extraoptions=extraoptions),
                            init_label=_("Collecting stories for update..."),
                            win_title=_("Get stories for updates"),
                            status_prefix=_("URL retrieved"))
@@ -956,7 +1006,7 @@ class FanFicFarePlugin(InterfaceAction):
         #books = self.convert_calibre_ids_to_books(db, book_ids)
         #print("update books:%s"%books)
 
-    def update_dialog_finish(self,book_list):
+    def update_dialog_finish(self,book_list,extraoptions={}):
         '''Present list to update and head to prep when done.'''
 
         d = UpdateExistingDialog(self.gui,
@@ -964,6 +1014,7 @@ class FanFicFarePlugin(InterfaceAction):
                                  prefs,
                                  self.qaction.icon(),
                                  book_list,
+                                 extraoptions=extraoptions,
                                  )
         d.exec_()
         if d.result() != d.Accepted:

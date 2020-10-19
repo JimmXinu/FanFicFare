@@ -145,8 +145,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     fffbase = FanFicFareBase(options['plugin_path'])
     with fffbase: # so the sys.path was modified while loading the
                   # plug impl.
-        from calibre_plugins.fanficfare_plugin.dialogs import (NotGoingToDownload,
-                OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
+        from calibre_plugins.fanficfare_plugin.dialogs import NotGoingToDownload
+        from calibre_plugins.fanficfare_plugin.prefs import (OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
         from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
         from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
 
