@@ -668,7 +668,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
                         # save_collisions==convert from save value to local lang value
-                        'collision': extraoptions.get('collision',prefs['collision']),
+                        'collision': extraoptions.get('collision',save_collisions[prefs['collision']]),
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
                         'updateepubcover': prefs['updateepubcover'],
