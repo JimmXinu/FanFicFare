@@ -443,7 +443,7 @@ class FanFicFarePlugin(InterfaceAction):
             add_action_menu(_('&Update Existing FanFiction Books'),
                             'plusplus.png',
                             'Update Existing FanFiction Books',
-                            _('&Update Existing FanFiction Books'),
+                            _('Update Existing FanFiction Books'),
                             (UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
                              CALIBREONLY, CALIBREONLYSAVECOL),
                             self.update_dialog)
@@ -458,7 +458,7 @@ class FanFicFarePlugin(InterfaceAction):
             #                   mode,
             #                   self.update_dialog)
 
-            add_action_menu(_('&Get Story URLs from &Email'),
+            add_action_menu(_('Get Story URLs from &Email'),
                             'view.png',
                             'Get FanFiction Story URLs from Email',
                               _('Get FanFiction Story URLs from Email'),
@@ -493,7 +493,7 @@ class FanFicFarePlugin(InterfaceAction):
                             'plusplus.png',
                             'Update FanFiction Anthology Epub',
                             _('Update FanFiction Anthology Epub'),
-                            (UPDATE, UPDATEALWAYS, OVERWRITE),
+                            (UPDATE, UPDATEALWAYS, OVERWRITEALWAYS),
                             self.update_anthology)
 
             # updateanth_sub_menu = self.modes_sub_menu.addMenu(_('Update Anthology Epub'))
@@ -507,10 +507,17 @@ class FanFicFarePlugin(InterfaceAction):
             # for ac in (self.updateanth_action_ov,):
             #     ac.setVisible(anth_on)
 
-            ## XXX conceal:
-            ## CALIBREONLYSAVECOL when not configured
-            ## from email when not configured
-            ## antho when not epubmerge -- put under anth muenu?
+            ## XXX
+            ## options to
+            ## - display menu
+            ## - no shortcuts either
+            ## - show/conceal by individual?
+            ## - download immediately like email?
+            ## conceal:
+            ## - CALIBREONLYSAVECOL when not configured
+            ## - from email when not configured
+            ## - antho when not epubmerge -- put under anth muenu?
+            ## - update options when default format not epub??
 
 
             self.menu.addSeparator()
