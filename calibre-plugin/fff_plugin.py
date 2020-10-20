@@ -403,8 +403,9 @@ class FanFicFarePlugin(InterfaceAction):
 
             self.modes_sub_menu = self.menu.addMenu(_('Actions by Update Modes'))
 
-            def add_mode_menu(parent_menu,unique_name,translated_name,mode,triggered):
+            def add_mode_menu(parent_menu,icon_file,unique_name,translated_name,mode,triggered):
                 self.create_menu_item_ex(parent_menu, mode,
+                                         image=icon_file,
                                          unique_name='%s - %s'%(unique_name,save_collisions[mode]),
                                          # mode is already translated
                                          shortcut_name='%s - %s'%(translated_name,mode),
@@ -420,7 +421,7 @@ class FanFicFarePlugin(InterfaceAction):
                 sub_menu = self.modes_sub_menu.addMenu(menu_name)
                 sub_menu.setIcon(get_icon(icon_file))
                 for mode in mode_list:
-                    add_mode_menu(sub_menu, unique_name, translated_name, mode, triggered)
+                    add_mode_menu(sub_menu, icon_file, unique_name, translated_name, mode, triggered)
 
             add_action_menu(_('&Download from URLs'),
                             'plus.png',
