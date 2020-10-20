@@ -317,51 +317,23 @@ class FanFicFarePlugin(InterfaceAction):
                                                        shortcut_name=_('Download FanFiction Books from URLs'),
                                                        triggered=self.add_dialog)
 
-            self.add_action_add = self.create_menu_item_ex(self.menu, _('&Download from URLs ADDNEW'), image='plus.png',
-                                                       unique_name='Download FanFiction Books from URLs add',
-                                                       shortcut_name=_('Download FanFiction Books from URLs add'),
-                                                       triggered=partial(self.add_dialog,
-                                                                         extraoptions={'collision':ADDNEW}) )
-
-            self.add_action_skip = self.create_menu_item_ex(self.menu, _('&Download from URLs SKIP'), image='plus.png',
-                                                       unique_name='Download FanFiction Books from URLs skip',
-                                                       shortcut_name=_('Download FanFiction Books from URLs skip'),
-                                                       triggered=partial(self.add_dialog,
-                                                                         extraoptions={'collision':SKIP}) )
-
             self.update_action = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books'), image='plusplus.png',
                                                           unique_name='&Update Existing FanFiction Books',
                                                           triggered=self.update_dialog)
-
-            self.update_action_upalways = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books UPDATEALWAYS'), image='plusplus.png',
-                                                          unique_name='&Update Existing FanFiction Books UPDATEALWAYS',
-                                                          triggered=partial(self.update_dialog,extraoptions={'collision':UPDATEALWAYS}))
-
-            self.update_action_ovalways = self.create_menu_item_ex(self.menu, _('&Update Existing FanFiction Books OVERWRITEALWAYS'), image='plusplus.png',
-                                                          unique_name='&Update Existing FanFiction Books OVERWRITEALWAYS',
-                                                          triggered=partial(self.update_dialog,extraoptions={'collision':OVERWRITEALWAYS}))
 
             self.get_list_imap_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email'), image='view.png',
                                                                  unique_name='Get Story URLs from IMAP',
                                                                  triggered=self.get_urls_from_imap_menu)
             self.get_list_imap_action.setVisible( bool(prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']) )
-            self.get_list_imap_action_upalways = self.create_menu_item_ex(self.menu, _('Get Story URLs from &Email OVERWRITEALWAYS'), image='view.png',
-                                                                 unique_name='Get Story URLs from IMAP OVERWRITEALWAYS',
-                                                                 triggered=partial(self.get_urls_from_imap_menu,extraoptions={'collision':OVERWRITEALWAYS}))
-
 
             self.get_list_url_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page'), image='view.png',
                                                                 unique_name='Get Story URLs from Web Page',
                                                                 triggered=self.get_urls_from_page_menu)
-            self.get_list_url_action_skip = self.create_menu_item_ex(self.menu, _('Get Story URLs from Web Page SKIP'), image='view.png',
-                                                                unique_name='Get Story URLs from Web Page SKIP',
-                                                                triggered=partial(self.get_urls_from_page_menu,extraoptions={'collision':SKIP}))
+
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Get Story URLs from Selected Books'),
                                                             unique_name='Get URLs from Selected Books',
                                                             image='bookmarks.png',
                                                             triggered=self.list_story_urls)
-
-
             self.menu.addSeparator()
             anth_on = bool(self.get_epubmerge_plugin())
             self.anth_sub_menu = self.menu.addMenu(_('Anthology Options'))
@@ -383,11 +355,6 @@ class FanFicFarePlugin(InterfaceAction):
                                                               shortcut_name=_('Update FanFiction Anthology Epub'),
                                                               triggered=self.update_anthology)
 
-            self.updateanth_action_ov = self.create_menu_item_ex(self.anth_sub_menu, _('Update Anthology Epub OVERWRITEALWAYS'),
-                                                              image='plusplus.png',
-                                                              unique_name='Update FanFiction Anthology Epub OVERWRITEALWAYS',
-                                                              shortcut_name=_('Update FanFiction Anthology Epub OVERWRITEALWAYS'),
-                                                              triggered=partial(self.update_anthology,extraoptions={'collision':OVERWRITEALWAYS}))
             # Make, but set invisible--that way they still appear in
             # keyboard shortcuts (and can be set/reset) even when not
             # available.  Set actions, not just sub invisible because
@@ -432,6 +399,119 @@ class FanFicFarePlugin(InterfaceAction):
                                                               triggered=partial(self.update_lists,add=False))
             self.add_remove_action.setVisible(rl_on and not rm_off)
             self.rl_sub_menu.menuAction().setVisible(rl_on)
+
+
+            self.modes_sub_menu = self.menu.addMenu(_('Actions by Update Modes'))
+
+            def add_mode_menu(parent_menu,unique_name,translated_name,mode,triggered):
+                self.create_menu_item_ex(parent_menu, mode,
+                                         unique_name='%s - %s'%(unique_name,save_collisions[mode]),
+                                         # mode is already translated
+                                         shortcut_name='%s - %s'%(translated_name,mode),
+                                         triggered=partial(triggered,
+                                                           extraoptions={'collision':mode}) )
+
+            def add_action_menu(menu_name,
+                                icon_file,
+                                unique_name,
+                                translated_name,
+                                mode_list,
+                                triggered):
+                sub_menu = self.modes_sub_menu.addMenu(menu_name)
+                sub_menu.setIcon(get_icon(icon_file))
+                for mode in mode_list:
+                    add_mode_menu(sub_menu, unique_name, translated_name, mode, triggered)
+
+            add_action_menu(_('&Download from URLs'),
+                            'plus.png',
+                            'Download FanFiction Books from URLs',
+                            _('Download FanFiction Books from URLs'),
+                            (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
+                             OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
+                            self.add_dialog)
+
+            # fromurls_sub_menu = self.modes_sub_menu.addMenu()
+            # fromurls_sub_menu.setIcon(get_icon('plus.png'))
+            # for mode in (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
+            #              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL):
+            #     add_mode_menu(fromurls_sub_menu,
+            #                   'Download FanFiction Books from URLs',
+            #                   _('Download FanFiction Books from URLs'),
+            #                   mode,
+            #                   self.add_dialog)
+
+            add_action_menu(_('&Update Existing FanFiction Books'),
+                            'plusplus.png',
+                            'Update Existing FanFiction Books',
+                            _('&Update Existing FanFiction Books'),
+                            (UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
+                             CALIBREONLY, CALIBREONLYSAVECOL),
+                            self.update_dialog)
+
+            # update_sub_menu = self.modes_sub_menu.addMenu(_('&Update Existing FanFiction Books'))
+            # update_sub_menu.setIcon(get_icon('plusplus.png'))
+            # for mode in (UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
+            #              CALIBREONLY, CALIBREONLYSAVECOL):
+            #     add_mode_menu(update_sub_menu,
+            #                   'Update Existing FanFiction Books',
+            #                   _('&Update Existing FanFiction Books'),
+            #                   mode,
+            #                   self.update_dialog)
+
+            add_action_menu(_('&Get Story URLs from &Email'),
+                            'view.png',
+                            'Get FanFiction Story URLs from Email',
+                              _('Get FanFiction Story URLs from Email'),
+                            (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
+                             OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
+                            self.get_urls_from_imap_menu)
+
+            # fromimap_sub_menu = self.modes_sub_menu.addMenu(_('Get Story URLs from &Email'))
+            # fromimap_sub_menu.setIcon(get_icon('view.png'))
+            # for mode in (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
+            #              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL):
+            #     add_mode_menu(fromimap_sub_menu,
+            #                   'Get FanFiction Story URLs from Email',
+            #                   _('Get FanFiction Story URLs from Email'),
+            #                   mode,
+            #                   self.get_urls_from_imap_menu)
+
+            add_action_menu(_('Get Story URLs from Web Page'),
+                            'view.png',
+                            'Get FanFiction Story URLs from Web Page',
+                            _('Get FanFiction Story URLs from Web Page'),
+                            (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
+                             OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
+                            self.get_urls_from_page_menu)
+            # frompage_sub_menu = self.modes_sub_menu.addMenu(_('Get Story URLs from Web Page'))
+            # self.get_list_url_action_skip = self.create_menu_item_ex(frompage_sub_menu, _('Get Story URLs from Web Page SKIP'), image='view.png',
+            #                                                     unique_name='Get Story URLs from Web Page SKIP',
+            #                                                     triggered=partial(self.get_urls_from_page_menu,
+            #                                                                       extraoptions={'collision':SKIP}))
+
+            add_action_menu(_('Update Anthology Epub'),
+                            'plusplus.png',
+                            'Update FanFiction Anthology Epub',
+                            _('Update FanFiction Anthology Epub'),
+                            (UPDATE, UPDATEALWAYS, OVERWRITE),
+                            self.update_anthology)
+
+            # updateanth_sub_menu = self.modes_sub_menu.addMenu(_('Update Anthology Epub'))
+            # self.updateanth_action_ov = self.create_menu_item_ex(updateanth_sub_menu, _('Update Anthology Epub OVERWRITEALWAYS'),
+            #                                                   image='plusplus.png',
+            #                                                   unique_name='Update FanFiction Anthology Epub OVERWRITEALWAYS',
+            #                                                   shortcut_name=_('Update FanFiction Anthology Epub OVERWRITEALWAYS'),
+            #                                                   triggered=partial(self.update_anthology,
+            #                                                                     extraoptions={'collision':OVERWRITEALWAYS}))
+
+            # for ac in (self.updateanth_action_ov,):
+            #     ac.setVisible(anth_on)
+
+            ## XXX conceal:
+            ## CALIBREONLYSAVECOL when not configured
+            ## from email when not configured
+            ## antho when not epubmerge -- put under anth muenu?
+
 
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
@@ -580,7 +660,7 @@ class FanFicFarePlugin(InterfaceAction):
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
                         # save_collisions==convert from save value to local lang value
-                        'collision': save_collisions[extraoptions.get('collision',prefs['collision'])],
+                        'collision': extraoptions.get('collision',prefs['collision']),
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
                         'updateepubcover': prefs['updateepubcover'],
