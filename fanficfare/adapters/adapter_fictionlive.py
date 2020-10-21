@@ -110,9 +110,13 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         # stories have ut, rt, ct, and cht. fairly sure that ut = update time and rt = release time.
         # ct is 'creation time' and everything in the api has it -- you can create stories and edit before publishing
-        # no idea about cht
-        self.story.setMetadata("dateUpdated", self.parse_timestamp(data['ut']))
+        # cht is *chunktime* -- newest story chunk added.
+        # ut for update time includes other kinds of update -- threads, chat etc
+        # ct <= rt <= cht <= ut
+        self.story.setMetadata("dateUpdated", self.parse_timestamp(data['cht']))
         self.story.setMetadata("datePublished", self.parse_timestamp(data['rt']))
+
+        self.most_recent_chunk = data['cht'] if 'cht' in data else 9999999999999998
 
         # nearly everything optional from here out
 
@@ -248,7 +252,9 @@ class FictionLiveAdapter(BaseSiteAdapter):
             prev_chapter_title = c['title']
 
         # with the loop done, we've handled every chapter but the final one, so we'll now do it manually.
-        chapter_end = 9999999999999998
+
+        # including chunk-time in url (over, say, 999...) means fanficfare recognises updated chapters as new
+        chapter_end = self.most_recent_chunk + 1
         add_chapter_url(prev_chapter_title, chapter_start, chapter_end)
 
         for a in appendices: # add appendices at the end
@@ -510,17 +516,12 @@ class FictionLiveAdapter(BaseSiteAdapter):
 # in future, I'd like to handle audio embeds somehow. but they're not availble to add to stories right now.
 # pretty sure they'll just format as a link (with a special tydai-audio class) and should be easier than achievements
 
-# TODO:
-# set fanficfare plugin to use "overwrite if newer" ? or 'update epub always' ?
-# a lot of times, chunks will be added even when chapters/bookmarks don't change
-# if bookmarks do change, it may not be as simple as adding new ones to the end
-
 # TODO: verify that show_timestamps is working, check times!
 
-# TODO: find a story that uses achievement images and implement them
+# TODO: find a story that uses achievement images and implement them?
 
-# TODO: sort out updates, somehow. 'update epub if new chapters' is an awful match for fiction.live
-# where chunks get just dropped at the end of chapters, and chapter-bookmarking happens later.
-# updating in 'overwrite always' or 'overwrite if newer' does the right thing, but.
+### known bugs:
 
-# TODO: pagecache. In particular, if there's any way to update stories and *not* redownload images, that'd be great.
+# BUG: chapters at the start of the story -- 'home' is often folded into the second chapter
+# BUG: short stories can crash -- see crash-checker testing
+
