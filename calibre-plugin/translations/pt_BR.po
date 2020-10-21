@@ -11,8 +11,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2020-09-10 16:30-0500\n"
-"PO-Revision-Date: 2020-09-11 04:17+0000\n"
+"POT-Creation-Date: 2020-10-05 10:59-0500\n"
+"PO-Revision-Date: 2020-10-05 16:15+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/calibre/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -491,7 +491,7 @@ msgid ""
 "<b>http://...,title by author - note</b>"
 msgstr "Uma URL por linha:\n<b>http://...,nota</b>\n<b>http://...,título por autor - nota</b>"
 
-#: config.py:716 dialogs.py:1167
+#: config.py:716 dialogs.py:1209
 msgid "Add this reason to all URLs added:"
 msgstr "Adicionar essa razão para todas as URLs adicionadas:"
 
@@ -838,7 +838,7 @@ msgstr "Gênero"
 msgid "Language"
 msgstr "Idioma"
 
-#: config.py:1304 fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1304 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Status"
 msgstr "Estado"
 
@@ -850,7 +850,7 @@ msgstr "Estado:%(cmplt)s"
 msgid "Status:%(inprog)s"
 msgstr "Estado:%(inprog)s"
 
-#: config.py:1307 config.py:1491
+#: config.py:1307 config.py:1491 dialogs.py:270
 msgid "Series"
 msgstr "Séries"
 
@@ -866,7 +866,7 @@ msgstr "Relacionamentos"
 msgid "Published"
 msgstr "Publicado"
 
-#: config.py:1311 fff_plugin.py:1908 fff_plugin.py:1924
+#: config.py:1311 fff_plugin.py:1911 fff_plugin.py:1927
 msgid "Updated"
 msgstr "Atualizado"
 
@@ -910,8 +910,8 @@ msgstr "ID do Autor"
 msgid "Extra Tags"
 msgstr "Etiquetas Extras"
 
-#: config.py:1322 config.py:1483 dialogs.py:958 dialogs.py:1054
-#: fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1322 config.py:1483 dialogs.py:1000 dialogs.py:1096
+#: fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Title"
 msgstr "Título"
 
@@ -923,8 +923,8 @@ msgstr "URL da História"
 msgid "Description"
 msgstr "Descrição"
 
-#: config.py:1325 dialogs.py:958 dialogs.py:1054 fff_plugin.py:1524
-#: fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1325 dialogs.py:1000 dialogs.py:1096 fff_plugin.py:1534
+#: fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Author"
 msgstr "Autor"
 
@@ -1009,11 +1009,11 @@ msgstr "Salvar Todos os Erros"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr ""
 
-#: config.py:1426 fff_plugin.py:1396 jobs.py:243
+#: config.py:1426 fff_plugin.py:1406 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
 msgstr "Nenhuma substituição, o site não é mais novo."
 
-#: config.py:1427 fff_plugin.py:1375 jobs.py:284
+#: config.py:1427 fff_plugin.py:1385 jobs.py:284
 msgid "Already contains %d chapters."
 msgstr "Já contém %s capítulos."
 
@@ -1059,7 +1059,7 @@ msgstr "Data de Publicação"
 msgid "Date"
 msgstr "Data"
 
-#: config.py:1490
+#: config.py:1490 dialogs.py:281
 msgid "Comments"
 msgstr "Comentários"
 
@@ -1283,8 +1283,8 @@ msgstr ""
 
 #: config.py:1665
 msgid ""
-"Any additional stories if you then manually add to the Story URL dialog will"
-" also have these tags added."
+"Any additional stories you then manually add to the Story URL dialog will "
+"also have these tags added."
 msgstr ""
 
 #: config.py:1676
@@ -1295,216 +1295,227 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr "<b> É mais seguro criar um e-mail separado para você utilizar somente para suas notificações de atualização de histórias. FanFicFare e calibre não garantem que códigos maliciosos não possam pegar a senha de seu e-mail uma vez que você o digitou. <br>Use este recurso por sua conta e risco. </b>"
 
-#: dialogs.py:270 dialogs.py:834
+#: dialogs.py:273
+msgid ""
+"This name will be used with the %s setting to set the title of the new book."
+msgstr ""
+
+#: dialogs.py:284
+msgid ""
+"These comments about the series will be included in the Comments of the new "
+"book."
+msgstr ""
+
+#: dialogs.py:298 dialogs.py:876
 msgid "Show Download Options"
 msgstr "Mostrar Opções de Transferência"
 
-#: dialogs.py:289 dialogs.py:854
+#: dialogs.py:317 dialogs.py:896
 msgid "Output &Format:"
 msgstr "&Formato de Saída:"
 
-#: dialogs.py:297 dialogs.py:862
+#: dialogs.py:325 dialogs.py:904
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Escolha o formato de saída para criar. Pode-se definir o padrão de configuração do plugin."
 
-#: dialogs.py:325 dialogs.py:882
+#: dialogs.py:353 dialogs.py:924
 msgid "Update Calibre &Metadata?"
 msgstr "Atualizar &Metadados do Calibre?"
 
-#: dialogs.py:326 dialogs.py:883
+#: dialogs.py:354 dialogs.py:925
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr "Atualizar metadados de histórias existentes no Calibre do site?\n(Colunas definidas como 'Apenas Novo' nas abas da coluna será definido apenas para novos livros.)"
 
-#: dialogs.py:332 dialogs.py:887
+#: dialogs.py:360 dialogs.py:929
 msgid "Update EPUB Cover?"
 msgstr "Atualizar Capa do EPUB?"
 
-#: dialogs.py:333 dialogs.py:888
+#: dialogs.py:361 dialogs.py:930
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
 msgstr "Atualizar imagem da capa do livro do site ou padrões (se encontrado) <i>dentro</i> do EPUB quando o EPUB é atualizado."
 
-#: dialogs.py:401
+#: dialogs.py:429
 msgid "(%s URLs found)"
 msgstr ""
 
-#: dialogs.py:402
+#: dialogs.py:430
 msgid "Story URLs for anthology, one per line:"
 msgstr "URL(s) de história de antologia, uma por linha:"
 
-#: dialogs.py:403
+#: dialogs.py:431
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
 msgstr "URLs de histórias para incluir na antologia, uma por linha.\nTerá URLs da área de transferência, mas apenas URLs válidas."
 
-#: dialogs.py:404
+#: dialogs.py:432
 msgid "If Story Already Exists in Anthology?"
 msgstr "Se a história já existe na antologia?"
 
-#: dialogs.py:405
+#: dialogs.py:433
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
 msgstr "O que fazer se já existe uma história com a mesma URL na antologia."
 
-#: dialogs.py:414
+#: dialogs.py:456
 msgid "Story URLs, one per line:"
 msgstr "URL(s) de história, uma por linha:"
 
-#: dialogs.py:415
+#: dialogs.py:457
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
 msgstr "URLs de histórias, uma por linha.\nTerá URLs da área de transferência, mas apenas URLs válidas.\nAdicione [1,5] depois da URL para limitar a transferência para capítulos 1-5."
 
-#: dialogs.py:416
+#: dialogs.py:458
 msgid "If Story Already Exists?"
 msgstr "Se a história já existe?"
 
-#: dialogs.py:417
+#: dialogs.py:459
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
 msgstr "O que fazer se já existe uma história com a mesma URL ou título e autor."
 
-#: dialogs.py:541
+#: dialogs.py:583
 msgid "For Individual Books"
 msgstr "Para Livros Individuais"
 
-#: dialogs.py:542
+#: dialogs.py:584
 msgid "Get URLs and go to dialog for individual story downloads."
 msgstr "Obter URLs e ir para a caixa de diálogo para transferências individuais de história."
 
-#: dialogs.py:547
+#: dialogs.py:589
 msgid "For Anthology Epub"
 msgstr "Para Antologia de Epub"
 
-#: dialogs.py:548
+#: dialogs.py:590
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
 msgstr "Obter URLs e ir para a caixa de diálogo de transferência de Antologia.\nÉ necessário o plugin %s."
 
-#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1584
+#: dialogs.py:594 dialogs.py:648 dialogs.py:695 dialogs.py:1626
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: dialogs.py:584 dialogs.py:1572
+#: dialogs.py:626 dialogs.py:1614
 msgid "Password"
 msgstr "Senha"
 
-#: dialogs.py:585
+#: dialogs.py:627
 msgid "Author requires a password for this story(%s)."
 msgstr "O autor precisa de uma senha para essa história (%s)."
 
-#: dialogs.py:590
+#: dialogs.py:632
 msgid "User/Password"
 msgstr "Usuário/Senha"
 
-#: dialogs.py:591
+#: dialogs.py:633
 msgid "%s requires you to login to download this story."
 msgstr "%s precisa que você inicie a sessão para transferir esta história."
 
-#: dialogs.py:593
+#: dialogs.py:635
 msgid "User:"
 msgstr "Usuário:"
 
-#: dialogs.py:597
+#: dialogs.py:639
 msgid "Password:"
 msgstr "Senha:"
 
-#: dialogs.py:602 dialogs.py:776 dialogs.py:1580
+#: dialogs.py:644 dialogs.py:818 dialogs.py:1622
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:624 dialogs.py:648 fff_plugin.py:998
+#: dialogs.py:666 dialogs.py:690 fff_plugin.py:1008
 msgid "Fetching metadata for stories..."
 msgstr "Buscando metadados para histórias..."
 
-#: dialogs.py:625 dialogs.py:649 fff_plugin.py:999
+#: dialogs.py:667 dialogs.py:691 fff_plugin.py:1009
 msgid "Downloading metadata for stories"
 msgstr "Transferindo metadados para histórias"
 
-#: dialogs.py:626 dialogs.py:650 fff_plugin.py:1000
+#: dialogs.py:668 dialogs.py:692 fff_plugin.py:1010
 msgid "Fetched metadata for"
 msgstr "Metadados pesquisados para"
 
-#: dialogs.py:680
+#: dialogs.py:722
 msgid " - %s estimated until done"
 msgstr " - %s estimado até ser concluído"
 
-#: dialogs.py:704 fff_plugin.py:1216 fff_plugin.py:2437 jobs.py:115
+#: dialogs.py:746 fff_plugin.py:1226 fff_plugin.py:2440 jobs.py:115
 msgid "Skipped"
 msgstr "Ignorado"
 
-#: dialogs.py:712 fff_plugin.py:1971 jobs.py:117 jobs.py:346 jobs.py:349
+#: dialogs.py:754 fff_plugin.py:1974 jobs.py:117 jobs.py:346 jobs.py:349
 msgid "Error"
 msgstr "Erro"
 
-#: dialogs.py:736
+#: dialogs.py:778
 msgid "%d day"
 msgstr "%d dia"
 
-#: dialogs.py:736
+#: dialogs.py:778
 msgid "%d days"
 msgstr "%d dias"
 
-#: dialogs.py:737
+#: dialogs.py:779
 msgid "%d hour"
 msgstr "%d hora"
 
-#: dialogs.py:737
+#: dialogs.py:779
 msgid "%d hours"
 msgstr "%d horas"
 
-#: dialogs.py:738
+#: dialogs.py:780
 msgid "%d minute"
 msgstr "%d minuto"
 
-#: dialogs.py:738
+#: dialogs.py:780
 msgid "%d minutes"
 msgstr "%d minutos"
 
-#: dialogs.py:739
+#: dialogs.py:781
 msgid "%d second"
 msgstr "%d segundo"
 
-#: dialogs.py:739
+#: dialogs.py:781
 msgid "%d seconds"
 msgstr "%d segundos"
 
-#: dialogs.py:754
+#: dialogs.py:796
 msgid "less than 1 second"
 msgstr "menos de 1 segundo"
 
-#: dialogs.py:771 fff_plugin.py:391 fff_plugin.py:394
+#: dialogs.py:813 fff_plugin.py:391 fff_plugin.py:394
 msgid "About FanFicFare"
 msgstr "Sobre o FanFicFare"
 
-#: dialogs.py:825
+#: dialogs.py:867
 msgid "Remove selected books from the list"
 msgstr "Remover livros selecionados da lista"
 
-#: dialogs.py:867
+#: dialogs.py:909
 msgid "Update Mode:"
 msgstr "Modo de Atualização:"
 
-#: dialogs.py:870
+#: dialogs.py:912
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr "Que tipo de atualização executar. Pode-se definir o padrão da configuração do plugin."
 
-#: dialogs.py:892
+#: dialogs.py:934
 msgid "Background Metadata?"
 msgstr ""
 
-#: dialogs.py:893
+#: dialogs.py:935
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1512,103 +1523,103 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:958 fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: dialogs.py:1000 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Comment"
 msgstr "Comentários"
 
-#: dialogs.py:1026
+#: dialogs.py:1068
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Você deseja realmente remover este livro da lista?"
 
-#: dialogs.py:1028
+#: dialogs.py:1070
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Você deseja realmente remover os %d livros selecionados da lista?"
 
-#: dialogs.py:1054
+#: dialogs.py:1096
 msgid "Note"
 msgstr "Nota"
 
-#: dialogs.py:1093
+#: dialogs.py:1135
 msgid "Select or Edit Reject Note."
 msgstr "Selecionar ou editar a nota de rejeição."
 
-#: dialogs.py:1102
+#: dialogs.py:1144
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "Você deseja realmente remover esta URL da lista?"
 
-#: dialogs.py:1104
+#: dialogs.py:1146
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr "Você deseja realmente remover as %s URLs selecionadas da lista?"
 
-#: dialogs.py:1122
+#: dialogs.py:1164
 msgid "List of Books to Reject"
 msgstr "Lista de Livros para Rejeitar"
 
-#: dialogs.py:1135
+#: dialogs.py:1177
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr ""
 
-#: dialogs.py:1149
+#: dialogs.py:1191
 msgid "Remove selected URLs from the list"
 msgstr ""
 
-#: dialogs.py:1164 dialogs.py:1168
+#: dialogs.py:1206 dialogs.py:1210
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr "Isto será adicionado a qualquer nota que você definiu para cada URL acima."
 
-#: dialogs.py:1181
+#: dialogs.py:1223
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr "Apagar Livros (incluindo livros sem URLs de Ficção)?"
 
-#: dialogs.py:1182
+#: dialogs.py:1224
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "Apagar os livros selecionados depois de adicioná-los à lista de URLs Rejeitadas."
 
-#: dialogs.py:1338
+#: dialogs.py:1380
 msgid "Search for string in edit box."
 msgstr "Buscar pela sequência na caixa de edição."
 
-#: dialogs.py:1341
+#: dialogs.py:1383
 msgid "Find:"
 msgstr "Localizar:"
 
-#: dialogs.py:1346
+#: dialogs.py:1388
 msgid "Find"
 msgstr "Localizar"
 
-#: dialogs.py:1356
+#: dialogs.py:1398
 msgid "Case sensitive"
 msgstr "Maiúsculas e minúsculas"
 
-#: dialogs.py:1357
+#: dialogs.py:1399
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr "Buscar sequência por maiúsculas e minúsculas; não tratar Harry, HARRY e harry todas como sendo iguais."
 
-#: dialogs.py:1386
+#: dialogs.py:1428
 msgid "Go back to fix errors?"
 msgstr "Voltar para corrigir erros?"
 
-#: dialogs.py:1498
+#: dialogs.py:1540
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Clique em um erro abaixo para retornar para edição diretamente naquela linha:"
 
-#: dialogs.py:1524
+#: dialogs.py:1566
 msgid "Click to go to line %s"
 msgstr "Clique para ir para a linha %s"
 
-#: dialogs.py:1540
+#: dialogs.py:1582
 msgid "Return to Editing"
 msgstr "Retornar para edição"
 
-#: dialogs.py:1544
+#: dialogs.py:1586
 msgid "Save Anyway"
 msgstr "Salvar mesmo assim"
 
-#: dialogs.py:1573
+#: dialogs.py:1615
 msgid "Enter Email Password for %s:"
 msgstr "Insira o e-mail de senha para %s:"
 
@@ -1636,7 +1647,7 @@ msgstr ""
 msgid "Get Story URLs from &Email"
 msgstr ""
 
-#: fff_plugin.py:317 fff_plugin.py:557
+#: fff_plugin.py:317 fff_plugin.py:559
 msgid "Get Story URLs from Web Page"
 msgstr "Obter URLs de história da página do site"
 
@@ -1720,7 +1731,7 @@ msgstr "As Opções de E-mail do FFF não estão configuradas."
 msgid "Fetching Story URLs from Email..."
 msgstr ""
 
-#: fff_plugin.py:512 fff_plugin.py:538
+#: fff_plugin.py:512 fff_plugin.py:540
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "Sem URL's de histórias válidos encontrados nos e-mails não lidos."
 
@@ -1734,550 +1745,550 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr ""
 
-#: fff_plugin.py:540
+#: fff_plugin.py:542
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr ""
 
-#: fff_plugin.py:542
+#: fff_plugin.py:544
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr ""
 
-#: fff_plugin.py:543
+#: fff_plugin.py:545
 msgid "Get Story URLs from Email"
 msgstr "Obter URL's de histórias por E-mail"
 
-#: fff_plugin.py:566
+#: fff_plugin.py:568
 msgid "Fetching Story URLs from Page..."
 msgstr ""
 
-#: fff_plugin.py:570
+#: fff_plugin.py:573
 msgid "Finished Fetching Story URLs from Page."
 msgstr ""
 
-#: fff_plugin.py:575 fff_plugin.py:627
+#: fff_plugin.py:581 fff_plugin.py:630
 msgid "List of Story URLs"
 msgstr "Lista de URLs de história"
 
-#: fff_plugin.py:576
+#: fff_plugin.py:582
 msgid "No Valid Story URLs found on given page."
 msgstr "Nenhuma URL de história foi encontrada na página sugerida."
 
-#: fff_plugin.py:592 fff_plugin.py:644
+#: fff_plugin.py:595 fff_plugin.py:647
 msgid "No Selected Books to Get URLs From"
 msgstr "Nenhum livro selecionado para obter URLs"
 
-#: fff_plugin.py:608
+#: fff_plugin.py:611
 msgid "Collecting URLs for stories..."
 msgstr "Coletando URLs de história..."
 
-#: fff_plugin.py:609
+#: fff_plugin.py:612
 msgid "Get URLs for stories"
 msgstr "Obtendo URLs de histórias"
 
-#: fff_plugin.py:610 fff_plugin.py:730 fff_plugin.py:921
+#: fff_plugin.py:613 fff_plugin.py:733 fff_plugin.py:934
 msgid "URL retrieved"
 msgstr "URL recuperada"
 
-#: fff_plugin.py:620 jobs.py:116 jobs.py:339
+#: fff_plugin.py:623 jobs.py:116 jobs.py:339
 msgid "Bad"
 msgstr "Ruim"
 
-#: fff_plugin.py:631
+#: fff_plugin.py:634
 msgid "List of URLs"
 msgstr "Lista de URLs"
 
-#: fff_plugin.py:632
+#: fff_plugin.py:635
 msgid "No Story URLs found in selected books."
 msgstr "Nenhuma URL de história foi encontrada nos livros selecionados."
 
-#: fff_plugin.py:639
+#: fff_plugin.py:642
 msgid "Can only UnNew books in library"
 msgstr ""
 
-#: fff_plugin.py:656
+#: fff_plugin.py:659
 msgid "UnNewing books..."
 msgstr ""
 
-#: fff_plugin.py:657
+#: fff_plugin.py:660
 msgid "UnNew Books"
 msgstr ""
 
-#: fff_plugin.py:658
+#: fff_plugin.py:661
 msgid "Books UnNewed"
 msgstr ""
 
-#: fff_plugin.py:704 fff_plugin.py:705 fff_plugin.py:1698 fff_plugin.py:1699
+#: fff_plugin.py:707 fff_plugin.py:708 fff_plugin.py:1707 fff_plugin.py:1708
 msgid "Starting auto conversion of %d books."
 msgstr "Começando a conversão automática de %s livros."
 
-#: fff_plugin.py:720
+#: fff_plugin.py:723
 msgid "No Selected Books have URLs to Reject"
 msgstr "Nenhum livro selecionado tem URLs para rejeitar"
 
-#: fff_plugin.py:728
+#: fff_plugin.py:731
 msgid "Collecting URLs for Reject List..."
 msgstr "Coletando URLs para lista de rejeição..."
 
-#: fff_plugin.py:729
+#: fff_plugin.py:732
 msgid "Get URLs for Reject List"
 msgstr "Obtendo URLs para lista de rejeição"
 
-#: fff_plugin.py:764
+#: fff_plugin.py:767
 msgid "Proceed to Remove?"
 msgstr "Proceder para remover?"
 
-#: fff_plugin.py:764
+#: fff_plugin.py:767
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr ""
 
-#: fff_plugin.py:786
+#: fff_plugin.py:795
 msgid "Cannot Make Anthologys without %s"
 msgstr "Não foi possível criar antologias sem %s"
 
-#: fff_plugin.py:790 fff_plugin.py:898
+#: fff_plugin.py:799 fff_plugin.py:911
 msgid "Cannot Update Books from Device View"
 msgstr "Não foi possível atualizar livros do dispositivo"
 
-#: fff_plugin.py:794
+#: fff_plugin.py:803
 msgid "Can only update 1 anthology at a time"
 msgstr "Pode ser atualizada apenas 1 antologia de cada vez"
 
-#: fff_plugin.py:799
+#: fff_plugin.py:808
 msgid "Fetching Story URLs for Series..."
 msgstr ""
 
-#: fff_plugin.py:805
+#: fff_plugin.py:814
 msgid "Can only Update Epub Anthologies"
 msgstr "Pode ser atualizada apenas antologias de Epubs"
 
-#: fff_plugin.py:823 fff_plugin.py:824
+#: fff_plugin.py:832 fff_plugin.py:833
 msgid "Cannot Update Anthology"
 msgstr "Não foi possível atualizar antologia"
 
-#: fff_plugin.py:824
+#: fff_plugin.py:833
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr ""
 
-#: fff_plugin.py:838
+#: fff_plugin.py:850
 msgid "Finished Fetching Story URLs for Series."
 msgstr ""
 
-#: fff_plugin.py:884
+#: fff_plugin.py:897
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr "Existem %d histórias na antologia atual que <b>não</b> são serão mantidas, se você seguir em frente."
 
-#: fff_plugin.py:885
+#: fff_plugin.py:898
 msgid "Story URLs that will be removed:"
 msgstr "URLs de história que serão removidas:"
 
-#: fff_plugin.py:887
+#: fff_plugin.py:900
 msgid "Update anyway?"
 msgstr "Atualizar mesmo assim?"
 
-#: fff_plugin.py:888
+#: fff_plugin.py:901
 msgid "Stories Removed"
 msgstr "Histórias Removidas"
 
-#: fff_plugin.py:905
+#: fff_plugin.py:918
 msgid "No Selected Books to Update"
 msgstr "Nenhum livro selecionado para atualizar"
 
-#: fff_plugin.py:919
+#: fff_plugin.py:932
 msgid "Collecting stories for update..."
 msgstr "Coletando histórias para atualizar..."
 
-#: fff_plugin.py:920
+#: fff_plugin.py:933
 msgid "Get stories for updates"
 msgstr "Obter histórias para atualização"
 
-#: fff_plugin.py:930
+#: fff_plugin.py:943
 msgid "Update Existing List"
 msgstr "Atualizar lista existente"
 
-#: fff_plugin.py:992
+#: fff_plugin.py:1002
 msgid "Start queuing downloading for %s stories."
 msgstr ""
 
-#: fff_plugin.py:993
+#: fff_plugin.py:1003
 msgid "Queuing download for stories..."
 msgstr ""
 
-#: fff_plugin.py:994
+#: fff_plugin.py:1004
 msgid "Queuing download for stories"
 msgstr ""
 
-#: fff_plugin.py:995
+#: fff_plugin.py:1005
 msgid "Queued download for"
 msgstr ""
 
-#: fff_plugin.py:997
+#: fff_plugin.py:1007
 msgid "Started fetching metadata for %s stories."
 msgstr "Começou a busca de metadados para %s histórias."
 
-#: fff_plugin.py:1011
+#: fff_plugin.py:1021
 msgid "No valid story URLs entered."
 msgstr "Nenhuma história válida nas URLs inseridas."
 
-#: fff_plugin.py:1021 fff_plugin.py:1027
+#: fff_plugin.py:1031 fff_plugin.py:1037
 msgid "Reject URL?"
 msgstr "Rejeitar URL?"
 
-#: fff_plugin.py:1028 fff_plugin.py:1046
+#: fff_plugin.py:1038 fff_plugin.py:1056
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr "<b>%s</b> está em sua lista de URLs rejeitadas:"
 
-#: fff_plugin.py:1030
+#: fff_plugin.py:1040
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Clique em '<b>Sim</b>' para rejeitar."
 
-#: fff_plugin.py:1031 fff_plugin.py:1208
+#: fff_plugin.py:1041 fff_plugin.py:1218
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Clique em '<b>Não</b>' para transferir de qualquer maneira."
 
-#: fff_plugin.py:1033
+#: fff_plugin.py:1043
 msgid "Story on Reject URLs list (%s)."
 msgstr "História na lista de URLs rejeitadas (%s)."
 
-#: fff_plugin.py:1036 jobs.py:114
+#: fff_plugin.py:1046 jobs.py:114
 msgid "Rejected"
 msgstr "Rejeitado"
 
-#: fff_plugin.py:1039
+#: fff_plugin.py:1049
 msgid "Remove Reject URL?"
 msgstr "Remover URL rejeitada?"
 
-#: fff_plugin.py:1045
+#: fff_plugin.py:1055
 msgid "Remove URL from Reject List?"
 msgstr "Remover URL da lista de rejeição?"
 
-#: fff_plugin.py:1048
+#: fff_plugin.py:1058
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Clique em '<b>Sim</b>' para removê-la da lista."
 
-#: fff_plugin.py:1049
+#: fff_plugin.py:1059
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Clique em '<b>Não</b>' para mantê-la na lista."
 
-#: fff_plugin.py:1070
+#: fff_plugin.py:1080
 msgid "Are You an Adult?"
 msgstr "Você é adulto?"
 
-#: fff_plugin.py:1071
+#: fff_plugin.py:1081
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr "%s requer que você seja um adulto. Confirme que você é um adulto em sua localidade:"
 
-#: fff_plugin.py:1116
+#: fff_plugin.py:1126
 msgid "Cannot update non-epub format."
 msgstr "Não é possível atualizar formatos que não sejam epub."
 
-#: fff_plugin.py:1199
+#: fff_plugin.py:1209
 msgid "Skip Story?"
 msgstr "Ignorar história?"
 
-#: fff_plugin.py:1205
+#: fff_plugin.py:1215
 msgid "Skip Anthology Story?"
 msgstr "Ignorar antologia da história?"
 
-#: fff_plugin.py:1206
+#: fff_plugin.py:1216
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr "\"<b>%s</b>\" está na série \"<b><a href=\"%s\">%s</a></b>\" que você tem um livro de antologia."
 
-#: fff_plugin.py:1207
+#: fff_plugin.py:1217
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Clique em '<b>Sim</b>' para ignorar."
 
-#: fff_plugin.py:1210
+#: fff_plugin.py:1220
 msgid "Story in Series Anthology(%s)."
 msgstr "História na série de antologia (%s)."
 
-#: fff_plugin.py:1226 jobs.py:110
+#: fff_plugin.py:1236 jobs.py:110
 msgid "Add"
 msgstr "Adicionar"
 
-#: fff_plugin.py:1259 jobs.py:112
+#: fff_plugin.py:1269 jobs.py:112
 msgid "Meta"
 msgstr "Meta"
 
-#: fff_plugin.py:1288
+#: fff_plugin.py:1298
 msgid "Skipping duplicate story."
 msgstr "Ignorando história duplicada."
 
-#: fff_plugin.py:1291
+#: fff_plugin.py:1301
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr ""
 
-#: fff_plugin.py:1302 jobs.py:111
+#: fff_plugin.py:1312 jobs.py:111
 msgid "Update"
 msgstr "Atualizar"
 
-#: fff_plugin.py:1312
+#: fff_plugin.py:1322
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr ""
 
-#: fff_plugin.py:1315 fff_plugin.py:1352 jobs.py:113
+#: fff_plugin.py:1325 fff_plugin.py:1362 jobs.py:113
 msgid "Different URL"
 msgstr "URL Diferente"
 
-#: fff_plugin.py:1317 fff_plugin.py:1324
+#: fff_plugin.py:1327 fff_plugin.py:1334
 msgid "Change Story URL?"
 msgstr "Alterar URL de história?"
 
-#: fff_plugin.py:1325
+#: fff_plugin.py:1335
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
 msgstr "<b>%s</b> por <b>%s</b> já está na sua biblioteca com uma URL de origem diferente:"
 
-#: fff_plugin.py:1326
+#: fff_plugin.py:1336
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "Na biblioteca: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1327 fff_plugin.py:1341
+#: fff_plugin.py:1337 fff_plugin.py:1351
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Nova URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1328
+#: fff_plugin.py:1338
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Clique em '<b>Sim</b>' para atualizar/substituir livro com a nova URL."
 
-#: fff_plugin.py:1329
+#: fff_plugin.py:1339
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr "Clique em '<b>Não</b>' para ignorar a atualização/substituição desse livro."
 
-#: fff_plugin.py:1331 fff_plugin.py:1338
+#: fff_plugin.py:1341 fff_plugin.py:1348
 msgid "Download as New Book?"
 msgstr "Transferir como novo livro?"
 
-#: fff_plugin.py:1339
+#: fff_plugin.py:1349
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
 msgstr "<b>%s</b> por <b>%s</b> já está na sua biblioteca com uma URL de origem diferente."
 
-#: fff_plugin.py:1340
+#: fff_plugin.py:1350
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr "Você optou por não atualizar o livro existente. Você deseja adicionar um novo livro para esta URL?"
 
-#: fff_plugin.py:1342
+#: fff_plugin.py:1352
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Clique em '<b>Sim</b>' para um novo livro com nova URL."
 
-#: fff_plugin.py:1343
+#: fff_plugin.py:1353
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "Clique em '<b>Não</b>' para ignorar a URL."
 
-#: fff_plugin.py:1349
+#: fff_plugin.py:1359
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr "Atualização recusada pelo usuário devido à diferentes URL(%s) de história"
 
-#: fff_plugin.py:1357
+#: fff_plugin.py:1367
 msgid "Metadata collected."
 msgstr "Metadados recolhidos."
 
-#: fff_plugin.py:1377 jobs.py:286
+#: fff_plugin.py:1387 jobs.py:286
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "O epub existente contém %d capítulos, o site tem apenas %d. Use Substituir para forçar uma atualização."
 
-#: fff_plugin.py:1379 jobs.py:288
+#: fff_plugin.py:1389 jobs.py:288
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr ""
 
-#: fff_plugin.py:1520
+#: fff_plugin.py:1530
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Nenhuma das <b>%d</b> URLs/histórias fornecidas podem ser/precisam ser transferidas."
 
-#: fff_plugin.py:1521 fff_plugin.py:1740 fff_plugin.py:1763
+#: fff_plugin.py:1531 fff_plugin.py:1749 fff_plugin.py:1772
 msgid "See log for details."
 msgstr "Veja o registro para detalhes."
 
-#: fff_plugin.py:1522
+#: fff_plugin.py:1532
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr ""
 
-#: fff_plugin.py:1536 fff_plugin.py:1542
+#: fff_plugin.py:1546 fff_plugin.py:1552
 msgid "FanFicFare download ended"
 msgstr "O FanFicFare finalizou a transferência"
 
-#: fff_plugin.py:1536 fff_plugin.py:1542 fff_plugin.py:1782 fff_plugin.py:1788
+#: fff_plugin.py:1546 fff_plugin.py:1552 fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare log"
 msgstr ""
 
-#: fff_plugin.py:1563
+#: fff_plugin.py:1573
 msgid "Download %s FanFiction Book(s)"
 msgstr ""
 
-#: fff_plugin.py:1570
+#: fff_plugin.py:1580
 msgid "Starting %d FanFicFare Downloads"
 msgstr ""
 
-#: fff_plugin.py:1608
+#: fff_plugin.py:1617
 msgid "Story Details:"
 msgstr "Detalhes da história:"
 
-#: fff_plugin.py:1611
+#: fff_plugin.py:1620
 msgid "Error Updating Metadata"
 msgstr "Erro ao atualizar metadados"
 
-#: fff_plugin.py:1612
+#: fff_plugin.py:1621
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr ""
 
-#: fff_plugin.py:1613
+#: fff_plugin.py:1622
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "O ebook foi atualizado, mas os metadados não."
 
-#: fff_plugin.py:1667 fff_plugin.py:1668
+#: fff_plugin.py:1676 fff_plugin.py:1677
 msgid "Finished Adding/Updating %d books."
 msgstr "O adicionamento/atualização de %s livros está concluído."
 
-#: fff_plugin.py:1724
+#: fff_plugin.py:1733
 msgid "No Good Stories for Anthology"
 msgstr "Nenhuma BOA história para antologia"
 
-#: fff_plugin.py:1725
+#: fff_plugin.py:1734
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Não há boas histórias/atualizações de onde transferir, a criação/atualização de antologia foi abortada."
 
-#: fff_plugin.py:1730 fff_plugin.py:1762
+#: fff_plugin.py:1739 fff_plugin.py:1771
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: fff_plugin.py:1737
+#: fff_plugin.py:1746
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Você deseja realmente continuar com a criação/atualização desta antologia?"
 
-#: fff_plugin.py:1738
+#: fff_plugin.py:1747
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Todas as atualizações que falharam <b>não</b> vão ser incluídas na antologia."
 
-#: fff_plugin.py:1739
+#: fff_plugin.py:1748
 msgid "However, if there's an older version, it will still be included."
 msgstr "No entanto, se houver uma versão mais antiga, ela será incluída."
 
-#: fff_plugin.py:1742
+#: fff_plugin.py:1751
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Prosseguir com a atualização desta antologia e sua biblioteca?"
 
-#: fff_plugin.py:1764
+#: fff_plugin.py:1773
 msgid "Proceed with updating your library?"
 msgstr "Prosseguir com a atualização de sua biblioteca?"
 
-#: fff_plugin.py:1782 fff_plugin.py:1788
+#: fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare download complete"
 msgstr ""
 
-#: fff_plugin.py:1803
+#: fff_plugin.py:1812
 msgid "Merging %s books."
 msgstr "Mesclando %s livros."
 
-#: fff_plugin.py:1892
+#: fff_plugin.py:1895
 msgid "FanFicFare Adding/Updating books."
 msgstr ""
 
-#: fff_plugin.py:1906
+#: fff_plugin.py:1909
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Atualizando o calibre de histórias de ficção..."
 
-#: fff_plugin.py:1907
+#: fff_plugin.py:1910
 msgid "Update calibre for FanFiction stories"
 msgstr "Atualizar o calibre de histórias de ficção"
 
-#: fff_plugin.py:1917
+#: fff_plugin.py:1920
 msgid "Adding/Updating %s BAD books."
 msgstr "Adicionando/atualizando %s livros RUINS."
 
-#: fff_plugin.py:1922
+#: fff_plugin.py:1925
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Atualizando o calibre de histórias RUINS de ficção..."
 
-#: fff_plugin.py:1923
+#: fff_plugin.py:1926
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Atualizar o calibre de histórias RUINS de ficção"
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1971
 msgid "Adding format to book failed for some reason..."
 msgstr "Falha ao adicionar formato por algum motivo..."
 
-#: fff_plugin.py:2334
+#: fff_plugin.py:2337
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: fff_plugin.py:2346
+#: fff_plugin.py:2349
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2356 fff_plugin.py:2374
+#: fff_plugin.py:2359 fff_plugin.py:2377
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr ""
 
-#: fff_plugin.py:2362
+#: fff_plugin.py:2365
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2436
+#: fff_plugin.py:2439
 msgid "Same story already included."
 msgstr ""
 
-#: fff_plugin.py:2494
+#: fff_plugin.py:2497
 msgid "No story URL found."
 msgstr "Nenhuma URL de história encontrada."
 
-#: fff_plugin.py:2497
+#: fff_plugin.py:2500
 msgid "Not Found"
 msgstr "Não encontrado"
 
-#: fff_plugin.py:2503
+#: fff_plugin.py:2506
 msgid "URL is not a valid story URL."
 msgstr "A URL não é uma URL válida de história."
 
-#: fff_plugin.py:2506
+#: fff_plugin.py:2509
 msgid "Bad URL"
 msgstr "URL ruim:"
 
-#: fff_plugin.py:2675
+#: fff_plugin.py:2680
 msgid "Anthology containing:"
 msgstr "Antologia contendo:"
 
-#: fff_plugin.py:2678
+#: fff_plugin.py:2683
 msgid "%s by %s"
 msgstr "%s por %s"
 
-#: fff_plugin.py:2737
+#: fff_plugin.py:2747
 msgid " Anthology"
 msgstr "Antologia"
 
-#: fff_plugin.py:2774
+#: fff_plugin.py:2795
 msgid "(was set, removed for security)"
 msgstr "(foi definido, removido para segurança)"
 

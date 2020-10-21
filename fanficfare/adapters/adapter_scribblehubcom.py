@@ -270,8 +270,58 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         soup = self.make_soup(self._fetchUrl(url))
 
         div = soup.find('div', {'id' : 'chp_raw'})
-        if div.find('div', {'class' : 'wi_authornotes'}):
-            div.find('div', {'class' : 'wi_authornotes'}).decompose()
+
+        exclude_notes = self.getConfigList('exclude_notes')
+
+        if 'authornotes' in exclude_notes:
+            # Remove author's notes
+            for author_notes in div.find_all('div', {'class' : 'wi_authornotes'}):
+                author_notes.decompose()
+        else:
+            # Reformat the author's notes
+            for author_notes in div.find_all('div', {'class' : 'wi_authornotes'}):
+                author_notes['class'] = ['fff_chapter_notes']
+                notes_div = soup.new_tag('div')
+
+                new_tag = soup.new_tag('b')
+                new_tag.string = "Author's note:"
+                notes_div.append(new_tag)
+
+                author_notes_body = author_notes.find('div', {'class' : 'wi_authornotes_body'})
+                if author_notes_body:
+                    new_tag = soup.new_tag('blockquote')
+                    new_tag.append(author_notes_body)
+                    notes_div.append(new_tag)
+
+                # Clear old children from the note, then add this
+                author_notes.clear()
+                author_notes.append(notes_div)
+
+        if 'newsboxes' in exclude_notes:
+            # Remove author's notes
+            for news in div.find('div', {'class' : 'wi_news'}):
+                news.decompose()
+        else:
+            # Reformat the news boxes
+            for news in div.find_all('div', {'class' : 'wi_news'}):
+                news['class'] = ['fff_chapter_notes']
+                notes_div = soup.new_tag('div')
+
+                news_title = news.find('div', {'class' : 'wi_news_title'})
+                if news_title:
+                    new_tag = soup.new_tag('b')
+                    new_tag.string = news_title.get_text()
+                    notes_div.append(new_tag)
+
+                news_body = news.find('div', {'class' : 'wi_news_body'})
+                if news_body:
+                    new_tag = soup.new_tag('blockquote')
+                    new_tag.append(news_body)
+                    notes_div.append(new_tag)
+
+                # Clear old children from the news box, then add this
+                news.clear()
+                news.append(notes_div)
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

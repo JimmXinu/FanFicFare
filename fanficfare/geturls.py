@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ from .six import ensure_str
 import logging
 logger = logging.getLogger(__name__)
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from .gziphttp import GZipProcessor
 
 from . import adapters
@@ -39,87 +39,51 @@ from .configurable import Configuration
 from .exceptions import UnknownSite, FetchEmailFailed
 
 def get_urls_from_page(url,configuration=None,normalize=False):
-
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
-
-    data = None
-    adapter = None
     try:
         adapter = adapters.getAdapter(configuration,url,anyurl=True)
-
-        # special stuff to log into archiveofourown.org, if possible.
-        # Unlike most that show the links to 'adult' stories, but protect
-        # them, AO3 doesn't even show them if not logged in.  Only works
-        # with saved user/pass--not going to prompt for list.
-        if 'archiveofourown.org' in url:
-            if adapter.getConfig("username"):
-                if adapter.getConfig("is_adult"):
-                    if '?' in url:
-                        addurl = "&view_adult=true"
-                    else:
-                        addurl = "?view_adult=true"
-                else:
-                    addurl=""
-                # just to get an authenticity_token.
-                data = adapter._fetchUrl(url+addurl)
-                # login the session.
-                adapter.performLogin(url,data)
-                # get the list page with logged in session.
-
-        if 'fimfiction.net' in url and adapter.getConfig("is_adult"):
-            data = adapter._fetchUrl(url)
-            adapter.set_adult_cookie()
-
-        if 'tthfanfic.org' in url and adapter.getConfig("is_adult"):
-            ## Simple fetch works in testing, but actual pages use a
-            ## POST and has a 'ctkn' value, so we do too.
-            # adapter._fetchUrl("https://www.tthfanfic.org/setmaxrating.php?sitemaxrating=5")
-            adapter.setSiteMaxRating(url)
-
-        # this way it uses User-Agent or other special settings.
-        data = adapter._fetchUrl(url,usecache=False)
+        return adapter.get_urls_from_page(url,normalize)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
         opener = build_opener(HTTPCookieProcessor(),GZipProcessor())
         data = opener.open(url).read()
+        return {'urllist':get_urls_from_html(data,url,configuration,normalize)}
+    return {}
 
-    # kludge because I don't see it on enough sites to be worth generalizing yet.
-    restrictsearch=None
-    if 'scarvesandcoffee.net' in url:
-        restrictsearch=('div',{'id':'mainpage'})
-
-    return get_urls_from_html(data,url,configuration,normalize,restrictsearch)
-
-def get_urls_from_html(data,url=None,configuration=None,normalize=False,restrictsearch=None,email=False):
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=False):
+    logger.debug("get_urls_from_html")
     urls = collections.OrderedDict()
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
-    ## soup and re-soup because BS4/html5lib is more forgiving of
-    ## incorrectly nested tags that way.
-    soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
-    if restrictsearch:
-        soup = soup.find(*restrictsearch)
-        #logger.debug("restrict search:%s"%soup)
+    if isinstance(data,(BeautifulSoup,Tag)):
+        logger.debug("Using pre-made soup")
+        soup = data
+    else:
+        ## soup and re-soup because BS4/html5lib is more forgiving of
+        ## incorrectly nested tags that way.
+        logger.debug("dbl souping")
+        soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
 
     for a in soup.findAll('a'):
         if a.has_attr('href'):
-            #logger.debug("a['href']:%s"%a['href'])
+            # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
-            #logger.debug("1 urlhref:%s"%href)
+            # logger.debug("1 urlhref:%s"%href)
             href = cleanup_url(href,email)
             try:
-                #logger.debug("2 urlhref:%s"%href)
+                # logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
-                #logger.debug("found adapter")
+                # logger.debug("found adapter")
                 if adapter.story.getMetadata('storyUrl') not in urls:
                     urls[adapter.story.getMetadata('storyUrl')] = [href]
                 else:
                     urls[adapter.story.getMetadata('storyUrl')].append(href)
+                # logger.debug("adapter storyUrl:%s"%adapter.story.getMetadata('storyUrl'))
             except Exception as e:
-                #logger.debug e
+                # logger.debug(e)
                 pass
 
     # Simply return the longest URL with the assumption that it contains the

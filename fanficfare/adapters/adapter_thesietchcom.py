@@ -16,32 +16,38 @@
 #
 
 from __future__ import absolute_import
+import re
+
+# py2 vs py3 transition
+from ..six import text_type as unicode
+
 from .base_xenforo2forum_adapter import BaseXenForo2ForumAdapter
 
-import logging
-logger = logging.getLogger(__name__)
-
 def getClass():
-    return WWWAlternatehistoryComAdapter
+    return TheSietchComAdapter
 
-class WWWAlternatehistoryComAdapter(BaseXenForo2ForumAdapter):
+class TheSietchComAdapter(BaseXenForo2ForumAdapter):
 
     def __init__(self, config, url):
         BaseXenForo2ForumAdapter.__init__(self, config, url)
 
         # Each adapter needs to have a unique site abbreviation.
-        self.story.setMetadata('siteabbrev','ah')
+        self.story.setMetadata('siteabbrev','sietch')
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.alternatehistory.com'
+        return 'www.the-sietch.com'
 
     @classmethod
     def getPathPrefix(cls):
         # in case it needs more than just site/
-        return '/forum/'
+        return '/index.php?'
 
-    def get_threadmarks_top(self,souptag):
-        return souptag.find('div',{'class':'block-outer-opposite--threadmarks'})
+    def make_reader_url(self,tmcat_num,reader_page_num):
+        # https://www.the-sietch.com/index.php?threads/shattered-sphere-the-arcadian-free-march.3243/reader/page-2
+        # discard tmcat_num -- the-sietch.com doesn't have multiple
+        # threadmark categories yet.
+        return self.story.getMetadata('storyUrl')+'reader/page-'+unicode(reader_page_num)
 
+# XXX different threadmarks categories

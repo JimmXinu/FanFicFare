@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -349,6 +349,35 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         url = re.sub(r"https?://("+self.getSiteDomain()+r"/Story-\d+(-\d+)?)(/.*)?$",
                      r"https://\1",url)
         return url
+
+    def before_get_urls_from_page(self,url,normalize):
+        ## Not needed for series pages, but does effect author pages,
+        ## top lists, etc.
+        if self.getConfig("is_adult"):
+            self.setSiteMaxRating(url)
+
+    def get_series_from_page(self,url,data,normalize=False):
+        '''
+        This method is to make it easier for adapters to detect a
+        series URL, pick out the series metadata and list of storyUrls
+        to return without needing to override get_urls_from_page
+        entirely.
+        '''
+        ## https://www.tthfanfic.org/Series-2329
+        m = re.match(r"https?://www.tthfanfic.org/Series-(?P<id>\d+)$",url)
+        if m:
+            soup = self.make_soup(data)
+            retval = {}
+            retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('div.storylistitem a.storylink') ]
+            retval['name']=stripHTML(soup.select_one("title"))
+            retval['name'] = retval['name'].replace('TtH • Series • ','')
+            desc=soup.select_one("div.storybody")
+            desc.name='div' # change blockquote to div to match stories.
+            retval['desc']=desc
+            return retval
+        ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
+        ## optionally 'name' and 'desc'?
+        return {}
 
 def getClass():
     return TwistingTheHellmouthSiteAdapter

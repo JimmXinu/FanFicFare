@@ -43,21 +43,18 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         #logger.info("init url: "+url)
         BaseSiteAdapter.__init__(self, config, url)
 
-        # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
             #logger.debug("groupdict:%s"%m.groupdict())
             if m.group('anchorpost'):
                 self.story.setMetadata('storyId',m.group('anchorpost'))
-                self._setURL(self.getURLPrefix() + '/posts/'+m.group('anchorpost')+'/')
+                self._setURL(self.getURLPrefix() + 'posts/'+m.group('anchorpost')+'/')
             else:
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
                 title = m.group('title') or ""
-                self._setURL(self.getURLPrefix() + '/'+m.group('tp')+'/'+title+self.story.getMetadata('storyId')+'/')
+                self._setURL(self.getURLPrefix() + m.group('tp')+'/'+title+self.story.getMetadata('storyId')+'/')
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -76,17 +73,22 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return ['base_xenforoforum',cls.getConfigSection()]
 
     @classmethod
+    def getPathPrefix(cls):
+        # The site's fixed path prefix. '/' for most
+        return '/'
+
+    @classmethod
     def getURLPrefix(cls):
         # The site domain.  Does have www here, if it uses it.
-        return 'https://' + cls.getSiteDomain()
+        return 'https://' + cls.getSiteDomain() + cls.getPathPrefix()
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return cls.getURLPrefix()+"/threads/some-story-name.123456/ "+cls.getURLPrefix()+"/posts/123456/"
+        return cls.getURLPrefix()+"threads/some-story-name.123456/ "+cls.getURLPrefix()+"posts/123456/"
 
     def getSiteURLPattern(self):
         ## need to accept http and https still.
-        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
     def _fetchUrlOpened(self, url,
                         parameters=None,
@@ -119,12 +121,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         ## moved from extract metadata to share with normalize_chapterurl.
         if not url.startswith('http'):
-            url = self.getURLPrefix()+'/'+url
+            url = self.getURLPrefix()+url
 
         if ( url.startswith(self.getURLPrefix()) or
              url.startswith('http://'+self.getSiteDomain()) or
              url.startswith('https://'+self.getSiteDomain()) ) and \
-             ( '/posts/' in url or '/threads/' in url or 'showpost.php' in url or 'goto/post' in url):
+             ( self.getPathPrefix()+'posts/' in url or self.getPathPrefix()+'threads/' in url or 'showpost.php' in url or 'goto/post' in url):
             ## brute force way to deal with SB's http->https change
             ## when hardcoded http urls.  Now assumes all
             ## base_xenforoforum sites use https--true as of
@@ -132,10 +134,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             url = url.replace('http://','https://')
 
             # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
-            url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',r'/posts/\1/',url)
+            url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',self.getPathPrefix()+r'posts/\1/',url)
 
             # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
-            url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',r'/posts/\1/',url)
+            url = re.sub(r'goto/post\?id=([0-9]+)(#post-[0-9]+)?',self.getPathPrefix()+r'posts/\1/',url)
 
             url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
             url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
@@ -147,24 +149,24 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             ## *correct* ones.
             # https://forums.sufficientvelocity.com/posts/39915/
             if '#post-' in url:
-                url = self.getURLPrefix()+'/posts/'+url.split('#post-')[1]+'/'
+                url = self.getURLPrefix()+'posts/'+url.split('#post-')[1]+'/'
 
             ## Same as above except for for case where author mistakenly
             ## used the reply link instead of normal link to post.
             # "http://forums.spacebattles.com/threads/manager-worm-story-thread-iv.301602/reply?quote=15962513"
             # https://forums.spacebattles.com/posts/
             if 'reply?quote=' in url:
-                url = self.getURLPrefix()+'/posts/'+url.split('reply?quote=')[1]+'/'
+                url = self.getURLPrefix()+'posts/'+url.split('reply?quote=')[1]+'/'
 
             ## normalize named thread urls, too.
             # http://forums.sufficientvelocity.com/threads/harry-potter-and-the-not-fatal-at-all-cultural-exchange-program.330/
-            url = re.sub(r'/threads/.*\.([0-9]+)/',r'/threads/\1/',url)
+            url = re.sub(re.escape(self.getPathPrefix())+r'threads/.*\.([0-9]+)/',self.getPathPrefix()+r'threads/\1/',url)
 
             is_chapter_url = True
 
             ## One person once put a threadmarks URL directly in an
             ## index post and now we have to exclude it.
-            if re.match(r".*/threads/[0-9]+/threadmarks",url):
+            if re.match(r'.*'+re.escape(self.getPathPrefix())+'threads/[0-9]+/threadmarks',url):
                 is_chapter_url = False
 
         return (is_chapter_url,url)
@@ -174,7 +176,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## storyId, because this is called before story url has been
         ## parsed.
         # logger.debug("pre--url:%s"%url)
-        url = re.sub(r'/threads/.*\.(?P<id>[0-9]+)/',r'/threads/\g<id>/',url)
+        url = re.sub(re.escape(self.getPathPrefix())+r'threads/.*\.(?P<id>[0-9]+)/',self.getPathPrefix()+r'threads/\g<id>/',url)
         # logger.debug("post-url:%s"%url)
         return url
 
@@ -206,10 +208,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         params['register'] = '0'
         params['cookie_check'] = '1'
         params['_xfToken'] = ''
-        params['redirect'] = self.getURLPrefix() + '/'
+        params['redirect'] = self.getURLPrefix()
 
         ## https://forum.questionablequesting.com/login/login
-        loginUrl = self.getURLPrefix() + '/login/login'
+        loginUrl = self.getURLPrefix() + 'login/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                              params['login']))
 
@@ -294,7 +296,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             elif threadmarksa['href'].startswith('/'):
                 href = 'https://'+self.getSiteDomain()+threadmarksa['href']
             else:
-                href = self.getURLPrefix()+'/'+threadmarksa['href']
+                href = self.getURLPrefix()+threadmarksa['href']
             threadmarkgroups[tmcat_name]=self.fetch_threadmarks(href,
                                                                 tmcat_name,
                                                                 tmcat_num)
@@ -385,7 +387,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 date = self.get_threadmark_date(tm_item)
                 words,kwords = self.get_threadmark_words(tm_item)
                 if 'http' not in url:
-                    url = self.getURLPrefix()+"/"+url
+                    url = self.getURLPrefix()+url
                 # logger.debug("%s. %s"%(tmcat_index,name))
                 threadmarks.append({"tmcat_name":tmcat_name,
                                     "tmcat_num":tmcat_num,
@@ -452,7 +454,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
 
-        if '#' not in useurl and '/posts/' not in useurl:
+        if '#' not in useurl and self.getPathPrefix()+'posts/' not in useurl:
             self._setURL(useurl) ## for when threadmarked thread name changes.
 
         self.parse_title(topsoup)
@@ -602,7 +604,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def parse_author(self,souptag):
         a = souptag.find('h3',{'class':'userText'}).find('a')
         self.story.addToList('authorId',a['href'].split('/')[1])
-        authorUrl = self.getURLPrefix()+'/'+a['href']
+        authorUrl = self.getURLPrefix()+a['href']
         self.story.addToList('authorUrl',authorUrl)
         self.story.addToList('author',a.text)
 
@@ -654,7 +656,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     def get_cache_post(self,postid):
         ## saved using original 'post-99999' id for key.
         postid=unicode(postid) # thank you, Py3.
-        if '/posts/' in postid:
+        if self.getPathPrefix()+'posts/' in postid:
             ## allows chapter urls to be passed in directly.
             # assumed normalized to /posts/1234/
             postid = "post-"+postid.split('/')[-2]
@@ -676,7 +678,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # first post when always_include_first_post.
         if ( self.reader and
              self.getConfig("use_reader_mode",True) and
-             '/threads/' not in url and
+             self.getPathPrefix()+'threads/' not in url and
              (index > 0 or not self.getConfig('always_include_first_post')) ):
             logger.debug("Using reader mode")
             # in case it changes:
@@ -718,7 +720,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 # page.  looking for it in cache reuses code in
                 # cache_posts that finds post tags.
                 souptag = self.get_cache_post(url)
-                if not souptag and '/threads/' in url: # first post uses /thread/ URL.
+                if not souptag and self.getPathPrefix()+'threads/' in url: # first post uses /thread/ URL.
                     souptag = self.get_first_post(topsoup)
 
         # remove <div class="baseHtml noticeContent"> because it can
@@ -729,10 +731,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         postbody = self.get_post_body(souptag)
 
         # XenForo uses <base href="https://forums.spacebattles.com/" />
-        return self.utf8FromSoup(self.getURLPrefix()+'/',postbody)
+        return self.utf8FromSoup(self.getURLPrefix(),postbody)
 
     def make_reader_url(self,tmcat_num,reader_page_num):
-        return self.getURLPrefix()+'/threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
+        return self.getURLPrefix()+'threads/'+self.story.getMetadata('storyId')+'/'+tmcat_num+'/reader?page='+unicode(reader_page_num)
 
     def get_quote_expand_tag(self,soup):
         return soup.find_all('div',{'class':'quoteExpand'})

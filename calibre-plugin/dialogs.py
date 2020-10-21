@@ -4,7 +4,7 @@ from __future__ import (absolute_import, unicode_literals, division,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2018, Jim Miller'
+__copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import traceback, re
@@ -55,7 +55,7 @@ from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
-from .fanficfare.six import text_type as unicode
+from .fanficfare.six import text_type as unicode, ensure_text
 
 # pulls in translation files for _() strings
 try:
@@ -252,20 +252,50 @@ class AddNewDialog(SizePersistedDialog):
         self.setWindowTitle('FanFicFare')
         self.setWindowIcon(icon)
 
-        self.toplabel=QLabel("Toplabel")
-        self.l.addWidget(self.toplabel)
-        self.url = DroppableQTextEdit(self)
-        self.url.setToolTip("UrlTooltip")
-        self.url.setLineWrapMode(QTextEdit.NoWrap)
-        self.l.addWidget(self.url)
-
         self.merge = self.newmerge = False
         self.extraoptions = {}
 
         # elements to hide when doing merge.
         self.mergehide = []
+        self.mergeshow = []
         # elements to show again when doing *update* merge
         self.mergeupdateshow = []
+
+        self.toplabel=QLabel("Toplabel")
+        self.l.addWidget(self.toplabel)
+
+        ## XXX add labels for series name and desc? Desc in tooltip?
+        row = 0
+        grid = QGridLayout()
+        label = QLabel('<b>'+_('Series')+':</b>')
+        grid.addWidget(label,row,0)
+        self.mergedname=QLabel("mergedname")
+        tt = _('This name will be used with the %s setting to set the title of the new book.')%'<i>anthology_title_pattern</i>'
+        label.setToolTip(tt)
+        self.mergeshow.append(label)
+        self.mergedname.setToolTip(tt)
+        grid.addWidget(self.mergedname,row,1,1,-1)
+        self.l.addLayout(grid)
+        self.mergeshow.append(self.mergedname)
+
+        row+=1
+        label = QLabel('<b>'+_('Comments')+':</b>')
+        grid.addWidget(label,row,0)
+        self.mergeddesc=QLabel("mergeddesc")
+        tt = _('These comments about the series will be included in the Comments of the new book.')+'<i></i>' # for html for auto-wrap
+        label.setToolTip(tt)
+        self.mergeshow.append(label)
+        self.mergeddesc.setToolTip(tt)
+        self.mergeddesc.setWordWrap(True)
+        grid.addWidget(self.mergeddesc,row,1,1,-1)
+        self.l.addLayout(grid)
+        self.mergeshow.append(self.mergeddesc)
+        grid.setColumnStretch(1,1)
+
+        self.url = DroppableQTextEdit(self)
+        self.url.setToolTip("UrlTooltip")
+        self.url.setLineWrapMode(QTextEdit.NoWrap)
+        self.l.addWidget(self.url)
 
         self.groupbox = QGroupBox(_("Show Download Options"))
         self.groupbox.setCheckable(True)
@@ -399,18 +429,32 @@ class AddNewDialog(SizePersistedDialog):
             count=""
             if url_list_text:
                 count = " " + _("(%s URLs found)")%len(url_list_text.split()) # count lines
-            self.toplabel.setText(_('Story URLs for anthology, one per line:') + count)
+            self.toplabel.setText('<b>'+_('Story URLs for anthology, one per line:') + count + '</b>')
             self.url.setToolTip(_('URLs for stories to include in the anthology, one per line.\nWill take URLs from clipboard, but only valid URLs.'))
             self.collisionlabel.setText(_('If Story Already Exists in Anthology?'))
             self.collision.setToolTip(_("What to do if there's already an existing story with the same URL in the anthology."))
             for widget in self.mergehide:
                 widget.setVisible(False)
+            for widget in self.mergeshow:
+                widget.setVisible(True)
             if not self.newmerge:
                 for widget in self.mergeupdateshow:
                     widget.setVisible(True)
+            n = extraoptions.get('frompage',{}).get('name',None)
+            if n:
+                self.mergedname.setText(n)
+            else:
+                self.mergedname.setVisible(False)
+            d = extraoptions.get('frompage',{}).get('desc',None)
+            if d:
+                self.mergeddesc.setText(unicode(d))
+            else:
+                self.mergeddesc.setVisible(False)
         else:
             for widget in self.mergehide:
                 widget.setVisible(True)
+            for widget in self.mergeshow:
+                widget.setVisible(False)
             self.toplabel.setText(_('Story URLs, one per line:'))
             self.url.setToolTip(_('URLs for stories, one per line.\nWill take URLs from clipboard, but only valid URLs.\nAdd [1,5] after the URL to limit the download to chapters 1-5.'))
             self.collisionlabel.setText(_('If Story Already Exists?'))
@@ -1328,7 +1372,7 @@ class IniTextDialog(SizePersistedDialog):
 
         self.textedit.setReadOnly(read_only)
 
-        self.textedit.setText(text)
+        self.textedit.setText(ensure_text(text))
         self.l.addWidget(self.textedit)
 
         self.lastStart = 0

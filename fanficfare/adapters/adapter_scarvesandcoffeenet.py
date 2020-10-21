@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2012 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -240,3 +240,19 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
+
+    def get_urls_from_page(self,url,normalize):
+        from ..geturls import get_urls_from_html
+        # this way it uses User-Agent or other special settings.
+        data = self._fetchUrl(url,usecache=False)
+        ## I can't find when or why exactly this was added, but it was
+        ## in the old code, so here it remains.
+        soup = self.make_soup(data)
+        series = self.get_series_from_page(url,data)
+        if series:
+            return series
+        else:
+            return {'urllist':get_urls_from_html(soup.find('div',{'id':'mainpage'}),
+                                                 url,
+                                                 configuration=self.configuration,
+                                                 normalize=normalize)}

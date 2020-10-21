@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -391,3 +391,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,soup)
+
+    def before_get_urls_from_page(self,url,normalize):
+        ## Unlike most that show the links to 'adult' stories, but protect
+        ## them, FimF doesn't even show them if not logged in.
+        # data = self._fetchUrl(url)
+        if self.getConfig("is_adult"):
+            self.set_adult_cookie()

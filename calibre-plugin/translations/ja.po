@@ -2,193 +2,183 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Alex, 2016
-# erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
-# Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
-# Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
-# Mario Moens <marimo.it4u@gmail.com>, 2017
-# M. de Boer <de.boer.melle@gmail.com>, 2018-2020
-# Nathan Follens, 2015
-# Nathan Follens, 2016
-# Meteor0id, 2019
-# Rodolfo_Jadon, 2014-2015
-# Volluta <volluta@tutanota.com>, 2015
-# W.P.M.E. Hofland <wpme.hofland@gmail.com>, 2015
+# Chris Hilgenberg <chilgenb@gmail.com>, 2020
+# Pk11 <epicpkmn11@outlook.com>, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-10-05 10:59-0500\n"
-"PO-Revision-Date: 2020-10-05 16:15+0000\n"
-"Last-Translator: Transifex Bot <>\n"
-"Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
+"PO-Revision-Date: 2020-10-13 16:36+0000\n"
+"Last-Translator: Pk11 <epicpkmn11@outlook.com>\n"
+"Language-Team: Japanese (http://www.transifex.com/calibre/calibre-plugins/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Language: nl\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "UI-plugin om FanFiction-verhalen van verschillende sites te downloaden."
+msgstr "様々なサイトからファンフィクションをダウンロードするためのUIプラグイン。"
 
 #: __init__.py:124
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Pad naar de calibre-bibliotheek. Standaard wordt het pad gebruikt dat in de instellingen is opgeslagen."
+msgstr "calibreライブラリにパス。デフォルトは設定に保存されているパスを使用する。"
 
 #: common_utils.py:417
 msgid "Keyboard shortcuts"
-msgstr "Sneltoetsen"
+msgstr "キーボードショートカット"
 
 #: common_utils.py:463
 msgid "Undefined"
-msgstr "Niet gedefinieerd"
+msgstr "未定義"
 
 #: common_utils.py:483
 msgid "Prefs Viewer dialog"
-msgstr "voorkeuren dialoogvenster"
+msgstr "設定ビュアーダイアログ"
 
 #: common_utils.py:484
 msgid "Preferences for: "
-msgstr "Voorkeuren voor:"
+msgstr "次ための設定: "
 
 #: common_utils.py:516
 msgid "Clear"
-msgstr "Wis"
+msgstr "クリアする"
 
 #: common_utils.py:518
 msgid "Clear all settings for this plugin"
-msgstr "Wis alle instellingen van deze plugin"
+msgstr "プラグインための全ての設定をクリアする"
 
 #: common_utils.py:522
 msgid "Edit"
-msgstr "Bewerk"
+msgstr "編集する"
 
 #: common_utils.py:524
 msgid "Edit settings."
-msgstr "Instellingen bewerken."
+msgstr "設定を編集する"
 
 #: common_utils.py:527
 msgid "Save"
-msgstr "Opslaan"
+msgstr "保存する"
 
 #: common_utils.py:529
 msgid "Save setting for this plugin"
-msgstr "Bewaar de instellingen voor deze plug-in"
+msgstr "プラグインための設定を保存する"
 
 #: common_utils.py:557
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr "Weet je zeker dat je instellingen in deze bibliotheek voor deze plug-in wilt bewerken?"
+msgstr "このライブラリにこのプラグインの設定を編集してもよろしいですか？"
 
 #: common_utils.py:558
 msgid "The FanFicFare team does not support hand edited configurations."
-msgstr "Het FanFicFare-team biedt geen ondersteuning voor met de hand bewerkte configuraties."
+msgstr "FanFicFareチームは手編集した設定をサポートしていない。"
 
 #: common_utils.py:566
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr "Weet u zeker dat u deze instelling in deze bibliotheek voor deze plug-in wilt opslaan?"
+msgstr "このライブラリにこのプラグインのこの設定を保存してもよろしいですか？"
 
 #: common_utils.py:567 common_utils.py:595
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr "Instellingen in andere bibliotheken of opgeslagen in een JSON-bestand in uw Calibre plugins-folder worden niet aangeroerd."
+msgstr "他のライブラリにどれか設定またはcalibreプラグインのフォルダにJSONファイルに保存されているは変更していない。"
 
 #: common_utils.py:568 common_utils.py:596
 msgid "You must restart calibre afterwards."
-msgstr "U dient calibre achteraf te herstarten."
+msgstr "あとでcalibreを再起動が必要です。"
 
 #: common_utils.py:576
 msgid "All settings for this plugin in this library have been saved."
-msgstr "Alle instellingen voor deze plug-in in deze bibliotheek zijn opgeslagen."
+msgstr "プラグインための全ての設定は保存されました。"
 
 #: common_utils.py:577 common_utils.py:606
 msgid "Please restart calibre now."
-msgstr "Herstart calibre nu alstublieft."
+msgstr "今すぐcalibreを再起動してください。"
 
 #: common_utils.py:579 common_utils.py:608
 msgid "Restart calibre now"
-msgstr "Calibre nu herstarten"
+msgstr "今すぐcalibreを再起動する"
 
 #: common_utils.py:594
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "Bent u zeker dat u uw instellingen in deze bibliotheek voor deze invoegtoepassing/plugin wilt wissen?"
+msgstr "このライブラリにのこのプラグインための設定をクリアしてもよろしいですか？"
 
 #: common_utils.py:605
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Alle instellingen voor de plugin in deze bibliotheek zijn gewist."
+msgstr "このライブラリにこのプラグインための全ての設定はクリアされました。"
 
 #: config.py:228
 msgid "List of Supported Sites"
-msgstr "Lijst van ondersteunde sites"
+msgstr "対応サイトのリスト"
 
 #: config.py:230
 msgid "FAQs"
-msgstr "VGV's"
+msgstr "よくある質問"
 
 #: config.py:245
 msgid "Basic"
-msgstr "Basis"
+msgstr "基本的"
 
 #: config.py:256
 msgid "Calibre Cover"
-msgstr "Calibre-omslag"
+msgstr "calibre表紙"
 
 #: config.py:264
 msgid "Standard Columns"
-msgstr "Standaardkolommen"
+msgstr "標準的な列"
 
 #: config.py:267
 msgid "Custom Columns"
-msgstr "Eigen kolommen"
+msgstr "カスタム列"
 
 #: config.py:270
 msgid "Email Settings"
-msgstr "E-mailinstellingen"
+msgstr "メールの設定"
 
 #: config.py:273
 msgid "Other"
-msgstr "Andere"
+msgstr "その他"
 
 #: config.py:437
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Deze instellingen besturen de basismogelijkheden van de plug-in -- bezig met downloaden van FanFiction."
+msgstr "この設定はプラグインの基本的な機能を制御する--ファンフィクションのダウンロード。"
 
 #: config.py:441
 msgid "Defaults Options on Download"
-msgstr "Standaardopties voor downloaden"
+msgstr "ダウンロードのデフォルト設定"
 
 #: config.py:445
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr "Bij elke download, geeft FanFicFare een optie weer om een uitvoerformaat te selecteren. <br />Dit bepaalt welke standaard deze optie zal bevatten."
+msgstr "毎ダウンロードで、FanFicFareは出力形式を選択するオプションがある。<br />これはオプションのデフォルト値を設定する。"
 
 #: config.py:447
 msgid "Default Output &Format:"
-msgstr "Standaard uitvoer &formaat:"
+msgstr "出力形式のデフォルト(&F):"
 
 #: config.py:462
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "Bij elke download, geeft FanFicFare een optie weer wat er gebeurt indien het verhaal reeds bestaat. <br />dit bepaalt welke standaard deze optie zal bevatten."
+msgstr "毎ダウンロードで、FanFicFareはストーリーがすでに存在している場合にどうなってかとういオプションがある。<br />これはオプションのデフォルト値を設定する。"
 
 #: config.py:464
 msgid "Default If Story Already Exists?"
-msgstr "Standaard als het verhaal reeds bestaat?"
+msgstr "ストーリーがすでに存在場合のデフォルト？"
 
 #: config.py:479
 msgid "Default Update Calibre &Metadata?"
-msgstr "Standaard update Calibre &Metagegevens?"
+msgstr "calibreメタデータを更新するのデフォルト？(&M)"
 
 #: config.py:480
 msgid ""
@@ -196,22 +186,22 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr "Bij elke download biedt FanFicFare een optie om Calibre metagegevens (titel, auteur, URL, tags, aangepaste kolommen, enz.) van de website bij te werken. <br />Hiermee wordt de standaard ingesteld op aan of uit.<br /> Kolommen die zijn ingesteld als 'Alleen Nieuw' in de kolomtabs, worden alleen ingesteld voor nieuwe boeken."
+msgstr "毎ダウンロードで、FanFicFareはWebサイトからcalibreのメタデータ（タイトル、著者、URL、タグ、カスタム列など）を更新するオプションがある。<br />これはオンまたはオフにデフォルトを設定する。<br />列タブに「新規のみ」に設定する列は新しい本のみで設定されている。"
 
 #: config.py:484
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr "Update standaard de EPUB Cover bij het updaten van de EPUB?"
+msgstr "EPUBを更新する際にEPUB表紙を更新するのブフォルト？"
 
 #: config.py:485
 msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr "Bij elke download biedt FanFicFare de optie om de boekomslag<i> in </i>de EPUB vanaf de website bij te werken wanneer de EPUB wordt bijgewerkt.<br /> Hiermee wordt ingesteld of dit standaard wordt in- of uitgeschakeld."
+msgstr "毎ダウンロードで、FanFicFareはEPUBを更新する際にWebサイトから<i>EPUB内に</i>本の表紙画像を更新するオプションがある。<br />これはオンまたはオフにデフォルトを設定する。"
 
 #: config.py:489
 msgid "Default Background Metadata?"
-msgstr "Standaard achtergrond Metagegevens?"
+msgstr "バックグラウンドメタデータのデフォルト？"
 
 #: config.py:490
 msgid ""
@@ -221,25 +211,25 @@ msgid ""
 "adult--stories that need those will just fail.<br />Only available for "
 "Update/Overwrite of existing books in case URL given isn't canonical or "
 "matches to existing book by Title/Author."
-msgstr "Bij elke download biedt FanFicFare een optie om metagegevens van sites te verzamelen in een achtergrondproces.<br /> Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent - zullen verhalen die dit nodig hebben, gewoon falen.<br /> Alleen beschikbaar voor het bijwerken / overschrijven van bestaande boeken in het geval de gegeven URL niet canoniek is of overeenkomt met  titel / auteur van bestaand boek."
+msgstr "毎ダウンロードで、FanFicFareはバックグラウンドプロセスでサイトからメタデータを集めるオプションがある。<br />これにより、更新中に制御を早めに返すが、ユーザー名やパスワードを求めてない、またはあなたが大人であれば。それらを必要とするストーリーは失敗する。<br />指定されたURLが正規ではない場合や、または存在されてい本のタイトルや著者と一致場合のため、更新するまたは存在された本を上書きにのみ使用できる。"
 
 #: config.py:496
 msgid "Updating Calibre Options"
-msgstr "Calibre opties bijwerken"
+msgstr "calibreを更新する設定"
 
 #: config.py:500
 msgid "Delete other existing formats?"
-msgstr "Wis andere aanwezige formaten?"
+msgstr "他の既存の形式を削除？"
 
 #: config.py:501
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
-msgstr "Selecteer dit om alle andere e-boekformaten automatisch te verwijderen bij het bijwerken van een bestaand boek.\nHandig als je zowel een Nook (epub) als Kindle (mobi) hebt, bijvoorbeeld."
+msgstr "これをチェックして、既存の本を更新する際に全ての他の電子書籍形式を自動的に削除する。\n例えば、Nook(epub)とKindle(mobi)の両方がある場合に便利です。"
 
 #: config.py:505
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "Bestaande Tags behouden wanneer Metagegevens wordt geüpdatet? "
+msgstr "メタデータを更新する際に既存しているタグを保持する？"
 
 #: config.py:506
 msgid ""
@@ -247,266 +237,266 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr "Bestaande tags zullen worden bewaard en nieuwe tags toegevoegd. \n%(cmplt)sen%(inprog)s tags, indien bekend, zullen nog steeds worden bijgewerkt. \n%(lul)sTags worden bijgewerkt als%(lus)s in%(is)s. \n(Als Tags is ingesteld op 'Alleen Nieuw' op het tabblad Standaardkolommen, heeft dit geen effect.)"
+msgstr "既存のタグが保持され、新しいタグが追加される。\n%(cmplt)sと%(inprog)sのタグは、わかっていれば更新される。\n%(lul)sのタグは%(lus)sの内に%(is)sがある場合に更新する。\n（タグは「新規のみ」に設定する場合に効果があらない）"
 
 #: config.py:510
 msgid "Check for existing Series Anthology books?"
-msgstr "Controle van bestaande Anthologieën serie boeken?"
+msgstr "既存のシリーズ選集本を確認？"
 
 #: config.py:511
 msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "Controleer voor bestaande series bloemlezing-boeken de URL van elk nieuw verhaal voordat je het downloadt. \nAanbieden om het downloaden over te slaan als een bloemlezing serie is gevonden.\nWerkt niet wanneer Collect Metagegevens in achtergrond is geselecteerd."
+msgstr "ダウンロード前に各新しいストーリーのシリーズURLを使って既存シリーズ選集本を確認する。\nシリーズ選集が見つかる場合は、ダウンロードをスキップすることを申し出る。\nバックグラウンドでメタデータを集まるが選択した場合は、機能しない。"
 
 #: config.py:515 config.py:644
 msgid "Reject Without Confirmation?"
-msgstr "Afwijzen zonder bevestiging?"
+msgstr "確認しないで拒む？"
 
 #: config.py:516
 msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "Verwerp automatisch verhalen met bestaande series bloemlezing-boeken.\n Werkt alleen als 'Zoeken naar bestaande bloemlezing boeken' is ingeschakeld. \nWerkt niet wanneer Collect Metagegevens in achtergrond is geselecteerd."
+msgstr "既存のシリーズ選集本のストーリーを自動的に拒否する。\n「既存のシリーズ選集本を確認」がオン場合にのみ機能する。\nバックグラウンドでメタデータを集まるが選択した場合は、機能しない。"
 
 #: config.py:525
 msgid "Check for changed Story URL?"
-msgstr "Controleer veranderd verhaal URL?"
+msgstr "変更されたストーリーURLを確認？"
 
 #: config.py:526
 msgid ""
 "Warn you if an update will change the URL of an existing book(normally automatic and silent).\n"
 "URLs may be changed from http to https silently if the site changed."
-msgstr "Waarschuwt u als een update de URL van een bestaand boek zal wijzigen (normaal automatisch en stil)\nURL's kunnen in stilte worden gewijzigd van http in https als de site is gewijzigd."
+msgstr "既存の本のURLを変更の場合に警告する（通常は自動と無音）\nサイトが変更された場合は、HTTPからHTTPSに無音で変更されることがある。"
 
 #: config.py:530
 msgid "Search inside ebooks for Story URL?"
-msgstr "Zoeken in e-boeken naar Story URL?"
+msgstr "ストーリーURLを電子書籍内に検索？"
 
 #: config.py:531
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr "Zoek naar de eerste geldige Story-URL in EPUB-, ZIP (HTML) of TXT ebook-formaten indien niet gevonden in metagegevens.\nEnigszins riskant, zou een verkeerde URL kunnen vinden afhankelijk van de inhoud van het e-boek."
+msgstr "メタデータに見つからなかった場合はEPUB、ZIP(HTML)、またはTXT電子書籍形式内に最初の有効なストーリーURLために見る。\nやや危険、電子書籍の内容よっては間違ったURLを見つける可能性がある。"
 
 #: config.py:535
 msgid "Post Processing Options"
-msgstr "Postverwerkingsopties"
+msgstr "後処理オプション"
 
 #: config.py:539
 msgid "Mark added/updated books when finished?"
-msgstr "Markeer toegevoegde / bijgewerkte boeken na beëindiging?"
+msgstr "完了際に追加・更新された本をマーク？"
 
 #: config.py:540
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr "Markeer toegevoegde/bijgewerkte boeken na beëindiging. Gebruik met de onderstaande optie.\nU kunt ook handmatig zoeken naar 'marked: fff_success'. \n'gemarkeerd: fff_failed' is ook beschikbaar, of zoek 'gemarkeerd: fff' voor beide."
+msgstr "完了際に追加・更新された本をマークする。以下のオプションと使う。\nまた、「marked:fff_success」を手動的に検索できる。\n「marked:fff_failed」も利用可能です、または両方ために「marked:fff」を検索する。"
 
 #: config.py:544
 msgid "Show Marked books when finished?"
-msgstr "Gemarkeerde boeken achteraf tonen?"
+msgstr "完了際にマークされた本を表示？"
 
 #: config.py:545
 msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' is also available, or search 'marked:fff' for both."
-msgstr "Toon gemarkeerde toegevoegde/bijgewerkte boeken alleen na beëindiging.\n U kunt ook handmatig zoeken naar 'marked: fff_success'. \n'gemarkeerd: fff_failed' is ook beschikbaar, of zoek 'gemarkeerd: fff' voor beide."
+msgstr "完了際にマークされた追加・更新した本のみを表示する。\nまた、「marked:fff_success」を手動的に検索できる。\n「marked:fff_failed」も利用可能です、または両方ために「marked:fff」を検索する。"
 
 #: config.py:549
 msgid "Smarten Punctuation (EPUB only)"
-msgstr "Slimme interpunctie (enkel EPUB)"
+msgstr "句読点をスマートにする（EPUBのみ）"
 
 #: config.py:550
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
-msgstr "Voer slimme-interpunctie uit vanuit Calibre's \"Polijst boek\" functie op elke EPUB-download en update."
+msgstr "各EPUBダウンロードと更新でcalibreの本を最適か昨日からスマート句読点を実行する。"
 
 #: config.py:555
 msgid ""
 "Calculate Word Counts using Calibre internal methods.\n"
 "Many sites include Word Count, but many do not.\n"
 "This will count the words in each book and include it as if it came from the site."
-msgstr "Bereken woordtellingen met behulp van de interne methoden van Calibre.\nVeel sites bevatten Word Count, maar veel ook niet.\nDit telt de woorden in elk boek en neemt het op alsof het van de site komt."
+msgstr "calibreの内部方法を使って単語数を割り出す。\n多くのサイトは単語数が含んでいるが、多くのサイトが含んでいない。\nこれは各本に単語を数え、サイトから来たかのように含む。"
 
 #: config.py:559
 msgid "Calculate Word Count:"
-msgstr "Bereken aantal woorden:"
+msgstr "単語数を割り出す:"
 
 #: config.py:572
 msgid "Automatically Convert new/update books?"
-msgstr "Nieuw/bijgewerkte boeken automatisch omzetten?"
+msgstr "新規・更新された本を自動的に変換？"
 
 #: config.py:573
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
-msgstr " Automatisch aanroepen van calibre Convert voor nieuwe/update-boeken.\nConverteert naar het huidige uitvoerformaat zoals gekozen in Calibre's\nVoorkeuren-> Gedragsinstellingen."
+msgstr "新規・更新本ためにcalibreの変換を自動的に呼び出す。\ncalibreで選択された現在の出力形式に変換する。\n設定->動作"
 
 #: config.py:577
 msgid "GUI Options"
-msgstr "GUI instellingen"
+msgstr "GUI 設定"
 
 #: config.py:581
 msgid "Take URLs from Clipboard?"
-msgstr "URLs overnemen van klembord?"
+msgstr "クリップボードからURLを取得する？"
 
 #: config.py:582
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
-msgstr "Vooraf invullen URL's van geldige URL's in het klembord bij het toevoegen van nieuw."
+msgstr "新規を追加時にクリップボードから有効なURLを事前入力。"
 
 #: config.py:586
 msgid "FanFicFare button opens menu?"
-msgstr "FanFicFare-knop opent menu?"
+msgstr "FanFicFareボタンを押すとメニューを開く？"
 
 #: config.py:587
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
-msgstr "De FanFicFare-werkbalkknop zal het plugin-menu openen. Indien niet aangevinkt, zal het <i>Downloaden van URL's</i> of optioneel bijwerken, zie hieronder."
+msgstr "FanFicFareツールバーボタンはプラグインメニューを開かれる。チェックしない場合は、<i>URLからダウンロードする</i>またはオプションで更新する、以下を見る。"
 
 #: config.py:591
 msgid "Default to Update when books selected?"
-msgstr "Standaard updaten wanneer boeken zijn geselecteerd?"
+msgstr "本が選択された時に更新にデフォルト？"
 
 #: config.py:592
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
-msgstr "De FanFicFare-werkbalkknop wordt bijgewerkt als boeken zijn geselecteerd. Indien niet aangevinkt, zal het altijd <i>Downloaden van URL's."
+msgstr "FanFicFareツールバーボタンは本が選択場合に更新する。チェックしない場合は、常に<i>URLからダウンロードする</i>。"
 
 #: config.py:601
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr "De dialoog 'Nieuw toevoegen van URL(' s) ' bovenaan houden?"
+msgstr "「URLから新規追加」ダイアログを上部に保持する？"
 
 #: config.py:602
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr "Instrueert het OS en vensterbeheerder de dialoog 'Nieuw toevoegen van URL(' s) '\nboven alle andere vensters te houden. Handig om URL's naartoe te slepen."
+msgstr "「URLから新規追加」ダイアログを全ての他のウインドウの上部に保持するようをOSとウインドウマネージャに指示する。"
 
 #: config.py:606
 msgid "Show estimated time left?"
-msgstr "Toon verwachte resterende tijd?"
+msgstr "残りの推定時間を表示する？"
 
 #: config.py:607
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr "Als een voortgangsbalk wordt getoond, geef een ruw geschatte resterende tijd weer."
+msgstr "プログレスバーが表示場合に、残りのざっくり推定時間を表示する。"
 
 #: config.py:611
 msgid "Misc Options"
-msgstr "Diverse opties"
+msgstr "その他の設定"
 
 #: config.py:615
 msgid "Inject calibre Series when none found?"
-msgstr "Calibre serie toevoegen als er geen gevonden is?"
+msgstr "何も見つからない時に、calibreシリーズを注入する？"
 
 #: config.py:616
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
-msgstr "Als er geen serie wordt gevonden, voeg dan de Calibre serie toe (als die er is)\nzodat deze op de titelpagina van FanFicFare verschijnt (niet de omslag)."
+msgstr "シリーズが見つからない場合は、FanFicFareのタイトルページ（表紙ではない）に\n表示されるようにcalibreのシリーズ（ある場合）を注入する。"
 
 #: config.py:620
 msgid "Search by Title/Author(s) for If Story Already Exists?"
-msgstr "Zoeken op titel/auteur(s) voor het geval verhaal al bestaat?"
+msgstr "ストーリーが既存場合は、タイトル・著者で検索する？"
 
 #: config.py:621
 msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
-msgstr "Bij de controle<i> of verhaal al bestaat</i>, zal FanFicFare eerst vergelijken op URL-identificatie. Maar als het niet wordt gevonden, kan het ook naar bestaande boeken zoeken op titel en auteur(s)."
+msgstr "<i>ストーリーが既存</i>で確認際にFanFicFareは最初にURL識別子で一致される。"
 
 #: config.py:625
 msgid "Reject List"
-msgstr "Afgewezen lijst"
+msgstr "拒むリスト"
 
 #: config.py:629
 msgid "Edit Reject URL List"
-msgstr "Bewerk afgewezen URL lijst"
+msgstr "拒むURLリストを編集する"
 
 #: config.py:630
 msgid "Edit list of URLs FanFicFare will automatically Reject."
-msgstr "Bewerk lijst met URL's die FanFicFare automatisch weigert."
+msgstr "FanFicFareの自動的に拒むURLのリストを編集する。"
 
 #: config.py:634 config.py:712
 msgid "Add Reject URLs"
-msgstr "Voeg afgewezen URL's toe"
+msgstr "拒むURLを追加する"
 
 #: config.py:635
 msgid "Add additional URLs to Reject as text."
-msgstr "Voeg extra te weigeren URL's toe als tekst."
+msgstr "追加的な拒むURLをテキストとして追加する。"
 
 #: config.py:639
 msgid "Edit Reject Reasons List"
-msgstr "Bewerk afwijs-redenen lijst"
+msgstr "拒む理由リストを編集する"
 
 #: config.py:640 config.py:702
 msgid "Customize the Reasons presented when Rejecting URLs"
-msgstr "Pas de voorgestelde redenen aan voor het verwerpen van URL's"
+msgstr "URLを拒む時に表示される理由をカスタマイズする"
 
 #: config.py:645
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr "Altijd URL's op de lijst met afwijzingen verwerpen zonder te stoppen en te vragen."
+msgstr "常に拒むリストのURLを停止と確認しないで拒む。"
 
 #: config.py:649
 msgid "Delete on Reject by Default?"
-msgstr "Standaard wissen bij weigering?"
+msgstr "拒む時に削除のデフォルト？"
 
 #: config.py:650
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr "Moet het selectievakje om verworpen boeken te verwijderen standaard worden aangevinkt?"
+msgstr "拒んだ本を削除のチェックボックスはデフォルトでチェックされるべきですか？"
 
 #: config.py:687
 msgid "Edit Reject URLs List"
-msgstr "Bewerk afgewezen URL's lijst"
+msgstr "拒むURLリストを編集する"
 
 #: config.py:700
 msgid "Reject Reasons"
-msgstr "Redenen afwijzing"
+msgstr "拒む理由"
 
 #: config.py:701
 msgid "Customize Reject List Reasons"
-msgstr "Lijst met afwijs-redenen personaliseren"
+msgstr "拒むリストの理由をカスタマイズする"
 
 #: config.py:710
 msgid "Reason why I rejected it"
-msgstr "Reden waarom ik dit heb afgewezen"
+msgstr "拒んだ理由"
 
 #: config.py:710
 msgid "Title by Author"
-msgstr "Titel door auteur"
+msgstr "著者よりタイトル"
 
 #: config.py:713
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
-msgstr "Voeg te weigeren URL's toe. Gebruik:<b> http: //...,note</b> of <b>http: //...,title by author - note</b><br> Ongeldige verhaal-URL's worden genegeerd."
+msgstr "拒むURLを追加。<b>http://……、メモ</b>または<b>http://……、著者よりタイトル・メモ</b>を使う<br>無効なストーリーURLは無視されている。"
 
 #: config.py:714
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
-msgstr "Een URL per regel:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"
+msgstr "１行に１つのURL:\n<b>http://……、メモ</b>\n<b>http://……、著者よりタイトル・メモ</b>"
 
 #: config.py:716 dialogs.py:1209
 msgid "Add this reason to all URLs added:"
-msgstr "Voeg deze reden toe aan alle toegevoegde URL's:"
+msgstr "全ての追加したURLにこの理由を追加する:"
 
 #: config.py:732
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
-msgstr "Deze instellingen bieden meer gedetailleerde controle over welke metagegevens in het e-boek worden getoond en laten u ook%(isa)s en%(u)s / %(p)s voor verschillende sites instellen."
+msgstr "この設定は電子書籍内に表示されるメタデータをより詳細な制御が提供するだけでなく、様々なサイトために%(isa)sと%(u)s/%(p)sを設定できる。"
 
 #: config.py:739
 msgid "personal.ini"
@@ -514,23 +504,23 @@ msgstr "personal.ini"
 
 #: config.py:746 config.py:850 config.py:851
 msgid "Edit personal.ini"
-msgstr "Bewerk personal.ini"
+msgstr "personal.iniを編集する"
 
 #: config.py:751
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
-msgstr "FanFicFare bevat nu zoeken, kleurcodering en foutcontrole voor het bewerken van personal.ini. Rood geeft over het algemeen fouten aan."
+msgstr "今では、FanFicFareが見つける、色分け、およびエラー検出をpersonal.iniの編集ために含んでする。赤色は通常にエラーを示す。"
 
 #: config.py:759
 msgid "View \"Safe\" personal.ini"
-msgstr "Bekijk \"Safe\" personal.ini"
+msgstr "「安全な」personal.iniを表示する"
 
 #: config.py:764 config.py:841
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr "Bekijk uw personal.ini met verwijderde gebruikersnamen en wachtwoorden. Voor het veilig delen van uw persoonlijke.ini-instellingen met anderen."
+msgstr "ユーザー名とパスワードが含まないpersonal.iniを表示する。personal.iniの設定を他人と安全に共有するため。"
 
 #: config.py:770
 msgid "defaults.ini"
@@ -540,128 +530,128 @@ msgstr "defaults.ini"
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
-msgstr "Bekijk alle te wijzigen instellingen van de plug-in en hun standaardwaarden."
+msgstr "プラグインの全ての設定可能な設定を表示する\nおよびそれらのデフォルト設定。"
 
 #: config.py:776
 msgid "View Defaults"
-msgstr "Toon standaarden"
+msgstr "デフォルトを表示する"
 
 #: config.py:787
 msgid "Calibre Columns"
-msgstr "Calibre kolommen"
+msgstr "calibreの列"
 
 #: config.py:794
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
-msgstr "Indien aangevinkt, zal FanFicFare bij het bijwerken / overschrijven van een bestaand boek de Calibre kolommen beschikbaar hebben om te gebruiken in replace_metadata, title_page, etc. <br> Klik op de knop hieronder om de Calibre kolomnamen te zien."
+msgstr "チェックすると、FanFicFareは更新・上書き際にreplace_metadata、title_pageなどにcalibre列を使える。<br>下のボタンをクリックしてcalibre列名を表示する。"
 
 #: config.py:795
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
-msgstr "Voeg kolommen van Caliber in in FanFicFare bij bijwerken / overschrijven"
+msgstr "更新・上書き際に、FanFicFareにcalibre列を渡す"
 
 #: config.py:808
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
-msgstr "FanFicFare kan de Calibre kolommen doorgeven aan het download / update-proces.<br> Dit toont je ​​de kolommen die op naam beschikbaar zijn."
+msgstr "FanFicFareはcalibre列をダウンロード・更新プロセスに渡せる。<br>これは名で利用可能な列を表示される。"
 
 #: config.py:809
 msgid "Show Calibre Column Names"
-msgstr "Toon calibre kolomnamen"
+msgstr "calibre列名を表示する"
 
 #: config.py:818
 msgid ""
 "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
-msgstr "Wijzigingen worden alleen opgeslagen wanneer u op 'OK' klikt bij het verlaten van aanpassen FanFicFare ."
+msgstr "「OK」をクリックしてFanFicFareのカスタマイズを終了する場合にのみ、変更が保存される。"
 
 #: config.py:828
 msgid "Plugin Defaults"
-msgstr "Plugin standaarden"
+msgstr "プラグインのデフォルト"
 
 #: config.py:829
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr "Plugin standaarden (%s) (alleen-lezen)"
+msgstr "プラグインのデフォルト（%s）（読み取り専用）"
 
 #: config.py:840
 msgid "View 'Safe' personal.ini"
-msgstr "Bekijk 'Veilig' personal.ini"
+msgstr "「安全な」personal.iniを表示する"
 
 #: config.py:874
 msgid "Calibre Column Entry Names"
-msgstr "Calibre kolominvoernamen"
+msgstr "calibre列名"
 
 #: config.py:875
 msgid "Label (entry_name)"
-msgstr "Label (invoernaam)"
+msgstr "列名（entry_name）"
 
 #: config.py:895
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
-msgstr "Deze instellingen bieden integratie met de %(rl)s plug-in. %(rl)s kan automatisch naar apparaten verzenden en aangepaste kolommen wijzigen. Om bruikbaar te zijn, moet je de lijsten in %(rl)s maken en configureren."
+msgstr "この設定は、%(rl)sプラグインとの統合を提供する。%(rl)sは自動的にデバイスに送信をするおよびカスタム列を変更できる。役立つようにするには、%(rl)sでリストを作成して設定する必要がする。"
 
 #: config.py:900
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
-msgstr "Voeg nieuwe / bijgewerkte verhalen toe aan de leeslijst(en) van \"Verzenden naar apparaat\"."
+msgstr "新規・更新したストーリーを「デバイスに送信」読んでいるリストに追加。"
 
 #: config.py:901
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
-msgstr "Voeg automatisch nieuwe / bijgewerkte verhalen toe aan deze lijsten in de %(rl)splug-in."
+msgstr "自動的に新規・更新ストーリーを%(rl)sプラグインのこれらのリストに追加。"
 
 #: config.py:906
 msgid "\"Send to Device\" Reading Lists"
-msgstr "Leeslijst(en) van \"Verzenden naar apparaat\"."
+msgstr "「デバイスに送信」読んでいるリスト"
 
 #: config.py:907 config.py:910 config.py:924 config.py:927
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr "Indien ingeschakeld, worden nieuwe / bijgewerkte verhalen automatisch aan deze lijsten toegevoegd."
+msgstr "有効にすると、新規・更新ストーリーはこれらのリストに自動的な追加。"
 
 #: config.py:917
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
-msgstr "Voeg nieuwe / bijgewerkte verhalen toe aan de leeslijst(en) van \"Te Lezen\"."
+msgstr "新規・更新ストーリーを「読みたいリスト」に追加。"
 
 #: config.py:918
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
-msgstr "Voeg automatisch nieuwe / bijgewerkte verhalen toe aan deze lijsten in de %(rl)splug-in.\nBiedt ook een menuoptie om verhalen uit de lijsten \"Te lezen\" te verwijderen."
+msgstr "自動的に新規・更新ストーリーを%(rl)sプラグインのこれらのリストに追加。\n「読みたいリスト」から削除してメニューオプションもある。"
 
 #: config.py:923
 msgid "\"To Read\" Reading Lists"
-msgstr "\"Te lezen\" leeslijst"
+msgstr "「読みたい」読んでいるリスト"
 
 #: config.py:934
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
-msgstr "Plaats verhalen, die zijn gemarkeerd als \"Gelezen\", terug op de leeslijst(en) van \"Verzenden naar apparaat\"."
+msgstr "「読んだ」にマーク際に、ストーリーを「デバイスに送信」読んでいるリストに再追加。"
 
 #: config.py:935
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
-msgstr "Menu-optie om te verwijderen uit \"Te Lezen\" -lijsten zal ook verhalen terugplaatsen op \"Verzenden naar apparaat\" Leeslijst (en)"
+msgstr "メニューオプションで「読みたい」リストから削除すると、「デバイスに送信」読みでいるリストに再追加。"
 
 #: config.py:939
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
-msgstr "Automatisch verwijderen van \"Nieuw\" hoofdstukmarkeringen bij het markeren van boeken \"Gelezen\"."
+msgstr "本を「読んだ」にマーク際に、「新規」章マークを削除を自動的な実行する。"
 
 #: config.py:940
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
-msgstr "Menuoptie om te verwijderen uit \"Te Lezen\" -lijsten zal ook \"(nieuw)\" hoofdstukmarkeringen verwijderen die zijn aangemaakt door de instelling <i>mark_new_chapters</i> in personal.ini."
+msgstr "メニューオプションで「読みたい」リストから削除すると、personal.iniの<i>mark_new_chapters</i>設定から作成した「(new)」章マークも削除する。"
 
 #: config.py:968
 msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
-msgstr "De Calibre-omslagafbeelding voor een gedownload boek kan afkomstig zijn van de verhalenwebsite (als EPUB en afbeeldingen zijn ingeschakeld), ofwel van de ingebouwde willekeurige covergenerator van Caliber of de %(gc)splug-in."
+msgstr "ダウンロードされた本ためのcalibreの表紙画像はストーリーのサイトから来られる（EPUBとイメージが有効になっている場合）またはcalibreの内蔵のランダムな表紙生成器または%(gc)sプラグインのどちらか。"
 
 #: config.py:976
 msgid ""
@@ -669,66 +659,66 @@ msgid ""
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
 "Cover in EPUB could be from site or previously injected into the EPUB.\n"
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
-msgstr "Werkt de afbeelding van de Calibre-boekomslag bij vanuit EPUB wanneer Calibre metagegevens worden bijgewerkt.\nZoekt niet naar nieuwe afbeeldingen bij 'Update Calibre Metagegevens Only'. \nDe omslag in EPUB kan van de site zijn of eerder zijn ingevoegd in de EPUB.\nDit gebeurt voordat u de omslag genereert, dus %(gc)s(Plugin) gebruikt de afbeelding indien daartoe geconfigureerd."
+msgstr "calibreメタデータが更新された際に、calibreの本表紙画像をEPUBから更新する。\n「calibreメタデータを更新のみ」で新しい画像を探しに行かれない。\nEPUBの表紙はサイトからの物か、以前にEPUBに注入された可能性がある。\nこれは表紙を生成する前にあるため、%(gc)s（プラグイン）は設定される場合に画像を使える。"
 
 #: config.py:981
 msgid "Update Calibre Cover (from EPUB):"
-msgstr "Calibre omslag bijwerken (uit EPUB):"
+msgstr "calibreの表紙を更新する（EPUBから）:"
 
 #: config.py:999
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Defaults to 'Yes, Always' for backward compatibility and because "
 "%(gc)s(Plugin) will only run if configured for Default or site."
-msgstr "Genereert een Caliber-boekomslag wanneer Calibre metagegevens worden bijgewerkt. <br />Standaard is 'Ja, Altijd' voor achterwaartse compatibiliteit en omdat %(gc)s(Plugin) alleen wordt uitgevoerd als deze is geconfigureerd voor Standaard of site."
+msgstr "calibreメタデータが更新された際に、calibreの本表紙画像を生成する。<br />後方互換性ため、および%(gc)s（プラグイン）はデフォルトまたはサイトに設定される場合にのみ実行するため、デフォルトは「はい、いつも」です。"
 
 #: config.py:1003
 msgid "Generate Calibre Cover:"
-msgstr "Genereer calibre omslag:"
+msgstr "calibreの表紙を生成する:"
 
 #: config.py:1030
 msgid "Plugin %(gc)s"
-msgstr "Plug-in %(gc)s"
+msgstr "プラグインで%(gc)s"
 
 #: config.py:1031
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr "Maak plug om covers te maken. Aanvullende instellingen staan hieronder."
+msgstr "プラグインを使って表紙を生成する。追加的な設定は下。"
 
 #: config.py:1038
 msgid "Calibre Generate Cover"
-msgstr "Calibre gegenereerde cover"
+msgstr "calibreで表紙を生成する"
 
 #: config.py:1039
 msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
-msgstr "Voer Calibre's Metagegevens bewerken omslag genereren functie uit om een ​​willekeurige cover te maken elke keer dat een verhaal wordt gedownload of bijgewerkt. <br />Klik met de rechtermuisknop of lang-klik op de knop 'Genereer omslag' in Calibre's Metagegevens bewerken om aan te passen."
+msgstr "ストーリーがダウンロード・更新際に、ランダムな表紙を作成するcalibreの書誌を編集の表紙を生成を呼び出す。<br />calibreの書誌を編集に「表紙を生成」ボタンを右クリックまたは長いクリックしてカスタマイズする。"
 
 #: config.py:1053
 msgid "Generate Covers Only for New Books"
-msgstr "Maak enkel nieuwe covers voor nieuwe boeken"
+msgstr "新しい本の表紙のみを生成する"
 
 #: config.py:1054
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
-msgstr "Standaard is om een ​​omslag te genereren iedere keer dat de Calibre metagegevens wordt bijgewerkt. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
+msgstr "デフォルトでは、calibreのメタデータが更新されるたびに表紙を生成する。<br />calibreとプラグインで生成された表紙の両方に使う。"
 
 #: config.py:1060
 msgid "Inject/update the cover inside EPUB"
-msgstr "Injecteer/update de cover binnen de EPUB"
+msgstr "EPUB内の表紙を注入・更新する"
 
 #: config.py:1061
 msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
-msgstr "Calibre's Polijst functie wordt gebruikt om de gegenereerde cover in het EPUB-e-boekbestand in te voegen of bij te werken. <br />Wordt gebruikt voor zowel door Calibre als Plugin gegenereerde omslagen."
+msgstr "calibreの最適化機能はEPUB電子書籍ファイルに生成された表紙を注入・更新する。<br />calibreとプラグインで生成された表紙の両方に使う。"
 
 #: config.py:1067
 msgid "%(gc)s(Plugin) Settings"
-msgstr "%(gc)s(Plug-in) Instellingen"
+msgstr "%(gc)s（プラグイン）の設定"
 
 #: config.py:1075
 msgid ""
@@ -736,296 +726,296 @@ msgid ""
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
 "can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting"
 " by site and/or one to use by Default."
-msgstr "De %(gc)splug-in kan omslagafbeeldingen voor boeken maken met verschillende metagegevens (inclusief bestaande omslagafbeelding). Als je %(gc)sgeïnstalleerd hebt, kan FanFicFare %(gc)sdraaien op nieuwe  downloads en updates van metagegevens. Kies een %(gc)sinstelling per site en/of een om standaard te gebruiken."
+msgstr "%(gc)sプラグインは様々なメタデータ（既存の表紙画像を含む）を使って本ために表紙画像を作成する。%(gc)sがインストールすると、FanFicFareは新しいダウンロードとメタデータ更新で%(gc)sを実行できる。サイトごとかデフォルトで使う%(gc)s設定を選択する。"
 
 #: config.py:1093 config.py:1097 config.py:1110
 msgid "Default"
-msgstr "Standaard"
+msgstr "デフォルト"
 
 #: config.py:1098
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
-msgstr "Bij Metagegevens-update, voer %(gc)s uit met deze instelling, als er  hieronder geen specifiekere instelling is."
+msgstr "メタデータ更新時に、以下でより具体的な設定があらない場合は、%(gc)sをこの設定と実行する。"
 
 #: config.py:1101
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
-msgstr "Bij Metagegevens-update, voer %(gc)s uit met deze instelling voor %(site)s verhalen."
+msgstr "メタデータ更新時に、%(site)sのストーリーために%(gc)sをこの設定と実行する。"
 
 #: config.py:1124
 msgid "Allow %(gcset)s from %(pini)s to override"
-msgstr "Laat %(gcset)s van %(pini)s overschrijven"
+msgstr "%(pini)sから%(gcset)sの上書きを許可する"
 
 #: config.py:1125
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
 " ignored when this is off."
-msgstr "De %(pini)sparameter %(gcset)s staat u toe een %(gc)s instelling te kiezen op basis van metagegevens in plaats van een site, maar dit is veel complexer. <br />%(gcset)swordt genegeerd als dit uit staat."
+msgstr "%(pini)sの%(gcset)sパラメーターはサイトではなくメタデータに基づいて%(gc)sを選択できるが、はるかに複雑です。<br />これはオフ場合は、%(gcset)sが無視される。"
 
 #: config.py:1163
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
-msgstr "Deze instellingen bieden integratie met de %(cp)s plug-in. %(cp)s kan automatisch aangepaste kolommen bijwerken met statistieken op pagina-, woord- en leesniveau. U moet de kolommen in %(cp)s eerst maken en configureren."
+msgstr "この設定は、%(cp)sプラグインとの統合を提供する。%(cp)sはページ、単語、読解レペルの統計でカスタム列を自動的に更新できる。最初に%(cp)sで列を作成して設定する必要がある。"
 
 #: config.py:1168
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
-msgstr "Als een van de onderstaande instellingen is aangevinkt wordt, zodra verhalen worden toegevoegd of bijgewerkt, de %(cp)s plug-in aangeroepen om de gekozen statistieken bij te werken."
+msgstr "いずれかの以下の設定がチェックすると、ストーリーを追加・更新される際に、チッェクされた統計を更新するために%(cp)sプラグインを呼び出される。"
 
 #: config.py:1174
 msgid "Which column and algorithm to use are configured in %(cp)s."
-msgstr "Welke kolom en welk algoritme moeten worden gebruikt zijn geconfigureerd in %(cp)s."
+msgstr "使用する列とアルゴリズムは%(cp)sで設定している。"
 
 #: config.py:1184
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
-msgstr "Overschrijft het aantal woorden uit FanFicFare metagegevens als deze is ingesteld om dezelfde aangepaste kolom bij te werken"
+msgstr "同じ列に設定される場合は、FanFicFareメタデータから単語数を上書きする。"
 
 #: config.py:1189
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
-msgstr "Voer alleen de woordtelling van Count Page uit wanneer gecontroleerd<i>en</i>FanFicFare-metagegevens nog geen woordentelling heeft. Als dit wordt gebruikt met één van de andere pagina tellingen, wordt de paginatelling-plug-in tweemaal aangeroepen."
+msgstr "チェックされた<i>および</i>FanFicFareメタデータにまだ単語数があらない場合のみは、Count Pagesの単語数を実行する。他のページ数と使う場合は、Count Pagesプラグインを２回呼び出される。"
 
 #: config.py:1225
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
-msgstr "Deze bedieningselementen zijn geen plug-in-instellingen als zodanig, maar gemaksknoppen voor het instellen van sneltoetsen voor het toetsenbord en alle FanFicFare bevestiging vensters weer terug verkrijgen."
+msgstr "このコントロールはプラグイン設定ではあらないが、キーボードショートカットとFanFicFareの確認だアログを取り戻すための便利なボタンです。"
 
 #: config.py:1230
 msgid "Keyboard shortcuts..."
-msgstr "Sneltoetsen..."
+msgstr "キーボードショートカット……"
 
 #: config.py:1231
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr "Bewerk de sneltoetsen voor deze plugin"
+msgstr "このプラグインに関連付けているキーボードショートカットを編集する。"
 
 #: config.py:1235
 msgid "Reset disabled &confirmation dialogs"
-msgstr "Uitgeschakelde &bevestigins-meldingen weer tonen"
+msgstr "無効にされた確認ダイアログをリセットする(&C)"
 
 #: config.py:1236
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
-msgstr "Herstel alle 'toon me opnieuw' dialogen voor de FanFicFare plug-in"
+msgstr "FanFicFareプラグインための、全てのもう一回見せるダイアログをリセットする"
 
 #: config.py:1240
 msgid "&View library preferences..."
-msgstr "&Bibliotheekvoorkeuren weergeven..."
+msgstr "ライブラリ設定を表示……(&V)"
 
 #: config.py:1241
 msgid "View data stored in the library database for this plugin"
-msgstr "Bekijk gegevens opgeslagen in de bibliotheekgegevensbank voor deze plugin"
+msgstr "このプラグインためのライブラリデータベースに保存されるデータを表示する"
 
 #: config.py:1251
 msgid "Done"
-msgstr "Klaar"
+msgstr "完了"
 
 #: config.py:1252
 msgid "Confirmation dialogs have all been reset"
-msgstr "Bevestigingsdialogen zijn allemaal gereset"
+msgstr "全ての確認ダイアログはリセットした"
 
 #: config.py:1301
 msgid "Category"
-msgstr "Categorie"
+msgstr "カテゴリ"
 
 #: config.py:1302
 msgid "Genre"
-msgstr "Genre"
+msgstr "ジャンル"
 
 #: config.py:1303
 msgid "Language"
-msgstr "Taal"
+msgstr "言語"
 
 #: config.py:1304 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Status"
-msgstr "Status"
+msgstr "ステータス"
 
 #: config.py:1305
 msgid "Status:%(cmplt)s"
-msgstr "Status:%(cmplt)s"
+msgstr "ステータス: %(cmplt)s"
 
 #: config.py:1306
 msgid "Status:%(inprog)s"
-msgstr "Status:%(inprog)s"
+msgstr "ステータス: %(inprog)s"
 
 #: config.py:1307 config.py:1491 dialogs.py:270
 msgid "Series"
-msgstr "Reeks"
+msgstr "シリーズ"
 
 #: config.py:1308
 msgid "Characters"
-msgstr "Karakters"
+msgstr "登場人物"
 
 #: config.py:1309
 msgid "Relationships"
-msgstr "Relaties"
+msgstr "関係"
 
 #: config.py:1310
 msgid "Published"
-msgstr "Gepubliceerd"
+msgstr "発行日"
 
 #: config.py:1311 fff_plugin.py:1911 fff_plugin.py:1927
 msgid "Updated"
-msgstr "Geüpdatet"
+msgstr "更新日"
 
 #: config.py:1312
 msgid "Created"
-msgstr "Gemaakt"
+msgstr "作成日"
 
 #: config.py:1313
 msgid "Rating"
-msgstr "Waardering"
+msgstr "評価"
 
 #: config.py:1314
 msgid "Warnings"
-msgstr "Waarschuwingen"
+msgstr "警告"
 
 #: config.py:1315
 msgid "Chapters"
-msgstr "Hoofdstukken"
+msgstr "章数"
 
 #: config.py:1316
 msgid "Words"
-msgstr "Woorden"
+msgstr "単語数"
 
 #: config.py:1317
 msgid "Site"
-msgstr "Site"
+msgstr "サイト"
 
 #: config.py:1318 config.py:1485
 msgid "Publisher"
-msgstr "Uitgever"
+msgstr "発行者"
 
 #: config.py:1319
 msgid "Story ID"
-msgstr "Verhaal-ID"
+msgstr "ストーリーID"
 
 #: config.py:1320
 msgid "Author ID"
-msgstr "Auteurs-ID"
+msgstr "著者ID"
 
 #: config.py:1321
 msgid "Extra Tags"
-msgstr "Extra tags"
+msgstr "追加タグ"
 
 #: config.py:1322 config.py:1483 dialogs.py:1000 dialogs.py:1096
 #: fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Title"
-msgstr "Titel"
+msgstr "タイトル"
 
 #: config.py:1323
 msgid "Story URL"
-msgstr "Verhaal-URL"
+msgstr "ストーリーURL"
 
 #: config.py:1324
 msgid "Description"
-msgstr "Beschrijving"
+msgstr "説明"
 
 #: config.py:1325 dialogs.py:1000 dialogs.py:1096 fff_plugin.py:1534
 #: fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Author"
-msgstr "Auteur"
+msgstr "著者"
 
 #: config.py:1326
 msgid "Author URL"
-msgstr "Auteurs-URL"
+msgstr "著者URL"
 
 #: config.py:1327
 msgid "File Format"
-msgstr "Bestandsformaat"
+msgstr "ファイル形式"
 
 #: config.py:1328
 msgid "File Extension"
-msgstr "Bestandsextensie"
+msgstr "ファイル拡張子"
 
 #: config.py:1329
 msgid "Site Abbrev"
-msgstr "Site-afkorting"
+msgstr "サイト略称"
 
 #: config.py:1330
 msgid "FanFicFare Version"
-msgstr "FanFicFare versie"
+msgstr "FanFicFareバージョン"
 
 #: config.py:1346
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
-msgstr "Als je eigen kolommen hebt gedefinieerd, zullen ze hieronder worden weergegeven. Kies een metagegevenswaardesoort om je kolommen automatisch in te vullen."
+msgstr "カスタム列を定義される場合は、以下にリストされている。列に自動的に入力するメタデータ値タイプを選ぶ。"
 
 #: config.py:1372
 msgid "Update this %s column(%s) with..."
-msgstr "Update deze %s kolom(%s) met..."
+msgstr "この%s列（%s）を次と更新……"
 
 #: config.py:1382
 msgid "Values that aren't valid for this enumeration column will be ignored."
-msgstr "Waarden die voor deze opsommingskolom ongeldig zijn worden genegeerd."
+msgstr "この列挙列ために無効な値は無視される。"
 
 #: config.py:1382 config.py:1384
 msgid "Metadata values valid for this type of column."
-msgstr "Metagegevenswaarden geldig voor deze soort van kolom."
+msgstr "この列のタイプために有効なメタデータ値。"
 
 #: config.py:1387 config.py:1512
 msgid "New Only"
-msgstr "Alleen nieuwe"
+msgstr "新規のみ"
 
 #: config.py:1388
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
-msgstr "Schrijf naar %s(%s) alleen voor nieuwe\nboeken, geen updates van bestaande boeken."
+msgstr "既存の本の更新ではなく、新しい本の\n場合のみは、%s（%s）に書き込む。"
 
 #: config.py:1399
 msgid "Allow %(ccset)s from %(pini)s to override"
-msgstr "Laat van %(ccset)svan %(pini)s overschrijven"
+msgstr "%(pini)sから%(ccset)sの上書きを許可する"
 
 #: config.py:1400
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
-msgstr "De %(pini)sparameter %(ccset)sstaat u toe aangepaste kolommen in te stellen op sitespecifieke waarden die niet voor alle sites gelden. <br />%(ccset)swordt genegeerd als dit uit staat."
+msgstr "%(pini)sの%(ccset)sパラマーターは全てのサイトに共通ではないサイトごとの値をカスタム列に設定できる。<br />これはオフ場合は、%(ccset)sが無視される。"
 
 #: config.py:1404
 msgid "Special column:"
-msgstr "Speciale kolom:"
+msgstr "特別列:"
 
 #: config.py:1409
 msgid "Update/Overwrite Error Column:"
-msgstr "Update/overschrijf fout kolom:"
+msgstr "更新・上書きにエラーの列:"
 
 #: config.py:1410
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
-msgstr "Wanneer een update of overschrijving van een bestaand artikel mislukt, noteert u de reden in deze kolom.\n(Alleen tekst- en lange tekstkolommen.)"
+msgstr "既存のストーリーの更新または上書きが失敗されす際に、この列に理由を記録する。\n（テキストと長いテキスト列のみ）"
 
 #: config.py:1423
 msgid "Save All Errors"
-msgstr "Sla alle fouten op"
+msgstr "全てのエラーを保存"
 
 #: config.py:1424
 msgid "If unchecked, these errors will not be saved: %s"
-msgstr "Als dit niet is aangevinkt, worden deze fouten niet opgeslagen: %s"
+msgstr "チェックしていない場合、次のエラーは保存されていない: %s"
 
 #: config.py:1426 fff_plugin.py:1406 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
-msgstr "Niets overschreven, web site is niet nieuwer."
+msgstr "上書きしていない、Webサイトは新しくない。"
 
 #: config.py:1427 fff_plugin.py:1385 jobs.py:284
 msgid "Already contains %d chapters."
-msgstr "Bevat al %d hoofdstukken."
+msgstr "%d章がすでに含まれている。"
 
 #: config.py:1434
 msgid "Saved Metadata Column:"
-msgstr "Opgeslagen metagegevens kolom:"
+msgstr "保存されたメタデータ列:"
 
 #: config.py:1435
 msgid ""
@@ -1033,220 +1023,220 @@ msgid ""
 "the book is downloaded or updated.<br/>The metadata from this column can "
 "later be used to update custom columns without having to request the "
 "metadata from the server again.<br/>(Long Text columns only.)"
-msgstr "Indien ingesteld, zal FanFicFare een kopie van alle metagegevens opslaan in deze kolom wanneer het boek wordt gedownload of bijgewerkt. <br/>De metagegevens uit deze kolom kunnen later worden gebruikt om aangepaste kolommen bij te werken zonder opnieuw de metagegevens van de server op te vragen.<br/> (alleen kolommen.)"
+msgstr "設定すると、FanFicFareは本をダウンロードまたは更新際に全てのメタデータのコピーをこの列に保存される。<br/>この列からメタデータはサーバから再度要求する必要があらない後でカスタム列を更新できる。<br/>（長いテキスト列のみ）"
 
 #: config.py:1453
 msgid "Last Checked Column:"
-msgstr "Laatst aangevinkte kolom:"
+msgstr "最後に確認される列:"
 
 #: config.py:1454
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
-msgstr "Neem de laatste keer op dat FanFicFare is bijgewerkt of gecontroleerd op updates.\n(Alleen datumkolommen.)"
+msgstr "FanFicFareが最後に更新するまたは更新に検索するを記録する。\n（日付列のみ）"
 
 #: config.py:1484
 msgid "Author(s)"
-msgstr "Auteur(s)"
+msgstr "著者"
 
 #: config.py:1486
 msgid "Tags"
-msgstr "Tags"
+msgstr "タグ"
 
 #: config.py:1487
 msgid "Languages"
-msgstr "Talen"
+msgstr "言語"
 
 #: config.py:1488
 msgid "Published Date"
-msgstr "Datum van uitgave"
+msgstr "発行日"
 
 #: config.py:1489
 msgid "Date"
-msgstr "Datum"
+msgstr "日付"
 
 #: config.py:1490 dialogs.py:281
 msgid "Comments"
-msgstr "Reacties"
+msgstr "コメント"
 
 #: config.py:1492
 msgid "Ids(url id only)"
-msgstr "ID's (alleen URL ID)"
+msgstr "識別子（URL識別子のみ）"
 
 #: config.py:1497
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
-msgstr "De standaard calibre metagegevens kolommen worden hieronder vermeld. U kunt kiezen of FanFicFare elke kolom automatisch zal vullen bij updates of alleen voor nieuwe boeken."
+msgstr "標準なcalibreメタデータ列は以下に示す。FanFicFareは更新で列を自動的に入力するまたは新しい本のみかどうかを選べる。"
 
 #: config.py:1513
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
-msgstr "Schrijf naar %s Alleen voor nieuwe\nboeken, geen updates van bestaande boeken."
+msgstr "既存の本の更新ではなく、新しい本の\n場合のみは、%sに書き込む。"
 
 #: config.py:1520
 msgid "Force Title into Title Sort?"
-msgstr "Forceer titel naar titelsortering?"
+msgstr "タイトル読みにタイトルを強制する？"
 
 #: config.py:1521
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
-msgstr "Indien aangevinkt, zal de titel zoals gegeven ook worden gebruikt voor het Titel Sorteren. \nAls dit niet is aangevinkt, zal calibre het ingebouwde algoritme toepassen waardoor 'De Titel' sorteert als 'Titel, De', etc."
+msgstr "チェックされる場合は、与えられたタイトルがタイトル読みにも使う。\nチェックされない場合に、calibreは「The Title」を「Title, The」に並び替えめなど組み込みアルゴリズムを適用する。"
 
 #: config.py:1524
 msgid "Fix Title Case?"
-msgstr "Titel omhulsel corrigeren?"
+msgstr "タイトルの大文字・小文字を修正する？"
 
 #: config.py:1525
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
-msgstr "Indien aangevinkt, zal Calibre's routine voor het corrigeren van het hoofdlettergebruik van de titel worden toegepast."
+msgstr "チェックされる場合は、calibreのタイトルの大文字・小文字を修正するルーチンは適用される。"
 
 #: config.py:1526 config.py:1537
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
-msgstr "Dit heeft alleen invloed op de metagegevens van Calibre, niet op de titelpagina van FanFicFare-metagegevens."
+msgstr "これは、タイトルページでFanFicFareのメタデータではなく、calibreメタデータのみを適用する。"
 
 #: config.py:1530
 msgid "Force Author into Author Sort?"
-msgstr "Forceer auteur naar auteursortering?"
+msgstr "著者読みに著者を強制する？"
 
 #: config.py:1531
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr "Indien aangevinkt, zal de auteur (s) zoals gegeven ook worden gebruikt voor het Auteur Sorteren.\nIndien niet aangevinkt, zal calibre het ingebouwde algoritme toepassen waardoor 'Bob Smith' sorteert als 'Smith, Bob', etc."
+msgstr "チェックされる場合は、与えられた著者が著者読みにも使う。\nチェックされない場合は、calibreは「Bob Smith」を「Smith, Bob」に並び替えめなど組み込みアルゴリズムを適用する。"
 
 #: config.py:1534
 msgid "Fix Author Case?"
-msgstr "Herstel auteur omhulsel?"
+msgstr "著者の大文字・小文字を修正する？"
 
 #: config.py:1535
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
-msgstr "Indien aangevinkt, zal Caliber's routine voor het corrigeren van het hoofdlettergebruik van auteursnamen worden toegepast."
+msgstr "チェックされる場合は、calibreの著者名の大文字・小文字を修正するルーチンは適用される。"
 
 #: config.py:1536
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
-msgstr "Calibre onthoudt alle auteurs in de bibliotheek; het wijzigen van de auteur van een boek heeft effect op alle boeken van die auteur."
+msgstr "calibreはライブラリ内の全ての著者を覚えている。一冊で著者の大文字・小文字を変更は著者より全ての本に適用する。"
 
 #: config.py:1541
 msgid "Set 'Series [0]' for New Anthologies?"
-msgstr ""
+msgstr "新しい選集ために「シリーズ [0]」を設定する？"
 
 #: config.py:1542
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
-msgstr ""
+msgstr "チェックされる場合は、選集を作成際にシリーズ列は「シリーズ名 [0]」に設定される。"
 
 #: config.py:1553
 msgid "Other Standard Column Options"
-msgstr "Andere standaard kolomopties"
+msgstr "他の標準的な列の設定"
 
 #: config.py:1558
 msgid "Set Calibre Author URL"
-msgstr "Stel de Calibre auteur in van URL"
+msgstr "calibreの著者URLを設定する"
 
 #: config.py:1559
 msgid "Set Calibre Author URL to Author's URL on story site."
-msgstr "Stel Calibre Auteur URL in op de URL van de auteur op de verhalensite."
+msgstr "calibreの著者URLをストーリーサイトから著者のURLに設定する。"
 
 #: config.py:1563
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr "Gebruik de commentaren van de Anthologie? "
+msgstr "選集のコメントに本のコメントを含む？"
 
 #: config.py:1564
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
-msgstr "Voeg alle opmerkingen van de samengevoegde boeken toe aan de opmerkingen van het nieuwe boek.\nStandaard is alleen een lijst met opgenomen titels."
+msgstr "新しい本のコメントに全ての合本のコメントを含む。\nデフォルトはタイトルのリストのみ。"
 
 #: config.py:1569
 msgid "Set Anthology Comments only for new books"
-msgstr "Stel de Anthologie commentaren in voor nieuwe boeken"
+msgstr "新しい本のみで選集コメントを設定する"
 
 #: config.py:1570
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
-msgstr "Commentaren zal enkel gebruikt worden voor nieuwe Anthologieën, geen updates. Op deze manier, zijn je eigen commentaren gevrijwaard."
+msgstr "コメントは、更新ではなく、新しい選集のみで設定する。\nそれすれば、手動で設定されるコメントが保持される。"
 
 #: config.py:1587
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr "Deze instellingen staat FanFicFace toe om URL van verhalen te downloaden vanaf je e-mail. Het zal enkel kijken naar URLs van ongelezen e-amails in de map hieronder gespecificeerd."
+msgstr "この設定は、FanFicFareをメールアカウントからストーリーURLを取得する。以下に指定されたフォルダの未読なメールのみに検索される。"
 
 #: config.py:1592
 msgid "IMAP Server Name"
-msgstr "IMAP server naam"
+msgstr "IMAPサーバ名"
 
 #: config.py:1593
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
-msgstr "Naam van IMAP-server -- IMAP4 moet SSL toestaan. Bijvoorbeeld: imap.gmail.com"
+msgstr "IMAPサーバの名前--IMAP4とSSLを許可する必要がある。例：imap.gmail.com"
 
 #: config.py:1602
 msgid "IMAP User Name"
-msgstr "IMAP gebruikersnaam"
+msgstr "IMAPユーザー名"
 
 #: config.py:1603
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
-msgstr "Naam van IMAP-gebruiker. Bijvoorbeeld: uwnaam@gmail.com\nHoud er rekening mee dat Gmail-accounts eerst IMAP moeten hebben ingeschakeld in Gmail-instellingen."
+msgstr "IMAPユーザーの名前。例：yourname@gmail.com\nGmailアカウントでは、最初にGmail設定でIMAPを有効にする必要があることに注意してください。"
 
 #: config.py:1612
 msgid "IMAP User Password"
-msgstr "IMAP gebruikerswachtwoord"
+msgstr "IMAPユーザーのパスワード"
 
 #: config.py:1613
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
-msgstr "MAP-wachtwoord. Als je hem leeg laat, vraagt ​​FanFicFare je om je wachtwoord wanneer je de functie gebruikt."
+msgstr "IMAPパスワード。空のままにすると、FanFicFareは機能を使う時にパスワードの入力を求める。"
 
 #: config.py:1623
 msgid "Remember Password for Session (when not saved above)"
-msgstr "Onthoud wachtwoord voor sessie (indien niet opgeslagen hierboven)"
+msgstr "セッションためにパスワードを記憶する（以上に保存されない場合）"
 
 #: config.py:1624
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
-msgstr "Indien aangevinkt en er geen wachtwoord hierboven is ingevoerd, onthoudt FanFicFare uw wachtwoord totdat u calibre sluit of de bibliotheken wijzigt."
+msgstr "チェックすると以上にパスワードが入力しない場合に、FanFicFareはcalibreを閉じるまたはライブラリを変更するまで、パスワードを記憶する。"
 
 #: config.py:1629
 msgid "IMAP Folder Name"
-msgstr "IMAP map naam"
+msgstr "IMAPフォルダ名"
 
 #: config.py:1630
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
-msgstr "Naam van de IMAP map om nieuwe e-mails te zoeken. De map (of het label) moet al bestaan. Gebruik INBOX voor uw standaard inbox."
+msgstr "未読なメールに検索するIMAPフォルダの名前。フォルダ（またはラベル）はすでに存在する必要がある。デフォルト受信トレイためにINBOXを使う。"
 
 #: config.py:1639
 msgid "Mark Emails Read"
-msgstr "Markeer emails gelezen"
+msgstr "メールを既読にする"
 
 #: config.py:1640
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
-msgstr "Indien aangevinkt, zullen e-mails worden gemarkeerd als gelezen als ze verhaal-URL's bevatten."
+msgstr "チェックすると、メールはストーリーURLが含む場合に既読にする。"
 
 #: config.py:1645
 msgid "Discard URLs on Reject List"
-msgstr "Verwijder URL's op de lijst met afwijzingen"
+msgstr "拒むリストのURLを捨てる"
 
 #: config.py:1646
 msgid ""
@@ -1254,44 +1244,44 @@ msgid ""
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
 " normal Reject URL dialog.<br>The Emails will still be marked Read if "
 "configured to."
-msgstr "Indien aangevinkt, verwijdert FanFicFare de verhaal-URL's van e-mails die zich op uw lijst met afgekeurde URL's bevinden.<br>Anders worden ze weergegeven en ziet u het normale dialoogvenster Geweigerde URL.<br> De e-mails worden nog steeds gemarkeerd als Gelezen indien geconfigureerd."
+msgstr "チェックすると、FanFicFareは拒むURLリストでメールからストーリーURLを黙って捨てる。<br>さもないと、それらが表示されると通常の拒むURLダイアログを見る。<br>設定される場合に、メールは既読にされる。"
 
 #: config.py:1651
 msgid "Update Existing Books Only"
-msgstr "Update aleen bestaande boeken"
+msgstr "既存の本のみを更新する"
 
 #: config.py:1652
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
-msgstr "Indien aangevinkt, verwijdert FanFicFare de verhaal-URL's van e-mails die zich nog niet in uw bibliotheek bevinden.<br>Anders worden alle URL's van het verhaal, nieuw en bestaand gebruikt.<br>De e-mails worden nog steeds gemarkeerd als Gelezen indien geconfigureerd."
+msgstr "チェックすると、FanFicFareはライブラリに既存しないメールからストーリーURLを黙って捨てる。<br>さもないと、全てのストーリーURL、新規と既存、を使用される。<br>設定される場合に、メールを既読にされる。"
 
 #: config.py:1657
 msgid "Download from Email Immediately"
-msgstr "Onmiddellijk downloaden van e-mail."
+msgstr "すぐにメールからダウンロード"
 
 #: config.py:1658
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
-msgstr "Indien aangevinkt, begint FanFicFare gelijk met het downloaden van verhaal-URL's uit e-mails. Anders verschijnt het gebruikelijke dialoogvenster Downloaden van URL's."
+msgstr "チェックすると、FanFicFareはメールからストーリーURLをすぐにダウンロードする。<br>さもないと、通常のURLからダウンロードダイアログは表示される。"
 
 #: config.py:1663
 msgid "Add these Tag(s) Automatically"
-msgstr "Voeg deze Tag(s) automatisch toe"
+msgstr "これらのタグを自動的に追加する"
 
 #: config.py:1664
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
-msgstr "Hier ingevoerde tags worden automatisch toegevoegd aan verhalen die zijn gedownload van URL's van e-mailverhalen."
+msgstr "ここに入力されるタグは、メールストーリーURLからダウンロードするストーリーに自動的に追加する。"
 
 #: config.py:1665
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
-msgstr ""
+msgstr "ストーリーURLダイアログに手動で追加した追加的なストーリーにも、これらのタグが追加される。"
 
 #: config.py:1676
 msgid ""
@@ -1299,142 +1289,142 @@ msgid ""
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
 "malicious code cannot get your email password once you've entered it. "
 "<br>Use this feature at your own risk. </b>"
-msgstr "<b>Het is het veiligst als u een afzonderlijk e-mailaccount maakt dat u alleen gebruikt voor kennisgevingen over uw verhaalupdates. FanFicFare en calibre kunnen niet garanderen dat schadelijke code uw e-mailwachtwoord,  zodra eenmaal ingevoerd, niet kan krijgen.<br> Gebruik deze functie op eigen risico.</b>"
+msgstr "<b>ストーリー更新の通知のみで使うメールアカウントを作成するは最も安全です。FanFicFareとcalibreは、入力後に悪意あるコードがメールのパスワードを取得できないことを保証できない。<br>この機能は自己責任で使ってください。</b>"
 
 #: dialogs.py:273
 msgid ""
 "This name will be used with the %s setting to set the title of the new book."
-msgstr ""
+msgstr "この名前は、新しい本のタイトルを設定する%s設定と使う。"
 
 #: dialogs.py:284
 msgid ""
 "These comments about the series will be included in the Comments of the new "
 "book."
-msgstr ""
+msgstr "このシリーズに関するコメントは新しい本のコメントに含む。"
 
 #: dialogs.py:298 dialogs.py:876
 msgid "Show Download Options"
-msgstr "Downloadopties weergeven"
+msgstr "ダウンロードのオプションを表示"
 
 #: dialogs.py:317 dialogs.py:896
 msgid "Output &Format:"
-msgstr "Uitvoer &Formaat:"
+msgstr "出力形式(&F)"
 
 #: dialogs.py:325 dialogs.py:904
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr "Kies output formaat bij het maken. Kan de standaardwaarden aanpassen van de plugin configuratie."
+msgstr "作成する出力形式を選ぶ。プラグイン設定からデフォルトを設定できる。"
 
 #: dialogs.py:353 dialogs.py:924
 msgid "Update Calibre &Metadata?"
-msgstr "Calibre &Metagegevens bijwerken?"
+msgstr "calibreメタデータを更新する？(&M)"
 
 #: dialogs.py:354 dialogs.py:925
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
-msgstr "Metagegevens voor bestaande verhalen in Calibre bijwerken van website? (Kolommen ingesteld als 'Alleen Nieuw' in de kolomtabbladen worden alleen ingesteld voor nieuwe boeken.)"
+msgstr "Webサイトから既存のストーリーのメタデータをcalibreに更新する。\n（「新規のみ」に設定される列は新しい本のみに設定される）"
 
 #: dialogs.py:360 dialogs.py:929
 msgid "Update EPUB Cover?"
-msgstr "Update EPUB Cover?"
+msgstr "EPUBの表紙を更新する？"
 
 #: dialogs.py:361 dialogs.py:930
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
-msgstr "Werk de omslagafbeelding bij van de site of van de standaardinstellingen (indien gevonden)<i>in</i> de EPUB wanneer EPUB wordt bijgewerkt."
+msgstr "EPUBを更新する際に、サイトまたはデフォルト（見つける場合）から<i>EPUB内に</i>本の表紙画像を更新する。"
 
 #: dialogs.py:429
 msgid "(%s URLs found)"
-msgstr ""
+msgstr "（%sつのURLが見つけた）"
 
 #: dialogs.py:430
 msgid "Story URLs for anthology, one per line:"
-msgstr "Verhaal URLs for anthologie, één per lijn"
+msgstr "選集ためのストーリーURL、1行に1つ:"
 
 #: dialogs.py:431
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
-msgstr "URL's voor verhalen die in de bloemlezing moeten worden opgenomen, één per regel.\nNeemt URL's van het klembord, maar alleen geldige URL's."
+msgstr "選集に含むストーリーのURL、1行に1つ\nURLはクリップボードから取得されるが、有効なURLのみ。"
 
 #: dialogs.py:432
 msgid "If Story Already Exists in Anthology?"
-msgstr "Wat als verhaal reeds bestaat in Anthologie?"
+msgstr "ストーリーがすでに選集に既存場合？"
 
 #: dialogs.py:433
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
-msgstr "Wat te doen als er reeds een bestaand verhaal bestaat met dezelfde URL in de anthologie."
+msgstr "選集に同じURLの既存のストーリーがすでにある場合の対処方法。"
 
 #: dialogs.py:456
 msgid "Story URLs, one per line:"
-msgstr "Verhaal URLs, één per lijn"
+msgstr "ストーリーURL、1行に1つ:"
 
 #: dialogs.py:457
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
-msgstr "URL's voor verhalen, één per regel.\nNeemt URL's van het klembord, maar alleen geldige URL's.\nVoeg [1,5] toe na de URL om de download te beperken tot hoofdstukken 1-5."
+msgstr "ストーリーのURL、1行に1つ。\nURLはクリップボードから取得されるが、有効なURLのみ。\nURL後に[1,5]を追加すると、ダウンロードを第1章〜第5章に限定する。"
 
 #: dialogs.py:458
 msgid "If Story Already Exists?"
-msgstr "Wat als het verhaal reeds bestaat?"
+msgstr "ストーリーがすでに既存場合？"
 
 #: dialogs.py:459
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
-msgstr "Wat te doen als er reeds een verhaal bestaat met dezelfde URL of titel en auteur."
+msgstr "同じURLまたはタイトルと著者の既存のストーリーがすでにある場合の対処方法。"
 
 #: dialogs.py:583
 msgid "For Individual Books"
-msgstr "Voor individuele boeken"
+msgstr "個々の本ため"
 
 #: dialogs.py:584
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr "Haal de URLs op en ga naar het download dialoogvenster van individuele verhalen"
+msgstr "URLを取得して個々の本のダウンロードためのダイアログに移動する。"
 
 #: dialogs.py:589
 msgid "For Anthology Epub"
-msgstr "Voor Anthologie Epub"
+msgstr "選集EPUBため"
 
 #: dialogs.py:590
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
-msgstr "Ontvang URL's en ga naar dialoogvenster voor Bloemlezing download. Vereist %s plugin."
+msgstr "URLを取得して選集のダウンロードためのダイアログに移動する。\n%sプラグインは必要です。"
 
 #: dialogs.py:594 dialogs.py:648 dialogs.py:695 dialogs.py:1626
 msgid "Cancel"
-msgstr "Annuleren"
+msgstr "キャンセル"
 
 #: dialogs.py:626 dialogs.py:1614
 msgid "Password"
-msgstr "Wachtwoord"
+msgstr "パスワード"
 
 #: dialogs.py:627
 msgid "Author requires a password for this story(%s)."
-msgstr "Auteur vereist een wachtwoord voor dit verhaal(%s)."
+msgstr "著者はこのストーリー（%s）ためにパスワードが必要です。"
 
 #: dialogs.py:632
 msgid "User/Password"
-msgstr "Gebruiker/wachtwoord"
+msgstr "ユーザー・パスワード"
 
 #: dialogs.py:633
 msgid "%s requires you to login to download this story."
-msgstr "%s vereist dat je inlogt om dit verhaal te downloaden."
+msgstr "%sはストーリーをダウンロードするログインが必要です。"
 
 #: dialogs.py:635
 msgid "User:"
-msgstr "Gebruiker:"
+msgstr "ユーザー:"
 
 #: dialogs.py:639
 msgid "Password:"
-msgstr "Wachtwoord:"
+msgstr "パスワード:"
 
 #: dialogs.py:644 dialogs.py:818 dialogs.py:1622
 msgid "OK"
@@ -1442,84 +1432,84 @@ msgstr "OK"
 
 #: dialogs.py:666 dialogs.py:690 fff_plugin.py:1008
 msgid "Fetching metadata for stories..."
-msgstr "Bezig met ophalen van metagegevens voor verhalen..."
+msgstr "ストーリーためのメタデータを取得とている……"
 
 #: dialogs.py:667 dialogs.py:691 fff_plugin.py:1009
 msgid "Downloading metadata for stories"
-msgstr "Bezig met downloaden van metagegevens voor verhalen"
+msgstr "ストーリーためのメタデータをダウンロードしている"
 
 #: dialogs.py:668 dialogs.py:692 fff_plugin.py:1010
 msgid "Fetched metadata for"
-msgstr "Metagegevens opgehaald voor"
+msgstr "次ためにメタデータを取得した:"
 
 #: dialogs.py:722
 msgid " - %s estimated until done"
-msgstr " - %s geschat tot einde"
+msgstr " - 推定残り%s"
 
 #: dialogs.py:746 fff_plugin.py:1226 fff_plugin.py:2440 jobs.py:115
 msgid "Skipped"
-msgstr "Overgeslaan"
+msgstr "スキップした"
 
 #: dialogs.py:754 fff_plugin.py:1974 jobs.py:117 jobs.py:346 jobs.py:349
 msgid "Error"
-msgstr "Fout"
+msgstr "エラー"
 
 #: dialogs.py:778
 msgid "%d day"
-msgstr "%d dag"
+msgstr "%d日"
 
 #: dialogs.py:778
 msgid "%d days"
-msgstr "%d dagen"
+msgstr "%d日"
 
 #: dialogs.py:779
 msgid "%d hour"
-msgstr "%d uur"
+msgstr "%d時間"
 
 #: dialogs.py:779
 msgid "%d hours"
-msgstr "%d uren"
+msgstr "%d時間"
 
 #: dialogs.py:780
 msgid "%d minute"
-msgstr "%d minuut"
+msgstr "%d分"
 
 #: dialogs.py:780
 msgid "%d minutes"
-msgstr "%d minuten"
+msgstr "%d分"
 
 #: dialogs.py:781
 msgid "%d second"
-msgstr "%d seconde"
+msgstr "%d秒"
 
 #: dialogs.py:781
 msgid "%d seconds"
-msgstr "%d seconden"
+msgstr "%d秒"
 
 #: dialogs.py:796
 msgid "less than 1 second"
-msgstr "minder dan 1 seconde"
+msgstr "1秒足らず"
 
 #: dialogs.py:813 fff_plugin.py:391 fff_plugin.py:394
 msgid "About FanFicFare"
-msgstr "Over FanFicFare"
+msgstr "FanFicFareについて"
 
 #: dialogs.py:867
 msgid "Remove selected books from the list"
-msgstr "Geselecteerde boeken uit de lijst verwijderen"
+msgstr "選択した本をリストから削除する"
 
 #: dialogs.py:909
 msgid "Update Mode:"
-msgstr "Update-modus:"
+msgstr "更新モード:"
 
 #: dialogs.py:912
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
-msgstr "Wat voor soort update om uit te voeren. Kan standaard instellen vanuit de plug-in configuratie."
+msgstr "実行する更新の種類。プラグインの設定からデフォルトを設定できる。"
 
 #: dialogs.py:934
 msgid "Background Metadata?"
-msgstr "Achtergrond metagegevens?"
+msgstr "バックグラウンドメタデータ？"
 
 #: dialogs.py:935
 msgid ""
@@ -1527,832 +1517,832 @@ msgid ""
 "control to you quicker while updating, but you won't be asked for "
 "username/passwords or if you are an adult--stories that need those will just"
 " fail."
-msgstr "Verzamel metagegevens van sites in een achtergrondproces. <br />Dit geeft u sneller controle terug tijdens het bijwerken, maar u wordt niet gevraagd om gebruikersnaam / wachtwoorden of als u een volwassene bent zullen verhalen die dit nodig hebben, gewoon falen"
+msgstr "バックグラウンドプロセスでサイトからメタデータを集める。<br />これにより、更新中に制御を早めに返すが、ユーザー名やパスワードを求めてない、またはあなたが大人であれば。それらを必要とするストーリーは失敗する。"
 
 #: dialogs.py:1000 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Comment"
-msgstr "Reageer"
+msgstr "コメント"
 
 #: dialogs.py:1068
 msgid "Are you sure you want to remove this book from the list?"
-msgstr "Ben je zeker dat je dit boek uit de lijst wil verwijderen?"
+msgstr "この本をリストから削除してもよろしいですか？"
 
 #: dialogs.py:1070
 msgid "Are you sure you want to remove the selected %d books from the list?"
-msgstr "Ben je zeker dat je de geselecteerde %d boeken uit de lijst wil verwijderen?"
+msgstr "選択した%d冊をリストから削除してもよろしいですか？"
 
 #: dialogs.py:1096
 msgid "Note"
-msgstr "Noot"
+msgstr "メモ"
 
 #: dialogs.py:1135
 msgid "Select or Edit Reject Note."
-msgstr "Selecteer of Bewerk Weigeren Opmerking."
+msgstr "拒むメモを選択または編集する。"
 
 #: dialogs.py:1144
 msgid "Are you sure you want to remove this URL from the list?"
-msgstr "Weet u zeker dat u deze URL van de lijst wilt verwijderen?"
+msgstr "このURLをリストから削除してもよろしいですか？"
 
 #: dialogs.py:1146
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
-msgstr "Weet u zeker dat u de %d geselecteerde URLs van de lijst wilt verwijderen?"
+msgstr "選択した%dつのURLをリストから削除してもよろしいですか？"
 
 #: dialogs.py:1164
 msgid "List of Books to Reject"
-msgstr "Lijst met boeken om af te wijzen"
+msgstr "拒む本のリスト"
 
 #: dialogs.py:1177
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
-msgstr "FFF onthoudt deze URL's en toont de notitie met aanbod om ze te weigeren als u ze later opnieuw probeert te downloaden."
+msgstr ""
 
 #: dialogs.py:1191
 msgid "Remove selected URLs from the list"
-msgstr "Verwijder geselecteerde URLs van de lijst"
+msgstr ""
 
 #: dialogs.py:1206 dialogs.py:1210
 msgid "This will be added to whatever note you've set for each URL above."
-msgstr "Dit wordt toegevoegd aan de betreffende notitie die u voor elke bovenstaande URL heeft ingesteld."
+msgstr ""
 
 #: dialogs.py:1223
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "Verwijder boeken (inclusief boeken zonder FanFiction URLs)?"
+msgstr "本を削除する？（ファンフィクションURLがない本を含）"
 
 #: dialogs.py:1224
 msgid "Delete the selected books after adding them to the Rejected URLs list."
-msgstr "Verwijder de geselecteerde boeken nadat ze zijn toegevoegd aan de lijst met geweigerde URL's."
+msgstr ""
 
 #: dialogs.py:1380
 msgid "Search for string in edit box."
-msgstr "Zoek naar text in het zoekvenster"
+msgstr ""
 
 #: dialogs.py:1383
 msgid "Find:"
-msgstr "Zoeken:"
+msgstr ""
 
 #: dialogs.py:1388
 msgid "Find"
-msgstr "Zoeken"
+msgstr ""
 
 #: dialogs.py:1398
 msgid "Case sensitive"
-msgstr "Hoofdlettergevoelig"
+msgstr ""
 
 #: dialogs.py:1399
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
-msgstr "Zoeken naar hoofdlettergevoelige reeks; Behandel Harry, HARRY en harry niet allemaal hetzelfde."
+msgstr ""
 
 #: dialogs.py:1428
 msgid "Go back to fix errors?"
-msgstr "Terug gaan om fouten te herstellen?"
+msgstr ""
 
 #: dialogs.py:1540
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr "Klik op een fout hieronder om terug te gaan naar Bewerken rechtstreeks op die regel :"
+msgstr ""
 
 #: dialogs.py:1566
 msgid "Click to go to line %s"
-msgstr "Klik om naar lijn %s te gaan"
+msgstr ""
 
 #: dialogs.py:1582
 msgid "Return to Editing"
-msgstr "Terug naar bewerken"
+msgstr ""
 
 #: dialogs.py:1586
 msgid "Save Anyway"
-msgstr "Toch opslaan"
+msgstr ""
 
 #: dialogs.py:1615
 msgid "Enter Email Password for %s:"
-msgstr "Voer E-mail wachtwoord in voor %s:"
+msgstr ""
 
 #: fff_plugin.py:140 fff_plugin.py:171
 msgid "FanFicFare"
-msgstr "FanFicFare"
+msgstr ""
 
 #: fff_plugin.py:141
 msgid "Download FanFiction stories from various web sites"
-msgstr "FanFiction-verhalen downloaden van verschillende websites"
+msgstr ""
 
 #: fff_plugin.py:303
 msgid "&Download from URLs"
-msgstr "&Download van URLs"
+msgstr ""
 
 #: fff_plugin.py:305
 msgid "Download FanFiction Books from URLs"
-msgstr "Download FanFiction boeken van URLs"
+msgstr ""
 
 #: fff_plugin.py:308
 msgid "&Update Existing FanFiction Books"
-msgstr "&Update Bestaande FanFiction boeken"
+msgstr ""
 
 #: fff_plugin.py:313
 msgid "Get Story URLs from &Email"
-msgstr "Haal de URLs op van &Email"
+msgstr ""
 
 #: fff_plugin.py:317 fff_plugin.py:559
 msgid "Get Story URLs from Web Page"
-msgstr "Haal de URl's op van web pagina"
+msgstr ""
 
 #: fff_plugin.py:323
 msgid "&Make Anthology Epub from URLs"
-msgstr "&Maak Anthologie Epub van URLs"
+msgstr ""
 
 #: fff_plugin.py:325
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr "Maak FanFiction Anthologie Epub van URLs"
+msgstr ""
 
 #: fff_plugin.py:328
 msgid "Make Anthology Epub from Web Page"
-msgstr "Maak Anthologie Epub van web pagina"
+msgstr ""
 
 #: fff_plugin.py:330
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr "Maak FanFiction Anthologie Epub van web pagina"
+msgstr ""
 
 #: fff_plugin.py:333
 msgid "Update Anthology Epub"
-msgstr "Update Anthologie Epub"
+msgstr ""
 
 #: fff_plugin.py:335
 msgid "Update FanFiction Anthology Epub"
-msgstr "Update FanFiction Anthologie Epub"
+msgstr ""
 
 #: fff_plugin.py:342
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
-msgstr "Markeren als ongelezen: voeg toe aan de lijsten \"Te lezen\" en \"Verzenden naar apparaat\""
+msgstr ""
 
 #: fff_plugin.py:344
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
-msgstr "Markeren als Gelezen: Verwijderen van \" Te Lezen\" en toevoegen aan \"Verzenden naar apparaat\" lijsten"
+msgstr ""
 
 #: fff_plugin.py:346 fff_plugin.py:351
 msgid "Mark Read: Remove from \"To Read\" Lists"
-msgstr "Markeren als Gelezen: verwijder uit \"Te lezen\" lijsten"
+msgstr ""
 
 #: fff_plugin.py:348
 msgid "Add to \"Send to Device\" Lists"
-msgstr "Toevoegen aan \"Verzenden naar apparaat\" lijsten"
+msgstr ""
 
 #: fff_plugin.py:350
 msgid "Mark Unread: Add to \"To Read\" Lists"
-msgstr "Markeren als ongelezen: voeg toe aan de \"Te lezen\" lijsten"
+msgstr ""
 
 #: fff_plugin.py:366
 msgid "Remove \"New\" Chapter Marks from Selected books"
-msgstr "Verwijder \"Nieuwe\" hoofdstuk markering van geselecteerde boeken"
+msgstr ""
 
 #: fff_plugin.py:372
 msgid "Get Story URLs from Selected Books"
-msgstr "Haal de URL's op van de geselecteerde boeken"
+msgstr ""
 
 #: fff_plugin.py:377
 msgid "Reject Selected Books"
-msgstr "Geselecteerde boeken afwijzen"
+msgstr ""
 
 #: fff_plugin.py:385
 msgid "&Configure FanFicFare"
-msgstr "FanFicFare &instellen"
+msgstr ""
 
 #: fff_plugin.py:388
 msgid "Configure FanFicFare"
-msgstr "FanFicFare instellen"
+msgstr ""
 
 #: fff_plugin.py:455
 msgid "Cannot Update Reading Lists from Device View"
-msgstr "Kan leeslijsten niet bijwerken vanuit Apparaat View"
+msgstr ""
 
 #: fff_plugin.py:459
 msgid "No Selected Books to Update Reading Lists"
-msgstr "Geen boeken geselecteerd om Leeslijsten bij te werken"
+msgstr ""
 
 #: fff_plugin.py:469
 msgid "FanFicFare Email Settings are not configured."
-msgstr "FanFicFare e-mail instellingen zijn niet geconfigureerd."
+msgstr ""
 
 #: fff_plugin.py:489
 msgid "Fetching Story URLs from Email..."
-msgstr "Haal verhaal URL's op uit E-mail..."
+msgstr ""
 
 #: fff_plugin.py:512 fff_plugin.py:540
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr "Geen geldige verhaal URLs gevonden in ongelezen e-mails."
+msgstr ""
 
 #: fff_plugin.py:529
 msgid "Finished Fetching Story URLs from Email."
-msgstr "Ophalen van verhaal URL's van e-mail zijn beëindigd."
+msgstr ""
 
 #: fff_plugin.py:534
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
-msgstr "Tag(s) <b><i>%s</i></b> wordt toegevoegd aan alle gedownloade verhalen in het volgende dialoogvenster, inclusief alle verhaal-URL's die u handmatig toevoegt."
+msgstr ""
 
 #: fff_plugin.py:542
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
-msgstr "(%dVerhaal-URL's overgeslagen, in lijst met geweigerde URL's)"
+msgstr ""
 
 #: fff_plugin.py:544
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
-msgstr "(%dVerhaal-URL's overgeslagen, geen bestaand boek in Bibliotheek)"
+msgstr ""
 
 #: fff_plugin.py:545
 msgid "Get Story URLs from Email"
-msgstr "Haal de verhaal URL's op van e-mail."
+msgstr ""
 
 #: fff_plugin.py:568
 msgid "Fetching Story URLs from Page..."
-msgstr "Haal verhaal URL's op van pagina..."
+msgstr ""
 
 #: fff_plugin.py:573
 msgid "Finished Fetching Story URLs from Page."
-msgstr "Ophalen van verhaal URL's van web pagina is beëindigd."
+msgstr ""
 
 #: fff_plugin.py:581 fff_plugin.py:630
 msgid "List of Story URLs"
-msgstr "Lijst van verhaal-URL's"
+msgstr ""
 
 #: fff_plugin.py:582
 msgid "No Valid Story URLs found on given page."
-msgstr "Geen geldige verhaal URLs gevonden op gegeven pagina."
+msgstr ""
 
 #: fff_plugin.py:595 fff_plugin.py:647
 msgid "No Selected Books to Get URLs From"
-msgstr "Geen boeken geselecteerd om URL's uit te halen"
+msgstr ""
 
 #: fff_plugin.py:611
 msgid "Collecting URLs for stories..."
-msgstr "Bezig met verzamelen van URL's voor verhalen..."
+msgstr ""
 
 #: fff_plugin.py:612
 msgid "Get URLs for stories"
-msgstr "Verzamel URL's voor verhalen"
+msgstr ""
 
 #: fff_plugin.py:613 fff_plugin.py:733 fff_plugin.py:934
 msgid "URL retrieved"
-msgstr "URL opgehaald"
+msgstr ""
 
 #: fff_plugin.py:623 jobs.py:116 jobs.py:339
 msgid "Bad"
-msgstr "Slecht"
+msgstr ""
 
 #: fff_plugin.py:634
 msgid "List of URLs"
-msgstr "Lijst van URL's"
+msgstr ""
 
 #: fff_plugin.py:635
 msgid "No Story URLs found in selected books."
-msgstr "Geen verhaal URLs gevonden in geselecteerde boeken."
+msgstr ""
 
 #: fff_plugin.py:642
 msgid "Can only UnNew books in library"
-msgstr "Kan alleen boeken in de bibliotheek strippen van \"Nieuw\""
+msgstr ""
 
 #: fff_plugin.py:659
 msgid "UnNewing books..."
-msgstr "Boeken strippen van \"Nieuw\" ..."
+msgstr ""
 
 #: fff_plugin.py:660
 msgid "UnNew Books"
-msgstr "Boeken gestript van \"Nieuw\""
+msgstr ""
 
 #: fff_plugin.py:661
 msgid "Books UnNewed"
-msgstr "Boeken gestript van \"Nieuw\""
+msgstr ""
 
 #: fff_plugin.py:707 fff_plugin.py:708 fff_plugin.py:1707 fff_plugin.py:1708
 msgid "Starting auto conversion of %d books."
-msgstr "Automatische conversie starten van %d boeken."
+msgstr ""
 
 #: fff_plugin.py:723
 msgid "No Selected Books have URLs to Reject"
-msgstr "Geen van geselecteerde boeken hebben te weigeren URL's"
+msgstr ""
 
 #: fff_plugin.py:731
 msgid "Collecting URLs for Reject List..."
-msgstr "URL's verzamelen voor lijst met afwijzingen..."
+msgstr ""
 
 #: fff_plugin.py:732
 msgid "Get URLs for Reject List"
-msgstr "URL's ontvangen voor lijst met afwijzigingen"
+msgstr ""
 
 #: fff_plugin.py:767
 msgid "Proceed to Remove?"
-msgstr "Doorgaan met verwijderen?"
+msgstr ""
 
 #: fff_plugin.py:767
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr "FanFicFare-URL's afwijzen: geen van de geselecteerde boeken heeft FanFiction-URL's."
+msgstr ""
 
 #: fff_plugin.py:795
 msgid "Cannot Make Anthologys without %s"
-msgstr "Kan geen Bloemlezingen maken zonder %s"
+msgstr ""
 
 #: fff_plugin.py:799 fff_plugin.py:911
 msgid "Cannot Update Books from Device View"
-msgstr "Kan geen boeken bijwerken vanuit Apparaat View"
+msgstr ""
 
 #: fff_plugin.py:803
 msgid "Can only update 1 anthology at a time"
-msgstr "Kan slechts 1 bloemlezing per keer bijwerken"
+msgstr ""
 
 #: fff_plugin.py:808
 msgid "Fetching Story URLs for Series..."
-msgstr "Haal de verhaal URL's op voor series..."
+msgstr ""
 
 #: fff_plugin.py:814
 msgid "Can only Update Epub Anthologies"
-msgstr "Kan alleen Epub Bloemlezingen bijwerken"
+msgstr ""
 
 #: fff_plugin.py:832 fff_plugin.py:833
 msgid "Cannot Update Anthology"
-msgstr "Kan de Anthologie niet updaten"
+msgstr ""
 
 #: fff_plugin.py:833
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
-msgstr "Boek is geen FanFicFare-bloemlezing of bevat boek (en) zonder geldige verhaal-URL's."
+msgstr ""
 
 #: fff_plugin.py:850
 msgid "Finished Fetching Story URLs for Series."
-msgstr "Ophalen van verhaal URL's van series beëindigd."
+msgstr ""
 
 #: fff_plugin.py:897
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
-msgstr "Er zijn %d verhalen in de huidige bloemlezing die <b>niet</b> bewaard zullen worden als je doorgaat."
+msgstr ""
 
 #: fff_plugin.py:898
 msgid "Story URLs that will be removed:"
-msgstr "Verhaal URL's die verwijderd zullen worden:"
+msgstr ""
 
 #: fff_plugin.py:900
 msgid "Update anyway?"
-msgstr "Toch bijwerken?"
+msgstr ""
 
 #: fff_plugin.py:901
 msgid "Stories Removed"
-msgstr "Verhalen verwijderd"
+msgstr ""
 
 #: fff_plugin.py:918
 msgid "No Selected Books to Update"
-msgstr "Geen boeken geselecteerd om bij te werken"
+msgstr ""
 
 #: fff_plugin.py:932
 msgid "Collecting stories for update..."
-msgstr "Verhalen verzamelen voor bewerking ..."
+msgstr ""
 
 #: fff_plugin.py:933
 msgid "Get stories for updates"
-msgstr "Verhalen ontvangen voor bewerkingen"
+msgstr ""
 
 #: fff_plugin.py:943
 msgid "Update Existing List"
-msgstr "Bestaande lijst bijwerken"
+msgstr ""
 
 #: fff_plugin.py:1002
 msgid "Start queuing downloading for %s stories."
-msgstr "Begin met wachtrij voor downloaden van %s verhalen."
+msgstr ""
 
 #: fff_plugin.py:1003
 msgid "Queuing download for stories..."
-msgstr "Download voor verhalen in wachtrij plaatsen ..."
+msgstr ""
 
 #: fff_plugin.py:1004
 msgid "Queuing download for stories"
-msgstr "Download voor verhalen in wachtrij plaatsen"
+msgstr ""
 
 #: fff_plugin.py:1005
 msgid "Queued download for"
-msgstr "Wachtende download voor"
+msgstr ""
 
 #: fff_plugin.py:1007
 msgid "Started fetching metadata for %s stories."
-msgstr "Begonnen met het ophalen van metagegevens voor %s verhalen."
+msgstr ""
 
 #: fff_plugin.py:1021
 msgid "No valid story URLs entered."
-msgstr "Geen geldige verhaal-URL's ingevoerd."
+msgstr ""
 
 #: fff_plugin.py:1031 fff_plugin.py:1037
 msgid "Reject URL?"
-msgstr "URL afwijzen?"
+msgstr ""
 
 #: fff_plugin.py:1038 fff_plugin.py:1056
 msgid "<b>%s</b> is on your Reject URL list:"
-msgstr "<b>%s</b> staat op uw lijst met af te keuren URL's:"
+msgstr ""
 
 #: fff_plugin.py:1040
 msgid "Click '<b>Yes</b>' to Reject."
-msgstr "klik '<b>Ja</b>' om te verwerpen"
+msgstr ""
 
 #: fff_plugin.py:1041 fff_plugin.py:1218
 msgid "Click '<b>No</b>' to download anyway."
-msgstr "Klik '<b>Nee</b>' om toch te downloaden."
+msgstr ""
 
 #: fff_plugin.py:1043
 msgid "Story on Reject URLs list (%s)."
-msgstr "Verhaal op afgewezen URL's lijst (%s)"
+msgstr ""
 
 #: fff_plugin.py:1046 jobs.py:114
 msgid "Rejected"
-msgstr "Afgewezen"
+msgstr ""
 
 #: fff_plugin.py:1049
 msgid "Remove Reject URL?"
-msgstr "Verwijder afgewezen URL?"
+msgstr ""
 
 #: fff_plugin.py:1055
 msgid "Remove URL from Reject List?"
-msgstr "Verwijder URL van de Afwijs lijst?"
+msgstr ""
 
 #: fff_plugin.py:1058
 msgid "Click '<b>Yes</b>' to remove it from the list,"
-msgstr "Klik '<b>Ja</b>' om het van de lijst te verwijderen,"
+msgstr ""
 
 #: fff_plugin.py:1059
 msgid "Click '<b>No</b>' to leave it on the list."
-msgstr "Klik '<b>Nee</b>' om het op de lijst te houden."
+msgstr ""
 
 #: fff_plugin.py:1080
 msgid "Are You an Adult?"
-msgstr "Bent u een volwassene?"
+msgstr ""
 
 #: fff_plugin.py:1081
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
-msgstr "%s vereist dat je een volwassene bent. Gelieve te bevestigen dat je een volwassen bent:"
+msgstr ""
 
 #: fff_plugin.py:1126
 msgid "Cannot update non-epub format."
-msgstr "Kan "
+msgstr ""
 
 #: fff_plugin.py:1209
 msgid "Skip Story?"
-msgstr "Verhaal overslaan?"
+msgstr ""
 
 #: fff_plugin.py:1215
 msgid "Skip Anthology Story?"
-msgstr "Sla Bloemlezingsverhaal over?"
+msgstr ""
 
 #: fff_plugin.py:1216
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
-msgstr "\"<b>%s</b>\" is in reeks \"<b><a href=\"%s\">%s</a></b>\" waarvoor je een bloemlezing hebt."
+msgstr ""
 
 #: fff_plugin.py:1217
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr "Klik op '<b>Ja</b>' om over te slaan."
+msgstr ""
 
 #: fff_plugin.py:1220
 msgid "Story in Series Anthology(%s)."
-msgstr "Verhaal in reeks Bloemlezing (%s)."
+msgstr ""
 
 #: fff_plugin.py:1236 jobs.py:110
 msgid "Add"
-msgstr "Toevoegen"
+msgstr ""
 
 #: fff_plugin.py:1269 jobs.py:112
 msgid "Meta"
-msgstr "Meta"
+msgstr ""
 
 #: fff_plugin.py:1298
 msgid "Skipping duplicate story."
-msgstr "Dubbel verhaal overslaan."
+msgstr ""
 
 #: fff_plugin.py:1301
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
-msgstr "Meer dan één identiek boek op Identifier-URL of titel / auteur (s) - kan niet bepalen welk boek moet worden bijgewerkt / overschreven."
+msgstr ""
 
 #: fff_plugin.py:1312 jobs.py:111
 msgid "Update"
-msgstr "Updaten"
+msgstr ""
 
 #: fff_plugin.py:1322
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
-msgstr "Update geweigerd vanwege verschillende URL van verhaal (%s) (%s tag aanwezig)"
+msgstr ""
 
 #: fff_plugin.py:1325 fff_plugin.py:1362 jobs.py:113
 msgid "Different URL"
-msgstr "Andere URL"
+msgstr ""
 
 #: fff_plugin.py:1327 fff_plugin.py:1334
 msgid "Change Story URL?"
-msgstr "Verhaal URL wijzigen?"
+msgstr ""
 
 #: fff_plugin.py:1335
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
-msgstr "<b>%s</b> door <b>%s</b> staat al in uw bibliotheek met een andere bron-URL:"
+msgstr ""
 
 #: fff_plugin.py:1336
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr "in bibliotheek: <a href=\"%(liburl)s\">%(liburl)s</a>"
+msgstr ""
 
 #: fff_plugin.py:1337 fff_plugin.py:1351
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr "Nieuwe URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
+msgstr ""
 
 #: fff_plugin.py:1338
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr "Klik '<b>Ja</b>' om het boek met nieuwe URL bij te werken/te overschrijven."
+msgstr ""
 
 #: fff_plugin.py:1339
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
-msgstr "Klik op '<b>Nee</b>' om het bijwerken / overschrijven van dit boek over te slaan."
+msgstr ""
 
 #: fff_plugin.py:1341 fff_plugin.py:1348
 msgid "Download as New Book?"
-msgstr "Downloaden als nieuw boek?"
+msgstr ""
 
 #: fff_plugin.py:1349
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
-msgstr "<b>%s</b> door <b>%s</b> is reeds in uw bibliotheek met een andere bron URL."
+msgstr ""
 
 #: fff_plugin.py:1350
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
-msgstr "Je hebt ervoor gekozen om het bestaande boek niet bij te werken. Wil je een nieuw boek toevoegen voor deze URL?"
+msgstr ""
 
 #: fff_plugin.py:1352
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr "Klik '<b>Ja</b>'voor een nieuw boek met nieuwe URL."
+msgstr ""
 
 #: fff_plugin.py:1353
 msgid "Click '<b>No</b>' to skip URL."
-msgstr "Klik op '<b>Nee</b>' om URL over te slaan."
+msgstr ""
 
 #: fff_plugin.py:1359
 msgid "Update declined by user due to differing story URL(%s)"
-msgstr "Update geweigerd door gebruiker vanwege verschillend verhaal URL(%s)"
+msgstr ""
 
 #: fff_plugin.py:1367
 msgid "Metadata collected."
-msgstr "Metagegevens verzameld."
+msgstr ""
 
 #: fff_plugin.py:1387 jobs.py:286
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
-msgstr "Bestaande epub bevat %d hoofdstukken, de website slechts %d. Gebruik Overschrijven om de update te forceren."
+msgstr ""
 
 #: fff_plugin.py:1389 jobs.py:288
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
-msgstr "FanFicFare herkent geen hoofdstukken in de bestaande epub, epub is waarschijnlijk van een andere bron. Gebruik Overschrijven om de update te forceren."
+msgstr ""
 
 #: fff_plugin.py:1530
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
-msgstr "Geen van de <b>%d</b> gegeven URL's/verhalen kan/moet worden gedownload."
+msgstr ""
 
 #: fff_plugin.py:1531 fff_plugin.py:1749 fff_plugin.py:1772
 msgid "See log for details."
-msgstr "Zie log voor details."
+msgstr ""
 
 #: fff_plugin.py:1532
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
-msgstr "Doorgaan met het bijwerken van uw bibliotheek (Fout of laatst gecontroleerde kolommen, indien geconfigureerd)?"
+msgstr ""
 
 #: fff_plugin.py:1546 fff_plugin.py:1552
 msgid "FanFicFare download ended"
-msgstr "FanFicFare download beëindigd"
+msgstr ""
 
 #: fff_plugin.py:1546 fff_plugin.py:1552 fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare log"
-msgstr "FanFicFare logboek"
+msgstr ""
 
 #: fff_plugin.py:1573
 msgid "Download %s FanFiction Book(s)"
-msgstr "Download %s FanFiction boek(en)"
+msgstr ""
 
 #: fff_plugin.py:1580
 msgid "Starting %d FanFicFare Downloads"
-msgstr "Start %d FanFicFare downloads"
+msgstr ""
 
 #: fff_plugin.py:1617
 msgid "Story Details:"
-msgstr "Verhaaldetails:"
+msgstr ""
 
 #: fff_plugin.py:1620
 msgid "Error Updating Metadata"
-msgstr "Fout tijdens metagegevens bijwerken"
+msgstr ""
 
 #: fff_plugin.py:1621
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
-msgstr "Er is een fout opgetreden terwijl FanFicFare de metagegevens van calibre aan het bijwerken was<a href='%s'>%s</a>."
+msgstr ""
 
 #: fff_plugin.py:1622
 msgid "The ebook has been updated, but the metadata has not."
-msgstr " Het e-boek is bijgewerkt, maar de metagegevens niet."
+msgstr ""
 
 #: fff_plugin.py:1676 fff_plugin.py:1677
 msgid "Finished Adding/Updating %d books."
-msgstr "Updaten toevoegen/updaten %d boeken beëindigd."
+msgstr ""
 
 #: fff_plugin.py:1733
 msgid "No Good Stories for Anthology"
-msgstr "Geen goede verhalen voor Bloemlezing"
+msgstr ""
 
 #: fff_plugin.py:1734
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
-msgstr "Geen goede verhalen/updates gedownload, het maken/bijwerken van Bloemlezing is afgebroken."
+msgstr ""
 
 #: fff_plugin.py:1739 fff_plugin.py:1771
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
-msgstr "FanFicFare vond <b>%s</b> goede en <b>%s</b> slechte updates."
+msgstr ""
 
 #: fff_plugin.py:1746
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
-msgstr "Weet u zeker dat u wilt doorgaan met het maken/bijwerken van deze Bloemlezing?"
+msgstr ""
 
 #: fff_plugin.py:1747
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
-msgstr "Alle mislukte updates, zullen <b>niet</b> worden opgenomen in de bloemlezing."
+msgstr ""
 
 #: fff_plugin.py:1748
 msgid "However, if there's an older version, it will still be included."
-msgstr "Echter, als er een oudere versie is, dan wordt deze nog steeds opgenomen."
+msgstr ""
 
 #: fff_plugin.py:1751
 msgid "Proceed with updating this anthology and your library?"
-msgstr "Ga verder met het updaten van deze Anthologie en je bibliotheek?"
+msgstr ""
 
 #: fff_plugin.py:1773
 msgid "Proceed with updating your library?"
-msgstr "Ga verder met het updaten van je bibliotheek?"
+msgstr ""
 
 #: fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare download complete"
-msgstr "FanFicFare download compleet"
+msgstr ""
 
 #: fff_plugin.py:1812
 msgid "Merging %s books."
-msgstr "%s boeken samenvoegen."
+msgstr ""
 
 #: fff_plugin.py:1895
 msgid "FanFicFare Adding/Updating books."
-msgstr "FanFicFare toevoegen/updaten boeken."
+msgstr ""
 
 #: fff_plugin.py:1909
 msgid "Updating calibre for FanFiction stories..."
-msgstr "Updaten calibre van FanFiction verhalen..."
+msgstr ""
 
 #: fff_plugin.py:1910
 msgid "Update calibre for FanFiction stories"
-msgstr "Updaten calibre van FanFiction verhalen"
+msgstr ""
 
 #: fff_plugin.py:1920
 msgid "Adding/Updating %s BAD books."
-msgstr "Toevoegen/bijwerken %s BAD boeken."
+msgstr ""
 
 #: fff_plugin.py:1925
 msgid "Updating calibre for BAD FanFiction stories..."
-msgstr "Caliber aan het updaten voor BAD FanFiction-verhalen ..."
+msgstr ""
 
 #: fff_plugin.py:1926
 msgid "Update calibre for BAD FanFiction stories"
-msgstr "Caliber updaten voor BAD FanFiction-verhalen ..."
+msgstr ""
 
 #: fff_plugin.py:1971
 msgid "Adding format to book failed for some reason..."
-msgstr "Het toevoegen "
+msgstr ""
 
 #: fff_plugin.py:2337
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr "Je hebt FanFicFare geconfigureerd om \"Lees-lijsten\" automatisch bij te werken, maar is de plug-in niet meer geïnstalleerd?"
+msgstr ""
 
 #: fff_plugin.py:2349
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr "Je hebt FanFicFare geconfigureerd om \"Te lezen\"-leeslijsten automatisch bij te werken, maar heb je geen lijsten ingesteld?"
+msgstr ""
 
 #: fff_plugin.py:2359 fff_plugin.py:2377
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr "Je hebt FanFicFare geconfigureerd om Lees-lijst '%s' automatisch bij te werken, maar heb je geen gelijknamige lijst?"
+msgstr ""
 
 #: fff_plugin.py:2365
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr "Je hebt FanFicFare geconfigureerd om \"Zend naar apparaat\"-leeslijsten automatisch bij te werken, maar heb je geen lijsten ingesteld?"
+msgstr ""
 
 #: fff_plugin.py:2439
 msgid "Same story already included."
-msgstr "Zelfde verhaal is reeds inbegrepen."
+msgstr ""
 
 #: fff_plugin.py:2497
 msgid "No story URL found."
-msgstr "Geen verhaal-URL gevonden."
+msgstr ""
 
 #: fff_plugin.py:2500
 msgid "Not Found"
-msgstr "Niet gevonden"
+msgstr ""
 
 #: fff_plugin.py:2506
 msgid "URL is not a valid story URL."
-msgstr "URL is geen geldige verhaal-URL."
+msgstr ""
 
 #: fff_plugin.py:2509
 msgid "Bad URL"
-msgstr "Slechte URL"
+msgstr ""
 
 #: fff_plugin.py:2680
 msgid "Anthology containing:"
-msgstr "Bloemlezing bevat:"
+msgstr ""
 
 #: fff_plugin.py:2683
 msgid "%s by %s"
-msgstr "%s door %s"
+msgstr ""
 
 #: fff_plugin.py:2747
 msgid " Anthology"
-msgstr "Antologie"
+msgstr ""
 
 #: fff_plugin.py:2795
 msgid "(was set, removed for security)"
-msgstr "(was ingesteld, voor veiligheid verwijderd)"
+msgstr ""
 
 #: jobs.py:77
 msgid "Downloading FanFiction Stories"
-msgstr "FanFiction verhalen downloaden"
+msgstr ""
 
 #: jobs.py:93
 msgid "%d of %d stories finished downloading"
-msgstr "%d van %d verhalen zijn klaar met downloaden"
+msgstr ""
 
 #: jobs.py:100
 msgid "Download Results:"
-msgstr "Downloadresultaten:"
+msgstr ""
 
 #: jobs.py:163
 msgid "Download started..."
-msgstr "Download gestart..."
+msgstr ""
 
 #: jobs.py:250
 msgid "Download %s completed, %s chapters."
-msgstr "Download %s voltooid, %s hoofdstukken."
+msgstr ""
 
 #: jobs.py:277
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr "Bevat al %d hoofdstukken. Hergebruik bestaand."
+msgstr ""
 
 #: jobs.py:300
 msgid "Update %s completed, added %s chapters for %s total."
-msgstr "Bijwerken %s voltooid, %s hoofdstukken van %s totaal  toegevoegd."
+msgstr ""
 
 #: prefs.py:27
 msgid "Skip"
-msgstr "Overslaan"
+msgstr ""
 
 #: prefs.py:28
 msgid "Add New Book"
-msgstr "Nieuw boek toevoegen"
+msgstr ""
 
 #: prefs.py:29
 msgid "Update EPUB if New Chapters"
-msgstr "EPUB bijwerken bij nieuwe hoofdstukken"
+msgstr ""
 
 #: prefs.py:30
 msgid "Update EPUB Always"
-msgstr "EPUB altijd bijwerken"
+msgstr ""
 
 #: prefs.py:31
 msgid "Overwrite if Newer"
-msgstr "Overschrijven indien nieuwer"
+msgstr ""
 
 #: prefs.py:32
 msgid "Overwrite Always"
-msgstr "Altijd overschrijven"
+msgstr ""
 
 #: prefs.py:33
 msgid "Update Calibre Metadata from Web Site"
-msgstr "Calibre metadata bijwerken vanaf website"
+msgstr ""
 
 #: prefs.py:34
 msgid "Update Calibre Metadata from Saved Metadata Column"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2011 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ from functools import partial
 import traceback
 import copy
 
-from bs4 import BeautifulSoup, __version__
+from bs4 import BeautifulSoup, Tag
 
 
 from ..htmlcleanup import stripHTML
@@ -391,6 +391,112 @@ class BaseSiteAdapter(Configurable):
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
         pass
+
+    def before_get_urls_from_page(self,url,normalize):
+        ## some sites need a login or other prep for 'from page' to
+        ## work best.  Separate function to keep adapter code minimal.
+        pass
+
+    def get_urls_from_page(self,url,normalize):
+        from ..geturls import get_urls_from_html
+        '''
+        This is a method in adapter now rather than the generic code
+        that was in geturls.py to allow individual adapters to
+        recognize and provide special handling if needed for series.
+        Prompted largely by AO3 authors leaving links to other stories
+        in story desc that were getting picked up.
+        '''
+
+        ## hook for logins, etc.
+        self.before_get_urls_from_page(url,normalize)
+
+        # this way it uses User-Agent or other special settings.
+        data = self._fetchUrl(url,usecache=True)
+        series = self.get_series_from_page(url,data,normalize)
+        if series:
+            # just to make it easier for adapters.
+            if isinstance(series.get('desc',None),(BeautifulSoup,Tag)):
+                series['desc'] = self.utf8FromSoup(url,series['desc'])
+            # NOTE: series desc imgs are *not* included in ebook.
+            # Should they be removed?
+            return series
+        else:
+            return {'urllist':get_urls_from_html(self.make_soup(data),
+                                                 url,
+                                                 configuration=self.configuration,
+                                                 normalize=normalize)}
+
+    def get_series_from_page(self,url,data,normalize=False):
+        from ..geturls import get_urls_from_html
+        '''
+        This method is to make it easier for adapters to detect a
+        series URL, pick out the series metadata and list of storyUrls
+        to return without needing to override get_urls_from_page
+        entirely.
+        '''
+        # return {}
+        retval = {}
+        ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
+        ## 'name' and 'desc' are also used if given.
+
+        ## for eFiction sites:
+        ## http://www.dracoandginny.com/viewseries.php?seriesid=45
+        # logger.debug("base get_series_from_page:%s"%url)
+        try:
+            if re.match(r".*(view)?series\.php\?s(erie)?sid=\d+.*",url): # seriesid or ssid
+                # logger.debug("Attempting eFiction get_series_from_page")
+                soup = self.make_soup(data)
+                retval = {}
+                nametag = soup.select_one('div#pagetitle') or soup.select_one('div#storytitle')
+                # logger.debug(nametag)
+                if nametag:
+                    nametag.find('a').decompose()
+                    retval['name'] = stripHTML(nametag)
+                    # some have [ - ], some have ' by', some have both.
+                    # order matters.
+                    trailing_strip_list=['[ - ]',' by']
+                    for s in trailing_strip_list:
+                        # logger.debug(retval['name'])
+                        if retval['name'].endswith(s):
+                            # remove trailing s
+                            retval['name'] = retval['name'][:-len(s)].strip()
+                summaryspan = soup.select_one("div#titleblock span.label") or soup.select_one("div#titleblock span.classification")
+                # logger.debug(summaryspan)
+                if summaryspan and stripHTML(summaryspan) == "Summary:":
+                    desc = ""
+                    c = summaryspan.nextSibling
+                    # logger.debug(c)
+                    # strings and tags that aren't <span class='label'>
+                    while c and not (isinstance(c,Tag) and c.name == 'span' and ('label' in c['class'] or 'classification' in c['class'])):
+                        # logger.debug(c)
+                        desc += unicode(c)
+                        c = c.nextSibling
+                        # logger.debug(c)
+                    if desc:
+                        # logger.debug(desc)
+                        # strip spaces and trailing <br> tags.
+                        desc = re.sub(r'( *<br/?>)+$','',desc.strip())
+                        # logger.debug(desc)
+                        retval['desc']=desc.strip()
+                else:
+                    # some(1?) sites
+                    summarydiv = soup.select_one("div.summarytext") or soup.select_one("blockquote2") # fanfictalk.com
+                    summarydiv.name='div' # force name to div.
+                    if summarydiv:
+                        retval['desc']=summarydiv
+
+                # trying to get story urls for series from different
+                # eFictions is a nightmare that the pre-existing
+                # get_urls_from_html() handles well enough.
+                # logger.debug(soup)
+                retval['urllist']=get_urls_from_html(soup,
+                                                     url,
+                                                     configuration=self.configuration,
+                                                     normalize=normalize)
+        except Exception as e:
+            logger.debug("get_series_from_page for eFiction failed:%s"%e)
+            retval = {}
+        return retval
 
     # Just for series, in case we choose to change how it's stored or represented later.
     def setSeries(self,name,num):

@@ -25,6 +25,7 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
+from ..six.moves.urllib.parse import urlparse, urlunparse
 from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
 
@@ -81,57 +82,98 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         ## only one theme is supported.
         return "Classic"
 
-    ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
-        if self.needToLogin \
-                or 'Free Registration' in data \
+        return 'Free Registration' in data \
                 or "Invalid Password!" in data \
                 or "Invalid User Name!" in data \
                 or "Log In" in data \
                 or "Access to unlinked chapters requires" in data \
-                or "Log in to Storiesonline" in data :
-            self.needToLogin = True
-        return self.needToLogin
+                or "Log in to Storiesonline" in data \
+                or "WLPC log in System" in data
 
     def performLogin(self, url):
-        params = {}
 
         if self.password:
-            params['theusername'] = self.username
-            params['thepassword'] = self.password
+            username = self.username
+            password = self.password
         else:
-            params['theusername'] = self.getConfig("username")
-            params['thepassword'] = self.getConfig("password")
-        params['rememberMe'] = '1'
-        params['submit'] = 'Login'
+            username = self.getConfig("username")
+            password = self.getConfig("password")
 
         loginUrl = 'https://' + self.getSiteDomain() + '/sol-secure/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['theusername']))
+                                                             username))
 
-        if not params['theusername'] or not params['thepassword']:
+        if not username or not password:
             logger.info("Login Required for URL %s" % loginUrl)
-            raise exceptions.FailedToLogin(url,params['theusername'])
+            raise exceptions.FailedToLogin(url,username)
 
-        ## fetch 'v' code from login page.
-        soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
+        ## Site now uses a two POST login system on a different
+        ## domain.  At least it appears shared between storiesonline
+        ## and finestories.
+
+        ## fetch 'v' code, post action and redirected domain from login page.
+        (data,opened) = self._fetchUrlOpened(loginUrl,
+                                             usecache=False)
+        # logger.debug(data)
+        if not self.needToLoginCheck(data):
+            ## hitting login URL reminds system we're logged in?
+            logger.debug("don't need to login")
+            return
+        useurl = opened.geturl()
+        soup = self.make_soup(data)
+        params = {}
         params['v']=soup.find('input', {'name':'v'})['value']
+        params['email'] = username
+        params['cmd'] = 'SubmitEmail'
+        postAction = soup.find('form')['action']
+
+        parsedUrl = urlparse(useurl)
+        postUrl = urlunparse((parsedUrl.scheme,
+                              parsedUrl.netloc,
+                              postAction,
+                              '','',''))
+        # try:
+        data = self._postUrl(postUrl,params,usecache=False)
+        # logger.debug(data)
+        # except HTTPError as e:
+        #     if e.code == 307:
+        #         logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
+        #         return
+
+        soup = self.make_soup(data)
+        params['v']=soup.find('input', {'name':'v'})['value']
+        params['password'] = password
+        params['cmd'] = 'Log In'
+
+        # postAction = soup.find('form')['action']
+
+        # parsedUrl = urlparse(useurl)
+        # postUrl = urlunparse(urlunparse(
+        #         (parsedUrl.scheme,
+        #          parsedUrl.netloc,
+        #          postAction,
+        #          '','',''))
 
         try:
-            d = self._postUrl(loginUrl,params,usecache=False)
-            self.needToLogin = False
+            data = self._postUrl(postUrl,params,usecache=False)
+            # logger.debug(data)
         except HTTPError as e:
             if e.code == 307:
-                logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
-                return True
+                logger.debug("e Location:%s"%e.headers['Location'])
+                try:
+                    ## need to hit redirect URL so cookies get set for
+                    ## the story site domain.  I think.
+                    data = self._postUrl(e.headers['Location'],params,usecache=False)
+                except HTTPError as e:
+                    if e.code == 307:
+                        # logger.debug(e)
+                        return
 
-        if self.needToLoginCheck(d):
+        if self.needToLoginCheck(data):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['theusername']))
-            raise exceptions.FailedToLogin(url,params['theusername'])
-            return False
-        else:
-            return True
+                                                              username))
+            raise exceptions.FailedToLogin(url,username)
 
     def use_pagecache(self):
         '''
@@ -148,15 +190,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        self.needToLogin = False
         try:
             data = self._fetchUrl(url+":i")
+            # logger.debug(data)
         except HTTPError as e:
             if e.code in (404, 410):
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
             elif e.code in (401, 403):
-                self.needToLogin = True
-                data = ''
+                data = 'Log In' # to trip needToLoginCheck
             else:
                 raise e
 
@@ -169,7 +210,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 if e.code in (404, 410):
                     raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
                 elif e.code == 401:
-                    self.needToLogin = True
                     data = ''
                 else:
                     raise e
@@ -342,8 +382,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                                 self.story.setMetadata("universe", universe_name)
                                 self.story.setMetadata('universeUrl','https://'+self.host+ '/library/universe.php?id=' + universe_id)
                                 break
-                    else:
-                        logger.debug("No universe page")
+                    # else:
+                    #     logger.debug("No universe page")
         except:
             raise
             pass
@@ -357,9 +397,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 universeUrl = 'https://'+self.host+a['href']
                 # logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
                 universe_soup = self.make_soup(self._fetchUrl(universeUrl))
-                logger.debug("Retrieving Universe - have page")
+                # logger.debug("Retrieving Universe - have page")
                 if universe_soup:
-                    logger.debug("Retrieving Universe - looking for name")
+                    # logger.debug("Retrieving Universe - looking for name")
                     universe_name = stripHTML(universe_soup.find('h1', {'id' : 'ptitle'}))
                     universe_name = re.sub(r' .\s+A Universe from the Mind.*$','',universe_name)
                     # logger.debug("Universes name: '{0}'".format(universe_name))
@@ -368,15 +408,15 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # logger.debug("Setting universe name: '{0}'".format(universe_name))
                 self.story.setMetadata('universe',universe_name)
                 if self.getConfig("universe_as_series") and not self.story.getMetadata('seriesUrl'):
-                    logger.debug("universe_as_series")
+                    # logger.debug("universe_as_series")
                     # take position in universe page as number in series.
                     for i, storya in enumerate(universe_soup.find_all('a',href=re.compile(r'^/s/\d+/'))):
                         if storya['href'].split('/')[2] == self.story.getMetadata('storyId'):
                             self.setSeries(universe_name, i+1)
                             self.story.setMetadata('seriesUrl',universeUrl)
                             break
-            else:
-                logger.debug("Do not have a universe")
+            # else:
+            #     logger.debug("Do not have a universe")
         except:
             raise
             pass
@@ -499,7 +539,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         chapter_title = None
         if self.getConfig('inject_chapter_title'):
-            chapter_title = pagetag.find('h2').extract()
+            h2tag = pagetag.find('h2')
+            if h2tag:
+                # I'm seeing an h1 now, but it's not logged in?
+                # Something's broken...
+                chapter_title = h2tag.extract()
 
         # Strip te header section
         tag = pagetag.find('header')

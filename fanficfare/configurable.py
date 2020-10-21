@@ -215,7 +215,7 @@ def get_valid_set_options():
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
-               'include_author_notes':(['fimfiction.net'],None,boollist),
+               'include_author_notes':(['fimfiction.net','royalroad.com'],None,boollist),
                'do_update_hook':(['fimfiction.net',
                                   'archiveofourown.org'],None,boollist),
                'always_login':(['archiveofourown.org']+base_xenforo_list,None,boollist),

@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2020-09-10 16:30-0500\n"
-"PO-Revision-Date: 2020-09-11 04:17+0000\n"
+"POT-Creation-Date: 2020-10-05 10:59-0500\n"
+"PO-Revision-Date: 2020-10-05 16:15+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -486,7 +486,7 @@ msgid ""
 "<b>http://...,title by author - note</b>"
 msgstr ""
 
-#: config.py:716 dialogs.py:1167
+#: config.py:716 dialogs.py:1209
 msgid "Add this reason to all URLs added:"
 msgstr "Lisa see põhjus kõikidele lisatavatele URLidele:"
 
@@ -833,7 +833,7 @@ msgstr "Žanr"
 msgid "Language"
 msgstr "Keel"
 
-#: config.py:1304 fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1304 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Status"
 msgstr "Olek"
 
@@ -845,7 +845,7 @@ msgstr "Olek:%(cmplt)s"
 msgid "Status:%(inprog)s"
 msgstr "Olek:%(inprog)s"
 
-#: config.py:1307 config.py:1491
+#: config.py:1307 config.py:1491 dialogs.py:270
 msgid "Series"
 msgstr "Sari"
 
@@ -861,7 +861,7 @@ msgstr "Suhted"
 msgid "Published"
 msgstr "Avaldamisaeg"
 
-#: config.py:1311 fff_plugin.py:1908 fff_plugin.py:1924
+#: config.py:1311 fff_plugin.py:1911 fff_plugin.py:1927
 msgid "Updated"
 msgstr "Uuendatud"
 
@@ -905,8 +905,8 @@ msgstr "Autori ID"
 msgid "Extra Tags"
 msgstr "Lisasildid"
 
-#: config.py:1322 config.py:1483 dialogs.py:958 dialogs.py:1054
-#: fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1322 config.py:1483 dialogs.py:1000 dialogs.py:1096
+#: fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Title"
 msgstr "Pealkiri"
 
@@ -918,8 +918,8 @@ msgstr "Jutu URL"
 msgid "Description"
 msgstr "Kirjeldus"
 
-#: config.py:1325 dialogs.py:958 dialogs.py:1054 fff_plugin.py:1524
-#: fff_plugin.py:1744 fff_plugin.py:1767
+#: config.py:1325 dialogs.py:1000 dialogs.py:1096 fff_plugin.py:1534
+#: fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Author"
 msgstr "Autor"
 
@@ -1004,11 +1004,11 @@ msgstr "Salvesta kõik vead"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "Kui märgistamata, siis neid vigu ei salvestata: %s"
 
-#: config.py:1426 fff_plugin.py:1396 jobs.py:243
+#: config.py:1426 fff_plugin.py:1406 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
 msgstr "Ei kirjutata üle, veebisait pole uuem."
 
-#: config.py:1427 fff_plugin.py:1375 jobs.py:284
+#: config.py:1427 fff_plugin.py:1385 jobs.py:284
 msgid "Already contains %d chapters."
 msgstr "Juba sisaldab %d peatükki."
 
@@ -1054,7 +1054,7 @@ msgstr "Avaldamisaeg"
 msgid "Date"
 msgstr "Kuupäev"
 
-#: config.py:1490
+#: config.py:1490 dialogs.py:281
 msgid "Comments"
 msgstr "Kommentaarid"
 
@@ -1278,8 +1278,8 @@ msgstr "Siia sisestatud sildid lisatakse automaatselt juttudele, mis on alla laa
 
 #: config.py:1665
 msgid ""
-"Any additional stories if you then manually add to the Story URL dialog will"
-" also have these tags added."
+"Any additional stories you then manually add to the Story URL dialog will "
+"also have these tags added."
 msgstr ""
 
 #: config.py:1676
@@ -1290,216 +1290,227 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr ""
 
-#: dialogs.py:270 dialogs.py:834
+#: dialogs.py:273
+msgid ""
+"This name will be used with the %s setting to set the title of the new book."
+msgstr ""
+
+#: dialogs.py:284
+msgid ""
+"These comments about the series will be included in the Comments of the new "
+"book."
+msgstr ""
+
+#: dialogs.py:298 dialogs.py:876
 msgid "Show Download Options"
 msgstr "Näita allalaadimise valikuid"
 
-#: dialogs.py:289 dialogs.py:854
+#: dialogs.py:317 dialogs.py:896
 msgid "Output &Format:"
 msgstr "Väljundformaat:"
 
-#: dialogs.py:297 dialogs.py:862
+#: dialogs.py:325 dialogs.py:904
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Vali väljundformaat, mis luua. Võib seada vaikesätted plugina seadistusest."
 
-#: dialogs.py:325 dialogs.py:882
+#: dialogs.py:353 dialogs.py:924
 msgid "Update Calibre &Metadata?"
 msgstr "Uuenda Calibre metaandmeid?"
 
-#: dialogs.py:326 dialogs.py:883
+#: dialogs.py:354 dialogs.py:925
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr ""
 
-#: dialogs.py:332 dialogs.py:887
+#: dialogs.py:360 dialogs.py:929
 msgid "Update EPUB Cover?"
 msgstr "Uuenda EPUBi kaant?"
 
-#: dialogs.py:333 dialogs.py:888
+#: dialogs.py:361 dialogs.py:930
 msgid ""
 "Update book cover image from site or defaults (if found) <i>inside</i> the "
 "EPUB when EPUB is updated."
 msgstr ""
 
-#: dialogs.py:401
+#: dialogs.py:429
 msgid "(%s URLs found)"
 msgstr ""
 
-#: dialogs.py:402
+#: dialogs.py:430
 msgid "Story URLs for anthology, one per line:"
 msgstr "Juttude URLid antoloogia koostamiseks, üks rea kohta:"
 
-#: dialogs.py:403
+#: dialogs.py:431
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
 msgstr "Antoloogiasse kaasatavate juttude URLid, iga rea peale üks aadress.\nVõtab URLid lõikelaualt, kuid ainult õigete URLide korral."
 
-#: dialogs.py:404
+#: dialogs.py:432
 msgid "If Story Already Exists in Anthology?"
 msgstr "Kui jutt on juba antoloogias olemas?"
 
-#: dialogs.py:405
+#: dialogs.py:433
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
 msgstr "Mida teha, kui sama URLiga jutt on antoloogias juba olemas."
 
-#: dialogs.py:414
+#: dialogs.py:456
 msgid "Story URLs, one per line:"
 msgstr "Juttude URLid, üks rea kohta:"
 
-#: dialogs.py:415
+#: dialogs.py:457
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
 msgstr "Juttude URLid, iga rea peale üks aadress.\nVõtab URLid lõikelaualt, kuid ainult õigete URLide korral.\nKui tahad tõmmada ainult peatükid 1-5, lisa aadressi lõppu [1,5]."
 
-#: dialogs.py:416
+#: dialogs.py:458
 msgid "If Story Already Exists?"
 msgstr "Kui jutt on juba olemas?"
 
-#: dialogs.py:417
+#: dialogs.py:459
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
 msgstr "Mida teha, kui sama URL-i või pealkirja ja autoriga jutt on juba olemas."
 
-#: dialogs.py:541
+#: dialogs.py:583
 msgid "For Individual Books"
 msgstr "Eraldi raamatute jaoks"
 
-#: dialogs.py:542
+#: dialogs.py:584
 msgid "Get URLs and go to dialog for individual story downloads."
 msgstr "Hangi URLid ja mine üksikute juttude allalaadimiste dialoogile."
 
-#: dialogs.py:547
+#: dialogs.py:589
 msgid "For Anthology Epub"
 msgstr "Kogumiku EPUBi jaoks"
 
-#: dialogs.py:548
+#: dialogs.py:590
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
 msgstr "Hangi URLid ja mine antoloogia allalaadimise dialoogile.\nVajalik on plugin %s."
 
-#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1584
+#: dialogs.py:594 dialogs.py:648 dialogs.py:695 dialogs.py:1626
 msgid "Cancel"
 msgstr "Loobu"
 
-#: dialogs.py:584 dialogs.py:1572
+#: dialogs.py:626 dialogs.py:1614
 msgid "Password"
 msgstr "Parool"
 
-#: dialogs.py:585
+#: dialogs.py:627
 msgid "Author requires a password for this story(%s)."
 msgstr "Autor nõuab selle jutu(%s) jaoks parooli."
 
-#: dialogs.py:590
+#: dialogs.py:632
 msgid "User/Password"
 msgstr "Kasutaja/Parool"
 
-#: dialogs.py:591
+#: dialogs.py:633
 msgid "%s requires you to login to download this story."
 msgstr "%s nõuab, et sa selle jutu allalaadimiseks sisse logiks."
 
-#: dialogs.py:593
+#: dialogs.py:635
 msgid "User:"
 msgstr "Kasutaja:"
 
-#: dialogs.py:597
+#: dialogs.py:639
 msgid "Password:"
 msgstr "Parool:"
 
-#: dialogs.py:602 dialogs.py:776 dialogs.py:1580
+#: dialogs.py:644 dialogs.py:818 dialogs.py:1622
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:624 dialogs.py:648 fff_plugin.py:998
+#: dialogs.py:666 dialogs.py:690 fff_plugin.py:1008
 msgid "Fetching metadata for stories..."
 msgstr "Juttude metaandmete tõmbamine..."
 
-#: dialogs.py:625 dialogs.py:649 fff_plugin.py:999
+#: dialogs.py:667 dialogs.py:691 fff_plugin.py:1009
 msgid "Downloading metadata for stories"
 msgstr "Juttude metaandmete allalaadimine"
 
-#: dialogs.py:626 dialogs.py:650 fff_plugin.py:1000
+#: dialogs.py:668 dialogs.py:692 fff_plugin.py:1010
 msgid "Fetched metadata for"
 msgstr "Tõmmati metaandmed jutule"
 
-#: dialogs.py:680
+#: dialogs.py:722
 msgid " - %s estimated until done"
 msgstr " - umbes %s lõpuni"
 
-#: dialogs.py:704 fff_plugin.py:1216 fff_plugin.py:2437 jobs.py:115
+#: dialogs.py:746 fff_plugin.py:1226 fff_plugin.py:2440 jobs.py:115
 msgid "Skipped"
 msgstr "Jäeti vahele"
 
-#: dialogs.py:712 fff_plugin.py:1971 jobs.py:117 jobs.py:346 jobs.py:349
+#: dialogs.py:754 fff_plugin.py:1974 jobs.py:117 jobs.py:346 jobs.py:349
 msgid "Error"
 msgstr "Viga"
 
-#: dialogs.py:736
+#: dialogs.py:778
 msgid "%d day"
 msgstr "%d päev"
 
-#: dialogs.py:736
+#: dialogs.py:778
 msgid "%d days"
 msgstr "%d päeva"
 
-#: dialogs.py:737
+#: dialogs.py:779
 msgid "%d hour"
 msgstr "%d tund"
 
-#: dialogs.py:737
+#: dialogs.py:779
 msgid "%d hours"
 msgstr "%d tundi"
 
-#: dialogs.py:738
+#: dialogs.py:780
 msgid "%d minute"
 msgstr "%d minut"
 
-#: dialogs.py:738
+#: dialogs.py:780
 msgid "%d minutes"
 msgstr "%d minutit"
 
-#: dialogs.py:739
+#: dialogs.py:781
 msgid "%d second"
 msgstr "%d sekund"
 
-#: dialogs.py:739
+#: dialogs.py:781
 msgid "%d seconds"
 msgstr "%d sekundit"
 
-#: dialogs.py:754
+#: dialogs.py:796
 msgid "less than 1 second"
 msgstr "alla 1 sekundi"
 
-#: dialogs.py:771 fff_plugin.py:391 fff_plugin.py:394
+#: dialogs.py:813 fff_plugin.py:391 fff_plugin.py:394
 msgid "About FanFicFare"
 msgstr "Teave plugina FanFicFare kohta"
 
-#: dialogs.py:825
+#: dialogs.py:867
 msgid "Remove selected books from the list"
 msgstr "Eemalda valitud raamatud loendist"
 
-#: dialogs.py:867
+#: dialogs.py:909
 msgid "Update Mode:"
 msgstr "Uuendamise režiim:"
 
-#: dialogs.py:870
+#: dialogs.py:912
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr "Mis sorti uuendus teha? Võib seada vaikesätted plugina seadistusest."
 
-#: dialogs.py:892
+#: dialogs.py:934
 msgid "Background Metadata?"
 msgstr "Taustal metaandmed?"
 
-#: dialogs.py:893
+#: dialogs.py:935
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1507,103 +1518,103 @@ msgid ""
 " fail."
 msgstr "Korja saitidelt metaandmed taustal töötavas protsessis.<br />See annab uuendades sulle kontrolli tagasi varem, kuid sult ei küsita kasutajanime/paroole ega seda, kas sa oled täisealine -- neid vajavad jutud lihtsalt ebaõnnestuvad."
 
-#: dialogs.py:958 fff_plugin.py:1524 fff_plugin.py:1744 fff_plugin.py:1767
+#: dialogs.py:1000 fff_plugin.py:1534 fff_plugin.py:1753 fff_plugin.py:1776
 msgid "Comment"
 msgstr "Kommentaar"
 
-#: dialogs.py:1026
+#: dialogs.py:1068
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Kas oled kindel, et tahad selle raamatu loendist eemaldada?"
 
-#: dialogs.py:1028
+#: dialogs.py:1070
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Kas oled kindel, et tahad %d valitud raamatut loendist eemaldada?"
 
-#: dialogs.py:1054
+#: dialogs.py:1096
 msgid "Note"
 msgstr "Märge"
 
-#: dialogs.py:1093
+#: dialogs.py:1135
 msgid "Select or Edit Reject Note."
 msgstr "Vali või muuda keeldumise märget."
 
-#: dialogs.py:1102
+#: dialogs.py:1144
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "Kas oled kindel, et tahad selle URLi loendist eemaldada?"
 
-#: dialogs.py:1104
+#: dialogs.py:1146
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr "Kas oled kindel, et tahad %d valitud URLi loendist eemaldada?"
 
-#: dialogs.py:1122
+#: dialogs.py:1164
 msgid "List of Books to Reject"
 msgstr "Keeldutavate raamatute loend"
 
-#: dialogs.py:1135
+#: dialogs.py:1177
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr "FFF jätab need URLid meelde ning hilisemal nende allalaadimise uuesti proovimisel näitab märget ja pakub nendest keelduda."
 
-#: dialogs.py:1149
+#: dialogs.py:1191
 msgid "Remove selected URLs from the list"
 msgstr "Eemalda valitud URL-id loendist"
 
-#: dialogs.py:1164 dialogs.py:1168
+#: dialogs.py:1206 dialogs.py:1210
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr "See lisatakse mis tahes märkmele, mille oled igale ülal olevale URLile määranud."
 
-#: dialogs.py:1181
+#: dialogs.py:1223
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr "Kustutada raamatud (k.a ilma fännikirjanduse URLita raamatud)?"
 
-#: dialogs.py:1182
+#: dialogs.py:1224
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "Kustuta valitud raamatud pärast nende lisamist Keeldutud URLide loendisse."
 
-#: dialogs.py:1338
+#: dialogs.py:1380
 msgid "Search for string in edit box."
 msgstr "Otsi muutmise kastist mingit teksti."
 
-#: dialogs.py:1341
+#: dialogs.py:1383
 msgid "Find:"
 msgstr "Leia:"
 
-#: dialogs.py:1346
+#: dialogs.py:1388
 msgid "Find"
 msgstr "Leia"
 
-#: dialogs.py:1356
+#: dialogs.py:1398
 msgid "Case sensitive"
 msgstr "Tõstutundlik"
 
-#: dialogs.py:1357
+#: dialogs.py:1399
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr "Otsi suurtähetundlikke sõnesid; ära käsitle sõnesid Harry, HARRY ja harry samadena."
 
-#: dialogs.py:1386
+#: dialogs.py:1428
 msgid "Go back to fix errors?"
 msgstr "Mine tagasi vigu parandama?"
 
-#: dialogs.py:1498
+#: dialogs.py:1540
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Klõpsa alloleval veal, et minna tagasi redigeerima otse sellele reale:"
 
-#: dialogs.py:1524
+#: dialogs.py:1566
 msgid "Click to go to line %s"
 msgstr "Klõpsa, et minna reale %s"
 
-#: dialogs.py:1540
+#: dialogs.py:1582
 msgid "Return to Editing"
 msgstr "Tagasi redigeerima"
 
-#: dialogs.py:1544
+#: dialogs.py:1586
 msgid "Save Anyway"
 msgstr "Salvesta ikkagi"
 
-#: dialogs.py:1573
+#: dialogs.py:1615
 msgid "Enter Email Password for %s:"
 msgstr "Sisesta e-posti kasutaja %s parool:"
 
@@ -1631,7 +1642,7 @@ msgstr "Uuenda olemasolevaid fännikirjanduse raamatuid"
 msgid "Get Story URLs from &Email"
 msgstr "Hangi juttude URLid e-kirjast"
 
-#: fff_plugin.py:317 fff_plugin.py:557
+#: fff_plugin.py:317 fff_plugin.py:559
 msgid "Get Story URLs from Web Page"
 msgstr "Hangi juttude URLid veebilehelt"
 
@@ -1715,7 +1726,7 @@ msgstr "FanFicFare e-posti sätted on seadistamata."
 msgid "Fetching Story URLs from Email..."
 msgstr "E-kirjast juttude URLide hankimine..."
 
-#: fff_plugin.py:512 fff_plugin.py:538
+#: fff_plugin.py:512 fff_plugin.py:540
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "Lugemate e-kirjadest ei leitud juttude URLe."
 
@@ -1729,550 +1740,550 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr ""
 
-#: fff_plugin.py:540
+#: fff_plugin.py:542
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr "(%d jutu URLi jäeti vahele, keeldutavate URLide loendis)"
 
-#: fff_plugin.py:542
+#: fff_plugin.py:544
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr "(%d jutu URLi jäeti vahele, kogus pole olemasolevat raamatut)"
 
-#: fff_plugin.py:543
+#: fff_plugin.py:545
 msgid "Get Story URLs from Email"
 msgstr "Hangi juttude URLid e-kirjast"
 
-#: fff_plugin.py:566
+#: fff_plugin.py:568
 msgid "Fetching Story URLs from Page..."
 msgstr "Lehelt juttude URLide hankimine..."
 
-#: fff_plugin.py:570
+#: fff_plugin.py:573
 msgid "Finished Fetching Story URLs from Page."
 msgstr "Lõpetati lehelt juttude URLide hankimine."
 
-#: fff_plugin.py:575 fff_plugin.py:627
+#: fff_plugin.py:581 fff_plugin.py:630
 msgid "List of Story URLs"
 msgstr "Juttude URLide loend"
 
-#: fff_plugin.py:576
+#: fff_plugin.py:582
 msgid "No Valid Story URLs found on given page."
 msgstr "Antud lehelt ei leitud jutu URLe."
 
-#: fff_plugin.py:592 fff_plugin.py:644
+#: fff_plugin.py:595 fff_plugin.py:647
 msgid "No Selected Books to Get URLs From"
 msgstr "Pole valitud ühtki raamatut, millest URLe saada"
 
-#: fff_plugin.py:608
+#: fff_plugin.py:611
 msgid "Collecting URLs for stories..."
 msgstr "URLide kogumine juttudeks..."
 
-#: fff_plugin.py:609
+#: fff_plugin.py:612
 msgid "Get URLs for stories"
 msgstr "Hangi juttude URLid"
 
-#: fff_plugin.py:610 fff_plugin.py:730 fff_plugin.py:921
+#: fff_plugin.py:613 fff_plugin.py:733 fff_plugin.py:934
 msgid "URL retrieved"
 msgstr "URL välja otsitud"
 
-#: fff_plugin.py:620 jobs.py:116 jobs.py:339
+#: fff_plugin.py:623 jobs.py:116 jobs.py:339
 msgid "Bad"
 msgstr "Halb"
 
-#: fff_plugin.py:631
+#: fff_plugin.py:634
 msgid "List of URLs"
 msgstr "URLide loend"
 
-#: fff_plugin.py:632
+#: fff_plugin.py:635
 msgid "No Story URLs found in selected books."
 msgstr "Valitud raamatutest ei leitud ühtki jutu URLi."
 
-#: fff_plugin.py:639
+#: fff_plugin.py:642
 msgid "Can only UnNew books in library"
 msgstr ""
 
-#: fff_plugin.py:656
+#: fff_plugin.py:659
 msgid "UnNewing books..."
 msgstr "Raamatute märkimine MitteUueks..."
 
-#: fff_plugin.py:657
+#: fff_plugin.py:660
 msgid "UnNew Books"
 msgstr "Märgi raamatud MitteUueks"
 
-#: fff_plugin.py:658
+#: fff_plugin.py:661
 msgid "Books UnNewed"
 msgstr "Raamatud märgitud MitteUueks"
 
-#: fff_plugin.py:704 fff_plugin.py:705 fff_plugin.py:1698 fff_plugin.py:1699
+#: fff_plugin.py:707 fff_plugin.py:708 fff_plugin.py:1707 fff_plugin.py:1708
 msgid "Starting auto conversion of %d books."
 msgstr "%d raamatu automaatse teisendamise alustamine."
 
-#: fff_plugin.py:720
+#: fff_plugin.py:723
 msgid "No Selected Books have URLs to Reject"
 msgstr "Ühelgi valitud raamatul pole keeldutavaid URLe"
 
-#: fff_plugin.py:728
+#: fff_plugin.py:731
 msgid "Collecting URLs for Reject List..."
 msgstr "URLide kogumine keeldumiste loendi jaoks..."
 
-#: fff_plugin.py:729
+#: fff_plugin.py:732
 msgid "Get URLs for Reject List"
 msgstr "Hangi URLid keeldumiste loendi jaoks"
 
-#: fff_plugin.py:764
+#: fff_plugin.py:767
 msgid "Proceed to Remove?"
 msgstr "Jätkata eemaldamisega?"
 
-#: fff_plugin.py:764
+#: fff_plugin.py:767
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr "FanFicFare URLidest keeldumine: Ühelgi valitud raamatul pole fännikirjanduse URLe."
 
-#: fff_plugin.py:786
+#: fff_plugin.py:795
 msgid "Cannot Make Anthologys without %s"
 msgstr "Ilma pluginata %s ei saa antoloogiad luua"
 
-#: fff_plugin.py:790 fff_plugin.py:898
+#: fff_plugin.py:799 fff_plugin.py:911
 msgid "Cannot Update Books from Device View"
 msgstr "Seadme vaatest ei saa raamatuid uuendada"
 
-#: fff_plugin.py:794
+#: fff_plugin.py:803
 msgid "Can only update 1 anthology at a time"
 msgstr "Uuendada saab ainult 1 antoloogiat korraga"
 
-#: fff_plugin.py:799
+#: fff_plugin.py:808
 msgid "Fetching Story URLs for Series..."
 msgstr "Sarjade jaoks juttude URLide tõmbamine..."
 
-#: fff_plugin.py:805
+#: fff_plugin.py:814
 msgid "Can only Update Epub Anthologies"
 msgstr "Uuendada saab ainult EPUB antoloogiaid"
 
-#: fff_plugin.py:823 fff_plugin.py:824
+#: fff_plugin.py:832 fff_plugin.py:833
 msgid "Cannot Update Anthology"
 msgstr "Ei saa antoloogiat uuendada"
 
-#: fff_plugin.py:824
+#: fff_plugin.py:833
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr "Raamat ei ole FanFicFare antoloogia või sisaldab ilma kehtivate jutu URLideta raamatut(-id)."
 
-#: fff_plugin.py:838
+#: fff_plugin.py:850
 msgid "Finished Fetching Story URLs for Series."
 msgstr "Sarjade jaoks juttude URLide tõmbamine valmis."
 
-#: fff_plugin.py:884
+#: fff_plugin.py:897
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr "Praeguses antoloogias on %d juttu, mida <b>ei</b> jäeta alles, kui jätkad."
 
-#: fff_plugin.py:885
+#: fff_plugin.py:898
 msgid "Story URLs that will be removed:"
 msgstr "Juttude URLid, mis eemaldatakse:"
 
-#: fff_plugin.py:887
+#: fff_plugin.py:900
 msgid "Update anyway?"
 msgstr "Uuendada ikkagi?"
 
-#: fff_plugin.py:888
+#: fff_plugin.py:901
 msgid "Stories Removed"
 msgstr "Jutud eemaldatud"
 
-#: fff_plugin.py:905
+#: fff_plugin.py:918
 msgid "No Selected Books to Update"
 msgstr "Uuendamiseks pole ühtki raamatut valitud"
 
-#: fff_plugin.py:919
+#: fff_plugin.py:932
 msgid "Collecting stories for update..."
 msgstr "Juttude kogumine uuendamiseks..."
 
-#: fff_plugin.py:920
+#: fff_plugin.py:933
 msgid "Get stories for updates"
 msgstr "Hangi jutte uuendamiseks"
 
-#: fff_plugin.py:930
+#: fff_plugin.py:943
 msgid "Update Existing List"
 msgstr "Uuenda olemasolevat loendit"
 
-#: fff_plugin.py:992
+#: fff_plugin.py:1002
 msgid "Start queuing downloading for %s stories."
 msgstr ""
 
-#: fff_plugin.py:993
+#: fff_plugin.py:1003
 msgid "Queuing download for stories..."
 msgstr "Juttude allalaadimise lisamine järjekorda..."
 
-#: fff_plugin.py:994
+#: fff_plugin.py:1004
 msgid "Queuing download for stories"
 msgstr "Juttude allalaadimise lisamine järjekorda"
 
-#: fff_plugin.py:995
+#: fff_plugin.py:1005
 msgid "Queued download for"
 msgstr ""
 
-#: fff_plugin.py:997
+#: fff_plugin.py:1007
 msgid "Started fetching metadata for %s stories."
 msgstr "Alustati %s jutu metaandmete hankimist."
 
-#: fff_plugin.py:1011
+#: fff_plugin.py:1021
 msgid "No valid story URLs entered."
 msgstr "Pole sisestatud ühtki kehtivat jutu URLi."
 
-#: fff_plugin.py:1021 fff_plugin.py:1027
+#: fff_plugin.py:1031 fff_plugin.py:1037
 msgid "Reject URL?"
 msgstr "Keeldu URList?"
 
-#: fff_plugin.py:1028 fff_plugin.py:1046
+#: fff_plugin.py:1038 fff_plugin.py:1056
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr "<b>%s</b> on sinu keeldutavate URLide loendis:"
 
-#: fff_plugin.py:1030
+#: fff_plugin.py:1040
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Keeldumiseks klõpsa '<b>Jah</b>'."
 
-#: fff_plugin.py:1031 fff_plugin.py:1208
+#: fff_plugin.py:1041 fff_plugin.py:1218
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Ikkagi allalaadimiseks klõpsa '<b>Ei</b>'."
 
-#: fff_plugin.py:1033
+#: fff_plugin.py:1043
 msgid "Story on Reject URLs list (%s)."
 msgstr "Jutt on keeldutavate URLide loendis (%s)."
 
-#: fff_plugin.py:1036 jobs.py:114
+#: fff_plugin.py:1046 jobs.py:114
 msgid "Rejected"
 msgstr "Keelduti"
 
-#: fff_plugin.py:1039
+#: fff_plugin.py:1049
 msgid "Remove Reject URL?"
 msgstr "Eemaldada keeldutav URL?"
 
-#: fff_plugin.py:1045
+#: fff_plugin.py:1055
 msgid "Remove URL from Reject List?"
 msgstr "Kas eemaldada URL keeldumiste loendist?"
 
-#: fff_plugin.py:1048
+#: fff_plugin.py:1058
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Selle loendist eemaldamiseks klõpsa '<b>Jah</b>',"
 
-#: fff_plugin.py:1049
+#: fff_plugin.py:1059
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Selle loendisse jätmiseks klõpsa '<b>Ei</b>'."
 
-#: fff_plugin.py:1070
+#: fff_plugin.py:1080
 msgid "Are You an Adult?"
 msgstr "Kas oled täisealine?"
 
-#: fff_plugin.py:1071
+#: fff_plugin.py:1081
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr "%s nõuab, et sa oleksid täisealine.  Palun kinnita, kas oled oma asukohas täisealine:"
 
-#: fff_plugin.py:1116
+#: fff_plugin.py:1126
 msgid "Cannot update non-epub format."
 msgstr "Ei saa uuendada mitte-epub-formaati."
 
-#: fff_plugin.py:1199
+#: fff_plugin.py:1209
 msgid "Skip Story?"
 msgstr "Kas jätta jutt vahele?"
 
-#: fff_plugin.py:1205
+#: fff_plugin.py:1215
 msgid "Skip Anthology Story?"
 msgstr "Kas jätta antoloogia jutt vahele?"
 
-#: fff_plugin.py:1206
+#: fff_plugin.py:1216
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr "\"<b>%s</b>\" on osa sarjast \"<b><a href=\"%s\">%s</a></b>\", mille kohta sul on antoloogia raamat."
 
-#: fff_plugin.py:1207
+#: fff_plugin.py:1217
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Vahelejätmiseks klõpsa '<b>Jah</b>'."
 
-#: fff_plugin.py:1210
+#: fff_plugin.py:1220
 msgid "Story in Series Anthology(%s)."
 msgstr "Jutt antoloogia sarjas(%s)."
 
-#: fff_plugin.py:1226 jobs.py:110
+#: fff_plugin.py:1236 jobs.py:110
 msgid "Add"
 msgstr "Lisa"
 
-#: fff_plugin.py:1259 jobs.py:112
+#: fff_plugin.py:1269 jobs.py:112
 msgid "Meta"
 msgstr "Meta"
 
-#: fff_plugin.py:1288
+#: fff_plugin.py:1298
 msgid "Skipping duplicate story."
 msgstr "Jutu duplikaadi vahelejätmine."
 
-#: fff_plugin.py:1291
+#: fff_plugin.py:1301
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr "Rohkem kui üks identset raamatut identifikaatori URLi või pealkirja/autori(te) alusel--ei oska öelda, millist raamatut uuendada/üle kirjutada."
 
-#: fff_plugin.py:1302 jobs.py:111
+#: fff_plugin.py:1312 jobs.py:111
 msgid "Update"
 msgstr "Uuenda"
 
-#: fff_plugin.py:1312
+#: fff_plugin.py:1322
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr ""
 
-#: fff_plugin.py:1315 fff_plugin.py:1352 jobs.py:113
+#: fff_plugin.py:1325 fff_plugin.py:1362 jobs.py:113
 msgid "Different URL"
 msgstr "Erinev URL"
 
-#: fff_plugin.py:1317 fff_plugin.py:1324
+#: fff_plugin.py:1327 fff_plugin.py:1334
 msgid "Change Story URL?"
 msgstr "Muuda jutu URLi?"
 
-#: fff_plugin.py:1325
+#: fff_plugin.py:1335
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL:"
 msgstr "<b>%s</b>, autoriga <b>%s</b> on erineva lähte-URLiga sinu kogus juba olemas:"
 
-#: fff_plugin.py:1326
+#: fff_plugin.py:1336
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "Kogus: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1327 fff_plugin.py:1341
+#: fff_plugin.py:1337 fff_plugin.py:1351
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Uus URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1328
+#: fff_plugin.py:1338
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Raamatu uuendamiseks/ülekirjutamiseks uue URLiga klõpsa '<b>Jah</b>'."
 
-#: fff_plugin.py:1329
+#: fff_plugin.py:1339
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr "Selle raamatu uuendamise/ülekirjutamise vahelejätmiseks klõpsa '<b>Ei</b>'."
 
-#: fff_plugin.py:1331 fff_plugin.py:1338
+#: fff_plugin.py:1341 fff_plugin.py:1348
 msgid "Download as New Book?"
 msgstr "Alla laadida uue raamatuna?"
 
-#: fff_plugin.py:1339
+#: fff_plugin.py:1349
 msgid ""
 "<b>%s</b> by <b>%s</b> is already in your library with a different source "
 "URL."
 msgstr "<b>%s</b>, autoriga <b>%s</b> on erineva lähte-URLiga sinu kogus juba olemas."
 
-#: fff_plugin.py:1340
+#: fff_plugin.py:1350
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr "Sa otsustasid olemasolevat raamatut mitte uuendada. Kas tahad sellele URLile lisada uue raamatu?"
 
-#: fff_plugin.py:1342
+#: fff_plugin.py:1352
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Uue URLiga uue raamatu jaoks klõpsa '<b>Jah</b>'."
 
-#: fff_plugin.py:1343
+#: fff_plugin.py:1353
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "URLi vahelejätmiseks klõpsa '<b>Ei</b>'."
 
-#: fff_plugin.py:1349
+#: fff_plugin.py:1359
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr "Kasutaja keeldus uuendamisest erineva jutu URLi tõttu(%s)"
 
-#: fff_plugin.py:1357
+#: fff_plugin.py:1367
 msgid "Metadata collected."
 msgstr "Metaandmed kogutud."
 
-#: fff_plugin.py:1377 jobs.py:286
+#: fff_plugin.py:1387 jobs.py:286
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
 msgstr "Olemasolev epub sisaldab %d peatükki, veebisaidil on neid ainult %d. Uuendamise sundimiseks kasuta ülekirjutamist."
 
-#: fff_plugin.py:1379 jobs.py:288
+#: fff_plugin.py:1389 jobs.py:288
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare ei leia olemasolevast epubist peatükke, epub on arvatavasti pärit teisest allikast. Uuendamise sundimiseks kasuta ülekirjutamist."
 
-#: fff_plugin.py:1520
+#: fff_plugin.py:1530
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Ühtki antud <b>%d</b> URLi/juttu ei saa/pole vaja alla laadida."
 
-#: fff_plugin.py:1521 fff_plugin.py:1740 fff_plugin.py:1763
+#: fff_plugin.py:1531 fff_plugin.py:1749 fff_plugin.py:1772
 msgid "See log for details."
 msgstr "Üksikasjade nägemiseks vaata logi."
 
-#: fff_plugin.py:1522
+#: fff_plugin.py:1532
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr ""
 
-#: fff_plugin.py:1536 fff_plugin.py:1542
+#: fff_plugin.py:1546 fff_plugin.py:1552
 msgid "FanFicFare download ended"
 msgstr "FanFicFare allalaadimine lõppes"
 
-#: fff_plugin.py:1536 fff_plugin.py:1542 fff_plugin.py:1782 fff_plugin.py:1788
+#: fff_plugin.py:1546 fff_plugin.py:1552 fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare log"
 msgstr "FanFicFare logi"
 
-#: fff_plugin.py:1563
+#: fff_plugin.py:1573
 msgid "Download %s FanFiction Book(s)"
 msgstr "Laadi alla %s fännikirjanduse raamat(ut)"
 
-#: fff_plugin.py:1570
+#: fff_plugin.py:1580
 msgid "Starting %d FanFicFare Downloads"
 msgstr "%d FanFicFare allalaadimise alustamine"
 
-#: fff_plugin.py:1608
+#: fff_plugin.py:1617
 msgid "Story Details:"
 msgstr "Jutu üksikasjad:"
 
-#: fff_plugin.py:1611
+#: fff_plugin.py:1620
 msgid "Error Updating Metadata"
 msgstr "Viga metaandmete uuendamisel"
 
-#: fff_plugin.py:1612
+#: fff_plugin.py:1621
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Esines viga, kui FanFicFare uuendas raamatul <a href='%s'>%s</a> calibre metaandmeid."
 
-#: fff_plugin.py:1613
+#: fff_plugin.py:1622
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "E-raamat on uuendatud, kuid metaandmed pole."
 
-#: fff_plugin.py:1667 fff_plugin.py:1668
+#: fff_plugin.py:1676 fff_plugin.py:1677
 msgid "Finished Adding/Updating %d books."
 msgstr "%d raamatu lisamine/uuendamine lõpetati."
 
-#: fff_plugin.py:1724
+#: fff_plugin.py:1733
 msgid "No Good Stories for Anthology"
 msgstr "Antoloogia jaoks pole häid jutte"
 
-#: fff_plugin.py:1725
+#: fff_plugin.py:1734
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Ei laaditud alla ühtki head juttu/uuendust, Antoloogia loomine/uuendamine katkestati."
 
-#: fff_plugin.py:1730 fff_plugin.py:1762
+#: fff_plugin.py:1739 fff_plugin.py:1771
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare leidis <b>%s</b> head ja <b>%s</b> halba uuendust."
 
-#: fff_plugin.py:1737
+#: fff_plugin.py:1746
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Kas oled kindel, et tahad selle antoloogia loomise/uuendamisega jätkata?"
 
-#: fff_plugin.py:1738
+#: fff_plugin.py:1747
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Mis tahes ebaõnnestunud uuendust <b>ei</b> kaasata antoloogiasse."
 
-#: fff_plugin.py:1739
+#: fff_plugin.py:1748
 msgid "However, if there's an older version, it will still be included."
 msgstr "Kuid kui on olemas vanem versioon, siis see ikka kaasatakse."
 
-#: fff_plugin.py:1742
+#: fff_plugin.py:1751
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Kas jätkata selle antoloogia ja sinu kogu uuendamisega?"
 
-#: fff_plugin.py:1764
+#: fff_plugin.py:1773
 msgid "Proceed with updating your library?"
 msgstr "Jätkata oma kogu uuendamisega?"
 
-#: fff_plugin.py:1782 fff_plugin.py:1788
+#: fff_plugin.py:1791 fff_plugin.py:1797
 msgid "FanFicFare download complete"
 msgstr "FanFicFare allalaadimine valmis"
 
-#: fff_plugin.py:1803
+#: fff_plugin.py:1812
 msgid "Merging %s books."
 msgstr "%s raamatu ühendamine."
 
-#: fff_plugin.py:1892
+#: fff_plugin.py:1895
 msgid "FanFicFare Adding/Updating books."
 msgstr "FanFicFare raamatute Lisamine/Uuendamine."
 
-#: fff_plugin.py:1906
+#: fff_plugin.py:1909
 msgid "Updating calibre for FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:1907
+#: fff_plugin.py:1910
 msgid "Update calibre for FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:1917
+#: fff_plugin.py:1920
 msgid "Adding/Updating %s BAD books."
 msgstr "%s HALVA raamatu lisamine/uuendamine."
 
-#: fff_plugin.py:1922
+#: fff_plugin.py:1925
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:1923
+#: fff_plugin.py:1926
 msgid "Update calibre for BAD FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1971
 msgid "Adding format to book failed for some reason..."
 msgstr "Raamatusse formaadi lisamine miskipärast ebaõnnestus..."
 
-#: fff_plugin.py:2334
+#: fff_plugin.py:2337
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama lugemisloendeid, aga plugin %s pole enam installitud?"
 
-#: fff_plugin.py:2346
+#: fff_plugin.py:2349
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2356 fff_plugin.py:2374
+#: fff_plugin.py:2359 fff_plugin.py:2377
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama lugemisloendit '%s', aga sellenimelist loendit pole olemas?"
 
-#: fff_plugin.py:2362
+#: fff_plugin.py:2365
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Sa seadistasid FanFicFare'i automaatselt uuendama \"Saada seadmesse\" lugemisloendeid, aga sa pole ühtegi loendit loonud?"
 
-#: fff_plugin.py:2436
+#: fff_plugin.py:2439
 msgid "Same story already included."
 msgstr "Sama jutt on juba olemas."
 
-#: fff_plugin.py:2494
+#: fff_plugin.py:2497
 msgid "No story URL found."
 msgstr "Jutu URLi ei leitud."
 
-#: fff_plugin.py:2497
+#: fff_plugin.py:2500
 msgid "Not Found"
 msgstr "Ei leitud"
 
-#: fff_plugin.py:2503
+#: fff_plugin.py:2506
 msgid "URL is not a valid story URL."
 msgstr "URL ei ole õige jutu URL."
 
-#: fff_plugin.py:2506
+#: fff_plugin.py:2509
 msgid "Bad URL"
 msgstr "Vigane URL"
 
-#: fff_plugin.py:2675
+#: fff_plugin.py:2680
 msgid "Anthology containing:"
 msgstr "Antoloogia, mis sisaldab:"
 
-#: fff_plugin.py:2678
+#: fff_plugin.py:2683
 msgid "%s by %s"
 msgstr "%s, autor %s"
 
-#: fff_plugin.py:2737
+#: fff_plugin.py:2747
 msgid " Anthology"
 msgstr " Antoloogia"
 
-#: fff_plugin.py:2774
+#: fff_plugin.py:2795
 msgid "(was set, removed for security)"
 msgstr "(oli määratud, turvalisuse huvides eemaldati)"
 
