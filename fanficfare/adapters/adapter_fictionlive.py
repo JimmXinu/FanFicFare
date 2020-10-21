@@ -48,9 +48,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.story.setMetadata('siteabbrev','flive')
-        self._setURL(url);
         self.story_id = self.parsedUrl.path.split('/')[3]
         self.story.setMetadata('storyId', self.story_id)
+
+        # normalize URL. omits title in the url
+        self._setURL("https://fiction.live/stories//{s_id}".format(s_id = self.story_id));
 
     @staticmethod
     def getSiteDomain():
@@ -62,7 +64,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
-        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
+        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?"
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -329,6 +331,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
             link_tag.insert(0, legend)
         return soup
 
+    def fictionlive_normalize(string):
+        # might be able to use this to preserve titles in normalized urls, if the scheme is the same
+
+        # BUG: in achivement ids these are all replaced, but I *don't* know that the list is complete.
+        # should be rare, thankfully. *most* authors don't use any funny characters in the achievment's *ID*
+        special_chars = "\"\\,.!?+=/[](){}<>_'@#$%^&*~`;:|" # not the hyphen, which is used to represent spaces
+
+        return string.lower().replace(" ", "-").translate({ord(x) : None for x in special_chars})
+
     def append_achievments(self, soup):
         # achivements are present in the text as a kind of link, and you get the shiny popup by clicking them.
         achievement_links = soup.find_all('a', class_="tydai-achievement")
@@ -345,10 +356,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
             ## while we've got the achievment links, get the ids from the link
             a_id = link_tag['data-id']
-            # BUG: these are all replaced, but I *don't* know that the list is complete.
-            # should be rare, thankfully. *most* authors don't use any funny characters in the achievment's *ID*
-            special_chars = "\"\\,.!?+=/[](){}<>_'@#$%^&*~`;:|" # not the hyphen, which is used to represent spaces
-            a_id = a_id.lower().replace(" ", "-").translate({ord(x) : None for x in special_chars})
+            a_id = fictionlive_normalize(a_id)
+
             achieved_ids.append(a_id)
 
         if achieved_ids:
