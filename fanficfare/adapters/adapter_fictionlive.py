@@ -48,9 +48,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
 
         self.story.setMetadata('siteabbrev','flive')
-        self._setURL(url);
         self.story_id = self.parsedUrl.path.split('/')[3]
         self.story.setMetadata('storyId', self.story_id)
+
+        # normalize URL. omits title in the url
+        self._setURL("https://fiction.live/stories//{s_id}".format(s_id = self.story_id));
 
     @staticmethod
     def getSiteDomain():
@@ -62,7 +64,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
-        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
+        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?"
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -108,9 +110,13 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         # stories have ut, rt, ct, and cht. fairly sure that ut = update time and rt = release time.
         # ct is 'creation time' and everything in the api has it -- you can create stories and edit before publishing
-        # no idea about cht
-        self.story.setMetadata("dateUpdated", self.parse_timestamp(data['ut']))
+        # cht is *chunktime* -- newest story chunk added.
+        # ut for update time includes other kinds of update -- threads, chat etc
+        # ct <= rt <= cht <= ut
+        self.story.setMetadata("dateUpdated", self.parse_timestamp(data['cht']))
         self.story.setMetadata("datePublished", self.parse_timestamp(data['rt']))
+
+        self.most_recent_chunk = data['cht'] if 'cht' in data else 9999999999999998
 
         # nearly everything optional from here out
 
@@ -246,7 +252,9 @@ class FictionLiveAdapter(BaseSiteAdapter):
             prev_chapter_title = c['title']
 
         # with the loop done, we've handled every chapter but the final one, so we'll now do it manually.
-        chapter_end = 9999999999999998
+
+        # including chunk-time in url (over, say, 999...) means fanficfare recognises updated chapters as new
+        chapter_end = self.most_recent_chunk + 1
         add_chapter_url(prev_chapter_title, chapter_start, chapter_end)
 
         for a in appendices: # add appendices at the end
@@ -329,6 +337,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
             link_tag.insert(0, legend)
         return soup
 
+    def fictionlive_normalize(string):
+        # might be able to use this to preserve titles in normalized urls, if the scheme is the same
+
+        # BUG: in achivement ids these are all replaced, but I *don't* know that the list is complete.
+        # should be rare, thankfully. *most* authors don't use any funny characters in the achievment's *ID*
+        special_chars = "\"\\,.!?+=/[](){}<>_'@#$%^&*~`;:|" # not the hyphen, which is used to represent spaces
+
+        return string.lower().replace(" ", "-").translate({ord(x) : None for x in special_chars})
+
     def append_achievments(self, soup):
         # achivements are present in the text as a kind of link, and you get the shiny popup by clicking them.
         achievement_links = soup.find_all('a', class_="tydai-achievement")
@@ -345,10 +362,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
             ## while we've got the achievment links, get the ids from the link
             a_id = link_tag['data-id']
-            # BUG: these are all replaced, but I *don't* know that the list is complete.
-            # should be rare, thankfully. *most* authors don't use any funny characters in the achievment's *ID*
-            special_chars = "\"\\,.!?+=/[](){}<>_'@#$%^&*~`;:|" # not the hyphen, which is used to represent spaces
-            a_id = a_id.lower().replace(" ", "-").translate({ord(x) : None for x in special_chars})
+            a_id = fictionlive_normalize(a_id)
+
             achieved_ids.append(a_id)
 
         if achieved_ids:
@@ -505,17 +520,12 @@ class FictionLiveAdapter(BaseSiteAdapter):
 # in future, I'd like to handle audio embeds somehow. but they're not availble to add to stories right now.
 # pretty sure they'll just format as a link (with a special tydai-audio class) and should be easier than achievements
 
-# TODO:
-# set fanficfare plugin to use "overwrite if newer" ? or 'update epub always' ?
-# a lot of times, chunks will be added even when chapters/bookmarks don't change
-# if bookmarks do change, it may not be as simple as adding new ones to the end
-
 # TODO: verify that show_timestamps is working, check times!
 
-# TODO: find a story that uses achievement images and implement them
+# TODO: find a story that uses achievement images and implement them?
 
-# TODO: sort out updates, somehow. 'update epub if new chapters' is an awful match for fiction.live
-# where chunks get just dropped at the end of chapters, and chapter-bookmarking happens later.
-# updating in 'overwrite always' or 'overwrite if newer' does the right thing, but.
+### known bugs:
 
-# TODO: pagecache. In particular, if there's any way to update stories and *not* redownload images, that'd be great.
+# BUG: chapters at the start of the story -- 'home' is often folded into the second chapter
+# BUG: short stories can crash -- see crash-checker testing
+
