@@ -510,10 +510,10 @@ class FanFicFarePlugin(InterfaceAction):
 
             ## XXX
             ## options to
-            ## - display menu
+            ## - display menu - favourites doesn't display invisible menu, but does remember
             ## - no shortcuts either
             ## - show/conceal by individual?
-            ## - download immediately like email?
+            ## - download immediately like email? - Update Existing
             ## conceal:
             ## - CALIBREONLYSAVECOL when not configured
             ## - from email when not configured
@@ -959,50 +959,59 @@ class FanFicFarePlugin(InterfaceAction):
             return
 
         db = self.gui.current_db
-        with busy_cursor():
-            self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
-            book_id = self.gui.library_view.get_selected_ids()[0]
-            mergebook = self.make_book_id_only(book_id)
-            self.populate_book_from_calibre_id(mergebook, db)
-
-            if not db.has_format(book_id,'EPUB',index_is_id=True):
-                self.gui.status_bar.show_message(_('Can only Update Epub Anthologies'), 3000)
+        class NotAnthologyException(Exception):
+            def __init__(self):
                 return
 
-            tdir = PersistentTemporaryDirectory(prefix='fff_anthology_')
-            logger.debug("tdir:\n%s"%tdir)
+        try:
+            with busy_cursor():
+                self.gui.status_bar.show_message(_('Fetching Story URLs for Series...'))
+                book_id = self.gui.library_view.get_selected_ids()[0]
+                mergebook = self.make_book_id_only(book_id)
+                self.populate_book_from_calibre_id(mergebook, db)
 
-            bookepubio = BytesIO(db.format(book_id,'EPUB',index_is_id=True))
+                if not db.has_format(book_id,'EPUB',index_is_id=True):
+                    self.gui.status_bar.show_message(_('Can only Update Epub Anthologies'), 3000)
+                    return
 
-            filenames = self.get_epubmerge_plugin().do_unmerge(bookepubio,tdir)
-            urlmapfile = {}
-            url_list = []
-            for f in filenames:
-                url = adapters.getNormalStoryURL(get_dcsource(f))
-                if url:
-                    urlmapfile[url]=f
-                    url_list.append(url)
+                tdir = PersistentTemporaryDirectory(prefix='fff_anthology_')
+                logger.debug("tdir:\n%s"%tdir)
 
-            if not filenames or len(filenames) != len (url_list):
-                info_dialog(self.gui, _("Cannot Update Anthology"),
-                            "<p>"+_("Cannot Update Anthology")+"</p><p>"+_("Book isn't an FanFicFare Anthology or contains book(s) without valid Story URLs."),
-                            show=True,
-                            show_copy_button=False)
-                remove_dir(tdir)
-                return
+                bookepubio = BytesIO(db.format(book_id,'EPUB',index_is_id=True))
 
-            # get list from identifiers:url/uri if present, but only if
-            # it's *not* a valid story URL.
-            mergeurl = self.get_story_url(db,book_id)
-            frompage = {}
-            if mergeurl and not self.is_good_downloader_url(mergeurl):
-                frompage = self.get_urls_from_page(mergeurl)
-                url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
-            frompage['urllist']=url_list
+                filenames = self.get_epubmerge_plugin().do_unmerge(bookepubio,tdir)
+                urlmapfile = {}
+                url_list = []
+                for f in filenames:
+                    url = adapters.getNormalStoryURL(get_dcsource(f))
+                    if url:
+                        urlmapfile[url]=f
+                        url_list.append(url)
 
-            url_list_text = "\n".join(url_list)
+                if not filenames or len(filenames) != len (url_list):
+                    raise NotAnthologyException()
 
-            self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
+                # get list from identifiers:url/uri if present, but only if
+                # it's *not* a valid story URL.
+                mergeurl = self.get_story_url(db,book_id)
+                frompage = {}
+                if mergeurl and not self.is_good_downloader_url(mergeurl):
+                    frompage = self.get_urls_from_page(mergeurl)
+                    url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
+                frompage['urllist']=url_list
+
+                url_list_text = "\n".join(url_list)
+
+                self.gui.status_bar.show_message(_('Finished Fetching Story URLs for Series.'),3000)
+        except NotAnthologyException:
+            # using an exception purely to get outside 'with busy_cursor:'
+            info_dialog(self.gui, _("Cannot Update Anthology"),
+                        "<p>"+_("Cannot Update Anthology")+"</p><p>"+_("Book isn't an FanFicFare Anthology or contains book(s) without valid Story URLs."),
+                        show=True,
+                        show_copy_button=False)
+            remove_dir(tdir)
+            return
+
 
         #print("urlmapfile:%s"%urlmapfile)
 
