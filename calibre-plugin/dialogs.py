@@ -472,11 +472,11 @@ class AddNewDialog(SizePersistedDialog):
         self.set_collisions()
         if 'collision' in extraoptions:
             use_collision = extraoptions['collision']
-            self.collision.setDisabled(True)
-            self.collision.setToolTip(_("Update Mode set by menu/shortcut choice."))
+            # self.collision.setDisabled(True)
+            # self.collision.setToolTip(_("Update Mode set by menu/shortcut choice."))
         else:
             use_collision = save_collisions[self.prefs['collision']]
-            self.collision.setDisabled(False)
+            # self.collision.setDisabled(False)
         i = self.collision.findText(use_collision)
         if i > -1:
             self.collision.setCurrentIndex(i)
@@ -914,11 +914,11 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.set_collisions()
         if 'collision' in extraoptions:
             use_collision = extraoptions['collision']
-            self.collision.setDisabled(True)
-            self.collision.setToolTip(_("Update Mode set by menu/shortcut choice."))
+            # self.collision.setDisabled(True)
+            # self.collision.setToolTip(_("Update Mode set by menu/shortcut choice."))
         else:
             use_collision = save_collisions[self.prefs['collision']]
-            self.collision.setDisabled(False)
+            # self.collision.setDisabled(False)
         i = self.collision.findText(use_collision)
         if i > -1:
             self.collision.setCurrentIndex(i)
