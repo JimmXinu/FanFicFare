@@ -431,16 +431,6 @@ class FanFicFarePlugin(InterfaceAction):
                              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
                             self.add_dialog)
 
-            # fromurls_sub_menu = self.modes_sub_menu.addMenu()
-            # fromurls_sub_menu.setIcon(get_icon('plus.png'))
-            # for mode in (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
-            #              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL):
-            #     add_mode_menu(fromurls_sub_menu,
-            #                   'Download FanFiction Books from URLs',
-            #                   _('Download FanFiction Books from URLs'),
-            #                   mode,
-            #                   self.add_dialog)
-
             add_action_menu(_('&Update Existing FanFiction Books'),
                             'plusplus.png',
                             'Update Existing FanFiction Books',
@@ -448,16 +438,6 @@ class FanFicFarePlugin(InterfaceAction):
                             (UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
                              CALIBREONLY, CALIBREONLYSAVECOL),
                             self.update_dialog)
-
-            # update_sub_menu = self.modes_sub_menu.addMenu(_('&Update Existing FanFiction Books'))
-            # update_sub_menu.setIcon(get_icon('plusplus.png'))
-            # for mode in (UPDATE, UPDATEALWAYS, OVERWRITE, OVERWRITEALWAYS,
-            #              CALIBREONLY, CALIBREONLYSAVECOL):
-            #     add_mode_menu(update_sub_menu,
-            #                   'Update Existing FanFiction Books',
-            #                   _('&Update Existing FanFiction Books'),
-            #                   mode,
-            #                   self.update_dialog)
 
             add_action_menu(_('Get Story URLs from &Email'),
                             'view.png',
@@ -467,16 +447,6 @@ class FanFicFarePlugin(InterfaceAction):
                              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
                             self.get_urls_from_imap_menu)
 
-            # fromimap_sub_menu = self.modes_sub_menu.addMenu(_('Get Story URLs from &Email'))
-            # fromimap_sub_menu.setIcon(get_icon('view.png'))
-            # for mode in (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
-            #              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL):
-            #     add_mode_menu(fromimap_sub_menu,
-            #                   'Get FanFiction Story URLs from Email',
-            #                   _('Get FanFiction Story URLs from Email'),
-            #                   mode,
-            #                   self.get_urls_from_imap_menu)
-
             add_action_menu(_('Get Story URLs from Web Page'),
                             'view.png',
                             'Get FanFiction Story URLs from Web Page',
@@ -484,11 +454,6 @@ class FanFicFarePlugin(InterfaceAction):
                             (SKIP, ADDNEW, UPDATE, UPDATEALWAYS, OVERWRITE,
                              OVERWRITEALWAYS, CALIBREONLY, CALIBREONLYSAVECOL),
                             self.get_urls_from_page_menu)
-            # frompage_sub_menu = self.modes_sub_menu.addMenu(_('Get Story URLs from Web Page'))
-            # self.get_list_url_action_skip = self.create_menu_item_ex(frompage_sub_menu, _('Get Story URLs from Web Page SKIP'), image='view.png',
-            #                                                     unique_name='Get Story URLs from Web Page SKIP',
-            #                                                     triggered=partial(self.get_urls_from_page_menu,
-            #                                                                       extraoptions={'collision':SKIP}))
 
             add_action_menu(_('Update Anthology Epub'),
                             'plusplus.png',
