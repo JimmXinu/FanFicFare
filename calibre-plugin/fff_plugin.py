@@ -462,17 +462,6 @@ class FanFicFarePlugin(InterfaceAction):
                             (UPDATE, UPDATEALWAYS, OVERWRITEALWAYS),
                             self.update_anthology)
 
-            # updateanth_sub_menu = self.modes_sub_menu.addMenu(_('Update Anthology Epub'))
-            # self.updateanth_action_ov = self.create_menu_item_ex(updateanth_sub_menu, _('Update Anthology Epub OVERWRITEALWAYS'),
-            #                                                   image='plusplus.png',
-            #                                                   unique_name='Update FanFiction Anthology Epub OVERWRITEALWAYS',
-            #                                                   shortcut_name=_('Update FanFiction Anthology Epub OVERWRITEALWAYS'),
-            #                                                   triggered=partial(self.update_anthology,
-            #                                                                     extraoptions={'collision':OVERWRITEALWAYS}))
-
-            # for ac in (self.updateanth_action_ov,):
-            #     ac.setVisible(anth_on)
-
             ## XXX
             ## options to
             ## - display menu - favourites doesn't display invisible menu, but does remember
@@ -514,7 +503,6 @@ class FanFicFarePlugin(InterfaceAction):
                                                              triggered=self.about)
 
             self.gui.keyboard.finalize()
-
 
     def about(self,checked):
         # Get the about text from a file inside the plugin zip file
@@ -580,11 +568,28 @@ class FanFicFarePlugin(InterfaceAction):
             if not add and prefs['autounnew']:
                 self.unnew_books(False)
 
+    def check_valid_collision(self,extraoptions):
+        collision = extraoptions.get('collision',None)
+        logger.debug(extraoptions)
+        logger.debug(prefs['savemetacol'])
+        if collision == CALIBREONLYSAVECOL and not prefs['savemetacol']:
+            s=_('FanFicFare Saved Metadata Column not configured.')
+            info_dialog(self.gui, s, s, show=True, show_copy_button=False)
+            extraoptions['collision'] = CALIBREONLY
+            return
+
+        if collision in (UPDATE,UPDATEALWAYS) and prefs['fileform'] != 'epub':
+            s=_('Cannot update non-epub format.')
+            info_dialog(self.gui, s, s, show=True, show_copy_button=False)
+            extraoptions['collision'] = OVERWRITE
+            return
+
     def get_urls_from_imap_menu(self,checked,extraoptions={}):
         if not (prefs['imapserver'] and prefs['imapuser'] and prefs['imapfolder']):
             s=_('FanFicFare Email Settings are not configured.')
             info_dialog(self.gui, s, s, show=True, show_copy_button=False)
             return
+        self.check_valid_collision(extraoptions)
 
         imap_pass = None
         if prefs['imappass']:
@@ -666,6 +671,7 @@ class FanFicFarePlugin(InterfaceAction):
 
     def get_urls_from_page_menu(self,checked,anthology=False,extraoptions={}):
 
+        self.check_valid_collision(extraoptions)
         urltxt = ""
         if prefs['urlsfromclip']:
             try:
@@ -897,6 +903,8 @@ class FanFicFarePlugin(InterfaceAction):
         Both new individual stories and new anthologies are created here.
         Expected extraoptions entries: anthology_url, add_tag, frompage
         '''
+        self.check_valid_collision(extraoptions)
+
         if not url_list_text:
             url_list = self.get_urls_clip()
             url_list_text = "\n".join(url_list)
@@ -911,6 +919,7 @@ class FanFicFarePlugin(InterfaceAction):
                                         extraoptions=extraoptions)
 
     def update_anthology(self,checked,extraoptions={}):
+        self.check_valid_collision(extraoptions)
         if not self.get_epubmerge_plugin():
             self.gui.status_bar.show_message(_('Cannot Make Anthologys without %s')%'EpubMerge 1.3.1+', 3000)
             return
@@ -1049,6 +1058,8 @@ class FanFicFarePlugin(InterfaceAction):
         if len(id_list) == 0:
             self.gui.status_bar.show_message(_('No Selected Books to Update'), 3000)
             return
+
+        self.check_valid_collision(extraoptions)
         #print("update_dialog()")
 
         db = self.gui.current_db
