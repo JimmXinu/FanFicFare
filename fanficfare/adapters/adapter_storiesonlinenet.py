@@ -144,7 +144,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
         params['v']=soup.find('input', {'name':'v'})['value']
         params['password'] = password
-        params['cmd'] = 'Log In'
+        params['cmd'] = 'cred_set'
 
         # postAction = soup.find('form')['action']
 
