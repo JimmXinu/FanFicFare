@@ -126,14 +126,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
         pubdate = None
         chapters = soup.find('ul', {'class' : 'list-of-fanfic-parts'})
         if chapters != None:
-            for chapdiv in chapters.findAll('div', {'class':'part-info'}):
+            for chapdiv in chapters.findAll('li', {'class':'part'}):
                 chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
                 self.add_chapter(chapter,churl)
-                ## First chapter doesn't always have a date, skip it.
-                if pubdate == None and chapter.parent.find('span'):
-                    pubdate = translit.translit(stripHTML(chapter.parent.find('span')))
-                update = translit.translit(stripHTML(chapter.parent.find('span')))
+
+                datespan = chapdiv.find('span')
+                if pubdate == None and datespan:
+                    pubdate = translit.translit(stripHTML(datespan))
+                update = translit.translit(stripHTML(datespan))
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
