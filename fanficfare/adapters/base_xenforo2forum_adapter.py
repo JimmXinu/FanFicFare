@@ -190,7 +190,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         return self.make_date(souptag.find('div',{'class':'message-lastEdit'}))
 
     def get_threadmarks_top(self,souptag):
-        return souptag.find('div',{'class':'block-outer-main--threadmarks'})
+        return souptag.find('div',{'class':'block-outer-recent-threadmarks'})
 
     def get_threadmarks(self,navdiv):
         return navdiv.find_all('a',{'class':'menuTrigger','href':re.compile('threadmarks.*(threadmark_category=)?')})
