@@ -836,12 +836,15 @@ class Story(Configurable):
 
         self.extendList("extratags",self.getConfigList("extratags"))
 
-        if self.getMetadataRaw('seriesUrl'):
-            self.setMetadata('seriesHTML',linkhtml%('series',
-                                                    self.getMetadata('seriesUrl', removeallentities, doreplacements),
-                                                    self.getMetadata('series', removeallentities, doreplacements)))
-        elif self.getMetadataRaw('series'):
-            self.setMetadata('seriesHTML',self.getMetadataRaw('series'))
+        series = self.getMetadata('series', removeallentities, doreplacements)
+        seriesUrl = self.getMetadata('seriesUrl', removeallentities, doreplacements)
+        if series:
+            # linkhtml isn't configurable.  If it ever is, we may want
+            # to still set seriesHTML without series.
+            if seriesUrl:
+                self.setMetadata('seriesHTML',linkhtml%('series',seriesUrl,series))
+            else:
+                self.setMetadata('seriesHTML',series)
 
         # logger.debug("make_linkhtml_entries:%s"%self.getConfig('make_linkhtml_entries'))
         for k in self.getConfigList('make_linkhtml_entries'):
