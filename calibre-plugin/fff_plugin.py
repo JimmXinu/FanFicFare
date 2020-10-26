@@ -570,8 +570,6 @@ class FanFicFarePlugin(InterfaceAction):
 
     def check_valid_collision(self,extraoptions):
         collision = extraoptions.get('collision',None)
-        logger.debug(extraoptions)
-        logger.debug(prefs['savemetacol'])
         if collision == CALIBREONLYSAVECOL and not prefs['savemetacol']:
             s=_('FanFicFare Saved Metadata Column not configured.')
             info_dialog(self.gui, s, s, show=True, show_copy_button=False)
