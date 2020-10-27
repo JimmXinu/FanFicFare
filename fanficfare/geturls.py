@@ -23,7 +23,7 @@ import re
 import csv
 
 # unicode in py2, str in py3
-from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor)
+from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, urlopen)
 from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import ensure_str
@@ -52,19 +52,19 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     return {}
 
 def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=False):
-    logger.debug("get_urls_from_html")
+    # logger.debug("get_urls_from_html")
     urls = collections.OrderedDict()
 
     if not configuration:
         configuration = Configuration(["test1.com"],"EPUB",lightweight=True)
 
     if isinstance(data,(BeautifulSoup,Tag)):
-        logger.debug("Using pre-made soup")
+        # logger.debug("Using pre-made soup")
         soup = data
     else:
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
-        logger.debug("dbl souping")
+        # logger.debug("dbl souping")
         soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
 
     for a in soup.findAll('a'):
@@ -213,7 +213,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     # so this is safe.  There may be other chars than " that need escaping.
     status = mail.select('"%s"'%folder.replace('"','\\"'))
     if status[0] != 'OK':
-        logger.debug(status)
+        # logger.debug(status)
         if folders:
             raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
         else:
@@ -264,3 +264,39 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
         [ urls.add(x) for x in urllist ]
 
     return urls
+
+def get_urls_from_mime(mime_data):
+    urllist=[]
+    if mime_data.hasFormat('text/uri-list'):
+        # logger.debug("text/uri-list")
+        for qurl in mime_data.urls():
+            f = qurl.toString()
+            # logger.debug("filename:%s"%f)
+            if f.endswith(".eml"):
+                fhandle = urlopen(f)
+                if hasattr(email,'message_from_binary_file'):
+                    # py3
+                    msg = email.message_from_binary_file(fhandle)
+                    # logger.debug("email.message_from_binary_file")
+                else:
+                    # py2
+                    msg = email.message_from_file(fhandle)
+                    # logger.debug("email.message_from_file")
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        #logger.debug("part type:%s"%part.get_content_type())
+                        if part.get_content_type() == "text/html":
+                            #logger.debug("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
+                            urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                        if part.get_content_type() == "text/plain":
+                            #logger.debug("part content:text/plain")
+                            #logger.debug("part content:%s"%part.get_payload(decode=True))
+                            urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                else:
+                    urllist.extend(get_urls_from_text("%s"%msg))
+            else:
+                urllist.extend(get_urls_from_text(f))
+    elif mime_data.hasFormat('text/plain'):
+        # logger.debug("text/plain")
+        urllist.extend(get_urls_from_text(mime_data.text()))
+    return urllist

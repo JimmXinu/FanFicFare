@@ -13,7 +13,6 @@ from functools import partial
 import logging
 logger = logging.getLogger(__name__)
 
-import urllib
 import email
 
 from datetime import datetime
@@ -68,7 +67,9 @@ from calibre_plugins.fanficfare_plugin.common_utils \
             SizePersistedDialog, EditableTableWidgetItem,
             ImageTitleLayout, get_icon)
 
-from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_html, get_urls_from_text
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls \
+    import ( get_urls_from_html, get_urls_from_text,
+             get_urls_from_mime)
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
 
 from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
@@ -187,29 +188,7 @@ class DroppableQTextEdit(QTextEdit):
 
     def dropEvent(self,event):
         # print("event:%s"%event)
-
-        mimetype='text/uri-list'
-
-        urllist=[]
-        filelist="%s"%event.mimeData().data(mimetype)
-        for f in filelist.splitlines():
-            #print("filename:%s"%f)
-            if f.endswith(".eml"):
-                fhandle = urllib.urlopen(f)
-                #print("file:\n%s\n\n"%fhandle.read())
-                msg = email.message_from_file(fhandle)
-                if msg.is_multipart():
-                    for part in msg.walk():
-                        #print("part type:%s"%part.get_content_type())
-                        if part.get_content_type() == "text/html":
-                            #print("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
-                            urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
-                        if part.get_content_type() == "text/plain":
-                            #print("part content:text/plain")
-                            # print("part content:%s"%part.get_payload(decode=True))
-                            urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
-                else:
-                    urllist.extend(get_urls_from_text("%s"%msg))
+        urllist = get_urls_from_mime(event.mimeData())
         if urllist:
             self.append("\n".join(urllist))
             return None

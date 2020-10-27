@@ -88,7 +88,7 @@ from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
     get_urls_from_page, get_urls_from_html,get_urls_from_text,
-    get_urls_from_imap)
+    get_urls_from_imap, get_urls_from_mime)
 
 from calibre_plugins.fanficfare_plugin.fff_util import (
     get_fff_adapter, get_fff_config, get_fff_personalini,
@@ -240,37 +240,12 @@ class FanFicFarePlugin(InterfaceAction):
         dropped_ids=None
         urllist=[]
 
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            dropped_ids = [ int(x) for x in str(mime_data.data(mime)).split() ]
-
-        mimetype='text/uri-list'
-        filelist="%s"%event.mimeData().data(mimetype)
-        if filelist:
-            for f in filelist.splitlines():
-                #print("filename:%s"%f)
-                if f.endswith(".eml"):
-                    fhandle = six.moves.urllib.request.urlopen(f)
-                    msg = email.message_from_file(fhandle)
-                    if msg.is_multipart():
-                        for part in msg.walk():
-                            #print("part type:%s"%part.get_content_type())
-                            if part.get_content_type() == "text/html":
-                                #print("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
-                                urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
-                            if part.get_content_type() == "text/plain":
-                                #print("part content:text/plain")
-                                #print("part content:%s"%part.get_payload(decode=True))
-                                urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
-                    else:
-                        urllist.extend(get_urls_from_text("%s"%msg))
-                else:
-                    urllist.extend(get_urls_from_text(f))
+        libmime = 'application/calibre+from_library'
+        urimimetype='text/uri-list'
+        if mime_data.hasFormat(libmime):
+            dropped_ids = [ int(x) for x in str(mime_data.data(libmime)).split() ]
         else:
-            mimetype='text/plain'
-            if mime_data.hasFormat(mimetype):
-                #print("text/plain:%s"%event.mimeData().data(mimetype))
-                urllist.extend(get_urls_from_text(event.mimeData().data(mimetype)))
+            urllist = get_urls_from_mime(mime_data)
 
         # print("urllist:%s\ndropped_ids:%s"%(urllist,dropped_ids))
         if urllist or dropped_ids:
