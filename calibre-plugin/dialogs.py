@@ -194,18 +194,6 @@ class DroppableQTextEdit(QTextEdit):
             return None
         return QTextEdit.dropEvent(self,event)
 
-    def canInsertFromMimeData(self, source):
-        if source.hasUrls():
-            return True
-        else:
-            return QTextEdit.canInsertFromMimeData(self,source)
-
-    def insertFromMimeData(self, source):
-        if source.hasText():
-            self.append(source.text())
-        else:
-            return QTextEdit.insertFromMimeData(self, source)
-
 class AddNewDialog(SizePersistedDialog):
 
     go_signal = pyqtSignal(object, object, object, object)
