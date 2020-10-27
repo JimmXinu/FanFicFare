@@ -9,7 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from .fanficfare.six import string_types, text_type as unicode
+from .fanficfare.six import ensure_text, string_types, text_type as unicode
 
 # import cProfile
 
@@ -241,9 +241,10 @@ class FanFicFarePlugin(InterfaceAction):
         urllist=[]
 
         libmime = 'application/calibre+from_library'
-        urimimetype='text/uri-list'
         if mime_data.hasFormat(libmime):
-            dropped_ids = [ int(x) for x in str(mime_data.data(libmime)).split() ]
+            ## mime_data.data(libmime) returns QByteArray.
+            ## mime_data.data(libmime).data() returns bytes.
+            dropped_ids = [ int(x) for x in ensure_text(mime_data.data(libmime).data()).split() ]
         else:
             urllist = get_urls_from_mime(mime_data)
 
