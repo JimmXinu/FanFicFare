@@ -4,6 +4,7 @@
 # Translators:
 # Alex, 2016
 # erkfuizfeuadjfjzefzfuzeff gbhygsregfges <erkfuizfeuadjfjzefzfuzeff@gmail.com>, 2017
+# Gideon van Melle <translations@gvmelle.com>, 2020
 # Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
 # Herman L.M. van der Vaart <vaarttuig@gmail.com>, 2018
 # Mario Moens <marimo.it4u@gmail.com>, 2017
@@ -18,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-10-27 14:13-0500\n"
-"PO-Revision-Date: 2020-10-28 04:16+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-10-30 10:38+0000\n"
+"Last-Translator: Gideon van Melle <translations@gvmelle.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -798,7 +799,7 @@ msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
-msgstr "Deze bedieningselementen zijn geen plug-in-instellingen als zodanig, maar gemaksknoppen voor het instellen van sneltoetsen voor het toetsenbord en alle FanFicFare bevestiging vensters weer terug verkrijgen."
+msgstr "Deze bedieningselementen zijn geen plug-in-instellingen als zodanig, maar gemaksknoppen voor het instellen van sneltoetsen voor het toetsenbord en alle FanFicFare bevestigingsvensters weer terug te krijgen."
 
 #: config.py:1230
 msgid "Keyboard shortcuts..."
