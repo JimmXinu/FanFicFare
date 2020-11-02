@@ -116,7 +116,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
-    save_collisions,
+    save_collisions, question_dialog_all,
     NotGoingToDownload, RejectUrlEntry )
 
 # because calibre immediately transforms html into zip and don't want
@@ -986,7 +986,8 @@ class FanFicFarePlugin(InterfaceAction):
 
     def prep_anthology_downloads(self, options, update_books,
                                  merge=False, urlmapfile=None):
-
+        # new question_cache each time we start prep'ing downloads.
+        self.question_cache = {}
         if isinstance(update_books, string_types):
             url_list = split_text_to_urls(update_books)
             update_books = self.convert_urls_to_books(url_list)
@@ -1096,6 +1097,8 @@ class FanFicFarePlugin(InterfaceAction):
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
+        # new question_cache each time we start prep'ing downloads.
+        self.question_cache = {}
         if isinstance(books, string_types):
             url_list = split_text_to_urls(books)
             books = self.convert_urls_to_books(url_list)
@@ -1146,36 +1149,41 @@ class FanFicFarePlugin(InterfaceAction):
         url = book['url']
         if not merge and rejecturllist.check(url): # skip reject list when merging.
             rejnote = rejecturllist.get_full_note(url)
-            if prefs['reject_always'] or question_dialog(self.gui, _('Reject URL?'),'''
-                      <h3>%s</h3>
-                      <p>%s</p>
-                      <p>"<b>%s</b>"</p>
-                      <p>%s</p>
-                      <p>%s</p>'''%(
-                    _('Reject URL?'),
-                    _('<b>%s</b> is on your Reject URL list:')%url,
-                    rejnote,
-                    _("Click '<b>Yes</b>' to Reject."),
-                    _("Click '<b>No</b>' to download anyway.")),
-                               show_copy_button=False):
+            if prefs['reject_always'] or \
+                    question_dialog_all(self.gui,
+                                        _('Reject URL?'),'''
+                                          <h3>%s</h3>
+                                          <p>%s</p>
+                                          <p>"<b>%s</b>"</p>
+                                          <p>%s</p>
+                                          <p>%s</p>'''%(_('Reject URL?'),
+                                                        _('<b>%s</b> is on your Reject URL list:')%url,
+                                                        rejnote,
+                                                        _("Click '<b>Yes</b>' to Reject."),
+                                                        _("Click '<b>No</b>' to download anyway.")),
+                                        show_copy_button=False,
+                                        question_name='reject_url',
+                                        question_cache=self.question_cache):
                 book['comment'] = _("Story on Reject URLs list (%s).")%rejnote
                 book['good']=False
                 book['icon']='rotate-right.png'
                 book['status'] = _('Rejected')
                 return True
             else:
-                if question_dialog(self.gui, _('Remove Reject URL?'),'''
-                          <h3>%s</h3>
-                          <p>%s</p>
-                          <p>"<b>%s</b>"</p>
-                          <p>%s</p>
-                          <p>%s</p>'''%(
-                        _("Remove URL from Reject List?"),
-                        _('<b>%s</b> is on your Reject URL list:')%url,
-                        rejnote,
-                        _("Click '<b>Yes</b>' to remove it from the list,"),
-                        _("Click '<b>No</b>' to leave it on the list.")),
-                                   show_copy_button=False):
+                if question_dialog_all(self.gui,
+                                       _('Remove Reject URL?'),'''
+                                         <h3>%s</h3>
+                                         <p>%s</p>
+                                         <p>"<b>%s</b>"</p>
+                                         <p>%s</p>
+                                         <p>%s</p>'''%(_("Remove URL from Reject List?"),
+                                                       _('<b>%s</b> is on your Reject URL list:')%url,
+                                                       rejnote,
+                                                       _("Click '<b>Yes</b>' to remove it from the list,"),
+                                                       _("Click '<b>No</b>' to leave it on the list.")),
+                                       show_copy_button=False,
+                                       question_name='remove_reject_url',
+                                       question_cache=self.question_cache):
                     rejecturllist.remove(url)
         return False
 
@@ -1195,9 +1203,11 @@ class FanFicFarePlugin(InterfaceAction):
                     adapter.password = userpass.passwd.text()
 
             except exceptions.AdultCheckRequired:
-                if question_dialog(self.gui, _('Are You an Adult?'), '<p>'+
-                                   _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
-                                   show_copy_button=False):
+                if question_dialog_all(self.gui, _('Are You an Adult?'), '<p>'+
+                                       _("%s requires that you be an adult.  Please confirm you are an adult in your locale:")%url,
+                                       show_copy_button=False,
+                                       question_name='is_adult',
+                                       question_cache=self.question_cache):
                     adapter.is_adult=True
 
         # let other exceptions percolate up.
@@ -1323,18 +1333,20 @@ class FanFicFarePlugin(InterfaceAction):
                 # try to find *series anthology* by *seriesUrl* identifier url or uri first.
                 identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
                 # print("identicalbooks:%s"%identicalbooks)
-                if len(identicalbooks) > 0 and (prefs['auto_reject_seriesurlid'] or \
-                                                    question_dialog(self.gui, _('Skip Story?'),'''
-                                                                  <h3>%s</h3>
-                                                                  <p>%s</p>
-                                                                  <p>%s</p>
-                                                                  <p>%s</p>
-                                                               '''%(
-                                                               _('Skip Anthology Story?'),
-                                                               _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
-                                                               _("Click '<b>Yes</b>' to Skip."),
-                                                               _("Click '<b>No</b>' to download anyway.")),
-                                                               show_copy_button=False)):
+                if len(identicalbooks) > 0 and \
+                        (prefs['auto_reject_seriesurlid'] or
+                         question_dialog_all(self.gui, _('Skip Story?'),'''
+                                                         <h3>%s</h3>
+                                                         <p>%s</p>
+                                                         <p>%s</p>
+                                                         <p>%s</p>
+                                                         '''%(_('Skip Anthology Story?'),
+                                                              _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                              _("Click '<b>Yes</b>' to Skip."),
+                                                              _("Click '<b>No</b>' to download anyway.")),
+                                             show_copy_button=False,
+                                             question_name='skip_in_anthology',
+                                             question_cache=self.question_cache)):
                     book['comment'] = _("Story in Series Anthology(%s).")%series
                     book['title'] = story.getMetadata('title')
                     book['author'] = [story.getMetadata('author')]
@@ -1442,34 +1454,39 @@ class FanFicFarePlugin(InterfaceAction):
                             book['icon']='rotate-right.png'
                             book['status'] = _('Different URL')
                             return
-                        if prefs['checkforurlchange'] and not question_dialog(self.gui, _('Change Story URL?'),'''
+                        if prefs['checkforurlchange'] and not \
+                                question_dialog_all(self.gui,
+                                                _('Change Story URL?'),'''
                                                   <h3>%s</h3>
                                                   <p>%s</p>
                                                   <p>%s</p>
                                                   <p>%s</p>
                                                   <p>%s</p>
-                                                  <p>%s</p>'''%(
-                                _('Change Story URL?'),
-                                _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL:')%{'title':mi.title,'author':', '.join(mi.author)},
-                                _('In library: <a href="%(liburl)s">%(liburl)s</a>')%{'liburl':liburl},
-                                _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
-                                _("Click '<b>Yes</b>' to update/overwrite book with new URL."),
-                                _("Click '<b>No</b>' to skip updating/overwriting this book.")),
-                                               show_copy_button=False):
-                            if question_dialog(self.gui, _('Download as New Book?'),'''
-                                                  <h3>%s</h3>
-                                                  <p>%s</p>
-                                                  <p>%s</p>
-                                                  <p>%s</p>
-                                                  <p>%s</p>
-                                                  <p>%s</p>'''%(
-                                    _('Download as New Book?'),
-                                    _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL.')%{'title':mi.title,'author':', '.join(mi.author)},
-                                    _('You chose not to update the existing book.  Do you want to add a new book for this URL?'),
-                                    _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
-                                    _("Click '<b>Yes</b>' to a new book with new URL."),
-                                    _("Click '<b>No</b>' to skip URL.")),
-                                               show_copy_button=False):
+                                                  <p>%s</p>'''%(_('Change Story URL?'),
+                                                                _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL:')%{'title':mi.title,'author':', '.join(mi.author)},
+                                                                _('In library: <a href="%(liburl)s">%(liburl)s</a>')%{'liburl':liburl},
+                                                                _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
+                                                                _("Click '<b>Yes</b>' to update/overwrite book with new URL."),
+                                                                _("Click '<b>No</b>' to skip updating/overwriting this book.")),
+                                                    show_copy_button=False,
+                                                    question_name='change_story_url',
+                                                    question_cache=self.question_cache):
+                            if question_dialog_all(self.gui,
+                                                   _('Download as New Book?'),'''
+                                                     <h3>%s</h3>
+                                                     <p>%s</p>
+                                                     <p>%s</p>
+                                                     <p>%s</p>
+                                                     <p>%s</p>
+                                                     <p>%s</p>'''%(_('Download as New Book?'),
+                                                                   _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a different source URL.')%{'title':mi.title,'author':', '.join(mi.author)},
+                                                                   _('You chose not to update the existing book.  Do you want to add a new book for this URL?'),
+                                                                   _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
+                                                                   _("Click '<b>Yes</b>' to a new book with new URL."),
+                                                                   _("Click '<b>No</b>' to skip URL.")),
+                                                   show_copy_button=False,
+                                                   question_name='download_new',
+                                                   question_cache=self.question_cache):
                                 book_id = None
                                 mi = None
                                 book['calibre_id'] = None

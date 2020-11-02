@@ -97,7 +97,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             idstr = self.story.getMetadata('storyId')
             idnum = int(idstr)
 
-        if idstr == '665' and not (self.is_adult or self.getConfig("is_adult")):
+        if (idstr == '665' or (idnum>710 and idnum<=720)) and not (self.is_adult or self.getConfig("is_adult")):
             logger.warning("self.is_adult:%s"%self.is_adult)
             raise exceptions.AdultCheckRequired(self.url)
 
@@ -150,13 +150,13 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 }
             self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
-            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=1')
+            self.story.setMetadata('seriesUrl','http://test1.com/seriesid=1')
         elif idnum < 20:
             self.setSeries('魔法少女まどか★マギカ',idnum)
-            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=1')
+            self.story.setMetadata('seriesUrl','http://test1.com/seriesid=1')
         if idnum == 0:
             self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
-            self.story.setMetadata('seriesUrl','http://test1.com?seriesid=0')
+            self.story.setMetadata('seriesUrl','http://test1.com/seriesid=0')
 
         self.story.setMetadata('rating','Tweenie')
 
@@ -334,7 +334,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p>sid&gt;=1000 will use custom test story data from your configuration(personal.ini)</p>
 <p>Hard coded ids:</p>
 <p>http://test1.com?sid=664 - Crazy string title</p>
-<p>http://test1.com?sid=665 - raises AdultCheckRequired</p>
+<p>http://test1.com?sid=665, 711-720 - raises AdultCheckRequired</p>
 <p>http://test1.com?sid=666 - raises StoryDoesNotExist</p>
 <p>http://test1.com?sid=667 - raises FailedToDownload on chapters 2+</p>
 <p>http://test1.com?sid=668 - raises FailedToLogin unless username='Me'</p>

@@ -1620,3 +1620,77 @@ class EmailPassDialog(QDialog):
 
     def get_remember(self):
         return self.remember_pass.isChecked()
+
+def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
+    default_yes=True,
+    # Skippable dialogs
+    # Set skip_dialog_name to a unique name for this dialog
+    # Set skip_dialog_msg to a message displayed to the user
+    skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
+    skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+    # Override icon (QIcon to be used as the icon for this dialog or string for I())
+    override_icon=None,
+    # Change the text/icons of the yes and no buttons.
+    # The icons must be QIcon objects or strings for I()
+    yes_text=None, no_text=None, yes_icon=None, no_icon=None,
+    # for yes/no to all memory:
+    question_name=None,
+    question_cache=None,
+):
+
+    print(question_cache)
+    if isinstance(question_cache,dict) and question_name and question_name in question_cache:
+        return question_cache[question_name]
+    from calibre.gui2.dialogs.message_box import MessageBox
+    from polyglot.builtins import unicode_type
+
+    if not isinstance(skip_dialog_name, unicode_type):
+        skip_dialog_name = None
+    try:
+        auto_skip = set(gprefs.get('questions_to_auto_skip', ()))
+    except Exception:
+        auto_skip = set()
+    if (skip_dialog_name is not None and skip_dialog_name in auto_skip):
+        return bool(skip_dialog_skipped_value)
+
+    ## There's almost certainly a more elegant way to do this, but
+    ## this works and I understand it.  all_flag is a contain so the
+    ## click connect can change the contents.
+    all_flag = []
+    def set_all_flag(a,s):
+        a.append(s)
+
+    d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
+                   show_copy_button=show_copy_button, default_yes=default_yes,
+                   q_icon=override_icon, yes_text=yes_text, no_text=no_text,
+                   yes_icon=yes_icon, no_icon=no_icon)
+
+    d.bb.setStandardButtons(d.bb.Yes|d.bb.No|d.bb.YesToAll|d.bb.NoToAll)
+    d.bb.button(d.bb.YesToAll).setIcon(d.bb.button(d.bb.Yes).icon())
+    d.bb.button(d.bb.NoToAll ).setIcon(d.bb.button(d.bb.No ).icon())
+    d.bb.button(d.bb.YesToAll).clicked.connect(partial(set_all_flag,all_flag,'yes_all'))
+    d.bb.button(d.bb.NoToAll ).clicked.connect(partial(set_all_flag,all_flag,'no_all'))
+#    d.bb.button(d.bb.NoToAll ).clicked.connect(lambda x:no_all = True)
+
+    if skip_dialog_name is not None and skip_dialog_msg:
+        tc = d.toggle_checkbox
+        tc.setVisible(True)
+        tc.setText(skip_dialog_msg)
+        tc.setChecked(bool(skip_dialog_skip_precheck))
+        d.resize_needed.emit()
+
+    ret = d.exec_() == d.Accepted
+
+    print("yes/no_all:")
+    print(all_flag)
+    if all_flag and isinstance(question_cache,dict) and question_name:
+        question_cache[question_name] = (all_flag[0] == 'yes_all')
+    print(question_cache)
+
+    if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
+        auto_skip.add(skip_dialog_name)
+        gprefs.set('questions_to_auto_skip', list(auto_skip))
+
+    return ret
+
+
