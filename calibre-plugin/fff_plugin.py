@@ -2128,12 +2128,21 @@ class FanFicFarePlugin(InterfaceAction):
         return book_id
 
     def set_custom(self,db,book_id,meta,val,label,commit=True):
-        try:
-            db.set_custom(book_id, val, label=label, commit=commit)
-        except Exception as e:
+        def raise_exception(meta,val,label,e):
             errmsg="Trying to set entry (%s) value(%s) to column (#%s) failed (%s)"%(meta,val,label,e)
             logger.warn(errmsg)
             raise Exception(errmsg)
+        try:
+            db.set_custom(book_id, val, label=label, commit=commit)
+        except ValueError as ve:
+            # editable flag off throws ValueError
+            data = db.backend.custom_field_metadata(label)
+            if not data['editable']:
+                logger.debug("Skipping custom column(%s) update, column is set editable=False"%label)
+            else:
+                raise_exception(meta,val,label,e)
+        except Exception as e:
+            raise_exception(meta,val,label,e)
 
     def update_metadata(self, db, book_id, book, mi, options):
         oldmi = db.get_metadata(book_id,index_is_id=True)
