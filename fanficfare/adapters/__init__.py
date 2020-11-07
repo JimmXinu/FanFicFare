@@ -174,6 +174,7 @@ from . import adapter_scribblehubcom
 from . import adapter_fictionlive
 from . import adapter_wuxiaworldsite
 from . import adapter_thesietchcom
+from . import adapter_fastnovelnet
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
