@@ -271,6 +271,10 @@ def get_urls_from_mime(mime_data):
         # logger.debug("text/uri-list")
         for qurl in mime_data.urls():
             f = qurl.toString()
+            if f.endswith('%0D'):
+                ## Firefox bookmarks, when dragged over, have an
+                ## encoded trailing CR for... reasons?
+                f = f[:-3]
             # logger.debug("filename:%s"%f)
             if f.endswith(".eml"):
                 fhandle = urlopen(f)
@@ -284,18 +288,21 @@ def get_urls_from_mime(mime_data):
                     # logger.debug("email.message_from_file")
                 if msg.is_multipart():
                     for part in msg.walk():
-                        #logger.debug("part type:%s"%part.get_content_type())
+                        # logger.debug("part type:%s"%part.get_content_type())
                         if part.get_content_type() == "text/html":
-                            #logger.debug("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
+                            # logger.debug("URL list:%s"%get_urls_from_data(part.get_payload(decode=True)))
                             urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
                         if part.get_content_type() == "text/plain":
-                            #logger.debug("part content:text/plain")
-                            #logger.debug("part content:%s"%part.get_payload(decode=True))
+                            # logger.debug("part content:text/plain")
+                            # logger.debug("part content:%s"%part.get_payload(decode=True))
                             urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
                 else:
                     urllist.extend(get_urls_from_text("%s"%msg))
             else:
                 urllist.extend(get_urls_from_text(f))
+    elif mime_data.hasFormat('text/html'):
+        # logger.debug("text/html")
+        urllist.extend(get_urls_from_html(mime_data.html()))
     elif mime_data.hasFormat('text/plain'):
         # logger.debug("text/plain")
         urllist.extend(get_urls_from_text(mime_data.text()))
