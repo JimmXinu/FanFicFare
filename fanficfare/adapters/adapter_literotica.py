@@ -51,6 +51,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         url = re.sub(r"^(https?://)(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?",
                      r"\1www",
                      url)
+        url = url.replace('/beta/s/','/s/') # to allow beta site URLs.
 
         ## strip ?page=...
         url = re.sub(r"\?page=.*$", "", url)
@@ -92,7 +93,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/s/([a-zA-Z0-9_-]+)"
+        return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
 
     def getCategories(self, soup):
         if self.getConfig("use_meta_keywords"):
