@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-11-06 08:19-0600\n"
-"PO-Revision-Date: 2020-11-06 16:16+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-11-08 08:30+0000\n"
+"Last-Translator: Pk11 <epicpkmn11@outlook.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/calibre/calibre-plugins/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1621,7 +1621,7 @@ msgstr "%sのメールパスワードを入力する："
 
 #: dialogs.py:1629
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "この確認を再度表示する"
 
 #: fff_plugin.py:151 fff_plugin.py:182
 msgid "FanFicFare"
@@ -1717,19 +1717,19 @@ msgstr "リストが設定されていないから削除する"
 
 #: fff_plugin.py:380
 msgid "Actions by Update Modes"
-msgstr ""
+msgstr "更新モードごとのアクション"
 
 #: fff_plugin.py:413
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "既存のファンフィクション本を更新する"
 
 #: fff_plugin.py:421
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "メールからファンフィクションストーリーURLを取得する"
 
 #: fff_plugin.py:429
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "WebページからファンフィクションストーリーURLを取得する"
 
 #: fff_plugin.py:455
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1757,7 +1757,7 @@ msgstr "読書リストを更新するために、選択される本があらな
 
 #: fff_plugin.py:550
 msgid "FanFicFare Saved Metadata Column not configured."
-msgstr ""
+msgstr "FanFicFareの保存されたメタデータ列は設定されていない。"
 
 #: fff_plugin.py:556 fff_plugin.py:1254
 msgid "Cannot update non-epub format."
@@ -2110,7 +2110,7 @@ msgstr "新しい本としてダウンロードする？"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr ""
+msgstr "<b>%(author)s</b>による<b>%(title)s</b>はすでに別なソースURLでライブラリにある。"
 
 #: fff_plugin.py:1483
 msgid ""
