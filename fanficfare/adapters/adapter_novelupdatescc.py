@@ -99,7 +99,10 @@ class NovelUpdatesCcSiteAdapter(BaseSiteAdapter):
             intro.strong.decompose()
         self.setDescription(self.url, intro)
 
-        chapters = chapter_info.select('.chapter-item')
+        ## skip grayed out "In preparation" chapters -- couldn't make
+        ## the :not() work in the same select.
+        chapters = [ ch for ch in chapter_info.select('.chapter-item')
+                     if not (ch.has_attr('style') and 'color:Gray;' not in ch('style')) ]
         if self.getConfig("dedup_order_chapter_list",False):
             # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
             chapters_data = []
