@@ -41,7 +41,3 @@ class WWWAlternatehistoryComAdapter(BaseXenForo2ForumAdapter):
     def getPathPrefix(cls):
         # in case it needs more than just site/
         return '/forum/'
-
-    def get_threadmarks_top(self,souptag):
-        return souptag.find('div',{'class':'block-outer-opposite--threadmarks'})
-
