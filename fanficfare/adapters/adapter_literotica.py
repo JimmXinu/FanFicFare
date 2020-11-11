@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013 Fanficdownloader team, 2018 FanFicFare team
+# Copyright 2013 Fanficdownloader team, 2020 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,9 +47,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         storyId = re.sub(r"-ch-?\d\d", "", storyId)
         self.story.setMetadata('storyId', storyId)
 
-        ## normalize to www.literotica.com.
+        ## DON'T normalize to www.literotica.com--keep for language,
+        ## which will be set in _setURL(url).  Also, multi-chapter
+        ## have been keeping the language when 'normalizing' to first
+        ## chapter.
         url = re.sub(r"^(https?://)(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?",
-                     r"\1www",
+                     r"\1\2",
                      url)
         url = url.replace('/beta/s/','/s/') # to allow beta site URLs.
 
@@ -93,7 +96,16 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
+        return r"https?://(?P<lang>www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
+
+    def _setURL(self,url):
+        # logger.debug("set URL:%s"%url)
+        super(LiteroticaSiteAdapter, self)._setURL(url)
+        m = re.match(self.getSiteURLPattern(),url)
+        lang = m.group('lang')
+        if lang not in ('www','other'):
+            self.story.setMetadata('language',lang.capitalize())
+        # logger.debug("language:%s"%self.story.getMetadata('language'))
 
     def getCategories(self, soup):
         if self.getConfig("use_meta_keywords"):
@@ -101,11 +113,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             categories = [c for c in categories if not self.story.getMetadata('title') in c]
             if self.story.getMetadata('author') in categories:
                 categories.remove(self.story.getMetadata('author'))
-            logger.debug("Meta = %s" % categories)
+            # logger.debug("Meta = %s" % categories)
             for category in categories:
     #            logger.debug("\tCategory=%s" % category)
 #                 self.story.addToList('category', category.title())
                 self.story.addToList('eroticatags', category.title())
+
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     def extractChapterUrlsAndMetadata(self):
         """
@@ -129,18 +148,21 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        logger.debug("Chapter/Story URL: <%s> " % self.url)
+        # logger.debug("Chapter/Story URL: <%s> " % self.url)
 
         try:
-            data1 = self._fetchUrl(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments from soup
-            [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+            (data1,opened) = self._fetchUrlOpened(self.url)
+            ## for language domains
+            self._setURL(opened.geturl())
+            logger.debug("set opened url:%s"%self.url)
         except HTTPError as e:
             if e.code in [404, 410]:
                 raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise e
+        soup1 = self.make_soup(data1)
+        #strip comments from soup
+        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
 
         if "This submission is awaiting moderator's approval" in data1:
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
@@ -177,7 +199,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if storyLink is not None:
             # pull the published date from the author page
             # default values from single link.  Updated below if multiple chapter.
-            logger.debug("Found story on the author page.")
+            # logger.debug("Found story on the author page.")
             date = storyLink.parent.parent.findAll('td')[-1].text
             self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
             self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
@@ -193,7 +215,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         if isSingleStory:
             self.story.setMetadata('title', storyLink.text.strip('/'))
-            logger.debug('Title: "%s"' % storyLink.text.strip('/'))
+            # logger.debug('Title: "%s"' % storyLink.text.strip('/'))
             self.setDescription(authorurl, urlTr.findAll("td")[1].text)
             self.story.addToList('category', urlTr.findAll("td")[2].text)
 #             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
@@ -237,18 +259,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
                 chapter_title = chapterLink.text
                 if self.getConfig("clean_chapter_titles"):
-                    logger.debug('\tChapter Name: "%s"' % chapterLink.string)
-                    logger.debug('\tChapter Name: "%s"' % chapterLink.text)
+                    # logger.debug('\tChapter Name: "%s"' % chapterLink.string)
+                    # logger.debug('\tChapter Name: "%s"' % chapterLink.text)
                     if chapterLink.text.lower().startswith(seriesTitle.lower()):
                         chapter = chapterLink.text[len(seriesTitle):].strip()
-                        logger.debug('\tChapter: "%s"' % chapter)
+                        # logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
                             chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
                         else:
                             separater_char = chapter[0]
-                            logger.debug('\tseparater_char: "%s"' % separater_char)
+                            # logger.debug('\tseparater_char: "%s"' % separater_char)
                             chapter = chapter[1:].strip() if separater_char in [":", "-"] else chapter
-                            logger.debug('\tChapter: "%s"' % chapter)
+                            # logger.debug('\tChapter: "%s"' % chapter)
                             if chapter.lower().startswith('ch.'):
                                 chapter = chapter[len('ch.'):].strip()
                                 try:
@@ -268,9 +290,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 chapurl = chapterLink['href']
                 if chapurl.startswith('//'):
                     chapurl = self.parsedUrl.scheme + ':' + chapurl
-                logger.debug("Chapter URL: " + chapurl)
-                logger.debug("Chapter Title: " + chapter_title)
-                logger.debug("Chapter description: " + description)
+                # logger.debug("Chapter URL: " + chapurl)
+                # logger.debug("Chapter Title: " + chapter_title)
+                # logger.debug("Chapter description: " + description)
                 chapters.append((chapter_title, chapurl, description, pub_date))
 #                 self.add_chapter(chapter_title, chapurl)
                 numrating = stripHTML(chapterLink.parent)
@@ -312,7 +334,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
 
     def getPageText(self, raw_page, url):
-        logger.debug('Getting page text')
+        # logger.debug('Getting page text')
 #         logger.debug(soup)
         raw_page = raw_page.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
 #         logger.debug("\tChapter text: %s" % raw_page)
@@ -344,13 +366,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         chapter_description = ''
         if self.getConfig("description_in_chapter"):
             chapter_description = page_soup.find("meta", {"name" : "description"})['content']
-            logger.debug("\tChapter description: %s" % chapter_description)
+            # logger.debug("\tChapter description: %s" % chapter_description)
             chapter_description = '<p><b>Description:</b> %s</p><hr />' % chapter_description
         fullhtml += self.getPageText(raw_page, url)
         if pages:
             for page_no in range(2, len(page_nums) + 1):
                 page_url = url +  "?page=%s" % page_no
-                logger.debug("page_url= %s" % page_url)
+                # logger.debug("page_url= %s" % page_url)
                 raw_page = self._fetchUrl(page_url)
                 fullhtml += self.getPageText(raw_page, url)
 
