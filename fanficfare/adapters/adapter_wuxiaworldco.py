@@ -89,6 +89,13 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId', author)
         ## site doesn't have authorUrl links.
 
+        ## getting status
+        status = stripHTML(soup.select_one('div.book-state > span.txt'))
+        if status == 'Completed':
+            self.story.setMetadata('status', 'Completed')
+        else:
+            self.story.setMetadata('status', 'In-Progress')
+
         chapter_info = soup.select_one('.chapter-wrapper')
         date = makeDate(chapter_info.select_one('.update-time').get_text(), self.DATE_FORMAT)
         if date:
