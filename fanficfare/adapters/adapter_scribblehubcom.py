@@ -60,13 +60,15 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         self.password = ""
         self.is_adult=False
 
-        # get storyId from url--sid is always 4th element in scribblehub url
-        self.story.setMetadata('storyId', url.split("/")[4])
+        m = re.match(self.getSiteURLPattern(),url)
+        logger.debug("id:%s"%m.group('id'))
+        logger.debug("title:%s"%m.group('title'))
+
+        # get storyId from url
+        self.story.setMetadata('storyId', m.group('id'))
 
         # normalized story URL.
-        # XXX Most sites don't have the /fanfic part.  Replace all to remove it usually.
-        self._setURL('https://' + self.getSiteDomain() + '/series/' + self.story.getMetadata('storyId') + "/")
-        self._setURL(url)
+        self._setURL('https://' + self.getSiteDomain() + '/series/' + self.story.getMetadata('storyId') + '/' + m.group('title') + '/')
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','scrhub') # XXX
@@ -83,10 +85,12 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getSiteExampleURLs(cls):
+        # https://www.scribblehub.com/series/133207/wait-theres-another-wayne/
+        # https://www.scribblehub.com/read/133207-wait-theres-another-wayne/chapter/138505/
         return "https://"+cls.getSiteDomain()+"/series/1234/storyname/"
 
     def getSiteURLPattern(self):
-        return re.escape("https://"+self.getSiteDomain()+"/series/")+r"\S+$"
+        return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -163,7 +167,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
             chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
             chapter_name = contents_soup.find('li',{'cnt':str(i)}).find('a').get('title')
-            logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
+            # logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
             self.add_chapter(chapter_name, chapter_url)
 
 
