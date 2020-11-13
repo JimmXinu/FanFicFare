@@ -69,12 +69,19 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(), url)
         if m:
-            self.story.setMetadata('storyId', m.group('id'))
-
-            # normalized story URL.
-            self._setURL("https://"+self.getSiteDomain()
-                         + "/novel/"+self.story.getMetadata('storyId')
-                         + ".html")
+            # logger.debug("m.groups: %s"%m.groupdict())
+            if m.group('novchap') == 'novel':
+                self.story.setMetadata('storyId', m.group('id'))
+                # normalized story URL.
+                self._setURL("https://"+self.getSiteDomain()
+                             + "/novel/"+self.story.getMetadata('storyId')
+                             + ".html")
+            else:
+                # CHAPTER url -- TEMP storyId--both *will* be changed
+                # in extractChapterUrlsAndMetadata
+                # leave passed url unchanged for now.
+                logger.debug("CHAPTER URL--will be replaced and storyId changed")
+                self.story.setMetadata('storyId', m.group('id'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -90,7 +97,9 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # https://www.novelall.com/novel/Castle-of-Black-Iron.html
-        return r"https://www\.novelall\.com/novel/(?P<id>[^\.]+)\.html"
+        # chapter URLs *don't* contain storyId
+        # https://www.novelall.com/chapter/The-Legendary-Moonlight-Sculptor-Volume-1-Chapter-1/1048282/
+        return r"https://www\.novelall\.com/(?P<novchap>novel|chapter)/(?P<id>[^/\.]+)(/\d+/?)?(\.html)?$"
 
     def use_pagecache(self):
         '''
@@ -122,6 +131,31 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         soup = self.make_soup(data)
+
+        if "/chapter/" in url:
+            titlea = soup.select("div.title a")[1] # second a is story.
+            logger.debug("Changing from chapter URL(%s) to story URL(%s)"%(self.url,titlea['href']))
+            url = titlea['href']
+            m = re.match(self.getSiteURLPattern(), url)
+            # logger.debug("m.groups: %s"%m.groupdict())
+            self.story.setMetadata('storyId', m.group('id'))
+            # normalized story URL.
+            self._setURL("https://"+self.getSiteDomain()
+                         + "/novel/"+self.story.getMetadata('storyId')
+                         + ".html")
+            url = self.url+addurl
+            logger.debug("URL2: "+url)
+            try:
+                data = self._fetchUrl(url)
+            except HTTPError as e:
+                if e.code == 404:
+                    raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
+                else:
+                    raise e
+            ## You need to have your is_adult set to true to get this story
+            if "Please click here to continue the reading." in data:
+                raise exceptions.AdultCheckRequired(self.url)
+            soup = self.make_soup(data)
 
         story_ld = json.loads(soup.find('script', type='application/ld+json').string)
         title = story_ld["itemReviewed"]["name"]
