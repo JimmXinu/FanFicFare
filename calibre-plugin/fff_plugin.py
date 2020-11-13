@@ -1228,7 +1228,7 @@ class FanFicFarePlugin(InterfaceAction):
         '''
 
         url = book['url']
-        logger.debug("url:%s"%url)
+        logger.debug("prep_download_loop url:%s"%url)
         mi = None
 
         # The current database shown in the GUI

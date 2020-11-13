@@ -1638,13 +1638,12 @@ def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
     question_cache=None,
 ):
 
-    print(question_cache)
+    # print(question_cache)
     if isinstance(question_cache,dict) and question_name and question_name in question_cache:
         return question_cache[question_name]
     from calibre.gui2.dialogs.message_box import MessageBox
-    from polyglot.builtins import unicode_type
 
-    if not isinstance(skip_dialog_name, unicode_type):
+    if not isinstance(skip_dialog_name, unicode):
         skip_dialog_name = None
     try:
         auto_skip = set(gprefs.get('questions_to_auto_skip', ()))
@@ -1681,11 +1680,11 @@ def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
 
     ret = d.exec_() == d.Accepted
 
-    print("yes/no_all:")
-    print(all_flag)
+    # print("yes/no_all:")
+    # print(all_flag)
     if all_flag and isinstance(question_cache,dict) and question_name:
         question_cache[question_name] = (all_flag[0] == 'yes_all')
-    print(question_cache)
+    # print(question_cache)
 
     if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
         auto_skip.add(skip_dialog_name)
