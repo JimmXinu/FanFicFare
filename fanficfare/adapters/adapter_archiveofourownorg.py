@@ -33,9 +33,6 @@ from .base_adapter import BaseSiteAdapter,  makeDate
 def getClass():
     return ArchiveOfOurOwnOrgAdapter
 
-
-logger = logging.getLogger(__name__)
-
 class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
