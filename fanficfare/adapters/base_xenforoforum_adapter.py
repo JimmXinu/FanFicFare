@@ -118,9 +118,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
     ## returns (is_chapter_url,normalized_url)
     def _is_normalize_chapterurl(self,url):
         is_chapter_url = False
+        # logger.debug("start norm:%s"%url)
 
         ## moved from extract metadata to share with normalize_chapterurl.
         if not url.startswith('http'):
+            # getURLPrefix() has trailing / already.
+            # remove if url also has starting /
+            if url.startswith('/'):
+                url = url[1:]
             url = self.getURLPrefix()+url
 
         if ( url.startswith(self.getURLPrefix()) or
@@ -134,10 +139,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             url = url.replace('http://','https://')
 
             # http://forums.spacebattles.com/showpost.php?p=4755532&postcount=9
-            url = re.sub(r'showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',self.getPathPrefix()+r'posts/\1/',url)
+            if 'showpost' in url:
+                url = re.sub(r'/showpost\.php\?p=([0-9]+)(&postcount=[0-9]+)?',
+                             self.getPathPrefix()+r'posts/\1/',url)
 
             # http://forums.spacebattles.com/goto/post?id=15222406#post-15222406
-            url = re.sub(r'goto/post\?id=([0-9]+)(#post-[0-9]+)?',self.getPathPrefix()+r'posts/\1/',url)
+            if 'goto' in url:
+                # logger.debug("goto:%s"%url)
+                url = re.sub(r'/goto/post\?id=([0-9]+)(#post-[0-9]+)?',
+                             self.getPathPrefix()+r'posts/\1/',url)
+                # logger.debug("after:%s"%url)
 
             url = re.sub(r'(^[\'"]+|[\'"]+$)','',url) # strip leading or trailing '" from incorrect quoting.
             url = re.sub(r'like$','',url) # strip 'like' if incorrect 'like' link instead of proper post URL.
