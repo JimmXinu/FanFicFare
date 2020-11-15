@@ -1192,12 +1192,16 @@ class Story(Configurable):
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
 
+        imgdata = None
+        if url.startswith("data:image"):
+            # don't do anything to in-line images.
+            return (url, "inline image")
         ## Mistakenly ended up with some // in image urls, like:
         ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
         ## Removing one /, but not ://
-        if not url.startswith("file"): # keep file:///
+        if not url.startswith("file:"): # keep file:///
             url = re.sub(r"([^:])//",r"\1/",url)
-        if url.startswith("http") or url.startswith("file") or parenturl == None:
+        if url.startswith("http") or url.startswith("file:") or parenturl == None:
             imgurl = url
         else:
             parsedUrl = urlparse(parenturl)

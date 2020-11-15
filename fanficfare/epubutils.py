@@ -128,22 +128,23 @@ def get_update_data(inputio,
                         for img in soup.findAll('img'):
                             newsrc=''
                             longdesc=''
-                            try:
-                                newsrc=get_path_part(href)+img['src']
-                                # remove all .. and the path part above it, if present.
-                                # Mostly for epubs edited by Sigil.
-                                newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
-                                longdesc=img['longdesc']
-                                data = epub.read(newsrc)
-                                images[longdesc] = data
-                                img['src'] = img['longdesc']
-                            except Exception as e:
-                                # don't report u'OEBPS/failedtoload',
-                                # it indicates a failed download
-                                # originally.
-                                if newsrc != u'OEBPS/failedtoload':
-                                    logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
+                            if not img['src'].startswith('data:image'):
+                                try:
+                                    newsrc=get_path_part(href)+img['src']
+                                    # remove all .. and the path part above it, if present.
+                                    # Mostly for epubs edited by Sigil.
+                                    newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
+                                    longdesc=img['longdesc']
+                                    data = epub.read(newsrc)
+                                    images[longdesc] = data
+                                    img['src'] = img['longdesc']
+                                except Exception as e:
+                                    # don't report u'OEBPS/failedtoload',
+                                    # it indicates a failed download
+                                    # originally.
+                                    if newsrc != u'OEBPS/failedtoload':
+                                        logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+                                        logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
