@@ -23,6 +23,8 @@ import json
 import datetime
 from math import floor
 from functools import partial
+import base64
+import hashlib
 import logging
 logger = logging.getLogger(__name__)
 
@@ -1194,41 +1196,52 @@ class Story(Configurable):
 
         imgdata = None
         if url.startswith("data:image"):
-            # don't do anything to in-line images.
-            return (url, "inline image")
-        ## Mistakenly ended up with some // in image urls, like:
-        ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
-        ## Removing one /, but not ://
-        if not url.startswith("file:"): # keep file:///
-            url = re.sub(r"([^:])//",r"\1/",url)
-        if url.startswith("http") or url.startswith("file:") or parenturl == None:
-            imgurl = url
-        else:
-            parsedUrl = urlparse(parenturl)
-            if url.startswith("//") :
-                imgurl = urlunparse(
-                    (parsedUrl.scheme,
-                     '',
-                     url,
-                     '','',''))
-            elif url.startswith("/") :
-                imgurl = urlunparse(
-                    (parsedUrl.scheme,
-                     parsedUrl.netloc,
-                     url,
-                     '','',''))
+            if 'base64' in url and self.getConfig("convert_inline_images",True):
+                head, base64data = url.split(',', 1)
+                # logger.debug("%s len(%s)"%(head,len(base64data)))
+                # Get the file extension (gif, jpeg, png)
+                file_ext = head.split(';')[0].split('/')[1]
+
+                # Decode the image data
+                imgdata = base64.b64decode(base64data)
+                imgurl = "file:///fakefile/img-data-image/"+hashlib.md5(imgdata).hexdigest()+"."+file_ext
             else:
-                toppath=""
-                if parsedUrl.path.endswith("/"):
-                    toppath = parsedUrl.path
+                # don't do anything to in-line images.
+                return (url, "inline image")
+        else:
+            ## Mistakenly ended up with some // in image urls, like:
+            ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
+            ## Removing one /, but not ://
+            if not url.startswith("file:"): # keep file:///
+                url = re.sub(r"([^:])//",r"\1/",url)
+            if url.startswith("http") or url.startswith("file:") or parenturl == None:
+                imgurl = url
+            else:
+                parsedUrl = urlparse(parenturl)
+                if url.startswith("//") :
+                    imgurl = urlunparse(
+                        (parsedUrl.scheme,
+                         '',
+                         url,
+                         '','',''))
+                elif url.startswith("/") :
+                    imgurl = urlunparse(
+                        (parsedUrl.scheme,
+                         parsedUrl.netloc,
+                         url,
+                         '','',''))
                 else:
-                    toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                imgurl = urlunparse(
-                    (parsedUrl.scheme,
-                     parsedUrl.netloc,
-                     toppath + url,
-                     '','',''))
-                # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
+                    toppath=""
+                    if parsedUrl.path.endswith("/"):
+                        toppath = parsedUrl.path
+                    else:
+                        toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
+                    imgurl = urlunparse(
+                        (parsedUrl.scheme,
+                         parsedUrl.netloc,
+                         toppath + url,
+                         '','',''))
+                    # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
         # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
         #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
@@ -1239,13 +1252,15 @@ class Story(Configurable):
         if imgurl not in self.imgurls:
 
             try:
+                if not imgdata:
+                    # might already have from data:image in-line
+                    imgdata = fetch(imgurl,referer=parenturl)
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
 
-                parsedUrl = urlparse(imgurl)
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
-                                                       fetch(imgurl,referer=parenturl))
+                                                       imgdata)
                 else:
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size',['580', '725']) ]
@@ -1264,7 +1279,7 @@ class Story(Configurable):
                         logger.info("background_color(%s) needs to be a hexidecimal color--using ffffff instead."%bgcolor)
                         bgcolor = 'ffffff'
                     (data,ext,mime) = convert_image(imgurl,
-                                                    fetch(imgurl,referer=parenturl),
+                                                    imgdata,
                                                     sizes,
                                                     grayscale,
                                                     removetrans,

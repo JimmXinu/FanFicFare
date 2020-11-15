@@ -128,6 +128,7 @@ def get_update_data(inputio,
                         for img in soup.findAll('img'):
                             newsrc=''
                             longdesc=''
+                            ## skip <img src="data:image..."
                             if not img['src'].startswith('data:image'):
                                 try:
                                     newsrc=get_path_part(href)+img['src']

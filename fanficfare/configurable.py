@@ -257,6 +257,7 @@ def get_valid_set_options():
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
                'dedup_img_files':(None,['epub','html'],boollist),
+               'convert_inline_images':(None,['epub','html'],boollist),
                'normalize_text_links':(None,['epub','html'],boollist),
                'internalize_text_links':(None,['epub','html'],boollist),
 
@@ -427,6 +428,7 @@ def get_valid_keywords():
                  'cover_min_size',
                  'no_image_processing',
                  'dedup_img_files',
+                 'convert_inline_images',
                  'non_breaking_spaces',
                  'download_text_version',
                  'nook_img_fix',
