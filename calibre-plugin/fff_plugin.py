@@ -438,19 +438,6 @@ class FanFicFarePlugin(InterfaceAction):
                             (UPDATE, UPDATEALWAYS, OVERWRITEALWAYS),
                             self.update_anthology)
 
-            ## XXX
-            ## options to
-            ## - display menu - favourites doesn't display invisible menu, but does remember
-            ## - no shortcuts either
-            ## - show/conceal by individual?
-            ## - download immediately like email? - Update Existing
-            ## conceal:
-            ## - CALIBREONLYSAVECOL when not configured
-            ## - from email when not configured
-            ## - antho when not epubmerge -- put under anth muenu?
-            ## - update options when default format not epub??
-
-
             self.menu.addSeparator()
             self.get_list_action = self.create_menu_item_ex(self.menu, _('Remove "New" Chapter Marks from Selected books'),
                                                             unique_name='Remove "(new)" chapter marks created by personal.ini <i>mark_new_chapters</i> setting.',
