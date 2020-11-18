@@ -1318,11 +1318,24 @@ class FanFicFarePlugin(InterfaceAction):
                 book['author'] = [story.getMetadata('author')]
                 url = book['url'] = story.getMetadata('storyUrl', removeallentities=True)
 
-            ## Check reject list.  Redundant with below for when story
-            ## URL changes, but also kept here to avoid network hit in
-            ## most common case where given url is story url.
+            ## Check reject list.  Redundant with above for when story
+            ## URL changes, but also kept above to avoid network hit
+            ## in most common case where given url is story url.
             if self.reject_url(merge,book):
                 return
+
+            ## Do a second dup URL in download check here, same
+            ## reasons as reject_url()
+            if 'uniqueurls' not in options:
+                options['uniqueurls'] = set()
+            ## add begin/end to allow for same story split into ranges
+            book['uniqueurl']="%s[%s-%s]"%(book['url'],book['begin'],book['end'])
+            if book['uniqueurl'] in options['uniqueurls']:
+                book['good'] = False
+                book['comment'] = _("Same story already included.")
+                book['status']=_('Skipped')
+            else:
+                options['uniqueurls'].add(book['uniqueurl'])
 
         # logger.debug("series:%s"%story.getMetadata('series'))
         # logger.debug("seriesUrl:%s"%story.getMetadata('seriesUrl'))
