@@ -1300,7 +1300,7 @@ class Story(Configurable):
                     cover_big_enough = owidth >= sizes[0] and oheight >= sizes[1]
                     # logger.debug("cover_big_enough:%s %s>=%s, %s>=%s"%(cover_big_enough,owidth,sizes[0],oheight,sizes[1]))
             except Exception as e:
-                raise exceptions.FailedToDownload("Failed to process cover_min_size from personal.ini:%s\nException: %s"%(self.getConfigList('cover_min_size'),e))
+                logger.warning("Failed to process cover_min_size from personal.ini:%s\nException: %s"%(self.getConfigList('cover_min_size'),e))
 
             # explicit cover, make the first image.
             if cover and cover_big_enough:
