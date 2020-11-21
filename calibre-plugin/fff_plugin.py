@@ -1080,7 +1080,9 @@ class FanFicFarePlugin(InterfaceAction):
     def do_id_search(self,url):
         # older idents can be uri vs url and have | instead of : after
         # http, plus many sites are now switching to https.
-        return self.gui.current_db.search_getting_ids('identifiers:"~ur(i|l):~^%s$"'%re.sub(r'https?\\\:','https?(\:|\|)',re.escape(url)),None,use_virtual_library=False)
+        regexp = r'identifiers:"~ur(i|l):~^https?%s$"'%(re.sub(r'^https?','',re.escape(url)))
+        # logger.debug(regexp)
+        return self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
