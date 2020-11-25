@@ -232,6 +232,10 @@ class FictionLiveAdapter(BaseSiteAdapter):
                     title = ""
                 routes.append({"id": r['_id'], "title": title})
 
+        if maintext == []:
+            # every chapter was route/appendix, with no chapter bookmarks in the main text
+            maintext = [{"title": "Home", "ct": data['ct']}]
+
         # loop setup
         chapter_iter = iter(maintext)
         first_chapter = next(chapter_iter)
@@ -257,7 +261,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         chapter_end = self.most_recent_chunk + 1
         add_chapter_url(prev_chapter_title, chapter_start, chapter_end)
 
-        for a in appendices: # add appendices at the end
+        for a in appendices: # add appendices afterwards
             chapter_start = a['ct']
             chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
             add_chapter_url(chapter_title, chapter_start, chapter_start + 1) # 1 msec range = this one chunk only
@@ -287,12 +291,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         text = ""
 
-        for count, chunk  in enumerate(data):
-            #logger.debug("chunk #{i}".format(i=count)) # helps to locate problem chunks in long chapters
+        for chunk in data:
 
             text += "<div>" # chapter chunks aren't always well-delimited in their contents
 
-            # so appendix chunks just turn up wherever
+            # appendix chunks are mixed in with other things 
             if not getting_appendix and 't' in chunk and chunk['t'].startswith("#special"): # t = title = bookmark
                 continue
 
