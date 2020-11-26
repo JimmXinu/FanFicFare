@@ -778,18 +778,19 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(^data:image|(failedtoload|clear.png)$)')):
                 # logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
-                clses = unicode(img['class']) # stringify list.
-                if img.has_attr('alt') and ('mceSmilie' in clses or 'smilie--sprite' in clses):
-                    ## Change the img to a span containing the alt
-                    ## text, remove attrs.  This is a one-way change.
-                    img.name='span'
-                    img.string = img['alt'].replace('`','') # no idea why some have `
-                    # not valid attrs on span.
-                    del img['alt']
-                    if img.has_attr('src'):
-                        del img['src']
-                    if img.has_attr('longdesc'):
-                        del img['longdesc']
+                if img.has_attr('class'):
+                    clses = unicode(img['class']) # stringify list.
+                    if img.has_attr('alt') and ('mceSmilie' in clses or 'smilie--sprite' in clses):
+                        ## Change the img to a span containing the alt
+                        ## text, remove attrs.  This is a one-way change.
+                        img.name='span'
+                        img.string = img['alt'].replace('`','') # no idea why some have `
+                        # not valid attrs on span.
+                        del img['alt']
+                        if img.has_attr('src'):
+                            del img['src']
+                        if img.has_attr('longdesc'):
+                            del img['longdesc']
         return super(BaseXenForoForumAdapter, self)._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
 
 # from https://daviseford.com/blog/2017/04/27/python-string-to-title-including-punctuation.html
