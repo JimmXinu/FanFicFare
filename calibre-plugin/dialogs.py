@@ -185,6 +185,7 @@ class NotGoingToDownload(Exception):
 class DroppableQTextEdit(QTextEdit):
     def __init__(self,parent):
         QTextEdit.__init__(self,parent)
+        self.setTabChangesFocus(True)
 
     def dropEvent(self,event):
         # print("event:%s"%event)
