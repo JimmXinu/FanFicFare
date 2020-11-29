@@ -30,6 +30,8 @@
 import json
 from datetime import datetime
 
+import itertools
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -203,8 +205,10 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## api url to get content of a multi route chapter. requires only the route id and no timestamps
         route_chunkrange_url = "https://fiction.live/api/anonkun/route/{c_id}/chapters"
 
-        def add_chapter_url(title, start, end):
+        def add_chapter_url(title, bounds):
             "Adds a chapter url based on the start/end chunk-range timestamps."
+            start, end = bounds
+            end -= 1
             chapter_url = chunkrange_url.format(s_id = data['_id'], start = start, end = end)
             self.add_chapter(title, chapter_url)
 
@@ -213,14 +217,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
             chapter_url = route_chunkrange_url.format(c_id = route_id)
             self.add_chapter(title, chapter_url)
 
-        ### chapter addition loop. bit complex, as both first and last chapters have special handling
+        def pair(iterable):
+            "[1,2,3,4] -> [(1, 2), (2, 3), (3, 4)]"
+            a, b = itertools.tee(iterable, 2)
+            next(b, None)
+            return list(zip(a, b))
 
         ## first thing to do is seperate out the appendices
         appendices, maintext, routes = [], [], []
-        chapters = data['bm'] if 'bm' in data else [{"title": "Home", "ct": data['ct']}]
-
-        for c in chapters:
-            appendices.append(c) if c['title'].startswith('#special') else maintext.append(c)
+        chapters = data['bm'] if 'bm' in data else []
 
         ## not all stories use multiple routes. Those that do have a route id and a title for each route
         if 'route_metadata' in data and data['route_metadata']:
@@ -232,35 +237,25 @@ class FictionLiveAdapter(BaseSiteAdapter):
                     title = ""
                 routes.append({"id": r['_id'], "title": title})
 
-        # loop setup
-        chapter_iter = iter(maintext)
-        first_chapter = next(chapter_iter)
+        for c in chapters:
+            appendices.append(c) if c['title'].startswith('#special') else maintext.append(c)
 
-        chapter_start = 0
-        # this *goddamn* api. don't want to start the chunk-range from 0 if there's an appendix before the text!
-        if 'isFirst' in first_chapter and first_chapter['isFirst']:
-            chapter_start = first_chapter['ct']
+        ## main-text chapter extraction processing. *should* now handle all the edge cases.
+        ## relies on fanficfare ignoring empty chapters!
 
-        prev_chapter_title = first_chapter['title']
+        titles = [c['title'] for c in maintext]
+        titles = ["Home"] + titles
 
-        # now iterate, adding the chapters before the one we're at
-        # TODO: do a while loop and manually call next()? already setting up the iterator
-        for c in chapter_iter:
-            chapter_end = c['ct'] - 1
-            add_chapter_url(prev_chapter_title, chapter_start, chapter_end)
-            chapter_start = c['ct']
-            prev_chapter_title = c['title']
+        times = [c['ct'] for c in maintext]
+        times = [data['ct']] + times + [self.most_recent_chunk + 1]
 
-        # with the loop done, we've handled every chapter but the final one, so we'll now do it manually.
+        # doesn't actually run without the call to list.
+        list(map(add_chapter_url, titles, pair(times)))
 
-        # including chunk-time in url (over, say, 999...) means fanficfare recognises updated chapters as new
-        chapter_end = self.most_recent_chunk + 1
-        add_chapter_url(prev_chapter_title, chapter_start, chapter_end)
-
-        for a in appendices: # add appendices at the end
+        for a in appendices: # add appendices afterwards
             chapter_start = a['ct']
             chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
-            add_chapter_url(chapter_title, chapter_start, chapter_start + 1) # 1 msec range = this one chunk only
+            add_chapter_url(chapter_title, (chapter_start, chapter_start + 2)) # 1 msec range = this one chunk only
 
         for r in routes:  # add route at the end, after appendices
             route_id = r['id']  # to get route chapter content, the route id is needed, not the timestamp
@@ -283,16 +278,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
         # and *now* we can assume there's at least one chunk in the data -- chapters can be totally empty.
 
         # are we trying to read an appendix? check the first chunk to find out.
-        getting_appendix = 't' in data[0] and data[0]['t'].startswith("#special")
+        getting_appendix = len(data) == 1 and 't' in data[0] and data[0]['t'].startswith("#special")
 
         text = ""
 
-        for count, chunk  in enumerate(data):
-            #logger.debug("chunk #{i}".format(i=count)) # helps to locate problem chunks in long chapters
+        for chunk in data:
 
             text += "<div>" # chapter chunks aren't always well-delimited in their contents
 
-            # so appendix chunks just turn up wherever
+            # appendix chunks are mixed in with other things 
             if not getting_appendix and 't' in chunk and chunk['t'].startswith("#special"): # t = title = bookmark
                 continue
 
@@ -485,7 +479,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         dice = chunk['dice'] if 'dice' in chunk else {}
 
         # now matches the site and does *not* include dicerolls as posts!
-        num_votes = str(len(posts)) + "posts" if len(posts) != 0 else "be the first to post."
+        num_votes = str(len(posts)) + " posts" if len(posts) != 0 else "be the first to post."
 
         output = ""
         output += u"<h4><span>Reader Posts — <small> Posting " + closed
