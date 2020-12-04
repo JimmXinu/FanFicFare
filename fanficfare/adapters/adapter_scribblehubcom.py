@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-# Software: eFiction
 from __future__ import absolute_import
 import logging, time, datetime
 logger = logging.getLogger(__name__)
@@ -92,14 +91,12 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
 
-    ## Login seems to be reasonably standard across eFiction sites.
-    def needToLoginCheck(self, data):
-        if 'Registered Users Only' in data \
-                or 'There is no such account on our website' in data \
-                or "That password doesn't match the one in our database" in data:
-            return True
-        else:
-            return False
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
 
     # Set cookie to ascending order before page loads, means we know date published
     def set_contents_cookie(self):
