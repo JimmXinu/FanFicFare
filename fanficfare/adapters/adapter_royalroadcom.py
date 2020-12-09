@@ -198,11 +198,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', self.make_date(dates[-1]))
         self.story.setMetadata('datePublished', self.make_date(dates[0]))
 
-        if soup.find('span',{'property':'genre'}): # not all stories have genre
-            genre=[tag.text for tag in soup.find('span',{'property':'genre'}).parent.findChildren('span')]
+        for a in soup.find_all('a',{'property':'genre'}): # not all stories have genre
+            genre = stripHTML(a)
             if not "Unspecified" in genre:
-                for tag in genre:
-                    self.story.addToList('genre',tag)
+                self.story.addToList('genre',genre)
 
         for label in [stripHTML(a) for a in soup.find_all('span', {'class':'label'})]:
             if 'COMPLETED' == label:
