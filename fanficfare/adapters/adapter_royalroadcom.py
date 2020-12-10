@@ -248,6 +248,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 
         # TODO: these stories often have tables in, but these wont render correctly
+        # defaults.ini output CSS now outlines/pads the tables, at least. 
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
