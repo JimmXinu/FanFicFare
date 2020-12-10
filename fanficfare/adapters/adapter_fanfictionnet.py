@@ -288,27 +288,27 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if get_cover:
             # Try the larger image first.
             cover_url = ""
-            # try:
-            #     img = soup.select_one('img.lazy.cimage')
-            #     cover_url=img['data-original']
-            # except:
+            try:
+                img = soup.select_one('img.lazy.cimage')
+                cover_url=img['data-original']
+            except:
+                img = soup.select_one('img.cimage:not(.lazy)')
+                if img:
+                    cover_url=img['src']
             ## Nov 19, 2020, ffnet lazy cover images returning 0 byte
             ## files.
-            img = soup.select_one('img.cimage:not(.lazy)')
-            if img:
-                cover_url=img['src']
             logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
                 authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
                 try:
-                    img = authsoup.select('img.lazy.cimage')
-                    authimg_url=img[0]['data-original']
+                    img = authsoup.select_one('img.lazy.cimage')
+                    authimg_url=img['data-original']
                 except:
-                    img = authsoup.select('img.cimage')
+                    img = authsoup.select_one('img.cimage')
                     if img:
-                        authimg_url=img[0]['src']
+                        authimg_url=img['src']
 
                 logger.debug("authimg_url:%s"%authimg_url)
 

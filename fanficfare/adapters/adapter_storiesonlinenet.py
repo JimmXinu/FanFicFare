@@ -40,7 +40,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        logger.debug("StoriesOnlineNetAdapter.__init__ - url='%s'" % url)
+        # logger.debug("StoriesOnlineNetAdapter.__init__ - url='%s'" % url)
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -194,9 +194,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             data = self._fetchUrl(url+":i")
             # logger.debug(data)
         except HTTPError as e:
-            if e.code in (404, 410):
+            if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
-            elif e.code in (401, 403):
+            elif e.code in (401, 403, 410):
                 data = 'Log In' # to trip needToLoginCheck
             else:
                 raise e
@@ -323,7 +323,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
             except HTTPError as e:
                 if e.code == 404:
-                    raise exceptions.FailedToDownload("Story not found in Author's list--change Listings Theme back to "+self.getTheme())
+                    raise exceptions.FailedToDownload("Story not found in Author's list--Set Access Level to Full Access and change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)
 
             story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})
