@@ -516,6 +516,9 @@ def get_valid_keywords():
                  'show_spoiler_tags',
                  'max_zalgo',
                  'epub_version',
+                 'data_saver',
+                 'language_filter',
+                 'page_direction',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.

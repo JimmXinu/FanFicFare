@@ -637,7 +637,7 @@ div { margin: 0pt; padding: 0pt; }
                                                }))
 
 
-        spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
+        spine = newTag(contentdom,"spine",attrs={"toc":"ncx","page-progression-direction":self.getConfig("page_direction")})
         package.appendChild(spine)
         for itemref in itemrefs:
             spine.appendChild(newTag(contentdom,"itemref",
