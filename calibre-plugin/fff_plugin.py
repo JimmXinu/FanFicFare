@@ -2499,7 +2499,8 @@ class FanFicFarePlugin(InterfaceAction):
                     #print("add good read l:(%s)"%l)
                     addremovefunc(l,
                                   book_ids,
-                                  display_warnings=False)
+                                  display_warnings=False,
+                                  refresh_screen=False)
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
@@ -2517,11 +2518,14 @@ class FanFicFarePlugin(InterfaceAction):
                     rl_plugin.add_books_to_list(l,
                                                 #add_book_ids,
                                                 book_ids,
-                                                display_warnings=False)
+                                                display_warnings=False,
+                                                refresh_screen=False)
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
                         confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False)
+        self.gui.library_view.model().refresh_ids(book_ids)
+        self.gui.tags_view.recount()
 
     def make_mi_from_book(self,book):
         if prefs['titlecase']:
