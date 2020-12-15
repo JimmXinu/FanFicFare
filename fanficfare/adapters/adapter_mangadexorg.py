@@ -105,7 +105,7 @@ class MangaDexOrgAdapter(BaseSiteAdapter):
             chapters["chapters"] = list(filter(lambda ch: ch["language"] in self.getConfigList("language_filter"), chapters["chapters"]))
 
         # Sort chapters from first to last
-        chapters["chapters"].sort(key=lambda ch: (ch["volume"], ch["chapter"], ch["timestamp"]))
+        chapters["chapters"].sort(key=lambda ch: (float(ch["volume"]), float(ch["chapter"]), ch["timestamp"]))
 
         # Filter groups to just those who did the filtered languages
         groups = []
