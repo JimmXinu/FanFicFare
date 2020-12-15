@@ -141,7 +141,8 @@ class MangaDexOrgAdapter(BaseSiteAdapter):
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         for index, chapter in enumerate(chapters["chapters"]):
             chapterDate = datetime.utcfromtimestamp(chapter["timestamp"])
-            self.add_chapter(chapter["title"],"https://"+self.host+"/api/v2/chapter/"+chapter["hash"] + "?saver=" + str(self.getConfig("data_saver")).lower(),
+            self.add_chapter(chapter["title"] if chapter["title"] != "" else (("Vol. " + chapter["volume"] + " " if chapter["volume"] != "" else "") + ("Ch. " + chapter["chapter"] if chapter["chapter"] != "" else "")),
+                                "https://"+self.host+"/api/v2/chapter/"+chapter["hash"] + "?saver=" + str(self.getConfig("data_saver")).lower(),
                                 {'date':chapterDate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d")))})
             if newestChapter == None or chapterDate > newestChapter:
                 newestChapter = chapterDate
