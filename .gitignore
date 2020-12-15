@@ -24,6 +24,7 @@ cleanup.sh
 FanFictionDownLoader.zip
 *.epub
 *Thumbs.db
+*.DS_Store
 FanFicFare.zip
 output
 build
