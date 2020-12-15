@@ -129,7 +129,7 @@ def get_update_data(inputio,
                             newsrc=''
                             longdesc=''
                             ## skip <img src="data:image..."
-                            if 'src' in img and not img['src'].startswith('data:image'):
+                            if img.has_attr('src') and not img['src'].startswith('data:image'):
                                 try:
                                     newsrc=get_path_part(href)+img['src']
                                     # remove all .. and the path part above it, if present.
