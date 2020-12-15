@@ -46,10 +46,15 @@ class MangaDexOrgAdapter(BaseSiteAdapter):
         # get storyId from url
         m = re.match(self.getSiteURLPattern(),url)
         if m:
-            self.story.setMetadata('storyId',m.group('id'))
+            # Chapter URLs don't have the story ID, so get it from the API
+            if m.group("novchap") == "chapter":
+                self.story.setMetadata("storyId", str(json.loads(self._fetchUrl("https://" + self.getSiteDomain() + "/api/v2/chapter/" + m.group("id")))["data"]["mangaId"]))
+            # Normal story URL, just set the story ID
+            else:
+                self.story.setMetadata("storyId", m.group("id"))
 
             # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/title/'+self.story.getMetadata('storyId'))
+            self._setURL('https://' + self.getSiteDomain() + '/title/' + self.story.getMetadata('storyId'))
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -68,7 +73,7 @@ class MangaDexOrgAdapter(BaseSiteAdapter):
         return "https://"+cls.getSiteDomain()+"/title/12345/manga-title https://"+cls.getSiteDomain()+"/title/12345 https://"+cls.getSiteDomain()+"/manga/12345"
 
     def getSiteURLPattern(self):
-        return re.escape("https://"+self.getSiteDomain())+r"/(title|manga)/0*(?P<id>\d+)/?"
+        return re.escape("https://"+self.getSiteDomain())+r"/(?P<novchap>title|manga|chapter)/0*(?P<id>\d+)/?[0-9]*"
 
     def use_pagecache(self):
         '''
