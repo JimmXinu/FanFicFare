@@ -117,6 +117,7 @@ class FanFicFareBase(InterfaceActionBase):
             from calibre.library import db
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
+            from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
             from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser
 
@@ -129,12 +130,11 @@ class FanFicFareBase(InterfaceActionBase):
             pargs = [x for x in argv if x.startswith('--with-library') or x.startswith('--library-path')
                      or not x.startswith('-')]
             opts, args = parser.parse_args(pargs)
-
             fff_prefs = PrefsFacade(db(path=opts.library_path,
-                                        read_only=True))
+                                       read_only=True))
 
             fff_main(argv[1:],
                      parser=parser,
-                     passed_defaultsini=get_resources("fanficfare/defaults.ini"),
-                     passed_personalini=fff_prefs["personal.ini"],
+                     passed_defaultsini=ensure_text(get_resources("fanficfare/defaults.ini")),
+                     passed_personalini=ensure_text(fff_prefs["personal.ini"]),
                      )
