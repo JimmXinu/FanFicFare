@@ -27,7 +27,7 @@ setup(
     name=package_name,
 
     # Versions should comply with PEP440.
-    version="3.26.1",
+    version="3.26.2",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -81,7 +81,11 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['beautifulsoup4','chardet','html5lib','html2text'],
+    install_requires=['beautifulsoup4',
+                      'chardet',
+                      'html5lib',
+                      'html2text',
+                      'cloudscraper'],
     # html5lib requires 'six', FFF includes it's own copy as fanficfare.six
 
     # List additional groups of dependencies here (e.g. development

@@ -364,7 +364,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
-        div = soup.find('div', {'id' : 'storytextp'})
+        div = soup.find('div', {'id' : 'storytextp'}) or soup.find('div', {'id' : 'storycontent'})
 
         if None == div:
             logger.debug('div id=storytextp not found.  data:%s'%data)

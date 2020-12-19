@@ -35,7 +35,9 @@ if __name__=="__main__":
                   exclude=exclude)
 
     os.chdir('../included_dependencies')
-    files=['bs4','chardet','html2text','soupsieve','backports']
+    files=['bs4','chardet','html2text','soupsieve','backports',
+           'cloudscraper','requests','requests_toolbelt','urllib3',
+           'certifi','idna']
     ## Kept only for v2.85.1 support now.
     createZipFile("../"+filename,"a",
                   files,
