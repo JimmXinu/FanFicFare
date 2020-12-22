@@ -1127,6 +1127,8 @@ class Configuration(ConfigParser):
             resp = self.get_scraper().post(url,
                                            headers=dict(headers),
                                            data=parameters)
+            logger.debug("response code:%s"%resp.status_code)
+            resp.raise_for_status() # raises HTTPError if error code.
             data = resp.content
         else:
             req = Request(url,
@@ -1231,6 +1233,8 @@ class Configuration(ConfigParser):
                 logger.debug("Using cloudscraper for GET")
                 resp = self.get_scraper().get(url,
                                               headers=headers)
+            logger.debug("response code:%s"%resp.status_code)
+            resp.raise_for_status() # raises HTTPError if error code.
             data = resp.content
             opened = FakeOpened(data,resp.url)
         else:
