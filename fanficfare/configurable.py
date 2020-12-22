@@ -37,12 +37,17 @@ from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_binary, ensure_text
 
-## isn't found in plugin when only imported down below inside
-## get_scraper()  Need to do something more elegant.  XXX
-import cloudscraper
-## and get_resources() does work down inside
-## cloudscraper.user_agent.__init__.py No idea why not.
-cloudscraper.user_agent.browsers_json = ensure_text(get_resources('cloudscraper/user_agent/browsers.json'))
+try:
+    ## make sure to fail if not in calibre plugin.
+    from calibre_plugins.fanficfare_plugin.fanficfare import adapters
+    ## isn't found in plugin when only imported down below inside
+    ## get_scraper()  Need to do something more elegant.  XXX
+    import cloudscraper
+    ## and get_resources() does work down inside
+    ## cloudscraper.user_agent.__init__.py No idea why not.
+    cloudscraper.user_agent.browsers_json = ensure_text(get_resources('cloudscraper/user_agent/browsers.json'))
+except ImportError:
+    pass # cloudscraper from pip installed version
 
 import time
 import logging
