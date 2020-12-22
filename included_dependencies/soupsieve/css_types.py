@@ -1,6 +1,6 @@
 """CSS selector structure items."""
-from __future__ import unicode_literals
-from . import util
+import copyreg
+from collections.abc import Hashable, Mapping
 
 __all__ = (
     'Selector',
@@ -26,6 +26,7 @@ SEL_DIR_RTL = 0x40
 SEL_IN_RANGE = 0x80
 SEL_OUT_OF_RANGE = 0x100
 SEL_DEFINED = 0x200
+SEL_PLACEHOLDER_SHOWN = 0x400
 
 
 class Immutable(object):
@@ -85,7 +86,7 @@ class Immutable(object):
     __str__ = __repr__
 
 
-class ImmutableDict(util.Mapping):
+class ImmutableDict(Mapping):
     """Hashable, immutable dictionary."""
 
     def __init__(self, *args, **kwargs):
@@ -94,8 +95,8 @@ class ImmutableDict(util.Mapping):
         arg = args[0] if args else kwargs
         is_dict = isinstance(arg, dict)
         if (
-            is_dict and not all([isinstance(v, util.Hashable) for v in arg.values()]) or
-            not is_dict and not all([isinstance(k, util.Hashable) and isinstance(v, util.Hashable) for k, v in arg])
+            is_dict and not all([isinstance(v, Hashable) for v in arg.values()]) or
+            not is_dict and not all([isinstance(k, Hashable) and isinstance(v, Hashable) for k, v in arg])
         ):
             raise TypeError('All values must be hashable')
 
@@ -140,9 +141,9 @@ class Namespaces(ImmutableDict):
         # so don't bother checking that.
         arg = args[0] if args else kwargs
         is_dict = isinstance(arg, dict)
-        if is_dict and not all([isinstance(k, util.string) and isinstance(v, util.string) for k, v in arg.items()]):
+        if is_dict and not all([isinstance(k, str) and isinstance(v, str) for k, v in arg.items()]):
             raise TypeError('Namespace keys and values must be Unicode strings')
-        elif not is_dict and not all([isinstance(k, util.string) and isinstance(v, util.string) for k, v in arg]):
+        elif not is_dict and not all([isinstance(k, str) and isinstance(v, str) for k, v in arg]):
             raise TypeError('Namespace keys and values must be Unicode strings')
 
         super(Namespaces, self).__init__(*args, **kwargs)
@@ -159,9 +160,9 @@ class CustomSelectors(ImmutableDict):
         # so don't bother checking that.
         arg = args[0] if args else kwargs
         is_dict = isinstance(arg, dict)
-        if is_dict and not all([isinstance(k, util.string) and isinstance(v, util.string) for k, v in arg.items()]):
+        if is_dict and not all([isinstance(k, str) and isinstance(v, str) for k, v in arg.items()]):
             raise TypeError('CustomSelectors keys and values must be Unicode strings')
-        elif not is_dict and not all([isinstance(k, util.string) and isinstance(v, util.string) for k, v in arg]):
+        elif not is_dict and not all([isinstance(k, str) and isinstance(v, str) for k, v in arg]):
             raise TypeError('CustomSelectors keys and values must be Unicode strings')
 
         super(CustomSelectors, self).__init__(*args, **kwargs)
@@ -238,13 +239,14 @@ class SelectorAttribute(Immutable):
 class SelectorContains(Immutable):
     """Selector contains rule."""
 
-    __slots__ = ("text", "_hash")
+    __slots__ = ("text", "own", "_hash")
 
-    def __init__(self, text):
+    def __init__(self, text, own):
         """Initialize."""
 
         super(SelectorContains, self).__init__(
-            text=text
+            text=text,
+            own=own
         )
 
 
@@ -331,7 +333,7 @@ def _pickle(p):
 def pickle_register(obj):
     """Allow object to be pickled."""
 
-    util.copyreg.pickle(obj, _pickle)
+    copyreg.pickle(obj, _pickle)
 
 
 pickle_register(Selector)
