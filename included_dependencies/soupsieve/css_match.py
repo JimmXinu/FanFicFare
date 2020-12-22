@@ -1,11 +1,10 @@
 """CSS matcher."""
+from __future__ import unicode_literals
 from datetime import datetime
 from . import util
 import re
 from .import css_types as ct
 import unicodedata
-
-import bs4
 
 # Empty tag pattern (whitespace okay)
 RE_NOT_EMPTY = re.compile('[^ \t\r\n\f]')
@@ -44,7 +43,6 @@ RE_DATE = re.compile(r'^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2}
 RE_DATETIME = re.compile(
     r'^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})T(?P<hour>[0-9]{2}):(?P<minutes>[0-9]{2})$'
 )
-RE_WILD_STRIP = re.compile(r'(?:(?:-\*-)(?:\*(?:-|$))*|-\*$)')
 
 MONTHS_30 = (4, 6, 9, 11)  # April, June, September, and November
 FEB = 2
@@ -55,7 +53,7 @@ FEB_LEAP_MONTH = 29
 DAYS_IN_WEEK = 7
 
 
-class _FakeParent(object):
+class FakeParent(object):
     """
     Fake parent class.
 
@@ -75,7 +73,7 @@ class _FakeParent(object):
         return len(self.contents)
 
 
-class _DocumentNav(object):
+class Document(object):
     """Navigate a Beautiful Soup document."""
 
     @classmethod
@@ -89,37 +87,58 @@ class _DocumentNav(object):
     @staticmethod
     def is_doc(obj):
         """Is `BeautifulSoup` object."""
+
+        import bs4
         return isinstance(obj, bs4.BeautifulSoup)
 
     @staticmethod
     def is_tag(obj):
         """Is tag."""
+
+        import bs4
         return isinstance(obj, bs4.Tag)
+
+    @staticmethod
+    def is_comment(obj):
+        """Is comment."""
+
+        import bs4
+        return isinstance(obj, bs4.Comment)
 
     @staticmethod
     def is_declaration(obj):  # pragma: no cover
         """Is declaration."""
+
+        import bs4
         return isinstance(obj, bs4.Declaration)
 
     @staticmethod
-    def is_cdata(obj):
+    def is_cdata(obj):  # pragma: no cover
         """Is CDATA."""
-        return isinstance(obj, bs4.CData)
+
+        import bs4
+        return isinstance(obj, bs4.Declaration)
 
     @staticmethod
     def is_processing_instruction(obj):  # pragma: no cover
         """Is processing instruction."""
+
+        import bs4
         return isinstance(obj, bs4.ProcessingInstruction)
 
     @staticmethod
     def is_navigable_string(obj):
         """Is navigable string."""
+
+        import bs4
         return isinstance(obj, bs4.NavigableString)
 
     @staticmethod
     def is_special_string(obj):
         """Is special string."""
-        return isinstance(obj, (bs4.Comment, bs4.Declaration, bs4.CData, bs4.ProcessingInstruction, bs4.Doctype))
+
+        import bs4
+        return isinstance(obj, (bs4.Comment, bs4.Declaration, bs4.CData, bs4.ProcessingInstruction))
 
     @classmethod
     def is_content_string(cls, obj):
@@ -131,7 +150,7 @@ class _DocumentNav(object):
     def create_fake_parent(el):
         """Create fake parent for a given element."""
 
-        return _FakeParent(el)
+        return FakeParent(el)
 
     @staticmethod
     def is_xml_tree(el):
@@ -198,13 +217,10 @@ class _DocumentNav(object):
                 is_tag = self.is_tag(child)
 
                 if no_iframe and is_tag and self.is_iframe(child):
-                    if child.next_sibling is not None:
-                        next_good = child.next_sibling
-                    else:
-                        last_child = child
-                        while self.is_tag(last_child) and last_child.contents:
-                            last_child = last_child.contents[-1]
-                        next_good = last_child.next_element
+                    last_child = child
+                    while self.is_tag(last_child) and last_child.contents:
+                        last_child = last_child.contents[-1]
+                    next_good = last_child.next_element
                     yield child
                     if next_good is None:
                         break
@@ -234,27 +250,21 @@ class _DocumentNav(object):
 
         return el.prefix
 
-    @staticmethod
-    def get_uri(el):
-        """Get namespace `URI`."""
-
-        return el.namespace
-
     @classmethod
-    def get_next(cls, el, tags=True):
+    def get_next_tag(cls, el):
         """Get next sibling tag."""
 
         sibling = el.next_sibling
-        while tags and not cls.is_tag(sibling) and sibling is not None:
+        while not cls.is_tag(sibling) and sibling is not None:
             sibling = sibling.next_sibling
         return sibling
 
     @classmethod
-    def get_previous(cls, el, tags=True):
+    def get_previous_tag(cls, el):
         """Get previous sibling tag."""
 
         sibling = el.previous_sibling
-        while tags and not cls.is_tag(sibling) and sibling is not None:
+        while not cls.is_tag(sibling) and sibling is not None:
             sibling = sibling.previous_sibling
         return sibling
 
@@ -305,7 +315,7 @@ class _DocumentNav(object):
         """Get classes."""
 
         classes = cls.get_attribute_by_name(el, 'class', [])
-        if isinstance(classes, str):
+        if isinstance(classes, util.ustr):
             classes = RE_NOT_WS.findall(classes)
         return classes
 
@@ -315,11 +325,6 @@ class _DocumentNav(object):
         return ''.join(
             [node for node in self.get_descendants(el, tags=False, no_iframe=no_iframe) if self.is_content_string(node)]
         )
-
-    def get_own_text(self, el, no_iframe=False):
-        """Get Own Text."""
-
-        return [node for node in self.get_contents(el, no_iframe=no_iframe) if self.is_content_string(node)]
 
 
 class Inputs(object):
@@ -423,7 +428,7 @@ class Inputs(object):
         return parsed
 
 
-class _Match(object):
+class CSSMatch(Document, object):
     """Perform CSS matching."""
 
     def __init__(self, selectors, scope, namespaces, flags):
@@ -471,7 +476,7 @@ class _Match(object):
 
         if self.supports_namespaces():
             namespace = ''
-            ns = self.get_uri(el)
+            ns = el.namespace
             if ns:
                 namespace = ns
         else:
@@ -530,57 +535,6 @@ class _Match(object):
                 if bidi in ('AL', 'R', 'L'):
                     return ct.SEL_DIR_LTR if bidi == 'L' else ct.SEL_DIR_RTL
         return None
-
-    def extended_language_filter(self, lang_range, lang_tag):
-        """Filter the language tags."""
-
-        match = True
-        lang_range = RE_WILD_STRIP.sub('-', lang_range).lower()
-        ranges = lang_range.split('-')
-        subtags = lang_tag.lower().split('-')
-        length = len(ranges)
-        rindex = 0
-        sindex = 0
-        r = ranges[rindex]
-        s = subtags[sindex]
-
-        # Primary tag needs to match
-        if r != '*' and r != s:
-            match = False
-
-        rindex += 1
-        sindex += 1
-
-        # Match until we run out of ranges
-        while match and rindex < length:
-            r = ranges[rindex]
-            try:
-                s = subtags[sindex]
-            except IndexError:
-                # Ran out of subtags,
-                # but we still have ranges
-                match = False
-                continue
-
-            # Empty range
-            if not r:
-                match = False
-                continue
-
-            # Matched range
-            elif s == r:
-                rindex += 1
-
-            # Implicit wildcard cannot match
-            # singletons
-            elif len(s) == 1:
-                match = False
-                continue
-
-            # Implicitly matched, so grab next subtag
-            sindex += 1
-
-        return match
 
     def match_attribute_name(self, el, attr, prefix):
         """Match attribute name and return value if it exists."""
@@ -706,12 +660,12 @@ class _Match(object):
             if parent:
                 found = self.match_selectors(parent, relation)
         elif relation[0].rel_type == REL_SIBLING:
-            sibling = self.get_previous(el)
+            sibling = self.get_previous_tag(el)
             while not found and sibling:
                 found = self.match_selectors(sibling, relation)
-                sibling = self.get_previous(sibling)
+                sibling = self.get_previous_tag(sibling)
         elif relation[0].rel_type == REL_CLOSE_SIBLING:
-            sibling = self.get_previous(el)
+            sibling = self.get_previous_tag(el)
             if sibling and self.is_tag(sibling):
                 found = self.match_selectors(sibling, relation)
         return found
@@ -736,12 +690,12 @@ class _Match(object):
         elif relation[0].rel_type == REL_HAS_CLOSE_PARENT:
             found = self.match_future_child(el, relation)
         elif relation[0].rel_type == REL_HAS_SIBLING:
-            sibling = self.get_next(el)
+            sibling = self.get_next_tag(el)
             while not found and sibling:
                 found = self.match_selectors(sibling, relation)
-                sibling = self.get_next(sibling)
+                sibling = self.get_next_tag(sibling)
         elif relation[0].rel_type == REL_HAS_CLOSE_SIBLING:
-            sibling = self.get_next(el)
+            sibling = self.get_next_tag(el)
             if sibling and self.is_tag(sibling):
                 found = self.match_selectors(sibling, relation)
         return found
@@ -782,28 +736,7 @@ class _Match(object):
     def match_root(self, el):
         """Match element as root."""
 
-        is_root = self.is_root(el)
-        if is_root:
-            sibling = self.get_previous(el, tags=False)
-            while is_root and sibling is not None:
-                if (
-                    self.is_tag(sibling) or (self.is_content_string(sibling) and sibling.strip()) or
-                    self.is_cdata(sibling)
-                ):
-                    is_root = False
-                else:
-                    sibling = self.get_previous(sibling, tags=False)
-        if is_root:
-            sibling = self.get_next(el, tags=False)
-            while is_root and sibling is not None:
-                if (
-                    self.is_tag(sibling) or (self.is_content_string(sibling) and sibling.strip()) or
-                    self.is_cdata(sibling)
-                ):
-                    is_root = False
-                else:
-                    sibling = self.get_next(sibling, tags=False)
-        return is_root
+        return self.is_root(el)
 
     def match_scope(self, el):
         """Match element as scope."""
@@ -948,23 +881,12 @@ class _Match(object):
         content = None
         for contain_list in contains:
             if content is None:
-                if contain_list.own:
-                    content = self.get_own_text(el, no_iframe=self.is_html)
-                else:
-                    content = self.get_text(el, no_iframe=self.is_html)
+                content = self.get_text(el, no_iframe=self.is_html)
             found = False
             for text in contain_list.text:
-                if contain_list.own:
-                    for c in content:
-                        if text in c:
-                            found = True
-                            break
-                    if found:
-                        break
-                else:
-                    if text in content:
-                        found = True
-                        break
+                if text in content:
+                    found = True
+                    break
             if not found:
                 match = False
         return match
@@ -1148,7 +1070,7 @@ class _Match(object):
             for patterns in langs:
                 match = False
                 for pattern in patterns:
-                    if self.extended_language_filter(pattern, found_lang):
+                    if pattern.match(found_lang):
                         match = True
                 if not match:
                     break
@@ -1230,7 +1152,7 @@ class _Match(object):
 
         out_of_range = False
 
-        itype = util.lower(self.get_attribute_by_name(el, 'type'))
+        itype = self.get_attribute_by_name(el, 'type').lower()
         mn = self.get_attribute_by_name(el, 'min', None)
         if mn is not None:
             mn = Inputs.parse_value(itype, mn)
@@ -1285,21 +1207,6 @@ class _Match(object):
             self.get_prefix(el) is not None
         )
 
-    def match_placeholder_shown(self, el):
-        """
-        Match placeholder shown according to HTML spec.
-
-        - text area should be checked if they have content. A single newline does not count as content.
-
-        """
-
-        match = False
-        content = self.get_text(el)
-        if content in ('', '\n'):
-            match = True
-
-        return match
-
     def match_selectors(self, el, selectors):
         """Check if element matches one of the selectors."""
 
@@ -1331,9 +1238,6 @@ class _Match(object):
                     continue
                 # Verify element is scope
                 if selector.flags & ct.SEL_SCOPE and not self.match_scope(el):
-                    continue
-                # Verify element has placeholder shown
-                if selector.flags & ct.SEL_PLACEHOLDER_SHOWN and not self.match_placeholder_shown(el):
                     continue
                 # Verify `nth` matches
                 if not self.match_nth(el, selector.nth):
@@ -1421,8 +1325,28 @@ class _Match(object):
         return not self.is_doc(el) and self.is_tag(el) and self.match_selectors(el, self.selectors)
 
 
-class CSSMatch(_DocumentNav, _Match):
-    """The Beautiful Soup CSS match class."""
+class CommentsMatch(Document, object):
+    """Comments matcher."""
+
+    def __init__(self, el):
+        """Initialize."""
+
+        self.assert_valid_input(el)
+        self.tag = el
+
+    def get_comments(self, limit=0):
+        """Get comments."""
+
+        if limit < 1:
+            limit = None
+
+        for child in self.get_descendants(self.tag, tags=False):
+            if self.is_comment(child):
+                yield child
+                if limit is not None:
+                    limit -= 1
+                    if limit < 1:
+                        break
 
 
 class SoupSieve(ct.Immutable):
@@ -1467,6 +1391,19 @@ class SoupSieve(ct.Immutable):
             return CSSMatch(self.selectors, iterable, self.namespaces, self.flags).filter()
         else:
             return [node for node in iterable if not CSSMatch.is_navigable_string(node) and self.match(node)]
+
+    @util.deprecated("'comments' is not related to CSS selectors and will be removed in the future.")
+    def comments(self, tag, limit=0):
+        """Get comments only."""
+
+        return [comment for comment in CommentsMatch(tag).get_comments(limit)]
+
+    @util.deprecated("'icomments' is not related to CSS selectors and will be removed in the future.")
+    def icomments(self, tag, limit=0):
+        """Iterate comments only."""
+
+        for comment in CommentsMatch(tag).get_comments(limit):
+            yield comment
 
     def select_one(self, tag):
         """Select a single tag."""
