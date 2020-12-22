@@ -37,22 +37,14 @@ from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_binary, ensure_text
 
-try:
-    ## make sure to fail if not in calibre plugin.
-    from calibre_plugins.fanficfare_plugin.fanficfare import adapters
-    ## isn't found in plugin when only imported down below inside
-    ## get_scraper()  Need to do something more elegant.  XXX
-    import cloudscraper
-    ## and get_resources() does work down inside
-    ## cloudscraper.user_agent.__init__.py No idea why not.
-    cloudscraper.user_agent.browsers_json = ensure_text(get_resources('cloudscraper/user_agent/browsers.json'))
-except ImportError:
-    pass # cloudscraper from pip installed version
-
 import time
 import logging
 import sys
 import pickle
+
+## isn't found in plugin when only imported down below inside
+## get_scraper()
+import cloudscraper
 
 from . import exceptions
 
@@ -1081,12 +1073,11 @@ class Configuration(ConfigParser):
 
     def get_scraper(self):
         if not self.scraper:
-            if True: # just for testing requests w/o added complexity of cloudscraper
-                import cloudscraper
-                self.scraper = cloudscraper.CloudScraper()
-            else:
-                import requests
-                self.scraper = requests.Session()
+            self.scraper = cloudscraper.CloudScraper()
+            ## CloudScraper is subclass of requests.Session.
+            ## probably need import higher up if ever used.
+            # import requests
+            # self.scraper = requests.Session()
             self.scraper.cookies = self.cookiejar
         return self.scraper
 
