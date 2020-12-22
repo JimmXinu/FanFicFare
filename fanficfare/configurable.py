@@ -1073,7 +1073,15 @@ class Configuration(ConfigParser):
 
     def get_scraper(self):
         if not self.scraper:
-            self.scraper = cloudscraper.CloudScraper()
+            ## ffnet adapter can't parse mobile output, so we only
+            ## want desktop browser.  But cloudscraper then insists on
+            ## a browser and platform, too.
+            self.scraper = cloudscraper.CloudScraper(browser={
+                    'browser': 'chrome',
+                    'platform': 'windows',
+                    'mobile': False,
+                    'desktop': True,
+                    })
             ## CloudScraper is subclass of requests.Session.
             ## probably need import higher up if ever used.
             # import requests
