@@ -159,8 +159,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## 2) cat1_cat2_Crossover
         ## For 1, use the second link.
         ## For 2, fetch the crossover page and pull the two categories from there.
-
-        categories = soup.find('div',{'id':'pre_story_links'}).findAll('a',{'class':'xcontrast_txt'})
+        pre_links = soup.find('div',{'id':'pre_story_links'})
+        if not pre_links:
+            logger.debug("\n===================\n%s\n===================\n"%data)
+        categories = pre_links.findAll('a',{'class':'xcontrast_txt'})
         #print("xcontrast_txt a:%s"%categories)
         if len(categories) > 1:
             # Strangely, the ones with *two* links are the
