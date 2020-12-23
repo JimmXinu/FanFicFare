@@ -61,8 +61,15 @@ class WattpadComAdapter(BaseSiteAdapter):
         return 'https://www.wattpad.com/story/9999999-story-title https://www.wattpad.com/story/9999999 https://www.wattpad.com/9999999-chapter-is-ok-too'
 
     @classmethod
+    def stripURLParameters(cls,url):
+        # usually return re.sub(r"&.*$","",url)
+        # changed to allow email notice URLs.
+        return url
+
+    @classmethod
     def getSiteURLPattern(cls):
-        return r'https://www\.wattpad\.com/(story/)?(?P<storyId>\d+).*'
+        # changed to allow email notice URLs.
+        return r'.*https(://|%3A%2F%2F)www\.wattpad\.com(/|%2F)(story/)?(?P<storyId>\d+).*'
 
     @classmethod
     def getSiteAbbrev(cls):
@@ -80,7 +87,10 @@ class WattpadComAdapter(BaseSiteAdapter):
         if storyIdInUrl is not None:
             return storyIdInUrl.group("storyId")
         else:
-            chapterIdInUrl = re.match(r'https://www\.wattpad\.com/(?P<chapterId>\d+).*', url)
+            ## %2F to allow for escaped URL embedded in a redirect URL
+            ## %in email.
+            ## https://www.wattpad.com/et?c=euc&t=uploaded_story&l=https%3A%2F%2Fwww.wattpad.com%2F997616013-nuestro-destino-ron-weasley-y-tu-cap-11&emid=uploaded_story.295918124.1608687259%2C544769.4a691b8fc2a4607e1c770aa4ebd48cc3aaf39bd599a738d3747d41fdfa37fcda
+            chapterIdInUrl = re.match(r'.*https(://|%3A%2F%2F)www\.wattpad\.com(/|%2F)(?P<chapterId>\d+).*', url)
             chapterInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_CHAPTERINFO % chapterIdInUrl.group('chapterId')))
             groupid = chapterInfo.get('groupId', None)
             if groupid is None:
