@@ -160,8 +160,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## For 1, use the second link.
         ## For 2, fetch the crossover page and pull the two categories from there.
         pre_links = soup.find('div',{'id':'pre_story_links'})
-        if not pre_links:
-            logger.debug("\n===================\n%s\n===================\n"%data)
         categories = pre_links.findAll('a',{'class':'xcontrast_txt'})
         #print("xcontrast_txt a:%s"%categories)
         if len(categories) > 1:
@@ -366,7 +364,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
-        div = soup.find('div', {'id' : 'storytextp'}) or soup.find('div', {'id' : 'storycontent'})
+        div = soup.find('div', {'id' : 'storytextp'})
 
         if None == div:
             logger.debug('div id=storytextp not found.  data:%s'%data)
