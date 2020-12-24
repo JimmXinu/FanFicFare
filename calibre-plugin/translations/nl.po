@@ -19,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-11-06 08:19-0600\n"
-"PO-Revision-Date: 2020-11-06 16:16+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-12-17 21:50+0000\n"
+"Last-Translator: M. de Boer <de.boer.melle@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/calibre/calibre-plugins/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1140,13 +1140,13 @@ msgstr "Calibre onthoudt alle auteurs in de bibliotheek; het wijzigen van de aut
 
 #: config.py:1541
 msgid "Set 'Series [0]' for New Anthologies?"
-msgstr ""
+msgstr "'Series [0]' instellen voor nieuwe bloemlezingen?"
 
 #: config.py:1542
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
-msgstr ""
+msgstr "Indien aangevinkt, zal de Serie-kolom worden ingesteld op 'Serie-naam [0]' wanneer een bloemlezing voor een serie voor het eerst wordt gemaakt."
 
 #: config.py:1553
 msgid "Other Standard Column Options"
@@ -1292,7 +1292,7 @@ msgstr "Hier ingevoerde tags worden automatisch toegevoegd aan verhalen die zijn
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
-msgstr ""
+msgstr "Aan alle aanvullende verhalen die u vervolgens handmatig toevoegt aan het dialoogvenster Verhaal-URL, worden deze tags ook toegevoegd."
 
 #: config.py:1676
 msgid ""
@@ -1305,7 +1305,7 @@ msgstr "<b>Het is het veiligst als u een afzonderlijk e-mailaccount maakt dat u 
 #: dialogs.py:230
 msgid ""
 "This name will be used with the %s setting to set the title of the new book."
-msgstr ""
+msgstr "Deze naam wordt gebruikt met de %s instelling om de titel van het nieuwe boek in te stellen."
 
 #: dialogs.py:242
 msgid ""
