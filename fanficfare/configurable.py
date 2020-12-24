@@ -247,6 +247,7 @@ def get_valid_set_options():
                'description_in_chapter':(['literotica.com'],None,boollist),
 
                'inject_chapter_title':(['asianfanfics.com','storiesonline.net','finestories.com','scifistories.com'],None,boollist),
+               'append_datepublished_to_storyurl':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
 
                'auto_sub':(['asianfanfics.com'],None,boollist),
 
@@ -467,6 +468,7 @@ def get_valid_keywords():
                  'conditionals_use_lists',
                  'description_in_chapter',
                  'inject_chapter_title',
+                 'append_datepublished_to_storyurl',
                  'auto_sub',
                  'titlepage_end',
                  'titlepage_entries',

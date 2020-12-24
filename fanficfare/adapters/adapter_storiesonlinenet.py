@@ -50,6 +50,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
         if 'storyInfo' in self.story.getMetadata('storyId'):
             self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+        ## for -2020-12-25 date added by append_datepublished_to_storyurl
+        ## adds to URL, but NOT id.
+        if '-'  in self.story.getMetadata('storyId'):
+            self.story.setMetadata('storyId',self.story.getMetadata('storyId').split('-')[0])
+            logger.debug("storyId date removed:%s\n"%self.story.getMetadata('storyId'))
 
         # normalized story URL.
         self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
@@ -257,6 +262,16 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
 
         self.getStoryMetadataFromAuthorPage()
+
+        ## append_datepublished_to_storyurl adds to URL, but NOT id.
+        ## This is an ugly kludge to (hopefully) help address the
+        ## site's unfortunately habit of *reusing* storyId numbers.
+        if self.getConfig("append_datepublished_to_storyurl",False):
+            logger.info("Applying append_datepublished_to_storyurl")
+            self._setURL('https://' + self.getSiteDomain() +
+                         '/s/'+self.story.getMetadata('storyId')+
+                         self.story.getMetadataRaw('datePublished').strftime("-%Y-%m-%d"))
+            logger.info("updated storyUrl:%s"%self.url)
 
         # Some books have a cover in the index page.
         # Samples are:
