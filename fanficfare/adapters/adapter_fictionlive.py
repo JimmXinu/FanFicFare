@@ -156,9 +156,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         show_spoiler_tags = self.getConfig('show_spoiler_tags')
         spoiler_tags = data['spoilerTags'] if 'spoilerTags' in data else []
-        for tag in tags[:5]:
-            self.story.addToList('key_tags', tag)
-        for tag in tags[5:]:
+        for tag in tags:
             if show_spoiler_tags or not tag in spoiler_tags:
                 self.story.addToList('tags', tag)
 
