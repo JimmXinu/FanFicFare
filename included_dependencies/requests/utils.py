@@ -230,8 +230,32 @@ def guess_filename(obj):
             name[-1] != '>'):
         return os.path.basename(name)
 
-
 def extract_zipped_paths(path):
+    '''
+    FanFicFare calibre plugin code should extract only one copy of
+    each file and always to <calibre temp dir>/fanficfare_files/...
+
+    orig_extract_zipped_paths() extracts to <tmp>/package/file, which
+    is *not* compared for age or anything.  So it would be a hard bug
+    to track down when the bundled file changes but the code continues
+    to use the old tmp version anyway.  Putting it under <calibre temp
+    dir> means it will be renewed each Calibre restart.
+
+    orig_extract_zipped_paths is a bit inefficient in the way it
+    checks inside the zip file each time, but it's not bad enough to
+    completely re-do.
+    '''
+    try:
+        from calibre.ptempfile import base_dir as calibre_base_dir
+        caltmpdir = os.path.join(calibre_base_dir(),"fanficfare_files")
+        if not os.path.isdir(caltmpdir):
+            os.mkdir(caltmpdir)
+    except:
+        caltmpdir = None
+
+    return orig_extract_zipped_paths(path,tmp=caltmpdir)
+
+def orig_extract_zipped_paths(path,tmp=None):
     """Replace nonexistent paths that look like they refer to a member of a zip
     archive with the location of an extracted copy of the target, or else
     just return the provided path unchanged.
@@ -255,7 +279,8 @@ def extract_zipped_paths(path):
         return path
 
     # we have a valid zip archive and a valid member of that archive
-    tmp = tempfile.gettempdir()
+    if not tmp:
+        tmp = tempfile.gettempdir()
     extracted_path = os.path.join(tmp, *member.split('/'))
     if not os.path.exists(extracted_path):
         extracted_path = zip_file.extract(member, path=tmp)
