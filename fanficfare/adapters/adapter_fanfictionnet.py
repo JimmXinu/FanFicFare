@@ -313,19 +313,24 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 logger.debug("authimg_url:%s"%authimg_url)
 
                 ## ffnet uses different sizes on auth & story pages, but same id.
+                ## Old URLs:
                 ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
                 ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
+                ## After Dec 2020 ffnet changes:
+                ## /image/6472517/180/
+                ## /image/6472517/150/
                 try:
-                    cover_id = cover_url.split('/')[4]
+                    cover_id = cover_url.split('/')[-3]
                 except:
                     cover_id = None
                 try:
-                    authimg_id = authimg_url.split('/')[4]
+                    authimg_id = authimg_url.split('/')[-3]
                 except:
                     authimg_id = None
 
                 ## don't use cover if it matches the auth image.
                 if cover_id and authimg_id and cover_id == authimg_id:
+                    logger.debug("skip_author_cover: cover_url matches authimg_url: don't use")
                     cover_url = None
 
             if cover_url:
