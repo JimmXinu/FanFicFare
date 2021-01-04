@@ -43,7 +43,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
 
     @staticmethod
@@ -56,10 +56,10 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.twilighted.net/viewstory.php?sid=1234"
+        return "https://www.twilighted.net/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://")+r"(www\.)?"+re.escape("twilighted.net/viewstory.php?sid=")+r"\d+$"
+        return r"https?"+re.escape("://")+r"(www\.)?"+re.escape("twilighted.net/viewstory.php?sid=")+r"\d+$"
 
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
@@ -81,7 +81,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php?action=login'
+        loginUrl = 'https://' + self.getSiteDomain() + '/user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -132,13 +132,13 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
+            self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href'])
 
 
         def defaultGetattr(d,k):
@@ -205,7 +205,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self._fetchUrl(series_url))
