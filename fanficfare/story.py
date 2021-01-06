@@ -156,6 +156,10 @@ except:
                 return (data,imgtype,imagetypes[imgtype])
 
     except:
+        # No calibre or PIL, give a random largish size.
+        def get_image_size(data):
+            return 1000,1000
+
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
                           removetrans,imgtype="jpg",background='#ffffff'):
