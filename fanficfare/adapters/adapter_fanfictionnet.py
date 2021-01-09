@@ -170,38 +170,36 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
-        # <link rel="canonical" href="//www.fanfiction.net/s/13551154/100/Haze-Gray">
         canonicalurl = soup.select_one('link[rel=canonical]')['href']
         self.set_story_idurl(canonicalurl)
 
-        if self.getConfig('check_next_chapter'):
-            try:
-                ## ffnet used to have a tendency to send out update
-                ## notices in email before all their servers were
-                ## showing the update on the first chapter.  It
-                ## generates another server request and doesn't seem
-                ## to be needed lately, so now default it to off.
-                try:
-                    chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
-                # get chapter part of url.
-                except:
-                    chapcount = 1
-                tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
-                                                  self.story.getMetadata('storyId'),
-                                                  chapcount+1,
-                                                  self.urltitle)
-                logger.debug('=Trying newer chapter: %s' % tryurl)
-                newdata = self._fetchUrl(tryurl)
-                if "not found. Please check to see you are not using an outdated url." not in newdata \
-                        and "This request takes too long to process, it is timed out by the server." not in newdata:
-                    logger.debug('=======Found newer chapter: %s' % tryurl)
-                    soup = self.make_soup(newdata)
-            except HTTPError as e:
-                if e.code == 503:
-                    raise e
-            except Exception as e:
-                logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
-                pass
+        # if self.getConfig('check_next_chapter'):
+        #     try:
+        #         ## ffnet used to have a tendency to send out update
+        #         ## notices in email before all their servers were
+        #         ## showing the update on the first chapter.  It
+        #         ## generates another server request and doesn't seem
+        #         ## to be needed lately, so now default it to off.
+        #         try:
+        #             chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+        #         # get chapter part of url.
+        #         except:
+        #             chapcount = 1
+        #         tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
+        #                                         self.story.getMetadata('storyId'),
+        #                                         chapcount+1)
+        #         logger.debug('=Trying newer chapter: %s' % tryurl)
+        #         newdata = self._fetchUrl(tryurl)
+        #         if "not found. Please check to see you are not using an outdated url." not in newdata \
+        #                 and "This request takes too long to process, it is timed out by the server." not in newdata:
+        #             logger.debug('=======Found newer chapter: %s' % tryurl)
+        #             soup = self.make_soup(newdata)
+        #     except HTTPError as e:
+        #         if e.code == 503:
+        #             raise e
+        #     except Exception as e:
+        #         logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
+        #         pass
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
