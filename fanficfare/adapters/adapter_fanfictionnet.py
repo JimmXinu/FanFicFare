@@ -25,6 +25,7 @@ import re
 from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
 
+from ..chromagnon.cacheParse import ChromeCache
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -60,6 +61,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             ## accept m(mobile)url, but use www.
             self.origurl = self.origurl.replace("https://m.","https://www.")
 
+        self.chromagnon_cache = None
     @staticmethod
     def getSiteDomain():
         return 'www.fanfiction.net'
@@ -75,14 +77,50 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
+    def _postUrl(self, url,
+                 parameters={},
+                 headers={},
+                 extrasleep=None,
+                 usecache=True):
+        logger.debug("_postUrl")
+        raise NotImplementedError
+
+    def _fetchUrlRawOpened(self, url,
+                           parameters=None,
+                           extrasleep=None,
+                           usecache=True,
+                           referer=None):
+        logger.debug("_fetchUrlRawOpened")
+        raise NotImplementedError
+
+    def _fetchUrlOpened(self, url,
+                        parameters=None,
+                        usecache=True,
+                        extrasleep=None,
+                        referer=None):
+        logger.debug("_fetchUrlOpened")
+        raise NotImplementedError
+
+    def _fetchUrlRaw(self, url,
+                     parameters=None,
+                     extrasleep=None,
+                     usecache=True,
+                     referer=None):
+        ## This should be the one called for images.
+        logger.debug("_fetchUrlRaw")
+        raise NotImplementedError
+    
     def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
-        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
-        ## fast.  This is in additional to what ever the
-        ## slow_down_sleep_time setting is.
-        return BaseSiteAdapter._fetchUrl(self,url,
-                                         parameters=parameters,
-                                         extrasleep=extrasleep,
-                                         usecache=usecache)
+
+        if self.chromagnon_cache is None:
+            logger.debug("Start making self.chromagnon_cache")
+            self.chromagnon_cache = ChromeCache(self.getConfig("chrome_cache_path"))
+            logger.debug("Done making self.chromagnon_cache")
+        data = self.chromagnon_cache.get_cached_file(url)
+        logger.debug("%s:len(%s)"%(url,len(data)))
+        if data is None:
+            raise HTTPError(404,"Not found in Chrome Cache")
+        return self.configuration._decode(data)
 
     def use_pagecache(self):
         '''
@@ -103,8 +141,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
             data = self._fetchUrl(url)
-            #logger.debug("\n===================\n%s\n===================\n"%data)
+            # logger.debug("\n===================\n%s\n===================\n"%data)
             soup = self.make_soup(data)
+            # logger.debug("\n===================\n%s\n===================\n"%soup)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(url)
