@@ -92,7 +92,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return True
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
-
+        get_cover=False
         # fetch the chapter.  From that we will get almost all the
         # metadata and chapter list
 
@@ -169,20 +169,20 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # of Book, Movie, etc.
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
-            caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
-            catsoup = self.make_soup(self._fetchUrl(caturl))
-            found = False
-            for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
-                self.story.addToList('category',stripHTML(a))
-                found = True
-            if not found:
-                # Fall back.  I ran across a story with a Crossver
-                # category link to a broken page once.
-                # http://www.fanfiction.net/s/2622060/1/
-                # Naruto + Harry Potter Crossover
-                logger.info("Fall back category collection")
-                for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
-                    self.story.addToList('category',c)
+            # caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
+            # catsoup = self.make_soup(self._fetchUrl(caturl))
+            # found = False
+            # for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
+            #     self.story.addToList('category',stripHTML(a))
+            #     found = True
+            # if not found:
+            #     # Fall back.  I ran across a story with a Crossver
+            #     # category link to a broken page once.
+            #     # http://www.fanfiction.net/s/2622060/1/
+            #     # Naruto + Harry Potter Crossover
+            #     logger.info("Fall back category collection")
+            for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
+                self.story.addToList('category',c)
 
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
@@ -301,7 +301,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
-            if cover_url and self.getConfig('skip_author_cover'):
+            if cover_url and self.getConfig('include_images') and self.getConfig('skip_author_cover'):
                 authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
                 try:
                     img = authsoup.select_one('img.lazy.cimage')
