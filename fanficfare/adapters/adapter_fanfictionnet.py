@@ -158,33 +158,33 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
-        if self.getConfig('check_next_chapter'):
-            try:
-                ## ffnet used to have a tendency to send out update
-                ## notices in email before all their servers were
-                ## showing the update on the first chapter.  It
-                ## generates another server request and doesn't seem
-                ## to be needed lately, so now default it to off.
-                try:
-                    chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
-                # get chapter part of url.
-                except:
-                    chapcount = 1
-                tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
-                                                self.story.getMetadata('storyId'),
-                                                chapcount+1)
-                logger.debug('=Trying newer chapter: %s' % tryurl)
-                newdata = self._fetchUrl(tryurl)
-                if "not found. Please check to see you are not using an outdated url." not in newdata \
-                        and "This request takes too long to process, it is timed out by the server." not in newdata:
-                    logger.debug('=======Found newer chapter: %s' % tryurl)
-                    soup = self.make_soup(newdata)
-            except HTTPError as e:
-                if e.code == 503:
-                    raise e
-            except Exception as e:
-                logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
-                pass
+        # if self.getConfig('check_next_chapter'):
+        #     try:
+        #         ## ffnet used to have a tendency to send out update
+        #         ## notices in email before all their servers were
+        #         ## showing the update on the first chapter.  It
+        #         ## generates another server request and doesn't seem
+        #         ## to be needed lately, so now default it to off.
+        #         try:
+        #             chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+        #         # get chapter part of url.
+        #         except:
+        #             chapcount = 1
+        #         tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
+        #                                         self.story.getMetadata('storyId'),
+        #                                         chapcount+1)
+        #         logger.debug('=Trying newer chapter: %s' % tryurl)
+        #         newdata = self._fetchUrl(tryurl)
+        #         if "not found. Please check to see you are not using an outdated url." not in newdata \
+        #                 and "This request takes too long to process, it is timed out by the server." not in newdata:
+        #             logger.debug('=======Found newer chapter: %s' % tryurl)
+        #             soup = self.make_soup(newdata)
+        #     except HTTPError as e:
+        #         if e.code == 503:
+        #             raise e
+        #     except Exception as e:
+        #         logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
+        #         pass
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
@@ -337,44 +337,44 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     cover_url=img['src']
             ## Nov 19, 2020, ffnet lazy cover images returning 0 byte
             ## files.
-            logger.debug("cover_url:%s"%cover_url)
+            # logger.debug("cover_url:%s"%cover_url)
 
-            authimg_url = ""
-            if cover_url and self.getConfig('include_images') and self.getConfig('skip_author_cover'):
-                authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
-                try:
-                    img = authsoup.select_one('img.lazy.cimage')
-                    authimg_url=img['data-original']
-                except:
-                    img = authsoup.select_one('img.cimage')
-                    if img:
-                        authimg_url=img['src']
+            # authimg_url = ""
+            # if cover_url and self.getConfig('include_images') and self.getConfig('skip_author_cover'):
+            #     authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+            #     try:
+            #         img = authsoup.select_one('img.lazy.cimage')
+            #         authimg_url=img['data-original']
+            #     except:
+            #         img = authsoup.select_one('img.cimage')
+            #         if img:
+            #             authimg_url=img['src']
 
-                logger.debug("authimg_url:%s"%authimg_url)
+            #     logger.debug("authimg_url:%s"%authimg_url)
 
-                ## ffnet uses different sizes on auth & story pages, but same id.
-                ## Old URLs:
-                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
-                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
-                ## After Dec 2020 ffnet changes:
-                ## /image/6472517/180/
-                ## /image/6472517/150/
-                try:
-                    cover_id = cover_url.split('/')[-3]
-                except:
-                    cover_id = None
-                try:
-                    authimg_id = authimg_url.split('/')[-3]
-                except:
-                    authimg_id = None
+            #     ## ffnet uses different sizes on auth & story pages, but same id.
+            #     ## Old URLs:
+            #     ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
+            #     ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
+            #     ## After Dec 2020 ffnet changes:
+            #     ## /image/6472517/180/
+            #     ## /image/6472517/150/
+            #     try:
+            #         cover_id = cover_url.split('/')[-3]
+            #     except:
+            #         cover_id = None
+            #     try:
+            #         authimg_id = authimg_url.split('/')[-3]
+            #     except:
+            #         authimg_id = None
 
-                ## don't use cover if it matches the auth image.
-                if cover_id and authimg_id and cover_id == authimg_id:
-                    logger.debug("skip_author_cover: cover_url matches authimg_url: don't use")
-                    cover_url = None
+            #     ## don't use cover if it matches the auth image.
+            #     if cover_id and authimg_id and cover_id == authimg_id:
+            #         logger.debug("skip_author_cover: cover_url matches authimg_url: don't use")
+            #         cover_url = None
 
-            if cover_url:
-                self.setCoverImage(url,cover_url)
+            # if cover_url:
+            #     self.setCoverImage(url,cover_url)
 
 
         # Find the chapter selector
