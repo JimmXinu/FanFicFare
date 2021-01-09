@@ -113,7 +113,11 @@ class CacheData():
         else:
             block = open(os.path.join(self.address.path,self.address.fileSelector), 'rb')
             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+<<<<<<< HEAD
             data = block.read(self.size)
+=======
+            data = block.read(self.size).decode('utf-8')
+>>>>>>> e94a36a7 (Rebasing onto master)
             block.close()
         return data
 
