@@ -238,7 +238,11 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     #raw_email = data[0][1] # here's the body, which is raw text of the whole email
     # including headers and alternate payloads
 
-        email_message = email.message_from_string(ensure_str(raw_email))
+        try:
+            email_message = email.message_from_string(ensure_str(raw_email))
+        except Exception as e:
+            logger.error("Failed decode email message: %s"%e,exc_info=True)
+            continue
 
         # logger.debug("To:%s"%email_message['To'])
         # logger.debug("From:%s"%email_message['From'])
