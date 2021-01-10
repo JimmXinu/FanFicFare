@@ -454,6 +454,45 @@ div { margin: 0pt; padding: 0pt; }
                                         attrs={"name":"calibre:series_index",
                                                "content":series_index}))
 
+        saved_meta_col = self.getConfig('calibre_fanficfare_metadata')
+        if saved_meta_col:
+            import json
+            metahash = json.loads('''
+{
+  "#extra#":null,
+  "category_sort":"value",
+  "colnum":46,
+  "column":"value",
+  "datatype":"comments",
+  "display":{
+    "description":"Saved FanFicFare Metadata in HTML.  Don't change if you don't know what you're doing.",
+    "heading_position":"hide",
+    "interpret_as":"long-text"
+  },
+  "is_category":false,
+  "is_csp":false,
+  "is_custom":true,
+  "is_editable":true,
+  "is_multiple":null,
+  "is_multiple2":{},
+  "kind":"field",
+  "label":"fanficfare_metadata",
+  "link_column":"value",
+  "name":"FanFicFare Metadata",
+  "rec_index":41,
+  "search_terms":[
+    "#fanficfare_metadata"
+  ],
+  "table":"custom_column_46"
+}
+''')
+            # <meta name="calibre:user_metadata:#fanficfare_metadata" content="...">
+            metahash['label']=saved_meta_col
+            metahash['#value#']=self.story.dump_html_metadata()
+            metadata.appendChild(newTag(contentdom,"meta",
+                                        attrs={"name":"calibre:user_metadata:"+saved_meta_col,
+                                               "content":json.dumps(metahash)}))
+
         if self.getMetadata('description'):
             metadata.appendChild(newTag(contentdom,"dc:description",text=
                                         self.getMetadata('description')))
