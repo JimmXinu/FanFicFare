@@ -98,7 +98,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         url = self.origurl
         logger.debug("URL: "+url)
-        raise exceptions.FailedToDownload("The site fanfiction.net is blocking downloads.  Site is disabled in FanFicFare until further notice.")
+        raise exceptions.FailedToDownload("The site fanfiction.net is blocking downloads.  Site is disabled in this version of FanFicFare.")
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
