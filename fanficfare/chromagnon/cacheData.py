@@ -113,7 +113,7 @@ class CacheData():
         else:
             block = open(os.path.join(self.address.path,self.address.fileSelector), 'rb')
             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-            data = block.read(self.size).decode('utf-8')
+            data = block.read(self.size)
             block.close()
         return data
 
