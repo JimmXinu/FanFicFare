@@ -324,6 +324,18 @@ div { margin: 0pt; padding: 0pt; }
         outputepub = ZipFile(zipio, 'a', compression=ZIP_DEFLATED)
         outputepub.debug=3
 
+        dologpage = ( self.getConfig("include_logpage") == "smart" and \
+                          (self.story.logfile or self.story.getMetadataRaw("status") == "In-Progress") )  \
+                     or self.getConfig("include_logpage") == "true"
+
+        if dologpage:
+            # write log page.
+            logpageIO = BytesIO()
+            self.writeLogPage(logpageIO)
+            outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
+            logpageIO.close()
+
+
         ## Create META-INF/container.xml file.  The only thing it does is
         ## point to content.opf
         containerdom = getDOMImplementation().createDocument(None, "container", None)
@@ -634,10 +646,6 @@ div { margin: 0pt; padding: 0pt; }
         ## save where to insert logpage.
         logpage_indices = (len(items),len(itemrefs))
 
-        dologpage = ( self.getConfig("include_logpage") == "smart" and \
-                          (self.story.logfile or self.story.getMetadataRaw("status") == "In-Progress") )  \
-                     or self.getConfig("include_logpage") == "true"
-
         ## collect chapter urls and file names for internalize_text_links option.
         chapurlmap = {}
         for index, chap in enumerate(self.story.getChapters(fortoc=True)):
@@ -851,13 +859,6 @@ div { margin: 0pt; padding: 0pt; }
         if tocpageIO.getvalue(): # will be false if no toc page.
             outputepub.writestr("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
-
-        if dologpage:
-            # write log page.
-            logpageIO = BytesIO()
-            self.writeLogPage(logpageIO)
-            outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
-            logpageIO.close()
 
         if self.hasConfig('chapter_start'):
             CHAPTER_START = string.Template(self.getConfig("chapter_start"))
