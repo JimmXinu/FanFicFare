@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2020-11-06 08:19-0600\n"
-"PO-Revision-Date: 2020-11-06 16:16+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-12-28 11:00+0000\n"
+"Last-Translator: Ptit Prince <leporello1791@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1630,7 +1630,7 @@ msgstr "Entrer le mot de passe du compte email pour %s :"
 
 #: dialogs.py:1629
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Montrez cette confirmation à nouveau"
 
 #: fff_plugin.py:151 fff_plugin.py:182
 msgid "FanFicFare"
@@ -1666,7 +1666,7 @@ msgstr "Prendre les URLs de Récit depuis les livres sélectionnés"
 
 #: fff_plugin.py:315
 msgid "Anthology Options"
-msgstr ""
+msgstr "Options d'Anthologie"
 
 #: fff_plugin.py:316
 msgid "Make Anthology Epub from Web Page"
@@ -1694,7 +1694,7 @@ msgstr "Mettre à jour un ePub Anthologie FanFiction"
 
 #: fff_plugin.py:345
 msgid "Reading List Options"
-msgstr ""
+msgstr "Options de la Liste de lecture"
 
 #: fff_plugin.py:348
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1718,27 +1718,27 @@ msgstr "Marquer non lu : Ajouter aux listes \"A lire\""
 
 #: fff_plugin.py:361
 msgid "Add to Lists Not Configured"
-msgstr ""
+msgstr "Ajouter aux listes non configurées"
 
 #: fff_plugin.py:371
 msgid "Remove from Lists Not Configured"
-msgstr ""
+msgstr "Suppression des listes non configurées"
 
 #: fff_plugin.py:380
 msgid "Actions by Update Modes"
-msgstr ""
+msgstr "Actions par modes de mise à jour"
 
 #: fff_plugin.py:413
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "Mettre à jour les livres FanFiction existants"
 
 #: fff_plugin.py:421
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "Recevoir les URL des histoires FanFiction par courriel"
 
 #: fff_plugin.py:429
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "Obtenir les URL des histoires FanFiction de la page web"
 
 #: fff_plugin.py:455
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1766,7 +1766,7 @@ msgstr "Pas de livres sélectionnés pour mettre à jour les Listes de Lecture"
 
 #: fff_plugin.py:550
 msgid "FanFicFare Saved Metadata Column not configured."
-msgstr ""
+msgstr "Colonne de métadonnées enregistrées FanFicFare non configurée."
 
 #: fff_plugin.py:556 fff_plugin.py:1254
 msgid "Cannot update non-epub format."
@@ -2093,7 +2093,7 @@ msgstr "Changer l'URL de Récit ?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr ""
+msgstr "<b>%(title)s</b> par <b>%(author)s</b> est déjà dans votre bibliothèque avec une source URL différente :"
 
 #: fff_plugin.py:1467
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
@@ -2119,7 +2119,7 @@ msgstr "Télécharger comme un Nouveau Livre ?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr ""
+msgstr "<b>%(title)s</b> par <b>%(author)s</b> est déjà dans votre bibliothèque avec une URL source différente."
 
 #: fff_plugin.py:1483
 msgid ""
@@ -2327,7 +2327,7 @@ msgstr "Anthologie contenant : "
 
 #: fff_plugin.py:2820
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)spar %(author)s"
 
 #: fff_plugin.py:2884
 msgid " Anthology"
@@ -2343,7 +2343,7 @@ msgstr "Téléchargement de Récits FanFiction"
 
 #: jobs.py:93
 msgid "%(count)d of %(total)d stories finished downloading"
-msgstr ""
+msgstr "Téléchargement de %(count)dsur %(total)d histoires terminé"
 
 #: jobs.py:100
 msgid "Download Results:"
@@ -2364,7 +2364,7 @@ msgstr "Contient déjà des chapitres %d. Réutilisez tel quel."
 #: jobs.py:300
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
-msgstr ""
+msgstr "Mise à jour %(fileform)s terminée, ajout de %(added)s chapitres pour %(total)s au total."
 
 #: prefs.py:27
 msgid "Skip"
