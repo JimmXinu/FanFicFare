@@ -104,7 +104,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         for a in soup.find_all('a', {'href': re.compile('/search/')}):
             self.story.addToList('searchtags', a.get_text())
 
-        elements = soup.find_all('time', {'class': 'q_time'})
+        elements = soup.find_all('time') # , {'class': 'q_time'}
         self.story.setMetadata('datePublished', datetime.datetime.fromtimestamp(float(elements[0]['ts'])))
         if len(elements) > 1:
             self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
