@@ -37,7 +37,7 @@ if __name__=="__main__":
     os.chdir('../included_dependencies')
     files=['bs4','chardet','html2text','soupsieve','backports',
            'cloudscraper','requests','requests_toolbelt','urllib3',
-           'certifi','idna']
+           'certifi','idna','brotlipython.py','brotli-dict']
     ## Kept only for v2.85.1 support now.
     createZipFile("../"+filename,"a",
                   files,

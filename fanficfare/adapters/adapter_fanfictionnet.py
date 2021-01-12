@@ -114,12 +114,19 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         if self.chromagnon_cache is None:
             logger.debug("Start making self.chromagnon_cache")
-            self.chromagnon_cache = ChromeCache(self.getConfig("chrome_cache_path"))
+            try:
+                if not self.getConfig("chrome_cache_path"):
+                    raise exceptions.FailedToDownload("FFnet Workaround: chrome_cache_path setting must be set.")
+                self.chromagnon_cache = ChromeCache(self.getConfig("chrome_cache_path"))
+            except PermissionError:
+                raise exceptions.FailedToDownload("Permission to Chrome Cache (%s) denied--Did you quit Chrome?" % self.getConfig("chrome_cache_path"))
             logger.debug("Done making self.chromagnon_cache")
         data = self.chromagnon_cache.get_cached_file(url)
-        logger.debug("%s:len(%s)"%(url,len(data)))
         if data is None:
-            raise HTTPError(404,"Not found in Chrome Cache")
+            ## XXX Do something to collect list of failed URLs?
+            ## Turn on continue on fail?
+            raise exceptions.FailedToDownload("URL not found in Chrome Cache: %s" % url)
+        logger.debug("%s:len(%s)"%(url,len(data)))
         return self.configuration._decode(data)
 
     def use_pagecache(self):

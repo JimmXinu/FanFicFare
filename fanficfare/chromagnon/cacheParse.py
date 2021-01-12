@@ -39,7 +39,33 @@ import os
 import struct
 import sys
 import re
-import brotli
+import time
+
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        t=0
+        try:
+            t = time.time()
+            result = func(*args, **kwargs)
+            t = time.time() - t
+            return result
+        finally:
+            print("time:%s"%t)
+    return profiled_func
+
+try:
+    from brotli import decompress
+    @do_cprofile
+    def brotli_decompress(inbuf):
+        return decompress(inbuf)
+except:
+    # Calibre doesn't include brotli, so use packaged brotlipython
+    # which is waaaay slower, but pure python.
+    from brotlipython import brotlidec
+    @do_cprofile
+    def brotli_decompress(inbuf):
+        # wants the output, too, but returns it
+        return brotlidec(inbuf,[])
 import time
 
 from . import csvOutput
@@ -138,7 +164,7 @@ class ChromeCache(object):
                         if entry.httpHeader.headers[b'content-encoding'] == b"gzip":
                             data = gzip.decompress(data)
                         elif entry.httpHeader.headers[b'content-encoding'] == b"br":
-                            data = brotli.decompress(data)
+                            data = brotli_decompress(data)
                     return data
         return None
 
@@ -217,7 +243,6 @@ def exportToHTML(cache, outpath):
                             # print("unbrotli'ed:%s"%name)
                         except IOError:
                             page.write("Something wrong happened while unzipping")
-                        brotli
                 else:
                     page.write('<a href="%s">%s</a>'%(name ,
                                entry.keyToStr().split('/')[-1]))

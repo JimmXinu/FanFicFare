@@ -85,7 +85,8 @@ setup(
                       'chardet',
                       'html5lib',
                       'html2text',
-                      'cloudscraper'],
+                      'cloudscraper',
+                      'brotli'],
     # html5lib requires 'six', FFF includes it's own copy as fanficfare.six
 
     # List additional groups of dependencies here (e.g. development
