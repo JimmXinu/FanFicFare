@@ -117,6 +117,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         try:
             data = self._fetchUrl(url)
+            # logger.debug(data)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
@@ -135,7 +136,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         # Now go hunting for all the meta data and the chapter list.
 
         # This is the block that holds the metadata
-        bookdetails = soup.find('div', {'class': 'g_col_8'})
+        bookdetails = soup.find('div', {'class': '_8'})
 
         # Title
         title = bookdetails.find('h2')
@@ -203,7 +204,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
 
         if get_cover:
-            cover_meta = soup.find('div', {'class': 'g_col_4'}).find('img')
+            cover_meta = soup.find('div', {'class': '_4'}).find('img')
             cover_url = 'https:' + cover_meta['src']
             self.setCoverImage(url, cover_url)
 
