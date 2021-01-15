@@ -112,8 +112,9 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/autent.php'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['name']))
-
-        d = self._postUrl(loginUrl, params)
+        ## must need a cookie or something.
+        self._fetchUrl(loginUrl, usecache=False)
+        d = self._postUrl(loginUrl, params, usecache=False)
 
         if self.needToLoginCheck(d):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
