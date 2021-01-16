@@ -58,7 +58,7 @@ from .user_agent import User_Agent
 
 # ------------------------------------------------------------------------------- #
 
-__version__ = '1.2.50'
+__version__ = '1.2.52'
 
 # ------------------------------------------------------------------------------- #
 
@@ -301,6 +301,27 @@ class CloudScraper(Session):
                 self._solveDepthCnt = 0
 
         return response
+
+    # ------------------------------------------------------------------------------- #
+    # check if the response contains a valid Cloudflare Bot Fight Mode challenge
+    # ------------------------------------------------------------------------------- #
+
+    @staticmethod
+    def is_BFM_Challenge(resp):
+        try:
+            return (
+                resp.headers.get('Server', '').startswith('cloudflare')
+                and re.search(
+                    r"\/cdn-cgi\/bm\/cv\/\d+\/api\.js.*?"
+                    r"window\['__CF\$cv\$params'\]\s*=\s*{",
+                    resp.text,
+                    re.M | re.S
+                )
+            )
+        except AttributeError:
+            pass
+
+        return False
 
     # ------------------------------------------------------------------------------- #
     # check if the response contains a valid Cloudflare challenge
