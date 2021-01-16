@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import re
 import codecs
+import random
 
 # py2 vs py3 transition
 from . import six
@@ -1271,11 +1272,19 @@ class Configuration(ConfigParser):
 
     def do_sleep(self,extrasleep=None):
         if extrasleep:
+            logger.debug("extra sleep:%s"%extrasleep)
             time.sleep(float(extrasleep))
+        t = None
         if self.override_sleep:
-            time.sleep(float(self.override_sleep))
+            t = float(self.override_sleep)
         elif self.getConfig('slow_down_sleep_time'):
-            time.sleep(float(self.getConfig('slow_down_sleep_time')))
+            t = float(self.getConfig('slow_down_sleep_time'))
+        ## sleep randomly between 0.5 time and 1.5 time.
+        ## So 8 would be between 4 and 12.
+        if t:
+            rt = random.uniform(t*0.5, t*1.5)
+            logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
+            time.sleep(rt)
 
     # parameters is a dict()
     def _fetchUrlOpened(self, url,
@@ -1291,6 +1300,8 @@ class Configuration(ConfigParser):
         else:
             sleeptimes = [0, 2, 7, 12]
         for sleeptime in sleeptimes:
+            if sleeptime:
+                logger.debug("retry sleep:%s"%sleeptime)
             time.sleep(sleeptime)
             try:
                 (data,opened)=self._fetchUrlRawOpened(url,
