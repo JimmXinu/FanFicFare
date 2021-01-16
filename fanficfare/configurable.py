@@ -46,6 +46,7 @@ import pickle
 ## isn't found in plugin when only imported down below inside
 ## get_scraper()
 import cloudscraper
+from cloudscraper.exceptions import CloudflareException
 
 from . import exceptions
 
@@ -1135,12 +1136,16 @@ class Configuration(ConfigParser):
 
         if self.getConfig('use_cloudscraper',False):
             logger.debug("Using cloudscraper for POST")
-            resp = self.get_scraper().post(url,
-                                           headers=dict(headers),
-                                           data=parameters)
-            logger.debug("response code:%s"%resp.status_code)
-            resp.raise_for_status() # raises HTTPError if error code.
-            data = resp.content
+            try:
+                resp = self.get_scraper().post(url,
+                                               headers=dict(headers),
+                                               data=parameters)
+                logger.debug("response code:%s"%resp.status_code)
+                resp.raise_for_status() # raises HTTPError if error code.
+                data = resp.content
+            except CloudflareException as e:
+                msg = unicode(e).replace(' in the opensource (free) version','...')
+                raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
         else:
             req = Request(url,
                           data=ensure_binary(urlencode(parameters)),
@@ -1324,7 +1329,13 @@ class Configuration(ConfigParser):
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
-                raise
+                if isinstance(e,CloudflareException):
+                    ## cloudscraper exception messages can appear to
+                    ## come from FFF and cause confusion.
+                    msg = unicode(e).replace(' in the opensource (free) version','...')
+                    raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+                else:
+                    raise
 
         logger.debug("Giving up on %s" %safe_url(url))
         logger.debug(excpt, exc_info=True)
