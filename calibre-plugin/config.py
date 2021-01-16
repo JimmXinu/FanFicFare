@@ -537,12 +537,12 @@ class BasicTab(QWidget):
         groupbox.setLayout(self.l)
 
         self.mark = QCheckBox(_("Mark added/updated books when finished?"),self)
-        self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' is also available, or search 'marked:fff' for both."))
+        self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."))
         self.mark.setChecked(prefs['mark'])
         self.l.addWidget(self.mark)
 
         self.showmarked = QCheckBox(_("Show Marked books when finished?"),self)
-        self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' is also available, or search 'marked:fff' for both."))
+        self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."))
         self.showmarked.setChecked(prefs['showmarked'])
         self.l.addWidget(self.showmarked)
 
