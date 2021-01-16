@@ -1289,7 +1289,7 @@ class Configuration(ConfigParser):
             # only one try for file:s.
             sleeptimes = [0]
         else:
-            sleeptimes = [0, 0.5, 4, 9]
+            sleeptimes = [0, 2, 7, 12]
         for sleeptime in sleeptimes:
             time.sleep(sleeptime)
             try:
