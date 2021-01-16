@@ -1856,6 +1856,7 @@ class FanFicFarePlugin(InterfaceAction):
         book_list = job.result
         good_list = [ x for x in book_list if x['good'] ]
         bad_list = [ x for x in book_list if not x['good'] ]
+        chapter_error_list = [ x for x in book_list if 'chapter_error_count' in  x ]
         try:
             good_list = sorted(good_list,key=lambda x : x['reportorder'])
             bad_list = sorted(bad_list,key=lambda x : x['reportorder'])
@@ -1865,9 +1866,15 @@ class FanFicFarePlugin(InterfaceAction):
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
 
+        if chapter_error_list:
+            info_dialog(self.gui, _('FanFicFare: ')+_('Some Failed Chapters'),
+                        _('Some of the stories downloaded have failed chapters.  Click View Log in the next dialog to see which.'),
+                        show=True,
+                        show_copy_button=False)
+
         if merge:
             if len(good_list) < 1:
-                info_dialog(self.gui, _('No Good Stories for Anthology'),
+                info_dialog(self.gui, _('FanFicFare: ')+_('No Good Stories for Anthology'),
                             _('No good stories/updates where downloaded, Anthology creation/update aborted.'),
                             show=True,
                             show_copy_button=False)

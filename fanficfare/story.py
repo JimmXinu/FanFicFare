@@ -476,6 +476,8 @@ class Story(Configurable):
 
         self.replacements_prepped = False
 
+        self.chapter_error_count = 0
+        
     def prepare_replacements(self):
         if not self.replacements_prepped and not self.is_lightweight():
             # logger.debug("prepare_replacements")

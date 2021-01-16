@@ -247,7 +247,16 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
 
-                book['comment'] = _('Download %s completed, %s chapters.')%(options['fileform'],story.getMetadata("numChapters"))
+                if adapter.story.chapter_error_count > 0:
+                    book['comment'] = _('Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total chapters.')%\
+                        {'fileform':options['fileform'],
+                         'failed':adapter.story.chapter_error_count,
+                         'total':story.getMetadata("numChapters")}
+                    book['chapter_error_count'] = adapter.story.chapter_error_count
+                else:
+                    book['comment'] = _('Download %(fileform)s completed, %(total)s chapters.')%\
+                        {'fileform':options['fileform'],
+                         'total':story.getMetadata("numChapters")}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
@@ -297,8 +306,13 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 inject_cal_cols(book,story,configuration)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
 
-                book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
-                    {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
+                if adapter.story.chapter_error_count > 0:
+                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.')%\
+                        {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
+                    book['chapter_error_count'] = adapter.story.chapter_error_count
+                else:
+                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
+                        {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
