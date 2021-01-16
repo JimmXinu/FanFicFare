@@ -521,7 +521,9 @@ def do_download(arg,
             import json
             print(json.dumps(metadata, sort_keys=True,
                              indent=2, separators=(',', ':')))
-
+        if adapter.story.chapter_error_count > 0:
+            print("%s chapters errored downloading %s"%(adapter.story.chapter_error_count,
+                                                        url))
         del adapter
 
     except exceptions.InvalidStoryURL as isu:

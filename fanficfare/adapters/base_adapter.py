@@ -255,6 +255,7 @@ class BaseSiteAdapter(Configurable):
 </div>"""%(url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
                             title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
                             url="chapter url removed due to failure"
+                            self.story.chapter_error_count += 1
                         else:
                             raise
 
