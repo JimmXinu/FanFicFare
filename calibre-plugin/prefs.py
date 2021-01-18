@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2020, Jim Miller'
+__copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -132,6 +132,9 @@ default_prefs['authorcase'] = False
 default_prefs['titlecase'] = False
 default_prefs['setanthologyseries'] = False
 default_prefs['mark'] = False
+default_prefs['mark_success'] = True
+default_prefs['mark_failed'] = True
+default_prefs['mark_chapter_error'] = True
 default_prefs['showmarked'] = False
 default_prefs['autoconvert'] = False
 default_prefs['urlsfromclip'] = True

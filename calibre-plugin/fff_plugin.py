@@ -6,7 +6,7 @@ import six
 from six.moves import range
 
 __license__   = 'GPL v3'
-__copyright__ = '2020, Jim Miller'
+__copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 from .fanficfare.six import ensure_text, string_types, text_type as unicode
@@ -1800,20 +1800,24 @@ class FanFicFarePlugin(InterfaceAction):
             db = self.gui.current_db
             marked_ids = dict()
             marked_text = "fff"
-            for index, book_id in enumerate(all_ids):
-                marked_ids[book_id] = '%s_success_%04d' % (marked_text, index)
-            for index, book_id in enumerate(failed_ids):
-                marked_ids[book_id] = '%s_failed_%04d' % (marked_text, index)
-            for index, book_id in enumerate(chapter_error_ids):
-                marked_ids[book_id] = '%s_chapter_error_%04d' % (marked_text, index)
-            # Mark the results in our database
-            db.set_marked_ids(marked_ids)
+            if prefs['mark_success']:
+                for index, book_id in enumerate(all_ids):
+                    marked_ids[book_id] = '%s_success_%04d' % (marked_text, index)
+            if prefs['mark_failed']:
+                for index, book_id in enumerate(failed_ids):
+                    marked_ids[book_id] = '%s_failed_%04d' % (marked_text, index)
+            if prefs['mark_chapter_error']:
+                for index, book_id in enumerate(chapter_error_ids):
+                    marked_ids[book_id] = '%s_chapter_error_%04d' % (marked_text, index)
+            if marked_ids:
+                # Mark the results in our database
+                db.set_marked_ids(marked_ids)
 
-            if prefs['showmarked']: # show add/update
-                # Search to display the list contents
-                self.gui.search.set_search_string('marked:' + marked_text)
-                # Sort by our marked column to display the books in order
-                self.gui.library_view.sort_by_named_field('marked', True)
+                if prefs['showmarked']: # show add/update
+                    # Search to display the list contents
+                    self.gui.search.set_search_string('marked:' + marked_text)
+                    # Sort by our marked column to display the books in order
+                    self.gui.library_view.sort_by_named_field('marked', True)
 
         logger.debug(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)))
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)

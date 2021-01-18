@@ -5,7 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import six
 
 __license__   = 'GPL v3'
-__copyright__ = '2020, Jim Miller'
+__copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import logging
@@ -284,6 +284,9 @@ class ConfigWidget(QWidget):
             prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
             prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
             prefs['mark'] = self.basic_tab.mark.isChecked()
+            prefs['mark_success'] = self.basic_tab.mark_success.isChecked()
+            prefs['mark_failed'] = self.basic_tab.mark_failed.isChecked()
+            prefs['mark_chapter_error'] = self.basic_tab.mark_chapter_error.isChecked()
             prefs['showmarked'] = self.basic_tab.showmarked.isChecked()
             prefs['autoconvert'] = self.basic_tab.autoconvert.isChecked()
             prefs['show_est_time'] = self.basic_tab.show_est_time.isChecked()
@@ -540,6 +543,35 @@ class BasicTab(QWidget):
         self.mark.setToolTip(_("Mark added/updated books when finished.  Use with option below.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."))
         self.mark.setChecked(prefs['mark'])
         self.l.addWidget(self.mark)
+
+        horz = QHBoxLayout()
+        horz.addItem(QtGui.QSpacerItem(20, 1))
+        self.l.addLayout(horz)
+
+        self.mark_success = QCheckBox(_("Success"),self)
+        self.mark_success.setToolTip(_("Mark successfully downloaded or updated books."))
+        self.mark_success.setChecked(prefs['mark_success'])
+        self.mark_success.setEnabled(self.checkforseriesurlid.isChecked())
+        horz.addWidget(self.mark_success)
+
+        self.mark_failed = QCheckBox(_("Failed"),self)
+        self.mark_failed.setToolTip(_("Mark failed downloaded or updated books."))
+        self.mark_failed.setChecked(prefs['mark_failed'])
+        self.mark_failed.setEnabled(self.checkforseriesurlid.isChecked())
+        horz.addWidget(self.mark_failed)
+
+        self.mark_chapter_error = QCheckBox(_("Chapter Error"),self)
+        self.mark_chapter_error.setToolTip(_("Mark downloaded or updated books with chapter errors (only when <i>continue_on_chapter_error:true</i>)."))
+        self.mark_chapter_error.setChecked(prefs['mark_chapter_error'])
+        self.mark_chapter_error.setEnabled(self.checkforseriesurlid.isChecked())
+        horz.addWidget(self.mark_chapter_error)
+
+        def mark_state():
+            self.mark_success.setEnabled(self.mark.isChecked())
+            self.mark_failed.setEnabled(self.mark.isChecked())
+            self.mark_chapter_error.setEnabled(self.mark.isChecked())
+        self.mark.stateChanged.connect(mark_state)
+        mark_state()
 
         self.showmarked = QCheckBox(_("Show Marked books when finished?"),self)
         self.showmarked.setToolTip(_("Show Marked added/updated books only when finished.\nYou can also manually search for 'marked:fff_success'.\n'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."))
