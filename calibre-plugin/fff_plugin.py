@@ -614,7 +614,7 @@ class FanFicFarePlugin(InterfaceAction):
             if url_list:
                 if prefs['imaptags']:
                     message="<p>"+_("Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next dialog, including any story URLs you add manually.")%prefs['imaptags']+"</p>"
-                    confirm(message,'fff_add_imaptags', self.gui, show_cancel_button=False)
+                    confirm(message,'fff_add_imaptags', self.gui, show_cancel_button=False, title=_("Warning"))
                 extraoptions['add_tag']=prefs['imaptags']
                 self.add_dialog(False,"\n".join(url_list),
                                 merge=False,
@@ -1660,13 +1660,10 @@ class FanFicFarePlugin(InterfaceAction):
         else:
             ## No good stories to try to download, go straight to
             ## updating error col.
-            msg = '''
-                    <p>%s</p>
-                    <p>%s</p>
-                    <p>%s</p>'''%(
+            msgl = [
                 _('None of the <b>%d</b> URLs/stories given can be/need to be downloaded.')%len(book_list),
                 _('See log for details.'),
-                _('Proceed with updating your library(Error or Last Checked Columns, if configured)?'))
+                _('Proceed with updating your library(Error or Last Checked Columns, if configured)?')]
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in book_list:
@@ -1676,19 +1673,10 @@ class FanFicFarePlugin(InterfaceAction):
 
             payload = ([], book_list, options)
 
-            # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
-            if calibre_version >= (2, 57, 0):
-                self.gui.proceed_question(self.update_error_column,
-                                          payload, htmllog,
-                                          _('FanFicFare log'), _('FanFicFare download ended'), msg,
-                                          show_copy_button=False,
-                                          log_viewer_unique_name="FanFicFare log viewer")
-            else:
-                self.gui.proceed_question(self.update_error_column,
-                                          payload, htmllog,
-                                          _('FanFicFare log'), _('FanFicFare download ended'), msg,
-                                          show_copy_button=False)
-
+            self.do_proceed_question(self.update_error_column,
+                                     payload,
+                                     htmllog,
+                                     msgl)
             return
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
@@ -1809,11 +1797,11 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['mark_chapter_error']:
                 for index, book_id in enumerate(chapter_error_ids):
                     marked_ids[book_id] = '%s_chapter_error_%04d' % (marked_text, index)
-            if marked_ids:
-                # Mark the results in our database
-                db.set_marked_ids(marked_ids)
 
-                if prefs['showmarked']: # show add/update
+            # Mark the results in our database, even if none.
+            db.set_marked_ids(marked_ids)
+            # only show if there are some.
+            if marked_ids and prefs['showmarked']: # show add/update
                     # Search to display the list contents
                     self.gui.search.set_search_string('marked:' + marked_text)
                     # Sort by our marked column to display the books in order
@@ -1875,12 +1863,11 @@ class FanFicFarePlugin(InterfaceAction):
         #print("book_list:%s"%book_list)
         payload = (good_list, bad_list, options)
 
+        msgl = [ _('FanFicFare found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list)) ]
         if chapter_error_list:
-            info_dialog(self.gui, _('FanFicFare: ')+_('Some Failed Chapters'),
-                        _('Some of the stories downloaded have failed chapters.  Click View Log in the next dialog to see which.'),
-                        show=True,
-                        show_copy_button=False)
-
+            message = _('Some of the stories downloaded have chapters errors.  Click View Log in the next dialog to see which.')
+            confirm(message,'fff_chapter_errors', self.gui, show_cancel_button=False, title=_("Warning"))
+            msgl.append(_('<b>%s</b> good stories contain chapter errors.')%len(chapter_error_list))
         if merge:
             if len(good_list) < 1:
                 info_dialog(self.gui, _('FanFicFare: ')+_('No Good Stories for Anthology'),
@@ -1889,19 +1876,14 @@ class FanFicFarePlugin(InterfaceAction):
                             show_copy_button=False)
                 return
 
-            msg = '<p>'+_('FanFicFare found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list))+'</p>'
             if len(bad_list) > 0:
-                msg = msg + '''
-                            <p>%s</p>
-                            <p>%s</p>
-                            <p>%s</p>
-                            <p>%s</p>'''%(
-                    _('Are you sure you want to continue with creating/updating this Anthology?'),
-                    _('Any updates that failed will <b>not</b> be included in the Anthology.'),
-                    _("However, if there's an older version, it will still be included."),
-                    _('See log for details.'))
+                msgl.extend([
+                        _('Are you sure you want to continue with creating/updating this Anthology?'),
+                        _('Any updates that failed will <b>not</b> be included in the Anthology.'),
+                        _("However, if there's an older version, it will still be included."),
+                        _('See log for details.')])
 
-            msg = msg + '<p>'+_('Proceed with updating this anthology and your library?')+ '</p>'
+            msgl.append(_('Proceed with updating this anthology and your library?'))
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in sorted(good_list+bad_list,key=lambda x : x['listorder']):
@@ -1917,14 +1899,9 @@ class FanFicFarePlugin(InterfaceAction):
 
             do_update_func = self.do_download_merge_update
         else:
-            msg = '''
-                  <p>%s</p>
-                  <p>%s</p>
-                  <p>%s</p>'''%(
-                _('FanFicFare found <b>%s</b> good and <b>%s</b> bad updates.')%(len(good_list),len(bad_list)),
-                _('See log for details.'),
-                _('Proceed with updating your library?')
-                )
+            msgl.extend([
+                    _('See log for details.'),
+                    _('Proceed with updating your library?')])
 
             htmllog='<html><body><table border="1"><tr><th>'+_('Status')+'</th><th>'+_('Title')+'</th><th>'+_('Author')+'</th><th>'+_('Comment')+'</th><th>URL</th></tr>'
             for book in good_list:
@@ -1937,18 +1914,28 @@ class FanFicFarePlugin(InterfaceAction):
 
             do_update_func = self.do_download_list_update
 
-        # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
+        self.do_proceed_question(do_update_func,
+                                 payload,
+                                 htmllog,
+                                 msgl)
+
+    def do_proceed_question(self, update_func, payload, htmllog, msgl):
+        msg = '<p>'+'</p>\n<p>'.join(msgl)+ '</p>\n'
         if calibre_version >= (2, 57, 0):
-            self.gui.proceed_question(do_update_func,
+            # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
+            self.gui.proceed_question(update_func,
                                       payload, htmllog,
-                                      _('FanFicFare log'), _('FanFicFare download complete'), msg,
+                                      _('FanFicFare log'), _('FanFicFare download complete'),
+                                      msg,
                                       show_copy_button=False,
                                       log_viewer_unique_name="FanFicFare log viewer")
         else:
-            self.gui.proceed_question(do_update_func,
+            self.gui.proceed_question(update_func,
                                       payload, htmllog,
-                                      _('FanFicFare log'), _('FanFicFare download complete'), msg,
+                                      _('FanFicFare log'), _('FanFicFare download complete'),
+                                      msg,
                                       show_copy_button=False)
+
 
     def do_download_merge_update(self, payload):
         with busy_cursor():
@@ -2497,7 +2484,7 @@ class FanFicFarePlugin(InterfaceAction):
         except:
             if prefs['addtolists'] or prefs['addtoreadlists']:
                 message="<p>"+_("You configured FanFicFare to automatically update Reading Lists, but you don't have the %s plugin installed anymore?")%'Reading List'+"</p>"
-                confirm(message,'fff_no_reading_list_plugin', self.gui, show_cancel_button=False)
+                confirm(message,'fff_no_reading_list_plugin', self.gui, show_cancel_button=False, title=_("Warning"))
             return
 
         if prefs['addtoreadlists']:
@@ -2509,7 +2496,7 @@ class FanFicFarePlugin(InterfaceAction):
             lists = self.get_clean_reading_lists(prefs['read_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"To Read\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fff_no_read_lists', self.gui, show_cancel_button=False)
+                confirm(message,'fff_no_read_lists', self.gui, show_cancel_button=False, title=_("Warning"))
             for l in lists:
                 if l in rl_plugin.get_list_names():
                     #print("add good read l:(%s)"%l)
@@ -2520,13 +2507,13 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False, title=_("Warning"))
 
         if prefs['addtolists'] and (add or (prefs['addtolistsonread'] and prefs['addtoreadlists']) ):
             lists = self.get_clean_reading_lists(prefs['send_lists'])
             if len(lists) < 1 :
                 message="<p>"+_("You configured FanFicFare to automatically update \"Send to Device\" Reading Lists, but you don't have any lists set?")+"</p>"
-                confirm(message,'fff_no_send_lists', self.gui, show_cancel_button=False)
+                confirm(message,'fff_no_send_lists', self.gui, show_cancel_button=False, title=_("Warning"))
 
             for l in lists:
                 if l in rl_plugin.get_list_names():
@@ -2539,7 +2526,7 @@ class FanFicFarePlugin(InterfaceAction):
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
-                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False)
+                        confirm(message,'fff_no_reading_list_%s'%l, self.gui, show_cancel_button=False, title=_("Warning"))
         self.gui.library_view.model().refresh_ids(book_ids)
         self.gui.tags_view.recount()
 
