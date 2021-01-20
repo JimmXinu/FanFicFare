@@ -24,7 +24,7 @@ import re
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
-
+from ..six.moves.urllib.parse import urlparse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -41,20 +41,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','ffnet')
 
-        # get storyId from url--url validation guarantees second part is storyId
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
+        self.set_story_idurl(url)
 
-        # normalized story URL.
-        self._setURL("https://"+self.getSiteDomain()\
-                         +"/s/"+self.story.getMetadata('storyId')+"/1/")
-
-        # ffnet update emails have the latest chapter URL.
-        # Frequently, when they arrive, not all the servers have the
-        # latest chapter yet and going back to chapter 1 to pull the
-        # chapter list doesn't get the latest.  So save and use the
-        # original URL given to pull chapter list & metadata.
-        # Not used by plugin because URL gets normalized first for
-        # eliminating duplicate story urls.
         self.origurl = url
         if "https://m." in self.origurl:
             ## accept m(mobile)url, but use www.
@@ -71,6 +59,15 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteExampleURLs(cls):
         return "https://www.fanfiction.net/s/1234/1/ https://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
+
+    def set_story_idurl(self,url):
+        parsedUrl = urlparse(url)
+        pathparts = parsedUrl.path.split('/',)
+        self.story.setMetadata('storyId',pathparts[2])
+        self.urltitle='' if len(pathparts)<5 else pathparts[4]
+        # normalized story URL.
+        self._setURL("https://"+self.getSiteDomain()\
+                         +"/s/"+self.story.getMetadata('storyId')+"/1/"+self.urltitle)
 
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
@@ -90,6 +87,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         this and change it to True.
         '''
         return True
+
+    ## not actually putting urltitle on multi-chapters below, but
+    ## one-shots will have it, so this is still useful.  normalized
+    ## chapter URLs do NOT contain the story title.
+    def normalize_chapterurl(self,url):
+        return re.sub(r"https?://(www|m)\.(?P<keep>fanfiction\.net/s/\d+/\d+/).*",
+                      r"https://www.\g<keep>",url)
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
@@ -118,6 +122,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
+        # <link rel="canonical" href="//www.fanfiction.net/s/13551154/100/Haze-Gray">
+        canonicalurl = soup.select_one('link[rel=canonical]')['href']
+        self.set_story_idurl(canonicalurl)
+
         if self.getConfig('check_next_chapter'):
             try:
                 ## ffnet used to have a tendency to send out update
@@ -130,9 +138,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # get chapter part of url.
                 except:
                     chapcount = 1
-                tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
-                                                self.story.getMetadata('storyId'),
-                                                chapcount+1)
+                tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
+                                                  self.story.getMetadata('storyId'),
+                                                  chapcount+1,
+                                                  self.urltitle)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
                 newdata = self._fetchUrl(tryurl)
                 if "not found. Please check to see you are not using an outdated url." not in newdata \
@@ -362,7 +371,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## ffnet(and, I assume, fpcom) tends to fail more if hit too
         ## fast.  This is in additional to what ever the
         ## slow_down_sleep_time setting is.
-        data = self._fetchUrl(url,extrasleep=4.0)
+
+        ## AND explicitly put title URL back on chapter URL for fetch
+        ## *only*--normalized chapter URL does NOT have urltitle
+        data = self._fetchUrl(url+self.urltitle,
+                              extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
