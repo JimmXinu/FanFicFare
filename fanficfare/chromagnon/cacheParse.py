@@ -39,7 +39,6 @@ import os
 import struct
 import sys
 import re
-<<<<<<< HEAD
 import time
 
 def do_cprofile(func):
@@ -67,10 +66,6 @@ except:
     def brotli_decompress(inbuf):
         # wants the output, too, but returns it
         return brotlidec(inbuf,[])
-import time
-=======
-import brotli
->>>>>>> e94a36a7 (Rebasing onto master)
 
 from . import csvOutput
 from . import SuperFastHash
@@ -143,24 +138,16 @@ class ChromeCache(object):
     def __init__(self,path):
         self.cache = parse(path)
         self.hash_cache = {}
-<<<<<<< HEAD
         # t = time.time()
         for entry in self.cache:
             key = entry.keyToStr()
             if 'fanfiction.net' not in key:
                 continue
-=======
-        for entry in self.cache:
-            key = entry.keyToStr()
->>>>>>> e94a36a7 (Rebasing onto master)
             self.hash_cache[key] = entry
             normkey = re.sub(r'^(https://www.fanfiction.net/s/\d+/\d+/).+$',r'\1',key)
             ## either overwrites (no harm), or adds new.
             self.hash_cache[normkey] = entry
-<<<<<<< HEAD
         # print("======:%s"%(time.time()-t))
-=======
->>>>>>> e94a36a7 (Rebasing onto master)
 
     def get_cached_file(self,url):
         if url in self.hash_cache:
@@ -176,11 +163,7 @@ class ChromeCache(object):
                         if entry.httpHeader.headers[b'content-encoding'] == b"gzip":
                             data = gzip.decompress(data)
                         elif entry.httpHeader.headers[b'content-encoding'] == b"br":
-<<<<<<< HEAD
                             data = brotli_decompress(data)
-=======
-                            data = brotli.decompress(data)
->>>>>>> e94a36a7 (Rebasing onto master)
                     return data
         return None
 
@@ -259,10 +242,6 @@ def exportToHTML(cache, outpath):
                             # print("unbrotli'ed:%s"%name)
                         except IOError:
                             page.write("Something wrong happened while unzipping")
-<<<<<<< HEAD
-=======
-                        brotli
->>>>>>> e94a36a7 (Rebasing onto master)
                 else:
                     page.write('<a href="%s">%s</a>'%(name ,
                                entry.keyToStr().split('/')[-1]))

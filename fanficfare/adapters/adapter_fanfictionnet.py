@@ -170,6 +170,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
+        # <link rel="canonical" href="//www.fanfiction.net/s/13551154/100/Haze-Gray">
         canonicalurl = soup.select_one('link[rel=canonical]')['href']
         self.set_story_idurl(canonicalurl)
 
@@ -185,9 +186,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # get chapter part of url.
                 except:
                     chapcount = 1
-                tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
-                                                self.story.getMetadata('storyId'),
-                                                chapcount+1)
+                tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
+                                                  self.story.getMetadata('storyId'),
+                                                  chapcount+1,
+                                                  self.urltitle)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
                 newdata = self._fetchUrl(tryurl)
                 if "not found. Please check to see you are not using an outdated url." not in newdata \

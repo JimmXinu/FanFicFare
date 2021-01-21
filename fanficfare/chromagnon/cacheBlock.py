@@ -55,10 +55,7 @@ class CacheBlock():
 
         # Read Magic Number
         magic = struct.unpack('I', header.read(4))[0]
-<<<<<<< HEAD
         # print("magic number:%s"%hex(magic))
-=======
->>>>>>> e94a36a7 (Rebasing onto master)
         if magic == CacheBlock.BLOCK_MAGIC:
             self.type = CacheBlock.BLOCK
             header.seek(2, 1)

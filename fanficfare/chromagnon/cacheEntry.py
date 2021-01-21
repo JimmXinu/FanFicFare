@@ -118,7 +118,7 @@ class CacheEntry():
         if self.keyAddress == 0:
             return self.key
         else:
-            return self.key.data()
+            return self.key.data().decode('utf-8')
 
     def __str__(self):
         string = "Hash: 0x%08x" % self.hash + '\n'
