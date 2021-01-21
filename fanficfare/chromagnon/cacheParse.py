@@ -144,9 +144,6 @@ class ChromeCache(object):
             if 'fanfiction.net' not in key:
                 continue
             self.hash_cache[key] = entry
-            normkey = re.sub(r'^(https://www.fanfiction.net/s/\d+/\d+/).+$',r'\1',key)
-            ## either overwrites (no harm), or adds new.
-            self.hash_cache[normkey] = entry
         # print("======:%s"%(time.time()-t))
 
     def get_cached_file(self,url):

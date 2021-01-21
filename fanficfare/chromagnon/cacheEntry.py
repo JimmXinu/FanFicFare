@@ -36,6 +36,7 @@ from __future__ import absolute_import
 import datetime
 import struct
 import os
+import re
 
 from . import cacheAddress
 from . import cacheData
@@ -107,7 +108,10 @@ class CacheEntry():
 
             # It is probably an HTTP header
             self.key = cacheData.CacheData(addr, self.keyLength, True)
-
+        # Some keys seem to be '_dk_http://example.com https://example.com https://www.example.com/full/url/path'
+        # fix those up so the actual URL will work as a hash key in our table
+        # if key has whitespace followed by final http[s]://something, substitute, otherwise this leaves it unchanged
+        self.key = re.sub(r'^.*\s(https?://\S+)$', r'\1', self.key)
         block.close()
 
     def keyToStr(self):
