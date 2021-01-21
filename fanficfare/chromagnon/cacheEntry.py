@@ -55,73 +55,72 @@ class CacheEntry():
         Parse a Chrome Cache Entry at the given address
         """
         self.httpHeader = None
-        block = open(os.path.join(address.path,address.fileSelector), 'rb')
+        with open(os.path.join(address.path,address.fileSelector), 'rb') as block:
 
-        # Going to the right entry
-        block.seek(8192 + address.blockNumber*address.entrySize)
+            # Going to the right entry
+            block.seek(8192 + address.blockNumber*address.entrySize)
 
-        # Parsing basic fields
-        self.hash = struct.unpack('I', block.read(4))[0]
-        self.next = struct.unpack('I', block.read(4))[0]
-        self.rankingNode = struct.unpack('I', block.read(4))[0]
-        self.usageCounter = struct.unpack('I', block.read(4))[0]
-        self.reuseCounter = struct.unpack('I', block.read(4))[0]
-        self.state = struct.unpack('I', block.read(4))[0]
-        self.creationTime = datetime.datetime(1601, 1, 1) + \
-                            datetime.timedelta(microseconds=\
-                                struct.unpack('Q', block.read(8))[0])
-        self.keyLength = struct.unpack('I', block.read(4))[0]
-        self.keyAddress = struct.unpack('I', block.read(4))[0]
+            # Parsing basic fields
+            self.hash = struct.unpack('I', block.read(4))[0]
+            self.next = struct.unpack('I', block.read(4))[0]
+            self.rankingNode = struct.unpack('I', block.read(4))[0]
+            self.usageCounter = struct.unpack('I', block.read(4))[0]
+            self.reuseCounter = struct.unpack('I', block.read(4))[0]
+            self.state = struct.unpack('I', block.read(4))[0]
+            self.creationTime = datetime.datetime(1601, 1, 1) + \
+                                datetime.timedelta(microseconds=\
+                                    struct.unpack('Q', block.read(8))[0])
+            self.keyLength = struct.unpack('I', block.read(4))[0]
+            self.keyAddress = struct.unpack('I', block.read(4))[0]
 
 
-        dataSize = []
-        for _ in range(4):
-            dataSize.append(struct.unpack('I', block.read(4))[0])
+            dataSize = []
+            for _ in range(4):
+                dataSize.append(struct.unpack('I', block.read(4))[0])
 
-        self.data = []
-        for index in range(4):
-            addr = struct.unpack('I', block.read(4))[0]
-            try:
-                addr = cacheAddress.CacheAddress(addr, address.path)
-                self.data.append(cacheData.CacheData(addr, dataSize[index],
-                                                     True))
-            except cacheAddress.CacheAddressError:
-                pass
+            self.data = []
+            for index in range(4):
+                addr = struct.unpack('I', block.read(4))[0]
+                try:
+                    addr = cacheAddress.CacheAddress(addr, address.path)
+                    self.data.append(cacheData.CacheData(addr, dataSize[index],
+                                                         True))
+                except cacheAddress.CacheAddressError:
+                    pass
 
-        # Find the HTTP header if there is one
-        for data in self.data:
-            if data.type == cacheData.CacheData.HTTP_HEADER:
-                self.httpHeader = data
-                break
+            # Find the HTTP header if there is one
+            for data in self.data:
+                if data.type == cacheData.CacheData.HTTP_HEADER:
+                    self.httpHeader = data
+                    break
 
-        self.flags = struct.unpack('I', block.read(4))[0]
+            self.flags = struct.unpack('I', block.read(4))[0]
 
-        # Skipping pad
-        block.seek(5*4, 1)
+            # Skipping pad
+            block.seek(5*4, 1)
 
-        # Reading local key
-        if self.keyAddress == 0:
-            self.key = block.read(self.keyLength).decode('ascii')
-        # Key stored elsewhere
-        else:
-            addr = cacheAddress.CacheAddress(self.keyAddress, address.path)
+            # Reading local key
+            if self.keyAddress == 0:
+                self.key = block.read(self.keyLength).decode('ascii')
+            # Key stored elsewhere
+            else:
+                addr = cacheAddress.CacheAddress(self.keyAddress, address.path)
 
-            # It is probably an HTTP header
-            self.key = cacheData.CacheData(addr, self.keyLength, True)
-        # print("cacheEntry key:%s"%self.key)
-        # try:
-        #     # Some keys seem to be '_dk_http://example.com https://example.com https://www.example.com/full/url/path'
-        #     # fix those up so the actual URL will work as a hash key
-        #     # in our table if key has whitespace followed by final
-        #     # http[s]://something, substitute, otherwise this leaves
-        #     # it unchanged
-        #     self.key = re.sub(r'^.*\s(https?://\S+)$', r'\1', self.key)
-        # except TypeError:
-        #     ## Some 'keys' are not bytes or text types.  No idea why
-        #     ## not.
-        #     # print(self.key)
-        #     pass
-        block.close()
+                # It is probably an HTTP header
+                self.key = cacheData.CacheData(addr, self.keyLength, True)
+            # print("cacheEntry key:%s"%self.key)
+            # try:
+            #     # Some keys seem to be '_dk_http://example.com https://example.com https://www.example.com/full/url/path'
+            #     # fix those up so the actual URL will work as a hash key
+            #     # in our table if key has whitespace followed by final
+            #     # http[s]://something, substitute, otherwise this leaves
+            #     # it unchanged
+            #     self.key = re.sub(r'^.*\s(https?://\S+)$', r'\1', self.key)
+            # except TypeError:
+            #     ## Some 'keys' are not bytes or text types.  No idea why
+            #     ## not.
+            #     # print(self.key)
+            #     pass
 
     def keyToStr(self):
         """

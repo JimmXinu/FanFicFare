@@ -51,37 +51,35 @@ class CacheBlock():
         """
         Parse the header of a cache file
         """
-        header = open(filename, 'rb')
+        with open(filename, 'rb') as header:
+            # Read Magic Number
+            magic = struct.unpack('I', header.read(4))[0]
+            # print("magic number:%s"%hex(magic))
+            if magic == CacheBlock.BLOCK_MAGIC:
+                self.type = CacheBlock.BLOCK
+                header.seek(2, 1)
+                self.version = struct.unpack('h', header.read(2))[0]
+                self.header = struct.unpack('h', header.read(2))[0]
+                self.nextFile = struct.unpack('h', header.read(2))[0]
+                self.blockSize = struct.unpack('I', header.read(4))[0]
+                self.entryCount = struct.unpack('I', header.read(4))[0]
+                self.entryMax = struct.unpack('I', header.read(4))[0]
+                self.empty = []
+                for _ in range(4):
+                    self.empty.append(struct.unpack('I', header.read(4))[0])
+                self.position = []
+                for _ in range(4):
+                    self.position.append(struct.unpack('I', header.read(4))[0])
+            elif magic == CacheBlock.INDEX_MAGIC:
+                self.type = CacheBlock.INDEX
+                header.seek(2, 1)
+                self.version = struct.unpack('h', header.read(2))[0]
+                self.entryCount = struct.unpack('I', header.read(4))[0]
+                self.byteCount = struct.unpack('I', header.read(4))[0]
+                self.lastFileCreated = "f_%06x" % \
+                                           struct.unpack('I', header.read(4))[0]
+                header.seek(4*2, 1)
+                self.tableSize = struct.unpack('I', header.read(4))[0]
+            else:
+                raise Exception("Invalid Chrome Cache File")
 
-        # Read Magic Number
-        magic = struct.unpack('I', header.read(4))[0]
-        # print("magic number:%s"%hex(magic))
-        if magic == CacheBlock.BLOCK_MAGIC:
-            self.type = CacheBlock.BLOCK
-            header.seek(2, 1)
-            self.version = struct.unpack('h', header.read(2))[0]
-            self.header = struct.unpack('h', header.read(2))[0]
-            self.nextFile = struct.unpack('h', header.read(2))[0]
-            self.blockSize = struct.unpack('I', header.read(4))[0]
-            self.entryCount = struct.unpack('I', header.read(4))[0]
-            self.entryMax = struct.unpack('I', header.read(4))[0]
-            self.empty = []
-            for _ in range(4):
-                self.empty.append(struct.unpack('I', header.read(4))[0])
-            self.position = []
-            for _ in range(4):
-                self.position.append(struct.unpack('I', header.read(4))[0])
-        elif magic == CacheBlock.INDEX_MAGIC:
-            self.type = CacheBlock.INDEX
-            header.seek(2, 1)
-            self.version = struct.unpack('h', header.read(2))[0]
-            self.entryCount = struct.unpack('I', header.read(4))[0]
-            self.byteCount = struct.unpack('I', header.read(4))[0]
-            self.lastFileCreated = "f_%06x" % \
-                                       struct.unpack('I', header.read(4))[0]
-            header.seek(4*2, 1)
-            self.tableSize = struct.unpack('I', header.read(4))[0]
-        else:
-            header.close()
-            raise Exception("Invalid Chrome Cache File")
-        header.close()

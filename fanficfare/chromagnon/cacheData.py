@@ -64,12 +64,10 @@ class CacheData():
            self.address.blockType != cacheAddress.CacheAddress.SEPARATE_FILE:
             # Getting raw data
             string = b""
-            block = open(os.path.join(self.address.path,self.address.fileSelector), 'rb')
-            block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-            for _ in range(self.size):
-                string += struct.unpack('c', block.read(1))[0]
-            block.close()
-
+            with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+                block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+                for _ in range(self.size):
+                    string += struct.unpack('c', block.read(1))[0]
             # Finding the beginning of the request
             start = re.search(b"HTTP", string)
             if start == None:
@@ -98,12 +96,9 @@ class CacheData():
             shutil.copy(os.path.join(self.address.path,self.address.fileSelector),
                         filename)
         else:
-            output = open(filename, 'wb')
-            block = open(os.path.join(self.address.path,self.address.fileSelector), 'rb')
-            block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-            output.write(block.read(self.size))
-            block.close()
-            output.close()
+            with open(filename, 'wb') as output, open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+                block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+                output.write(block.read(self.size))
 
     def data(self):
         """Returns a string representing the data"""
@@ -111,10 +106,9 @@ class CacheData():
             with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as infile:
                 data = infile.read()
         else:
-            block = open(os.path.join(self.address.path,self.address.fileSelector), 'rb')
-            block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-            data = block.read(self.size)#.decode('utf-8',errors='ignore')
-            block.close()
+            with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+                block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+                data = block.read(self.size)#.decode('utf-8',errors='ignore')
         return data
 
     def __str__(self):
