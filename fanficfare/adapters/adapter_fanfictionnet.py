@@ -111,7 +111,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
 
         if self.browser_cache is None:
-            logger.debug("Start making self.chromagnon_cache")
+            logger.debug("Start making self.browser_cache")
             try:
                 if not self.getConfig("chrome_cache_path"):
                     raise exceptions.FailedToDownload("FFnet Workaround: chrome_cache_path setting must be set.")
