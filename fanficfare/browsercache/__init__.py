@@ -19,4 +19,10 @@ class BrowserCache:
                                         os.path.abspath(cache_dir))
 
     def get_data(self, url):
-        return self.browser_cache.get_data(url)
+        d = self.browser_cache.get_data(url)
+        if not d:
+            ## newer browser caches separate by calling domain to not
+            ## leak information about past visited pages by showing
+            ## quick retrieval.
+            d = self.browser_cache.get_data("_dk_https://fanfiction.net https://fanfiction.net "+url)
+        return d
