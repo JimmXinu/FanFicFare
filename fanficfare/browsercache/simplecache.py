@@ -7,6 +7,8 @@ import glob
 from typing import cast, Tuple
 from . import BaseBrowserCache, BrowserCacheException
 
+import logging
+logger = logging.getLogger(__name__)
 
 class SimpleCacheException(BrowserCacheException):
     pass
@@ -32,15 +34,15 @@ ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30
 EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8
 THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
 
-
 class SimpleCache(BaseBrowserCache):
     """Class to access data stream in Chrome Simple Cache format cache files"""
 
     def __init__(self, cache_dir=None):
         """Constructor for SimpleCache"""
         super().__init__(cache_dir)
-        if not self.is_cache_dir(cache_dir):
-            raise SimpleCacheException("Directory does not contain a Chrome Simple Cache: '%s'" % cache_dir)
+        ## already called from parent.new_browser_cache()
+        # if not self.is_cache_dir(cache_dir):
+        #     raise SimpleCacheException("Directory does not contain a Chrome Simple Cache: '%s'" % cache_dir)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -57,8 +59,16 @@ class SimpleCache(BaseBrowserCache):
             if struct.unpack('QQ', index_file.read(16))[1] != THE_REAL_INDEX_MAGIC_NUMBER:
                 return False
         try:
+            # logger.debug("\n\nStarting cache check\n\n")
             for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
-                _validate_entry_file(en_fl)
+                k = _validate_entry_file(en_fl)
+                # if b'fanfiction.net/' in k:
+                #     logger.debug("file:%s"%en_fl)
+                #     logger.debug("_validate_entry_file:%s"%k)
+
+                ## Is this return meant to be inside the loop?  Only
+                ## checks one file as is; but checking every file
+                ## seems excessive?
                 return True
         except SimpleCacheException:
             return False
@@ -69,10 +79,13 @@ class SimpleCache(BaseBrowserCache):
         if isinstance(url, str):
             url = url.encode('utf-8')
         glob_pattern = os.path.join(self.cache_dir, _key_hash(url) + '_?')
+        # logger.debug("url key hash:%s"%_key_hash(url))
+        # logger.debug("glob pattern:%s"%glob_pattern)
         # because hash collisions are so rare, this will usually only find zero or one file,
         # so there is no real savings to be had by reading the index file instead of going straight to the entry files
         for en_fl in glob.glob(glob_pattern):
             try:
+                # logger.debug("en_fl:%s"%en_fl)
                 file_key = _validate_entry_file(en_fl)
                 if file_key == url:
                     return _get_decoded_data(en_fl)
