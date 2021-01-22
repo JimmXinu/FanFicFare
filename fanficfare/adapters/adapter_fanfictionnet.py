@@ -26,7 +26,7 @@ from ..six import text_type as unicode
 from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import urlparse
 
-from ..chromagnon.cacheParse import ChromeCache
+from ..browsercache import BrowserCache, BrowserCacheException
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
@@ -50,7 +50,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             ## accept m(mobile)url, but use www.
             self.origurl = self.origurl.replace("https://m.","https://www.")
 
-        self.chromagnon_cache = None
+        self.browser_cache = None
     @staticmethod
     def getSiteDomain():
         return 'www.fanfiction.net'
@@ -110,16 +110,16 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     
     def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
 
-        if self.chromagnon_cache is None:
-            logger.debug("Start making self.chromagnon_cache")
+        if self.browser_cache is None:
+            logger.debug("Start making self.browser_cache")
             try:
                 if not self.getConfig("chrome_cache_path"):
                     raise exceptions.FailedToDownload("FFnet Workaround: chrome_cache_path setting must be set.")
-                self.chromagnon_cache = ChromeCache(self.getConfig("chrome_cache_path"))
+                self.browser_cache = BrowserCache(self.getConfig("chrome_cache_path"))
             except PermissionError:
                 raise exceptions.FailedToDownload("Permission to Chrome Cache (%s) denied--Did you quit Chrome?" % self.getConfig("chrome_cache_path"))
-            logger.debug("Done making self.chromagnon_cache")
-        data = self.chromagnon_cache.get_cached_file(url)
+            logger.debug("Done making self.browser_cache")
+        data = self.browser_cache.get_data(url)
         if data is None:
             ## XXX Do something to collect list of failed URLs?
             ## Turn on continue on fail?
