@@ -18,7 +18,7 @@ class ChromeDiskCache(BaseBrowserCache):
 
     def __init__(self, cache_dir=None):
         """Constructor for ChromeDiskCache"""
-        super().__init__(cache_dir)
+        BaseBrowserCache.__init__(self,cache_dir)
         if not self.is_cache_dir(cache_dir):
             raise ChromeDiskCacheException("Directory does not contain a Chrome Disk Cache: '%s'" % cache_dir)
         self.chromagnon_cache = ChromeCache(cache_dir)

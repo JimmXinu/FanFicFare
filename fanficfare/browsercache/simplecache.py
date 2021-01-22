@@ -4,7 +4,6 @@ import hashlib
 import gzip
 import zlib
 import glob
-from typing import cast, Tuple
 from . import BaseBrowserCache, BrowserCacheException
 
 import logging
@@ -39,7 +38,7 @@ class SimpleCache(BaseBrowserCache):
 
     def __init__(self, cache_dir=None):
         """Constructor for SimpleCache"""
-        super().__init__(cache_dir)
+        BaseBrowserCache.__init__(self,cache_dir)
         ## already called from parent.new_browser_cache()
         # if not self.is_cache_dir(cache_dir):
         #     raise SimpleCacheException("Directory does not contain a Chrome Simple Cache: '%s'" % cache_dir)
@@ -157,8 +156,8 @@ def _get_headers(path):
         # parse the raw bytes into a HttpHeader structure:
         # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
         # the rest are name:value pairs used to populate the headers dict.
-        strings: list[str] = entry_file.read(header_size).decode('utf-8').split('\0')
-        headers = dict(cast(Tuple[str, str], s.split(':', 1)) for s in strings[1:] if ':' in s)
+        strings = entry_file.read(header_size).decode('utf-8').split('\0')
+        headers = dict(s.split(':', 1) for s in strings[1:] if ':' in s)
     return headers
 
 

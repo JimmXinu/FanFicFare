@@ -116,8 +116,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 if not self.getConfig("chrome_cache_path"):
                     raise exceptions.FailedToDownload("FFnet Workaround: chrome_cache_path setting must be set.")
                 self.browser_cache = BrowserCache(self.getConfig("chrome_cache_path"))
-            except PermissionError:
-                raise exceptions.FailedToDownload("Permission to Chrome Cache (%s) denied--Did you quit Chrome?" % self.getConfig("chrome_cache_path"))
+            except (IOError, OSError) as e:
+                # Workaround for PermissionError being py3 only.
+                from errno import EACCES, EPERM, ENOENT
+                if e.errno==EPERM or e.errno==EACCES:
+                    raise exceptions.FailedToDownload("Permission to Chrome Cache (%s) denied--Did you quit Chrome?" % self.getConfig("chrome_cache_path"))
+                else:
+                    raise
             logger.debug("Done making self.browser_cache")
         data = self.browser_cache.get_data(url)
         if data is None:

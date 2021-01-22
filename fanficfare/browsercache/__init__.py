@@ -9,7 +9,6 @@ class BrowserCache:
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
-        browser_cache_class: BaseBrowserCache
         for browser_cache_class in [SimpleCache, ChromeDiskCache]:
             self.browser_cache = browser_cache_class.new_browser_cache(cache_dir)
             if self.browser_cache is not None:

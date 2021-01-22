@@ -73,7 +73,8 @@ from .cacheAddress import CacheAddress
 from .cacheBlock import CacheBlock
 from .cacheData import CacheData
 from .cacheEntry import CacheEntry
-from six.moves import range
+from ..six.moves import range
+from ..six import ensure_binary, ensure_text
 
 class ChromeCache(object):
     def __init__(self,path):
@@ -85,7 +86,7 @@ class ChromeCache(object):
             raise Exception("Invalid Index File")
 
     def get_cache_entry(self,url):
-        url = bytes(url,'utf8')
+        url = ensure_binary(url,'utf8')
         # Compute the key and seeking to it
         # print("url:%s"%url)
         hash = SuperFastHash.superFastHash(url)
