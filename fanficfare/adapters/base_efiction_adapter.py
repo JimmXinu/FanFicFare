@@ -65,7 +65,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
-        self.set_decode(self.getEncoding())
         storyId = re.compile(self.getSiteURLPattern()).match(self.url).group('storyId')
         self.story.setMetadata('storyId', storyId)
         self._setURL(self.getViewStoryUrl(storyId))
