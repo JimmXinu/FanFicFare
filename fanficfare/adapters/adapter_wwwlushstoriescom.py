@@ -107,13 +107,11 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
     ################################################################################################
-    def _fetchUrl(self,url,parameters=None,extrasleep=None,usecache=True):
+    def _fetchUrl(self,url,usecache=True):
         ## lushstories.com sets unescaped cookies with cause
         ## httplib.py to fail.
         self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
         return BaseSiteAdapter._fetchUrl(self,url,
-                                         parameters=parameters,
-                                         extrasleep=extrasleep,
                                          usecache=usecache)
     ################################################################################################
     def get_page(self, page):

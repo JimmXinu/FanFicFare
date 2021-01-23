@@ -95,7 +95,7 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

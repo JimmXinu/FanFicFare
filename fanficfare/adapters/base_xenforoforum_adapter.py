@@ -226,7 +226,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                              params['login']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Log Out" not in d:
             # logger.debug(d)

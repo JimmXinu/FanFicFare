@@ -73,7 +73,7 @@ class Fetcher(object):
         self.save_cache_file = None
         self.save_cookiejar_file = None
 
-                
+
     def get_empty_cookiejar(self):
         return cl.LWPCookieJar()
 
@@ -240,11 +240,11 @@ class Fetcher(object):
             time.sleep(rt)
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
-    def _postUrl(self, url,
-                 parameters={},
-                 headers={},
-                 extrasleep=None,
-                 usecache=True):
+    def post_request(self, url,
+                     parameters={},
+                     headers={},
+                     extrasleep=None,
+                     usecache=True):
         '''
         When should cache be cleared or not used? logins...
 

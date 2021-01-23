@@ -93,7 +93,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "My Account Page" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

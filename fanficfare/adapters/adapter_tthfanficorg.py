@@ -106,7 +106,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Stories Published" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

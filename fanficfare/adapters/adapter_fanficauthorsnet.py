@@ -166,7 +166,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
             raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
 
         try:
-            data = self._fetchUrl(url+'index/', params, usecache=False)
+            data = self.post_request(url+'index/', params, usecache=False)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))

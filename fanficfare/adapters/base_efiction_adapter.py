@@ -260,7 +260,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         logger.debug("Will now login to URL (%s) as (%s)" % (self.getLoginUrl(), params['penname']))
 
-        d = self._fetchUrl(self.getLoginUrl(), params)
+        d = self.post_request(self.getLoginUrl(), params)
 
         if self.getMessageMemberAccount() not in d : #Member Account
             logger.info("Failed to login to URL <%s> as '%s'" % (self.getLoginUrl(), params['penname']))

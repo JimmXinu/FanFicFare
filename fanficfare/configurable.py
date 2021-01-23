@@ -1001,9 +1001,9 @@ class Configurable(object):
     def post_request(self, url,
                      parameters={},
                      usecache=True):
-        return self.configuration.fetcher._postUrl(url,
-                                                   parameters=parameters,
-                                                   usecache=usecache)
+        return self.configuration.fetcher.post_request(url,
+                                                       parameters=parameters,
+                                                       usecache=usecache)
 
     def _fetchUrlOpened(self, url,
                         parameters=None,
