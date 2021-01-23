@@ -308,7 +308,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 if adapter.story.chapter_error_count > 0:
                     book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.')%\
-                        {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
+                        {'fileform':options['fileform'],
+                         'failed':adapter.story.chapter_error_count,
+                         'added':(urlchaptercount-chaptercount),
+                         'total':urlchaptercount}
                     book['chapter_error_count'] = adapter.story.chapter_error_count
                 else:
                     book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
