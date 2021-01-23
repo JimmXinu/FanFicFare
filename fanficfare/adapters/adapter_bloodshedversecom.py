@@ -47,19 +47,6 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         self._setURL(self.READ_URL_TEMPLATE % story_no)
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-    def _customized_fetch_url(self, url, exception=None, parameters=None):
-        if exception:
-            try:
-                data = self._fetchUrl(url, parameters)
-            except HTTPError:
-                raise exception(self.url)
-        # Just let self._fetchUrl throw the exception, don't catch and
-        # customize it.
-        else:
-            data = self._fetchUrl(url, parameters)
-
-        return self.make_soup(data)
-
     @staticmethod
     def getSiteDomain():
         return BloodshedverseComAdapter.SITE_DOMAIN
@@ -76,9 +63,16 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
     def stripURLParameters(cls, url):
         return url
 
+    def use_pagecache(self):
+        '''
+        adapters that will work with the page cache need to implement
+        this and change it to True.
+        '''
+        return True
+
     def extractChapterUrlsAndMetadata(self):
         logger.debug("URL: "+self.url)
-        soup = self._customized_fetch_url(self.url)
+        soup = self.make_soup(self._fetchUrl(self.url))
 
         # Since no 404 error code we have to raise the exception ourselves.
         # A title that is just 'by' indicates that there is no author name
@@ -105,7 +99,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         # Get the URL to the author's page and find the correct story entry to
         # scrape the metadata
         author_url = urlparse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
-        soup = self._customized_fetch_url(author_url)
+        soup = self.make_soup(self._fetchUrl(author_url))
 
         # Ignore first list_box div, it only contains the author information
         for list_box in soup('div', {'class': 'list_box'})[1:]:
@@ -194,7 +188,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
     def getChapterText(self, url):
-        soup = self._customized_fetch_url(url)
+        soup = self.make_soup(self._fetchUrl(url))
         storytext_div = soup.find('div', {'class': 'tl'})
         storytext_div = storytext_div.find('div', {'class': ''})
 
