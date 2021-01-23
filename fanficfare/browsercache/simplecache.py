@@ -7,8 +7,6 @@ import glob
 from typing import cast, Tuple
 from . import BaseBrowserCache, BrowserCacheException
 
-import logging
-logger = logging.getLogger(__name__)
 
 class SimpleCacheException(BrowserCacheException):
     pass
@@ -40,9 +38,8 @@ class SimpleCache(BaseBrowserCache):
     def __init__(self, cache_dir=None):
         """Constructor for SimpleCache"""
         super().__init__(cache_dir)
-        ## already called from parent.new_browser_cache()
-        # if not self.is_cache_dir(cache_dir):
-        #     raise SimpleCacheException("Directory does not contain a Chrome Simple Cache: '%s'" % cache_dir)
+        self.original_keys = {k for k in
+                              map(_validate_entry_file, glob.iglob(os.path.join(cache_dir, '????????????????_?'))) if k is not None}
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -58,51 +55,34 @@ class SimpleCache(BaseBrowserCache):
         with open(real_index_file, 'rb') as index_file:
             if struct.unpack('QQ', index_file.read(16))[1] != THE_REAL_INDEX_MAGIC_NUMBER:
                 return False
-        try:
-            # logger.debug("\n\nStarting cache check\n\n")
-            for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
-                k = _validate_entry_file(en_fl)
-                # if b'fanfiction.net/' in k:
-                #     logger.debug("file:%s"%en_fl)
-                #     logger.debug("_validate_entry_file:%s"%k)
-
-                ## Is this return meant to be inside the loop?  Only
-                ## checks one file as is; but checking every file
-                ## seems excessive?
-                return True
-        except SimpleCacheException:
-            return False
+        # Testing if there is at least one file with expected file name pattern that is really a cache entry file
+        if next((x for x in map(_validate_entry_file,
+                                glob.iglob(os.path.join(cache_dir, '????????????????_?'))) if x is not None),
+                None):
+            return True
         return False
+
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return self.original_keys
 
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
-        if isinstance(url, str):
-            url = url.encode('utf-8')
-        glob_pattern = os.path.join(self.cache_dir, _key_hash(url) + '_?')
-        # logger.debug("url key hash:%s"%_key_hash(url))
-        # logger.debug("glob pattern:%s"%glob_pattern)
-        # because hash collisions are so rare, this will usually only find zero or one file,
-        # so there is no real savings to be had by reading the index file instead of going straight to the entry files
-        for en_fl in glob.glob(glob_pattern):
-            try:
-                # logger.debug("en_fl:%s"%en_fl)
-                file_key = _validate_entry_file(en_fl)
-                if file_key == url:
-                    return _get_decoded_data(en_fl)
-            except SimpleCacheException:
-                pass
-        return None
+        glob_pattern = os.path.join(self.cache_dir, _key_hash(url.encode('utf-8')) + '_?')
+        # The ? in the glob pattern and the test for == url are how hash collisions are handled
+        return next((_get_decoded_data(en_fl) for en_fl in glob.iglob(glob_pattern) if _validate_entry_file(en_fl) == url), None)
+
 
 # Here come the utility functions for the class
 
 
 def _key_hash(key):
-    """Compute hash of key as used to generate name of cache entry file"""
+    """Compute hash of key as used to generate name of cache entry file. key must be byte-like, not a string"""
     return hashlib.sha1(key).digest()[7::-1].hex()
 
 
 def _validate_entry_file(path):
-    """Validate that a file is a cache entry file, return the URL (key) if valid"""
+    """Validate that a file is a cache entry file, return the URL (key) as a string if valid, else None"""
     # read from path into SimpleFileHeader, use key_length field to determine size of key, return key as byte string
     shformat = struct.Struct('<QLLLL')
     shformat_size = shformat.size
@@ -110,13 +90,11 @@ def _validate_entry_file(path):
         data = entry_file.read(shformat_size)
         (magic, version, key_length, key_hash, padding) = shformat.unpack(data)
         if magic != ENTRY_MAGIC_NUMBER:
-            raise SimpleCacheException("Supposed cache entry file did not start with correct magic number: "
-                                       "'%s'" % path)
+            return None  # path is not a cache entry file, wrong magic number
         key = entry_file.read(key_length)
         if _key_hash(key) != os.path.basename(path).split('_')[0]:
-            raise SimpleCacheException("Cache entry file name '%s' does not match hash of key '%s'" %
-                                       os.path.basename(path), key)
-    return key
+            return None  # key in file does not match the hash, something is wrong
+    return key.decode('utf-8')
 
 
 def _skip_to_start_of_stream(entry_file):

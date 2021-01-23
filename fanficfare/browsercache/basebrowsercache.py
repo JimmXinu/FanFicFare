@@ -32,6 +32,10 @@ class BaseBrowserCache:
                 return None
         return None
 
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return None  # must be overridden
+
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
         return None  # must be overridden

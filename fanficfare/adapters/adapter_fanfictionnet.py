@@ -42,15 +42,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev','ffnet')
-
-        self.set_story_idurl(url)
-
-        self.origurl = url
-        if "https://m." in self.origurl:
-            ## accept m(mobile)url, but use www.
-            self.origurl = self.origurl.replace("https://m.","https://www.")
-
+        self.set_story_id_and_url(url)
         self.browser_cache = None
+
+
     @staticmethod
     def getSiteDomain():
         return 'www.fanfiction.net'
@@ -63,14 +58,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteExampleURLs(cls):
         return "https://www.fanfiction.net/s/1234/1/ https://www.fanfiction.net/s/1234/12/ http://www.fanfiction.net/s/1234/1/Story_Title http://m.fanfiction.net/s/1234/1/"
 
-    def set_story_idurl(self,url):
+    def set_story_id_and_url(self,url):
         parsedUrl = urlparse(url)
         pathparts = parsedUrl.path.split('/',)
         self.story.setMetadata('storyId',pathparts[2])
-        self.urltitle='' if len(pathparts)<5 else pathparts[4]
-        # normalized story URL.
-        self._setURL("https://"+self.getSiteDomain()\
-                         +"/s/"+self.story.getMetadata('storyId')+"/1/"+self.urltitle)
+        # normalized story URL
+        self.origurl = "https://"+self.getSiteDomain() \
+                       +"/s/"+self.story.getMetadata('storyId')+"/1/"
 
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
@@ -115,7 +109,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             try:
                 if not self.getConfig("chrome_cache_path"):
                     raise exceptions.FailedToDownload("FFnet Workaround: chrome_cache_path setting must be set.")
-                self.browser_cache = BrowserCache(self.getConfig("chrome_cache_path"))
+                self.browser_cache = BrowserCache(self, self.getConfig("chrome_cache_path"))
             except PermissionError:
                 raise exceptions.FailedToDownload("Permission to Chrome Cache (%s) denied--Did you quit Chrome?" % self.getConfig("chrome_cache_path"))
             logger.debug("Done making self.browser_cache")
@@ -134,9 +128,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         '''
         return True
 
-    ## not actually putting urltitle on multi-chapters below, but
-    ## one-shots will have it, so this is still useful.  normalized
-    ## chapter URLs do NOT contain the story title.
     def normalize_chapterurl(self,url):
         return re.sub(r"https?://(www|m)\.(?P<keep>fanfiction\.net/s/\d+/\d+/).*",
                       r"https://www.\g<keep>",url)
@@ -170,10 +161,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
-        # <link rel="canonical" href="//www.fanfiction.net/s/13551154/100/Haze-Gray">
-        canonicalurl = soup.select_one('link[rel=canonical]')['href']
-        self.set_story_idurl(canonicalurl)
-
         if self.getConfig('check_next_chapter'):
             try:
                 ## ffnet used to have a tendency to send out update
@@ -186,10 +173,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 # get chapter part of url.
                 except:
                     chapcount = 1
-                tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
+                tryurl = "https://%s/s/%s/%d/"%(self.getSiteDomain(),
                                                   self.story.getMetadata('storyId'),
-                                                  chapcount+1,
-                                                  self.urltitle)
+                                                  chapcount+1)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
                 newdata = self._fetchUrl(tryurl)
                 if "not found. Please check to see you are not using an outdated url." not in newdata \
@@ -419,10 +405,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## ffnet(and, I assume, fpcom) tends to fail more if hit too
         ## fast.  This is in additional to what ever the
         ## slow_down_sleep_time setting is.
-
-        ## AND explicitly put title URL back on chapter URL for fetch
-        ## *only*--normalized chapter URL does NOT have urltitle
-        data = self._fetchUrl(url+self.urltitle,
+        data = self._fetchUrl(url,
                               extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:

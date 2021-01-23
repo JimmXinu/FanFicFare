@@ -713,6 +713,13 @@ class BaseSiteAdapter(Configurable):
     def normalize_chapterurl(self,url):
         return url
 
+    def extract_normalized_url(self, contains_url):
+        """Extract and normalize a valid URL for the adapter's site from a string that could contain other things"""
+        match = re.search(self.getSiteURLPattern(), contains_url)
+        if match:
+            return self.normalize_chapterurl(match.group())
+        return None
+
 def cachedfetch(realfetch,cache,url,referer=None):
     if url in cache:
         return cache[url]
