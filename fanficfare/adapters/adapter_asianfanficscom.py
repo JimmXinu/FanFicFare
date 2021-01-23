@@ -84,7 +84,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
-        data = self._postUrl(loginUrl, params)
+        data = self.post_request(loginUrl, params)
         soup = self.make_soup(data)
         if self.loginNeededCheck(data):
             logger.info('Failed to login to URL %s as %s' % (loginUrl, params['username']))

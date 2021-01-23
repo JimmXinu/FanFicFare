@@ -131,7 +131,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['user[login]']))
 
-        d = self._postUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if 'href="/users/logout"' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

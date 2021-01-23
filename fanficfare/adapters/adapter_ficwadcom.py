@@ -65,7 +65,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
-        d = self._postUrl(loginUrl,params,usecache=False)
+        d = self.post_request(loginUrl,params,usecache=False)
 
         if "Login attempt failed..." in d:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

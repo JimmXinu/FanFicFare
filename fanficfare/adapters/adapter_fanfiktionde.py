@@ -103,7 +103,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         loginUrl = 'https://www.fanfiktion.de/'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['nickname']))
-        soup = self.make_soup(self._postUrl(loginUrl,params))
+        soup = self.make_soup(self.post_request(loginUrl,params))
         if not soup.find('a', title='Logout'):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                               params['nickname']))

@@ -108,7 +108,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/login_process.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
-        d = self._postUrl(loginUrl,params,usecache=False)
+        d = self.post_request(loginUrl,params,usecache=False)
 
         if "Logout" not in d:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

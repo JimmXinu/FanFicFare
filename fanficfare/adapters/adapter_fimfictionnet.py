@@ -101,7 +101,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             loginUrl = 'https://' + self.getSiteDomain() + '/ajax/login'
             logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                                 params['username']))
-            d = self._postUrl(loginUrl, params)
+            d = self.post_request(loginUrl, params)
             if "signing_key" not in d :
                 logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                                  params['username']))

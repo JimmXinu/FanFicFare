@@ -140,7 +140,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
 
         if self.getConfig('is_adult'):
             params = {'confirmAge':'1'}
-            data = self._postUrl(url,params)
+            data = self.post_request(url,params)
         else:
             data = self._fetchUrl(url)
 

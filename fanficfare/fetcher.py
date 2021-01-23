@@ -201,18 +201,43 @@ class Fetcher(object):
             ## ffnet adapter can't parse mobile output, so we only
             ## want desktop browser.  But cloudscraper then insists on
             ## a browser and platform, too.
-            self.scraper = cloudscraper.CloudScraper(browser={
-                    'browser': 'chrome',
-                    'platform': 'windows',
-                    'mobile': False,
-                    'desktop': True,
-                    })
+            # self.scraper = cloudscraper.CloudScraper(browser={
+            #         'browser': 'chrome',
+            #         'platform': 'windows',
+            #         'mobile': False,
+            #         'desktop': True,
+            #         })
             ## CloudScraper is subclass of requests.Session.
             ## probably need import higher up if ever used.
-            # import requests
-            # self.scraper = requests.Session()
+            import requests
+            self.scraper = requests.Session()
             self.scraper.cookies = self.cookiejar
         return self.scraper
+
+    def __del__(self):
+        if self.scraper is not None:
+            self.scraper.close()
+
+    # used by plugin for ffnet variable timing
+    def set_sleep(self,val):
+        logger.debug("\n===========\n set sleep time %s\n==========="%val)
+        self.override_sleep = val
+
+    def do_sleep(self,extrasleep=None):
+        if extrasleep:
+            logger.debug("extra sleep:%s"%extrasleep)
+            time.sleep(float(extrasleep))
+        t = None
+        if self.override_sleep:
+            t = float(self.override_sleep)
+        elif self.getConfig('slow_down_sleep_time'):
+            t = float(self.getConfig('slow_down_sleep_time'))
+        ## sleep randomly between 0.5 time and 1.5 time.
+        ## So 8 would be between 4 and 12.
+        if t:
+            rt = random.uniform(t*0.5, t*1.5)
+            logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
+            time.sleep(rt)
 
     # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
     def _postUrl(self, url,
@@ -443,31 +468,6 @@ class Fetcher(object):
         self._set_to_pagecache(cachekey,data,opened.url)
 
         return (data,opened)
-
-    # used by plugin for ffnet variable timing
-    def set_sleep(self,val):
-        logger.debug("\n===========\n set sleep time %s\n==========="%val)
-        self.override_sleep = val
-
-    def do_sleep(self,extrasleep=None):
-        if extrasleep:
-            logger.debug("extra sleep:%s"%extrasleep)
-            time.sleep(float(extrasleep))
-        t = None
-        if self.override_sleep:
-            t = float(self.override_sleep)
-        elif self.getConfig('slow_down_sleep_time'):
-            t = float(self.getConfig('slow_down_sleep_time'))
-        ## sleep randomly between 0.5 time and 1.5 time.
-        ## So 8 would be between 4 and 12.
-        if t:
-            rt = random.uniform(t*0.5, t*1.5)
-            logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
-            time.sleep(rt)
-
-    def __del__(self):
-        if self.scraper is not None:
-            self.scraper.close()
 
 
 class UrllibFetcher(Fetcher):

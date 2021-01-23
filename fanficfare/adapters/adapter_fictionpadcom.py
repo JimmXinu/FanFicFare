@@ -98,7 +98,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(loginUrl))
         params['authenticity_token']=soup.find('input', {'name':'authenticity_token'})['value']
 
-        data = self._postUrl(loginUrl, params)
+        data = self.post_request(loginUrl, params)
 
         if "Invalid email/pseudonym and password combination." in data:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

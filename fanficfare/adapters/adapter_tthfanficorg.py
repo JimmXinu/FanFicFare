@@ -128,7 +128,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
                         'sitemaxrating':'5'}
                 logger.info("Attempting to get rating cookie for %s" % url)
-                data = self._postUrl("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
+                data = self.post_request("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
                 data = self._fetchUrl(url,usecache=False)

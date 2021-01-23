@@ -113,7 +113,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
         params['_token']=soup.find('input', {'name':'_token'})['value']
 
-        d = self._postUrl(loginUrl, params, usecache=False)
+        d = self.post_request(loginUrl, params, usecache=False)
         # logger.debug(d)
 
         if self.needToLoginCheck(d):

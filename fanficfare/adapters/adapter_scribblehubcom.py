@@ -157,7 +157,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                             "strmypostid": 0,
                             "strFic": "yes"}        
         
-        contents_data = self._postUrl("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
+        contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
         
         contents_soup = self.make_soup(contents_data)
 

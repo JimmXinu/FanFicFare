@@ -82,7 +82,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
 
     def _customized_post_request(self, url, exception, parameters):
         try:
-            data = self._postUrl(url, parameters)
+            data = self.post_request(url, parameters)
         except HTTPError:
             raise exception(self.url)
         return self.make_soup(data)

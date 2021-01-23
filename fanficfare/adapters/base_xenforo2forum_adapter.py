@@ -78,7 +78,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                              params['login']))
 
-        d = self._postUrl(loginUrl, params)# , headers={ 'referer':self.getURLPrefix() + '/login',
+        d = self.post_request(loginUrl, params)# , headers={ 'referer':self.getURLPrefix() + '/login',
                                            #            'origin':self.getURLPrefix() })
 
         if "Log in" in d:

@@ -68,7 +68,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
                     'action':'ageanswer'}
             logger.info("Attempting to get cookie for %s" % url)
             ## posting on list doesn't work, but doesn't hurt, either.
-            data = self._postUrl(url,params)
+            data = self.post_request(url,params)
         else:
             data = self._fetchUrl(url)
         return data

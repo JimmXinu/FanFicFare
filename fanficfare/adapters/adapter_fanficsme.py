@@ -114,7 +114,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                                                             params['name']))
         ## must need a cookie or something.
         self._fetchUrl(loginUrl, usecache=False)
-        d = self._postUrl(loginUrl, params, usecache=False)
+        d = self.post_request(loginUrl, params, usecache=False)
 
         if self.needToLoginCheck(d):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

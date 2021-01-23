@@ -179,8 +179,8 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
     #    logger.debug("Will now login to URL {0} as {1} with password: {2}".format(url, params['email'],params['pass1']))
 
-    #    d = self._postUrl(url, params, usecache=False)
-    #    d = self._fetchUrl(url, params, usecache=False)
+    #    d = self.post_request(url, params, usecache=False)
+    #    d = self.post_request(url, params, usecache=False)
     #    soup = self.make_soup(d)
 
         #if not (soup.find('form', {'name' : 'login'}) == None):

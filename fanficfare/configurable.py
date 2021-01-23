@@ -998,16 +998,12 @@ class Configurable(object):
 
 #### methods for fetching.
 
-    def _postUrl(self, url,
-                 parameters={},
-                 headers={},
-                 extrasleep=None,
-                 usecache=True):
+    def post_request(self, url,
+                     parameters={},
+                     usecache=True):
         return self.configuration.fetcher._postUrl(url,
-                                           parameters,
-                                           headers,
-                                           extrasleep,
-                                           usecache)
+                                                   parameters=parameters,
+                                                   usecache=usecache)
 
     def _fetchUrlOpened(self, url,
                         parameters=None,

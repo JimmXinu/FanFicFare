@@ -139,7 +139,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               postAction,
                               '','',''))
         # try:
-        data = self._postUrl(postUrl,params,usecache=False)
+        data = self._fetchUrl(postUrl,params,usecache=False)
         # logger.debug(data)
         # except HTTPError as e:
         #     if e.code == 307:
@@ -161,7 +161,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         #          '','',''))
 
         try:
-            data = self._postUrl(postUrl,params,usecache=False)
+            data = self._fetchUrl(postUrl,params,usecache=False)
             # logger.debug(data)
         except HTTPError as e:
             if e.code == 307:
@@ -169,7 +169,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 try:
                     ## need to hit redirect URL so cookies get set for
                     ## the story site domain.  I think.
-                    data = self._postUrl(e.headers['Location'],params,usecache=False)
+                    data = self._fetchUrl(e.headers['Location'],params,usecache=False)
                 except HTTPError as e:
                     if e.code == 307:
                         # logger.debug(e)

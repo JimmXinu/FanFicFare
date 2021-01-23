@@ -106,7 +106,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         loginUrl = 'https://www.potterfics.com/secciones/usuarios/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['login_usuario']))
-        d = self._postUrl(loginUrl,params)
+        d = self.post_request(loginUrl,params)
 
         #print("d:%s"%d)
         if '<script>alert("El nombre de usuario o contrase' in d:
