@@ -39,7 +39,7 @@ from ..htmlheuristics import replace_br_with_p
 logger = logging.getLogger(__name__)
 
 from ..story import Story
-from ..configurable import Configurable
+from ..requestable import Requestable
 from ..htmlcleanup import stripHTML
 from ..exceptions import InvalidStoryURL
 
@@ -56,7 +56,7 @@ class TimeKeeper(defaultdict):
         keys.sort()
         return u"\n".join([ u"%s: %s"%(k,self[k]) for k in keys ])
 import inspect
-class BaseSiteAdapter(Configurable):
+class BaseSiteAdapter(Requestable):
 
     @classmethod
     def matchesSite(cls,site):
@@ -70,7 +70,7 @@ class BaseSiteAdapter(Configurable):
         return re.match(self.getSiteURLPattern(), self.url)
 
     def __init__(self, configuration, url):
-        Configurable.__init__(self, configuration)
+        Requestable.__init__(self, configuration)
 
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
@@ -104,6 +104,7 @@ class BaseSiteAdapter(Configurable):
         cl.remove('object') # remove a few common-to-all classes
         cl.remove('BaseSiteAdapter')
         cl.remove('Configurable')
+        cl.remove('Requestable')
         self.story.extendList('adapter_classes',cl)
 
         self._setURL(url)

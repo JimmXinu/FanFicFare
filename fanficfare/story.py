@@ -39,7 +39,8 @@ import bs4
 
 from . import exceptions
 from .htmlcleanup import conditionalRemoveEntities, removeEntities, removeAllEntities
-from .configurable import Configurable, re_compile
+from .requestable import Requestable
+from .configurable import re_compile
 from .htmlheuristics import was_run_marker
 
 SPACE_REPLACE=r'\s'
@@ -446,10 +447,10 @@ def make_replacements(replace):
     # print("replace lines:%s"%len(retval))
     return retval
 
-class Story(Configurable):
+class Story(Requestable):
 
     def __init__(self, configuration):
-        Configurable.__init__(self, configuration)
+        Requestable.__init__(self, configuration)
         try:
             ## calibre plugin will set externally to match PI version.
             self.metadata = {'version':os.environ['CURRENT_VERSION_ID']}

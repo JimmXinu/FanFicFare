@@ -33,6 +33,11 @@ from .six import string_types as basestring
 import logging
 import sys
 
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
 from . import exceptions
 
 logger = logging.getLogger(__name__)
@@ -943,11 +948,6 @@ class Configurable(object):
     def __init__(self, configuration):
         self.configuration = configuration
 
-        ## use_pagecache() is on adapters--not all have been updated
-        ## to deal with caching correctly
-        if hasattr(self, 'use_pagecache'):
-            self.configuration.fetcher.use_pagecache = self.use_pagecache()
-
     def section_url_names(self,domain,section_url_f):
         return self.configuration.section_url_names(domain,section_url_f)
 
@@ -995,39 +995,4 @@ class Configurable(object):
         else:
             label=entry.title()
         return label
-
-#### methods for fetching.
-
-    def post_request(self, url,
-                     parameters={},
-                     usecache=True):
-        return self.configuration.\
-            fetcher.post_request(url,
-                                 parameters=parameters,
-                                 usecache=usecache)
-
-    def get_request_redirected(self, url,
-                               usecache=True,
-                               extrasleep=None):
-        return self.configuration.\
-            fetcher.get_request_redirected(url,
-                                           usecache=usecache,
-                                           extrasleep=extrasleep)
-
-    def get_request(self, url,
-                  usecache=True,
-                  extrasleep=None):
-        return self.get_request_redirected(url,
-                                           usecache,
-                                           extrasleep)[0]
-
-    def get_request_raw(self, url,
-                        extrasleep=None,
-                        usecache=True,
-                        referer=None): ## referer is used with raw for images.
-        return self.configuration.\
-            fetcher.get_request_raw(url,
-                                    extrasleep,
-                                    usecache,
-                                    referer=referer)[0]
 

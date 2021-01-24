@@ -31,12 +31,12 @@ from ..six import ensure_text
 from ..six import ensure_binary
 from io import BytesIO
 
-from ..configurable import Configurable
+from ..requestable import Requestable
 from ..htmlcleanup import removeEntities, removeAllEntities, stripHTML
 
 logger = logging.getLogger(__name__)
 
-class BaseStoryWriter(Configurable):
+class BaseStoryWriter(Requestable):
 
     @staticmethod
     def getFormatName():
@@ -47,7 +47,7 @@ class BaseStoryWriter(Configurable):
         return '.bse'
 
     def __init__(self, configuration, adapter):
-        Configurable.__init__(self, configuration)
+        Requestable.__init__(self, configuration)
 
         self.adapter = adapter
         self.story = adapter.getStoryMetadataOnly() # only cache the metadata initially.

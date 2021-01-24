@@ -50,14 +50,6 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
-from .gziphttp import GZipProcessor
-from .htmlcleanup import reduce_zalgo
-
 class Fetcher(object):
     def __init__(self,getConfig_fn,getConfigList_fn):
         self.getConfig = getConfig_fn
@@ -67,7 +59,6 @@ class Fetcher(object):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
         self.requests_session = None
 
         self.pagecache = self.get_empty_pagecache()
@@ -84,9 +75,6 @@ class Fetcher(object):
     def set_cookiejar(self,cj,save_cookiejar_file=None):
         self.cookiejar = cj
         self.save_cookiejar_file = save_cookiejar_file
-        saveheaders = self.opener.addheaders
-        self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
-        self.opener.addheaders = saveheaders
 
     def load_cookiejar(self,filename):
         '''
@@ -131,71 +119,10 @@ class Fetcher(object):
             if self.save_cookiejar_file:
                 self.get_cookiejar().save(self.save_cookiejar_file)
 
-## website encoding(s)--in theory, each website reports the character
-## encoding they use for each page.  In practice, some sites report it
-## incorrectly.  Each adapter has a default list, usually "utf8,
-## Windows-1252" or "Windows-1252, utf8".  The special value 'auto'
-## will call chardet and use the encoding it reports if it has +90%
-## confidence.  'auto' is not reliable.  1252 is a superset of
-## iso-8859-1.  Most sites that claim to be iso-8859-1 (and some that
-## claim to be utf8) are really windows-1252.
-    def _decode(self,data):
-        if not hasattr(data,'decode'):
-            ## py3 str() from pickle doesn't have .decode and is
-            ## already decoded.
-            return data
-        decode = self.getConfigList('website_encodings',
-                                    default=["utf8",
-                                             "Windows-1252",
-                                             "iso-8859-1"])
-        for code in decode:
-            try:
-                logger.debug("Encoding:%s"%code)
-                errors=None
-                if ':' in code:
-                    (code,errors)=code.split(':')
-                if code == "auto":
-                    if not chardet:
-                        logger.info("chardet not available, skipping 'auto' encoding")
-                        continue
-                    detected = chardet.detect(data)
-                    #print(detected)
-                    if detected['confidence'] > float(self.getConfig("chardet_confidence_limit",0.9)):
-                        logger.debug("using chardet detected encoding:%s(%s)"%(detected['encoding'],detected['confidence']))
-                        code=detected['encoding']
-                    else:
-                        logger.debug("chardet confidence too low:%s(%s)"%(detected['encoding'],detected['confidence']))
-                        continue
-                if errors == 'ignore': # only allow ignore.
-                    return data.decode(code,errors='ignore')
-                else:
-                    return data.decode(code)
-            except Exception as e:
-                logger.debug("code failed:"+code)
-                logger.debug(e)
-                pass
-        logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
-        try:
-            # python2
-            return "".join([x for x in data if ord(x) < 128])
-        except TypeError:
-            # python3
-            return "".join([chr(x) for x in data if x < 128])
-
     def _progressbar(self):
         if self.getConfig('progressbar'):
             sys.stdout.write('.')
             sys.stdout.flush()
-
-    def _do_reduce_zalgo(self,data):
-        max_zalgo = int(self.getConfig('max_zalgo',-1))
-        if max_zalgo > -1:
-            logger.debug("Applying max_zalgo:%s"%max_zalgo)
-            try:
-                return reduce_zalgo(data,max_zalgo)
-            except Exception as e:
-                logger.warning("reduce_zalgo failed(%s), continuing."%e)
-        return data
 
     def get_requests_session(self):
         if not self.requests_session:
@@ -293,10 +220,7 @@ class Fetcher(object):
         except CloudflareException as e:
             msg = unicode(e).replace(' in the opensource (free) version','...')
             raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-        data = self._do_reduce_zalgo(self._decode(data))
         self._progressbar()
-        ## postURL saves data to the pagecache *after* _decode() while
-        ## fetchRaw saves it *before* _decode()--because raw.
         self._set_to_pagecache(cachekey,data,url)
         return data
 
@@ -304,7 +228,6 @@ class Fetcher(object):
                     usecache=True,
                     extrasleep=None):
         return self.get_request_redirected(url,
-                                           parameters,
                                            usecache,
                                            extrasleep)[0]
 
@@ -324,10 +247,10 @@ class Fetcher(object):
                 logger.debug("retry sleep:%s"%sleeptime)
             time.sleep(sleeptime)
             try:
-                (data,rurl)=self.get_request_raw(url,
+                (data,rurl)=self.get_request_raw_redirected(url,
                                                  usecache=usecache,
                                                  extrasleep=extrasleep)
-                return (self._do_reduce_zalgo(self._decode(data)),rurl)
+                return (data,rurl)
             except HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
@@ -337,8 +260,9 @@ class Fetcher(object):
                 ## but with a 500 code.  We can get the url from the
                 ## HTTPError in such case.
                 if he.code == 500 and 'trekfanfiction.net' in url:
+                    ## XXX broken with requests version.
                     data = he.read()
-                    return (self._do_reduce_zalgo(self._decode(data)),he.geturl())
+                    return (data,he.geturl())
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
@@ -354,7 +278,7 @@ class Fetcher(object):
         logger.debug(excpt, exc_info=True)
         raise(excpt)
 
-    def get_request_raw(self, url,
+    def get_request_raw_redirected(self, url,
                         extrasleep=None,
                         usecache=True,
                         referer=None):
@@ -403,8 +327,6 @@ class Fetcher(object):
         #     headers.append(('Authorization',b"Basic %s" % base64string))
         #     logger.debug("http login for SB xf2test")
 
-        self.opener.addheaders = headers
-
         ## requests/cloudscraper wants a dict() for headers, not
         ## list of tuples.
         headers = dict(headers)
@@ -426,8 +348,6 @@ class Fetcher(object):
         data = resp.content
 
         self._progressbar()
-        ## postURL saves data to the pagecache *after* _decode() while
-        ## fetchRaw saves it *before* _decode()--because raw.
         self._set_to_pagecache(cachekey,data,resp.url)
 
         return (data,resp.url)
