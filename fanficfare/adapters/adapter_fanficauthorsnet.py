@@ -197,7 +197,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','https://{0}/'.format(self.parsedUrl.netloc))
 
         loginUrl = self.story.getMetadata('authorUrl')+'account/'
-        loginsoup = self.make_soup(self._fetchUrl(loginUrl))
+        loginsoup = self.make_soup(self.get_request(loginUrl))
         if True:
 #        if self.performLogin(loginUrl, loginsoup):
             # Now go hunting for all the meta data and the chapter list.
@@ -266,7 +266,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         story = soup.find('div',{'class':'story'})
 

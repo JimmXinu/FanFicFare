@@ -217,7 +217,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         Makes image links absolute so they can be downloaded
         """
         try:
-            html = self._fetchUrl(url)
+            html = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -357,7 +357,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             # In many eFiction sites, the Rating is not included in
             # print page, but is on the TOC page.
             toc = self.url + "&index=1"
-            soup = self.make_soup(self._fetchUrl(toc))
+            soup = self.make_soup(self.get_request(toc))
             for label in soup.find_all('span', {'class':'label'}):
                 if 'Rated:' in label or 'Rating:' in label:
                     self.story.setMetadata('rating',stripHTML(label.next_sibling))

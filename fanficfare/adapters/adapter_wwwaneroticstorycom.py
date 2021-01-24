@@ -91,7 +91,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         try:
-            data1 = self._fetchUrl(self.url)
+            data1 = self.get_request(self.url)
             soup1 = self.make_soup(data1)
             #strip comments and scripts from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]

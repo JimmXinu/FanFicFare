@@ -110,7 +110,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## need to pull empty login page first to get authenticity_token
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['identifier']))
-        soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
+        soup = self.make_soup(self.get_request(loginUrl,usecache=False))
         params['_token']=soup.find('input', {'name':'_token'})['value']
 
         d = self.post_request(loginUrl, params, usecache=False)
@@ -131,11 +131,11 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
         url = self.url
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
             if self.needToLoginCheck(data):
                 self.performLogin(url)
-                data = self._fetchUrl(url,usecache=False)
+                data = self.get_request(url,usecache=False)
 
             soup = self.make_soup(data)
             ## detect old storyUrl, switch to new storyUrl:
@@ -146,7 +146,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
                 # logger.debug(canonlink)
                 self._setURL(canonlink)
                 url = self.url
-                data = self._fetchUrl(url)
+                data = self.get_request(url)
                 soup = self.make_soup(data)
             else:
                 # in case title changed
@@ -179,7 +179,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## find story url, might need to spin through author's pages.
         while authpagea and not authstorya:
             logger.debug(authpagea)
-            authsoup = self.make_soup(self._fetchUrl(authpagea['href']))
+            authsoup = self.make_soup(self.get_request(authpagea['href']))
             authpagea = authsoup.find('a',{'class':'page-link','rel':'next'})
             # CSS selectors don't allow : or / unquoted, which
             # BS4(and dependencies) didn't used to enforce.
@@ -233,7 +233,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 

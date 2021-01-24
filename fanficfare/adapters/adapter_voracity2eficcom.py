@@ -99,7 +99,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('https','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
-        soup = self.make_soup(self._fetchUrl(self.url + self.METADATA_URL_SUFFIX))
+        soup = self.make_soup(self.get_request(self.url + self.METADATA_URL_SUFFIX))
 
         # Check if the story is for "Registered Users Only", i.e. has adult
         # content. Based on the "is_adult" attributes either login or raise an
@@ -118,7 +118,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 raise exceptions.FailedToDownload(error_text)
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         # If logged in and the skin doesn't match the required skin throw an
         # error
@@ -227,5 +227,5 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         return self.utf8FromSoup(url, soup.find('div', id='story'))

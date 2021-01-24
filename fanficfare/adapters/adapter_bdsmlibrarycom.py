@@ -111,7 +111,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         try:
-            data = self._fetchUrl(self.url)
+            data = self.get_request(self.url)
             soup = self.make_soup(data)
         except HTTPError as e:
             if e.code == 404:
@@ -133,7 +133,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
             time.sleep(1)
             logger.warning('A problem retrieving the author information. Trying Again')
             try:
-                data = self._fetchUrl(self.url)
+                data = self.get_request(self.url)
                 soup = self.make_soup(data)
             except HTTPError as e:
                 if e.code == 404:
@@ -187,7 +187,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         chaptertag = soup.find('div',{'class' : 'storyblock'})
 
         # Some of the stories have the chapters in <pre> sections, so have to check for that

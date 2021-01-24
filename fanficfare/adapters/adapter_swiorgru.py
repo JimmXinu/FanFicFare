@@ -68,7 +68,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -149,7 +149,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         chapter = soup.find('div', {'id' : 'content'})
 
         chapter_header = chapter.find('h1', id = re.compile("chapter"))

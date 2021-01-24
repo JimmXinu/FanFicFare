@@ -82,7 +82,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -126,7 +126,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #logger.debug("Series Url: "+seriesUrl)
 
                 # Get Series page and convert to soup
-                seriesPageSoup = self.make_soup(self._fetchUrl(seriesUrl+"&offset=0"))
+                seriesPageSoup = self.make_soup(self.get_request(seriesUrl+"&offset=0"))
                 ## &offset=0 is the same as the first page, by adding
                 ## that, the page cache will save us from fetching it
                 ## twice in the loop below.
@@ -142,7 +142,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #get urls from all subpages and append to list
                 i=1
                 for seriesPagePageUrl in seriesPageUrlList:
-                    seriesPagePageSoup = self.make_soup(self._fetchUrl('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
+                    seriesPagePageSoup = self.make_soup(self.get_request('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
                     storyHeaders = seriesPagePageSoup.findAll('h5')
                     ## can't just search for story URLs, some story
                     ## descs also contain story URLs.  Looks like only
@@ -270,7 +270,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         # No convenient way to get story without the rest of the page, so get whole page and strip unneeded sections

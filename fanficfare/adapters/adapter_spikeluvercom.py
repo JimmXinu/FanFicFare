@@ -63,7 +63,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('http','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
-        soup = self.make_soup(self._fetchUrl(self.url + self.METADATA_URL_SUFFIX))
+        soup = self.make_soup(self.get_request(self.url + self.METADATA_URL_SUFFIX))
 
         errortext_div = soup.find('div', {'class': 'errortext'})
         if errortext_div:
@@ -78,7 +78,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         pagetitle_div = soup.find('div', id='pagetitle')
         self.story.setMetadata('title', stripHTML(pagetitle_div.a))
@@ -199,5 +199,5 @@ class SpikeluverComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         return self.utf8FromSoup(url, soup.find('div', id='story'))

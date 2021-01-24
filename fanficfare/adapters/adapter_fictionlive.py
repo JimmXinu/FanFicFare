@@ -83,7 +83,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
 
         metadata_url = "https://fiction.live/api/node/{s_id}/"
-        response = self._fetchUrl(metadata_url.format(s_id = self.story_id))
+        response = self.get_request(metadata_url.format(s_id = self.story_id))
 
         if not response: # this is how fiction.live responds to nonsense urls -- HTTP200 with empty response
             raise exceptions.StoryDoesNotExist("Empty response for " + self.url)
@@ -93,7 +93,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## get metadata for multi route chapters
         if 'multiRoute' in data and data['multiRoute'] == True:
             route_metadata_url = "https://fiction.live/api/anonkun/routes/{s_id}/"
-            response = self._fetchUrl(route_metadata_url.format(s_id = self.story_id))
+            response = self.get_request(route_metadata_url.format(s_id = self.story_id))
 
             if not response: # this is how fiction.live responds to nonsense urls -- HTTP200 with empty response
                 raise exceptions.StoryDoesNotExist("Empty response for " + self.url)
@@ -270,7 +270,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
             "chapter"    : self.format_chapter
         }
 
-        response = self._fetchUrl(url)
+        response = self.get_request(url)
         data = json.loads(response)
 
         if data == []:

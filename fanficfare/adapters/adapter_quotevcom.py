@@ -66,7 +66,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         try:
-            data = self._fetchUrl(self.url)
+            data = self.get_request(self.url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
@@ -143,7 +143,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         rescontent = soup.find('div', id='rescontent')

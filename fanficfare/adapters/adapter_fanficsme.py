@@ -113,7 +113,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['name']))
         ## must need a cookie or something.
-        self._fetchUrl(loginUrl, usecache=False)
+        self.get_request(loginUrl, usecache=False)
         d = self.post_request(loginUrl, params, usecache=False)
 
         if self.needToLoginCheck(d):
@@ -138,7 +138,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         logger.info("url: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -170,7 +170,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         if self.story.getMetadata('rating') != 'General' and self.needToLoginCheck(data):
             self.performLogin(url)
             # reload after login.
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
             soup = self.make_soup(data)
             fichead = soup.find('div',class_='FicHead')
 
@@ -325,7 +325,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
-                self.full_work_soup = self.make_soup(self._fetchUrl(
+                self.full_work_soup = self.make_soup(self.get_request(
                         'https://' + self.getSiteDomain() + '/read.php?id='+self.story.getMetadata('storyId')))
 
             whole_dl_soup = self.full_work_soup
@@ -334,7 +334,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                 self.use_full_work_soup = False
                 logger.warning("c%s not found in view_full_work--ending use_view_full_work"%(index))
         if chapter_div == None:
-            whole_dl_soup = self.make_soup(self._fetchUrl(url))
+            whole_dl_soup = self.make_soup(self.get_request(url))
             chapter_div = whole_dl_soup.find('div',{'id':'c%s'%(index)})
             if None == chapter_div:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

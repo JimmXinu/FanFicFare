@@ -118,7 +118,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         except HTTPError as e:
             if e.code == 404:
@@ -146,7 +146,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             url = self.url+addurl
             logger.debug("URL2: "+url)
             try:
-                data = self._fetchUrl(url)
+                data = self.get_request(url)
             except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
@@ -248,7 +248,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         # remove unnecessary <br> created to add space between advert
         data = re.sub(r"<br><script", "<script", data)

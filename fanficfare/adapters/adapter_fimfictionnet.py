@@ -122,7 +122,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         try:
             # don't use cache if manual is_adult--should only happen
             # if it's an adult story and they don't have is_adult in ini.
-            data = self.do_fix_blockquotes(self._fetchUrl(self.url,
+            data = self.do_fix_blockquotes(self.get_request(self.url,
                                                           usecache=(not self.is_adult)))
             soup = self.make_soup(data)
         except HTTPError as e:
@@ -301,7 +301,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         #groups
         groupButton = soup.find('button', {'data-click':'showAll'})
         if groupButton != None and groupButton.find('i', {'class':'fa-search-plus'}):
-            groupResponse = self._fetchUrl("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
+            groupResponse = self.get_request("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
             groupList = self.make_soup(groupData["content"])
         else:
@@ -373,7 +373,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 
@@ -395,6 +395,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def before_get_urls_from_page(self,url,normalize):
         ## Unlike most that show the links to 'adult' stories, but protect
         ## them, FimF doesn't even show them if not logged in.
-        # data = self._fetchUrl(url)
+        # data = self.get_request(url)
         if self.getConfig("is_adult"):
             self.set_adult_cookie()

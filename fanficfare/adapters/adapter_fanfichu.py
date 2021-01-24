@@ -73,7 +73,7 @@ class FanficHuAdapter(BaseSiteAdapter):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('https','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
-        soup = self.make_soup(self._fetchUrl(self.url + '&i=1'))
+        soup = self.make_soup(self.get_request(self.url + '&i=1'))
 
         if ensure_text(soup.title.string).strip(u' :') == u'írta':
             raise exceptions.StoryDoesNotExist(self.url)
@@ -91,7 +91,7 @@ class FanficHuAdapter(BaseSiteAdapter):
             self.add_chapter(option.string, url)
 
         author_url = urlparse.urljoin(self.BASE_URL, soup.find('a', href=lambda href: href and href.startswith('viewuser.php?uid='))['href'])
-        soup = self.make_soup(self._fetchUrl(author_url))
+        soup = self.make_soup(self.get_request(author_url))
 
         story_id = self.story.getMetadata('storyId')
         for table in soup('table', {'class': 'mainnav'}):
@@ -180,7 +180,7 @@ class FanficHuAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
 
     def getChapterText(self, url):
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         story_cell = soup.find('form', action='viewstory.php').parent.parent
 
         for div in story_cell('div'):

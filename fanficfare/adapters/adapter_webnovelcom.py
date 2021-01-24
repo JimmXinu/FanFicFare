@@ -116,7 +116,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         url = self.url
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             # logger.debug(data)
         except HTTPError as e:
             if e.code == 404:
@@ -186,7 +186,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload('csrf token could not be found')
 
         ## get chapters from a json API url.
-        jsondata = json.loads(self._fetchUrl(
+        jsondata = json.loads(self.get_request(
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
         # print json.dumps(jsondata, sort_keys=True,
@@ -230,7 +230,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         chapter_id = url.split('/')[-1]
         content_url = 'https://%s/apiajax/chapter/GetContent?_csrfToken=%s&bookId=%s&chapterId=%s&_=%d' % (
             self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
-        topdata = json.loads(self._fetchUrl(content_url))
+        topdata = json.loads(self.get_request(content_url))
         # logger.debug(json.dumps(topdata, sort_keys=True,
         #                         indent=2, separators=(',', ':')))
         chapter_info = topdata['data']['chapterInfo']
@@ -239,14 +239,14 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         if chapter_info['isVip'] == 1:
             content_token_url = 'https://%s/apiajax/chapter/GetChapterContentToken?_csrfToken=%s&bookId=%s&chapterId=%s' % (
                 self.getSiteDomain(), self._csrf_token, self.story.getMetadata('storyId'), chapter_id)
-            content_token = json.loads(self._fetchUrl(content_token_url))['data']['token']
+            content_token = json.loads(self.get_request(content_token_url))['data']['token']
 
             content_by_token_url = 'https://%s/apiajax/chapter/GetChapterContentByToken?_csrfToken=%s&token=%s' % (
                 self.getSiteDomain(), self._csrf_token, content_token)
 
             # This is actually required or the data/content field will be empty
             time.sleep(self._GET_VIP_CONTENT_DELAY)
-            contents = json.loads(self._fetchUrl(content_by_token_url))['data']['contents']
+            contents = json.loads(self.get_request(content_by_token_url))['data']['contents']
         else:
             contents = chapter_info['contents']
 

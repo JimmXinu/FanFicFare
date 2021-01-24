@@ -69,7 +69,7 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
         try:
-            data = self._fetchUrl(self.url)
+            data = self.get_request(self.url)
         except HTTPError as exception:
             if exception.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
@@ -106,7 +106,7 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         content = soup.select_one('#content')

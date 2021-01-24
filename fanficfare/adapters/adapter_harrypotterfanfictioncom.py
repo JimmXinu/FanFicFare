@@ -72,7 +72,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -116,7 +116,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 ## used below if total words from site not found
 
         # fetch author page to get story description.
-        authorsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         for story in authorsoup.find_all('article',class_='story-summary'):
             storya = story.find('h3').find('a',href=re.compile(r"^/viewstory.php\?psid="+self.story.getMetadata('storyId')))
@@ -173,7 +173,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         div = soup.find('div', {'class' : 'storytext-container'})
         if None == div:

@@ -95,7 +95,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
                                                               params['login']))
 
         ## need to pull empty login page first to get authenticity_token
-        soup = self.make_soup(self._fetchUrl(loginUrl))
+        soup = self.make_soup(self.get_request(loginUrl))
         params['authenticity_token']=soup.find('input', {'name':'authenticity_token'})['value']
 
         data = self.post_request(loginUrl, params)
@@ -114,10 +114,10 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             if "This is a mature story.  Please sign in to read it." in data:
                 self.performLogin()
-                data = self._fetchUrl(url)
+                data = self.get_request(url)
 
             find = "wordyarn.config.page = "
             data = data[data.index(find)+len(find):]
@@ -186,7 +186,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         if not url:
             data = u"<em>This chapter has no text.</em>"
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         soup = self.make_soup(u"<div id='story'>"+data+u"</div>")
         return self.utf8FromSoup(url,soup)
 

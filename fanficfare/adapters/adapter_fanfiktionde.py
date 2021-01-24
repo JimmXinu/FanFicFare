@@ -119,7 +119,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -129,7 +129,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
 
         if "Uhr ist diese Geschichte nur nach einer" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
@@ -192,11 +192,11 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
         ## Get description from own URL:
         ## /?a=v&storyid=46ccbef30000616306614050&s=1
-        descsoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"/?a=v&storyid="+self.story.getMetadata('storyId')+"&s=1"))
+        descsoup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+"/?a=v&storyid="+self.story.getMetadata('storyId')+"&s=1"))
         self.setDescription(url,stripHTML(descsoup))
 
         # #find metadata on the author's page
-        # asoup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
+        # asoup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
         # tr=asoup.findAll('tr')
         # for i in range(1,len(tr)):
         #     a = tr[i].find('a')
@@ -217,7 +217,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
         time.sleep(0.5) ## ffde has "floodlock" protection
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'storytext'})
         for a in div.findAll('script'):

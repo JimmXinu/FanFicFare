@@ -82,7 +82,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
         try:
-            data1 = self._fetchUrl(self.url)
+            data1 = self.get_request(self.url)
             soup1 = self.make_soup(data1)
             #strip comments from soup
             [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
@@ -148,7 +148,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from <%s>' % url)
         #logger.info('Getting chapter text from <%s>' % url)
 
-        data1 = self._fetchUrl(url)
+        data1 = self.get_request(url)
         soup1 = self.make_soup(data1)
 
         # get story text

@@ -77,7 +77,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -97,7 +97,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+aut['href'])
         self.story.setMetadata('author',aut.string)
-        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         a.find('em').extract()
         self.story.setMetadata('title',stripHTML(a))
@@ -142,7 +142,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
             params = {'confirmAge':'1'}
             data = self.post_request(url,params)
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         data = data[data.index('<table width="90%" align="center">'):]
         data.replace("<body","<notbody").replace("<BODY","<NOTBODY")

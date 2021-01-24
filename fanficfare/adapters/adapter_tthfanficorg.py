@@ -100,7 +100,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='text' id='urealname' name='urealname' value=''/>
 # <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
 # <input type='submit' value='Login' name='loginsubmit'/>
-        soup = self.make_soup(self._fetchUrl(loginUrl))
+        soup = self.make_soup(self.get_request(loginUrl))
         ## FYI, this will fail if cookiejar is shared, but
         ## use_pagecache is false.
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
@@ -118,7 +118,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def setSiteMaxRating(self,url,data=None,soup=None):
         if not data:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             soup = self.make_soup(data)
 
         if self.is_adult or self.getConfig("is_adult"):
@@ -131,7 +131,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 data = self.post_request("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
-                data = self._fetchUrl(url,usecache=False)
+                data = self.get_request(url,usecache=False)
                 soup = self.make_soup(data)
         return (data,soup)
 
@@ -149,7 +149,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             #print("data:%s"%data)
             soup = self.make_soup(data)
         except HTTPError as e:
@@ -180,7 +180,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         try:
             # going to pull part of the meta data from *primary* author list page.
             logger.debug("**AUTHOR** URL: "+authorurl)
-            authordata = self._fetchUrl(authorurl)
+            authordata = self.get_request(authorurl)
             descurl=authorurl
             authorsoup = self.make_soup(authordata)
             # author can have several pages, scan until we find it.
@@ -198,7 +198,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                     # raise exceptions.AdultCheckRequired(self.url)
                 nextpage = 'https://'+self.host+nextarrow['href']
                 logger.debug("**AUTHOR** nextpage URL: "+nextpage)
-                authordata = self._fetchUrl(nextpage)
+                authordata = self.get_request(nextpage)
                 #logger.info("authsoup:%s"%authorsoup)
                 descurl=nextpage
                 authorsoup = self.make_soup(authordata)
@@ -219,7 +219,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 # going to pull part of the meta data from author list page.
                 infourl = 'https://'+self.host+ainfo['href']
                 logger.debug("**StoryInfo** URL: "+infourl)
-                infodata = self._fetchUrl(infourl)
+                infodata = self.get_request(infourl)
                 infosoup = self.make_soup(infodata)
 
                 # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
@@ -328,7 +328,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'storyinnerbody'})
 

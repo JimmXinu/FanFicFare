@@ -90,7 +90,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -112,7 +112,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('author',a.string)
 
         # need(or easier) to pull other metadata from the author's list page.
-        authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         # remove author profile incase they've put the story URL in their bio.
         profile = authsoup.find('div',{'id':'profile'})
@@ -224,7 +224,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -243,10 +243,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        # soup = self.make_soup(self._fetchUrl(url))
+        # soup = self.make_soup(self.get_request(url))
         # BeautifulSoup objects to <p> inside <span>, which
         # technically isn't allowed.
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         # not the most unique thing in the world, but it appears to be
         # the best we can do here.

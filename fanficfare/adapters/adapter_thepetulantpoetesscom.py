@@ -112,7 +112,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -122,7 +122,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -156,7 +156,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
         index = 1
         found = 0
         while found == 0:
-            asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')+"&page="+unicode(index)))
+            asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')+"&page="+unicode(index)))
 
             for info in asoup.findAll('td', {'class' : 'highlightcolor1'}):
                 a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
@@ -223,7 +223,7 @@ class ThePetulantPoetessComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.findAll('table')[2].findAll('td')[1]
         for a in div.findAll('div'):

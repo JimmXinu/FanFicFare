@@ -178,7 +178,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # get the author page
         try:
-            dataAuth = self._fetchUrl(authorurl)
+            dataAuth = self.get_request(authorurl)
             soupAuth = self.make_soup(dataAuth)
             #strip comments from soup
             [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
@@ -356,7 +356,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        raw_page = self._fetchUrl(url)
+        raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
         pages = page_soup.find('select', {'name' : 'page'})
         page_nums = [page.text for page in pages.findAll('option')] if pages else 0
@@ -373,7 +373,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             for page_no in range(2, len(page_nums) + 1):
                 page_url = url +  "?page=%s" % page_no
                 # logger.debug("page_url= %s" % page_url)
-                raw_page = self._fetchUrl(page_url)
+                raw_page = self.get_request(page_url)
                 fullhtml += self.getPageText(raw_page, url)
 
 #         logger.debug(fullhtml)

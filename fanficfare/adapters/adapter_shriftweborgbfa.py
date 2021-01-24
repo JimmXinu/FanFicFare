@@ -100,7 +100,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
         cut down on the size of the file
         '''
         try:
-            page_data = self._fetchUrl(page)
+            page_data = self.get_request(page)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))

@@ -85,7 +85,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -176,7 +176,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         ## after site change, I don't see word count anywhere.
         # pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
         # pr='https://'+self.host+pr['href']
-        # pr = self.make_soup(self._fetchUrl(pr))
+        # pr = self.make_soup(self.get_request(pr))
         # pr=pr.findAll('div', {'class' : 'part_text'})
         # i=0
         # for part in pr:
@@ -241,7 +241,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         chapter = soup.find('div', {'id' : 'content'})
         if chapter == None: ## still needed?

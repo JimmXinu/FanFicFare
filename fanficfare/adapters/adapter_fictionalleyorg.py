@@ -70,7 +70,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             ## posting on list doesn't work, but doesn't hurt, either.
             data = self.post_request(url,params)
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         return data
 
     def extractChapterUrlsAndMetadata(self):
@@ -108,7 +108,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             logger.debug("Normalizing to URL: "+url)
             ## title's right there...
             self.story.setMetadata('title',stripHTML(storya))
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             soup = self.make_soup(data)
             chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
         else:
@@ -138,7 +138,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
 
         ## Go scrape the rest of the metadata from the author's page.
-        data = self._fetchUrl(self.story.getMetadata('authorUrl'))
+        data = self.get_request(self.story.getMetadata('authorUrl'))
         soup = self.make_soup(data)
 
         # <dl><dt><a class = "Rid story" href = "http://www.fictionalley.org/authors/aafro_man_ziegod/TMH.html">
@@ -193,7 +193,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         # find <!-- headerend --> & <!-- footerstart --> and
         # replaced with matching div pair for easier parsing.
         # Yes, it's an evil kludge, but what can ya do?  Using

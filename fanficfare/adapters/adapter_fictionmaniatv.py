@@ -65,7 +65,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         url = self.DETAILS_URL_TEMPLATE % self.story.getMetadata('storyId')
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         keep_summary_html = self.getConfig('keep_summary_html')
         for row in soup.find('table')('tr'):
@@ -149,7 +149,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         if self.getConfig("download_text_version",False):
-            soup = self.make_soup(self._fetchUrl(url))
+            soup = self.make_soup(self.get_request(url))
             element = soup.find('pre')
             element.name = 'div'
 
@@ -175,7 +175,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             # <div style="margin-left:10ex;margin-right:10ex">
             ## fetching SWI version now instead of text.
             htmlurl = url.replace('readtextstory','readhtmlstory')
-            soup = self.make_soup(self._fetchUrl(htmlurl))
+            soup = self.make_soup(self.get_request(htmlurl))
             div = soup.find('div',style="margin-left:10ex;margin-right:10ex")
             if div:
                 return self.utf8FromSoup(htmlurl,div)
@@ -183,7 +183,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 logger.debug("Story With Images(SWI) not found, falling back to HTML.")
 
             ## fetching html version now instead of text.
-            soup = self.make_soup(self._fetchUrl(url.replace('readtextstory','readxstory')))
+            soup = self.make_soup(self.get_request(url.replace('readtextstory','readxstory')))
 
             # remove first hr and everything before
             remove = soup.find('hr')

@@ -90,7 +90,7 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
         url = self.url
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))

@@ -70,7 +70,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            soup = self.make_soup(self._fetchUrl(url))
+            soup = self.make_soup(self.get_request(url))
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -110,7 +110,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         ## author page to find it.
 
         logger.debug("Author URL: "+self.story.getMetadata('authorUrl'))
-        soup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
+        soup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
         # find this story in the list, parse it's metadata based on
         # lots of assumptions about the html, since there's little
         # tagging.
@@ -193,7 +193,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
             try:
-                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                seriessoup = self.make_soup(self.get_request(series_url))
                 storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
                 i=1
                 for a in storyas:
@@ -236,7 +236,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
 
         # hardly a great identifier, I know, but whofic really doesn't

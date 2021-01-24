@@ -129,7 +129,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -139,7 +139,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
@@ -154,7 +154,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
                 logger.debug("URL 2nd try: "+url)
 
                 try:
-                    data = self._fetchUrl(url)
+                    data = self.get_request(url)
                 except HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
@@ -258,7 +258,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 

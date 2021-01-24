@@ -194,7 +194,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url+":i")
+            data = self.get_request(url+":i")
             # logger.debug(data)
         except HTTPError as e:
             if e.code == 404:
@@ -208,7 +208,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             # need to log in for this one.
             self.performLogin(url)
             try:
-                data = self._fetchUrl(url+":i",usecache=False)
+                data = self.get_request(url+":i",usecache=False)
             except HTTPError as e:
                 if e.code in (404, 410):
                     raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
@@ -333,7 +333,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         while not story_found:
             page = page + 1
             try:
-                data = self._fetchUrl(self.story.getList('authorUrl')[0] + "/" + unicode(page))
+                data = self.get_request(self.story.getList('authorUrl')[0] + "/" + unicode(page))
             except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.FailedToDownload("Story not found in Author's list--Set Access Level to Full Access and change Listings Theme back to "+self.getTheme())
@@ -365,7 +365,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('seriesUrl',seriesUrl)
                 series_name = stripHTML(a)
                 # logger.debug("Series name= %s" % series_name)
-                series_soup = self.make_soup(self._fetchUrl(seriesUrl))
+                series_soup = self.make_soup(self.get_request(seriesUrl))
                 if series_soup:
                     # logger.debug("Retrieving Series - looking for name")
                     series_name = stripHTML(series_soup.find('h1', {'id' : 'ptitle'}))
@@ -375,7 +375,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # Check if series is in a universe
                 if self.has_universes:
                     universe_url = self.story.getList('authorUrl')[0]  + "&type=uni"
-                    universes_soup = self.make_soup(self._fetchUrl(universe_url) )
+                    universes_soup = self.make_soup(self.get_request(universe_url) )
                     # logger.debug("Universe url='{0}'".format(universe_url))
                     if universes_soup:
                         universes = universes_soup.findAll('div', {'class' : 'ser-box'})
@@ -409,7 +409,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 universe_name = stripHTML(a)
                 universeUrl = 'https://'+self.host+a['href']
                 # logger.debug("Retrieving Universe - about to get page - universeUrl='{0}".format(universeUrl))
-                universe_soup = self.make_soup(self._fetchUrl(universeUrl))
+                universe_soup = self.make_soup(self.get_request(universeUrl))
                 # logger.debug("Retrieving Universe - have page")
                 if universe_soup:
                     # logger.debug("Retrieving Universe - looking for name")
@@ -512,7 +512,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         # The story text is wrapped in article tags. Most of the page header and
         # footer are outside of this.
@@ -531,7 +531,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             pager.extract()
 
             for ur in urls:
-                soup = self.make_soup(self._fetchUrl("https://"+self.getSiteDomain()+ur['href']))
+                soup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+ur['href']))
 
                 pagetag = soup.find('article')
 

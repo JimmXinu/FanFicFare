@@ -107,11 +107,11 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
     ################################################################################################
-    def _fetchUrl(self,url,usecache=True):
+    def get_request(self,url,usecache=True):
         ## lushstories.com sets unescaped cookies with cause
         ## httplib.py to fail.
         self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
-        return BaseSiteAdapter._fetchUrl(self,url,
+        return BaseSiteAdapter.get_request(self,url,
                                          usecache=usecache)
     ################################################################################################
     def get_page(self, page):
@@ -120,7 +120,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         several places below, and this will cut down on the size of the file
         '''
         try:
-            page_data = self._fetchUrl(page)
+            page_data = self.get_request(page)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
@@ -179,7 +179,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # the story is, but the UnicodeDecodeError is no longer needed, so was removed
         authorurl = self.story.getMetadata('authorUrl')
         try:
-            adata = self._fetchUrl(authorurl)
+            adata = self.get_request(authorurl)
         except (HTTPError) as e:
             ## Can't get the author's page, so we use what is on the story page
             tags = soup.find('div',{'id':'storytags'}).find('a')

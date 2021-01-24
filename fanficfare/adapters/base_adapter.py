@@ -424,7 +424,7 @@ class BaseSiteAdapter(Configurable):
         self.before_get_urls_from_page(url,normalize)
 
         # this way it uses User-Agent or other special settings.
-        data = self._fetchUrl(url,usecache=True)
+        data = self.get_request(url,usecache=True)
         series = self.get_series_from_page(url,data,normalize)
         if series:
             # just to make it easier for adapters.

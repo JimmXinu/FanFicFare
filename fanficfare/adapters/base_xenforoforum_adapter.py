@@ -368,7 +368,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
             return threadmarks
         dedup = dedup + [url]
-        soupmarks = self.make_soup(self._fetchUrl(url))
+        soupmarks = self.make_soup(self.get_request(url))
         tm_list = self.get_threadmarks_list(soupmarks)
         if not tm_list: # load-range don't match
             tm_list = soupmarks
@@ -542,7 +542,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         self.parse_author(souptag)
 
         if self.getConfig('author_avatar_cover'):
-            authorcard = self.make_soup(self._fetchUrl(authorUrl+"?card=1"))
+            authorcard = self.make_soup(self.get_request(authorUrl+"?card=1"))
             coverurl = '/'+authorcard.find('div',{'class':'avatarCropper'}).find('img')['src']
             self.setCoverImage(self.url,coverurl)
             ## https://forums.spacebattles.com/members/mp3-1415player.322925/?card=1
@@ -698,7 +698,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     # logger.debug('Reader page offset:%s tmcat_num:%s tmcat_index:%s'%(offset,tmcat_num,tmcat_index))
                     reader_url=self.make_reader_url(tmcat_num,reader_page_num)
                     # logger.debug("Fetch reader URL to: %s"%reader_url)
-                    topsoup = self.make_soup(self._fetchUrl(reader_url))
+                    topsoup = self.make_soup(self.get_request(reader_url))
                     # make_soup() loads cache with posts from that reader
                     # page.  looking for it in cache reuses code in
                     # cache_posts that finds post tags.

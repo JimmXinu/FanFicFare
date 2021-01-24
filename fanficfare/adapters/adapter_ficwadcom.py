@@ -92,7 +92,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             # non-existent/removed story urls get thrown to the front page.
             if "<h4>Featured Story</h4>" in data:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -107,7 +107,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         divstory = soup.find('div',id='story')
         storya = divstory.find('a',href=re.compile(r"^/story/\d+$"))
@@ -118,7 +118,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
             try:
-                soup = self.make_soup(self._fetchUrl(url))
+                soup = self.make_soup(self.get_request(url))
             except HTTPError as e:
                 if e.code == 404:
                     raise exceptions.StoryDoesNotExist(self.url)
@@ -129,7 +129,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         # title - first h4 tag will be title.
         titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
@@ -222,7 +222,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         span = soup.find('div', {'id' : 'storytext'})
 

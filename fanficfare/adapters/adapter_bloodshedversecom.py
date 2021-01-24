@@ -72,7 +72,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug("URL: "+self.url)
-        soup = self.make_soup(self._fetchUrl(self.url))
+        soup = self.make_soup(self.get_request(self.url))
 
         # Since no 404 error code we have to raise the exception ourselves.
         # A title that is just 'by' indicates that there is no author name
@@ -99,7 +99,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         # Get the URL to the author's page and find the correct story entry to
         # scrape the metadata
         author_url = urlparse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
-        soup = self.make_soup(self._fetchUrl(author_url))
+        soup = self.make_soup(self.get_request(author_url))
 
         # Ignore first list_box div, it only contains the author information
         for list_box in soup('div', {'class': 'list_box'})[1:]:
@@ -188,7 +188,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
     def getChapterText(self, url):
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         storytext_div = soup.find('div', {'class': 'tl'})
         storytext_div = storytext_div.find('div', {'class': ''})
 

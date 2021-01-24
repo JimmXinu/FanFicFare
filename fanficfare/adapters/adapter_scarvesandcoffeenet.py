@@ -96,7 +96,7 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -116,7 +116,7 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
                 logger.debug("URL 2nd try: "+url)
 
                 try:
-                    data = self._fetchUrl(url)
+                    data = self.get_request(url)
                 except HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
@@ -210,7 +210,7 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -232,7 +232,7 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 
@@ -244,7 +244,7 @@ class ScarvesAndCoffeeNetAdapter(BaseSiteAdapter):
     def get_urls_from_page(self,url,normalize):
         from ..geturls import get_urls_from_html
         # this way it uses User-Agent or other special settings.
-        data = self._fetchUrl(url,usecache=False)
+        data = self.get_request(url,usecache=False)
         ## I can't find when or why exactly this was added, but it was
         ## in the old code, so here it remains.
         soup = self.make_soup(data)

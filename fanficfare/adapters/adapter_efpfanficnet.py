@@ -110,7 +110,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -120,7 +120,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         # if "Access denied. This story has not been validated by the adminstrators of this site." in data:
         #     raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -184,7 +184,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
             # Need author page for most of the metadata.
             logger.debug("fetching author page: (%s)"%authurl)
-            authsoup = self.make_soup(self._fetchUrl(authurl))
+            authsoup = self.make_soup(self.get_request(authurl))
             #print("authsoup:%s"%authsoup)
 
             storyas = authsoup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
@@ -271,7 +271,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1'))
             i=1
@@ -291,7 +291,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'class' : 'storia'})
 

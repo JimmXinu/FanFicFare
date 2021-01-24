@@ -662,7 +662,7 @@ class Configuration(ConfigParser):
             val = ''
             for v in val_files:
                 try:
-                    val = val + self.fetcher._fetchUrl(v)
+                    val = val + self.fetcher.get_request(v)
                     file_val = True
                 except:
                     pass
@@ -1014,7 +1014,7 @@ class Configurable(object):
                                            usecache=usecache,
                                            extrasleep=extrasleep)
 
-    def _fetchUrl(self, url,
+    def get_request(self, url,
                   usecache=True,
                   extrasleep=None):
         return self.get_request_redirected(url,

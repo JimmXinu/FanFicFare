@@ -113,7 +113,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
@@ -192,7 +192,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         self.setDescription(url, cdata)
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         if self.getConfig('fix_excess_space', True):
             data = fix_excess_space(data)

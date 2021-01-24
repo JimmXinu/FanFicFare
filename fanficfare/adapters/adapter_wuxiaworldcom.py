@@ -80,7 +80,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
         try:
-            data = self._fetchUrl(self.url)
+            data = self.get_request(self.url)
         except HTTPError as exception:
             if exception.code == 404:
                 raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
@@ -120,7 +120,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
             self.add_chapter(title, url)
 
 
-        last_chapter_data = self._fetchUrl(self.get_chapter(-1,'url'))
+        last_chapter_data = self.get_request(self.get_chapter(-1,'url'))
         last_chapter_soup = self.make_soup(last_chapter_data)
         last_chapter_ld = self._parse_linked_data(last_chapter_soup)
         self.story.setMetadata('dateUpdated', self._parse_date(last_chapter_ld['datePublished']))
@@ -130,7 +130,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         content = soup.select_one('.panel-default .fr-view')
 

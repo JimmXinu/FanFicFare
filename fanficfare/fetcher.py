@@ -300,9 +300,9 @@ class Fetcher(object):
         self._set_to_pagecache(cachekey,data,url)
         return data
 
-    def _fetchUrl(self, url,
-                  usecache=True,
-                  extrasleep=None):
+    def get_request(self, url,
+                    usecache=True,
+                    extrasleep=None):
         return self.get_request_redirected(url,
                                            parameters,
                                            usecache,

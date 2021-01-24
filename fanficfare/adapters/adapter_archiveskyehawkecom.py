@@ -80,7 +80,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -104,7 +104,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+author['href'])
         self.story.setMetadata('author',author.string)
 
-        authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorSoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         chapter=soup.find('select',{'name':'chapter'}).findAll('option')
 
@@ -175,7 +175,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div',{'class':"chapter bordersolid"}).findNext('div').findNext('div')
 

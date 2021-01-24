@@ -151,7 +151,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -242,7 +242,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # misconfigured and sends more than 100 headers for some stories (probably Set-Cookie). This simply increases
         # the maximum header limit to 1000 temporarily. Also see: https://github.com/JimmXinu/FanFicFare/pull/174
         with httplib_max_headers(1000):
-            soup = self.make_soup(self._fetchUrl(url))
+            soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 

@@ -72,11 +72,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|m)?\.fanfiction\.net/s/\d+(/\d+)?(/|/[^/]+)?/?$"
 
-    def _fetchUrl(self,url,extrasleep=1.0,usecache=True):
+    def get_request(self,url,extrasleep=1.0,usecache=True):
         ## ffnet(and, I assume, fpcom) tends to fail more if hit too
         ## fast.  This is in additional to what ever the
         ## slow_down_sleep_time setting is.
-        return BaseSiteAdapter._fetchUrl(self,url,
+        return BaseSiteAdapter.get_request(self,url,
                                          extrasleep=extrasleep,
                                          usecache=usecache)
 
@@ -104,7 +104,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # use BeautifulSoup HTML parser to make everything easier to find.
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             #logger.debug("\n===================\n%s\n===================\n"%data)
             soup = self.make_soup(data)
         except HTTPError as e:
@@ -142,7 +142,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                                   chapcount+1,
                                                   self.urltitle)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
-                newdata = self._fetchUrl(tryurl)
+                newdata = self.get_request(tryurl)
                 if "not found. Please check to see you are not using an outdated url." not in newdata \
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
@@ -177,7 +177,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
             caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
-            catsoup = self.make_soup(self._fetchUrl(caturl))
+            catsoup = self.make_soup(self.get_request(caturl))
             found = False
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
                 self.story.addToList('category',stripHTML(a))
@@ -309,7 +309,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
-                authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+                authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
                 try:
                     img = authsoup.select_one('img.lazy.cimage')
                     authimg_url=img['data-original']
@@ -373,7 +373,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## AND explicitly put title URL back on chapter URL for fetch
         ## *only*--normalized chapter URL does NOT have urltitle
-        data = self._fetchUrl(url+self.urltitle,
+        data = self.get_request(url+self.urltitle,
                               extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:

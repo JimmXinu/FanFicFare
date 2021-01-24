@@ -63,7 +63,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             raise exceptions.FailedToLogin(self.url,"No username given.  Set in personal.ini or enter when prompted.")
 
         ## need a login token.
-        data = self._fetchUrl(self.getURLPrefix() + 'login',usecache=False)
+        data = self.get_request(self.getURLPrefix() + 'login',usecache=False)
         # logger.debug(data)
         # <input type="hidden" name="_xfToken" value="1556822458,710e5bf6fc87c67ea04ab56a910ac3ff" />
         find_token='<input type="hidden" name="_xfToken" value="'

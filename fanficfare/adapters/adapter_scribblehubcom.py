@@ -126,7 +126,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -245,7 +245,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # Extra metadata from URL + /stats/
         # Again we know the storyID is valid from before, so this shouldn't raise an exception, and if it does we might want to know about it..
-        data = self._fetchUrl(url + 'stats/')
+        data = self.get_request(url + 'stats/')
         soup = self.make_soup(data)
         
         def find_stats_data(element, row, metadata):
@@ -268,7 +268,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'chp_raw'})
 

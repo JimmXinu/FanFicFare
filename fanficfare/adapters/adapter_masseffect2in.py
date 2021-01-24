@@ -230,7 +230,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     def _makeChapter(self, url):
         """Creates a chapter object given a URL."""
-        document = self.make_soup(self._fetchUrl(url))
+        document = self.make_soup(self.get_request(url))
         chapter = Chapter(self._getParsingConfiguration(), url, document)
         return chapter
 

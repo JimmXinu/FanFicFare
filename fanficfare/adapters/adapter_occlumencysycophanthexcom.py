@@ -115,7 +115,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -125,7 +125,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -142,14 +142,14 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',a['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
-        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         try:
             # in case link points somewhere other than the first chapter
             a = soup.findAll('option')[1]['value']
             self.story.setMetadata('storyId',a.split('=',)[1])
             url = 'http://'+self.host+'/'+a
-            soup = self.make_soup(self._fetchUrl(url))
+            soup = self.make_soup(self.get_request(url))
         except:
             pass
 
@@ -246,7 +246,7 @@ class OcclumencySycophantHexComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         data = data.replace('<div align="left"', '<div align="left">')
 
         soup = self.make_soup(data)

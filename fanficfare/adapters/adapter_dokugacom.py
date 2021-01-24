@@ -126,7 +126,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -139,7 +139,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url,soup)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             soup = self.make_soup(data)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
@@ -172,7 +172,7 @@ class DokugaComAdapter(BaseSiteAdapter):
                 self.add_chapter(chapter,'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/'+chapter['value'])
 
 
-        asoup = self.make_soup(self._fetchUrl(alink))
+        asoup = self.make_soup(self.get_request(alink))
 
         if 'fanfiction' in self.section:
             asoup=asoup.find('div', {'id' : 'cb_tabid_52'}).find('div')
@@ -262,7 +262,7 @@ class DokugaComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'chtext'})
 

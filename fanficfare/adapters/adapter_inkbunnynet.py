@@ -124,7 +124,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         url = self.url
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
@@ -141,7 +141,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         if 'Submission blocked' in data:
             if self.performLogin(url,soup): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         # removing all of the scripts
         for tag in soup.findAll('script'):

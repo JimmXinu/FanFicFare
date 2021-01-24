@@ -117,7 +117,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
+            data = self.get_request(url) # w/o trailing / gets 'chapter list' page even for one-shots.
         except HTTPError as e:
             if e.code == 404:
                 logger.error("404 on %s"%url)
@@ -205,7 +205,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         # print("data:%s"%data)

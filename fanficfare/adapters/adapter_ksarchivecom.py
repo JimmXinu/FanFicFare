@@ -101,7 +101,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -134,7 +134,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 logger.debug("URL 2nd try: "+url)
 
                 try:
-                    data = self._fetchUrl(url)
+                    data = self.get_request(url)
                 except HTTPError as e:
                     if e.code == 404:
                         raise exceptions.StoryDoesNotExist(self.url)
@@ -289,7 +289,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             series_url = 'https://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
@@ -310,7 +310,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         div = soup.find('div', {'id' : 'story'})

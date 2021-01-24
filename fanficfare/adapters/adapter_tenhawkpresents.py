@@ -112,7 +112,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -125,7 +125,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
             url = self.url+'&index=1'+addurl
             logger.debug("Changing URL: "+url)
             self.performLogin(url)
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
 
         if "This story contains mature content which may include violence, sexual situations, and coarse language" in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -219,7 +219,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -238,7 +238,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         span = soup.find('div', {'id' : 'story'})
 

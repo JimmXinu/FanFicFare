@@ -47,7 +47,7 @@ class WattpadComAdapter(BaseSiteAdapter):
         # note: classvar may be useless because of del adapter
         if WattpadComAdapter.CATEGORY_DEFs is None:
             try:
-                WattpadComAdapter.CATEGORY_DEFs = json.loads(self._fetchUrl(WattpadComAdapter.API_GETCATEGORIES))
+                WattpadComAdapter.CATEGORY_DEFs = json.loads(self.get_request(WattpadComAdapter.API_GETCATEGORIES))
             except:
                 logger.warning('API_GETCATEGORIES failed.')
                 WattpadComAdapter.CATEGORY_DEFs = []
@@ -91,7 +91,7 @@ class WattpadComAdapter(BaseSiteAdapter):
             ## %in email.
             ## https://www.wattpad.com/et?c=euc&t=uploaded_story&l=https%3A%2F%2Fwww.wattpad.com%2F997616013-nuestro-destino-ron-weasley-y-tu-cap-11&emid=uploaded_story.295918124.1608687259%2C544769.4a691b8fc2a4607e1c770aa4ebd48cc3aaf39bd599a738d3747d41fdfa37fcda
             chapterIdInUrl = re.match(r'.*https(://|%3A%2F%2F)www\.wattpad\.com(/|%2F)(?P<chapterId>\d+).*', url)
-            chapterInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_CHAPTERINFO % chapterIdInUrl.group('chapterId')))
+            chapterInfo = json.loads(self.get_request(WattpadComAdapter.API_CHAPTERINFO % chapterIdInUrl.group('chapterId')))
             groupid = chapterInfo.get('groupId', None)
             if groupid is None:
                 raise exceptions.StoryDoesNotExist(url)
@@ -100,7 +100,7 @@ class WattpadComAdapter(BaseSiteAdapter):
 
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         try:
-            storyInfo = json.loads(self._fetchUrl(WattpadComAdapter.API_STORYINFO % self.storyId))
+            storyInfo = json.loads(self.get_request(WattpadComAdapter.API_STORYINFO % self.storyId))
             # logger.debug('storyInfo: %s' % json.dumps(storyInfo))
         except Exception:
             raise exceptions.InvalidStoryURL(self.url, self.getSiteDomain(), self.getSiteExampleURLs())
@@ -148,7 +148,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('%s' % url)
         chapterID = re.search(r'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
-        return self.utf8FromSoup(url,self.make_soup(self._fetchUrl(WattpadComAdapter.API_STORYTEXT % chapterID)))
+        return self.utf8FromSoup(url,self.make_soup(self.get_request(WattpadComAdapter.API_STORYTEXT % chapterID)))
 
 # adapter self-dicovery is not implemented in fanficfare (it existed for the previous project)
 def getClass():

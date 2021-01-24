@@ -103,7 +103,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         logger.debug("URL: "+url)
 
         try:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         except HTTPError as e:
             if e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -197,7 +197,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
                 series_name = stripHTML(seriesa)
                 series_url = 'https://'+self.host+'/archive/'+seriesa['href']
 
-                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                seriessoup = self.make_soup(self.get_request(series_url))
                 storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
                 # logger.debug(storyas)
                 j=1
@@ -224,7 +224,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 
