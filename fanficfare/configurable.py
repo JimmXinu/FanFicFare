@@ -540,6 +540,7 @@ class Configuration(ConfigParser):
 
         self.fetcher = Fetcher(self.getConfig,
                                self.getConfigList)
+        self.opener = None # used for _filelist
 
         self.lightweight = lightweight
 
@@ -667,7 +668,7 @@ class Configuration(ConfigParser):
             val = ''
             for v in val_files:
                 try:
-                    val = val + self.fetcher.get_request(v)
+                    val = val + self._read_file_opener(v)
                     file_val = True
                 except:
                     pass
@@ -916,8 +917,39 @@ class Configuration(ConfigParser):
 
         return errors
 
+    def _read_file_opener(self,fn):
+        '''
+        For reading urls from _filelist entries.
+
+        Used to use same fetch routines as for getting stories, but a)
+        those make dependencies a mess and b) switching to requests,
+        which doesn't handle file:// natively.
+        '''
+
+        if not self.opener:
+            from .six.moves.urllib.request import build_opener
+            self.opener = build_opener()
+        logger.debug("Read file (%s) for *_filelist setting"%fn)
+        # can't use with: structure in Cal v2.85.1
+        resp = self.opener.open(fn,None)
+        data = resp.read()
+        retval = None
+        for code in self.getConfigList('filelist_encodings',
+                                       default=["utf8",
+                                                "Windows-1252",
+                                                "iso-8859-1"]):
+            try:
+                retval = data.decode(code)
+                break
+            except:
+                logger.debug("failed decode (%s) as (%s)"%(fn,code))
+        resp.close()
+        return retval
+
 #### methods for fetching.  Moved here from base_adapter when
 #### *_filelist feature was added.
+    ## XXX which should be in requestable?
+    ## Or Fetcher
     def set_sleep(self,val):
         return self.fetcher.set_sleep(val)
 
