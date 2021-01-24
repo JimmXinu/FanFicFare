@@ -24,7 +24,6 @@ from . import six
 from .six.moves import urllib
 from .six.moves.urllib.parse import (urlencode, quote_plus)
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
-from .six.moves.urllib.error import HTTPError
 from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
 from .six import string_types as basestring
@@ -41,6 +40,8 @@ import cloudscraper
 from cloudscraper.exceptions import CloudflareException
 
 from . import exceptions
+from requests.exceptions import HTTPError as RequestsHTTPError
+from .six.moves.urllib.error import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class Fetcher(object):
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
         self.opener = build_opener(HTTPCookieProcessor(self.cookiejar),GZipProcessor())
-        self.scraper = None
+        self.requests_session = None
 
         self.pagecache = self.get_empty_pagecache()
         self.save_cache_file = None
@@ -196,27 +197,29 @@ class Fetcher(object):
                 logger.warning("reduce_zalgo failed(%s), continuing."%e)
         return data
 
-    def get_scraper(self):
-        if not self.scraper:
-            ## ffnet adapter can't parse mobile output, so we only
-            ## want desktop browser.  But cloudscraper then insists on
-            ## a browser and platform, too.
-            # self.scraper = cloudscraper.CloudScraper(browser={
-            #         'browser': 'chrome',
-            #         'platform': 'windows',
-            #         'mobile': False,
-            #         'desktop': True,
-            #         })
+    def get_requests_session(self):
+        if not self.requests_session:
+            if self.getConfig('use_cloudscraper',False):
+                ## ffnet adapter can't parse mobile output, so we only
+                ## want desktop browser.  But cloudscraper then insists on
+                ## a browser and platform, too.
+                self.requests_session = cloudscraper.CloudScraper(browser={
+                        'browser': 'chrome',
+                        'platform': 'windows',
+                        'mobile': False,
+                        'desktop': True,
+                        })
+            else:
             ## CloudScraper is subclass of requests.Session.
             ## probably need import higher up if ever used.
-            import requests
-            self.scraper = requests.Session()
-            self.scraper.cookies = self.cookiejar
-        return self.scraper
+                import requests
+                self.requests_session = requests.Session()
+            self.requests_session.cookies = self.cookiejar
+        return self.requests_session
 
     def __del__(self):
-        if self.scraper is not None:
-            self.scraper.close()
+        if self.requests_session is not None:
+            self.requests_session.close()
 
     # used by plugin for ffnet variable timing
     def set_sleep(self,val):
@@ -280,28 +283,16 @@ class Fetcher(object):
         #     headers['Authorization']=b"Basic %s" % base64string
         #     logger.debug("http login for SB xf2test")
 
-        if self.getConfig('use_cloudscraper',False):
-            logger.debug("Using cloudscraper for POST")
-            try:
-                resp = self.get_scraper().post(url,
-                                               headers=dict(headers),
-                                               data=parameters)
-                logger.debug("response code:%s"%resp.status_code)
-                resp.raise_for_status() # raises HTTPError if error code.
-                data = resp.content
-            except CloudflareException as e:
-                msg = unicode(e).replace(' in the opensource (free) version','...')
-                raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-        else:
-            req = Request(url,
-                          data=ensure_binary(urlencode(parameters)),
-                          headers=headers)
-
-            ## Specific UA because too many sites are blocking the default python UA.
-            self.opener.addheaders = [('User-Agent', self.getConfig('user_agent')),
-                                      ('X-Clacks-Overhead','GNU Terry Pratchett')]
-
-            data = self.opener.open(req,None,float(self.getConfig('connect_timeout',30.0))).read()
+        try:
+            resp = self.get_requests_session().post(url,
+                                           headers=dict(headers),
+                                           data=parameters)
+            logger.debug("response code:%s"%resp.status_code)
+            resp.raise_for_status() # raises HTTPError if error code.
+            data = resp.content
+        except CloudflareException as e:
+            msg = unicode(e).replace(' in the opensource (free) version','...')
+            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
         data = self._do_reduce_zalgo(self._decode(data))
         self._progressbar()
         ## postURL saves data to the pagecache *after* _decode() while
@@ -310,7 +301,6 @@ class Fetcher(object):
         return data
 
     def _fetchUrl(self, url,
-                  parameters=None,
                   usecache=True,
                   extrasleep=None):
         return self._fetchUrlOpened(url,
@@ -320,10 +310,8 @@ class Fetcher(object):
 
     # parameters is a dict()
     def _fetchUrlOpened(self, url,
-                        parameters=None,
                         usecache=True,
-                        extrasleep=None,
-                        referer=None):
+                        extrasleep=None):
 
         excpt=None
         if url.startswith("file://"):
@@ -337,10 +325,8 @@ class Fetcher(object):
             time.sleep(sleeptime)
             try:
                 (data,opened)=self._fetchUrlRawOpened(url,
-                                                      parameters=parameters,
                                                       usecache=usecache,
-                                                      extrasleep=extrasleep,
-                                                      referer=referer)
+                                                      extrasleep=extrasleep)
                 return (self._do_reduce_zalgo(self._decode(data)),opened)
             except HTTPError as he:
                 excpt=he
@@ -369,7 +355,6 @@ class Fetcher(object):
         raise(excpt)
 
     def _fetchUrlRawOpened(self, url,
-                           parameters=None,
                            extrasleep=None,
                            usecache=True,
                            referer=None):
@@ -380,10 +365,7 @@ class Fetcher(object):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
-        if parameters is None:
-            method='GET'
-        else:
-            method='GET-POST'
+        method='GET'
         class FakeOpened:
             def __init__(self,data,url):
                 self.data=data
@@ -396,7 +378,7 @@ class Fetcher(object):
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
-        cachekey=self._get_cachekey(url, parameters)
+        cachekey=self._get_cachekey(url)
         if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
             data,redirecturl = self._get_from_pagecache(cachekey)
@@ -429,39 +411,27 @@ class Fetcher(object):
 
         self.opener.addheaders = headers
 
+        ## requests/cloudscraper wants a dict() for headers, not
+        ## list of tuples.
+        headers = dict(headers)
         if self.getConfig('use_cloudscraper',False):
-            ## requests / cloudscraper wants a dict() for headers, not
-            ## list of tuples.
-            headers = dict(headers)
             ## let cloudscraper do its thing with UA.
             if 'User-Agent' in headers:
                 del headers['User-Agent']
-            if parameters != None:
-                logger.debug("Using cloudscraper for fetch POST")
-                resp = self.get_scraper().post(url,
-                                               headers=headers,
-                                               data=parameters)
-            else:
-                logger.debug("Using cloudscraper for GET")
-                resp = self.get_scraper().get(url,
-                                              headers=headers)
-            logger.debug("response code:%s"%resp.status_code)
+        resp = self.get_requests_session().get(url,headers=headers)
+        logger.debug("response code:%s"%resp.status_code)
+        try:
             resp.raise_for_status() # raises HTTPError if error code.
-            data = resp.content
-            opened = FakeOpened(data,resp.url)
-        else:
-            ## opener.open() will to POST with params(data) and GET without.
-            if parameters != None:
-                headers.append(('Content-type','application/x-www-form-urlencoded'))
-                headers.append(('Accept',"text/html,*/*"))
-                opened = self.opener.open(url,
-                                          ensure_binary(urlencode(parameters)),
-                                          float(self.getConfig('connect_timeout',30.0)))
-            else:
-                opened = self.opener.open(url,
-                                          None,
-                                          float(self.getConfig('connect_timeout',30.0)))
-            data = opened.read()
+        except RequestsHTTPError as e:
+            raise HTTPError(url,
+                            e.response.status_code,
+                            e.args[0],#msg,
+                            None,#hdrs,
+                            None #fp
+                            )
+        data = resp.content
+        opened = FakeOpened(data,resp.url)
+
         self._progressbar()
         ## postURL saves data to the pagecache *after* _decode() while
         ## fetchRaw saves it *before* _decode()--because raw.

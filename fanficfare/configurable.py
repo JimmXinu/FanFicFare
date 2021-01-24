@@ -1001,38 +1001,30 @@ class Configurable(object):
     def post_request(self, url,
                      parameters={},
                      usecache=True):
-        return self.configuration.fetcher.post_request(url,
-                                                       parameters=parameters,
-                                                       usecache=usecache)
+        return self.configuration.\
+            fetcher.post_request(url,
+                                 parameters=parameters,
+                                 usecache=usecache)
 
     def _fetchUrlOpened(self, url,
-                        parameters=None,
                         usecache=True,
-                        extrasleep=None,
-                        referer=None):
-        return self.configuration.fetcher._fetchUrlOpened(url,
-                                                  parameters,
-                                                  usecache,
-                                                  extrasleep,
-                                                  referer=referer)
+                        extrasleep=None):
+        return self.configuration.\
+            fetcher._fetchUrlOpened(url,
+                                    usecache=usecache,
+                                    extrasleep=extrasleep)
 
     def _fetchUrl(self, url,
-                  parameters=None,
                   usecache=True,
-                  extrasleep=None,
-                  referer=None):
+                  extrasleep=None):
         return self._fetchUrlOpened(url,
-                                    parameters,
                                     usecache,
-                                    extrasleep,
-                                    referer=referer)[0]
+                                    extrasleep)[0]
     def _fetchUrlRaw(self, url,
-                     parameters=None,
                      extrasleep=None,
                      usecache=True,
-                     referer=None):
+                     referer=None): ## referer is used with raw for images.
         return self._fetchUrlRawOpened(url,
-                                       parameters,
                                        extrasleep,
                                        usecache,
                                        referer=referer)[0]

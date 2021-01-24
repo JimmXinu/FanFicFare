@@ -91,18 +91,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return re.escape(self.getURLPrefix()).replace("https","https?")+r"(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
     def _fetchUrlOpened(self, url,
-                        parameters=None,
                         usecache=True,
-                        extrasleep=2.0,
-                        referer=None):
+                        extrasleep=2.0):
         ## We've been requested by the site(s) admin to rein in hits.
         ## This is in additional to what ever the slow_down_sleep_time
         ## setting is.
         return BaseSiteAdapter._fetchUrlOpened(self,url,
-                                               parameters=parameters,
                                                usecache=usecache,
-                                               extrasleep=extrasleep,
-                                               referer=referer)
+                                               extrasleep=extrasleep)
 
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
