@@ -90,15 +90,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## need to accept http and https still.
         return re.escape(self.getURLPrefix()).replace("https","https?")+r"(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
-    def _fetchUrlOpened(self, url,
-                        usecache=True,
-                        extrasleep=2.0):
+    def get_request_redirected(self, url,
+                               usecache=True,
+                               extrasleep=2.0):
         ## We've been requested by the site(s) admin to rein in hits.
         ## This is in additional to what ever the slow_down_sleep_time
         ## setting is.
-        return BaseSiteAdapter._fetchUrlOpened(self,url,
-                                               usecache=usecache,
-                                               extrasleep=extrasleep)
+        return BaseSiteAdapter.get_request_redirected(self,url,
+                                                      usecache=usecache,
+                                                      extrasleep=extrasleep)
 
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
@@ -435,23 +435,20 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         logger.info("url: "+useurl)
 
         try:
-            (data,opened) = self._fetchUrlOpened(useurl)
-            useurl = opened.geturl()
+            (data,useurl) = self.get_request_redirected(useurl)
             logger.info("use useurl: "+useurl)
             # can't login before initial fetch--need a cookie.
             if self.getConfig('always_login',False):
                 self.performLogin(data)
-                (data,opened) = self._fetchUrlOpened(self.url,
-                                                     usecache=False)
-                useurl = opened.geturl()
+                (data,useurl) = self.get_request_redirected(self.url,
+                                                            usecache=False)
                 logger.info("use useurl: "+useurl)
         except HTTPError as e:
             # QQ gives 403, SV at least gives 404.  Which unfortunately
             if e.code == 403 or self.getConfig('always_login',False):
                 self.performLogin(data)
-                (data,opened) = self._fetchUrlOpened(self.url,
-                                                     usecache=False)
-                useurl = opened.geturl()
+                (data,useurl) = self.get_request_redirected(self.url,
+                                                            usecache=False)
                 logger.info("use useurl: "+useurl)
             elif e.code == 404:
                 raise exceptions.StoryDoesNotExist(self.url)
@@ -716,8 +713,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
             souptag = self.get_cache_post(url)
             if not souptag:
-                (data,opened) = self._fetchUrlOpened(url)
-                url = unicode(opened.geturl())
+                (data,url) = self.get_request_redirected(url)
                 if '#' in origurl and '#' not in url:
                     url = url + origurl[origurl.index('#'):]
                     logger.debug("chapter URL redirected to: %s"%url)

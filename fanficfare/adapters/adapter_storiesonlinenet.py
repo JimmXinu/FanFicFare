@@ -118,14 +118,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         ## and finestories.
 
         ## fetch 'v' code, post action and redirected domain from login page.
-        (data,opened) = self._fetchUrlOpened(loginUrl,
-                                             usecache=False)
+        (data,useurl) = self.get_request_redirected(loginUrl,usecache=False)
         # logger.debug(data)
         if not self.needToLoginCheck(data):
             ## hitting login URL reminds system we're logged in?
             logger.debug("don't need to login")
             return
-        useurl = opened.geturl()
         soup = self.make_soup(data)
         params = {}
         params['v']=soup.find('input', {'name':'v'})['value']

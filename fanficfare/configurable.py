@@ -915,7 +915,7 @@ class Configuration(ConfigParser):
 #### *_filelist feature was added.
     def set_sleep(self,val):
         return self.fetcher.set_sleep(val)
-    
+
     def get_empty_cookiejar(self):
         return self.fetcher.get_empty_cookiejar()
 
@@ -1006,25 +1006,25 @@ class Configurable(object):
                                  parameters=parameters,
                                  usecache=usecache)
 
-    def _fetchUrlOpened(self, url,
-                        usecache=True,
-                        extrasleep=None):
+    def get_request_redirected(self, url,
+                               usecache=True,
+                               extrasleep=None):
         return self.configuration.\
-            fetcher._fetchUrlOpened(url,
-                                    usecache=usecache,
-                                    extrasleep=extrasleep)
+            fetcher.get_request_redirected(url,
+                                           usecache=usecache,
+                                           extrasleep=extrasleep)
 
     def _fetchUrl(self, url,
                   usecache=True,
                   extrasleep=None):
-        return self._fetchUrlOpened(url,
+        return self.get_request_redirected(url,
                                     usecache,
                                     extrasleep)[0]
     def _fetchUrlRaw(self, url,
                      extrasleep=None,
                      usecache=True,
                      referer=None): ## referer is used with raw for images.
-        return self._fetchUrlRawOpened(url,
+        return self._fetchUrlRawUrl(url,
                                        extrasleep,
                                        usecache,
                                        referer=referer)[0]

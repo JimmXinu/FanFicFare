@@ -303,15 +303,15 @@ class Fetcher(object):
     def _fetchUrl(self, url,
                   usecache=True,
                   extrasleep=None):
-        return self._fetchUrlOpened(url,
-                                    parameters,
-                                    usecache,
-                                    extrasleep)[0]
+        return self.get_request_redirected(url,
+                                           parameters,
+                                           usecache,
+                                           extrasleep)[0]
 
     # parameters is a dict()
-    def _fetchUrlOpened(self, url,
-                        usecache=True,
-                        extrasleep=None):
+    def get_request_redirected(self, url,
+                               usecache=True,
+                               extrasleep=None):
 
         excpt=None
         if url.startswith("file://"):
@@ -324,21 +324,21 @@ class Fetcher(object):
                 logger.debug("retry sleep:%s"%sleeptime)
             time.sleep(sleeptime)
             try:
-                (data,opened)=self._fetchUrlRawOpened(url,
+                (data,rurl)=self._fetchUrlRawUrl(url,
                                                       usecache=usecache,
                                                       extrasleep=extrasleep)
-                return (self._do_reduce_zalgo(self._decode(data)),opened)
+                return (self._do_reduce_zalgo(self._decode(data)),rurl)
             except HTTPError as he:
                 excpt=he
                 if he.code in (403,404,410):
                     logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
                     break # break out on 404
                 ## trekfanfiction.net has started returning the page,
-                ## but with a 500 code.  We can use the HTTPError as
-                ## the 'opened' in such case.
+                ## but with a 500 code.  We can get the url from the
+                ## HTTPError in such case.
                 if he.code == 500 and 'trekfanfiction.net' in url:
                     data = he.read()
-                    return (self._do_reduce_zalgo(self._decode(data)),he)
+                    return (self._do_reduce_zalgo(self._decode(data)),he.geturl())
             except Exception as e:
                 excpt=e
                 logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
@@ -354,7 +354,7 @@ class Fetcher(object):
         logger.debug(excpt, exc_info=True)
         raise(excpt)
 
-    def _fetchUrlRawOpened(self, url,
+    def _fetchUrlRawUrl(self, url,
                            extrasleep=None,
                            usecache=True,
                            referer=None):
@@ -366,12 +366,6 @@ class Fetcher(object):
         cache hits.
         '''
         method='GET'
-        class FakeOpened:
-            def __init__(self,data,url):
-                self.data=data
-                self.url=url
-            def geturl(self): return self.url
-            def read(self): return self.data
 
         if not url.startswith('file:'): # file fetches fail on + for space
             url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
@@ -382,7 +376,7 @@ class Fetcher(object):
         if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
             data,redirecturl = self._get_from_pagecache(cachekey)
-            return (data,FakeOpened(data,redirecturl))
+            return (data,redirecturl)
 
         logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
         # print(self.get_pagecache().keys())
@@ -430,14 +424,13 @@ class Fetcher(object):
                             None #fp
                             )
         data = resp.content
-        opened = FakeOpened(data,resp.url)
 
         self._progressbar()
         ## postURL saves data to the pagecache *after* _decode() while
         ## fetchRaw saves it *before* _decode()--because raw.
-        self._set_to_pagecache(cachekey,data,opened.url)
+        self._set_to_pagecache(cachekey,data,resp.url)
 
-        return (data,opened)
+        return (data,resp.url)
 
 
 class UrllibFetcher(Fetcher):

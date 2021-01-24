@@ -151,9 +151,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # logger.debug("Chapter/Story URL: <%s> " % self.url)
 
         try:
-            (data1,opened) = self._fetchUrlOpened(self.url)
+            (data1,rurl) = self.get_request_redirected(self.url)
             ## for language domains
-            self._setURL(opened.geturl())
+            self._setURL(rurl)
             logger.debug("set opened url:%s"%self.url)
         except HTTPError as e:
             if e.code in [404, 410]:

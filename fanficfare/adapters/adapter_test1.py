@@ -364,8 +364,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         elif 'test1.com' not in url:
             ## for chapter_urls setting.
             origurl = url
-            (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
-            url = opened.geturl()
+            (data,url) = self.get_request_redirected(url,extrasleep=2.0)
             if '#' in origurl and '#' not in url:
                 url = url + origurl[origurl.index('#'):]
             if url != origurl:
