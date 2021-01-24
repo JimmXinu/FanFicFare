@@ -218,11 +218,11 @@ class BaseSiteAdapter(Configurable):
                             # logger.debug(self.oldchaptersmap[url])
                             data = self.utf8FromSoup(None,
                                                      self.oldchaptersmap[url],
-                                                     partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                                                     partial(cachedfetch,self.get_request_raw,self.oldimgs))
                     elif self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
                                                  self.oldchapters[index],
-                                                 partial(cachedfetch,self._fetchUrlRaw,self.oldimgs))
+                                                 partial(cachedfetch,self.get_request_raw,self.oldimgs))
 
                     if self.getConfig('mark_new_chapters') == 'true':
                         # if already marked new -- ie, origtitle and title don't match
@@ -275,7 +275,7 @@ class BaseSiteAdapter(Configurable):
                                      #self.getConfig('default_cover_image'),
                                      self.story.formatFileName(self.getConfig('default_cover_image'),
                                                                self.getConfig('allow_unsafe_filename')),
-                                     self._fetchUrlRaw,
+                                     self.get_request_raw,
                                      cover=True)
                 self.story.setMetadata('cover_image','default')
 
@@ -546,7 +546,7 @@ class BaseSiteAdapter(Configurable):
 
     def setCoverImage(self,storyurl,imgurl):
         if self.getConfig('include_images'):
-            return self.story.addImgUrl(storyurl,imgurl,self._fetchUrlRaw,cover=True,
+            return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover=True,
                                         coverexclusion=self.getConfig('cover_exclusion_regexp'))
         else:
             return (None,None)
@@ -578,7 +578,7 @@ class BaseSiteAdapter(Configurable):
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
-            fetch=self._fetchUrlRaw
+            fetch=self.get_request_raw
 
         acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id','data-orighref'])
 

@@ -1018,14 +1018,16 @@ class Configurable(object):
                   usecache=True,
                   extrasleep=None):
         return self.get_request_redirected(url,
+                                           usecache,
+                                           extrasleep)[0]
+
+    def get_request_raw(self, url,
+                        extrasleep=None,
+                        usecache=True,
+                        referer=None): ## referer is used with raw for images.
+        return self.configuration.\
+            fetcher.get_request_raw(url,
+                                    extrasleep,
                                     usecache,
-                                    extrasleep)[0]
-    def _fetchUrlRaw(self, url,
-                     extrasleep=None,
-                     usecache=True,
-                     referer=None): ## referer is used with raw for images.
-        return self._fetchUrlRawUrl(url,
-                                       extrasleep,
-                                       usecache,
-                                       referer=referer)[0]
+                                    referer=referer)[0]
 

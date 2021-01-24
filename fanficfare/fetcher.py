@@ -324,9 +324,9 @@ class Fetcher(object):
                 logger.debug("retry sleep:%s"%sleeptime)
             time.sleep(sleeptime)
             try:
-                (data,rurl)=self._fetchUrlRawUrl(url,
-                                                      usecache=usecache,
-                                                      extrasleep=extrasleep)
+                (data,rurl)=self.get_request_raw(url,
+                                                 usecache=usecache,
+                                                 extrasleep=extrasleep)
                 return (self._do_reduce_zalgo(self._decode(data)),rurl)
             except HTTPError as he:
                 excpt=he
@@ -354,10 +354,10 @@ class Fetcher(object):
         logger.debug(excpt, exc_info=True)
         raise(excpt)
 
-    def _fetchUrlRawUrl(self, url,
-                           extrasleep=None,
-                           usecache=True,
-                           referer=None):
+    def get_request_raw(self, url,
+                        extrasleep=None,
+                        usecache=True,
+                        referer=None):
         '''
         When should cache be cleared or not used? logins...
 
