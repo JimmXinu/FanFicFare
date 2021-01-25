@@ -134,7 +134,8 @@ class Fetcher(object):
             retries = Retry(total=4,
                             backoff_factor=2,# factor 2=4,8,16sec
                             allowed_methods={'GET','POST'},
-                            status_forcelist={413, 429, 500, 502, 503, 504})
+                            status_forcelist={413, 429, 500, 502, 503, 504},
+                            raise_on_status=False) # to match w/o retries behavior
             if self.getConfig('use_cloudscraper',False):
                 ## ffnet adapter can't parse mobile output, so we only
                 ## want desktop browser.  But cloudscraper then insists on
@@ -312,11 +313,12 @@ class Fetcher(object):
             resp.raise_for_status() # raises HTTPError if error code.
         except RequestsHTTPError as e:
             ## trekfanfiction.net has started returning the page,
-            ## but with a 500 code.  We can get the url from the
-            ## HTTPError in such case.
+            ## but with a 500 code.
             if resp.status_code == 500 and 'trekfanfiction.net' in url:
-                ## Need to test if this is still needed...
-                logger.debug("!!!!!!!!!!!!!!!!! 500 trekfanfiction.net tripped !!!!!!!!!!!!")
+                ## Jan2012 -- Still happens at:
+                ## https://trekfanfiction.net/maestros1/star-trek-greatest-generation/
+                # logger.debug("!!!!!!!!!!!!!!!!! 500 trekfanfiction.net tripped !!!!!!!!!!!!")
+                # resp.content is still there, even with 500.
                 pass
             else:
                 raise HTTPError(url,
