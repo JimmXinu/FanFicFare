@@ -929,7 +929,6 @@ class Configuration(ConfigParser):
         if not self.opener:
             from .six.moves.urllib.request import build_opener
             self.opener = build_opener()
-        logger.debug("Read file (%s) for *_filelist setting"%fn)
         # can't use with: structure in Cal v2.85.1
         resp = self.opener.open(fn,None)
         data = resp.read()
@@ -950,6 +949,8 @@ class Configuration(ConfigParser):
 #### *_filelist feature was added.
     ## XXX which should be in requestable?
     ## Or Fetcher
+
+    ## used by plugin to change time for ffnet.
     def set_sleep(self,val):
         return self.fetcher.set_sleep(val)
 

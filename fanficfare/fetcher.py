@@ -35,7 +35,7 @@ import sys
 import pickle
 
 ## isn't found in plugin when only imported down below inside
-## get_scraper()
+## get_requests_session()
 import cloudscraper
 from cloudscraper.exceptions import CloudflareException
 
@@ -45,8 +45,7 @@ from .six.moves.urllib.error import HTTPError
 
 logger = logging.getLogger(__name__)
 
-## makes requests based(like cloudscraper) dump req/resp headers.
-## Does *not* work with older urllib code.
+## makes requests/cloudscraper dump req/resp headers.
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
@@ -126,22 +125,45 @@ class Fetcher(object):
 
     def get_requests_session(self):
         if not self.requests_session:
+
+            ## set up retries.
+            from requests.adapters import HTTPAdapter
+            from urllib3.util.retry import Retry
+            retries = Retry(total=4,
+                            backoff_factor=2,# factor 2=4,8,16sec
+                            allowed_methods={'GET','POST'},
+                            status_forcelist={413, 429, 500, 502, 503, 504})
             if self.getConfig('use_cloudscraper',False):
                 ## ffnet adapter can't parse mobile output, so we only
                 ## want desktop browser.  But cloudscraper then insists on
                 ## a browser and platform, too.
+                logger.debug("initializing cloudscraper")
                 self.requests_session = cloudscraper.CloudScraper(browser={
                         'browser': 'chrome',
                         'platform': 'windows',
                         'mobile': False,
                         'desktop': True,
                         })
+                ## CipherSuiteAdapter adapter replaced by HTTPAdapter
+                ## if done as below.
+                self.requests_session.mount('https://',
+                                            cloudscraper.CipherSuiteAdapter(
+                        cipherSuite=self.requests_session.cipherSuite,
+                        ssl_context=self.requests_session.ssl_context,
+                        source_address=self.requests_session.source_address,
+                        max_retries=retries))
             else:
-            ## CloudScraper is subclass of requests.Session.
-            ## probably need import higher up if ever used.
+                ## CloudScraper is subclass of requests.Session.
+                ## Hopefully everything one can do will work with the
+                ## other.
                 import requests
                 self.requests_session = requests.Session()
+                self.requests_session.mount('https://', HTTPAdapter(max_retries=retries))
+            self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
+
             self.requests_session.cookies = self.cookiejar
+
+
         return self.requests_session
 
     def __del__(self):
@@ -211,10 +233,12 @@ class Fetcher(object):
         #     logger.debug("http login for SB xf2test")
 
         try:
+            # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
             resp = self.get_requests_session().post(url,
                                            headers=dict(headers),
                                            data=parameters)
             logger.debug("response code:%s"%resp.status_code)
+
             resp.raise_for_status() # raises HTTPError if error code.
             data = resp.content
         except CloudflareException as e:
@@ -236,47 +260,25 @@ class Fetcher(object):
                                usecache=True,
                                extrasleep=None):
 
-        excpt=None
-        if url.startswith("file://"):
-            # only one try for file:s.
-            sleeptimes = [0]
-        else:
-            sleeptimes = [0, 2, 7, 12]
-        for sleeptime in sleeptimes:
-            if sleeptime:
-                logger.debug("retry sleep:%s"%sleeptime)
-            time.sleep(sleeptime)
-            try:
-                (data,rurl)=self.get_request_raw_redirected(url,
-                                                 usecache=usecache,
-                                                 extrasleep=extrasleep)
-                return (data,rurl)
-            except HTTPError as he:
-                excpt=he
-                if he.code in (403,404,410):
-                    logger.debug("Caught an exception reading URL: %s  Exception %s."%(unicode(safe_url(url)),unicode(he)))
-                    break # break out on 404
-                ## trekfanfiction.net has started returning the page,
-                ## but with a 500 code.  We can get the url from the
-                ## HTTPError in such case.
-                if he.code == 500 and 'trekfanfiction.net' in url:
-                    ## XXX broken with requests version.
-                    data = he.read()
-                    return (data,he.geturl())
-            except Exception as e:
-                excpt=e
-                logger.debug("Caught an exception reading URL: %s sleeptime(%s) Exception %s."%(unicode(safe_url(url)),sleeptime,unicode(e)))
-                if isinstance(e,CloudflareException):
-                    ## cloudscraper exception messages can appear to
-                    ## come from FFF and cause confusion.
-                    msg = unicode(e).replace(' in the opensource (free) version','...')
-                    raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-                else:
-                    raise
-
-        logger.debug("Giving up on %s" %safe_url(url))
-        logger.debug(excpt, exc_info=True)
-        raise(excpt)
+        try:
+            (data,rurl)=self.get_request_raw_redirected(url,
+                                             usecache=usecache,
+                                             extrasleep=extrasleep)
+            return (data,rurl)
+        except HTTPError as he:
+            ## trekfanfiction.net has started returning the page,
+            ## but with a 500 code.  We can get the url from the
+            ## HTTPError in such case.
+            if he.code == 500 and 'trekfanfiction.net' in url:
+                ## XXX broken with requests version.
+                data = he.read()
+                return (data,he.geturl())
+        except CloudflareException as cfe:
+            ## cloudscraper exception messages can appear to
+            ## come from FFF and cause confusion.
+            msg = unicode(cfe).replace(' in the opensource (free) version','...')
+            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+        ## let other exceptions perk up.
 
     def get_request_raw_redirected(self, url,
                         extrasleep=None,
@@ -334,6 +336,7 @@ class Fetcher(object):
             ## let cloudscraper do its thing with UA.
             if 'User-Agent' in headers:
                 del headers['User-Agent']
+        # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
         resp = self.get_requests_session().get(url,headers=headers)
         logger.debug("response code:%s"%resp.status_code)
         try:

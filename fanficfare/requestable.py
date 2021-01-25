@@ -32,9 +32,6 @@ class Requestable(Configurable):
         if hasattr(self, 'use_pagecache'):
             self.configuration.fetcher.use_pagecache = self.use_pagecache()
 
-    def decode_data(self,data):
-        return self._do_reduce_zalgo(self._decode(data))
-
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
 ## incorrectly.  Each adapter has a default list, usually "utf8,
@@ -46,8 +43,8 @@ class Requestable(Configurable):
     def _decode(self,data):
         if not hasattr(data,'decode'):
             ## py3 str() from pickle doesn't have .decode and is
-            ## already decoded.
-            ## XXX ^^ WTF?
+            ## already decoded.  Should always be bytes now(Jan2021),
+            ## but keeping this just in case.
             return data
         decode = self.getConfigList('website_encodings',
                                     default=["utf8",
@@ -96,6 +93,9 @@ class Requestable(Configurable):
             except Exception as e:
                 logger.warning("reduce_zalgo failed(%s), continuing."%e)
         return data
+
+    def decode_data(self,data):
+        return self._do_reduce_zalgo(self._decode(data))
 
     def post_request(self, url,
                      parameters={},
