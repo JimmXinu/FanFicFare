@@ -240,7 +240,7 @@ class Fetcher(object):
                                            data=parameters)
             logger.debug("response code:%s"%resp.status_code)
 
-            resp.raise_for_status() # raises HTTPError if error code.
+            resp.raise_for_status() # raises RequestsHTTPError if error code.
             data = resp.content
         except CloudflareException as e:
             msg = unicode(e).replace(' in the opensource (free) version','...')
@@ -248,38 +248,6 @@ class Fetcher(object):
         self._progressbar()
         self._set_to_pagecache(cachekey,data,url)
         return data
-
-    def get_request(self, url,
-                    usecache=True,
-                    extrasleep=None):
-        return self.get_request_redirected(url,
-                                           usecache,
-                                           extrasleep)[0]
-
-    # parameters is a dict()
-    def get_request_redirected(self, url,
-                               usecache=True,
-                               extrasleep=None):
-
-        try:
-            (data,rurl)=self.get_request_raw_redirected(url,
-                                             usecache=usecache,
-                                             extrasleep=extrasleep)
-            return (data,rurl)
-        except HTTPError as he:
-            ## trekfanfiction.net has started returning the page,
-            ## but with a 500 code.  We can get the url from the
-            ## HTTPError in such case.
-            if he.code == 500 and 'trekfanfiction.net' in url:
-                ## XXX broken with requests version.
-                data = he.read()
-                return (data,he.geturl())
-        except CloudflareException as cfe:
-            ## cloudscraper exception messages can appear to
-            ## come from FFF and cause confusion.
-            msg = unicode(cfe).replace(' in the opensource (free) version','...')
-            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-        ## let other exceptions perk up.
 
     def get_request_raw_redirected(self, url,
                         extrasleep=None,
@@ -343,14 +311,27 @@ class Fetcher(object):
         try:
             resp.raise_for_status() # raises HTTPError if error code.
         except RequestsHTTPError as e:
-            raise HTTPError(url,
-                            e.response.status_code,
-                            e.args[0],#msg,
-                            None,#hdrs,
-                            None #fp
-                            )
-        data = resp.content
+            ## trekfanfiction.net has started returning the page,
+            ## but with a 500 code.  We can get the url from the
+            ## HTTPError in such case.
+            if resp.status_code == 500 and 'trekfanfiction.net' in url:
+                ## Need to test if this is still needed...
+                logger.debug("!!!!!!!!!!!!!!!!! 500 trekfanfiction.net tripped !!!!!!!!!!!!")
+                pass
+            else:
+                raise HTTPError(url,
+                                e.response.status_code,
+                                e.args[0],#msg,
+                                None,#hdrs,
+                                None #fp
+                                )
+        except CloudflareException as cfe:
+            ## cloudscraper exception messages can appear to
+            ## come from FFF and cause confusion.
+            msg = unicode(cfe).replace(' in the opensource (free) version','...')
+            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
 
+        data = resp.content
         self._progressbar()
         self._set_to_pagecache(cachekey,data,resp.url)
 
