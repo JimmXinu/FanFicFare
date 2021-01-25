@@ -36,6 +36,10 @@ import pickle
 
 ## isn't found in plugin when only imported down below inside
 ## get_requests_session()
+import requests
+from requests_file import FileAdapter
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import cloudscraper
 from cloudscraper.exceptions import CloudflareException
 
@@ -127,8 +131,6 @@ class Fetcher(object):
         if not self.requests_session:
 
             ## set up retries.
-            from requests.adapters import HTTPAdapter
-            from urllib3.util.retry import Retry
             retries = Retry(total=4,
                             backoff_factor=2,# factor 2=4,8,16sec
                             allowed_methods={'GET','POST'},
@@ -156,13 +158,12 @@ class Fetcher(object):
                 ## CloudScraper is subclass of requests.Session.
                 ## Hopefully everything one can do will work with the
                 ## other.
-                import requests
                 self.requests_session = requests.Session()
                 self.requests_session.mount('https://', HTTPAdapter(max_retries=retries))
             self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
+            self.requests_session.mount('file://', FileAdapter())
 
             self.requests_session.cookies = self.cookiejar
-
 
         return self.requests_session
 
