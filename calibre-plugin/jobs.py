@@ -166,14 +166,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                                             options['fileform'],
                                             options['personal.ini'])
 
-            if configuration.getConfig('use_ssl_unverified_context'):
-                ## monkey patch to avoid SSL bug.  dupliated from
-                ## fff_plugin.py because bg jobs run in own process
-                ## space.
-                import ssl
-                if hasattr(ssl, '_create_unverified_context'):
-                    ssl._create_default_https_context = ssl._create_unverified_context
-
             if not options['updateepubcover'] and 'epub_for_update' in book and book['collision'] in (UPDATE, UPDATEALWAYS):
                 configuration.set("overrides","never_make_cover","true")
 

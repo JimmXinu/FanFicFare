@@ -132,6 +132,7 @@ class Fetcher(object):
 
             ## set up retries.
             retries = Retry(total=4,
+                            other=0, # rather fail SSL errors/etc quick
                             backoff_factor=2,# factor 2=4,8,16sec
                             allowed_methods={'GET','POST'},
                             status_forcelist={413, 429, 500, 502, 503, 504},
@@ -237,8 +238,9 @@ class Fetcher(object):
         try:
             # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
             resp = self.get_requests_session().post(url,
-                                           headers=dict(headers),
-                                           data=parameters)
+                                                    headers=dict(headers),
+                                                    data=parameters,
+                                                    verify=not self.getConfig('use_ssl_unverified_context',False))
             logger.debug("response code:%s"%resp.status_code)
 
             resp.raise_for_status() # raises RequestsHTTPError if error code.
@@ -307,7 +309,9 @@ class Fetcher(object):
             if 'User-Agent' in headers:
                 del headers['User-Agent']
         # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
-        resp = self.get_requests_session().get(url,headers=headers)
+        resp = self.get_requests_session().get(url,
+                                               headers=headers,
+                                               verify=not self.getConfig('use_ssl_unverified_context',False))
         logger.debug("response code:%s"%resp.status_code)
         try:
             resp.raise_for_status() # raises HTTPError if error code.
