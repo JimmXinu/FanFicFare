@@ -63,7 +63,6 @@ class Fetcher(object):
         self.save_cache_file = None
         self.save_cookiejar_file = None
 
-
     def get_empty_cookiejar(self):
         return cl.LWPCookieJar()
 
@@ -189,10 +188,27 @@ class Fetcher(object):
             logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
             time.sleep(rt)
 
-    # Assumes application/x-www-form-urlencoded.  parameters, headers are dict()s
+    def make_headers(self,url,referer=None,headers={}):
+        if 'User-Agent' not in headers:
+            headers['User-Agent']=self.getConfig('user_agent')
+        if self.getConfig('use_cloudscraper',False):
+            ## let cloudscraper do its thing with UA.
+            if 'User-Agent' in headers:
+                del headers['User-Agent']
+        if referer:
+            ## only used by img raw fetchs.
+            headers['Referer']=referer
+
+        # if "xf2test" in url:
+        #     import base64
+        #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
+        #     headers['Authorization']="Basic %s" % base64string
+        #     logger.debug("http login for SB xf2test")
+        return headers
+
+
     def post_request(self, url,
                      parameters={},
-                     headers={},
                      extrasleep=None,
                      usecache=True):
         '''
@@ -206,7 +222,7 @@ class Fetcher(object):
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
-        cachekey=self._get_cachekey(url, parameters, headers)
+        cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(POST) HIT: %s"%safe_url(cachekey))
             data,redirecturl = self._get_from_pagecache(cachekey)
@@ -216,24 +232,11 @@ class Fetcher(object):
         if not cachekey.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
 
-        if 'User-Agent' not in headers:
-            headers['User-Agent']=self.getConfig('user_agent')
-
-        if self.getConfig('use_cloudscraper',False):
-            ## let cloudscraper do its thing with UA.
-            if 'User-Agent' in headers:
-                del headers['User-Agent']
-        # logger.debug("POST http login for SB xf2test %s"%url)
-        # if "xf2test" in url:
-        #     import base64
-        #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
-        #     headers['Authorization']=b"Basic %s" % base64string
-        #     logger.debug("http login for SB xf2test")
-
+        headers = self.make_headers(url)
         try:
             # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
             resp = self.get_requests_session().post(url,
-                                                    headers=dict(headers),
+                                                    headers=headers,
                                                     data=parameters,
                                                     verify=not self.getConfig('use_ssl_unverified_context',False))
             logger.debug("response code:%s"%resp.status_code)
@@ -248,9 +251,9 @@ class Fetcher(object):
         return data
 
     def get_request_raw_redirected(self, url,
-                        extrasleep=None,
-                        usecache=True,
-                        referer=None):
+                                   extrasleep=None,
+                                   usecache=True,
+                                   referer=None):
         '''
         When should cache be cleared or not used? logins...
 
@@ -276,34 +279,7 @@ class Fetcher(object):
         if not cachekey.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
 
-        ## Specific UA because too many sites are blocking the default python UA.
-        headers = [('User-Agent', self.getConfig('user_agent')),
-                   ## starslibrary.net throws a "HTTP Error 403: Bad
-                   ## Behavior" over the X-Clacks-Overhead.  Which
-                   ## both against standard and rather a dick-move.
-                   #('X-Clacks-Overhead','GNU Terry Pratchett'),
-                   ]
-        if referer:
-            ## hpfanficarchive.com complains about Referer: None.
-            ## Could have defaulted to "" instead, but this way it's
-            ## not present at all
-            headers.append(('Referer',referer))
-
-        # logger.debug("GET http login for SB xf2test %s"%url)
-        # if "xf2test" in url:
-        #     import base64
-        #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
-        #     headers.append(('Authorization',b"Basic %s" % base64string))
-        #     logger.debug("http login for SB xf2test")
-
-        ## requests/cloudscraper wants a dict() for headers, not
-        ## list of tuples.
-        headers = dict(headers)
-        if self.getConfig('use_cloudscraper',False):
-            ## let cloudscraper do its thing with UA.
-            if 'User-Agent' in headers:
-                del headers['User-Agent']
-        # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
+        headers = self.make_headers(url,referer)
         resp = self.get_requests_session().get(url,
                                                headers=headers,
                                                verify=not self.getConfig('use_ssl_unverified_context',False))
