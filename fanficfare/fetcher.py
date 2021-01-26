@@ -20,13 +20,9 @@ import re
 import random
 
 # py2 vs py3 transition
-from . import six
-from .six.moves import urllib
-from .six.moves.urllib.parse import (urlencode, quote_plus)
-from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, Request)
+from .six.moves.urllib.parse import quote_plus
 from .six.moves import http_cookiejar as cl
 from .six import text_type as unicode
-from .six import string_types as basestring
 from .six import ensure_binary, ensure_text
 
 import time

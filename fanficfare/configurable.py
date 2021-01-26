@@ -22,7 +22,7 @@ import codecs
 # py2 vs py3 transition
 from . import six
 from .six.moves import configparser
-from .six.moves.configparser import DEFAULTSECT, MissingSectionHeaderError, ParsingError
+from .six.moves.configparser import DEFAULTSECT, ParsingError
 if six.PY2:
     ConfigParser = configparser.SafeConfigParser
 else: # PY3

@@ -11,8 +11,6 @@ import random
 import logging
 
 # py2 vs py3 transition
-from .six import text_type as unicode
-from .six import string_types as basestring
 from .six import ensure_binary
 from io import BytesIO
 

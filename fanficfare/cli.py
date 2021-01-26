@@ -20,7 +20,6 @@ from __future__ import print_function
 from io import StringIO
 from optparse import OptionParser, SUPPRESS_HELP
 from os.path import expanduser, join, dirname
-from os import access, R_OK
 from subprocess import call
 import getpass
 import logging

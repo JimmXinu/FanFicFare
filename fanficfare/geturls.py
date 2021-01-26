@@ -20,7 +20,6 @@ import collections
 import email
 import imaplib
 import re
-import csv
 
 # unicode in py2, str in py3
 from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, urlopen)

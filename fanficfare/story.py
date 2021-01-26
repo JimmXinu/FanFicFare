@@ -19,10 +19,8 @@ from __future__ import absolute_import
 import os, re, sys
 from collections import defaultdict
 import string
-import json
 import datetime
 from math import floor
-from functools import partial
 import base64
 import hashlib
 import logging
@@ -33,7 +31,6 @@ from . import six
 from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import string_types as basestring
-from .six.moves import map
 
 import bs4
 

@@ -20,7 +20,6 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-from .fetcher import Fetcher
 from .configurable import Configurable
 
 class Requestable(Configurable):
@@ -75,7 +74,6 @@ class Requestable(Configurable):
             except Exception as e:
                 logger.debug("code failed:"+code)
                 logger.debug(e)
-                pass
         logger.info("Could not decode story, tried:%s Stripping non-ASCII."%decode)
         try:
             # python2
