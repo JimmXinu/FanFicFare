@@ -216,13 +216,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         Makes image links absolute so they can be downloaded
         """
-        try:
-            html = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        html = self.get_request(url)
 
         # Some site use old, old-school Comments <!- comment -> (single dash)
         html = re.sub("<!-.+?->", "", html)

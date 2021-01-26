@@ -122,12 +122,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 if not forward:
                     yield following
 
-        try:
-            startingChapter = self._makeChapter(self.url)
-        except HTTPError as error:
-            if error.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            raise
+        startingChapter = self._makeChapter(self.url)
 
         # We only have one date for each chapter and assume the oldest one
         # to be publication date and the most recent one to be update date.

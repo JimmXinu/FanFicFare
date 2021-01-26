@@ -113,20 +113,6 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
         return BaseSiteAdapter.get_request(self,url,
                                          usecache=usecache)
-    ################################################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data. I'm using it since I call
-        several places below, and this will cut down on the size of the file
-        '''
-        try:
-            page_data = self.get_request(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
-            else:
-                raise e
-        return page_data
 
     ################################################################################################
     def extractChapterUrlsAndMetadata(self):
@@ -141,16 +127,14 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         url = self.url
         logger.debug("URL: "+url)
 
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         if "Something hasn't worked as we'd hoped" in data:
             raise exceptions.StoryDoesNotExist(self.getSiteDomain() +
                 " says: Something Hasn't Worked As We'd Hoped")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('h1')

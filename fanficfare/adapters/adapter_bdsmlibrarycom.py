@@ -110,17 +110,10 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data = self.get_request(self.url)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
+        data = self.get_request(self.url)
         if 'The story does not exist' in data:
             raise exceptions.StoryDoesNotExist(self.url)
+        soup = self.make_soup(data)
 
         # Extract metadata
         title=soup.title.text.replace('BDSM Library - Story: ','').replace('\\','')
@@ -132,14 +125,8 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         while author == None:
             time.sleep(1)
             logger.warning('A problem retrieving the author information. Trying Again')
-            try:
-                data = self.get_request(self.url)
-                soup = self.make_soup(data)
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(self.url)
-                else:
-                    raise e
+            data = self.get_request(self.url)
+            soup = self.make_soup(data)
             author = soup.find('a', href=re.compile(r"/stories/author.php\?authorid=\d+"))
             i += 1
             if i == 20:

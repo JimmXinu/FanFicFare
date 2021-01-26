@@ -146,13 +146,7 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
@@ -168,11 +162,9 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.find('h4')
         ## Title
@@ -255,7 +247,6 @@ class FanfictionJunkiesDeAdapter(BaseSiteAdapter): # XXX
             series_name = a.string
             series_url = 'http://'+self.host+'/efiction/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1

@@ -72,6 +72,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug("URL: "+self.url)
+
         soup = self.make_soup(self.get_request(self.url))
 
         # Since no 404 error code we have to raise the exception ourselves.

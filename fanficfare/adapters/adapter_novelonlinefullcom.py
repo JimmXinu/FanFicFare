@@ -112,13 +112,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 

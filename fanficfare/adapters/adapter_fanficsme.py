@@ -137,15 +137,8 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         url = self.url
         logger.info("url: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## restrict meta searches to header.
@@ -174,7 +167,6 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             soup = self.make_soup(data)
             fichead = soup.find('div',class_='FicHead')
 
-        # Now go hunting for all the meta data and the chapter list.
         ## Title
         ## <h1>Третья сторона&nbsp;<span class="small green">(гет)</span></h1>
         h = fichead.find('h1')

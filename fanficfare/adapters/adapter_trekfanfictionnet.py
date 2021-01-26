@@ -93,35 +93,18 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         return True
 
     ##########################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data
-        I'm using it since I call several pages below, and this will cut down
-        on the size of the file
-        '''
-        try:
-            page_data = self.get_request(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
-            else:
-                raise e
-        return page_data
-
-    ##########################################################################
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         logger.debug("URL: "+url)
 
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         if "Apologies, but we were unable to find what you were looking for." in data:
             raise exceptions.StoryDoesNotExist(
                 '{} says: Apologies, but we were unable to find what you were looking for.'.format(
                     self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -145,7 +128,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # getting the rest of the metadata... there isn't much here, and the summary can only be
         # gotten on the author's page... so we'll get it to get the information from
-        adata = self.get_page(self.story.getMetadata('authorUrl'))
+        adata = self.get_request(self.story.getMetadata('authorUrl'))
         asoup = self.make_soup(adata)
 
         containers = asoup.find_all('div', {'class':'cat-container'})

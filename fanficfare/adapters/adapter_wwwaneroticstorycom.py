@@ -90,17 +90,11 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data1 = self.get_request(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments and scripts from soup
-            [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-            [script.extract() for script in soup1.find_all('script')]
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data1 = self.get_request(self.url)
+        soup1 = self.make_soup(data1)
+        #strip comments and scripts from soup
+        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
+        [script.extract() for script in soup1.find_all('script')]
 
         url = self.url
 

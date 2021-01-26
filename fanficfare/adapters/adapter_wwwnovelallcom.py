@@ -117,14 +117,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         url = self.url+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         ## You need to have your is_adult set to true to get this story
         if "Please click here to continue the reading." in data:
@@ -145,13 +138,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                          + ".html")
             url = self.url+addurl
             logger.debug("URL2: "+url)
-            try:
-                data = self.get_request(url)
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-                else:
-                    raise e
+            data = self.get_request(url)
             ## You need to have your is_adult set to true to get this story
             if "Please click here to continue the reading." in data:
                 raise exceptions.AdultCheckRequired(self.url)

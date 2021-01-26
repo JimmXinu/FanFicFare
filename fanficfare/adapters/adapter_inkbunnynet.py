@@ -123,18 +123,11 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
         url = self.url
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         if 'ERROR: Invalid submission_id or no submission_id requested.' in data:
             raise exceptions.StoryDoesNotExist('{0} says: "ERROR: Invalid submission_id or no submission_id requested." for url "{1}"'.format(self.getSiteDomain(), self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## To view content, we need to login
@@ -147,7 +140,6 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         for tag in soup.findAll('script'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Title
         title = soup.find_all('h1')[1]

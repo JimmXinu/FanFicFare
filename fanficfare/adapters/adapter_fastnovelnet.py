@@ -79,13 +79,7 @@ class FastNovelNetAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 
-        try:
-            data = self.get_request(self.url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 

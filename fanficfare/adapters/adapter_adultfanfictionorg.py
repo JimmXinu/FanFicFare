@@ -200,29 +200,16 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
-            elif e.code == 401:
-                self.needToLogin = True
-                data = ''
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "The dragons running the back end of the site can not seem to find the story you are looking for." in data:
             raise exceptions.StoryDoesNotExist("{0}.{1} says: The dragons running the back end of the site can not seem to find the story you are looking for.".format(self.zone, self.getBaseDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ##This is not working right now, so I'm commenting it out, but leaving it for future testing
         #self.performLogin(url, soup)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         ## Some of the titles have a backslash on the story page, but not on the Author's page
@@ -266,15 +253,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorUrl',author_Url)
 
             logger.debug('Getting the author page: {0}'.format(author_Url))
-            try:
-                adata = self.get_request(author_Url)
-            except HTTPError as e:
-                if e.code in 404:
-                    raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
-                elif e.code == 410:
-                    raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
-                else:
-                    raise e
+            adata = self.get_request(author_Url)
 
             if "The member you are looking for does not exist." in adata:
                 raise exceptions.StoryDoesNotExist("{0}.{1} says: The member you are looking for does not exist.".format(self.zone, self.getBaseDomain()))
@@ -304,15 +283,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     if page != 1:
                         author_Url = '{0}&view=story&zone={1}&page={2}'.format(self.story.getMetadata('authorUrl'), self.zone, unicode(page))
                         logger.debug('Getting the author page: {0}'.format(author_Url))
-                        try:
-                            adata = self.get_request(author_Url)
-                        except HTTPError as e:
-                            if e.code in 404:
-                                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
-                            elif e.code == 410:
-                                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
-                            else:
-                                raise e
+                        adata = self.get_request(author_Url)
                         ##This will probably never be needed, since AFF doesn't seem to care what number you put as
                         ## the page number, it will default to the last page, even if you use 1000, for an author
                         ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).

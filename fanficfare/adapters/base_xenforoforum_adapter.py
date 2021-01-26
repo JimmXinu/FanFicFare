@@ -444,18 +444,15 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                                                             usecache=False)
                 logger.info("use useurl: "+useurl)
         except HTTPError as e:
-            # QQ gives 403, SV at least gives 404.  Which unfortunately
+            # QQ gives 403 for login needed
             if e.code == 403 or self.getConfig('always_login',False):
                 self.performLogin(data)
                 (data,useurl) = self.get_request_redirected(self.url,
                                                             usecache=False)
                 logger.info("use useurl: "+useurl)
-            elif e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
             else:
                 raise
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         topsoup = souptag = self.make_soup(data)
 
         if '#' not in useurl and self.getPathPrefix()+'posts/' not in useurl:

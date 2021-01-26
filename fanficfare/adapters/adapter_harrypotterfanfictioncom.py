@@ -71,13 +71,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             url = url+'&showRestricted'
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "This story may contain chapters not appropriate for a general audience." in data and not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
@@ -88,7 +82,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         # elif "ERROR locating story meta for psid" in data:
         #     raise exceptions.StoryDoesNotExist(self.url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title

@@ -116,16 +116,8 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url) # w/o trailing / gets 'chapter list' page even for one-shots.
-        except HTTPError as e:
-            if e.code == 404:
-                logger.error("404 on %s"%url)
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url) # w/o trailing / gets 'chapter list' page even for one-shots.
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## title:

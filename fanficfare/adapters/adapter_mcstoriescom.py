@@ -83,16 +83,10 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data1 = self.get_request(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments from soup
-            [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data1 = self.get_request(self.url)
+        soup1 = self.make_soup(data1)
+        #strip comments from soup
+        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
 
         if 'Page Not Found.' in data1:
             raise exceptions.StoryDoesNotExist(self.url)

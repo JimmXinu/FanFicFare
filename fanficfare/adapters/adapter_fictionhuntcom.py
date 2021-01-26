@@ -130,35 +130,27 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # metadata and chapter list
 
         url = self.url
-        try:
+        data = self.get_request(url)
+
+        if self.needToLoginCheck(data):
+            self.performLogin(url)
+            data = self.get_request(url,usecache=False)
+
+        soup = self.make_soup(data)
+        ## detect old storyUrl, switch to new storyUrl:
+        canonlink = soup.find('link',rel='canonical')
+        if canonlink:
+            # logger.debug(canonlink)
+            canonlink = re.sub(r"/chapters/\d+","",canonlink['href'])
+            # logger.debug(canonlink)
+            self._setURL(canonlink)
+            url = self.url
             data = self.get_request(url)
-
-            if self.needToLoginCheck(data):
-                self.performLogin(url)
-                data = self.get_request(url,usecache=False)
-
             soup = self.make_soup(data)
-            ## detect old storyUrl, switch to new storyUrl:
-            canonlink = soup.find('link',rel='canonical')
-            if canonlink:
-                # logger.debug(canonlink)
-                canonlink = re.sub(r"/chapters/\d+","",canonlink['href'])
-                # logger.debug(canonlink)
-                self._setURL(canonlink)
-                url = self.url
-                data = self.get_request(url)
-                soup = self.make_soup(data)
-            else:
-                # in case title changed
-                self._setURL(soup.select_one("div.Story__details a")['href'])
-                url = self.url
-
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        else:
+            # in case title changed
+            self._setURL(soup.select_one("div.Story__details a")['href'])
+            url = self.url
 
         self.story.setMetadata('title',stripHTML(soup.find('h1',{'class':'Story__title'})))
 

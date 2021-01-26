@@ -102,16 +102,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         url = self.origurl
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            data = self.get_request(url)
-            #logger.debug("\n===================\n%s\n===================\n"%data)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        data = self.get_request(url)
+        #logger.debug("\n===================\n%s\n===================\n"%data)
+        soup = self.make_soup(data)
 
         if "Unable to locate story" in data or "Story Not Found" in data:
             raise exceptions.StoryDoesNotExist(url)

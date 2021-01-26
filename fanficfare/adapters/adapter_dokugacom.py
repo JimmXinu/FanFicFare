@@ -125,15 +125,8 @@ class DokugaComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         if self.needToLoginCheck(data):
@@ -146,7 +139,6 @@ class DokugaComAdapter(BaseSiteAdapter):
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title and author
         a = soup.find('div', {'align' : 'center'}).find('h3')

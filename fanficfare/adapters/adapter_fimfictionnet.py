@@ -119,17 +119,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
 
-        try:
-            # don't use cache if manual is_adult--should only happen
-            # if it's an adult story and they don't have is_adult in ini.
-            data = self.do_fix_blockquotes(self.get_request(self.url,
-                                                          usecache=(not self.is_adult)))
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        # don't use cache if manual is_adult--should only happen
+        # if it's an adult story and they don't have is_adult in ini.
+        data = self.do_fix_blockquotes(self.get_request(self.url,
+                                                        usecache=(not self.is_adult)))
+        soup = self.make_soup(data)
 
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)

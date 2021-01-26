@@ -122,13 +122,7 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
@@ -156,23 +150,15 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
                 url = self.url+'&index=1'+addurl
                 logger.debug("URL 2nd try: "+url)
 
-                try:
-                    data = self.get_request(url)
-                except HTTPError as e:
-                    if e.code == 404:
-                        raise exceptions.StoryDoesNotExist(self.url)
-                    else:
-                        raise e
+                data = self.get_request(url)
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.find('div',{'id':'pagecontent'})
 
@@ -264,7 +250,6 @@ class DeepInMySoulNetAdapter(BaseSiteAdapter):  # XXX
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^fiction/viewstory.php\?sid=\d+$'))
             i=1

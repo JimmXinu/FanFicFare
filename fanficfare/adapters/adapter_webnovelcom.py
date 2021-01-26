@@ -115,25 +115,16 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         url = self.url
 
-        try:
-            data = self.get_request(url)
-            # logger.debug(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         if 'We might have some troubles to find out this page.' in data:
             raise exceptions.StoryDoesNotExist('{0} says: "" for url "{1}"'.format(self.getSiteDomain(), self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # removing all of the scripts
         for tag in soup.findAll('script') + soup.find_all('svg'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # This is the block that holds the metadata
         bookdetails = soup.find('div', {'class': '_8'})

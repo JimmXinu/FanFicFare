@@ -89,19 +89,11 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         url = self.url #+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
@@ -223,7 +215,6 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1

@@ -26,7 +26,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -161,26 +160,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         logger.info("url: "+url)
         logger.info("metaurl: "+metaurl)
 
-        try:
-            data = self.get_request(url)
-            meta = self.get_request(metaurl)
+        data = self.get_request(url)
+        meta = self.get_request(metaurl)
 
-            if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
-                if self.addurl:
-                    ## "?view_adult=true" doesn't work on base story
-                    ## URL anymore, which means we have to
-                    metasoup = self.make_soup(meta)
-                    a = metasoup.find('a',text='Proceed')
-                    metaurl = 'https://'+self.host+a['href']
-                    meta = self.get_request(metaurl)
-                else:
-                    raise exceptions.AdultCheckRequired(self.url)
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
+        if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
+            if self.addurl:
+                ## "?view_adult=true" doesn't work on base story
+                ## URL anymore, which means we have to
+                metasoup = self.make_soup(meta)
+                a = metasoup.find('a',text='Proceed')
+                metaurl = 'https://'+self.host+a['href']
+                meta = self.get_request(metaurl)
             else:
-                raise e
+                raise exceptions.AdultCheckRequired(self.url)
 
         if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -192,7 +184,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             data = self.get_request(url,usecache=False)
             meta = self.get_request(metaurl,usecache=False)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         for tag in soup.findAll('div',id='admin-banner'):
             tag.extract()
@@ -200,7 +191,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         for tag in metasoup.findAll('div',id='admin-banner'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))

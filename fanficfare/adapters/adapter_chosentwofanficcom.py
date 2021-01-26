@@ -93,13 +93,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         url = '{0}&index=1{1}'.format(self.url,addURL)
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -107,10 +101,8 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied("{0} says: Access denied. This story has not been validated by the adminstrators of this site.".format(self.getSiteDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         ## Some stories have a banner that has it's own a tag before the actual text title...
@@ -211,7 +203,6 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))

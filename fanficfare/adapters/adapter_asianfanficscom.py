@@ -120,16 +120,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         url = self.url
         logger.info("url: "+url)
-        try:
-            data = self.get_request(url)
+        data = self.get_request(url)
 
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         if self.loginNeededCheck(data):

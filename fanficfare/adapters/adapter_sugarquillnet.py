@@ -90,21 +90,13 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         url = self.url+'&chapno=1'
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Invalid storyid or chapno" in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Invalid storyid or chapno.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('b',text='Story').nextSibling.string.strip(':').strip()
@@ -128,15 +120,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         ## The metadata is all on the author's page, so we have to get it to parse.
         author_Url = self.story.getMetadata('authorUrl').replace('&amp;','&')
         logger.debug('Getting the author page: {0}'.format(author_Url))
-        try:
-            adata = self.get_request(author_Url)
-        except HTTPError as e:
-            if e.code in 404:
-                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
-            else:
-                raise e
+        adata = self.get_request(author_Url)
 
         if 'Invalid authorid' in adata:
             raise exceptions.StoryDoesNotExist('{0} says: Invalid authorid'.format(self.getSiteDomain()))

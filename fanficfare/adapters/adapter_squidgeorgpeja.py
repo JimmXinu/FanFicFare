@@ -92,24 +92,14 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
         data = self.get_request(url)
 
         if "fatal MySQL error was encountered" in data:
             raise exceptions.FailedToDownload("Site SQL Error--bad story")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Find authorid and URL from... author url.
         author = soup.find('div', {'id':"pagetitle"}).find('a')
@@ -224,7 +214,6 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/peja/cgi-bin/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1

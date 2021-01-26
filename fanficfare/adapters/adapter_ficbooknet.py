@@ -84,16 +84,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         url=self.url
         logger.debug("URL: "+url)
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         adult_div = soup.find('div',id='adultCoverWarning')
@@ -103,7 +95,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('section',{'class':'chapter-info'}).find('h1')

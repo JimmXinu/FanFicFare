@@ -97,15 +97,8 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
 
         url = self.url
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Now go hunting for all the meta data we can get

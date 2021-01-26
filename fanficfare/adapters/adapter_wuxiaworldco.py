@@ -71,12 +71,8 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
-        try:
-            data = self.get_request(self.url)
-        except HTTPError as exception:
-            if exception.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            raise exception
+
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 

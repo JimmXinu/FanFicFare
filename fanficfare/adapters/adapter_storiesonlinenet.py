@@ -197,9 +197,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             data = self.get_request(url+":i")
             # logger.debug(data)
         except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
-            elif e.code in (401, 403, 410):
+            if e.code in (401, 403, 410):
                 data = 'Log In' # to trip needToLoginCheck
             else:
                 raise e
@@ -207,15 +205,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            try:
-                data = self.get_request(url+":i",usecache=False)
-            except HTTPError as e:
-                if e.code in (404, 410):
-                    raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
-                elif e.code == 401:
-                    data = ''
-                else:
-                    raise e
+            data = self.get_request(url+":i",usecache=False)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
@@ -224,11 +214,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         elif "Error! Daily Limit Reached" in data or "Sorry! You have reached your daily limit of" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! Daily Limit Reached")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # logger.debug(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('h1')
@@ -332,11 +320,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         story_found = False
         while not story_found:
             page = page + 1
-            try:
-                data = self.get_request(self.story.getList('authorUrl')[0] + "/" + unicode(page))
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.FailedToDownload("Story not found in Author's list--Set Access Level to Full Access and change Listings Theme back to "+self.getTheme())
+            data = self.get_request(self.story.getList('authorUrl')[0] + "/" + unicode(page))
             asoup = self.make_soup(data)
 
             story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})

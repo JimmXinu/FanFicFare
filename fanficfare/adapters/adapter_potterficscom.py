@@ -144,13 +144,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Esta historia no existe. Probablemente ha sido eliminada." in data:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -173,7 +167,6 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #self.story.addToList('category','Harry Potter')
 
         #get the rest of the meta
-        # use BeautifulSoup HTML parser to make everything easier to find.
         #self closing br and img present!
         soup = self.make_soup(data)
 

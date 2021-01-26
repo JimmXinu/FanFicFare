@@ -68,14 +68,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         url = self.url+'&chapter=1'
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            soup = self.make_soup(self.get_request(url))
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        soup = self.make_soup(self.get_request(url))
 
         # pull title(title) and author from the HTML title.
         title = stripHTML(soup.find('title'))

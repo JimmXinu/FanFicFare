@@ -150,16 +150,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # logger.debug("Chapter/Story URL: <%s> " % self.url)
 
-        try:
-            (data1,rurl) = self.get_request_redirected(self.url)
-            ## for language domains
-            self._setURL(rurl)
-            logger.debug("set opened url:%s"%self.url)
-        except HTTPError as e:
-            if e.code in [404, 410]:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        (data1,rurl) = self.get_request_redirected(self.url)
+        ## for language domains
+        self._setURL(rurl)
+        logger.debug("set opened url:%s"%self.url)
         soup1 = self.make_soup(data1)
         #strip comments from soup
         [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
@@ -177,17 +171,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', a.text)
 
         # get the author page
-        try:
-            dataAuth = self.get_request(authorurl)
-            soupAuth = self.make_soup(dataAuth)
-            #strip comments from soup
-            [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
-#            logger.debug(soupAuth)
-        except HTTPError as e:
-            if e.code in [404, 410]:
-                raise exceptions.StoryDoesNotExist(authorurl)
-            else:
-                raise e
+        dataAuth = self.get_request(authorurl)
+        soupAuth = self.make_soup(dataAuth)
+        #strip comments from soup
+        [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
+#       logger.debug(soupAuth)
 
         ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front

@@ -93,21 +93,6 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/code/show_story.asp/recid/")+r"\d+$"
 
     ################################################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data. I'm using it since I call
-        several places below, and this will cut down on the size of the file
-        '''
-        try:
-            page_data = self.get_request(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
-            else:
-                raise e
-        return page_data
-
-    ################################################################################################
     def extractChapterUrlsAndMetadata(self):
         ''' Getting the chapter list and the meta data, plus 'is adult' checking. '''
 
@@ -120,7 +105,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
         
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         if "Latest Stories" in data:
             raise exceptions.StoryDoesNotExist("The url '{0}' is not on site '{1}'".format(
@@ -130,10 +115,8 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 "{0} says: The author as requested this story be removed from publication.".format(
                     self.getSiteDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = unicode(soup.find('title')).replace(":: GaggedUtopia's Story Archive",'').strip()
@@ -183,7 +166,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         ## The only way to get the category is from the author's page, but if there is no author to
         ## get, we can't set it.
         if self.story.getMetadata('author') != 'Unknown':
-            adata = self.get_page(self.story.getMetadata('authorUrl'))
+            adata = self.get_request(self.story.getMetadata('authorUrl'))
             asoup = self.make_soup(adata)
             storyblock = asoup.find('a',href=re.compile(r"/code/show_story.asp/recid/"+
                 self.story.getMetadata('storyId')))

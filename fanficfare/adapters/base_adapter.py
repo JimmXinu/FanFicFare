@@ -24,6 +24,7 @@ from collections import defaultdict
 from ..six import text_type as unicode
 from ..six import string_types as basestring
 from ..six.moves.urllib.parse import urlparse
+from ..six.moves.urllib.error import HTTPError
 
 import logging
 from functools import partial
@@ -41,7 +42,7 @@ logger = logging.getLogger(__name__)
 from ..story import Story
 from ..requestable import Requestable
 from ..htmlcleanup import stripHTML
-from ..exceptions import InvalidStoryURL
+from ..exceptions import InvalidStoryURL, StoryDoesNotExist
 
 # quick convenience class
 class TimeKeeper(defaultdict):
@@ -296,7 +297,16 @@ class BaseSiteAdapter(Requestable):
 
     def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:
-            self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
+            try:
+                ## virtually all adapters were catching 404s during
+                ## metdata fetch and raising StoryDoesNotExist.
+                ## Consolidate in one place.
+                self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
+            except HTTPError as e:
+                if e.code in (404, 410) :
+                    raise StoryDoesNotExist(self.url)
+                else:
+                    raise
             ## Due to some adapters calling getMetadata()etc, values
             ## may have been cached during metadata collection and
             ## *before* other values that their replace_metadata
@@ -391,6 +401,9 @@ class BaseSiteAdapter(Requestable):
         collecting metadata.  That isn't needed while *just*
         collecting metadata in FG in plugin.  Those few will override
         this instead of extractChapterUrlsAndMetadata()
+
+        404s and 410s caught from doExtractChapterUrlsAndMetadata will
+        be changed to StoryDoesNotExist.
         '''
         return self.extractChapterUrlsAndMetadata()
 

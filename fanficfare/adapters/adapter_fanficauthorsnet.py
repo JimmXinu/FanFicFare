@@ -165,25 +165,13 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         if not params['username']:
             raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
 
-        try:
-            data = self.post_request(url+'index/', params, usecache=False)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
-            elif e.code == 401:
-                self.needToLogin = True
-                data = ''
-            else:
-                raise e
+        data = self.post_request(url+'index/', params, usecache=False)
 
         if "The requested file has not been found" in data:
             raise exceptions.StoryDoesNotExist(
                 "{0}.{1} says: The requested file has not been found".format(
                     self.zone, self.getBaseDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Find authorid and URL.
@@ -200,7 +188,6 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         loginsoup = self.make_soup(self.get_request(loginUrl))
         if True:
 #        if self.performLogin(loginUrl, loginsoup):
-            # Now go hunting for all the meta data and the chapter list.
 
             ## Title
             a = soup.find('h2')

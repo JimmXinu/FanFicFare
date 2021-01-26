@@ -113,23 +113,17 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
 
-        try:
+        data = self.get_request(url)
+        if "This is a mature story.  Please sign in to read it." in data:
+            self.performLogin()
             data = self.get_request(url)
-            if "This is a mature story.  Please sign in to read it." in data:
-                self.performLogin()
-                data = self.get_request(url)
 
-            find = "wordyarn.config.page = "
-            data = data[data.index(find)+len(find):]
-            data = data[:data.index("</script>")]
-            data = data[:data.rindex(";")]
-            data = data.replace('tables:','"tables":')
-            tables = json.loads(data)['tables']
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        find = "wordyarn.config.page = "
+        data = data[data.index(find)+len(find):]
+        data = data[:data.index("</script>")]
+        data = data[:data.rindex(";")]
+        data = data.replace('tables:','"tables":')
+        tables = json.loads(data)['tables']
 
         # looks like only one author per story allowed.
         author = tables['users'][0]

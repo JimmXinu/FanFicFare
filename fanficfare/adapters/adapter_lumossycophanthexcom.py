@@ -87,13 +87,7 @@ class LumosSycophantHexComAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
@@ -104,11 +98,9 @@ class LumosSycophantHexComAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         pt = soup.find('div', {'id' : 'pagetitle'})
@@ -202,7 +194,6 @@ class LumosSycophantHexComAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1

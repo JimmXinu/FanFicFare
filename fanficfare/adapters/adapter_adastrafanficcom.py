@@ -74,13 +74,7 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -90,7 +84,6 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
         # nasty hack, but it works.
         data = data[data.index("<body"):]
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -193,7 +186,6 @@ class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
             seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1

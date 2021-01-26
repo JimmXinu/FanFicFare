@@ -109,26 +109,18 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            if self.getConfig('force_login'):
-                self.performLogin(url)
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        if self.getConfig('force_login'):
+            self.performLogin(url)
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
             data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         b = soup.find('div', {'id' : 'nav25'})

@@ -90,18 +90,11 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            data = self.get_request(url)
-            # non-existent/removed story urls get thrown to the front page.
-            if "<h4>Featured Story</h4>" in data:
-                raise exceptions.StoryDoesNotExist(self.url)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
+        # non-existent/removed story urls get thrown to the front page.
+        if "<h4>Featured Story</h4>" in data:
+            raise exceptions.StoryDoesNotExist(self.url)
+        soup = self.make_soup(data)
 
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
@@ -117,13 +110,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             url = "https://"+self.getSiteDomain()+storya['href']
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
-            try:
-                soup = self.make_soup(self.get_request(url))
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(self.url)
-                else:
-                    raise e
+            soup = self.make_soup(self.get_request(url))
 
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):

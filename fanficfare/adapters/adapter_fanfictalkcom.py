@@ -102,23 +102,15 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self.get_request(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
         ## Title and author
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # logger.debug(soup)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.select_one('div#pagetitle')
         # logger.debug(pagetitle)
