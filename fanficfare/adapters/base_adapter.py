@@ -24,7 +24,6 @@ from collections import defaultdict
 from ..six import text_type as unicode
 from ..six import string_types as basestring
 from ..six.moves.urllib.parse import urlparse
-from ..six.moves.urllib.error import HTTPError
 
 import logging
 from functools import partial
@@ -42,7 +41,7 @@ logger = logging.getLogger(__name__)
 from ..story import Story
 from ..requestable import Requestable
 from ..htmlcleanup import stripHTML
-from ..exceptions import InvalidStoryURL, StoryDoesNotExist
+from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF
 
 # quick convenience class
 class TimeKeeper(defaultdict):
@@ -302,8 +301,8 @@ class BaseSiteAdapter(Requestable):
                 ## metdata fetch and raising StoryDoesNotExist.
                 ## Consolidate in one place.
                 self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
-            except HTTPError as e:
-                if e.code in (404, 410) :
+            except HTTPErrorFFF as e:
+                if e.status_code in (404, 410) :
                     raise StoryDoesNotExist(self.url)
                 else:
                     raise

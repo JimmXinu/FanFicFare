@@ -28,7 +28,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import quote
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -161,7 +160,7 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         authorurl = self.story.getMetadata('authorUrl')
         try:
             adata = self.get_request(authorurl)
-        except (HTTPError) as e:
+        except exceptions.HTTPErrorFFF as e:
             ## Can't get the author's page, so we use what is on the story page
             tags = soup.find('div',{'id':'storytags'}).find('a')
             if tags:

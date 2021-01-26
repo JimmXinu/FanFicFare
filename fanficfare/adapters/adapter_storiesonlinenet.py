@@ -27,7 +27,6 @@ from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six.moves.urllib.parse import urlparse, urlunparse
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -136,42 +135,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               parsedUrl.netloc,
                               postAction,
                               '','',''))
-        # try:
         data = self.post_request(postUrl,params,usecache=False)
-        # logger.debug(data)
-        # except HTTPError as e:
-        #     if e.code == 307:
-        #         logger.debug("HTTP Error 307: Temporary Redirect -- assumed to be valid login for this site")
-        #         return
 
         soup = self.make_soup(data)
         params['v']=soup.find('input', {'name':'v'})['value']
         params['password'] = password
         params['cmd'] = 'cred_set'
 
-        # postAction = soup.find('form')['action']
-
-        # parsedUrl = urlparse(useurl)
-        # postUrl = urlunparse(urlunparse(
-        #         (parsedUrl.scheme,
-        #          parsedUrl.netloc,
-        #          postAction,
-        #          '','',''))
-
-        try:
-            data = self.post_request(postUrl,params,usecache=False)
-            # logger.debug(data)
-        except HTTPError as e:
-            if e.code == 307:
-                logger.debug("e Location:%s"%e.headers['Location'])
-                try:
-                    ## need to hit redirect URL so cookies get set for
-                    ## the story site domain.  I think.
-                    data = self.post_request(e.headers['Location'],params,usecache=False)
-                except HTTPError as e:
-                    if e.code == 307:
-                        # logger.debug(e)
-                        return
+        data = self.post_request(postUrl,params,usecache=False)
 
         if self.needToLoginCheck(data):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -196,8 +167,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         try:
             data = self.get_request(url+":i")
             # logger.debug(data)
-        except HTTPError as e:
-            if e.code in (401, 403, 410):
+        except exceptions.HTTPErrorFFF as e:
+            if e.status_code in (401, 403, 410):
                 data = 'Log In' # to trip needToLoginCheck
             else:
                 raise e

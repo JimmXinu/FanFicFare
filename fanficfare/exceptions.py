@@ -45,7 +45,7 @@ class InvalidStoryURL(Exception):
         self.url=url
         self.domain=domain
         self.example=example
-        
+
     def __str__(self):
         return "Bad Story URL: (%s) for site: (%s) Example: (%s)" % (self.url, self.domain, self.example)
 
@@ -54,7 +54,7 @@ class FailedToLogin(Exception):
         self.url=url
         self.username=username
         self.passwdonly=passwdonly
-        
+
     def __str__(self):
         if self.passwdonly:
             return "URL Failed, password required: (%s) " % (self.url)
@@ -64,14 +64,14 @@ class FailedToLogin(Exception):
 class AdultCheckRequired(Exception):
     def __init__(self,url):
         self.url=url
-        
+
     def __str__(self):
         return "Story requires confirmation of adult status: (%s)" % self.url
 
 class StoryDoesNotExist(Exception):
     def __init__(self,url):
         self.url=url
-        
+
     def __str__(self):
         return "Story does not exist: (%s)" % self.url
 
@@ -113,3 +113,20 @@ class FetchEmailFailed(Exception):
 
     def __str__(self):
         return self.error
+
+class HTTPErrorFFF(Exception):
+    def __init__(self,
+                 url,
+                 status_code,
+                 error_msg,
+                 data=None):
+        self.url = url
+        self.status_code = status_code
+        self.error_msg = error_msg
+        self.data = data
+
+    def __str__(self):
+        if self.url in self.error_msg:
+            return "HTTP Error in FFF '%s'(%s)"%(self.error_msg,self.status_code)
+        else:
+            return "HTTP Error in FFF '%s'(%s) URL:'%s'"%(self.error_msg,self.status_code,self.url)

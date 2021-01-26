@@ -41,7 +41,6 @@ from cloudscraper.exceptions import CloudflareException
 
 from . import exceptions
 from requests.exceptions import HTTPError as RequestsHTTPError
-from .six.moves.urllib.error import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -312,21 +311,16 @@ class Fetcher(object):
         try:
             resp.raise_for_status() # raises HTTPError if error code.
         except RequestsHTTPError as e:
-            ## trekfanfiction.net has started returning the page,
-            ## but with a 500 code.
-            if resp.status_code == 500 and 'trekfanfiction.net' in url:
-                ## Jan2012 -- Still happens at:
-                ## https://trekfanfiction.net/maestros1/star-trek-greatest-generation/
-                # logger.debug("!!!!!!!!!!!!!!!!! 500 trekfanfiction.net tripped !!!!!!!!!!!!")
-                # resp.content is still there, even with 500.
-                pass
-            else:
-                raise HTTPError(url,
-                                e.response.status_code,
-                                e.args[0],#msg,
-                                None,#hdrs,
-                                None #fp
-                                )
+            ## not RequestsHTTPError(requests.exceptions.HTTPError) or
+            ## .six.moves.urllib.error import HTTPError because we
+            ## want code *and* content for that one trekfanfiction
+            ## catch.
+            raise exceptions.HTTPErrorFFF(
+                url,
+                e.response.status_code,
+                e.args[0],# error_msg
+                e.response.content # data
+                )
         except CloudflareException as cfe:
             ## cloudscraper exception messages can appear to
             ## come from FFF and cause confusion.

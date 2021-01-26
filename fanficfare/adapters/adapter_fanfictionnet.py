@@ -23,7 +23,6 @@ import re
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import urlparse
 
 from .. import exceptions as exceptions
@@ -140,11 +139,8 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
-            except HTTPError as e:
-                if e.code == 503:
-                    raise e
             except Exception as e:
-                logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
+                logger.warning("Caught exception in check_next_chapter URL: %s Exception %s."%(unicode(url),unicode(e)))
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))

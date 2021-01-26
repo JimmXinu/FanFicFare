@@ -25,7 +25,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -442,9 +441,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 (data,useurl) = self.get_request_redirected(self.url,
                                                             usecache=False)
                 logger.info("use useurl: "+useurl)
-        except HTTPError as e:
+        except exceptions.HTTPErrorFFF as e:
             # QQ gives 403 for login needed
-            if e.code == 403 or self.getConfig('always_login',False):
+            if e.status_code == 403 or self.getConfig('always_login',False):
                 self.performLogin(data)
                 (data,useurl) = self.get_request_redirected(self.url,
                                                             usecache=False)

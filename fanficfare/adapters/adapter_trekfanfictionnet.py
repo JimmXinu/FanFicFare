@@ -90,6 +90,20 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         '''
         return True
 
+    def get_request(self,url):
+        try:
+            return super(getClass(), self).get_request(url)
+        except exceptions.HTTPErrorFFF as e:
+            ## this site has a unique issue where it will serve pages
+            ## with a 500 code while still serving the page. Browser
+            ## silently accept this behavior, so users can't
+            ## understand why FFF would choke.  This used to be down
+            ## in the network code.
+            if e.status_code == 500:
+                return self.decode_data(e.data)
+            else:
+                raise
+
     ##########################################################################
     def extractChapterUrlsAndMetadata(self):
 

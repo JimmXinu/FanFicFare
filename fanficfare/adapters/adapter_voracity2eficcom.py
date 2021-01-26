@@ -6,7 +6,6 @@ from bs4.element import Tag
 
 # py2 vs py3 transition
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -82,7 +81,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
     def _customized_post_request(self, url, exception, parameters):
         try:
             data = self.post_request(url, parameters)
-        except HTTPError:
+        except exceptions.HTTPErrorFFF:
             raise exception(self.url)
         return self.make_soup(data)
 
