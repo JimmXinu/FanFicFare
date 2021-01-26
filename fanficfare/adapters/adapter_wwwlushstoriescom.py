@@ -103,14 +103,6 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
     ################################################################################################
-    def get_request(self,url,usecache=True):
-        ## lushstories.com sets unescaped cookies with cause
-        ## httplib.py to fail.
-        self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
-        return BaseSiteAdapter.get_request(self,url,
-                                         usecache=usecache)
-
-    ################################################################################################
     def extractChapterUrlsAndMetadata(self):
         ''' Getting the chapter list and the meta data, plus 'is adult' checking. '''
 
