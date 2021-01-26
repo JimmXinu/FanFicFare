@@ -220,13 +220,13 @@ class Fetcher(object):
         if not cachekey.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
 
-        ## Request assumes POST when data!=None.  Also assumes data
-        ## is application/x-www-form-urlencoded.
-        if 'Content-type' not in headers:
-            headers['Content-type']='application/x-www-form-urlencoded'
-        if 'Accept' not in headers:
-            headers['Accept']="text/html,*/*"
+        if 'User-Agent' not in headers:
+            headers['User-Agent']=self.getConfig('user_agent')
 
+        if self.getConfig('use_cloudscraper',False):
+            ## let cloudscraper do its thing with UA.
+            if 'User-Agent' in headers:
+                del headers['User-Agent']
         # logger.debug("POST http login for SB xf2test %s"%url)
         # if "xf2test" in url:
         #     import base64
@@ -338,11 +338,6 @@ class Fetcher(object):
         self._set_to_pagecache(cachekey,data,resp.url)
 
         return (data,resp.url)
-
-
-class UrllibFetcher(Fetcher):
-    pass
-
 
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
