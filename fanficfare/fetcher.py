@@ -49,11 +49,39 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
+class OldCacheImpl(object):
+
+    def __init__(self,name,getConfig_fn,getConfigList_fn):
+        self.getConfig = getConfig_fn
+        self.getConfigList = getConfigList_fn
+        self.name=name
+
+    def get_decorator(self,func):
+        return self.CacherDecorator(func,self)
+
+    class CacherDecorator(object):
+        ## a decorator used to wrap around the network calls
+        def __init__(self,func,cacheimpl):
+            self.func = func
+            self.cacheimpl = cacheimpl
+
+        @wraps
+        def __call__(self, *args, **kwargs):
+            logger.debug("cache before")
+            logger.debug(self.cacheimpl)
+            ## retval is sometimes single, sometimes tuple.
+            retval = self.func(*args, **kwargs)
+            ## should cacher return t/f cached for sleeper to use and strip?
+            # logger.debug(retval)
+            logger.debug("cache after")
+            return retval
+
+
 class FetcherResponse(object):
-    def __init__(self,content,redirecturl=None,wascached=False):
+    def __init__(self,content,redirecturl=None,fromcache=False):
         self.content = content
         self.redirecturl = redirecturl
-        self.wascached = wascached
+        self.fromcache = fromcache
 
 class Fetcher(object):
     def __init__(self,getConfig_fn,getConfigList_fn):
@@ -61,6 +89,12 @@ class Fetcher(object):
         self.getConfigList = getConfigList_fn
 
         self.use_pagecache = False # default to false for old adapters.
+
+        self.cacheimpl = OldCacheImpl('Cache 1',self.getConfig,self.getConfigList)
+
+        # self.post_request = self.cacheimpl.get_decorator(self.post_request)
+        # self.get_request_redirected = self.cacheimpl.get_decorator(self.get_request_redirected)
+
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
@@ -96,12 +130,10 @@ class Fetcher(object):
         self.save_cache_file = save_cache_file
         self.pagecache=d
 
-    def _get_cachekey(self, url, parameters=None, headers=None):
+    def _get_cachekey(self, url, parameters=None):
         keylist=[url]
         if parameters != None:
             keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
-        if headers != None:
-            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(headers.items())))
         return unicode('?'.join(keylist))
 
     def _has_cachekey(self,cachekey):
@@ -166,18 +198,14 @@ class Fetcher(object):
         #     logger.debug("http login for SB xf2test")
         return headers
 
-    def do_get(self,url,headers):
+    def request(self,*args,**kargs):
         '''Returns a FetcherResponse regardless of mechanism'''
         raise NotImplementedError()
 
-    def do_post(self,url,headers,parameters):
-        '''Returns a FetcherResponse regardless of mechanism'''
-        raise NotImplementedError()
-
-    def post_request(self, url,
-                     parameters={},
-                     extrasleep=None,
-                     usecache=True):
+    def _do_request(self, method, url,
+                    parameters=None,
+                    extrasleep=None,
+                    usecache=True):
         '''
         When should cache be cleared or not used? logins...
 
@@ -185,99 +213,50 @@ class Fetcher(object):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
-        url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
-
-        if self.getConfig('force_https'): ## For developer testing only.
-            url = url.replace("http:","https:")
-        cachekey=self._get_cachekey(url, parameters)
-        if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
-            logger.debug("#####################################\npagecache(POST) HIT: %s"%safe_url(cachekey))
-            data,redirecturl = self._get_from_pagecache(cachekey)
-            return data
-
-        logger.debug("#####################################\npagecache(POST) MISS: %s"%safe_url(cachekey))
-        if not cachekey.startswith('file:'): # don't sleep for file: URLs.
-            self.do_sleep(extrasleep)
-
-        headers = self.make_headers(url)
-        fetchresp = self.do_post(url,
-                            headers=headers,
-                            parameters=parameters)
-        data = fetchresp.content
-        self._progressbar()
-        self._set_to_pagecache(cachekey,data,url)
-        return data
-
-    def get_request_redirected(self, url,
-                                   extrasleep=None,
-                                   usecache=True,
-                                   referer=None):
-        '''
-        When should cache be cleared or not used? logins...
-
-        extrasleep is primarily for ffnet adapter which has extra
-        sleeps.  Passed into fetchs so it can be bypassed when
-        cache hits.
-        '''
-        method='GET'
-
         if not url.startswith('file:'): # file fetches fail on + for space
             url = quote_plus(ensure_binary(url),safe=';/?:@&=+$,%&#')
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
-        cachekey=self._get_cachekey(url)
+        cachekey=self._get_cachekey(url, parameters)
         if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
             data,redirecturl = self._get_from_pagecache(cachekey)
-            return (data,redirecturl)
+            return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
 
         logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
-        # print(self.get_pagecache().keys())
         if not cachekey.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
 
-        headers = self.make_headers(url,referer)
-        fetchresp = self.do_get(url,
-                           headers=headers)
-
+        headers = self.make_headers(url)
+        fetchresp = self.request(method,url,
+                                 headers=headers,
+                                 parameters=parameters)
         data = fetchresp.content
         self._progressbar()
         self._set_to_pagecache(cachekey,data,fetchresp.redirecturl)
         if url != fetchresp.redirecturl: # cache both?
             self._set_to_pagecache(cachekey,data,url)
+        return fetchresp
 
-        return (data,fetchresp.redirecturl)
+    def post_request(self, url,
+                     parameters={},
+                     extrasleep=None,
+                     usecache=True):
+        fetchresp = self._do_request('POST',url,
+                                     parameters=parameters,
+                                     extrasleep=extrasleep,
+                                     usecache=usecache)
+        return fetchresp.content
 
-
-def requests_handler(func):
-    @wraps(func)
-    def handler(*args, **kwargs):
-        try:
-            ## requests Response object
-            resp = func(*args, **kwargs)
-            logger.debug("response code:%s"%resp.status_code)
-            resp.raise_for_status() # raises RequestsHTTPError if error code.
-            return FetcherResponse(resp.content,
-                                   resp.url)
-        except RequestsHTTPError as e:
-            ## not RequestsHTTPError(requests.exceptions.HTTPError) or
-            ## .six.moves.urllib.error import HTTPError because we
-            ## want code *and* content for that one trekfanfiction
-            ## catch.
-            raise exceptions.HTTPErrorFFF(
-                url,
-                e.response.status_code,
-                e.args[0],# error_msg
-                e.response.content # data
-                )
-        except CloudflareException as cfe:
-            ## cloudscraper exception messages can appear to
-            ## come from FFF and cause confusion.
-            msg = unicode(cfe).replace(' in the opensource (free) version','...')
-            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-    return handler
-
+    def get_request_redirected(self, url,
+                               extrasleep=None,
+                               usecache=True,
+                               referer=None):
+        fetchresp = self._do_request('GET',url,
+                                     extrasleep=extrasleep,
+                                     usecache=usecache)
+        return (fetchresp.content,fetchresp.redirecturl)
 
 class RequestsFetcher(Fetcher):
     def __init__(self,getConfig_fn,getConfigList_fn):
@@ -324,19 +303,37 @@ class RequestsFetcher(Fetcher):
             self.requests_session.cookies = self.cookiejar
         return self.requests_session
 
-    @requests_handler
-    def do_get(self,url,headers):
+    def request(self,method,url,headers=None,parameters=None):
         '''Returns a FetcherResponse regardless of mechanism'''
-        return self.get_requests_session().get(url,
-                                               headers=headers,
-                                               verify=not self.getConfig('use_ssl_unverified_context',False))
-    @requests_handler
-    def do_post(self,url,headers,parameters):
-        '''Returns a FetcherResponse regardless of mechanism'''
-        return self.get_requests_session().post(url,
-                                                headers=headers,
-                                                data=parameters,
-                                                verify=not self.getConfig('use_ssl_unverified_context',False))
+        if method not in ('GET','POST'):
+            raise NotImplementedError()
+        try:
+            ## resp = requests Response object
+            verify = not self.getConfig('use_ssl_unverified_context',False)
+            resp = self.get_requests_session().request(method, url,
+                                                       headers=headers,
+                                                       data=parameters,
+                                                       verify=verify)
+            logger.debug("response code:%s"%resp.status_code)
+            resp.raise_for_status() # raises RequestsHTTPError if error code.
+            return FetcherResponse(resp.content,
+                                   resp.url)
+        except RequestsHTTPError as e:
+            ## not RequestsHTTPError(requests.exceptions.HTTPError) or
+            ## .six.moves.urllib.error import HTTPError because we
+            ## want code *and* content for that one trekfanfiction
+            ## catch.
+            raise exceptions.HTTPErrorFFF(
+                url,
+                e.response.status_code,
+                e.args[0],# error_msg
+                e.response.content # data
+                )
+        except CloudflareException as cfe:
+            ## cloudscraper exception messages can appear to
+            ## come from FFF and cause confusion.
+            msg = unicode(cfe).replace(' in the opensource (free) version','...')
+            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
 
     def __del__(self):
         if self.requests_session is not None:
