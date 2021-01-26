@@ -25,11 +25,8 @@ from __future__ import absolute_import
 ''' This adapter scrapes the metadata and chapter text from stories on archive.shriftweb.org '''
 import logging
 import re
-import sys
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -153,7 +150,6 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
                                       )+'/cgi-bin/search.cgi?Author={}&SortBy=0'+
                                           '&SortOrder=0&NumToList=0&FastSearch=0' +
                                           '&ShortResults=0').format(author_name)
-                    pass
                 else:
                     stories_main = u'<b>' + repr(stories_main).split('<b>',1)[1][:-5]
                     ## now that I have the stories in a format that I can manipulate, I'm going to

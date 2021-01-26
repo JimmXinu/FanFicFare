@@ -20,14 +20,12 @@
 
 from __future__ import absolute_import
 import logging
-import json
 import re
 import sys  # ## used for debug purposes
 import datetime
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 

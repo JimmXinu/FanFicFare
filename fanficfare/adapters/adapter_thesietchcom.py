@@ -16,7 +16,6 @@
 #
 
 from __future__ import absolute_import
-import re
 
 # py2 vs py3 transition
 from ..six import text_type as unicode

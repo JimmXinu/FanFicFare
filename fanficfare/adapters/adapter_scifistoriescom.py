@@ -20,7 +20,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 
 from .adapter_finestoriescom import FineStoriesComAdapter
 

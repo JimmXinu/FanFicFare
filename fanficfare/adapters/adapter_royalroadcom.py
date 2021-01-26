@@ -25,9 +25,7 @@ from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves import http_client as httplib
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter
 

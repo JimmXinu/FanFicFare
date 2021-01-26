@@ -24,14 +24,11 @@ import logging
 import re
 import json
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
-from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
+from ..htmlcleanup import fix_excess_space
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 

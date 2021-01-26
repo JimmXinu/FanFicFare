@@ -26,8 +26,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six import string_types as basestring
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 

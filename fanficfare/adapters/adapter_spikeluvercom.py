@@ -6,9 +6,7 @@ from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions

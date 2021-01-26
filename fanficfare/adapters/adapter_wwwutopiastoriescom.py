@@ -32,7 +32,6 @@ We get the category from the author's page
 import logging
 logger = logging.getLogger(__name__)
 import re
-import sys
 
 from bs4.element import Comment
 
@@ -41,7 +40,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import quote
 
 from .base_adapter import BaseSiteAdapter, makeDate

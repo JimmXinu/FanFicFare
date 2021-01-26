@@ -19,7 +19,6 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-from xml.dom.minidom import parseString
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions

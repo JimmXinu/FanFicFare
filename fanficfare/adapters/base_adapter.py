@@ -409,7 +409,6 @@ class BaseSiteAdapter(Requestable):
 
     def extractChapterUrlsAndMetadata(self):
         "Needs to be overriden in each adapter class.  Populates self.story metadata"
-        pass
 
     def getChapterTextNum(self, url, index):
         "For adapters that also want to know the chapter index number."
@@ -417,7 +416,6 @@ class BaseSiteAdapter(Requestable):
 
     def getChapterText(self, url):
         "Needs to be overriden in each adapter class."
-        pass
 
     def before_get_urls_from_page(self,url,normalize):
         ## some sites need a login or other prep for 'from page' to

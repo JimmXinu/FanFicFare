@@ -22,15 +22,12 @@ from __future__ import unicode_literals
 import logging
 logger = logging.getLogger(__name__)
 import re
-import sys
-from bs4 import UnicodeDammit
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 

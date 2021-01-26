@@ -20,9 +20,6 @@ from __future__ import absolute_import
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode, ensure_text
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML

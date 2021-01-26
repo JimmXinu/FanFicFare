@@ -20,16 +20,13 @@ import logging
 from datetime import datetime
 logger = logging.getLogger(__name__)
 import re
-from xml.dom.minidom import parseString
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
-from .base_adapter import makeDate
 from .base_xenforoforum_adapter import BaseXenForoForumAdapter
 
 logger = logging.getLogger(__name__)

@@ -39,7 +39,6 @@ from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-from ..six import text_type as unicode, ensure_text
 
 def getClass():
     return FictionLiveAdapter

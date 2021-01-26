@@ -21,17 +21,12 @@
 from __future__ import absolute_import
 import logging
 import re
-import sys
-from datetime import datetime, timedelta
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
-from ..dateutils import UNIX_EPOCHE
 
 logger = logging.getLogger(__name__)
 

@@ -16,12 +16,10 @@
 #
 
 from __future__ import absolute_import
-import os, re, sys, glob, types
-from os.path import dirname, basename, normpath
+import os, re, sys, types
 import logging
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)

@@ -383,7 +383,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     #     logger.debug("No universe page")
         except:
             raise
-            pass
         try:
             a = description_element.find('a', href=re.compile(r"/universe/\d+/.*"))
             # logger.debug("Looking for universe - a='{0}'".format(a))
@@ -416,7 +415,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             #     logger.debug("Do not have a universe")
         except:
             raise
-            pass
 
         # There's nothing around the desc to grab it by, and there's a
         # variable number of links before it.

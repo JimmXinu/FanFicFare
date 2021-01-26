@@ -29,7 +29,7 @@ from ..six.moves.urllib.parse import urlparse
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from .base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter
 
 ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
              "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
@@ -145,7 +145,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     raise e
             except Exception as e:
                 logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
-                pass
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))

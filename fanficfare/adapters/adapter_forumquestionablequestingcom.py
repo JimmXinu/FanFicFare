@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 import re
-from ..htmlcleanup import stripHTML
 
 from .base_xenforoforum_adapter import BaseXenForoForumAdapter
 
