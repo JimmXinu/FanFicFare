@@ -18,9 +18,7 @@
 from __future__ import absolute_import
 import logging
 import string
-import zipfile
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
-import urllib
 import re
 
 # py2 vs py3 transition
@@ -31,7 +29,7 @@ from io import BytesIO
 
 ## XML isn't as forgiving as HTML, so rather than generate as strings,
 ## use DOM to generate the XML files.
-from xml.dom.minidom import parse, parseString, getDOMImplementation
+from xml.dom.minidom import getDOMImplementation
 
 import bs4
 
