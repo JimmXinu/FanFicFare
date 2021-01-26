@@ -8,10 +8,9 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
 # To use a consistent encoding
 import codecs
-from os import path
 
 package_name="FanFicFare"
 
