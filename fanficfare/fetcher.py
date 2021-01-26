@@ -29,6 +29,7 @@ import time
 import logging
 import sys
 import pickle
+from functools import wraps
 
 ## isn't found in plugin when only imported down below inside
 ## get_requests_session()
@@ -48,6 +49,12 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
+class FetcherResponse(object):
+    def __init__(self,content,redirecturl=None,wascached=False):
+        self.content = content
+        self.redirecturl = redirecturl
+        self.wascached = wascached
+
 class Fetcher(object):
     def __init__(self,getConfig_fn,getConfigList_fn):
         self.getConfig = getConfig_fn
@@ -57,7 +64,6 @@ class Fetcher(object):
 
         self.override_sleep = None
         self.cookiejar = self.get_empty_cookiejar()
-        self.requests_session = None
 
         self.pagecache = self.get_empty_pagecache()
         self.save_cache_file = None
@@ -121,52 +127,6 @@ class Fetcher(object):
             sys.stdout.write('.')
             sys.stdout.flush()
 
-    def get_requests_session(self):
-        if not self.requests_session:
-
-            ## set up retries.
-            retries = Retry(total=4,
-                            other=0, # rather fail SSL errors/etc quick
-                            backoff_factor=2,# factor 2=4,8,16sec
-                            allowed_methods={'GET','POST'},
-                            status_forcelist={413, 429, 500, 502, 503, 504},
-                            raise_on_status=False) # to match w/o retries behavior
-            if self.getConfig('use_cloudscraper',False):
-                ## ffnet adapter can't parse mobile output, so we only
-                ## want desktop browser.  But cloudscraper then insists on
-                ## a browser and platform, too.
-                logger.debug("initializing cloudscraper")
-                self.requests_session = cloudscraper.CloudScraper(browser={
-                        'browser': 'chrome',
-                        'platform': 'windows',
-                        'mobile': False,
-                        'desktop': True,
-                        })
-                ## CipherSuiteAdapter adapter replaced by HTTPAdapter
-                ## if done as below.
-                self.requests_session.mount('https://',
-                                            cloudscraper.CipherSuiteAdapter(
-                        cipherSuite=self.requests_session.cipherSuite,
-                        ssl_context=self.requests_session.ssl_context,
-                        source_address=self.requests_session.source_address,
-                        max_retries=retries))
-            else:
-                ## CloudScraper is subclass of requests.Session.
-                ## Hopefully everything one can do will work with the
-                ## other.
-                self.requests_session = requests.Session()
-                self.requests_session.mount('https://', HTTPAdapter(max_retries=retries))
-            self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
-            self.requests_session.mount('file://', FileAdapter())
-
-            self.requests_session.cookies = self.cookiejar
-
-        return self.requests_session
-
-    def __del__(self):
-        if self.requests_session is not None:
-            self.requests_session.close()
-
     # used by plugin for ffnet variable timing
     def set_sleep(self,val):
         logger.debug("\n===========\n set sleep time %s\n==========="%val)
@@ -206,6 +166,13 @@ class Fetcher(object):
         #     logger.debug("http login for SB xf2test")
         return headers
 
+    def do_get(self,url,headers):
+        '''Returns a FetcherResponse regardless of mechanism'''
+        raise NotImplementedError()
+
+    def do_post(self,url,headers,parameters):
+        '''Returns a FetcherResponse regardless of mechanism'''
+        raise NotImplementedError()
 
     def post_request(self, url,
                      parameters={},
@@ -233,24 +200,15 @@ class Fetcher(object):
             self.do_sleep(extrasleep)
 
         headers = self.make_headers(url)
-        try:
-            # logger.debug("requests_session.cookies:%s"%self.get_requests_session().cookies)
-            resp = self.get_requests_session().post(url,
-                                                    headers=headers,
-                                                    data=parameters,
-                                                    verify=not self.getConfig('use_ssl_unverified_context',False))
-            logger.debug("response code:%s"%resp.status_code)
-
-            resp.raise_for_status() # raises RequestsHTTPError if error code.
-            data = resp.content
-        except CloudflareException as e:
-            msg = unicode(e).replace(' in the opensource (free) version','...')
-            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+        fetchresp = self.do_post(url,
+                            headers=headers,
+                            parameters=parameters)
+        data = fetchresp.content
         self._progressbar()
         self._set_to_pagecache(cachekey,data,url)
         return data
 
-    def get_request_raw_redirected(self, url,
+    def get_request_redirected(self, url,
                                    extrasleep=None,
                                    usecache=True,
                                    referer=None):
@@ -280,12 +238,28 @@ class Fetcher(object):
             self.do_sleep(extrasleep)
 
         headers = self.make_headers(url,referer)
-        resp = self.get_requests_session().get(url,
-                                               headers=headers,
-                                               verify=not self.getConfig('use_ssl_unverified_context',False))
-        logger.debug("response code:%s"%resp.status_code)
+        fetchresp = self.do_get(url,
+                           headers=headers)
+
+        data = fetchresp.content
+        self._progressbar()
+        self._set_to_pagecache(cachekey,data,fetchresp.redirecturl)
+        if url != fetchresp.redirecturl: # cache both?
+            self._set_to_pagecache(cachekey,data,url)
+
+        return (data,fetchresp.redirecturl)
+
+
+def requests_handler(func):
+    @wraps(func)
+    def handler(*args, **kwargs):
         try:
-            resp.raise_for_status() # raises HTTPError if error code.
+            ## requests Response object
+            resp = func(*args, **kwargs)
+            logger.debug("response code:%s"%resp.status_code)
+            resp.raise_for_status() # raises RequestsHTTPError if error code.
+            return FetcherResponse(resp.content,
+                                   resp.url)
         except RequestsHTTPError as e:
             ## not RequestsHTTPError(requests.exceptions.HTTPError) or
             ## .six.moves.urllib.error import HTTPError because we
@@ -302,12 +276,72 @@ class Fetcher(object):
             ## come from FFF and cause confusion.
             msg = unicode(cfe).replace(' in the opensource (free) version','...')
             raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+    return handler
 
-        data = resp.content
-        self._progressbar()
-        self._set_to_pagecache(cachekey,data,resp.url)
 
-        return (data,resp.url)
+class RequestsFetcher(Fetcher):
+    def __init__(self,getConfig_fn,getConfigList_fn):
+        super(RequestsFetcher,self).__init__(getConfig_fn,getConfigList_fn)
+        self.requests_session = None
+
+    def get_requests_session(self):
+        if not self.requests_session:
+            ## set up retries.
+            retries = Retry(total=4,
+                            other=0, # rather fail SSL errors/etc quick
+                            backoff_factor=2,# factor 2=4,8,16sec
+                            allowed_methods={'GET','POST'},
+                            status_forcelist={413, 429, 500, 502, 503, 504},
+                            raise_on_status=False) # to match w/o retries behavior
+            if self.getConfig('use_cloudscraper',False):
+                ## ffnet adapter can't parse mobile output, so we only
+                ## want desktop browser.  But cloudscraper then insists on
+                ## a browser and platform, too.
+                logger.debug("initializing cloudscraper")
+                self.requests_session = cloudscraper.CloudScraper(browser={
+                        'browser': 'chrome',
+                        'platform': 'windows',
+                        'mobile': False,
+                        'desktop': True,
+                        })
+                ## CipherSuiteAdapter adapter replaced by HTTPAdapter
+                ## if done as below.
+                self.requests_session.mount('https://',
+                                            cloudscraper.CipherSuiteAdapter(
+                        cipherSuite=self.requests_session.cipherSuite,
+                        ssl_context=self.requests_session.ssl_context,
+                        source_address=self.requests_session.source_address,
+                        max_retries=retries))
+            else:
+                ## CloudScraper is subclass of requests.Session.
+                ## Hopefully everything one can do will work with the
+                ## other.
+                self.requests_session = requests.Session()
+                self.requests_session.mount('https://', HTTPAdapter(max_retries=retries))
+            self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
+            self.requests_session.mount('file://', FileAdapter())
+
+            self.requests_session.cookies = self.cookiejar
+        return self.requests_session
+
+    @requests_handler
+    def do_get(self,url,headers):
+        '''Returns a FetcherResponse regardless of mechanism'''
+        return self.get_requests_session().get(url,
+                                               headers=headers,
+                                               verify=not self.getConfig('use_ssl_unverified_context',False))
+    @requests_handler
+    def do_post(self,url,headers,parameters):
+        '''Returns a FetcherResponse regardless of mechanism'''
+        return self.get_requests_session().post(url,
+                                                headers=headers,
+                                                data=parameters,
+                                                verify=not self.getConfig('use_ssl_unverified_context',False))
+
+    def __del__(self):
+        if self.requests_session is not None:
+            self.requests_session.close()
+
 
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)

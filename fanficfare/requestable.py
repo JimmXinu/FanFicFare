@@ -108,10 +108,10 @@ class Requestable(Configurable):
     def get_request_redirected(self, url,
                                usecache=True,
                                extrasleep=None):
-        (data,rurl) = self.configuration.fetcher.get_request_raw_redirected(
+        (data,rurl) = self.configuration.fetcher.get_request_redirected(
             url,
             usecache=usecache,
-            extrasleep=extrasleep)
+            extrasleep=extrasleep)[:2]
         data = self.decode_data(data)
         return (data,rurl)
 
@@ -127,7 +127,7 @@ class Requestable(Configurable):
                         usecache=True,
                         referer=None): ## referer is used with raw for images.
         return self.configuration.\
-            fetcher.get_request_raw_redirected(url,
+            fetcher.get_request_redirected(url,
                                     extrasleep,
                                     usecache,
                                     referer=referer)[0]

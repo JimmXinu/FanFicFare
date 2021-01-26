@@ -42,7 +42,7 @@ from . import exceptions
 
 logger = logging.getLogger(__name__)
 
-from .fetcher import Fetcher
+from .fetcher import RequestsFetcher
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -538,8 +538,8 @@ class Configuration(ConfigParser):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
-        self.fetcher = Fetcher(self.getConfig,
-                               self.getConfigList)
+        self.fetcher = RequestsFetcher(self.getConfig,
+                                       self.getConfigList)
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
