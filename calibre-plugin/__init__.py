@@ -118,7 +118,6 @@ class FanFicFareBase(InterfaceActionBase):
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
-            from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser
 
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')

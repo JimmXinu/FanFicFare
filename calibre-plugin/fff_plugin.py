@@ -29,27 +29,27 @@ from .fanficfare.six import ensure_text, string_types, text_type as unicode
 import logging
 logger = logging.getLogger(__name__)
 
-import os, copy, threading, re, platform, sys
+import os
+import re
+import sys
+import threading
 from io import BytesIO
 from functools import partial
-from datetime import datetime, time, date
+from datetime import datetime, time
 from string import Template
-import email
 import traceback
 
 try:
-    from PyQt5.Qt import (QApplication, QMenu, QTimer, Qt, QToolButton)
-    from PyQt5.QtCore import QBuffer
+    from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
 except ImportError as e:
-    from PyQt4.Qt import (QApplication, QMenu, QTimer, Qt, QToolButton)
-    from PyQt4.QtCore import QBuffer
+    from PyQt4.Qt import (QApplication, QMenu, QTimer, QToolButton)
 
 from calibre.constants import numeric_version as calibre_version
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata as calibre_get_metadata
-from calibre.gui2 import error_dialog, warning_dialog, question_dialog, info_dialog
+from calibre.gui2 import error_dialog, info_dialog, question_dialog
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.config import prefs as calibre_prefs
@@ -77,7 +77,7 @@ field_metadata = FieldMetadata()
 
 from calibre_plugins.fanficfare_plugin.common_utils import (
     set_plugin_icon_resources, get_icon, create_menu_action_unique,
-    get_library_uuid, busy_cursor)
+    busy_cursor)
 
 from calibre_plugins.fanficfare_plugin.fanficfare import (
     adapters, exceptions)
@@ -87,8 +87,8 @@ from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
     get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_data)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
-    get_urls_from_page, get_urls_from_html,get_urls_from_text,
-    get_urls_from_imap, get_urls_from_mime)
+    get_urls_from_page, get_urls_from_text,get_urls_from_imap,
+    get_urls_from_mime)
 
 from calibre_plugins.fanficfare_plugin.fff_util import (
     get_fff_adapter, get_fff_config, get_fff_personalini,
@@ -2199,7 +2199,6 @@ class FanFicFarePlugin(InterfaceAction):
                             mi.__setattr__(col,oldmi.__getattribute__(col))
                         except AttributeError:
                             logger.warn("AttributeError? %s"%col)
-                            pass
 
         ## fix for suppressauthorsort (Force Author into Author Sort)
         ## option overriding Author-New-Only setting.  not done where

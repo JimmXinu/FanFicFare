@@ -11,7 +11,6 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import traceback
 from datetime import time
 from io import StringIO
 from collections import defaultdict
@@ -147,10 +146,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                   # plug impl.
         from calibre_plugins.fanficfare_plugin.dialogs import NotGoingToDownload
         from calibre_plugins.fanficfare_plugin.prefs import (OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
-        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers
         from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
 
-        from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config)
+        from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 
         try:
             ## No need to download at all.  Can happen now due to
