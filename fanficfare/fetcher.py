@@ -153,17 +153,11 @@ class Fetcher(object):
             logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
             time.sleep(rt)
 
-    def make_headers(self,url,referer=None,headers={}):
-        if 'User-Agent' not in headers:
-            headers['User-Agent']=self.getConfig('user_agent')
-        if self.getConfig('use_cloudscraper',False):
-            ## let cloudscraper do its thing with UA.
-            if 'User-Agent' in headers:
-                del headers['User-Agent']
+    def make_headers(self,url,referer=None):
+        headers = {}
+        headers['User-Agent']=self.getConfig('user_agent')
         if referer:
-            ## only used by img raw fetchs.
             headers['Referer']=referer
-
         # if "xf2test" in url:
         #     import base64
         #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
@@ -178,6 +172,7 @@ class Fetcher(object):
     def _do_request(self, method, url,
                     parameters=None,
                     extrasleep=None,
+                    referer=None,
                     usecache=True):
         '''
         When should cache be cleared or not used? logins...
@@ -201,7 +196,7 @@ class Fetcher(object):
         if not cachekey.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
 
-        headers = self.make_headers(url)
+        headers = self.make_headers(url,referer=referer)
         fetchresp = self.request(method,url,
                                  headers=headers,
                                  parameters=parameters)
@@ -213,7 +208,7 @@ class Fetcher(object):
         return fetchresp
 
     def post_request(self, url,
-                     parameters={},
+                     parameters=None,
                      extrasleep=None,
                      usecache=True):
         fetchresp = self._do_request('POST',url,
@@ -224,10 +219,11 @@ class Fetcher(object):
 
     def get_request_redirected(self, url,
                                extrasleep=None,
-                               usecache=True,
-                               referer=None):
+                               referer=None,
+                               usecache=True):
         fetchresp = self._do_request('GET',url,
                                      extrasleep=extrasleep,
+                                     referer=referer,
                                      usecache=usecache)
         return (fetchresp.content,fetchresp.redirecturl)
 
@@ -256,7 +252,7 @@ class RequestsFetcher(Fetcher):
         session.mount('https://', HTTPAdapter(max_retries=self.retries))
         session.mount('http://', HTTPAdapter(max_retries=self.retries))
         session.mount('file://', FileAdapter())
-    
+
     def get_requests_session(self):
         if not self.requests_session:
             self.requests_session = self.make_sesssion()
@@ -318,7 +314,16 @@ class CloudScraperFetcher(RequestsFetcher):
                 ssl_context=session.ssl_context,
                 source_address=session.source_address,
                 max_retries=self.retries))
-        
+
+    def make_headers(self,url,referer=None):
+        headers = super(CloudScraperFetcher,self).make_headers(url,
+                                                               referer=referer,
+                                                               headers=headers)
+        ## let cloudscraper do its thing with UA.
+        if 'User-Agent' in headers:
+            del headers['User-Agent']
+        return headers
+
     def request(self,method,url,headers=None,parameters=None):
         try:
             return super(CloudScraperFetcher,self).request(method,url,headers,parameters)
@@ -327,7 +332,7 @@ class CloudScraperFetcher(RequestsFetcher):
             ## come from FFF and cause confusion.
             msg = unicode(cfe).replace(' in the opensource (free) version','...')
             raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
-            
+
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
 def safe_url(url):

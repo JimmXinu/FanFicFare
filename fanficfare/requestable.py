@@ -29,7 +29,7 @@ class Requestable(Configurable):
         ## use_pagecache() is on adapters--not all have been updated
         ## to deal with caching correctly
         if hasattr(self, 'use_pagecache'):
-            self.configuration.fetcher.cache.use_pagecache = self.use_pagecache()
+            self.configuration.get_fetcher().cache.use_pagecache = self.use_pagecache()
 
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
@@ -96,9 +96,9 @@ class Requestable(Configurable):
         return self._do_reduce_zalgo(self._decode(data))
 
     def post_request(self, url,
-                     parameters={},
+                     parameters=None,
                      usecache=True):
-        data = self.configuration.fetcher.post_request(
+        data = self.configuration.get_fetcher().post_request(
             url,
             parameters=parameters,
             usecache=usecache)
@@ -108,7 +108,7 @@ class Requestable(Configurable):
     def get_request_redirected(self, url,
                                usecache=True,
                                extrasleep=None):
-        (data,rurl) = self.configuration.fetcher.get_request_redirected(
+        (data,rurl) = self.configuration.get_fetcher().get_request_redirected(
             url,
             usecache=usecache,
             extrasleep=extrasleep)[:2]
@@ -124,11 +124,11 @@ class Requestable(Configurable):
 
     def get_request_raw(self, url,
                         extrasleep=None,
-                        usecache=True,
-                        referer=None): ## referer is used with raw for images.
-        return self.configuration.\
-            fetcher.get_request_redirected(url,
-                                    extrasleep,
-                                    usecache,
-                                    referer=referer)[0]
+                        referer=None,
+                        usecache=True): ## referer is used with raw for images.
+        return self.configuration.get_fetcher().get_request_redirected(
+            url,
+            extrasleep=extrasleep,
+            referer=referer,
+            usecache=usecache)[0]
 
