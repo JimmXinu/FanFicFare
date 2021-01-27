@@ -124,6 +124,9 @@ class Fetcher(object):
 
         self.cache = Cache()
 
+    def set_cookiejar(self,cj,save_cookiejar_file=None):
+        pass
+
     def _progressbar(self):
         if self.getConfig('progressbar'):
             sys.stdout.write('.')
@@ -232,47 +235,34 @@ class RequestsFetcher(Fetcher):
     def __init__(self,getConfig_fn,getConfigList_fn):
         super(RequestsFetcher,self).__init__(getConfig_fn,getConfigList_fn)
         self.requests_session = None
+        self.retries = self.make_retries()
+        self.cookiejar = None
 
-    def get_requests_session(self):
-        if not self.requests_session:
-            ## set up retries.
-            retries = Retry(total=4,
+    def set_cookiejar(self,cj,save_cookiejar_file=None):
+        self.cookiejar = cj
+
+    def make_retries(self):
+        return Retry(total=4,
                             other=0, # rather fail SSL errors/etc quick
                             backoff_factor=2,# factor 2=4,8,16sec
                             allowed_methods={'GET','POST'},
                             status_forcelist={413, 429, 500, 502, 503, 504},
                             raise_on_status=False) # to match w/o retries behavior
-            if self.getConfig('use_cloudscraper',False):
-                ## ffnet adapter can't parse mobile output, so we only
-                ## want desktop browser.  But cloudscraper then insists on
-                ## a browser and platform, too.
-                logger.debug("initializing cloudscraper")
-                self.requests_session = cloudscraper.CloudScraper(browser={
-                        'browser': 'chrome',
-                        'platform': 'windows',
-                        'mobile': False,
-                        'desktop': True,
-                        })
-                ## CipherSuiteAdapter adapter replaced by HTTPAdapter
-                ## if done as below.
-                self.requests_session.mount('https://',
-                                            cloudscraper.CipherSuiteAdapter(
-                        cipherSuite=self.requests_session.cipherSuite,
-                        ssl_context=self.requests_session.ssl_context,
-                        source_address=self.requests_session.source_address,
-                        max_retries=retries))
-            else:
-                ## CloudScraper is subclass of requests.Session.
-                ## Hopefully everything one can do will work with the
-                ## other.
-                self.requests_session = requests.Session()
-                self.requests_session.mount('https://', HTTPAdapter(max_retries=retries))
-            self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
-            self.requests_session.mount('file://', FileAdapter())
 
-            ### XXX cookie & cache
-            1/0
-            self.requests_session.cookies = self.cache.cookiejar
+    def make_sesssion(self):
+        return requests.Session()
+
+    def do_mounts(self,session):
+        session.mount('https://', HTTPAdapter(max_retries=self.retries))
+        session.mount('http://', HTTPAdapter(max_retries=self.retries))
+        session.mount('file://', FileAdapter())
+    
+    def get_requests_session(self):
+        if not self.requests_session:
+            self.requests_session = self.make_sesssion()
+            self.do_mounts(self.requests_session)
+            if self.cookiejar:
+                self.requests_session.cookies = self.cookiejar
         return self.requests_session
 
     def request(self,method,url,headers=None,parameters=None):
@@ -301,17 +291,43 @@ class RequestsFetcher(Fetcher):
                 e.args[0],# error_msg
                 e.response.content # data
                 )
-        except CloudflareException as cfe:
-            ## cloudscraper exception messages can appear to
-            ## come from FFF and cause confusion.
-            msg = unicode(cfe).replace(' in the opensource (free) version','...')
-            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
 
     def __del__(self):
         if self.requests_session is not None:
             self.requests_session.close()
 
 
+class CloudScraperFetcher(RequestsFetcher):
+    def __init__(self,getConfig_fn,getConfigList_fn):
+        super(CloudScraperFetcher,self).__init__(getConfig_fn,getConfigList_fn)
+
+    def make_sesssion(self):
+        logger.debug("initializing cloudscraper")
+        return cloudscraper.CloudScraper(browser={
+                'browser': 'chrome',
+                'platform': 'windows',
+                'mobile': False,
+                'desktop': True,
+                })
+
+    def do_mounts(self,session):
+        super(CloudScraperFetcher,self).do_mounts(session)
+        ## CipherSuiteAdapter adapter replaces HTTPAdapter
+        session.mount('https://',cloudscraper.CipherSuiteAdapter(
+                cipherSuite=session.cipherSuite,
+                ssl_context=session.ssl_context,
+                source_address=session.source_address,
+                max_retries=self.retries))
+        
+    def request(self,method,url,headers=None,parameters=None):
+        try:
+            return super(CloudScraperFetcher,self).request(method,url,headers,parameters)
+        except CloudflareException as cfe:
+            ## cloudscraper exception messages can appear to
+            ## come from FFF and cause confusion.
+            msg = unicode(cfe).replace(' in the opensource (free) version','...')
+            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+            
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
 def safe_url(url):

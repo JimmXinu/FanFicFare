@@ -39,10 +39,9 @@ except ImportError:
     chardet = None
 
 from . import exceptions
+from . import fetcher
 
 logger = logging.getLogger(__name__)
-
-from .fetcher import RequestsFetcher
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -538,8 +537,7 @@ class Configuration(ConfigParser):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
-        self.fetcher = RequestsFetcher(self.getConfig,
-                                       self.getConfigList)
+        self.fetcher = None # the network layer for getting pages
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -919,11 +917,10 @@ class Configuration(ConfigParser):
 
     def _read_file_opener(self,fn):
         '''
-        For reading urls from _filelist entries.
-
-        Used to use same fetch routines as for getting stories, but a)
-        those make dependencies a mess and b) switching to requests,
-        which doesn't handle file:// natively.
+        For reading urls from _filelist entries.  Used to use same
+        fetch routines as for getting stories, but a) those make
+        dependencies a mess and b) that has a lot more complication
+        now with different caching.
         '''
 
         if not self.opener:
@@ -947,33 +944,46 @@ class Configuration(ConfigParser):
 
 #### methods for fetching.  Moved here from base_adapter when
 #### *_filelist feature was added.
+
+    def get_fetcher(self):
+        if not self.fetcher:
+            if self.getConfig('use_cloudscraper',False):
+                fetchcls = fetcher.CloudScraperFetcher
+            else:
+                fetchcls = fetcher.RequestsFetcher
+            self.fetcher = fetchcls(self.getConfig,
+                                    self.getConfigList)
+        return self.fetcher
+
     ## XXX which should be in requestable?
     ## Or Fetcher
 
     ## used by plugin to change time for ffnet.
     def set_sleep(self,val):
-        return self.fetcher.set_sleep(val)
+        return self.get_fetcher().set_sleep(val)
 
     def get_empty_cookiejar(self):
-        return self.fetcher.cache.get_empty_cookiejar()
+        return self.get_fetcher().cache.get_empty_cookiejar()
 
     def get_cookiejar(self):
-        return self.fetcher.cache.get_cookiejar()
+        return self.get_fetcher().cache.get_cookiejar()
 
     def set_cookiejar(self,cookiejar,cookiejar_file=None):
-        return self.fetcher.cache.set_cookiejar(cookiejar,cookiejar_file)
+        self.get_fetcher().cache.set_cookiejar(cookiejar,cookiejar_file)
+        ## XXX will need to move cookiejar
+        return self.get_fetcher().set_cookiejar(cookiejar,cookiejar_file)
 
     def load_cookiejar(self,filename):
-        return self.fetcher.cache.load_cookiejar(filename)
+        return self.get_fetcher().cache.load_cookiejar(filename)
 
     def get_empty_pagecache(self):
-        return self.fetcher.cache.get_empty_pagecache()
+        return self.get_fetcher().cache.get_empty_pagecache()
 
     def get_pagecache(self):
-        return self.fetcher.cache.get_pagecache()
+        return self.get_fetcher().cache.get_pagecache()
 
     def set_pagecache(self,cache,cache_file=None):
-        return self.fetcher.cache.set_pagecache(cache,cache_file)
+        return self.get_fetcher().cache.set_pagecache(cache,cache_file)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
