@@ -49,54 +49,8 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
-class OldCacheImpl(object):
-
-    def __init__(self,name,getConfig_fn,getConfigList_fn):
-        self.getConfig = getConfig_fn
-        self.getConfigList = getConfigList_fn
-        self.name=name
-
-    def get_decorator(self,func):
-        return self.CacherDecorator(func,self)
-
-    class CacherDecorator(object):
-        ## a decorator used to wrap around the network calls
-        def __init__(self,func,cacheimpl):
-            self.func = func
-            self.cacheimpl = cacheimpl
-
-        @wraps
-        def __call__(self, *args, **kwargs):
-            logger.debug("cache before")
-            logger.debug(self.cacheimpl)
-            ## retval is sometimes single, sometimes tuple.
-            retval = self.func(*args, **kwargs)
-            ## should cacher return t/f cached for sleeper to use and strip?
-            # logger.debug(retval)
-            logger.debug("cache after")
-            return retval
-
-
-class FetcherResponse(object):
-    def __init__(self,content,redirecturl=None,fromcache=False):
-        self.content = content
-        self.redirecturl = redirecturl
-        self.fromcache = fromcache
-
-class Fetcher(object):
-    def __init__(self,getConfig_fn,getConfigList_fn):
-        self.getConfig = getConfig_fn
-        self.getConfigList = getConfigList_fn
-
-        self.use_pagecache = False # default to false for old adapters.
-
-        self.cacheimpl = OldCacheImpl('Cache 1',self.getConfig,self.getConfigList)
-
-        # self.post_request = self.cacheimpl.get_decorator(self.post_request)
-        # self.get_request_redirected = self.cacheimpl.get_decorator(self.get_request_redirected)
-
-
-        self.override_sleep = None
+class Cache(object):
+    def __init__(self):
         self.cookiejar = self.get_empty_cookiejar()
 
         self.pagecache = self.get_empty_pagecache()
@@ -123,36 +77,52 @@ class Fetcher(object):
     def get_empty_pagecache(self):
         return {}
 
-    def get_pagecache(self):
+    def _get_pagecache(self):
         return self.pagecache
 
     def set_pagecache(self,d,save_cache_file=None):
         self.save_cache_file = save_cache_file
         self.pagecache=d
 
-    def _get_cachekey(self, url, parameters=None):
+    def make_cachekey(self, url, parameters=None):
         keylist=[url]
         if parameters != None:
             keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
         return unicode('?'.join(keylist))
 
-    def _has_cachekey(self,cachekey):
-        return self.use_pagecache and cachekey in self.get_pagecache()
+    def has_cachekey(self,cachekey):
+        return self.use_pagecache and cachekey in self._get_pagecache()
 
-    def _get_from_pagecache(self,cachekey):
+    def get_from_cache(self,cachekey):
         if self.use_pagecache:
-            return self.get_pagecache().get(cachekey)
+            return self._get_pagecache().get(cachekey)
         else:
             return None
 
-    def _set_to_pagecache(self,cachekey,data,redirectedurl):
+    def set_to_cache(self,cachekey,data,redirectedurl):
         if self.use_pagecache:
-            self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
+            self._get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
             if self.save_cache_file:
                 with open(self.save_cache_file,'wb') as jout:
-                    pickle.dump(self.get_pagecache(),jout,protocol=2)
+                    pickle.dump(self._get_pagecache(),jout,protocol=2)
             if self.save_cookiejar_file:
                 self.get_cookiejar().save(self.save_cookiejar_file)
+
+
+class FetcherResponse(object):
+    def __init__(self,content,redirecturl=None,fromcache=False):
+        self.content = content
+        self.redirecturl = redirecturl
+        self.fromcache = fromcache
+
+class Fetcher(object):
+    def __init__(self,getConfig_fn,getConfigList_fn):
+        self.getConfig = getConfig_fn
+        self.getConfigList = getConfigList_fn
+
+        self.override_sleep = None
+
+        self.cache = Cache()
 
     def _progressbar(self):
         if self.getConfig('progressbar'):
@@ -161,7 +131,7 @@ class Fetcher(object):
 
     # used by plugin for ffnet variable timing
     def set_sleep(self,val):
-        logger.debug("\n===========\n set sleep time %s\n==========="%val)
+        # logger.debug("\n===========\n set sleep time %s\n==========="%val)
         self.override_sleep = val
 
     def do_sleep(self,extrasleep=None):
@@ -218,10 +188,10 @@ class Fetcher(object):
 
         if self.getConfig('force_https'): ## For developer testing only.
             url = url.replace("http:","https:")
-        cachekey=self._get_cachekey(url, parameters)
-        if usecache and self._has_cachekey(cachekey) and not cachekey.startswith('file:'):
+        cachekey=self.cache.make_cachekey(url, parameters)
+        if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
-            data,redirecturl = self._get_from_pagecache(cachekey)
+            data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
 
         logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
@@ -234,9 +204,9 @@ class Fetcher(object):
                                  parameters=parameters)
         data = fetchresp.content
         self._progressbar()
-        self._set_to_pagecache(cachekey,data,fetchresp.redirecturl)
+        self.cache.set_to_cache(cachekey,data,fetchresp.redirecturl)
         if url != fetchresp.redirecturl: # cache both?
-            self._set_to_pagecache(cachekey,data,url)
+            self.cache.set_to_cache(cachekey,data,url)
         return fetchresp
 
     def post_request(self, url,
@@ -300,7 +270,9 @@ class RequestsFetcher(Fetcher):
             self.requests_session.mount('http://', HTTPAdapter(max_retries=retries))
             self.requests_session.mount('file://', FileAdapter())
 
-            self.requests_session.cookies = self.cookiejar
+            ### XXX cookie & cache
+            1/0
+            self.requests_session.cookies = self.cache.cookiejar
         return self.requests_session
 
     def request(self,method,url,headers=None,parameters=None):

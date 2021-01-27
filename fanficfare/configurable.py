@@ -955,25 +955,25 @@ class Configuration(ConfigParser):
         return self.fetcher.set_sleep(val)
 
     def get_empty_cookiejar(self):
-        return self.fetcher.get_empty_cookiejar()
+        return self.fetcher.cache.get_empty_cookiejar()
 
     def get_cookiejar(self):
-        return self.fetcher.get_cookiejar()
+        return self.fetcher.cache.get_cookiejar()
 
     def set_cookiejar(self,cookiejar,cookiejar_file=None):
-        return self.fetcher.set_cookiejar(cookiejar,cookiejar_file)
+        return self.fetcher.cache.set_cookiejar(cookiejar,cookiejar_file)
 
     def load_cookiejar(self,filename):
-        return self.fetcher.load_cookiejar(filename)
+        return self.fetcher.cache.load_cookiejar(filename)
 
     def get_empty_pagecache(self):
-        return self.fetcher.get_empty_pagecache()
+        return self.fetcher.cache.get_empty_pagecache()
 
     def get_pagecache(self):
-        return self.fetcher.get_pagecache()
+        return self.fetcher.cache.get_pagecache()
 
     def set_pagecache(self,cache,cache_file=None):
-        return self.fetcher.set_pagecache(cache,cache_file)
+        return self.fetcher.cache.set_pagecache(cache,cache_file)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
