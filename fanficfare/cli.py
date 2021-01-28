@@ -62,7 +62,6 @@ try:
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
     from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import configparser
-    from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import http_cookiejar as cl
     from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
 except ImportError:
     from fanficfare import adapters, writers, exceptions
@@ -71,7 +70,6 @@ except ImportError:
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
     from fanficfare.six.moves import configparser
-    from fanficfare.six.moves import http_cookiejar as cl
     from fanficfare.six import text_type as unicode
 
 def write_story(config, adapter, writeformat,
@@ -247,17 +245,6 @@ def main(argv=None,
                                            options.downloadlist))):
         parser.print_help();
         return
-
-    if options.save_cache:
-        try:
-            with open(global_cache,'rb') as jin:
-                options.pagecache = pickle_load(jin)
-            options.cookiejar = cl.LWPCookieJar()
-            options.cookiejar.load(global_cookies)
-        except Exception as e:
-            ## This is not uncommon, will happen when starting a new
-            ## cache, for example.
-            print("Didn't load --save-cache %s"%e)
 
     if options.list:
         configuration = get_configuration(options.list,
@@ -611,18 +598,36 @@ def get_configuration(url,
     if options.progressbar:
         configuration.set('overrides','progressbar','true')
 
-    ## Share pagecache and cookiejar between multiple downloads.
+    ## All CLI downloads are sequential and share one cookiejar,
+    ## loaded the first time through here.
+    if not hasattr(options,'cookiejar'):
+        ## only loaded/saved if has a filename
+        ## only has a filename if options.save_cache
+        if options.save_cache:
+            options.cookiejar = configuration.get_cookiejar(filename=global_cookies)
+        else:
+            options.cookiejar = configuration.get_cookiejar()
+    else:
+        configuration.set_cookiejar(options.cookiejar)
+
+    ## Share pagecache between multiple downloads.
     if not hasattr(options,'pagecache'):
         options.pagecache = configuration.get_empty_pagecache()
-    if not hasattr(options,'cookiejar'):
-        options.cookiejar = configuration.get_empty_cookiejar()
+
+    cookie_file = None
     if options.save_cache:
+        cookie_file = global_cookies
         save_cache = global_cache
-        save_cookies = global_cookies
+        try:
+            with open(global_cache,'rb') as jin:
+                options.pagecache = pickle_load(jin)
+        except Exception as e:
+            ## This is not uncommon, will happen when starting a new
+            ## cache, for example.
+            print("Didn't load --save-cache %s"%e)
     else:
         save_cache = save_cookies = None
     configuration.set_pagecache(options.pagecache,save_cache)
-    configuration.set_cookiejar(options.cookiejar,save_cookies)
 
     return configuration
 

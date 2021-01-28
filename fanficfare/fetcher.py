@@ -21,7 +21,7 @@ import random
 
 # py2 vs py3 transition
 from .six.moves.urllib.parse import quote_plus
-from .six.moves import http_cookiejar as cl
+from .six.moves.http_cookiejar import LWPCookieJar
 from .six import text_type as unicode
 from .six import ensure_binary, ensure_text
 
@@ -51,28 +51,8 @@ logger = logging.getLogger(__name__)
 
 class Cache(object):
     def __init__(self):
-        self.cookiejar = self.get_empty_cookiejar()
-
         self.pagecache = self.get_empty_pagecache()
         self.save_cache_file = None
-        self.save_cookiejar_file = None
-
-    def get_empty_cookiejar(self):
-        return cl.LWPCookieJar()
-
-    def get_cookiejar(self):
-        return self.cookiejar
-
-    def set_cookiejar(self,cj,save_cookiejar_file=None):
-        self.cookiejar = cj
-        self.save_cookiejar_file = save_cookiejar_file
-
-    def load_cookiejar(self,filename):
-        '''
-        Needs to be called after adapter create, but before any fetchs
-        are done.  Takes file *name*.
-        '''
-        self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
 
     def get_empty_pagecache(self):
         return {}
@@ -105,9 +85,6 @@ class Cache(object):
             if self.save_cache_file:
                 with open(self.save_cache_file,'wb') as jout:
                     pickle.dump(self._get_pagecache(),jout,protocol=2)
-            if self.save_cookiejar_file:
-                self.get_cookiejar().save(self.save_cookiejar_file)
-
 
 class FetcherResponse(object):
     def __init__(self,content,redirecturl=None,fromcache=False):
@@ -124,8 +101,35 @@ class Fetcher(object):
 
         self.cache = Cache()
 
-    def set_cookiejar(self,cj,save_cookiejar_file=None):
-        pass
+        self.cookiejar = None
+
+    def get_cookiejar(self,filename=None):
+        if self.cookiejar is None:
+            self.cookiejar = LWPCookieJar(filename=filename)
+            if filename:
+                try:
+                    self.cookiejar.load(ignore_discard=True, ignore_expires=True)
+                except:
+                    logger.debug("Failed to load cookiejar(%s), going on without."%filename)
+        return self.cookiejar
+
+    def set_cookiejar(self,cookiejar):
+        self.cookiejar = cookiejar
+
+    def load_cookiejar(self,filename):
+        '''
+        Needs to be called after adapter create, but before any fetchs
+        are done.  Takes file *name*.
+        '''
+        # get_cookiejar() creates an empty jar if not already.
+        self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
+
+    def save_cookiejar(self,filename=None):
+        if filename or self.get_cookiejar().filename:
+            ## raises exception on save w/o filename
+            self.get_cookiejar().save(filename or self.get_cookiejar().filename,
+                                      ignore_discard=True,
+                                      ignore_expires=True)
 
     def _progressbar(self):
         if self.getConfig('progressbar'):
@@ -201,6 +205,9 @@ class Fetcher(object):
                                  headers=headers,
                                  parameters=parameters)
         data = fetchresp.content
+
+        self.save_cookiejar()
+
         self._progressbar()
         self.cache.set_to_cache(cachekey,data,fetchresp.redirecturl)
         if url != fetchresp.redirecturl: # cache both?
@@ -232,10 +239,12 @@ class RequestsFetcher(Fetcher):
         super(RequestsFetcher,self).__init__(getConfig_fn,getConfigList_fn)
         self.requests_session = None
         self.retries = self.make_retries()
-        self.cookiejar = None
 
-    def set_cookiejar(self,cj,save_cookiejar_file=None):
-        self.cookiejar = cj
+    def set_cookiejar(self,cookiejar):
+        super(RequestsFetcher,self).set_cookiejar(cookiejar)
+        ## in case where cookiejar is set second
+        if  self.requests_session:
+            self.requests_session.cookies = self.cookiejar
 
     def make_retries(self):
         return Retry(total=4,
@@ -257,7 +266,8 @@ class RequestsFetcher(Fetcher):
         if not self.requests_session:
             self.requests_session = self.make_sesssion()
             self.do_mounts(self.requests_session)
-            if self.cookiejar:
+            ## in case where cookiejar is set first
+            if self.cookiejar is not None: # present but *empty* jar==False
                 self.requests_session.cookies = self.cookiejar
         return self.requests_session
 
@@ -317,8 +327,7 @@ class CloudScraperFetcher(RequestsFetcher):
 
     def make_headers(self,url,referer=None):
         headers = super(CloudScraperFetcher,self).make_headers(url,
-                                                               referer=referer,
-                                                               headers=headers)
+                                                               referer=referer)
         ## let cloudscraper do its thing with UA.
         if 'User-Agent' in headers:
             del headers['User-Agent']

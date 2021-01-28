@@ -1263,9 +1263,14 @@ class FanFicFarePlugin(InterfaceAction):
         if 'pagecache' not in options:
             options['pagecache'] = configuration.get_empty_pagecache()
         configuration.set_pagecache(options['pagecache'])
-        if 'cookiejar' not in options:
-            options['cookiejar'] = configuration.get_empty_cookiejar()
-        configuration.set_cookiejar(options['cookiejar'])
+
+        ## save and share cookiejar between all downloads.
+        if 'cookiejar' in options:
+            configuration.set_cookiejar(options['cookiejar'])
+        else:
+            ## *not* giving a cookiejar filename now so it's only in
+            ## *memory and not writing to disk all the time.
+            options['cookiejar'] = configuration.get_cookiejar()
 
         if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
             ## Getting metadata from configured column.
@@ -1689,6 +1694,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
                                                 dir=options['tdir'])
+        ## assumed to be a LWPCookieJar
         options['cookiejar'].save(cookiejarfile.name,
                                   ignore_discard=True,
                                   ignore_expires=True)

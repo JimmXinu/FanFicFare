@@ -962,19 +962,17 @@ class Configuration(ConfigParser):
     def set_sleep(self,val):
         return self.get_fetcher().set_sleep(val)
 
-    def get_empty_cookiejar(self):
-        return self.get_fetcher().cache.get_empty_cookiejar()
+    def get_cookiejar(self,filename=None):
+        return self.get_fetcher().get_cookiejar(filename)
 
-    def get_cookiejar(self):
-        return self.get_fetcher().cache.get_cookiejar()
+    def set_cookiejar(self,cookiejar):
+        self.get_fetcher().set_cookiejar(cookiejar)
 
-    def set_cookiejar(self,cookiejar,cookiejar_file=None):
-        self.get_fetcher().cache.set_cookiejar(cookiejar,cookiejar_file)
-        ## XXX will need to move cookiejar
-        return self.get_fetcher().set_cookiejar(cookiejar,cookiejar_file)
+    def load_cookiejar(self,filename=None):
+        self.get_fetcher().load_cookiejar(filename)
 
-    def load_cookiejar(self,filename):
-        return self.get_fetcher().cache.load_cookiejar(filename)
+    def save_cookiejar(self,filename=None):
+        self.get_fetcher().save_cookiejar(filename)
 
     def get_empty_pagecache(self):
         return self.get_fetcher().cache.get_empty_pagecache()

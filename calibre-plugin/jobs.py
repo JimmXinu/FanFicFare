@@ -179,8 +179,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.password = book['password']
             adapter.setChaptersRange(book['begin'],book['end'])
 
+            ## each download starts with a new copy of the cookiejar
+            ## from the FG process.  They are not shared between BG
+            ## downloads.
             configuration.load_cookiejar(options['cookiejarfile'])
-            #logger.debug("cookiejar:%s"%configuration.cookiejar)
+
             configuration.set_pagecache(options['pagecache'])
 
             story = adapter.getStoryMetadataOnly()
