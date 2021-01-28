@@ -29,6 +29,7 @@ class Captcha(ABC):
                 if not isinstance(captchaSolvers.get(name), Captcha):
                     raise ImportError('The anti captcha provider was not initialized.')
             except ImportError:
+                sys.tracebacklimit = 0
                 logging.error("Unable to load {} anti captcha provider".format(name))
                 raise
 
