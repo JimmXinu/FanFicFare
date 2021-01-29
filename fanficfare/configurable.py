@@ -538,6 +538,7 @@ class Configuration(ConfigParser):
         ConfigParser.__init__(self)
 
         self.fetcher = None # the network layer for getting pages
+        self.cache = None # the caching layer for getting pages
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -577,6 +578,9 @@ class Configuration(ConfigParser):
         self.validEntries = get_valid_entries()
 
         self.url_config_set = False
+
+        ## XXX make sure fetcher & cache exist--revisit
+        self.get_fetcher()
 
     def section_url_names(self,domain,section_url_f):
         ## domain is passed as a method to limit the damage if/when an
