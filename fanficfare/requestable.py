@@ -39,7 +39,7 @@ class Requestable(Configurable):
 ## confidence.  'auto' is not reliable.  1252 is a superset of
 ## iso-8859-1.  Most sites that claim to be iso-8859-1 (and some that
 ## claim to be utf8) are really windows-1252.
-    def _decode(self,data):
+    def do_decode(self,data):
         if not hasattr(data,'decode'):
             ## py3 str() from pickle doesn't have .decode and is
             ## already decoded.  Should always be bytes now(Jan2021),
@@ -82,7 +82,7 @@ class Requestable(Configurable):
             # python3
             return "".join([chr(x) for x in data if x < 128])
 
-    def _do_reduce_zalgo(self,data):
+    def do_reduce_zalgo(self,data):
         max_zalgo = int(self.getConfig('max_zalgo',-1))
         if max_zalgo > -1:
             logger.debug("Applying max_zalgo:%s"%max_zalgo)
@@ -93,7 +93,7 @@ class Requestable(Configurable):
         return data
 
     def decode_data(self,data):
-        return self._do_reduce_zalgo(self._decode(data))
+        return self.do_reduce_zalgo(self.do_decode(data))
 
     def post_request(self, url,
                      parameters=None,

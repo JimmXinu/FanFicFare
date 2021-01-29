@@ -60,7 +60,7 @@ def create_cachedfetcher(baseclass):
         def get_empty_pagecache(self):
             return {}
 
-        def _get_pagecache(self):
+        def get_pagecache(self):
             return self.pagecache
 
         def set_pagecache(self,d,save_cache_file=None):
@@ -74,22 +74,22 @@ def create_cachedfetcher(baseclass):
             return unicode('?'.join(keylist))
 
         def has_cachekey(self,cachekey):
-            return self.use_pagecache and cachekey in self._get_pagecache()
+            return self.use_pagecache and cachekey in self.get_pagecache()
 
         def get_from_cache(self,cachekey):
             if self.use_pagecache:
-                return self._get_pagecache().get(cachekey)
+                return self.get_pagecache().get(cachekey)
             else:
                 return None
 
         def set_to_cache(self,cachekey,data,redirectedurl):
             if self.use_pagecache:
-                self._get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
+                self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
                 if self.save_cache_file:
                     with open(self.save_cache_file,'wb') as jout:
-                        pickle.dump(self._get_pagecache(),jout,protocol=2)
+                        pickle.dump(self.get_pagecache(),jout,protocol=2)
 
-        def _do_request(self, method, url,
+        def do_request(self, method, url,
                         parameters=None,
                         extrasleep=None,
                         referer=None,
@@ -109,7 +109,7 @@ def create_cachedfetcher(baseclass):
 
             logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
 
-            fetchresp = super(BaseCacheFetcher,self)._do_request(
+            fetchresp = super(BaseCacheFetcher,self).do_request(
                 method,
                 url,
                 parameters=parameters,
@@ -171,7 +171,7 @@ class Fetcher(object):
                                       ignore_discard=True,
                                       ignore_expires=True)
 
-    def _progressbar(self):
+    def progressbar(self):
         if self.getConfig('progressbar'):
             sys.stdout.write('.')
             sys.stdout.flush()
@@ -213,7 +213,7 @@ class Fetcher(object):
         '''Returns a FetcherResponse regardless of mechanism'''
         raise NotImplementedError()
 
-    def _do_request(self, method, url,
+    def do_request(self, method, url,
                     parameters=None,
                     extrasleep=None,
                     referer=None,
@@ -231,7 +231,7 @@ class Fetcher(object):
                                  parameters=parameters)
         data = fetchresp.content
         self.save_cookiejar()
-        self._progressbar()
+        self.progressbar()
         if not url.startswith('file:'): # don't sleep for file: URLs.
             self.do_sleep(extrasleep)
         return fetchresp
@@ -247,7 +247,7 @@ class Fetcher(object):
                      parameters=None,
                      extrasleep=None,
                      usecache=True):
-        fetchresp = self._do_request('POST',
+        fetchresp = self.do_request('POST',
                                      self.condition_url(url),
                                      parameters=parameters,
                                      extrasleep=extrasleep,
@@ -258,7 +258,7 @@ class Fetcher(object):
                                extrasleep=None,
                                referer=None,
                                usecache=True):
-        fetchresp = self._do_request('GET',
+        fetchresp = self.do_request('GET',
                                      self.condition_url(url),
                                      extrasleep=extrasleep,
                                      referer=referer,
