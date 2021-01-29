@@ -947,12 +947,16 @@ class Configuration(ConfigParser):
 
     def get_fetcher(self):
         if not self.fetcher:
+            # choose which low level fetcher impl
             if self.getConfig('use_cloudscraper',False):
                 fetchcls = fetcher.CloudScraperFetcher
             else:
                 fetchcls = fetcher.RequestsFetcher
-            self.fetcher = fetchcls(self.getConfig,
-                                    self.getConfigList)
+            # 'wrap' chosen fetcher impl with a caching fetcher
+            # subclass.
+            cachedfetcherclass = fetcher.create_cachedfetcher(fetchcls)
+            self.fetcher = cachedfetcherclass(self.getConfig,
+                                              self.getConfigList)
         return self.fetcher
 
     ## XXX which should be in requestable?
@@ -975,13 +979,13 @@ class Configuration(ConfigParser):
         self.get_fetcher().save_cookiejar(filename)
 
     def get_empty_pagecache(self):
-        return self.get_fetcher().cache.get_empty_pagecache()
+        return self.get_fetcher().get_empty_pagecache()
 
     def get_pagecache(self):
-        return self.get_fetcher().cache.get_pagecache()
+        return self.get_fetcher().get_pagecache()
 
     def set_pagecache(self,cache,cache_file=None):
-        return self.get_fetcher().cache.set_pagecache(cache,cache_file)
+        return self.get_fetcher().set_pagecache(cache,cache_file)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):
