@@ -38,16 +38,19 @@ except NameError:
 
 def do_download_worker(book_list,
                        options,
-                       cpus,
                        merge=False,
                        notification=lambda x,y:x):
     '''
-    Coordinator job, to launch child jobs to extract ISBN for a set of books
+    Coordinator job, to launch child jobs to do downloads.
     This is run as a worker job in the background to keep the UI more
-    responsive and get around the memory leak issues as it will launch
+    responsive and get around any memory leak issues as it will launch
     a child job for each book as a worker process
     '''
-    server = Server(pool_size=cpus)
+    ## pool_size reduced to 1 to prevent parallel downloads on the
+    ## same site.  Also prevents parallel downloads on different
+    ## sites.  Might do something different to allow that again
+    ## someday.
+    server = Server(pool_size=1)
 
     logger.info(options['version'])
     total = 0
