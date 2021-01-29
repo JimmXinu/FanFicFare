@@ -48,18 +48,125 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
-'''
-baseclass should be a Fetcher
-
-BaseCacheFetcher class is dynamically created each time
-create_cachedfetcher() is called.  Need to share underlying data
-structure or do differently to share cache between configuration
-objects?
-
-Make something like LWPCookieJar is for cookies?
-'''
-class BaseCache(object):
+class FetcherDecorator(object):
     def __init__(self):
+        pass
+
+    def decorate_fetcher(self,fetcher):
+        # replace fetcher's do_request with a func that wraps it.
+        # can be chained.
+        fetcher.do_request = partial(self.fetcher_do_request,
+                                     fetcher,
+                                     fetcher.do_request)
+
+    def fetcher_do_request(self,
+                           fetcher,
+                           chainfn,
+                           method,
+                           url,
+                           parameters=None,
+                           extrasleep=None,
+                           referer=None,
+                           usecache=True):
+        ## can use fetcher.getConfig()/getConfigList().
+        fetchresp = chainfn(
+            method,
+            url,
+            parameters=parameters,
+            extrasleep=extrasleep,
+            referer=referer,
+            usecache=usecache)
+
+        return fetchresp
+
+class ProgressBarDecorator(FetcherDecorator):
+    def fetcher_do_request(self,
+                           fetcher,
+                           chainfn,
+                           method,
+                           url,
+                           parameters=None,
+                           extrasleep=None,
+                           referer=None,
+                           usecache=True):
+        logger.debug("ProgressBarDecorator fetcher_do_request")
+        fetchresp = chainfn(
+            method,
+            url,
+            parameters=parameters,
+            extrasleep=extrasleep,
+            referer=referer,
+            usecache=usecache)
+        ## added ages ago for CLI to give a line of dots showing it's
+        ## doing something.
+        logger.debug("..")
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        return fetchresp
+
+class SleepDecorator(FetcherDecorator):
+    def __init__(self):
+        super(SleepDecorator,self).__init__()
+        self.override_sleep = None
+
+    def decorate_fetcher(self,fetcher):
+        super(SleepDecorator,self).decorate_fetcher(fetcher)
+        fetcher.set_sleep = partial(self.fetcher_set_sleep,
+                                    fetcher,
+                                    fetcher.set_sleep)
+
+    def fetcher_set_sleep(self,
+                          fetcher,
+                          chainfn,
+                          val):
+        logger.debug("\n===========\n set sleep time %s\n==========="%val)
+        self.override_sleep = val
+        return chainfn(val)
+
+    def fetcher_do_request(self,
+                           fetcher,
+                           chainfn,
+                           method,
+                           url,
+                           parameters=None,
+                           extrasleep=None,
+                           referer=None,
+                           usecache=True):
+        logger.debug("SleepDecorator fetcher_do_request")
+        fetchresp = chainfn(
+            method,
+            url,
+            parameters=parameters,
+            extrasleep=extrasleep,
+            referer=referer,
+            usecache=usecache)
+
+        # don't sleep cached results.  Usually MemCache results will
+        # be before sleep, but check fetchresp.fromcache for file://
+        # and other intermediate caches.
+        if not fetchresp.fromcache:
+            if extrasleep:
+                logger.debug("extra sleep:%s"%extrasleep)
+                time.sleep(float(extrasleep))
+            t = None
+            if self.override_sleep:
+                t = float(self.override_sleep)
+            elif fetcher.getConfig('slow_down_sleep_time'):
+                t = float(fetcher.getConfig('slow_down_sleep_time'))
+            ## sleep randomly between 0.5 time and 1.5 time.
+            ## So 8 would be between 4 and 12.
+            if t:
+                rt = random.uniform(t*0.5, t*1.5)
+                logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
+                time.sleep(rt)
+        else:
+            logger.debug("Skip sleeps")
+
+        return fetchresp
+
+class BaseCache(FetcherDecorator):
+    def __init__(self):
+        super(BaseCache,self).__init__()
         self.pagecache = self.get_empty_pagecache()
         self.save_cache_file = None
 
@@ -95,23 +202,21 @@ class BaseCache(object):
                 with open(self.save_cache_file,'wb') as jout:
                     pickle.dump(self.get_pagecache(),jout,protocol=2)
 
-    def decorate_fetcher(self,fetcher):
-        # replace 
-        fetcher.do_request = partial(self.do_request,fetcher.do_request)
-                    
-    def do_request(self,
-                   chainfn,
-                   method,
-                   url,
-                   parameters=None,
-                   extrasleep=None,
-                   referer=None,
-                   usecache=True):
+    def fetcher_do_request(self,
+                           fetcher,
+                           chainfn,
+                           method,
+                           url,
+                           parameters=None,
+                           extrasleep=None,
+                           referer=None,
+                           usecache=True):
         '''
         When should cache be cleared or not used? logins, primarily
         Note that usecache=False prevents lookup, but cache still saves
         result
         '''
+        logger.debug("BaseCache fetcher_do_request")
         cachekey=self.make_cachekey(url, parameters)
 
         if usecache and self.has_cachekey(cachekey) and not cachekey.startswith('file:'):
@@ -131,9 +236,14 @@ class BaseCache(object):
 
         data = fetchresp.content
 
-        self.set_to_cache(cachekey,data,fetchresp.redirecturl)
-        if url != fetchresp.redirecturl: # cache both?
-            self.set_to_cache(cachekey,data,url)
+        ## don't re-cache, which includes file://, marked fromcache
+        ## down in RequestsFetcher.  I can foresee using the dev CLI
+        ## saved-cache and wondering why file changes aren't showing
+        ## up.
+        if not fetchresp.fromcache:
+            self.set_to_cache(cachekey,data,fetchresp.redirecturl)
+            if url != fetchresp.redirecturl: # cache both?
+                self.set_to_cache(cachekey,data,url)
         return fetchresp
 
 class FetcherResponse(object):
@@ -147,7 +257,6 @@ class Fetcher(object):
         self.getConfig = getConfig_fn
         self.getConfigList = getConfigList_fn
 
-        self.override_sleep = None
         self.cookiejar = None
 
     def get_cookiejar(self,filename=None):
@@ -178,31 +287,10 @@ class Fetcher(object):
                                       ignore_discard=True,
                                       ignore_expires=True)
 
-    def progressbar(self):
-        if self.getConfig('progressbar'):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-
     # used by plugin for ffnet variable timing
+    ## this will need to be moved. XXX
     def set_sleep(self,val):
-        # logger.debug("\n===========\n set sleep time %s\n==========="%val)
-        self.override_sleep = val
-
-    def do_sleep(self,extrasleep=None):
-        if extrasleep:
-            logger.debug("extra sleep:%s"%extrasleep)
-            time.sleep(float(extrasleep))
-        t = None
-        if self.override_sleep:
-            t = float(self.override_sleep)
-        elif self.getConfig('slow_down_sleep_time'):
-            t = float(self.getConfig('slow_down_sleep_time'))
-        ## sleep randomly between 0.5 time and 1.5 time.
-        ## So 8 would be between 4 and 12.
-        if t:
-            rt = random.uniform(t*0.5, t*1.5)
-            logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
-            time.sleep(rt)
+        pass
 
     def make_headers(self,url,referer=None):
         headers = {}
@@ -230,15 +318,13 @@ class Fetcher(object):
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
         '''
+        logger.debug("fetcher do_request")
         headers = self.make_headers(url,referer=referer)
         fetchresp = self.request(method,url,
                                  headers=headers,
                                  parameters=parameters)
         data = fetchresp.content
         self.save_cookiejar()
-        self.progressbar()
-        if not url.startswith('file:'): # don't sleep for file: URLs.
-            self.do_sleep(extrasleep)
         return fetchresp
 
     def condition_url(self, url):
@@ -320,8 +406,11 @@ class RequestsFetcher(Fetcher):
                                                        verify=verify)
             logger.debug("response code:%s"%resp.status_code)
             resp.raise_for_status() # raises RequestsHTTPError if error code.
+            # consider 'cached' if from file.
+            fromcache = resp.url.startswith('file:')
             return FetcherResponse(resp.content,
-                                   resp.url)
+                                   resp.url,
+                                   fromcache)
         except RequestsHTTPError as e:
             ## not RequestsHTTPError(requests.exceptions.HTTPError) or
             ## .six.moves.urllib.error import HTTPError because we

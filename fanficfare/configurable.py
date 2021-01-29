@@ -537,8 +537,10 @@ class Configuration(ConfigParser):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
-        self.fetcher = None # the network layer for getting pages
-        self.cache = None # the caching layer for getting pages
+        self.fetcher = None # the network layer for getting pages the
+        # caching layer for getting pages, created now for
+        # get_empty_pagecache() etc.
+        self.cache = fetcher.BaseCache()
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -579,8 +581,10 @@ class Configuration(ConfigParser):
 
         self.url_config_set = False
 
-        ## XXX make sure fetcher & cache exist--revisit
-        self.get_fetcher()
+        # ## XXX make sure fetcher & cache exist--revisit Breaks
+        # ## use_cloudscraper in CLI because CONFIG FILES HAVEN'T BEEN
+        # ## READ YET.
+        # self.get_fetcher()
 
     def section_url_names(self,domain,section_url_f):
         ## domain is passed as a method to limit the damage if/when an
@@ -951,14 +955,29 @@ class Configuration(ConfigParser):
 
     def get_fetcher(self):
         if not self.fetcher:
+            logger.error(self.getConfig('use_cloudscraper'))
             if self.getConfig('use_cloudscraper',False):
                 fetchcls = fetcher.CloudScraperFetcher
             else:
                 fetchcls = fetcher.RequestsFetcher
             self.fetcher = fetchcls(self.getConfig,
                                     self.getConfigList)
-            self.cache = fetcher.BaseCache()
+
+            ########################################################
+            ## Adding fetcher decorators.  Order matters--last in,
+            ## first called.  If ProgressBarDecorator is added before
+            ## Cache, it's never called for cache hits, for example.
+
+            fetcher.SleepDecorator().decorate_fetcher(self.fetcher)
+
+            # cache decorator terminates the chain when found.  Cache
+            # created in __init__ because of get_empty_pagecache()
+            # etc, but not used until now.
             self.cache.decorate_fetcher(self.fetcher)
+
+            if self.getConfig('progressbar'):
+                fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)
+
         return self.fetcher
 
     ## XXX which should be in requestable?

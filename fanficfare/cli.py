@@ -528,7 +528,8 @@ def get_configuration(url,
                       chaptercount=None,
                       output_filename=None):
     try:
-        configuration = Configuration(adapters.getConfigSectionsFor(url), options.format)
+        configuration = Configuration(adapters.getConfigSectionsFor(url),
+                                      options.format)
     except exceptions.UnknownSite as e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
