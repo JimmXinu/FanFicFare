@@ -29,19 +29,17 @@ import time
 import logging
 import sys
 import pickle
-from functools import wraps
 
-## isn't found in plugin when only imported down below inside
-## get_requests_session()
-import requests
-from requests_file import FileAdapter
-from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import requests
+from requests.exceptions import HTTPError as RequestsHTTPError
+from requests.adapters import HTTPAdapter
+from requests_file import FileAdapter
+
 import cloudscraper
 from cloudscraper.exceptions import CloudflareException
 
 from . import exceptions
-from requests.exceptions import HTTPError as RequestsHTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +48,16 @@ logger = logging.getLogger(__name__)
 # http_client.HTTPConnection.debuglevel = 5
 
 def create_cachedfetcher(baseclass):
-    'baseclass should be a Fetcher'
+    '''
+    baseclass should be a Fetcher
+
+    BaseCacheFetcher class is dynamically created each time
+    create_cachedfetcher() is called.  Need to share underlying data
+    structure or do differently to share cache between configuration
+    objects?
+
+    Make something like LWPCookieJar is for cookies?
+    '''
     class BaseCacheFetcher(baseclass):
         def __init__(self,getConfig_fn,getConfigList_fn):
             super(BaseCacheFetcher,self).__init__(getConfig_fn,getConfigList_fn)
@@ -95,13 +102,12 @@ def create_cachedfetcher(baseclass):
                         referer=None,
                         usecache=True):
             '''
-            When should cache be cleared or not used? logins...
-
-            extrasleep is primarily for ffnet adapter which has extra
-            sleeps.  Passed into fetchs so it can be bypassed when
-            cache hits.
+            When should cache be cleared or not used? logins, primarily
+            Note that usecache=False prevents lookup, but cache still saves
+            result
             '''
             cachekey=self.make_cachekey(url, parameters)
+
             if usecache and self.has_cachekey(cachekey) and not cachekey.startswith('file:'):
                 logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
                 data,redirecturl = self.get_from_cache(cachekey)
@@ -123,10 +129,7 @@ def create_cachedfetcher(baseclass):
             if url != fetchresp.redirecturl: # cache both?
                 self.set_to_cache(cachekey,data,url)
             return fetchresp
-    ## BaseCacheFetcher class is dynamically created each time
-    ## create_cachedfetcher() is called.  Need to share underlying
-    ## data structure or do differently to share cache between
-    ## configuration objects?
+
     return BaseCacheFetcher
 
 class FetcherResponse(object):
@@ -219,8 +222,6 @@ class Fetcher(object):
                     referer=None,
                     usecache=True):
         '''
-        When should cache be cleared or not used? logins...
-
         extrasleep is primarily for ffnet adapter which has extra
         sleeps.  Passed into fetchs so it can be bypassed when
         cache hits.
