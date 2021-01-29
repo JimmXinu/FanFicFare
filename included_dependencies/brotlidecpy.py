@@ -1,2 +1,0 @@
-# noinspection PyUnresolvedReferences
-from _brotlidecpy.decode import brotli_decompress_buffer as decompress

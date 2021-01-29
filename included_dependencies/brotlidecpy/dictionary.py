@@ -24,4 +24,4 @@ class BrotliDictionary:
     minDictionaryWordLength = 4
     maxDictionaryWordLength = 24
 
-    dictionary = pkgutil.get_data('_brotlidecpy', 'brotli-dict')
+    dictionary = pkgutil.get_data('brotlidecpy', 'brotli-dict')
