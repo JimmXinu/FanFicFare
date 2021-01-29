@@ -76,13 +76,6 @@ class FanfictalkComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(archive\.hp)?"+re.escape(self.getSiteDomain())+r"(/archive)?/viewstory\.php\?sid=\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 

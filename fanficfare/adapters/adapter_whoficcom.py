@@ -47,13 +47,6 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
 
         # get storyId from url--url validation guarantees query is only sid=1234

@@ -88,12 +88,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://(?:www\.)?masseffect2.in/publ/' + self.DOCUMENT_ID_PATTERN.pattern
 
-    def use_pagecache(self):
-        """Allows use of downloaded page cache.  It is essential for this
-        adapter, because the site does not offers chapter URL list, and many
-        pages have to be fetched and parsed repeatedly."""
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         """Extracts chapter URLs and story metadata.  Actually downloads all
         chapters, which is not exactly right, but necessary due to technical

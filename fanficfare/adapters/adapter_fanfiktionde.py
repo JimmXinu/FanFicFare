@@ -68,13 +68,6 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/s/")+r"\w+(/\d+)?"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
         ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
         if 'Diese Geschichte wurde als entwicklungsbeeintr' in data \

@@ -74,13 +74,6 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         else:
             return True
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
 
         # fetch the chapter.  From that we will get almost all the

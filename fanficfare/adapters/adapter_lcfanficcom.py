@@ -83,13 +83,6 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://"+re.escape(self.getSiteDomain())+r"/stories/([0-9]+|_earliest)/html/*(?P<id>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
 ####################################################################################################
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):

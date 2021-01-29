@@ -101,13 +101,6 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def stripURLParameters(cls, url):
         return url
 
-    def use_pagecache(self):
-        '''
-        Using pagecache with mediaminer.org caused SSL errors in
-        Calibre.  I've no idea why, but not caching doesn't cause
-        it...
-        '''
-        return False
 
     def extractChapterUrlsAndMetadata(self):
 

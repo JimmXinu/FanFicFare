@@ -73,13 +73,6 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## http://fictionhunt.com/read/12411643/1
         return r"https?://(www.)?fictionhunt.com/(?P<type>read|stories)/(?P<id>[0-9a-z]+)(/(?P<title>[^/]+))?(/|/[^/]+)*/?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def needToLoginCheck(self, data):
         ## FH is apparently reporting "Story has been removed" for all
         ## chapters when not logged in now.

@@ -30,6 +30,7 @@ import logging
 import sys
 import pickle
 from functools import partial
+import threading
 
 from urllib3.util.retry import Retry
 import requests
@@ -164,9 +165,9 @@ class SleepDecorator(FetcherDecorator):
 
         return fetchresp
 
-class BaseCache(FetcherDecorator):
+class BasicCache(object):
     def __init__(self):
-        super(BaseCache,self).__init__()
+        self.cache_lock = threading.RLock()
         self.pagecache = self.get_empty_pagecache()
         self.save_cache_file = None
 
@@ -174,33 +175,41 @@ class BaseCache(FetcherDecorator):
         return {}
 
     def get_pagecache(self):
-        return self.pagecache
+        with self.cache_lock:
+            return self.pagecache
 
     def set_pagecache(self,d,save_cache_file=None):
-        self.save_cache_file = save_cache_file
-        self.pagecache=d
+        with self.cache_lock:
+            self.save_cache_file = save_cache_file
+            self.pagecache=d
 
     def make_cachekey(self, url, parameters=None):
-        keylist=[url]
-        if parameters != None:
-            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
-        return unicode('?'.join(keylist))
+        with self.cache_lock:
+            keylist=[url]
+            if parameters != None:
+                keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
+            return unicode('?'.join(keylist))
 
     def has_cachekey(self,cachekey):
-        return self.use_pagecache and cachekey in self.get_pagecache()
+        with self.cache_lock:
+            return cachekey in self.get_pagecache()
 
     def get_from_cache(self,cachekey):
-        if self.use_pagecache:
-            return self.get_pagecache().get(cachekey)
-        else:
-            return None
+        with self.cache_lock:
+            return self.get_pagecache().get(cachekey,None)
 
     def set_to_cache(self,cachekey,data,redirectedurl):
-        if self.use_pagecache:
+        with self.cache_lock:
             self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
             if self.save_cache_file:
                 with open(self.save_cache_file,'wb') as jout:
                     pickle.dump(self.get_pagecache(),jout,protocol=2)
+
+
+class BasicCacheDecorator(FetcherDecorator):
+    def __init__(self,cache):
+        super(BasicCacheDecorator,self).__init__()
+        self.cache = cache
 
     def fetcher_do_request(self,
                            fetcher,
@@ -216,12 +225,12 @@ class BaseCache(FetcherDecorator):
         Note that usecache=False prevents lookup, but cache still saves
         result
         '''
-        logger.debug("BaseCache fetcher_do_request")
-        cachekey=self.make_cachekey(url, parameters)
+        logger.debug("BasicCacheDecorator fetcher_do_request")
+        cachekey=self.cache.make_cachekey(url, parameters)
 
-        if usecache and self.has_cachekey(cachekey) and not cachekey.startswith('file:'):
+        if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
             logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
-            data,redirecturl = self.get_from_cache(cachekey)
+            data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
 
         logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
@@ -241,9 +250,9 @@ class BaseCache(FetcherDecorator):
         ## saved-cache and wondering why file changes aren't showing
         ## up.
         if not fetchresp.fromcache:
-            self.set_to_cache(cachekey,data,fetchresp.redirecturl)
+            self.cache.set_to_cache(cachekey,data,fetchresp.redirecturl)
             if url != fetchresp.redirecturl: # cache both?
-                self.set_to_cache(cachekey,data,url)
+                self.cache.set_to_cache(cachekey,data,url)
         return fetchresp
 
 class FetcherResponse(object):

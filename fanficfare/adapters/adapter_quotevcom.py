@@ -60,9 +60,6 @@ class QuotevComAdapter(BaseSiteAdapter):
         pattern = pattern.replace(r'www\.', r'(www\.)?')
         return pattern
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         data = self.get_request(self.url)
 

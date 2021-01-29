@@ -58,13 +58,6 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         # accept https, but don't use it--site SSL is broken.
         return r"https?:"+re.escape("//"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
                 or 'There is no such account on our website' in data \

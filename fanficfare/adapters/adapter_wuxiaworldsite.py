@@ -61,9 +61,6 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
-    def use_pagecache(self):
-        return True
-
     def _parse_linked_data(self, soup):
         # See https://json-ld.org
         tag = soup.find('script', type='application/ld+json')

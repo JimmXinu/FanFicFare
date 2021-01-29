@@ -98,13 +98,6 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         # https://www.novelall.com/chapter/The-Legendary-Moonlight-Sculptor-Volume-1-Chapter-1/1048282/
         return r"https://www\.novelall\.com/(?P<novchap>novel|chapter)/(?P<id>[^/\.]+)(/\d+/?)?(\.html)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         if self.is_adult or self.getConfig("is_adult"):
             addurl = "?waring=1"

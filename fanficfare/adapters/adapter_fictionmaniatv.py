@@ -44,13 +44,6 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         # merge chapters of a story
         self.story.setMetadata('numChapters', 1)
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     @staticmethod
     def getSiteDomain():
         return FictionManiaTVAdapter.SITE_DOMAIN

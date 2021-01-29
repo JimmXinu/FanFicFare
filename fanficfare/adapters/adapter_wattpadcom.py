@@ -79,9 +79,6 @@ class WattpadComAdapter(BaseSiteAdapter):
     def getDateFormat(cls):
         return "%Y-%m-%dT%H:%M:%SZ"
 
-    def use_pagecache(self):
-        return True
-
     def getStoryId(self, url):
         storyIdInUrl = re.match(r'https://www\.wattpad\.com/story/(?P<storyId>\d+).*', url)
         if storyIdInUrl is not None:

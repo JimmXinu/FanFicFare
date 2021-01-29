@@ -57,13 +57,6 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://")+r"(www\.)?"+re.escape("hentai-foundry.com/stories/user/")+r"(?P<authorId>[^/]+)/(?P<storyId>\d+)/(?P<storyURLTitle>[^/]+)" # ignore any chapter
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         url = self.url
         logger.debug("URL: "+url)

@@ -113,13 +113,6 @@ class BaseSiteAdapter(Requestable):
                                   self.getSiteDomain(),
                                   self.getSiteExampleURLs())
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return False
-
     def _section_url(self,url):
         '''
         For adapters that have story URLs that can change.  This is

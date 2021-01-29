@@ -66,13 +66,6 @@ class FastNovelNetAdapter(BaseSiteAdapter):
         # https://fastnovel.net/ultimate-scheming-system-158/
         return r"https?://fastnovel\.net/(?P<id>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 

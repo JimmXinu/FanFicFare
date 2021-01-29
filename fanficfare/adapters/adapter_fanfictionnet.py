@@ -79,13 +79,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                          extrasleep=extrasleep,
                                          usecache=usecache)
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## not actually putting urltitle on multi-chapters below, but
     ## one-shots will have it, so this is still useful.  normalized
     ## chapter URLs do NOT contain the story title.

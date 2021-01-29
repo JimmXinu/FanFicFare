@@ -89,13 +89,6 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def make_soup(self,data):
         soup = super(RoyalRoadAdapter, self).make_soup(data)
         self.handle_spoilers(soup)

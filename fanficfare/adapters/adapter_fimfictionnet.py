@@ -65,13 +65,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def set_adult_cookie(self):
         cookie = cl.Cookie(version=0, name='view_mature', value='true',
                            port=None, port_specified=False,

@@ -63,13 +63,6 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     # tth won't send you future updates if you aren't 'caught up'
     # on the story.  Login isn't required for F21, but logging in will
     # mark stories you've downloaded as 'read' on tth.

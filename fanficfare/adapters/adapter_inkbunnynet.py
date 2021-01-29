@@ -81,13 +81,6 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         # https://inkbunny.net/submissionview.php?id=1234567
         return r'https://' + re.escape(self.getSiteDomain()) + r'/(submissionview.php\?id=|s/)(?P<id>\d+)'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def performLogin(self,url,soup):
         params = {
             'token':soup.find("input",{"name":"token"})['value'],

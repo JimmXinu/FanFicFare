@@ -139,13 +139,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         else:
             return True
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 

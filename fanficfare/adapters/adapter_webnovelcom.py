@@ -103,13 +103,6 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         # https://www.webnovel.com/book/game-of-thrones%3A-the-prideful-one._17509790806343405
         return r'https://' + re.escape(self.getSiteDomain()) + r'/book/(?P<title>.*_)?(?P<id>\d+)'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     # Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         url = self.url

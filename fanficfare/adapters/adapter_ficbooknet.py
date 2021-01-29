@@ -60,12 +60,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%d %m %Y"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.

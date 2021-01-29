@@ -90,13 +90,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     # Set cookie to ascending order before page loads, means we know date published
     def set_contents_cookie(self):
         cookie = cl.Cookie(version=0, name='toc_sorder', value='asc',

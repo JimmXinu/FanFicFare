@@ -95,13 +95,6 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         # http://novelonlinefull.com/novel/stellar_transformation
         return r"https?://(novelonlinefull|lightnovelgate)\.com/novel/(?P<id>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter. From that we will get almost all the
         # metadata and chapter list

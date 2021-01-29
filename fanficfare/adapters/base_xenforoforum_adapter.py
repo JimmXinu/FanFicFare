@@ -185,13 +185,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # logger.debug("post-url:%s"%url)
         return url
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def performLogin(self,data):
         params = {}
 

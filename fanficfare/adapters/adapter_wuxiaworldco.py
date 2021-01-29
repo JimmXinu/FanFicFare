@@ -64,9 +64,6 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://(www|m)\.wuxiaworld\.co/(?P<id>[^/]+)(/)?'
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 

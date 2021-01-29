@@ -540,7 +540,7 @@ class Configuration(ConfigParser):
         self.fetcher = None # the network layer for getting pages the
         # caching layer for getting pages, created now for
         # get_empty_pagecache() etc.
-        self.cache = fetcher.BaseCache()
+        self.cache = fetcher.BasicCache()
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -955,7 +955,7 @@ class Configuration(ConfigParser):
 
     def get_fetcher(self):
         if not self.fetcher:
-            logger.error(self.getConfig('use_cloudscraper'))
+            logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
             if self.getConfig('use_cloudscraper',False):
                 fetchcls = fetcher.CloudScraperFetcher
             else:
@@ -973,7 +973,9 @@ class Configuration(ConfigParser):
             # cache decorator terminates the chain when found.  Cache
             # created in __init__ because of get_empty_pagecache()
             # etc, but not used until now.
-            self.cache.decorate_fetcher(self.fetcher)
+            logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
+            if self.getConfig('use_pagecache'):
+                fetcher.BasicCacheDecorator(self.cache).decorate_fetcher(self.fetcher)
 
             if self.getConfig('progressbar'):
                 fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)

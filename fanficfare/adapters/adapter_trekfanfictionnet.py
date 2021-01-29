@@ -83,13 +83,6 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         return re.escape('https://{}'.format(
             self.getSiteDomain()))+r'/((?P<category>[^/]+)/)?(?P<author>[^/]+)/(?P<id>[^/]+)/?$'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def get_request(self,url):
         try:
             return super(getClass(), self).get_request(url)

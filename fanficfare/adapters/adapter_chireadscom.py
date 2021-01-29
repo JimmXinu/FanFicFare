@@ -60,9 +60,6 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://chireads\.com/category/translatedtales/(?P<id>[^/]+)(/)?'
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 

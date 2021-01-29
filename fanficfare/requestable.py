@@ -26,11 +26,6 @@ class Requestable(Configurable):
     def __init__(self, configuration):
         Configurable.__init__(self,configuration)
 
-        ## use_pagecache() is on adapters--not all have been updated
-        ## to deal with caching correctly
-        if hasattr(self, 'use_pagecache'):
-            self.configuration.cache.use_pagecache = self.use_pagecache()
-
 ## website encoding(s)--in theory, each website reports the character
 ## encoding they use for each page.  In practice, some sites report it
 ## incorrectly.  Each adapter has a default list, usually "utf8,

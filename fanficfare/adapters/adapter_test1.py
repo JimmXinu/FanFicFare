@@ -52,9 +52,6 @@ class TestSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return BaseSiteAdapter.getSiteURLPattern(self)+r'/?\?sid=\d+$'
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('extractChapterUrlsAndMetadata: %s' % self.url)
         idstr = self.story.getMetadata('storyId')

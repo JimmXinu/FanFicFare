@@ -118,13 +118,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 #                 self.story.addToList('category', category.title())
                 self.story.addToList('eroticatags', category.title())
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         """
         NOTE: Some stories can have versions,
