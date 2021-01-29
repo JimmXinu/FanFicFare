@@ -54,18 +54,16 @@ import time
 #     return profiled_func
 
 try:
-    from brotli import decompress
-    # @do_cprofile
-    def brotli_decompress(inbuf):
-        return decompress(inbuf)
+    from brotli import decompress 
 except:
     # Calibre doesn't include brotli, so use packaged brotlipython
     # which is waaaay slower, but pure python.
-    from brotlipython import brotlidec
-    # @do_cprofile
-    def brotli_decompress(inbuf):
-        # wants the output, too, but returns it
-        return brotlidec(inbuf,[])
+    from calibre_plugins.fanficfare_plugin.brotlidecpy import decompress
+    #as brotli_decompress
+
+#@do_cprofile
+def brotli_decompress(inbuf):
+    return decompress(inbuf)
 
 from . import SuperFastHash
 

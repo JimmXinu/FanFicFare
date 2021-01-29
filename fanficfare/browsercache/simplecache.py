@@ -5,6 +5,7 @@ import gzip
 import zlib
 import glob
 from . import BaseBrowserCache, BrowserCacheException
+from ..six import ensure_text
 
 import logging
 logger = logging.getLogger(__name__)
@@ -18,11 +19,11 @@ try:
 except ImportError:
     # Calibre doesn't include brotli, so use packaged brotlipython
     # which is waaaay slower, but pure python.
-    from brotlipython import brotlidec
+    from calibre_plugins.fanficfare_plugin.brotlidecpy import decompress as brotli_decompress
 
-    def brotli_decompress(inbuf):
-        # wants the output, too, but returns it
-        return brotlidec(inbuf, [])
+    # def brotli_decompress(inbuf):
+    #     # wants the output, too, but returns it
+    #     return brotlidec(inbuf, [])
 
 SIMPLE_EOF = struct.Struct('<QLLLL')   # magic_number, flags, crc32, stream_size, padding
 SIMPLE_EOF_SIZE = SIMPLE_EOF.size
@@ -94,10 +95,12 @@ class SimpleCache(BaseBrowserCache):
 
 # Here come the utility functions for the class
 
-
+import codecs
 def _key_hash(key):
     """Compute hash of key as used to generate name of cache entry file"""
-    return hashlib.sha1(key).digest()[7::-1].hex()
+    # py2 lacks convenient .hex() method on bytes
+    return ensure_text(codecs.encode(hashlib.sha1(key).digest()[7::-1],'hex'))
+    # return hashlib.sha1(key).digest()[7::-1].hex()
 
 
 def _validate_entry_file(path):
