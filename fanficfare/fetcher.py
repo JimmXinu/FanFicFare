@@ -29,6 +29,7 @@ import time
 import logging
 import sys
 import pickle
+from functools import partial
 
 from urllib3.util.retry import Retry
 import requests
@@ -47,90 +48,93 @@ logger = logging.getLogger(__name__)
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 5
 
-def create_cachedfetcher(baseclass):
-    '''
-    baseclass should be a Fetcher
+'''
+baseclass should be a Fetcher
 
-    BaseCacheFetcher class is dynamically created each time
-    create_cachedfetcher() is called.  Need to share underlying data
-    structure or do differently to share cache between configuration
-    objects?
+BaseCacheFetcher class is dynamically created each time
+create_cachedfetcher() is called.  Need to share underlying data
+structure or do differently to share cache between configuration
+objects?
 
-    Make something like LWPCookieJar is for cookies?
-    '''
-    class BaseCacheFetcher(baseclass):
-        def __init__(self,getConfig_fn,getConfigList_fn):
-            super(BaseCacheFetcher,self).__init__(getConfig_fn,getConfigList_fn)
-            self.pagecache = self.get_empty_pagecache()
-            self.save_cache_file = None
+Make something like LWPCookieJar is for cookies?
+'''
+class BaseCache(object):
+    def __init__(self):
+        self.pagecache = self.get_empty_pagecache()
+        self.save_cache_file = None
 
-        def get_empty_pagecache(self):
-            return {}
+    def get_empty_pagecache(self):
+        return {}
 
-        def get_pagecache(self):
-            return self.pagecache
+    def get_pagecache(self):
+        return self.pagecache
 
-        def set_pagecache(self,d,save_cache_file=None):
-            self.save_cache_file = save_cache_file
-            self.pagecache=d
+    def set_pagecache(self,d,save_cache_file=None):
+        self.save_cache_file = save_cache_file
+        self.pagecache=d
 
-        def make_cachekey(self, url, parameters=None):
-            keylist=[url]
-            if parameters != None:
-                keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
-            return unicode('?'.join(keylist))
+    def make_cachekey(self, url, parameters=None):
+        keylist=[url]
+        if parameters != None:
+            keylist.append('&'.join('{0}={1}'.format(key, val) for key, val in sorted(parameters.items())))
+        return unicode('?'.join(keylist))
 
-        def has_cachekey(self,cachekey):
-            return self.use_pagecache and cachekey in self.get_pagecache()
+    def has_cachekey(self,cachekey):
+        return self.use_pagecache and cachekey in self.get_pagecache()
 
-        def get_from_cache(self,cachekey):
-            if self.use_pagecache:
-                return self.get_pagecache().get(cachekey)
-            else:
-                return None
+    def get_from_cache(self,cachekey):
+        if self.use_pagecache:
+            return self.get_pagecache().get(cachekey)
+        else:
+            return None
 
-        def set_to_cache(self,cachekey,data,redirectedurl):
-            if self.use_pagecache:
-                self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
-                if self.save_cache_file:
-                    with open(self.save_cache_file,'wb') as jout:
-                        pickle.dump(self.get_pagecache(),jout,protocol=2)
+    def set_to_cache(self,cachekey,data,redirectedurl):
+        if self.use_pagecache:
+            self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
+            if self.save_cache_file:
+                with open(self.save_cache_file,'wb') as jout:
+                    pickle.dump(self.get_pagecache(),jout,protocol=2)
 
-        def do_request(self, method, url,
-                        parameters=None,
-                        extrasleep=None,
-                        referer=None,
-                        usecache=True):
-            '''
-            When should cache be cleared or not used? logins, primarily
-            Note that usecache=False prevents lookup, but cache still saves
-            result
-            '''
-            cachekey=self.make_cachekey(url, parameters)
+    def decorate_fetcher(self,fetcher):
+        # replace 
+        fetcher.do_request = partial(self.do_request,fetcher.do_request)
+                    
+    def do_request(self,
+                   chainfn,
+                   method,
+                   url,
+                   parameters=None,
+                   extrasleep=None,
+                   referer=None,
+                   usecache=True):
+        '''
+        When should cache be cleared or not used? logins, primarily
+        Note that usecache=False prevents lookup, but cache still saves
+        result
+        '''
+        cachekey=self.make_cachekey(url, parameters)
 
-            if usecache and self.has_cachekey(cachekey) and not cachekey.startswith('file:'):
-                logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
-                data,redirecturl = self.get_from_cache(cachekey)
-                return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
+        if usecache and self.has_cachekey(cachekey) and not cachekey.startswith('file:'):
+            logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
+            data,redirecturl = self.get_from_cache(cachekey)
+            return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
 
-            logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
+        logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
 
-            fetchresp = super(BaseCacheFetcher,self).do_request(
-                method,
-                url,
-                parameters=parameters,
-                extrasleep=extrasleep,
-                referer=referer,
-                usecache=usecache)
+        fetchresp = chainfn(
+            method,
+            url,
+            parameters=parameters,
+            extrasleep=extrasleep,
+            referer=referer,
+            usecache=usecache)
 
-            data = fetchresp.content
+        data = fetchresp.content
 
-            self.set_to_cache(cachekey,data,fetchresp.redirecturl)
-            if url != fetchresp.redirecturl: # cache both?
-                self.set_to_cache(cachekey,data,url)
-            return fetchresp
-
-    return BaseCacheFetcher
+        self.set_to_cache(cachekey,data,fetchresp.redirecturl)
+        if url != fetchresp.redirecturl: # cache both?
+            self.set_to_cache(cachekey,data,url)
+        return fetchresp
 
 class FetcherResponse(object):
     def __init__(self,content,redirecturl=None,fromcache=False):
