@@ -119,7 +119,8 @@ class BaseSiteAdapter(Configurable):
         '''
         return False
 
-    def get_section_url(self,url):
+    @classmethod
+    def get_section_url(cls,url):
         '''
         For adapters that have story URLs that can change.  This is
         applied both to the story URL (saved to metadata as

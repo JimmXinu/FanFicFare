@@ -69,19 +69,26 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         self._setURL("https://"+self.getSiteDomain()\
                          +"/s/"+self.story.getMetadata('storyId')+"/1/"+self.urltitle)
 
-    def get_section_url(self,url):
+    ## here so getSiteURLPattern and get_section_url(class method) can
+    ## both use it.  Note adapter_fictionpresscom has one too.
+    @classmethod
+    def _get_site_url_pattern(cls):
+        return r"https?://(www|m)?\.fanfiction\.net/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
+
+    @classmethod
+    def get_section_url(cls,url):
         ## minimal URL used for section names in INI and reject list
         ## for comparison
         # logger.debug("pre--url:%s"%url)
-        m = re.match(self.getSiteURLPattern(),url)
+        m = re.match(cls._get_site_url_pattern(),url)
         if m:
-            url = "https://"+self.getSiteDomain()\
+            url = "https://"+cls.getSiteDomain()\
                 +"/s/"+m.group('id')+"/1/"
         # logger.debug("post-url:%s"%url)
         return url
 
     def getSiteURLPattern(self):
-        return r"https?://(www|m)?\.fanfiction\.net/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
+        return self._get_site_url_pattern()
 
     def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
         ## ffnet(and, I assume, fpcom) tends to fail more if hit too

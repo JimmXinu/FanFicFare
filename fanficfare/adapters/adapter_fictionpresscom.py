@@ -44,8 +44,9 @@ class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
     def getSiteExampleURLs(cls):
         return "https://www.fictionpress.com/s/1234/1/ https://www.fictionpress.com/s/1234/12/ http://www.fictionpress.com/s/1234/1/Story_Title http://m.fictionpress.com/s/1234/1/"
 
-    def getSiteURLPattern(self):
-        return r"https?://(www|m)?\.fictionpress\.com/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
+    @classmethod
+    def _get_site_url_pattern(cls):
+        return r"https?://(www|m)?\.fanfiction\.net/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
 
 def getClass():
     return FictionPressComSiteAdapter

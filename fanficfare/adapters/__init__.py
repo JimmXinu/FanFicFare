@@ -250,13 +250,13 @@ def getNormalStoryURLSite(url):
 
 ## Originally defined for INI [storyUrl] sections where story URL
 ## contains a title that can change, now also used for reject list.
+## waaaay faster with classmethod.
 def get_section_url(url):
-    with lightweight_adapter(url) as adapter:
-        if adapter:
-            return adapter.get_section_url(url)
-        else:
-            logger.debug("WTF? no adapter?")
-            return None
+    cls =  _get_class_for(url)[0]
+    if cls:
+        return cls.get_section_url(url)
+    else:
+        return None
 
 def getAdapter(config,url,anyurl=False):
 
