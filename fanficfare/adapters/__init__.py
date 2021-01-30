@@ -256,7 +256,9 @@ def get_section_url(url):
     if cls:
         return cls.get_section_url(url)
     else:
-        return None
+        ## might be a url from a removed adapter.
+        ## return unchanged in that case.
+        return url
 
 def getAdapter(config,url,anyurl=False):
 
