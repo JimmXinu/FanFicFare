@@ -610,16 +610,14 @@ class Configuration(ConfigParser):
         if self.scraper is not None:
             self.scraper.close()
 
-    def section_url_names(self,domain,section_url_f):
-        ## domain is passed as a method to limit the damage if/when an
-        ## adapter screws up _section_url
+    def section_url_names(self,domain,get_section_url_f):
         domain = domain.replace('www.','') ## let's not confuse the issue any more than it is.
         try:
             ## OrderDict (the default for ConfigParser) has to be
             ## reconstructed completely because removing and re-adding
             ## a section would mess up the order.
             ## assumes _dict and _sections from ConfigParser parent.
-            self._sections = self._dict((section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in six.viewitems(self._sections))
+            self._sections = self._dict((get_section_url_f(k) if (domain in k and 'http' in k) else k, v) for k, v in six.viewitems(self._sections))
             # logger.debug(self._sections.keys())
         except Exception as e:
             logger.warning("Failed to perform section_url_names: %s"%e)
@@ -1353,8 +1351,8 @@ class Configurable(object):
         if hasattr(self, 'use_pagecache'):
             self.configuration.use_pagecache = self.use_pagecache()
 
-    def section_url_names(self,domain,section_url_f):
-        return self.configuration.section_url_names(domain,section_url_f)
+    def section_url_names(self,domain,get_section_url_f):
+        return self.configuration.section_url_names(domain,get_section_url_f)
 
     def get_configuration(self):
         return self.configuration

@@ -182,7 +182,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         return (is_chapter_url,url)
 
-    def _section_url(self,url):
+    def get_section_url(self,url):
         ## domain is checked in configuration loop.  Can't check for
         ## storyId, because this is called before story url has been
         ## parsed.
