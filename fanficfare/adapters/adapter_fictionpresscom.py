@@ -46,7 +46,7 @@ class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
 
     @classmethod
     def _get_site_url_pattern(cls):
-        return r"https?://(www|m)?\.fanfiction\.net/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
+        return r"https?://(www|m)?\.fictionpress\.com/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
 
 def getClass():
     return FictionPressComSiteAdapter
