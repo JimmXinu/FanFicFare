@@ -710,12 +710,13 @@ class BasicTab(QWidget):
             self.collision.setCurrentIndex(i)
 
     def show_rejectlist(self):
-        d = RejectListDialog(self,
-                             rejecturllist.get_list(),
-                             rejectreasons=rejecturllist.get_reject_reasons(),
-                             header=_("Edit Reject URLs List"),
-                             show_delete=False,
-                             show_all_reasons=False)
+        with busy_cursor():
+            d = RejectListDialog(self,
+                                 rejecturllist.get_list(),
+                                 rejectreasons=rejecturllist.get_reject_reasons(),
+                                 header=_("Edit Reject URLs List"),
+                                 show_delete=False,
+                                 show_all_reasons=False)
         d.exec_()
         if d.result() != d.Accepted:
             return
