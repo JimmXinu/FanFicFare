@@ -133,7 +133,7 @@ class RejectUrlEntry:
             if addreasontext:
                 self.note = self.note + ' - ' + addreasontext
 
-        if normalize:
+        if normalize and self.url:
             self.url = getNormalStoryURL(self.url)
 
         self.valid = self.url != None

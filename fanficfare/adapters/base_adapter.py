@@ -93,7 +93,7 @@ class BaseSiteAdapter(Configurable):
         self.logfile = None
         self.ignore_chapter_url_list = None
 
-        self.section_url_names(self.getSiteDomain(),self._section_url)
+        self.section_url_names(self.getSiteDomain(),self.get_section_url)
 
         ## for doing some performance profiling.
         self.times = TimeKeeper()
@@ -119,13 +119,17 @@ class BaseSiteAdapter(Configurable):
         '''
         return False
 
-    def _section_url(self,url):
+    @classmethod
+    def get_section_url(cls,url):
         '''
         For adapters that have story URLs that can change.  This is
         applied both to the story URL (saved to metadata as
         sectionUrl) *and* any domain section names that it matches.
         So it is the adapter's responsibility to pass through
         *unchanged* any URLs that aren't its own.
+
+        In addition to using for INI sections, now also used for
+        reject list.
         '''
         return url
 
@@ -135,7 +139,7 @@ class BaseSiteAdapter(Configurable):
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
         self.story.setMetadata('storyUrl',self.url)
-        self.story.setMetadata('sectionUrl',self._section_url(self.url))
+        self.story.setMetadata('sectionUrl',self.get_section_url(self.url))
 
     # Limit chapters to download.  Input starts at 1, list starts at 0
     def setChaptersRange(self,first=None,last=None):

@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import os, re, sys, glob, types
 from os.path import dirname, basename, normpath
+from contextlib import contextmanager
 import logging
 
 # py2 vs py3 transition
@@ -214,6 +215,20 @@ def get_url_chapter_range(url_in):
         ch_end = ch_begin
     return url,ch_begin,ch_end
 
+# Call as ' with busy_cursor:"
+@contextmanager
+def lightweight_adapter(url):
+    adapter = None
+    try:
+        if not getNormalStoryURL.__dummyconfig:
+            getNormalStoryURL.__dummyconfig = configurable.Configuration(["test1.com"],"EPUB",lightweight=True)
+        adapter = getAdapter(getNormalStoryURL.__dummyconfig,url)
+        yield adapter
+    except:
+        yield None
+    finally:
+        del adapter
+
 def getNormalStoryURL(url):
     r = getNormalStoryURLSite(url)
     if r:
@@ -221,23 +236,27 @@ def getNormalStoryURL(url):
     else:
         return None
 
-def getNormalStoryURLSite(url):
-    # print("getNormalStoryURLSite:%s"%url)
-    if not getNormalStoryURL.__dummyconfig:
-        getNormalStoryURL.__dummyconfig = configurable.Configuration(["test1.com"],"EPUB",lightweight=True)
-    # pulling up an adapter is pretty low over-head.  If
-    # it fails, it's a bad url.
-    try:
-        adapter = getAdapter(getNormalStoryURL.__dummyconfig,url)
-        url = adapter.url
-        site = adapter.getSiteDomain()
-        del adapter
-        return (url,site)
-    except:
-        return None
-
 # kludgey function static/singleton
+# Note it's *not* on lightweight_adapter because it can't reference
+# itself in its definition.
 getNormalStoryURL.__dummyconfig = None
+
+def getNormalStoryURLSite(url):
+    with lightweight_adapter(url) as adapter:
+        if adapter:
+            return (adapter.url,adapter.getSiteDomain())
+        else:
+            return None
+
+## Originally defined for INI [storyUrl] sections where story URL
+## contains a title that can change, now also used for reject list.
+## waaaay faster with classmethod.
+def get_section_url(url):
+    cls =  _get_class_for(url)[0]
+    if cls:
+        return cls.get_section_url(url)
+    else:
+        return None
 
 def getAdapter(config,url,anyurl=False):
 
