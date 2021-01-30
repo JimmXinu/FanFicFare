@@ -60,8 +60,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         self.is_adult=False
 
         m = re.match(self.getSiteURLPattern(),url)
-        logger.debug("id:%s"%m.group('id'))
-        logger.debug("title:%s"%m.group('title'))
+        # logger.debug("id:%s"%m.group('id'))
+        # logger.debug("title:%s"%m.group('title'))
 
         # get storyId from url
         self.story.setMetadata('storyId', m.group('id'))
