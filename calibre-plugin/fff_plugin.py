@@ -1312,7 +1312,7 @@ class FanFicFarePlugin(InterfaceAction):
                 b = minslp - m
                 slp = min(maxslp,m*float(options['ffnetcount'])+b)
                 #print("m:%s b:%s = %s"%(m,b,slp))
-                configuration.set_sleep(slp)
+                configuration.set_sleep_override(slp)
 
             if not bgmeta:
                 story = self.get_story_metadata_only(adapter)

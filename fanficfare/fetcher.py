@@ -108,21 +108,15 @@ class ProgressBarDecorator(FetcherDecorator):
 class SleepDecorator(FetcherDecorator):
     def __init__(self):
         super(SleepDecorator,self).__init__()
-        self.override_sleep = None
+        self.sleep_override = None
 
     def decorate_fetcher(self,fetcher):
         super(SleepDecorator,self).decorate_fetcher(fetcher)
-        fetcher.set_sleep = partial(self.fetcher_set_sleep,
-                                    fetcher,
-                                    fetcher.set_sleep)
 
-    def fetcher_set_sleep(self,
-                          fetcher,
-                          chainfn,
-                          val):
+    ## used by plugin for ffnet variable timing
+    def set_sleep_override(self,val):
         logger.debug("\n===========\n set sleep time %s\n==========="%val)
-        self.override_sleep = val
-        return chainfn(val)
+        self.sleep_override = val
 
     def fetcher_do_request(self,
                            fetcher,
@@ -149,9 +143,8 @@ class SleepDecorator(FetcherDecorator):
             if extrasleep:
                 logger.debug("extra sleep:%s"%extrasleep)
                 time.sleep(float(extrasleep))
-            t = None
-            if self.override_sleep:
-                t = float(self.override_sleep)
+            if self.sleep_override:
+                t = float(self.sleep_override)
             elif fetcher.getConfig('slow_down_sleep_time'):
                 t = float(fetcher.getConfig('slow_down_sleep_time'))
             ## sleep randomly between 0.5 time and 1.5 time.
@@ -295,11 +288,6 @@ class Fetcher(object):
             self.get_cookiejar().save(filename or self.get_cookiejar().filename,
                                       ignore_discard=True,
                                       ignore_expires=True)
-
-    # used by plugin for ffnet variable timing
-    ## this will need to be moved. XXX
-    def set_sleep(self,val):
-        pass
 
     def make_headers(self,url,referer=None):
         headers = {}

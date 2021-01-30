@@ -538,6 +538,7 @@ class Configuration(ConfigParser):
         ConfigParser.__init__(self)
 
         self.fetcher = None # the network layer for getting pages the
+        self.sleeper = None
         # caching layer for getting pages, created now for
         # get_empty_pagecache() etc.
         self.cache = fetcher.BasicCache()
@@ -964,15 +965,16 @@ class Configuration(ConfigParser):
                                     self.getConfigList)
 
             ########################################################
-            ## Adding fetcher decorators.  Order matters--last in,
+            ## Adding fetcher decorators.  Order matters--last added,
             ## first called.  If ProgressBarDecorator is added before
             ## Cache, it's never called for cache hits, for example.
 
-            fetcher.SleepDecorator().decorate_fetcher(self.fetcher)
+            ## doesn't sleep when fromcache==True
+            ## saved for set_sleep
+            self.sleeper = fetcher.SleepDecorator()
+            self.sleeper.decorate_fetcher(self.fetcher)
 
-            # cache decorator terminates the chain when found.  Cache
-            # created in __init__ because of get_empty_pagecache()
-            # etc, but not used until now.
+            ## cache decorator terminates the chain when found.
             logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
             if self.getConfig('use_pagecache'):
                 fetcher.BasicCacheDecorator(self.cache).decorate_fetcher(self.fetcher)
@@ -986,8 +988,8 @@ class Configuration(ConfigParser):
     ## Or Fetcher
 
     ## used by plugin to change time for ffnet.
-    def set_sleep(self,val):
-        return self.get_fetcher().set_sleep(val)
+    def set_sleep_override(self,val):
+        return self.sleeper.set_sleep_override(val)
 
     def get_cookiejar(self,filename=None):
         return self.get_fetcher().get_cookiejar(filename)
