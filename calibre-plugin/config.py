@@ -94,7 +94,7 @@ from calibre_plugins.fanficfare_plugin.dialogs \
             EditTextDialog, IniTextDialog, RejectUrlEntry)
 
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters \
-    import getSiteSections
+    import getSiteSections, get_section_url
 
 from calibre_plugins.fanficfare_plugin.common_utils \
     import ( KeyboardConfigDialog, PrefsViewerDialog, busy_cursor )
@@ -118,9 +118,14 @@ class RejectURLList:
                                  fromline=True,normalize=normalize)
             #print("rue.url:%s"%rue.url)
             if rue.valid:
-                cache[rue.url] = rue
+                cache[get_section_url(rue.url)] = rue
         return cache
 
+    ## Note that RejectURLList now applies
+    ## adapters.get_section_url(url) to all urls before caching and
+    ## before checking so ffnet/a/123/1/Title -> ffnet/a/123/1/,
+    ## xenforo too.  Saved list still contains full URL so we're not
+    ## destorying any data.  Could have duplicates, though.
     def _get_listcache(self):
         with busy_cursor():
             if self.listcache == None:
@@ -132,7 +137,18 @@ class RejectURLList:
                     for x in self.rejects_data['rejecturls_data']:
                         rue = RejectUrlEntry.from_data(x)
                         if rue.valid:
-                            self.listcache[rue.url] = rue
+                            # if rue.url != get_section_url(rue.url):
+                            #     logger.debug("\n=============\nurl:%s section:%s\n================"%(rue.url,get_section_url(rue.url)))
+                            section_url = get_section_url(rue.url)
+                            if section_url in self.listcache:
+                                logger.debug("Duplicate in Reject list: %s %s (use longer)"%(
+                                        self.listcache[section_url].url, rue.url))
+                            ## if there's a dup, keep the one with the
+                            ## longer URL, more likely to be titled
+                            ## version.
+                            if( section_url not in self.listcache
+                                or len(rue.url) > len(self.listcache[section_url].url) ):
+                                self.listcache[section_url] = rue
                 else:
                     # Assume saved rejects list is already normalized after
                     # v2.10.9.  If normalization needs to change someday, can
@@ -145,7 +161,8 @@ class RejectURLList:
                         self._save_list(self.listcache,clearcache=False)
                     # logger.debug("_get_listcache: prefs['rejecturls']")
 
-                # logger.debug([ x.to_data() for x in self.listcache.values()])
+        # logger.debug(self.listcache)
+        # logger.debug([ x.to_data() for x in self.listcache.values()])
         return self.listcache
 
     def _save_list(self,listcache,clearcache=True):
@@ -166,11 +183,14 @@ class RejectURLList:
 
     # true if url is in list.
     def check(self,url):
+        # logger.debug("Checking %s(%s)"%(url,get_section_url(url)))
+        url = get_section_url(url)
         with self.sync_lock:
             listcache = self._get_listcache()
             return url in listcache
 
     def get_note(self,url):
+        url = get_section_url(url)
         with self.sync_lock:
             listcache = self._get_listcache()
             if url in listcache:
@@ -179,6 +199,7 @@ class RejectURLList:
             return ''
 
     def get_full_note(self,url):
+        url = get_section_url(url)
         with self.sync_lock:
             listcache = self._get_listcache()
             if url in listcache:
@@ -187,6 +208,7 @@ class RejectURLList:
             return ''
 
     def remove(self,url):
+        url = get_section_url(url)
         with self.sync_lock:
             listcache = self._get_listcache()
             if url in listcache:
@@ -203,7 +225,7 @@ class RejectURLList:
             else:
                 listcache = self._get_listcache()
             for l in rejectlist:
-                listcache[l.url]=l
+                listcache[get_section_url(l.url)]=l
             self._save_list(listcache)
 
     def get_list(self):
