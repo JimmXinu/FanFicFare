@@ -255,6 +255,35 @@ class BasicCacheDecorator(FetcherDecorator):
                 self.cache.set_to_cache(cachekey,data,url)
         return fetchresp
 
+class BrowserCacheDecorator(FetcherDecorator):
+    def __init__(self,cache):
+        super(BrowserCacheDecorator,self).__init__()
+        self.cache = cache
+
+    def fetcher_do_request(self,
+                           fetcher,
+                           chainfn,
+                           method,
+                           url,
+                           parameters=None,
+                           referer=None,
+                           usecache=True):
+        logger.debug("BrowserCacheDecorator fetcher_do_request")
+
+        if usecache:
+            d = self.cache.get_data(url)
+            if d:
+                logger.debug("\n= CHROME CACHE HIT(%s): %s"%(method,safe_url(url)))
+                return FetcherResponse(d,redirecturl=None,fromcache=True)
+        logger.debug("\n= CHROME CACHE MISS(%s): %s"%(method,safe_url(url)))
+
+        return chainfn(
+            method,
+            url,
+            parameters=parameters,
+            referer=referer,
+            usecache=usecache)
+
 class FetcherResponse(object):
     def __init__(self,content,redirecturl=None,fromcache=False):
         self.content = content

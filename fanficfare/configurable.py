@@ -541,6 +541,7 @@ class Configuration(ConfigParser):
         self.sleeper = None
         # caching layer for getting pages, create one if not given.
         self.pagecache = pagecache or fetcher.BasicCache()
+        self.browsercache = None
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -967,6 +968,19 @@ class Configuration(ConfigParser):
             ## saved for set_sleep
             self.sleeper = fetcher.SleepDecorator()
             self.sleeper.decorate_fetcher(self.fetcher)
+
+            ## cache decorator terminates the chain when found.
+            logger.debug("chrome_cache_path:%s"%self.getConfig('chrome_cache_path'))
+            if self.getConfig('chrome_cache_path'):
+                try:
+                    ## make a data list of decorators to re-apply if
+                    ## there are many more.
+                    if self.browsercache is None:
+                        from .browsercache import BrowserCache
+                        self.browsercache = BrowserCache(self.getConfig("chrome_cache_path"))
+                    fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
+                except Exception as e:
+                    logger.warn("Failed to setup BrowserCache(%s)"%e)
 
             ## cache decorator terminates the chain when found.
             logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
