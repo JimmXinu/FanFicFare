@@ -400,7 +400,7 @@ class RequestsFetcher(Fetcher):
         if method not in ('GET','POST'):
             raise NotImplementedError()
         try:
-            logger.debug("\n------- request(%s): %s"%(method,safe_url(url)))
+            logger.debug("\n---------- request(%s): %s"%(method,safe_url(url)))
             ## resp = requests Response object
             verify = not self.getConfig('use_ssl_unverified_context',False)
             resp = self.get_requests_session().request(method, url,
