@@ -41,6 +41,9 @@ except ImportError:
 from . import exceptions
 from . import fetcher
 
+## has to be up here for brotli-dict to load correctly.
+from .browsercache import BrowserCache
+
 logger = logging.getLogger(__name__)
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
@@ -976,7 +979,6 @@ class Configuration(ConfigParser):
                     ## make a data list of decorators to re-apply if
                     ## there are many more.
                     if self.browsercache is None:
-                        from .browsercache import BrowserCache
                         self.browsercache = BrowserCache(self.getConfig("chrome_cache_path"))
                     fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
                 except Exception as e:
