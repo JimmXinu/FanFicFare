@@ -261,7 +261,7 @@ class FetcherResponse(object):
         self.redirecturl = redirecturl
         self.fromcache = fromcache
 
-class BasicCookieJar(LWPCookieJar):
+class BasicCookieJar(LWPCookieJar,object):
     def __init__(self,*args,**kargs):
         super(BasicCookieJar,self).__init__(*args,**kargs)
         self.autosave = False
