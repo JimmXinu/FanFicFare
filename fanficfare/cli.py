@@ -175,6 +175,7 @@ def main(argv=None,
                       action='store_true', dest='save_cache',
                       help=SUPPRESS_HELP, )
     ## 'undocumented' feature to allow expired/unverified SSL certs pass.
+    ## removed in favor of use_ssl_unverified_context ini setting.
     parser.add_option('--unverified_ssl',
                       action='store_true', dest='unverified_ssl',
                       help=SUPPRESS_HELP, )
@@ -182,10 +183,8 @@ def main(argv=None,
     options, args = parser.parse_args(argv)
 
     if options.unverified_ssl:
-        logger.warning("Running with unverified SSL context(--unverified_ssl), security may be compromised.")
-        import ssl
-        if hasattr(ssl, '_create_unverified_context'):
-            ssl._create_default_https_context = ssl._create_unverified_context
+        print("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
+        return
 
     if not options.debug:
         logger.setLevel(logging.WARNING)
