@@ -1257,13 +1257,14 @@ class FanFicFarePlugin(InterfaceAction):
         adapter = get_fff_adapter(url,fileform)
         ## chapter range for title_chapter_range_pattern
         adapter.setChaptersRange(book['begin'],book['end'])
+
         ## save and share cookiejar and pagecache between all
         ## downloads.
         configuration = adapter.get_configuration()
-        if 'pagecache' not in options:
-            options['pagecache'] = configuration.get_empty_pagecache()
-        configuration.set_pagecache(options['pagecache'])
-
+        if 'pagecache' in options:
+            configuration.set_pagecache(options['pagecache'])
+        else:
+            options['pagecache'] = configuration.get_pagecache()
         ## save and share cookiejar between all downloads.
         if 'cookiejar' in options:
             configuration.set_cookiejar(options['cookiejar'])
@@ -1691,6 +1692,12 @@ class FanFicFarePlugin(InterfaceAction):
                                      htmllog,
                                      msgl)
             return
+
+        pagecachefile = PersistentTemporaryFile(suffix='.pagecache',
+                                                dir=options['tdir'])
+        options['pagecache'].save_cache(pagecachefile.name)
+        options['pagecachefile'] = pagecachefile.name
+        del options['pagecache'] ## can't be pickled.
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
                                                 dir=options['tdir'])

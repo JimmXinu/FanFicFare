@@ -533,15 +533,14 @@ def make_generate_cover_settings(param):
 
 class Configuration(ConfigParser):
 
-    def __init__(self, sections, fileform, lightweight=False):
+    def __init__(self, sections, fileform, lightweight=False, pagecache=None):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
         self.fetcher = None # the network layer for getting pages the
         self.sleeper = None
-        # caching layer for getting pages, created now for
-        # get_empty_pagecache() etc.
-        self.cache = fetcher.BasicCache()
+        # caching layer for getting pages, create one if not given.
+        self.pagecache = pagecache or fetcher.BasicCache()
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -581,11 +580,6 @@ class Configuration(ConfigParser):
         self.validEntries = get_valid_entries()
 
         self.url_config_set = False
-
-        # ## XXX make sure fetcher & cache exist--revisit Breaks
-        # ## use_cloudscraper in CLI because CONFIG FILES HAVEN'T BEEN
-        # ## READ YET.
-        # self.get_fetcher()
 
     def section_url_names(self,domain,section_url_f):
         ## domain is passed as a method to limit the damage if/when an
@@ -954,8 +948,8 @@ class Configuration(ConfigParser):
 #### methods for fetching.  Moved here from base_adapter when
 #### *_filelist feature was added.
 
-    def get_fetcher(self):
-        if not self.fetcher:
+    def get_fetcher(self, make_new = False):
+        if not self.fetcher or make_new:
             logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
             if self.getConfig('use_cloudscraper',False):
                 fetchcls = fetcher.CloudScraperFetcher
@@ -976,8 +970,8 @@ class Configuration(ConfigParser):
 
             ## cache decorator terminates the chain when found.
             logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
-            if self.getConfig('use_pagecache'):
-                fetcher.BasicCacheDecorator(self.cache).decorate_fetcher(self.fetcher)
+            if self.getConfig('use_pagecache') and self.pagecache is not None:
+                fetcher.BasicCacheDecorator(self.pagecache).decorate_fetcher(self.fetcher)
 
             if self.getConfig('progressbar'):
                 fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)
@@ -1003,14 +997,15 @@ class Configuration(ConfigParser):
     def save_cookiejar(self,filename=None):
         self.get_fetcher().save_cookiejar(filename)
 
-    def get_empty_pagecache(self):
-        return self.cache.get_empty_pagecache()
-
     def get_pagecache(self):
-        return self.cache.get_pagecache()
+        return self.pagecache
 
-    def set_pagecache(self,cache,cache_file=None):
-        return self.cache.set_pagecache(cache,cache_file)
+    ## replace cache, then replace fetcher (while keeping cookiejar)
+    ## to replace fetcher decorators.
+    def set_pagecache(self,cache):
+        self.pagecache = cache
+        cookiejar = self.get_fetcher().get_cookiejar()
+        self.get_fetcher(make_new=True).set_cookiejar(cookiejar)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):

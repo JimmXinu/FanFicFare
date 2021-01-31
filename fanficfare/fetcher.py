@@ -28,7 +28,19 @@ from .six import ensure_binary, ensure_text
 import time
 import logging
 import sys
+
 import pickle
+if sys.version_info < (2, 7):
+    sys.exit('This program requires Python 2.7 or newer.')
+elif sys.version_info < (3, 0):
+    reload(sys)  # Reload restores 'hidden' setdefaultencoding method
+    sys.setdefaultencoding("utf-8")
+    def pickle_load(f):
+        return pickle.load(f)
+else: # > 3.0
+    def pickle_load(f):
+        return pickle.load(f,encoding="bytes")
+
 from functools import partial
 import threading
 
@@ -140,6 +152,7 @@ class SleepDecorator(FetcherDecorator):
         # be before sleep, but check fetchresp.fromcache for file://
         # and other intermediate caches.
         if not fetchresp.fromcache:
+            t = None
             if extrasleep:
                 logger.debug("extra sleep:%s"%extrasleep)
                 time.sleep(float(extrasleep))
@@ -159,22 +172,28 @@ class SleepDecorator(FetcherDecorator):
         return fetchresp
 
 class BasicCache(object):
-    def __init__(self):
+    def __init__(self,filename=None):
         self.cache_lock = threading.RLock()
-        self.pagecache = self.get_empty_pagecache()
-        self.save_cache_file = None
+        self.pagecache = {}
+        self.filename = filename
+        if self.filename:
+            try:
+                self.load_cache()
+            except:
+                raise
+                logger.debug("Failed to load cache(%s), going on without."%filename)
 
-    def get_empty_pagecache(self):
-        return {}
+    def load_cache(self,filename=None):
+        logger.debug(filename or self.filename)
+        with open(filename or self.filename,'rb') as jin:
+            self.pagecache = pickle_load(jin)
+            logger.debug(self.pagecache.keys())
 
-    def get_pagecache(self):
-        with self.cache_lock:
-            return self.pagecache
-
-    def set_pagecache(self,d,save_cache_file=None):
-        with self.cache_lock:
-            self.save_cache_file = save_cache_file
-            self.pagecache=d
+    def save_cache(self,filename=None):
+        logger.debug(filename or self.filename)
+        with open(filename or self.filename,'wb') as jout:
+            pickle.dump(self.pagecache,jout,protocol=2)
+            logger.debug("wrote")
 
     def make_cachekey(self, url, parameters=None):
         with self.cache_lock:
@@ -185,19 +204,18 @@ class BasicCache(object):
 
     def has_cachekey(self,cachekey):
         with self.cache_lock:
-            return cachekey in self.get_pagecache()
+            return cachekey in self.pagecache
 
     def get_from_cache(self,cachekey):
         with self.cache_lock:
-            return self.get_pagecache().get(cachekey,None)
+            return self.pagecache.get(cachekey,None)
 
     def set_to_cache(self,cachekey,data,redirectedurl):
         with self.cache_lock:
-            self.get_pagecache()[cachekey] = (data,ensure_text(redirectedurl))
-            if self.save_cache_file:
-                with open(self.save_cache_file,'wb') as jout:
-                    pickle.dump(self.get_pagecache(),jout,protocol=2)
-
+            self.pagecache[cachekey] = (data,ensure_text(redirectedurl))
+            logger.debug("set_to_cache:%s"%self.filename)
+            if self.filename:
+                self.save_cache()
 
 class BasicCacheDecorator(FetcherDecorator):
     def __init__(self,cache):
@@ -222,11 +240,10 @@ class BasicCacheDecorator(FetcherDecorator):
         cachekey=self.cache.make_cachekey(url, parameters)
 
         if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
-            logger.debug("#####################################\npagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
+            logger.debug("\n>>>> pagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
             data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
-
-        logger.debug("#####################################\npagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
+        logger.debug("\n<<<< pagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
 
         fetchresp = chainfn(
             method,
