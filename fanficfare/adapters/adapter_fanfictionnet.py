@@ -89,14 +89,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return self._get_site_url_pattern()
 
-    def get_request(self,url,extrasleep=1.0,usecache=True):
-        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
-        ## fast.  This is in additional to what ever the
-        ## slow_down_sleep_time setting is.
-        return BaseSiteAdapter.get_request(self,url,
-                                         extrasleep=extrasleep,
-                                         usecache=usecache)
-
     ## not actually putting urltitle on multi-chapters below, but
     ## one-shots will have it, so this is still useful.  normalized
     ## chapter URLs do NOT contain the story title.
@@ -372,8 +364,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## AND explicitly put title URL back on chapter URL for fetch
         ## *only*--normalized chapter URL does NOT have urltitle
-        data = self.get_request(url+self.urltitle,
-                              extrasleep=4.0)
+        data = self.get_request(url+self.urltitle)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)

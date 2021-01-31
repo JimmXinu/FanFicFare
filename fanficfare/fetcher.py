@@ -78,7 +78,6 @@ class FetcherDecorator(object):
                            method,
                            url,
                            parameters=None,
-                           extrasleep=None,
                            referer=None,
                            usecache=True):
         ## can use fetcher.getConfig()/getConfigList().
@@ -86,7 +85,6 @@ class FetcherDecorator(object):
             method,
             url,
             parameters=parameters,
-            extrasleep=extrasleep,
             referer=referer,
             usecache=usecache)
 
@@ -99,7 +97,6 @@ class ProgressBarDecorator(FetcherDecorator):
                            method,
                            url,
                            parameters=None,
-                           extrasleep=None,
                            referer=None,
                            usecache=True):
         logger.debug("ProgressBarDecorator fetcher_do_request")
@@ -107,7 +104,6 @@ class ProgressBarDecorator(FetcherDecorator):
             method,
             url,
             parameters=parameters,
-            extrasleep=extrasleep,
             referer=referer,
             usecache=usecache)
         ## added ages ago for CLI to give a line of dots showing it's
@@ -135,7 +131,6 @@ class SleepDecorator(FetcherDecorator):
                            method,
                            url,
                            parameters=None,
-                           extrasleep=None,
                            referer=None,
                            usecache=True):
         logger.debug("SleepDecorator fetcher_do_request")
@@ -143,7 +138,6 @@ class SleepDecorator(FetcherDecorator):
             method,
             url,
             parameters=parameters,
-            extrasleep=extrasleep,
             referer=referer,
             usecache=usecache)
 
@@ -152,9 +146,6 @@ class SleepDecorator(FetcherDecorator):
         # and other intermediate caches.
         if not fetchresp.fromcache:
             t = None
-            if extrasleep:
-                logger.debug("extra sleep:%s"%extrasleep)
-                time.sleep(float(extrasleep))
             if self.sleep_override:
                 t = float(self.sleep_override)
             elif fetcher.getConfig('slow_down_sleep_time'):
@@ -233,7 +224,6 @@ class BasicCacheDecorator(FetcherDecorator):
                            method,
                            url,
                            parameters=None,
-                           extrasleep=None,
                            referer=None,
                            usecache=True):
         '''
@@ -254,7 +244,6 @@ class BasicCacheDecorator(FetcherDecorator):
             method,
             url,
             parameters=parameters,
-            extrasleep=extrasleep,
             referer=referer,
             usecache=usecache)
 
@@ -336,14 +325,8 @@ class Fetcher(object):
 
     def do_request(self, method, url,
                     parameters=None,
-                    extrasleep=None,
                     referer=None,
                     usecache=True):
-        '''
-        extrasleep is primarily for ffnet adapter which has extra
-        sleeps.  Passed into fetchs so it can be bypassed when
-        cache hits.
-        '''
         logger.debug("fetcher do_request")
         headers = self.make_headers(url,referer=referer)
         fetchresp = self.request(method,url,
@@ -363,22 +346,18 @@ class Fetcher(object):
 
     def post_request(self, url,
                      parameters=None,
-                     extrasleep=None,
                      usecache=True):
         fetchresp = self.do_request('POST',
                                      self.condition_url(url),
                                      parameters=parameters,
-                                     extrasleep=extrasleep,
                                      usecache=usecache)
         return fetchresp.content
 
     def get_request_redirected(self, url,
-                               extrasleep=None,
                                referer=None,
                                usecache=True):
         fetchresp = self.do_request('GET',
                                      self.condition_url(url),
-                                     extrasleep=extrasleep,
                                      referer=referer,
                                      usecache=usecache)
         return (fetchresp.content,fetchresp.redirecturl)

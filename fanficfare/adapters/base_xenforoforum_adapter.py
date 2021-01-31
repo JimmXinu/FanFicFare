@@ -88,16 +88,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## need to accept http and https still.
         return re.escape(self.getURLPrefix()).replace("https","https?")+r"(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
-    def get_request_redirected(self, url,
-                               usecache=True,
-                               extrasleep=2.0):
-        ## We've been requested by the site(s) admin to rein in hits.
-        ## This is in additional to what ever the slow_down_sleep_time
-        ## setting is.
-        return BaseSiteAdapter.get_request_redirected(self,url,
-                                                      usecache=usecache,
-                                                      extrasleep=extrasleep)
-
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
     ## is most helpful for xenforoforum because threadmarks use
