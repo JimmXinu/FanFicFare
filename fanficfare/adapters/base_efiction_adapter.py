@@ -207,7 +207,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 or getMessageThereIsNoSuchAccount in html \
                 or getMessageWrongPassword in html
 
-    def _fetch_to_soup(self, url):
+    def _fetch_to_soup(self, url, usecache=False):
         """
         Fetch a HTML document, fix it and parse it to BeautifulSoup.
 
@@ -215,7 +215,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
 
         Makes image links absolute so they can be downloaded
         """
-        html = self.get_request(url)
+        html = self.get_request(url,usecache=usecache)
 
         # Some site use old, old-school Comments <!- comment -> (single dash)
         html = re.sub("<!-.+?->", "", html)
@@ -374,7 +374,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             if self.getMessageRegisteredUsersOnly() in errorDiv.prettify():
                 if not self.triedLoggingIn:
                     self.performLogin(self.url)
-                    soup = self._fetch_to_soup(printUrl)
+                    soup = self._fetch_to_soup(printUrl,usecache=False)
                     errorDiv = soup.find("div", "errortext")
                     self.triedLoggingIn = True
                 else:
