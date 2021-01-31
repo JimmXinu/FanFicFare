@@ -3,8 +3,7 @@ from .basebrowsercache import BrowserCacheException, BaseBrowserCache
 from .simplecache import SimpleCache
 from .chromediskcache import ChromeDiskCache
 
-
-class BrowserCache:
+class BrowserCache(object):
     """Class to read web browser cache"""
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
