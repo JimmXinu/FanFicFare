@@ -185,7 +185,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## each download starts with a new copy of the cookiejar
             ## and pagecache from the FG process.  They are not shared
             ## between BG downloads at this time.
-            configuration.load_cookiejar(options['cookiejarfile'])
+            configuration.get_cookiejar().load_cookiejar(options['cookiejarfile'])
             configuration.get_pagecache().load_cache(options['pagecachefile'])
 
             story = adapter.getStoryMetadataOnly()

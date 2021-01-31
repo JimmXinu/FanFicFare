@@ -991,12 +991,6 @@ class Configuration(ConfigParser):
     def set_cookiejar(self,cookiejar):
         self.get_fetcher().set_cookiejar(cookiejar)
 
-    def load_cookiejar(self,filename=None):
-        self.get_fetcher().load_cookiejar(filename)
-
-    def save_cookiejar(self,filename=None):
-        self.get_fetcher().save_cookiejar(filename)
-
     def get_pagecache(self):
         return self.pagecache
 

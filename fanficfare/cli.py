@@ -46,7 +46,6 @@ try:
     # running under calibre
     from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
     from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
-    from calibre_plugins.fanficfare_plugin.fanficfare.fetcher import BasicCache
     from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
@@ -55,7 +54,6 @@ try:
 except ImportError:
     from fanficfare import adapters, writers, exceptions
     from fanficfare.configurable import Configuration
-    from fanficfare.fetcher import BasicCache
     from fanficfare.epubutils import (
         get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
     from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
@@ -517,23 +515,17 @@ def get_configuration(url,
                       options,
                       chaptercount=None,
                       output_filename=None):
-    ## Share pagecache between multiple downloads.
-    if not hasattr(options,'pagecache'):
-        if options.save_cache:
-            options.pagecache = BasicCache(global_cache) #configuration.get_empty_pagecache()
-        else:
-            options.pagecache = BasicCache()
-    logger.debug(options.pagecache.pagecache.keys())
     try:
         configuration = Configuration(adapters.getConfigSectionsFor(url),
-                                      options.format,
-                                      pagecache=options.pagecache)
+                                      options.format)
     except exceptions.UnknownSite as e:
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
-            configuration = Configuration(['unknown'], options.format)
+            configuration = Configuration(['unknown'],
+                                          options.format,
+                                          pagecache=options.pagecache)
         else:
-            raise e
+            raise
 
     conflist = []
     homepath = join(expanduser('~'), '.fanficdownloader')
@@ -597,15 +589,32 @@ def get_configuration(url,
     if options.progressbar:
         configuration.set('overrides','progressbar','true')
 
+    ## do page cache and cookie load after reading INI files because
+    ## settings (like use_pagecache) matter.
+
+    ## Share pagecache between multiple downloads.
+    if not hasattr(options,'pagecache'):
+        options.pagecache = configuration.get_pagecache()
+        if options.save_cache:
+            try:
+                options.pagecache.load_cache(global_cache)
+            except Exception as e:
+                logger.warning("Didn't load --save-cache %s\nContinue without loading cache"%e)
+            options.pagecache.set_autosave(True,filename=global_cache)
+    else:
+        configuration.set_pagecache(options.pagecache)
+    # logger.debug(options.pagecache.pagecache.keys())
+
     ## All CLI downloads are sequential and share one cookiejar,
     ## loaded the first time through here.
     if not hasattr(options,'cookiejar'):
-        ## only loaded/saved if has a filename
-        ## only has a filename if options.save_cache
+        options.cookiejar = configuration.get_cookiejar()
         if options.save_cache:
-            options.cookiejar = configuration.get_cookiejar(filename=global_cookies)
-        else:
-            options.cookiejar = configuration.get_cookiejar()
+            try:
+                options.cookiejar.load_cookiejar(global_cookies)
+            except Exception as e:
+                logger.warning("Didn't load --save-cache %s\nContinue without loading cookies"%e)
+            options.cookiejar.set_autosave(True,filename=global_cookies)
     else:
         configuration.set_cookiejar(options.cookiejar)
 

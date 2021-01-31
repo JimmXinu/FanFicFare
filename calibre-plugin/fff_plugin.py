@@ -1265,12 +1265,9 @@ class FanFicFarePlugin(InterfaceAction):
             configuration.set_pagecache(options['pagecache'])
         else:
             options['pagecache'] = configuration.get_pagecache()
-        ## save and share cookiejar between all downloads.
         if 'cookiejar' in options:
             configuration.set_cookiejar(options['cookiejar'])
         else:
-            ## *not* giving a cookiejar filename now so it's only in
-            ## *memory and not writing to disk all the time.
             options['cookiejar'] = configuration.get_cookiejar()
 
         if collision in (CALIBREONLY, CALIBREONLYSAVECOL):
@@ -1693,20 +1690,21 @@ class FanFicFarePlugin(InterfaceAction):
                                      msgl)
             return
 
+        ## save and pass cookiejar and pagecache to BG downloads.
         pagecachefile = PersistentTemporaryFile(suffix='.pagecache',
                                                 dir=options['tdir'])
         options['pagecache'].save_cache(pagecachefile.name)
         options['pagecachefile'] = pagecachefile.name
-        del options['pagecache'] ## can't be pickled.
+        ## can't be pickled by Calibre to send to BG proc
+        del options['pagecache']
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
                                                 dir=options['tdir'])
         ## assumed to be a LWPCookieJar
-        options['cookiejar'].save(cookiejarfile.name,
-                                  ignore_discard=True,
-                                  ignore_expires=True)
+        options['cookiejar'].save_cookiejar(cookiejarfile.name)
         options['cookiejarfile']=cookiejarfile.name
-        del options['cookiejar'] ## can't be pickled.
+        ## can't be pickled by Calibre to send to BG proc
+        del options['cookiejar']
 
         # pass the plugin path in for jobs.py to use for 'with:' to
         # get libs from plugin zip.

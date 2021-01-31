@@ -112,7 +112,6 @@ class ProgressBarDecorator(FetcherDecorator):
             usecache=usecache)
         ## added ages ago for CLI to give a line of dots showing it's
         ## doing something.
-        logger.debug("..")
         sys.stdout.write('.')
         sys.stdout.flush()
         return fetchresp
@@ -172,16 +171,22 @@ class SleepDecorator(FetcherDecorator):
         return fetchresp
 
 class BasicCache(object):
-    def __init__(self,filename=None):
+    def __init__(self):
         self.cache_lock = threading.RLock()
         self.pagecache = {}
-        self.filename = filename
+        self.filename = None
+        self.autosave = False
         if self.filename:
             try:
                 self.load_cache()
             except:
                 raise
                 logger.debug("Failed to load cache(%s), going on without."%filename)
+
+    ## used by CLI --save-cache dev debugging feature
+    def set_autosave(self,autosave=False,filename=None):
+        self.autosave = autosave
+        self.filename = filename
 
     def load_cache(self,filename=None):
         logger.debug(filename or self.filename)
@@ -214,7 +219,7 @@ class BasicCache(object):
         with self.cache_lock:
             self.pagecache[cachekey] = (data,ensure_text(redirectedurl))
             logger.debug("set_to_cache:%s"%self.filename)
-            if self.filename:
+            if self.autosave and self.filename:
                 self.save_cache()
 
 class BasicCacheDecorator(FetcherDecorator):
@@ -240,10 +245,10 @@ class BasicCacheDecorator(FetcherDecorator):
         cachekey=self.cache.make_cachekey(url, parameters)
 
         if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
-            logger.debug("\n>>>> pagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
+            logger.debug("\n********* pagecache(%s) HIT: %s"%(method,safe_url(cachekey)))
             data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
-        logger.debug("\n<<<< pagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
+        logger.debug("\n--------- pagecache(%s) MISS: %s"%(method,safe_url(cachekey)))
 
         fetchresp = chainfn(
             method,
@@ -271,6 +276,28 @@ class FetcherResponse(object):
         self.redirecturl = redirecturl
         self.fromcache = fromcache
 
+class BasicCookieJar(LWPCookieJar):
+    def __init__(self,*args,**kargs):
+        super(BasicCookieJar,self).__init__(*args,**kargs)
+        self.autosave = False
+        # self.filename from parent(s)
+
+    ## used by CLI --save-cache dev debugging feature
+    def set_autosave(self,autosave=False,filename=None):
+        self.autosave = autosave
+        self.filename = filename
+
+    def load_cookiejar(self,filename=None):
+        self.load(self.filename or filename,
+                  ignore_discard=True,
+                  ignore_expires=True)
+
+    def save_cookiejar(self,filename=None):
+        self.save(filename or self.filename,
+                  ignore_discard=True,
+                  ignore_expires=True)
+
+
 class Fetcher(object):
     def __init__(self,getConfig_fn,getConfigList_fn):
         self.getConfig = getConfig_fn
@@ -280,7 +307,7 @@ class Fetcher(object):
 
     def get_cookiejar(self,filename=None):
         if self.cookiejar is None:
-            self.cookiejar = LWPCookieJar(filename=filename)
+            self.cookiejar = BasicCookieJar(filename=filename)
             if filename:
                 try:
                     self.cookiejar.load(ignore_discard=True, ignore_expires=True)
@@ -290,21 +317,6 @@ class Fetcher(object):
 
     def set_cookiejar(self,cookiejar):
         self.cookiejar = cookiejar
-
-    def load_cookiejar(self,filename):
-        '''
-        Needs to be called after adapter create, but before any fetchs
-        are done.  Takes file *name*.
-        '''
-        # get_cookiejar() creates an empty jar if not already.
-        self.get_cookiejar().load(filename, ignore_discard=True, ignore_expires=True)
-
-    def save_cookiejar(self,filename=None):
-        if filename or self.get_cookiejar().filename:
-            ## raises exception on save w/o filename
-            self.get_cookiejar().save(filename or self.get_cookiejar().filename,
-                                      ignore_discard=True,
-                                      ignore_expires=True)
 
     def make_headers(self,url,referer=None):
         headers = {}
@@ -338,7 +350,8 @@ class Fetcher(object):
                                  headers=headers,
                                  parameters=parameters)
         data = fetchresp.content
-        self.save_cookiejar()
+        if self.get_cookiejar().autosave and self.get_cookiejar().filename:
+            self.get_cookiejar().save_cookiejar()
         return fetchresp
 
     def condition_url(self, url):
