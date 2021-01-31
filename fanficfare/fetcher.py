@@ -99,7 +99,7 @@ class ProgressBarDecorator(FetcherDecorator):
                            parameters=None,
                            referer=None,
                            usecache=True):
-        logger.debug("ProgressBarDecorator fetcher_do_request")
+        # logger.debug("ProgressBarDecorator fetcher_do_request")
         fetchresp = chainfn(
             method,
             url,
@@ -133,7 +133,7 @@ class SleepDecorator(FetcherDecorator):
                            parameters=None,
                            referer=None,
                            usecache=True):
-        logger.debug("SleepDecorator fetcher_do_request")
+        # logger.debug("SleepDecorator fetcher_do_request")
         fetchresp = chainfn(
             method,
             url,
@@ -227,14 +227,14 @@ class BasicCacheDecorator(FetcherDecorator):
         Note that usecache=False prevents lookup, but cache still saves
         result
         '''
-        logger.debug("BasicCacheDecorator fetcher_do_request")
+        # logger.debug("BasicCacheDecorator fetcher_do_request")
         cachekey=self.cache.make_cachekey(url, parameters)
 
         if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
-            logger.debug("\n======= HIT(%s): %s"%(method,safe_url(cachekey)))
+            logger.debug("\n======= cache HIT(%s): %s"%(method,safe_url(cachekey)))
             data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
-        logger.debug("\n======= MISS(%s): %s"%(method,safe_url(cachekey)))
+        logger.debug("\n======= cache MISS(%s): %s"%(method,safe_url(cachekey)))
 
         fetchresp = chainfn(
             method,
@@ -323,7 +323,7 @@ class Fetcher(object):
                     parameters=None,
                     referer=None,
                     usecache=True):
-        logger.debug("fetcher do_request")
+        # logger.debug("fetcher do_request")
         headers = self.make_headers(url,referer=referer)
         fetchresp = self.request(method,url,
                                  headers=headers,
@@ -400,6 +400,7 @@ class RequestsFetcher(Fetcher):
         if method not in ('GET','POST'):
             raise NotImplementedError()
         try:
+            logger.debug("\n------- request(%s): %s"%(method,safe_url(url)))
             ## resp = requests Response object
             verify = not self.getConfig('use_ssl_unverified_context',False)
             resp = self.get_requests_session().request(method, url,
